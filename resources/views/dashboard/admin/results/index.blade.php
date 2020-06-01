@@ -7,11 +7,14 @@
         <div class="card-body">
             <div lass="card-title">
                 @include('layouts.partials.alerts')
-                <h5>All Results</h5>
+                <div class="card-header">
+                    <div>
+                        <h5 class="card-title"> All Results <button class="btn btn-success" id="csv">Export Results</button></h5>
+                    </div>
+                </div>
             </div>
-           
             <div class="table-responsive">
-                <table id="example" class="table table-striped table-bordered">
+                <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>
@@ -72,50 +75,45 @@
                             @endforeach
                     </tbody>
                 </table>
+               
+                    
+                    {{-- <script type="text/javascript" src="{{ asset('src/jquery-3.3.1.slim.min.js') }}"></script> --}}
+                    
+                    <script type="text/javascript" src="{{ asset('src/jspdf.min.js')}} "></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/jspdf.plugin.autotable.min.js'
+                    )}}"></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/tableHTMLExport.js')}}"></script>
+                    
+                    <script type="text/javascript">
+                      
+                      $("#json").on("click",function(){
+                        $("#zero_config").tableHTMLExport({
+                          type:'json',
+                          filename:'sample.json'
+                        });
+                      });
+                    
+                      $("#pdf").on("click",function(){
+                        $("#zero_config").tableHTMLExport({
+                          type:'pdf',
+                          filename:'sample.pdf'
+                        });
+                      });
+                    
+                      $("#csv").on("click",function(){
+                        $("#zero_config").tableHTMLExport({
+                          type:'csv',
+                          filename:'sample.csv'
+                        });
+                      });
+                    
+                    </script>
             </div>
 
         </div>
     </div>
 </div>
-<center>
-    <button class="btn btn-success" id="json">JSON</button>
-    
-    <button class="btn btn-success" id="pdf">PDF</button>
-    
-    <button class="btn btn-success" id="csv">CSV</button>
-    
-    </center>
-    
 
-      
-    <script type="text/javascript" src="{{ asset('src/jspdf.min.js')}}"></script>
-    
-    <script type="text/javascript" src="{{ asset('src/jspdf.plugin.autotable.min.js')}}"></script>
-    
-    <script type="text/javascript" src="{{ asset('src/tableHTMLExport.js')}}"></script>
-    
-    <script type="text/javascript">
-      
-      $("#json").on("click",function(){
-        $("example").tableHTMLExport({
-          type:'json',
-          filename:'sample.json'
-        });
-      });
-    
-      $("#pdf").on("click",function(){
-        $("example").tableHTMLExport({
-          type:'pdf',
-          filename:'sample.pdf'
-        });
-      });
-    
-      $("#csv").on("click",function(){
-        $("example").tableHTMLExport({
-          type:'csv',
-          filename:'sample.csv'
-        });
-      });
-    
-    </script>
 @endsection

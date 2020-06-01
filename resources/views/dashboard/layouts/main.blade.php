@@ -16,7 +16,7 @@
     <meta name="author" content="">
     <!--Calender links-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css" />
-    <!--Datatables-->
+    <!--Working Datatables-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
     <!-- Favicon icon -->
 
@@ -32,10 +32,10 @@
     <!---include font awesome-->
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
 
-    <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
+    {{-- <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script> --}}
 
-    <script type="text/javascript" src="{{ asset('assets/libs/exporttable/tableExport.min.js')}}"></script>
+    {{-- <script type="text/javascript" src="{{ asset('assets/libs/exporttable/tableExport.min.js')}}"></script> --}}
 
     <!---Calender scripts-->
     <script src="http://code.jquery.com/jquery.js"></script>
@@ -146,44 +146,23 @@
             @include('dashboard.layouts.nav')
         </header>
         @yield('dashboard')
-        <!-- ============================================================== -->
-        <!-- End Left Sidebar - style you can find in sidebar.scss  -->
-        <!-- ============================================================== -->
-        <!-- ============================================================== -->
-        <!-- Page wrapper  -->
-        <!-- ============================================================== -->
+       
         <div class="page-wrapper">
-            <!-- ============================================================== -->
-            <!-- Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
-
-            <!-- ============================================================== -->
-            <!-- End Bread crumb and right sidebar toggle -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- Container fluid  -->
-            <!-- ============================================================== -->
+           
             @yield('content')
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
+           
             @include('dashboard.layouts.footer')
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+            
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
+       
     </div>
 
 
     <!--Scripts-->
-
-    <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
+    <!--problmatic script-->
+    {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
+    <!--End of problmatic script-->
+    
     <script src="{{ asset('dist/js/jquery.ui.touch-punch-improved.js') }}"></script>
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
     <!-- Bootstrap tether Core JavaScript -->
@@ -199,11 +178,10 @@
     <!--Custom JavaScript -->
     <script src="{{ asset('dist/js/custom.min.js') }}"></script>
     <!-- this page js -->
-    <script src="{{ asset('assets/libs/moment/min/moment.min.js') }}../"></script>
+    {{-- <script src="{{ asset('assets/libs/moment/min/moment.min.js') }}../"></script> --}}
     <script src="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.js') }}"></script>
     <script src="{{ asset('dist/js/pages/calendar/cal-init.js') }}"></script>
-    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js
-"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 
     <!--Script for States and LGA Dropdown-->
     <script src="{{asset('dist/js/lga.min.js')}}"></script>
