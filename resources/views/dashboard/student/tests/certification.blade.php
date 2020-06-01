@@ -8,49 +8,41 @@
             <h4>
                 <div style="font-weight: bold;" id="quiz-time-left"></div>
             </h4>
+
         </div>
 
         <div class="content">
             <h4>- Do not leave this tab, do not refresh page until you are done</h4>
+            @include('layouts.partials.alerts')
             <p><strong>Training: {{ $program }}</strong><br>
-                <strong>Module: {{ $module_title }}</strong><br><br>
+                <strong>Module: {{ $module_title }}</strong>
                 Select the correct answer
             </p>
-                <form name="quiz" id="quiz_form" action="{{route('tests.store')}}" method="POST"  class="pb-2">
-                    {{ csrf_field() }}
-                    @foreach($questions as $question)
+            <form name="quiz" id="quiz_form" action="{{route('tests.store')}}" method="POST" class="pb-2">
+                {{ csrf_field() }}
+
+                @foreach($questions as $question)
+                <div class="form-group">
+                    <label for="title">{{ $i ++ .'. ' }}{{ $question->title }}</label><br>
+
+                    <label for="{{ $question->id}}">Your answer</label><br>
                     <div class="form-group">
-                        <label for="name">{{ $i ++ .'. ' }}{{ $question->title }}
-
-                        </label><br>
-                        <input type="radio" id="{{ $question->id}}{{ $question->optionA}}" name="{{ $question->id}}"
-                            value="A">
-                        <label for="{{ $question->id}}{{ $question->optionA}}">{{ $question->optionA }}</label><br>
-
-                        <input type="radio" id="{{ $question->id}}{{ $question->optionB }}" name="{{ $question->id}}"
-                            value="B">
-                        <label for="{{ $question->id}}{{ $question->optionB }}">{{ $question->optionB }}</label><br>
-
-                        <input type="radio" id="{{ $question->id}}{{ $question->optionC }}" name="{{ $question->id}}"
-                            value="C">
-                        <label for="{{ $question->id}}{{ $question->optionC }}">{{ $question->optionC }}</label><br>
-
-                        <input type="radio" id="{{ $question->id}}{{ $question->optionD }}" name="{{ $question->id}}"
-                            value="D">
-                        <label for="{{ $question->id}}{{ $question->optionD }}">{{ $question->optionD }}</label><br>
-                        
-                            <input type="hidden" name="id" value="{{$question->id}}">
-                            <input type="hidden" name="mod_id" value="{{$question->module->id}}">   
+                    <textarea style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="10" cols="100"
+                        placeholder="Enter your answer for question {{ $i - 1 }} here"></textarea>
                     </div>
-                    @endforeach
-
-                    <div class="row">
-                        <button type="submit" class="btn btn-primary" style="width:100%">
-                            Submit
-                        </button>
-                    </div>
-                </form>
+                    <input type="hidden" name="id" value="{{$question->id}}">
+                    <input type="hidden" name="mod_id" value="{{$question->module->id}}">
+                </div>
+                @endforeach
+                
+                <div class="row">
+                    <button type="submit" class="btn btn-primary" style="width:100%">
+                        Submit
+                    </button>
+                </div>
+            </form>
         </div>
+
     </div>
 
     <script>
@@ -69,7 +61,7 @@
             }
         }
 
-        var max_time = {{ $time }};
+        var max_time = {{$time}};
         var c_seconds = 0;
         var total_seconds = 60 * max_time;
         max_time = parseInt(total_seconds / 60);
@@ -97,6 +89,7 @@
             }
 
         }
+
 
         init();
     </script>

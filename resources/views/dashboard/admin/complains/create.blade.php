@@ -218,7 +218,7 @@
                                         <label for="complain">Complain Content</label>
 
                                         <textarea id="complain" type="text" class="form-control" name="complain"
-                                            value="{{ old('complain') }}" autofocus></textarea>
+                                            value="{{ old('complain') }}" rows="8" autofocus></textarea>
                                         @if ($errors->has('complain'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('complain') }}</strong>

@@ -32,10 +32,14 @@
         <div class="col-md-12">
             <div class="card-title">
                 @include('layouts.partials.alerts')
-                <h5>Available Tests</h5>
+                <h5>All Tests</h5>
             </div>
+            @if($modules->count() < 1)
+            <div>
+                <h6 style="color:red">No tests Available yet! Check back later</h6>
+            </div>
+            @endif
         </div>
-        <!-- Column -->
         @foreach($modules as $module)
             <div class="col-md-4 col-lg-4">
                 <div class="card" style="background-color: #eeeeee; margin-bottom:5px">
@@ -48,7 +52,12 @@
                         <h6 class="text-blue">Type: {{ $module->type }} </h6>
                         <p class="text-blue">No of Questions: {{ $module->questions->count() }} </p>
                         <p class="text-blue">Time: {{ $module->time }}minutes </p>
-                    <a href="{{route('tests.show', $module->id)}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                        @if($module->completed == 0)
+                            <a href="{{route('tests.show', $module->id)}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                        @endif
+                        @if($module->completed == 1)
+                            <a href="{{route('tests.results')}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details</b></button></a>
+                        @endif
                     </div>
                 </div>
             </div>

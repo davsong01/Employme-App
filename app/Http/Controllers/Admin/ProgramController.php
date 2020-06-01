@@ -22,10 +22,13 @@ class ProgramController extends Controller
     {
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
-            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
-            // $program = Program::all(); 
-            //$programs->pluck('id');
-            $users = User::all();
+            $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+
+            foreach($programs as $program){
+                // dd($program->user);
+            }
+           
+            $users = User::where('role_id', '<>', 'Admin')->get();
              return view('dashboard.admin.programs.index', compact('programs', 'i'));
         }
             else  return redirect('/');

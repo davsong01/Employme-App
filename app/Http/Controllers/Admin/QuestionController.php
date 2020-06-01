@@ -98,7 +98,7 @@ class QuestionController extends Controller
     }
 
     private function checkOptions($values, $module){
-        if ( $module->type == 'Open Ended'){
+        if ( $module->type == 'Certification Test'){
             if(!empty($values['optionA']) || !empty($values['optionB']) && !empty($values['optionC']) || !empty($values['optionD']) || !empty($values['correct'])){
                 return 0; //No options needed for the associated module
             }else{
@@ -106,7 +106,7 @@ class QuestionController extends Controller
             }
         }
     
-        if( $module->type == 'Multi Choice' && (empty($values['optionA']) || empty($values['optionB']) && empty($values['optionC']) || empty($values['optionD']) || empty($values['correct']))){
+        if( $module->type == 'Class Test' && (empty($values['optionA']) || empty($values['optionB']) && empty($values['optionC']) || empty($values['optionD']) || empty($values['correct']))){
             return 2; //The associated module needs options
         } else{
             return 1; //Everything is fine, continue

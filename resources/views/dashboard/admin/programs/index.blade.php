@@ -5,15 +5,14 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            @if(session()->get('message'))
-            <div class="alert alert-success" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <strong>Success!</strong> {{ session()->get('message')}}
+            <div class="card-title">
+                @include('layouts.partials.alerts')
+             </div>
+            <div class="card-header">
+                <div>
+                    <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
+                </div>
             </div>
-            @endif
-
-            <h5 class="card-title"> All Trainings</h5>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -38,7 +37,7 @@
                             </td>
                             <td>₦{{ $program->p_amount }}</td>
                             <td>₦{{ $program->e_amount }}</td>
-                            <td>{{ $program->p_start }}</td>
+                            <td>{{ config('app.currency') }}{{ $program->p_start }}</td>
                             <td>{{ $program->p_end }}</td>
                             <td>{{ $program->p_paid }}</td>
                             <td>{{ $program->f_paid }}</td>

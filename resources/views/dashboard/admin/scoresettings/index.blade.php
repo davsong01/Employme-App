@@ -38,10 +38,10 @@
                             <td>{{ $i++ }}</td>
                             <td>{{ $score->program->p_name}}</td>
                             <td>{{$score->module_status_count}}</td>
-                            <td>{{ $score->class_test }}</td>
-                            <td>{{ $score->role_play }}</td>
-                            <td>{{ $score->email }}</td>
-                            <td>{{ $score->certification }}</td>
+                            <td>{{ $score->class_test }}%</td>
+                            <td>{{ $score->role_play }}%</td>
+                            <td>{{ $score->email }}%</td>
+                            <td>{{ $score->certification }}%</td>
                             <td>{{ $score->total}}</td>
                             <td>
                                 <div class="btn-group">

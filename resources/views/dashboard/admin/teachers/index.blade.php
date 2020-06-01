@@ -5,13 +5,14 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-                @if(session()->get('message'))
-                <div class="alert alert-success" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <strong>Success!</strong> {{ session()->get('message')}}
-                      </div>
-                @endif
-            <h5 class="card-title">All Facilitators</h5>
+            <div class="card-title">
+                @include('layouts.partials.alerts')
+             </div>
+            <div class="card-header">
+                <div>
+                    <h5 class="card-title"> All Facilitators <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New Facilitator</button></a></h5> 
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>

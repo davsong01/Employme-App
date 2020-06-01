@@ -3,16 +3,14 @@
 
 Auth::routes();
 
+//Test Routes
+Route::get('/demo', 'HomeController@demo')->name('demo'); 
+
 //route for the home
 Route::get('/', 'HomeController@index', ['accept' =>['show'], 'index'])->middleware(['auth']);
 //route for dashboard.index only
 Route::get('/dashboard', 'HomeController@index', ['accept' =>['show'], 'index'])->name('home');
-
-// Route::get('/pay', function(){
-//     return view('shop.pay');
-// })->name('pay'); 
-//Route::get('pay/*', 'admin', array('get'));
-//Route::get('/pay', 'PayController@process')->name('pay'); 
+ 
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
         $realpath = base_path() . '/uploads'. '/' .$filename;
@@ -27,10 +25,20 @@ Route::get('thanks', function() {
     return view('emails.thankyou');
 });
 
+//Export Routes
+Route::namespace('Admin')->middleware(['auth'])->group(function(){
+    Route::get('export/users', 'UserController@export')->name('user.export');
+});
+
+
+
+
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['auth']);
+Route::get('userresults', 'TestsController@userresults')->middleware(['auth'])->name('tests.results');
 Route::resource('profiles', 'ProfileController')->middleware(['auth']);
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
+
 
 //test sms route
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
@@ -45,6 +53,7 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
+   
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
@@ -56,6 +65,9 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('results', 'ResultController');
+    Route::get('user/{uid}/module/{modid}', 'ResultController@add')->name('results.add');
+    Route::get('certifications', 'ResultController@certifications')->name('certifications.index');
+    
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('programs', 'ProgramController');

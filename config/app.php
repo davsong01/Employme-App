@@ -173,6 +173,7 @@ return [
         App\Providers\BladeExtraServiceProvider::class,
         MaddHatter\LaravelFullcalendar\ServiceProvider::class,
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -224,6 +225,7 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Calendar' => MaddHatter\LaravelFullcalendar\Facades\Calendar::class,
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

@@ -7,6 +7,7 @@ use App\Module;
 use App\Program;
 use App\Complain;
 use App\Question;
+use App\ScoreSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
@@ -47,6 +48,13 @@ class ModuleController extends Controller
             'noofquestions' => 'required|numeric|min:5|max:20'
         ]);
 
+        //check if scoresettings exist for this program
+        $score_settings_check = ScoreSetting::where('program_id', $data['program'])->get();
+
+        if($score_settings_check->count() < 1){
+            return redirect('scoreSettings')->with('error', 'No score settings defined! Please define Score settings for this program below');
+        }
+        
         $module = Module::create([
             'title' => $request->title,
             'program_id' => $request->program,
@@ -66,16 +74,11 @@ class ModuleController extends Controller
 
     public function enablemodule($id){
         $module = Module::findOrFail($id);
-        if($module->questions->count() <= 0){
-            return back()->with('error', 'You cannot enable a module with empty questions, Please add questions to this module');
+        if($module->questions->count() <= 0 || $module->questions->count() < $module->noofquestions){
+            return back()->with('error', 'You cannot enable a module with empty questions or less than expected questions, Please add questions to this module');
         }
         $module->status = 1;
         $module->save();
-
-        // Program::where('id',$module->program->id)->where('hasmodule', 0)->first()->update(array('hasmodule' => 1));
-        //  = Program::update([
-
-        // ]);
 
         return back()->with('message', 'This Module and its questions have been enabled Successfully ');
     }

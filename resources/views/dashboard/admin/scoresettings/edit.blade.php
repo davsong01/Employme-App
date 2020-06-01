@@ -59,7 +59,7 @@
                     <div class="form-group">
                         <label>Set Pass Mark <span style="color:green">(Max score = 100)</span></label>
                         <input type="number" name="passmark" value="{{ old('passmark') ?? $scoreSetting->passmark }}" class="form-control" min="0"
-                            max="100" readonly required>
+                            max="100" required>
                     </div>
                     <small><small style="color:red">{{ $errors->first('passmark')}}</small></small>
                 </div>

@@ -22,6 +22,10 @@ class Module extends Model
         return $this->hasMany(Question::Class);
     }
 
+    public function results(){
+        return $this->hasMany(Result::Class);
+    }
+
     public function program(){
         return $this->belongsTo(Program::Class);
     }

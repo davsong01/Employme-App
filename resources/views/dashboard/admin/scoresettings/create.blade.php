@@ -9,13 +9,13 @@
                     <div class="card-header">
                         <div>
                             @include('layouts.partials.alerts')
-                            <p style="color:red"><strong>Here you can set score parameters for individual training assesment. Please use the default values except you know what you are doing.</strong> <br><br>
-                            NOTE: You cannot edit assessment parameters for a program whose Modules have been enabled. <br>Total Scores for all assessment parameter for an individual training cannot be more than 100%</p>
+                            <p style="color:red"><strong>Here you can set score parameters for individual training assesment.</strong> <br><br>
+                            NOTE: You cannot edit assessment parameters for a program whose Modules have been enabled. <br>Total Scores for all assessment parameter for an individual training cannot be more or less than 100%</p>
                             <h5>Add Assessment Parameter</h5> 
                         </div>
                     </div>
 
-                    <form action="{{ route('scoreSettings.store') }}" method="POST" enctype="multipart/form-data" class="pb-2">
+                    <form action="{{ route('scoreSettings.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('Are you sure?');" class="pb-2">
                         {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-6">
@@ -66,7 +66,7 @@
                                 <div><small style="color:red">{{ $errors->first('certificationscore')}}</small></div>
 
                                 <div class="form-group">
-                                    <label>Set Pass Mark <span style="color:green">(Max score = 100)</span></label>
+                                    <label style="color:red">Set Pass Mark <span style="color:green">(Max score = 100%)</span></label>
                                     <input type="number" name="passmark" value="{{ old('passmark')}}"
                                         class="form-control" min="0" max="100" required>
                                 </div>

@@ -15,27 +15,18 @@ use PDF;
 
 class TeacherController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $i = 1;
         //$users = User::all();
-       $users = User::where('role_id', '<>', "Student")->get();
-        $programs = Program::all();
+       $users = User::where('role_id', "Teacher")->get();
+        $programs = Program::where('id', '<>', 1)->get();
         
        if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.teachers.index', compact('users', 'i', 'programs') );
         }
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
@@ -94,7 +85,7 @@ class TeacherController extends Controller
         };
        
         $user->name = $request['name'];
-        $user-> email = $request['email'];
+        $user->email = $request['email'];
         $user->t_phone = $request['phone'];
         $user->program_id = $request['training'];
         $user->role_id = $request['role'];

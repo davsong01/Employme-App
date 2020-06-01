@@ -67,9 +67,7 @@ class ScoreSettingController extends Controller
                 if($module->status == 1){
                     $program['counter'] +=1;
                 };
-            }
-
-           
+            }  
         }
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
@@ -95,8 +93,8 @@ class ScoreSettingController extends Controller
 
         $total = array_sum(array_except($data, ['passmark', 'program']));
 
-        if($total > 100 ){
-            return back()->with('error', 'Sorry, sum of parameters cannot be more than 100, please try again');
+        if($total > 100 || $total < 100){
+            return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100%, please try again');
         }
 
         ScoreSetting::create([
@@ -109,7 +107,7 @@ class ScoreSettingController extends Controller
             'total' => $total,
         ]);
 
-        return redirect(route('scoresettings.index'));
+        return redirect(route('scoreSettings.index'))->with('message', 'Score Setting succesfully Defined');
     }
 
     /**
@@ -142,11 +140,11 @@ class ScoreSettingController extends Controller
             'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
-
+        
         $total = array_sum(array_except($data, ['passmark', 'program']));
         
-        if($total > 100 ){
-            return back()->with('error', 'Sorry, sum of parameters cannot be more than 100, please try again');
+        if($total > 100 || $total < 100){
+            return back()->with('error', 'Sorry, sum of parameters cannot be more thanor less than 100, please try again');
         }
        
         $scoreSetting->program_id = $request['program'];

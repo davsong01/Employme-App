@@ -7,13 +7,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
-                        @if(session()->get('message'))
-                        <div class="alert alert-success" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
-                            <strong>Success!</strong> {{ session()->get('message')}}
-                        </div>
-                        @endif
+                        @include('layouts.partials.alerts')
                     </div>
                     <form action="{{route('modules.store')}}" method="POST" class="pb-2">
                         <div class="row">
@@ -47,8 +41,8 @@
                                     <label for="class">Type</label>
                                     <select name="type" id="class" class="form-control" required>
                                         <option value="">Select Option</option>
-                                        <option value="0">Multi Choice</option>
-                                        <option value="1">Open Ended</option>
+                                        <option value="0">Class Test</option>
+                                        <option value="1">Certification Test</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('type')}}</small></div>
                                 </div>
@@ -57,7 +51,6 @@
                                     <label for="class">Status</label>
                                     <select name="status" id="class" class="form-control">
                                         <option value="0" selected>Disabled</option>
-                                        <option value="1">Enabled</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('status')}}</small></div>
                                 </div>

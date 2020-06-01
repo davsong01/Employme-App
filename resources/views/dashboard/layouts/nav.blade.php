@@ -36,8 +36,7 @@
             {{ Auth::user()->name }} <b style="color:yellow"> |</b> </li>
         <li class="nav-item dropdown" style="list-style: none;">
             <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img
-                    src="storage/{{ Auth::user()->profile_picture }}" alt="avatar" class="rounded-circle" width="50"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="{{ asset('profiles/'. Auth::user()->profile_picture  )}}" alt="{{Auth::user()->profile_picture }}" class="rounded-circle" width="50"
                     height="50"></a>
 
             <div class="dropdown-menu dropdown-menu-right user-dd animated">

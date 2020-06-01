@@ -1,24 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
+use PDF;
 use App\User;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Welcomemail;
 use App\Role;
 use App\Program;
+use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
+use App\Exports\UsersExport;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PDF;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $i = 1;
@@ -38,12 +36,8 @@ class UserController extends Controller
            ->get();
             return view('dashboard.teacher.users.index', compact('users', 'i', 'programs') );
         }
-}
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    }
+
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
@@ -56,7 +50,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        
         //determine the program details
         $programFee = Program::findorFail($request['training'])->p_amount;
         $programName = Program::findorFail($request['training'])->p_name;
@@ -127,10 +120,10 @@ class UserController extends Controller
             'bank' => $data['bank'],
             'balance' => $balance,
             'invoice_id' =>  $invoice_id,
+            'profile_picture' => 'avatar.jpg',
         ]);
 
         //send mail here
-        
         $details = [
             'programFee' => $programFee,
             'programName' => $programName,
@@ -253,7 +246,11 @@ class UserController extends Controller
         return redirect('users')->with('message', 'user deleted successfully');
     }
 
-
+    public function export() 
+    {
+        return Excel::download(new UsersExport, 'users.xlsx');
+    }
+    
     //set balance and determine user receipt values
     private function dosubscript1($balance){
         if($balance <= 0){

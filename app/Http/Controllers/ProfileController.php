@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\User;
 use App\Program;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
 
 class ProfileController extends Controller
 {
@@ -25,21 +27,35 @@ class ProfileController extends Controller
     }
    
     public function update(Request $request, $id)
-    {
-              
-        $user = User::findorFail($id);
-        if($id == Auth::user()->id){
-        if($request['password']){
-            $user-> password = bcrypt($request['password']);
-        };
+    {   
+        $user = User::findorFail(Auth::user()->id);
+    
+            if($request['password']){
+                $user-> password = bcrypt($request['password']);
+            };
+
+            if(request()->has('file')){ 
+               // dd($request->file);
+
+                $imgName = $request->file->getClientOriginalName();
+                
+                $picture = Image::make($request->file)->resize(100, 100);
+                
+                $picture->save('profiles/'.'/'.$imgName);
+
+                $user->update([
+                    'profile_picture' => $imgName,
+                ]);
+            }
+    
+
         //check amount against payment
-        $user->update($this->validateRequest());
-        $this->storeImage($user);
+        // $user->update($this->validateRequest());
+        // $this->storeImage($user);
        
         return back()->with('message', 'Profile update successful');
-    }return back();  
+    
     }
-
     private function validateRequest(){
         return tap(request()->validate([
         'name' => 'required',
@@ -54,10 +70,6 @@ class ProfileController extends Controller
         });
 }           
     private function storeImage($user){
-        if(request()->has('file')){ 
-            $user->update([
-                'profile_picture' => request()->file->storeAs('profiles', request()->file->getClientOriginalName(), 'public'),
-            ]);
-        }
+
     }
 }

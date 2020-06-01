@@ -13,7 +13,12 @@ class Result extends Model
     public function program(){
         return $this->belongsTo(Program::class);
     }
+
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function module(){
+        return $this->belongsTo(Module::class);
     }
 }

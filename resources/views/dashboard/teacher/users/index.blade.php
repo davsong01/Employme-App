@@ -23,6 +23,7 @@
                             <th>Email</th>
                             <th>Training</th>
                             <th>Role</th>
+                            <th>Bank</th>
                             <th>Location</th>
                         </tr>
                     </thead>
@@ -36,22 +37,11 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->program->p_name }}</td>
                             <td>{{ $user->role_id }}</td>
+                            <td>{{ $user->bank }}</td>
                             <td>{{ $user->t_location }}</td>
                             
                             @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Role</th>
-                            <th>Location</th>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
 

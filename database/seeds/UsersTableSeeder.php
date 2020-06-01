@@ -29,6 +29,7 @@ class UsersTableSeeder extends Seeder
             'email'=>'davsong01@gmail.com',
             'role_id' => 'Admin',
             'password' => bcrypt('123456'),
+            'profile_picture' => 'avatar.jpg',
             'program_id' => $default_program->id,
         ]);
 
@@ -36,14 +37,12 @@ class UsersTableSeeder extends Seeder
             'name'=>'User',
             'email'=>'davsong16@gmail.com',
             'role_id' => 'Student',
+            'profile_picture' => 'avatar.jpg',
             'program_id' => $default_program->id,
             'password' => bcrypt('User')
         ]);
 
-        //attach the roles to the user created
-        // $admin->roles->attach($adminRole);
-        // $author->roles->attach($authorRole);
-        // $user->roles->attach($auserRole);
+        
         
     }
 }

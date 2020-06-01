@@ -35,6 +35,8 @@
     <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script>
 
+    <script type="text/javascript" src="{{ asset('assets/libs/exporttable/tableExport.min.js')}}"></script>
+
     <!---Calender scripts-->
     <script src="http://code.jquery.com/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>

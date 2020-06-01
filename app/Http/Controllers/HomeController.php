@@ -116,4 +116,8 @@ class HomeController extends Controller
             return view('dashboard.student.dashboard', compact('modules','currentUser', 'calendar','currentUsermaterialsCount', 'trainingProgress'));
     }
     } 
+
+    public function demo(){
+        return view('dashboard.admin.demo');
+    }
 }
