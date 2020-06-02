@@ -52,14 +52,14 @@ class HomeController extends Controller
         $currentUsermaterialsCount = Material::where('program_id', '=', Auth::user()->program_id)->get()->count();
       
         if(Auth::user()->role_id == "Admin"){
-            $programCount = Program::count();
+            $programCount = Program::where('id', '<>', 1)->count();
             //count number of users owing
             $userowing = $userCount = DB::table('users')->where([
                 'role_id' => 'Student',
                 'paymentStatus' => 0,
             ])->get()->count();
             //count number of users present
-            $userCount = DB::table('users')->where('role_id', '=', 'Student')->get()->count();
+            $userCount = DB::table('users')->where('role_id', 'Student')->get()->count();
             $materialCount = Material::count();
             $i = 0;
            $requests = $request;

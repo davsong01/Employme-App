@@ -52,11 +52,21 @@
                                     @if($program->hascrm == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable CRM"
                                         class="btn btn-primary" href="{{ route('crm.show', $program->id)}}" onclick="return confirm('Are you really sure?');"><i
-                                            class="fa fa-check"></i>
+                                            class="far fa-comments"></i>
                                     </a>
                                     @else
                                     <a data-toggle="tooltip" data-placement="top" title="Disable CRM"
                                         class="btn btn-info" href="{{ route('crm.hide', $program->id)}}" ><i
+                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
+                                    </a>
+                                    @endif
+                                    @if($program->hasresult == 0)
+                                    <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
+                                        class="btn btn-success" href="{{ route('results.enable', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fas fa-user-graduate"></i>
+                                    </a>
+                                    @else
+                                    <a data-toggle="tooltip" data-placement="top" title="Disable User Results"
+                                        class="btn btn-info" href="{{ route('results.disable', $program->id)}}" ><i
                                            onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     @endif

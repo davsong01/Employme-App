@@ -39,16 +39,13 @@ Route::get('userresults', 'TestsController@userresults')->middleware(['auth'])->
 Route::resource('profiles', 'ProfileController')->middleware(['auth']);
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
 
-
-//test sms route
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
-    Route::get('sms', 'UserController@Edex');
-});
+// Route::namespace('Admin')->middleware(['auth'])->group(function(){
+//     Route::get('sms', 'UserController@Edex');
+// });
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('complains', 'ComplainController');
     Route::get('complainresolved/{complain}', 'ComplainController@resolve')->name('crm.resolved');
-    //Route::get('complainunresolved/{complain}', 'ComplainController@unresolve')->name('crm.unresolved');
 });
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
@@ -67,7 +64,8 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('results', 'ResultController');
     Route::get('user/{uid}/module/{modid}', 'ResultController@add')->name('results.add');
     Route::get('certifications', 'ResultController@certifications')->name('certifications.index');
-    
+    Route::get('resultenable/{id}', 'ResultController@enable')->name('results.enable');
+    Route::get('resultdisable/{id}', 'ResultController@disable')->name('results.disable');
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('programs', 'ProgramController');

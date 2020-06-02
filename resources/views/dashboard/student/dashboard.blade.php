@@ -15,6 +15,7 @@
     <div class="row">
         <!-- Column -->
         <div class="col-md-3 col-lg-3">
+            <a href="{{ route('profiles.edit', Auth::user()->id) }}">
             <div class="card card-hover">
                 <div class="box bg-cyan text-center">
                     <h1 class="font-light text-white"><i class="mdi mdi-view-dashboard"></i></h1>
@@ -22,6 +23,7 @@
                     <p class="text-white"> {{Auth::user()->name}}</p>
                 </div>
             </div>
+            </a>
         </div>
 
         <div class="col-md-3 col-lg-3">
@@ -35,6 +37,7 @@
         </div>
         <!-- Column -->
         <div class="col-md-3 col-lg-3">
+            <a href="{{ route('materials.index') }}">
             <div class="card card-hover">
                 <div class="box bg-info text-center">
                     <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
@@ -42,8 +45,10 @@
                     <p class="text-white">Study materials</p>
                 </div>
             </div>
+            </a>
         </div>
         <div class="col-md-3 col-lg-3">
+            <a href="{{ route('payments.index') }}">
             <div class="card card-hover">
                 <div class="box bg-{{ Auth::user()->paymentStatus == 0 ? 'danger' : 'success'}} text-center">
                     <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
@@ -51,6 +56,7 @@
                     <p class="text-white">Paid: ₦{{Auth::user()->t_amount}} ; Balance: ₦{{Auth::user()->balance}}</p>
                 </div>
             </div>
+            </a>
         </div>
     </div>
 
@@ -78,7 +84,7 @@
     <div class="row">
             <div class="col-md-12">
                     <div class="card">
-                            <div class="card-title"><h2 style="text-align: center;; color:green">Training Schedule<hr></h2></div>
+                    <div class="card-title"><h2 style="text-align: center;; color:green">All {{config('app.name')}} Training Sechedules<hr></h2></div>
                         <div class="card-body">
                             {!! $calendar->calendar() !!}
                             {!! $calendar->script() !!}

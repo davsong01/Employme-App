@@ -143,35 +143,76 @@ class ResultController extends Controller
         return view('dashboard.admin.results.edit', compact('user_results', 'array', 'i'));
     }
     
-    public function show(Result $result, $id)
-    {      
-        
+    public function enable($id){
         if(Auth::user()->role_id == "Admin"){
-        $result = Result::where('user_id', $id)->first();
-           //dd($result->user_id);
-        $resultcount = (count($result));
-        return view('dashboard.admin.results.show', compact('result'));
-        } 
-        elseif(Auth::user()->role_id == "Student" AND(Auth::user()->id == $id)) {   
-            $result = Result::where('user_id', Auth::user()->id)->first();
 
-            if($result){
+            $program = Program::findorfail($id);
+    
+            $program->hasresult = 1;
+    
+            $program->save();
+    
+            return back()->with('message', 'Participants of this program can now print their statement of result');
+        }return back();
+    }
+
+    public function disable($id){
+        if(Auth::user()->role_id == "Admin"){
+
+            $program = Program::findorfail($id);
+    
+            $program->hasresult = 0;
+    
+            $program->save();
+
+            return back()->with('message', 'Participants of this program can no longer print their statement of result');
+        }return back();
+    }
+
+    public function show($id)
+    {      
+        if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){   
+            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();
+           
+            if($result->count() > 0){
+
                 if(Auth::user()->balance > 0){
                     return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. Auth::user()->balance.' in order to view/print your result');
                 }
+
+               foreach($result as $r){
+                   $result['class_test_score'] =$r->class_test_score + $r['class_test_score'];
+
+                   $result['certification_test_score'] =$r->certification_test_score + $r['certification_test_score'];
+                 
+                   $result['role_play_score'] =$r->role_play_score + $r['role_play_score'];
+
+                   $result['email_test_score'] =$r->email_test_score + $r['email_test_score'];
+                    
+                   $result['program'] = $r->program->p_name;
+
+                   $result['passmark'] = $r->program->scoresettings->passmark;
+
+                   $result['name'] = $r->user->name;
+               }
+
+                $result['total_score'] = $result['class_test_score'] + $result['email_test_score'] + $result['role_play_score'] + $result['certification_test_score'];
+
+                if($result['total_score'] >= $result['passmark']){
+                    $result['status'] = 'CERTIFIED';
+                }else $result['status'] = 'NOT CERTIFIED';
+                
                 return view('dashboard.admin.results.show', compact('result'));   
             } 
-            return back()->with('error', 'Result not found for current user, please try again later');
+            return redirect('/dashboard')->with('error', 'Result not found for current user, please try again later');
         }
         elseif(Auth::user()->role_id == "Teacher"){   
             $result = Result::where('user_id', $id)->first();
             $resultcount = (count($result));
             return view('dashboard.admin.results.show', compact('result'));
         }
-            return redirect('/');
-    
-
-        }
+        return redirect('/');
+    }
         
     public function edit($id)
     {

@@ -31,18 +31,7 @@ class UsersTableSeeder extends Seeder
             'password' => bcrypt('123456'),
             'profile_picture' => 'avatar.jpg',
             'program_id' => $default_program->id,
-        ]);
-
-        $user = User::create([
-            'name'=>'User',
-            'email'=>'davsong16@gmail.com',
-            'role_id' => 'Student',
-            'profile_picture' => 'avatar.jpg',
-            'program_id' => $default_program->id,
-            'password' => bcrypt('User')
-        ]);
-
-        
+        ]);        
         
     }
 }

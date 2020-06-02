@@ -38,30 +38,10 @@
 
                     </ul>
                 </li>
-                <!---end of class management links-->
-                <!---Class management links-->
+
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
                             class="hide-menu">View All study Materials</span></a></li>
-
-
-                {{-- <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="fas fa-star-half-alt"></i><span
-                            class="hide-menu">Student Grades </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
-
-                        <li class="sidebar-item"><a href="{{route('results.create')}}" class="sidebar-link"><span
-                    class="hide-menu">- Upload Result </span></a>
-                </li>
-                <li class="sidebar-item"><a href="{{ route('results.index')}}" class="sidebar-link"><span
-                            class="hide-menu">- View all results </span></a>
-                </li>
-            </ul>
-            </li> --}}
-            <!---end of class management links-->
-            {{-- <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                    href="{{route('details.index')}}" aria-expanded="false"><i class="mdi mdi-border-inside"></i><span
-                        class="hide-menu">Retrieve Details</span></a></li> --}}
 
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
@@ -80,8 +60,6 @@
                     </li>
                     <li class="sidebar-item"><a href="{{route('questions.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Questions</span></a>
-                                {{-- <li class="sidebar-item"><a href="{{route('certifications.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- Test Submissions</span></a> --}}
                                 <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Grades</span></a>
                     <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span

@@ -34,7 +34,6 @@ class CreateUsersTable extends Migration
             $table->string('invoice_id')->nullable();
             $table->string('t_location')->nullable();
             $table->string('paymenttype')->nullable();
-            $table->boolean('hasResult')->default(0);
 
             $table->integer('responseStatus')->nullable();
             

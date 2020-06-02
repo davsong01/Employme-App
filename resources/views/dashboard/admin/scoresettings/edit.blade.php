@@ -39,9 +39,7 @@
                                 class="form-control" min="0" max="100">
                         </div>
                         <div><small style="color:red">{{ $errors->first('rolepalyscore')}}</small></div>
-                </div>
-
-                <div class="col-md-6">
+                        
                     <div class="form-group">
                         <label>Set Maximum score for Email<span style="color:green">(Max score = 100)</span></label>
                         <input type="number" name="emailscore" value="{{ old('emailscore') ?? $scoreSetting->email }}" class="form-control"

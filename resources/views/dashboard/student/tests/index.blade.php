@@ -19,9 +19,9 @@
                             to select the correct option</li>
                         <li>When a test ends, you will be redirected to the result page where you will see your score in the corresponding card</li>
                         <li>Make you sure you have a stable internet while taking a test</li>
-                        <li>Do not leave the test tab, do not switch windows, do not refresh page until you are done,
+                        {{-- <li>Do not leave the test tab, do not switch windows, do not refresh page until you are done,
                             else the test will auto-submit</li>
-                        <li>It is not advisable to use mobile phones for these tests! Please use a computer</li>
+                        <li>It is not advisable to use mobile phones for these tests! Please use a computer</li> --}}
                     </ul>
                 </div>
             </div>

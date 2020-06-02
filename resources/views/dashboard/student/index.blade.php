@@ -11,20 +11,10 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Student Dashboard</span></a></li>
-
-                <!---end of class management links-->
-                <!---Class management links-->
-
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="fas fa-download"></i><span
-                            class="hide-menu">My Study Materials </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
-                        <li class="sidebar-item"><a href="{{route('materials.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- View study materials </span></a>
-                        </li>
-                    </ul>
+                <li class="sidebar-item"><a href="{{ route('materials.index')}}" class="sidebar-link"><i
+                    class="fas fa-download"></i><span class="hide-menu">My Study Materials
+                </span></a>
                 </li>
-                
                 @if(Auth::user()->program->hascrm == 1)
 
                 <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
@@ -42,12 +32,10 @@
                 @endif
 
                 <li class="sidebar-item"><a href="{{ route('tests.index')}}" class="sidebar-link"><i
-                    class="fas fa-question"></i><span class="hide-menu">My Tests
-                </span></a>
+                    class="fas fa-question"></i><span class="hide-menu">My Tests</span></a>
                 </li>
                 
-                
-                @if(Auth::user()->hasResult)
+                @if(auth()->user()->program->hasresult == 1)
                 <li class="sidebar-item"><a href="{{ route('results.show', Auth::user()->id) }}" class="sidebar-link"><i
                             class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>

@@ -88,24 +88,11 @@
                     
                     <script type="text/javascript">
                       
-                      $("#json").on("click",function(){
-                        $("#zero_config").tableHTMLExport({
-                          type:'json',
-                          filename:'sample.json'
-                        });
-                      });
-                    
-                      $("#pdf").on("click",function(){
-                        $("#zero_config").tableHTMLExport({
-                          type:'pdf',
-                          filename:'sample.pdf'
-                        });
-                      });
-                    
+                     
                       $("#csv").on("click",function(){
                         $("#zero_config").tableHTMLExport({
                           type:'csv',
-                          filename:'sample.csv'
+                          filename:'Results.csv'
                         });
                       });
                     

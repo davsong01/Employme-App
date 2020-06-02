@@ -12,7 +12,6 @@
         </div>
 
         <div class="content">
-            <h4>- Do not leave this tab, do not refresh page until you are done</h4>
             @include('layouts.partials.alerts')
             <p><strong>Training: {{ $program }}</strong><br>
                 <strong>Module: {{ $module_title }}</strong>

@@ -25,6 +25,7 @@ class CreateProgramsTable extends Migration
             $table->string('f_paid')->nullable();
             $table->string('p_paid')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
+            $table->boolean('hasresult')->nullable()->default(0);
             // $table->boolean('hasmodule')->default(0);
             $table->softDeletes();
             $table->timestamps();
