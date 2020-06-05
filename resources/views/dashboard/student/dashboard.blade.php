@@ -84,7 +84,7 @@
     <div class="row">
             <div class="col-md-12">
                     <div class="card">
-                    <div class="card-title"><h2 style="text-align: center;; color:green">All {{config('app.name')}} Training Sechedules<hr></h2></div>
+                    <div class="card-title"><h2 style="text-align: center;; color:green">All {{config('app.name')}} Training Schedules<hr></h2></div>
                         <div class="card-body">
                             {!! $calendar->calendar() !!}
                             {!! $calendar->script() !!}

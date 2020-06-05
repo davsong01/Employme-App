@@ -22,10 +22,10 @@ class PaymentController extends Controller
         
         $i = 1;
         //$users = User::all();
-        $users = User::where('role_id', '=', "Student")->orderBy('updated_at', 'DESC')->get();
-        $programs = Program::all();
+        $users = User::where('role_id', "Student")->orderBy('program_id', 'DESC')->get();
+       
        if(Auth::user()->role_id == "Admin"){
-          return view('dashboard.admin.payments.index', compact('users', 'i', 'programs') );
+          return view('dashboard.admin.payments.index', compact('users', 'i') );
 
         }
         if(Auth::user()->role_id == "Teacher"){

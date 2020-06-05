@@ -67,9 +67,9 @@
                                 </div>
 
                                 <div class="form-group{{ $errors->has('time') ? ' has-error' : '' }}">
-                                    <label for="time">How many minutes for Module Questions(Min: 5minutes)</label>
+                                    <label for="time">How many minutes for Module Questions(Min: 2minutes)</label>
                                     <input id="time" type="number" class="form-control" name="time"
-                                        value="{{ old('time') }}" autofocus required min="5">
+                                        value="{{ old('time') }}" autofocus required min="2">
                                     @if ($errors->has('time'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('time') }}</strong>

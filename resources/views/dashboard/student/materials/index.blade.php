@@ -26,7 +26,11 @@
                             <td>{{ $material->created_at->format('d/m/Y') }}</td>
                             <td>{{ $material->program->p_name }}</td>
                             <td>
-                                <a href="studymaterials/{{ $material->file }}"><i class ="fas fa-download"></i> Download</a></td>
+                                <a data-toggle="tooltip" data-placement="top" title="Download Material"
+                                class="btn btn-info" href="studymaterials/{{ $material->file }}"><i
+                                    class="fa fa-download"> Download</i>
+                            </a>
+            
                             </td>
                         </tr>
                         @endforeach

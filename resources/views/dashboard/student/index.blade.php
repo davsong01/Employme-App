@@ -41,16 +41,11 @@
                         </span></a>
                 </li>
                 @endif
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
-                            class="hide-menu">Payment History </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
-                        <li class="sidebar-item"><a href="{{route('payments.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- View payment
-                                    history </span></a>
-                        </li>
-                    </ul>
+                <li class="sidebar-item"><a href="{{ route('payments.index', Auth::user()->id) }}" class="sidebar-link"><i
+                    class="far fa-money-bill-alt"></i><span class="hide-menu">Payment History
+                </span></a>
                 </li>
+                
                 @if(Auth::user()->balance > 0)
                 <!--li class="sidebar-item blinking hide-menu"><i class="far fa-money-bill-alt"></i-->
                 <li class="sidebar-item">

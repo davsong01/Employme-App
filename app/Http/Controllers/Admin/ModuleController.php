@@ -31,7 +31,7 @@ class ModuleController extends Controller
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
-            $programs = Program::where('id', '<>', 1)->get();
+            $programs = Program::where('id', '<>', 1)->orderBy('id', 'DESC')->get();
             return view('dashboard.admin.modules.create', compact('programs'));
         }
         return back();
@@ -43,7 +43,7 @@ class ModuleController extends Controller
             'title' => 'required|min:5',
             'program' => 'required',
             'status' => 'required|numeric',
-            'time' => 'required|numeric|min:5',
+            'time' => 'required|numeric|min:2',
             'type' => 'required|numeric',
             'noofquestions' => 'required|numeric|min:5|max:20'
         ]);

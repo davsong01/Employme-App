@@ -1,4 +1,4 @@
-{{-- <html>
+<html>
 	<head><meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
 		<title></title>
 		
@@ -109,4 +109,4 @@ Plot 87A Mustapha Azeeza Close, Off Alakoso Road<br />
 </div>
 </div>
 </body>
-</html> --}}
+</html>

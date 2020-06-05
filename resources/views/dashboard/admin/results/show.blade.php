@@ -82,12 +82,12 @@
                             </div>
                             <div style="text-align:left; height:auto; width:900px">
                                 <div style="text-align:center; font-weight:bold; width:100%; font-size: large;"></div><br />
-                                <span id="LblName" style="font-size:Small;font-weight:bold;">{{strtoupper($result['name'])}}</span>
+                                <span id="LblName" style="font-size:Small;font-weight:bold;">{{strtoupper($details['name'])}}</span>
                                 <br />
                                 <span id="LblMatricno2"
-                                    {{-- style="font-size:Small;font-weight:bold;">R/{{strtoupper($result->program->p_abbr)}}/{{strtoupper($result->program_id)}}/{{strtoupper($result->user->id)}}</span> --}}
+                                    {{-- style="font-size:Small;font-weight:bold;">R/{{strtoupper($details->program->p_abbr)}}/{{strtoupper($details->program_id)}}/{{strtoupper($details->user->id)}}</span> --}}
                                 <br />
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($result['program'] )}}</span>
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details['program'] )}}</span>
                                 <br />
                                 <hr />
                     
@@ -102,19 +102,19 @@
                                         </tr>
                                         <tr>
                                             <td class="datacellone">Class Test</td>
-                                            <td class="datacellone">{{ $result['class_test_score'] }}</td>
+                                            <td class="datacellone">{{ $details['class_test_score'] }}</td>
                                         </tr>
                                         <tr>
                                             <td class="datacelltwo">Email Test</td>
-                                            <td class="datacelltwo">{{ $result['email_test_score'] }}</td>
+                                            <td class="datacelltwo">{{ $details['email_test_score'] }}</td>
                                         </tr>
                                         <tr>
                                             <td class="datacellone">Role Play</td>
-                                            <td class="datacellone">{{ $result['role_play_score'] }}</td>
+                                            <td class="datacellone">{{ $details['role_play_score'] }}</td>
                                         </tr>
                                         <tr>
                                             <td class="datacelltwo">Certification Test</td>
-                                            <td class="datacelltwo">{{ $result['certification_test_score'] }}</td>
+                                            <td class="datacelltwo">{{ $details['certification_test_score'] }}</td>
                                         </tr>
                                     </table>
                                 </span>
@@ -137,14 +137,14 @@
                                                     <td class="fil">
                                                         Pass Mark</td>
                                                     <td>
-                                                        <span id="LblPoint1">{{ $result['passmark'] }}</span>
+                                                        <span id="LblPoint1">{{ $details['passmark'] }}</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fil">
                                                         Points Scored</td>
                                                     <td>
-                                                        <span id="Lblgpa1">{{ $result['total_score'] }}</span>
+                                                        <span id="Lblgpa1">{{ $details['total_score'] }}</span>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -153,7 +153,7 @@
                                 </table>
                                 <div style="text-align:left">
                                     <span style="">CERTIFICATION STATUS : </span>
-                                    <span id="lblRemark" style="color:{{ $result['status'] == 'CERTIFIED' ? 'green' : 'red'}}"><b>{{ $result['status'] }}</b></span>
+                                    <span id="lblRemark" style="color:{{ $details['status'] == 'CERTIFIED' ? 'green' : 'red'}}"><b>{{ $details['status'] }}</b></span>
                                     <br />
                                     <br />
                                     <div style="width:100%; text-align:center"><br /><br />

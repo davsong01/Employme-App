@@ -16,7 +16,7 @@
             </div>
 
             <div class="table-responsive">
-                <table id="zero_config" class="display" style="width:100%">
+                <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>

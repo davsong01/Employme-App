@@ -1,47 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
-                <div class="panel-heading">Reset Password</div>
-
-                <div class="panel-body">
-                    @if (session('status'))
-                        <div class="alert alert-success">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
-                        {{ csrf_field() }}
-
-                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                            <label for="email" class="col-md-4 control-label">E-Mail Address</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
-
-                                @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Send Password Reset Link
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="col-md-7">
+    <div class="card-body">
+        <div class="brand-wrapper">
+            <img src="{{ asset('login_files/assets/images/logo.png') }}" alt="logo"
+                style="width: 230px !important">
         </div>
+        <p>Enter your email address and we will send you a Password reset link</p>
+        <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
+            {{ csrf_field() }}
+            <div class="form-group mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
+                <label for="email" class="sr-only">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}"  id="email" class="form-control"
+                    placeholder="Email address">
+            </div>
+            @if ($errors->has('email'))
+                <span class="help-block" style="font-weight: 50 !important;">
+                    <strong>{{ $errors->first('email') }}</strong>
+                </span>
+            @endif
+            <button type="submit" class="btn btn-block login-btn mb-4">
+                Send Password Reset Link
+            </button>
+        </form>
+       <br><br>
+        <span>Designed by <a href="https://techdaves.com" target="_blank">Techdaves</a></span>
     </div>
 </div>
+
 @endsection

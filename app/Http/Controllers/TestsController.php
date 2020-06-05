@@ -20,7 +20,7 @@ class TestsController extends Controller
 
             foreach($modules as $module){
                 
-                $module_check = Result::where('module_id', $module->id)->get();
+                $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
                
                 if($module_check->count() > 0){
                     $module['completed'] = 1;
@@ -100,8 +100,8 @@ class TestsController extends Controller
         if(Auth::user()->role_id == "Student"){
             $i = 1;
             
-            $results = Result::with('module')->where('user_id', Auth::user()->id)->orderBy('id', 'DESC')->get();
-
+            $results = Result::with('module')->where('user_id', auth()->user()->id)->orderBy('id', 'DESC')->get();
+            // dd($results);
             return view('dashboard.student.tests.result', compact('results', 'i') );
           }
     }

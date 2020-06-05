@@ -55,7 +55,7 @@ class ScoreSettingController extends Controller
     {
 
         if(auth()->user()->role_id == "Admin"){
-            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->get();
+            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('id', 'DESC')->get();
         foreach($programs as $program){
             
             $program['counter'] = 0;

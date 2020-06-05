@@ -172,37 +172,56 @@ class ResultController extends Controller
     public function show($id)
     {      
         if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){   
-            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();
-           
+            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get(); 
+            
+
             if($result->count() > 0){
 
                 if(Auth::user()->balance > 0){
                     return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. Auth::user()->balance.' in order to view/print your result');
                 }
-
-               foreach($result as $r){
-                   $result['class_test_score'] =$r->class_test_score + $r['class_test_score'];
-
-                   $result['certification_test_score'] =$r->certification_test_score + $r['certification_test_score'];
-                 
-                   $result['role_play_score'] =$r->role_play_score + $r['role_play_score'];
-
-                   $result['email_test_score'] =$r->email_test_score + $r['email_test_score'];
-                    
-                   $result['program'] = $r->program->p_name;
-
-                   $result['passmark'] = $r->program->scoresettings->passmark;
-
-                   $result['name'] = $r->user->name;
-               }
-
-                $result['total_score'] = $result['class_test_score'] + $result['email_test_score'] + $result['role_play_score'] + $result['certification_test_score'];
-
-                if($result['total_score'] >= $result['passmark']){
-                    $result['status'] = 'CERTIFIED';
-                }else $result['status'] = 'NOT CERTIFIED';
                 
-                return view('dashboard.admin.results.show', compact('result'));   
+                $details = array();
+                
+                $class = 0;
+                $email = 0;
+                $roleplay = 0; 
+                $certification = 0;
+                
+            
+               foreach($result as $t){            
+                // $r['email_test_score'] = 0;
+                $class = $t['class_test_score'] + $class;
+                $email =  $t['email_test_score'] + $email;
+                $roleplay =  $t['role_play_score'] + $roleplay;
+                $certification =  $t['certification_test_score'] + $certification;
+                    
+                $t['program'] = $t->program->p_name;
+                $t['passmark'] = $t->user->program->scoresettings->passmark;
+                $t['name'] = $t->user->name;
+               
+                }
+                $details['class_test_score'] = $class;
+                $details['email_test_score'] = $email;
+                $details['role_play_score'] = $roleplay;
+                $details['certification_test_score'] = $certification;
+            
+                $details['total_score'] = $class + $email + $roleplay + $certification;
+                $details['passmark'] = $t['passmark'];
+
+                $details['program'] = $t['program'];
+                $details['name'] = $t['name'];
+                
+                if($details['class_test_score'] <= 0 || $details['certification_test_score'] <= 0 || $details['role_play_score'] <= 0 || $details['email_test_score'] <= 0 ){
+                    return back()->with('error', 'Your result is being processed, please check back later or notify your facilitator');
+                }
+
+                if($details['total_score'] >= $details['passmark']){
+                    $details['status'] = 'CERTIFIED';
+                }else $details['status'] = 'NOT CERTIFIED';         
+                
+                // dd($details);
+                return view('dashboard.admin.results.show', compact('details'));   
             } 
             return redirect('/dashboard')->with('error', 'Result not found for current user, please try again later');
         }

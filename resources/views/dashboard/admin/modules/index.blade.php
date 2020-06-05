@@ -8,21 +8,25 @@
     <div class="row">
         <!-- Column -->
         <div class="col-md-6 col-lg-6">
+        <a href="{{ route('modules.index')}}">
             <div class="card card-hover">
                 <div class="box bg-info text-center">
                     <h1 class="font-light text-white"><i class=" fa fa-list-alt"></i></h1>
                     <h6 class="text-white"><b></b> {{$modules->count()}} Module(s)</h6>
                 </div>
             </div>
+        </a>
         </div>
         <!-- Column -->
         <div class="col-md-6 col-lg-6">
+        <a href="{{ route('questions.index')}}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>
                 <h6 class="text-white"><b></b> {{ $questions_count }} Questions</h6>
                 </div>
             </div>
+        </a>
         </div>
     </div>
 

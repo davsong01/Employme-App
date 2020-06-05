@@ -38,7 +38,7 @@ class MaterialController extends Controller
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
-        $programs = Program::where('id', '<>', 1)->get();
+        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
         $materials = Material::all();
             return view('dashboard.admin.materials.create', compact('programs'));
             }

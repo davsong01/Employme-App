@@ -8,7 +8,7 @@
         <div class="col-md-12">
             <div class="card-title">
                 <h4>All Tests</h4>
-                <h6 style="color:red">Please Read the following carefully before you proceed to take a test</h6>
+                <h6 style="color:red">Please read the following carefully before you proceed to take a test</h6>
                 <div>
                     <ul>
                         <li>All Tests are timed, if you run out of time, the test gets submitted automatically with all
