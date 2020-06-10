@@ -170,10 +170,9 @@ class ResultController extends Controller
     }
 
     public function show($id)
-    {      
+    {    
         if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){   
-            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get(); 
-            
+            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();    
 
             if($result->count() > 0){
 
@@ -187,26 +186,36 @@ class ResultController extends Controller
                 $email = 0;
                 $roleplay = 0; 
                 $certification = 0;
+                $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id',Auth::user()->program->id)->get();
                 
+                $obtainable = 0;
             
-               foreach($result as $t){            
+                foreach($modules as $module){
+                    $obtainable = $module->questions->count() + $obtainable;
+                }
+
+               foreach($result as $t){    
+                // dd( $t->module->id );       
                 // $r['email_test_score'] = 0;
                 $class = $t['class_test_score'] + $class;
                 $email =  $t['email_test_score'] + $email;
                 $roleplay =  $t['role_play_score'] + $roleplay;
                 $certification =  $t['certification_test_score'] + $certification;
-                    
+               
                 $t['program'] = $t->program->p_name;
                 $t['passmark'] = $t->user->program->scoresettings->passmark;
+                $t['ct_set_score'] = $t->user->program->scoresettings->class_test;
                 $t['name'] = $t->user->name;
-               
+                
                 }
-                $details['class_test_score'] = $class;
+                
+                $details['class_test_score'] = ($class  *  $t['ct_set_score']) /  $obtainable;
+                                
                 $details['email_test_score'] = $email;
                 $details['role_play_score'] = $roleplay;
                 $details['certification_test_score'] = $certification;
             
-                $details['total_score'] = $class + $email + $roleplay + $certification;
+                $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
                 $details['passmark'] = $t['passmark'];
 
                 $details['program'] = $t['program'];

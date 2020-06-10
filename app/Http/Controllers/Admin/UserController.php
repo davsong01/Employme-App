@@ -6,6 +6,7 @@ use PDF;
 use App\User;
 use App\Role;
 use App\Program;
+use App\Mail\Email;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use App\Exports\UsersExport;
@@ -19,6 +20,7 @@ class UserController extends Controller
 {
     public function index()
     {
+
         $i = 1;
         //$users = User::all();
        $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
@@ -245,6 +247,44 @@ class UserController extends Controller
         $user->delete();
         return redirect('users')->with('message', 'user deleted successfully');
     }
+
+    public function mails(){
+        $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
+        return view('dashboard.admin.users.email', compact('programs') );
+    }
+
+    public function sendmail(Request $request){
+     
+        $data = $this->validate($request, [
+            'program' => 'required | numeric',
+            'content' => 'required | min: 10'
+        ]);
+        
+        $recipients = User::where('program_id', $request->program)->get();
+        $data = $request->content;
+        // dd($recipients);
+        foreach($recipients as $recipient){
+            Mail::to($recipient->email)->send(new Email($data));       
+        }
+            Mail::to('employmeng@gmail.com')->send(new Email($data)); 
+
+        if( count(Mail::failures()) > 0 ) {
+            $error = array('The following emails were not sent:');
+            
+               foreach(Mail::failures() as $email_address) {
+                   $error = array_push($error,  - $email_address);
+                }
+            //return view with error
+            return back()->with('error', $error);
+
+            } else {
+                $message =  "All ". count($recipients). " emails were successfully sent!";
+
+                //return view with success
+                return back()->with('message', $message);
+            } 
+    }
+    // return view('dashboard.admin.users.email', compact('programs') );
 
     public function export() 
     {

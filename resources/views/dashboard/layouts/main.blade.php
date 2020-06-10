@@ -26,7 +26,7 @@
     <link href="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/extra-libs/calendar/calendar.css') }}" rel="stylesheet" />
     <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
-
+    @yield('css')
 
 
     <!---include font awesome-->
@@ -58,6 +58,11 @@
     </script>
 
     <style>
+        .trix-toolbar .trix-button-row {
+            display: flex;
+            flex-wrap: wrap !important;
+            justify-content: space-between;
+        } 
         .help-block {
             color: red !important;
         }
@@ -125,8 +130,9 @@
 
 .sticky + .content {
   padding-top: 102px;
-}
-    </style>
+}    
+
+</style>
 </head>
 <!--Preloader-->
 

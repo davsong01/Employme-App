@@ -67,6 +67,9 @@
 
                     </li>
                 </ul>
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
+                        class="hide-menu">Email Participants</span></a></li>
         </nav>
         <!-- End Sidebar navigation -->
     </div>

@@ -31,8 +31,6 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 });
 
 
-
-
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['auth']);
 Route::get('userresults', 'TestsController@userresults')->middleware(['auth'])->name('tests.results');
@@ -50,6 +48,9 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
+    //Send Mails
+    Route::get('usermail', 'UserController@mails')->name('users.mail');
+    Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');
    
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
