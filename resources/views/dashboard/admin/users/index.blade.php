@@ -10,9 +10,12 @@
             </div>
             <div class="card-header">
                 <div>
+                    <h5 class="card-title"> All Participants <button class="btn btn-success" id="csv">Export Participants</button></h5>
+                </div>
+                {{-- <div>
                     <h5 class="card-title"> All Students <a href="{{route('users.create')}}"><button type="button"
                                 class="btn btn-outline-primary">Add New Student</button></a> <a class="btn btn-success" href="{{ route('user.export') }}">Export User Data</a></h5>
-                </div>
+                </div> --}}
             </div>
 
             <div class="table-responsive">
@@ -69,6 +72,23 @@
                             @endforeach
                     </tbody>
                 </table>
+                <script type="text/javascript" src="{{ asset('src/jspdf.min.js')}} "></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/jspdf.plugin.autotable.min.js'
+                    )}}"></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/tableHTMLExport.js')}}"></script>
+                    
+                    <script type="text/javascript">
+                                           
+                      $("#csv").on("click",function(){
+                        $("#zero_config").tableHTMLExport({
+                          type:'csv',
+                          filename:'Participants.csv'
+                        });
+                      });
+                    
+                    </script>
             </div>
 
         </div>
