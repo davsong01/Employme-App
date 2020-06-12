@@ -25,9 +25,21 @@ class ProgramController extends Controller
             $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
 
             foreach($programs as $program){
-                // dd($program->user);
+                $program['fully_paid'] = 0;
+                $program['part_paid'] = 0;
+
+                foreach($program->users as $users){
+                    if($users->balance <= 0){
+                        $program['fully_paid'] = $program['fully_paid'] + 1;
+                    }
+
+                    if($users->balance > 0){
+                        $program['part_paid'] = $program['part_paid'] + 1;
+                    }
+                    // print_r();
+                }
             }
-           
+
             $users = User::where('role_id', '<>', 'Admin')->get();
              return view('dashboard.admin.programs.index', compact('programs', 'i'));
         }
@@ -103,8 +115,24 @@ class ProgramController extends Controller
     public function trashed()
     {
         $i = 1;
-        $programs = Program::onlyTrashed()->get();
-        // dd($trashed);
+        $programs = Program::with('users')->onlyTrashed()->get();
+
+        foreach($programs as $program){
+            $program['fully_paid'] = 0;
+            $program['part_paid'] = 0;
+
+            foreach($program->users as $users){
+                if($users->balance <= 0){
+                    $program['fully_paid'] = $program['fully_paid'] + 1;
+                }
+
+                if($users->balance > 0){
+                    $program['part_paid'] = $program['part_paid'] + 1;
+                }
+                // print_r();
+            }
+        }
+        // dd($programs);
        return view('dashboard.admin.programs.trash', compact('programs', 'i'));
     }
 

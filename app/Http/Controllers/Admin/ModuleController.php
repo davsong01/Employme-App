@@ -101,7 +101,14 @@ class ModuleController extends Controller
 
     public function update(Request $request, Module $module)
     {
-        $module->update($request->all());
+            $module->update([
+                'title' => $request->title,
+                'program_id' => $request->program_id,
+                'status' => $request->status,
+                'noofquestions' => $request->noofquestions,
+                'time' => $request->time,
+                'type' => $request->type,
+            ]);
         return redirect('modules')->with('message', 'Module has been succesfully updated');
     }
 

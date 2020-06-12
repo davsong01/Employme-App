@@ -40,8 +40,8 @@
                             <td>₦{{ $program->e_amount }}</td>
                             <td>{{ $program->p_start }}</td>
                             <td>{{ $program->p_end }}</td>
-                            <td>{{ $program->p_paid }}</td>
-                            <td>{{ $program->f_paid }}</td>
+                            <td>{{ $program->part_paid }}</td>
+                            <td>{{ $program->fully_paid }}</td>
                             <td>
                                 <div class="btn-group">
                                     <form action="{{ route('programs.destroy', $program->id) }}" method="POST"

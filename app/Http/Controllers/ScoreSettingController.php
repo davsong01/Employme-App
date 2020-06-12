@@ -55,7 +55,7 @@ class ScoreSettingController extends Controller
     {
 
         if(auth()->user()->role_id == "Admin"){
-            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('id', 'DESC')->get();
+            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('created_at', 'DESC')->get();
         foreach($programs as $program){
             
             $program['counter'] = 0;
@@ -69,6 +69,7 @@ class ScoreSettingController extends Controller
                 };
             }  
         }
+        
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 

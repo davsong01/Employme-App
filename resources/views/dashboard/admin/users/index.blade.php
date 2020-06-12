@@ -10,7 +10,8 @@
             </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Participants <button class="btn btn-success" id="csv">Export Participants</button></h5>
+                    <h5 class="card-title"> All Participants <a href="{{route('users.create')}}"><button type="button"
+                        class="btn btn-outline-primary">Add New Student</button></a><button class="btn btn-success" id="csv">Export Participants</button></h5>
                 </div>
                 {{-- <div>
                     <h5 class="card-title"> All Students <a href="{{route('users.create')}}"><button type="button"
@@ -46,7 +47,7 @@
                                 {{ $user->program->p_name ?? 'Trashed Training' }}</td>
                             <td>{{ $user->role_id }}</td>
                             <td>{{ $user->t_location }}</td>
-                            <td>{{ $user->bank }}</td>
+                            <td>{{ $user->t_type }}</td>
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Users"

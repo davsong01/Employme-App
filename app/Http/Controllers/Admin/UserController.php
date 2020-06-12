@@ -119,7 +119,7 @@ class UserController extends Controller
             'transid' => $data['transaction_id'],
             'paymenttype' => $payment_type,
             'paymentStatus' => $paymentStatus,
-            'bank' => $data['bank'],
+            // 'bank' => $data['bank'],
             'balance' => $balance,
             'invoice_id' =>  $invoice_id,
             'profile_picture' => 'avatar.jpg',
@@ -231,7 +231,7 @@ class UserController extends Controller
         $user->t_location = $request['location'];
         $user->role_id = $request['role'];
         $user->gender = $request['gender'];
-        $user->bank = $request['bank'];
+        // $user->bank = $request['bank'];
         $user->transid = $request['transaction_id'];
         $user->paymentStatus =  $paymentStatus;
 
@@ -244,6 +244,19 @@ class UserController extends Controller
     }
     public function destroy(User $user)
     {
+        if($user->balance <= 0){
+            $f_paid = ($user->program->f_paid - 1);
+            // dd($f_paid);
+
+            Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
+        }
+
+        if($user->balance > 0){
+            $p_paid = $user->program->p_paid - 1;
+            // dd($f_paid);
+            Program::where('id', $user->program->id)->update(['p_paid' => $p_paid]); 
+        }
+  
         $user->delete();
         return redirect('users')->with('message', 'user deleted successfully');
     }
@@ -259,14 +272,14 @@ class UserController extends Controller
             'program' => 'required | numeric',
             'content' => 'required | min: 10'
         ]);
-        
+
         $recipients = User::where('program_id', $request->program)->get();
         $data = $request->content;
-        // dd($recipients);
+        // dd($recipients);'
+        Mail::to('employmeng@gmail.com')->send(new Email($data));
         foreach($recipients as $recipient){
             Mail::to($recipient->email)->send(new Email($data));       
         }
-            Mail::to('employmeng@gmail.com')->send(new Email($data)); 
 
         if( count(Mail::failures()) > 0 ) {
             $error = array('The following emails were not sent:');

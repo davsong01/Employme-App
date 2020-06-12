@@ -1,6 +1,11 @@
 <?php
 
-
+Route::get('/clear', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('view:clear');
+    Artisan::call('config:clear');
+    echo "<p>Fully optimized.</p>";
+});
 Auth::routes();
 
 //Test Routes
