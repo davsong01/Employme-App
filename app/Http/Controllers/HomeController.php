@@ -51,7 +51,7 @@ class HomeController extends Controller
        $currentUser = DB::table('users')->where('id', '==', Auth::user()->id)->get(); 
         $currentUsermaterialsCount = Material::where('program_id', '=', Auth::user()->program_id)->get()->count();
       
-        if(Auth::user()->role_id == "Admin"){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             $programCount = Program::where('id', '<>', 1)->count();
             //count number of users owing
             $userowing = $userCount = DB::table('users')->where([

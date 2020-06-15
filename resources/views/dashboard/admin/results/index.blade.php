@@ -27,6 +27,7 @@
                             <th>Email Score</th>
                             <th>Passmark</th>
                             <th>T. Score</th>
+                            <th>Marked by</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -39,12 +40,13 @@
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->program->p_name }}</td>
                             <td>{{ $user->total_cert_score}}%</td>
-                            <td>{{ $user->test_score}}%</td>
+                            <td>{{ $user->test_score }}%</td>
                             <td>{{ $user->total_role_play_score }}%</td>
                             <td>{{ $user->total_email_test_score }}%</td>
                             <td>{{ $user->program->scoresettings->passmark }}%</td>
                             <td>{{ $user->total_cert_score + $user->test_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>
-                            
+                            <th>{{ $user->marked_by }}</th>
+                          
                             <td>
                                 @if($user->result_id)
                                     <div class="btn-group">

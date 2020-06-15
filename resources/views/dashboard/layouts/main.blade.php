@@ -32,6 +32,9 @@
     <!---include font awesome-->
     <script src='https://kit.fontawesome.com/a076d05399.js'></script>
 
+    <!--Include CK Editor-->
+    <script src="https://cdn.ckeditor.com/4.14.0/standard-all/ckeditor.js"></script>
+
     {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
     {{-- <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script> --}}
 

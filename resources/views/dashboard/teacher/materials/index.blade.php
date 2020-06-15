@@ -5,14 +5,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            @if(session()->get('message'))
-            <div class="alert alert-success" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
-                <strong>Success!</strong> {{ session()->get('message')}}
-            </div>
-            @endif
-            <h5 class="card-title"> Class Materials</h5>
+            <h5 class="card-title">Sttudy Materials</h5>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -21,8 +14,8 @@
                             <th>Title</th>
                             <th>Date Uploaded</th>
                             <th>Program/Class</th>
-                            <th>Action 1</th>
-                            <th>Action 2</th>
+                            <th>Action</th>
+                        
                         </tr>
                     </thead>
                     <tbody>
@@ -33,15 +26,11 @@
                             <td>{{ $material->created_at->format('d/m/Y') }}</td>
                             <td>{{ $material->program->p_name }}</td>
                             <td>
-                                <a href="storage/{{ $material->file }}" download target="_blank"><i class ="fas fa-download"></i>Download</a></td>
-                            </td>
-                            <td>
-                                    
-                                <form class="delete" action="{{ route('materials.destroy', $material->id) }}" method="POST">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        {{ csrf_field() }}
-                                        <input type="submit" value="Delete record">
-                                    </form> 
+                                <a data-toggle="tooltip" data-placement="top" title="Download Material"
+                                class="btn btn-info" href="studymaterials/{{ $material->file }}"><i
+                                    class="fa fa-download"> Download</i>
+                            </a>
+            
                             </td>
                         </tr>
                         @endforeach
@@ -52,8 +41,7 @@
                             <th>Title</th>
                             <th>Date Uploaded</th>
                             <th>Program/Class</th>
-                            <th>Action 1</th>
-                            <th>Action 2</th>
+                            <th>Action</th>
                         </tr>
                     </tfoot>
                 </table>
@@ -66,9 +54,4 @@
 <script>
     $('#zero_config').DataTable();
 </script>
-<script>
-        $(".delete").on("submit", function(){
-            return confirm("Are you sure?");
-        });
-    </script>
 @endsection

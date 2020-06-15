@@ -14,14 +14,13 @@ class ComplainController extends Controller
     public function index()
     {
         $i = 1;
-        if(Auth::user()->role_id == "Admin"){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             $i = 1;  
             $complains = Complain::all();
             $resolvedComplains =  Complain::where('status', '=', 'Resolved' )->count();
             $pendingComplains =  Complain::where('status', '=', 'Pending' )->count(); 
             $InProgressComplains =  Complain::where('status', '=', 'In Progress' )->count();  
-            
-            
+              
             return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
         }elseif(Auth::user()->role_id == "Student"){    
                 $resolvedComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'Resolved' )->count();
@@ -30,12 +29,13 @@ class ComplainController extends Controller
                 $complains = Complain::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
                 return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
-    } else return back();
+        } 
+    else return back();
 }
 
     public function create()
     {
-          if(Auth::user()->role_id == "Admin"){
+          if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             return view('dashboard.admin.complains.create')->with('extend', 'dashboard.admin.index');
 
     }elseif(Auth::user()->role_id == "Student"){
@@ -98,7 +98,7 @@ class ComplainController extends Controller
     public function edit(Complain $complain)
     {
         
-        if(Auth::user()->role_id == "Admin"){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.admin.index');
     }elseif (Auth::user()->role_id == "Student"){
         return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.student.index');

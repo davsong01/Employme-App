@@ -7,7 +7,12 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
-
+                @if(Auth()->user()->role_id == "Facilitator")
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
+                        class="hide-menu">Facilitator Dashboard</span></a></li>
+                @endif
+                @if(Auth()->user()->role_id == "Admin")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Admin Dashboard</span></a></li>
@@ -38,15 +43,15 @@
 
                     </ul>
                 </li>
-
+                @endif
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
                             class="hide-menu">View All study Materials</span></a></li>
-
+            @if(Auth()->user()->role_id == "Admin")
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
                         class="hide-menu">Payment History</span></a></li>
-
+            @endif
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('complains.index')}}" aria-expanded="false"><i class="far fa-comments"></i><span
                         class="hide-menu">CRM Management</span></a></li>
@@ -55,21 +60,28 @@
                     href="javascript:void(0)" aria-expanded="false"><i class="fa fa-edit"></i><span
                         class="hide-menu">LMS </span></a>
                 <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
+                    
                     <li class="sidebar-item"><a href="{{route('modules.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Modules</span></a>
                     </li>
                     <li class="sidebar-item"><a href="{{route('questions.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Questions</span></a>
-                                <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
-                                class="hide-menu">- Grades</span></a>
+                    </li>
+                  
+                    <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
+                    class="hide-menu">- Grades</span></a>
+                    @if(Auth()->user()->role_id == "Admin")
                     <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Score Settings</span></a>
 
                     </li>
+                    @endif
                 </ul>
+                @if(Auth()->user()->role_id == "Admin")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
                         class="hide-menu">Email Participants</span></a></li>
+                @endif
         </nav>
         <!-- End Sidebar navigation -->
     </div>

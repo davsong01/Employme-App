@@ -43,12 +43,12 @@
                                     <label for="class">Type</label>
                                     @if( $module->questions->count() <= 0 )
                                         <select name="type" id="class" class="form-control" required>
-                                        <option value="0" {{ $module->type == 0 ? 'selected' : ''}}>Class Test</option>
-                                            <option value="1" {{ $module->type == 1 ? 'selected' : ''}}>Certification Test</option>
+                                        <option value="0" {{ $module->type == 'Class Test' ? 'selected' : ''}}>Class Test</option>
+                                            <option value="1" {{ $module->type == 'Certification Test' ? 'selected' : ''}}>Certification Test</option>
                                         </select>
                                     @else
                                         <select name="type" id="class" class="form-control" required readonly>
-                                            <option value="{{ $module->type == 0 ?? 0}} {{ $module->type == 1 ?? 1}}">{{ $module->type }}</option>
+                                            <option value="{{ $module->type == "Class Test" ?? 0}} {{ $module->type == 'Certification Test' ?? 1}}">{{ $module->type }}</option>
                                         </select>
                                     @endif
                                     <div><small style="color:red">{{ $errors->first('type')}}</small></div>

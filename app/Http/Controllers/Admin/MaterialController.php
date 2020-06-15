@@ -21,11 +21,10 @@ class MaterialController extends Controller
             // $materials= $image= str_replace(' ', '%20', $materials);
             $programs = Program::where('id', '<>', 1)->get();
             return view('dashboard.admin.materials.index', compact('programs', 'i', 'materials'));
-        }elseif(Auth::user()->role_id == "Teacher"){
+        }elseif(Auth::user()->role_id == "Facilitator"){
                 //show only trainings attached to this user
-                    $materials = Material::orderBy('created_at', 'DESC');
-                    $materials = Material::where('program_id', '=', Auth::user()->program_id )->orderBy('created_at', 'DESC')->get();
-                   return view('dashboard.teacher.materials.index', compact('materials','material','i') );
+                $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
+                   return view('dashboard.admin.materials.index', compact('materials','i') );
 
                 } elseif(Auth::user()->role_id == "Student"){       
                 $i = 1;            
@@ -42,10 +41,10 @@ class MaterialController extends Controller
         $materials = Material::all();
             return view('dashboard.admin.materials.create', compact('programs'));
             }
-        elseif(Auth::user()->role_id == "Teacher"){
+        elseif(Auth::user()->role_id == "Facilitator"){
             $programs = Program::where('id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
             $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
-            return view('dashboard.teacher.materials.create', compact('programs'));
+            return view('dashboard.admin.materials.create', compact('programs'));
         }
            else return redirect('/materials');
         }

@@ -15,7 +15,7 @@ Route::get('/demo', 'HomeController@demo')->name('demo');
 Route::get('/', 'HomeController@index', ['accept' =>['show'], 'index'])->middleware(['auth']);
 //route for dashboard.index only
 Route::get('/dashboard', 'HomeController@index', ['accept' =>['show'], 'index'])->name('home');
- 
+
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
         $realpath = base_path() . '/uploads'. '/' .$filename;
@@ -33,6 +33,8 @@ Route::get('thanks', function() {
 //Export Routes
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('export/users', 'UserController@export')->name('user.export');
+    //Show email history
+    Route::get('updateemails/{id}', 'UserController@emailHistory')->name('updateemails.show');
 });
 
 
@@ -87,7 +89,7 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('materials', 'MaterialController');
-    Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');
+;    Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');
     Route::get('studymaterials/{filename}', 'MaterialController@getfile')->middleware(['auth']);
 });
 //route for payments history

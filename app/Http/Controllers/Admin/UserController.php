@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use PDF;
 use App\User;
-use App\Role;
 use App\Program;
 use App\Mail\Email;
 use App\Mail\Welcomemail;
@@ -13,6 +12,7 @@ use App\Exports\UsersExport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
+use App\UpdateMails;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -262,10 +262,17 @@ class UserController extends Controller
     }
 
     public function mails(){
+        $i = 1;
         $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
-        return view('dashboard.admin.users.email', compact('programs') );
+        $updateemails = UpdateMails::all();
+        return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i') );
     }
 
+    public function emailHistory($id){
+        $email = UpdateMails::findOrFail($id);
+
+        return view('dashboard.admin.users.emailhistory', compact('email') );
+    }
     public function sendmail(Request $request){
      
         $data = $this->validate($request, [
@@ -292,6 +299,13 @@ class UserController extends Controller
 
             } else {
                 $message =  "All ". count($recipients). " emails were successfully sent!";
+
+                UpdateMails::create([
+                    'sender' => Auth::user()->name,
+                    'program' => Program::where('id', $request->program )->value('p_name'),
+                    'content' => $request->content,
+                    'noofemails' => count($recipients),
+                ]);
 
                 //return view with success
                 return back()->with('message', $message);

@@ -9,11 +9,6 @@ use Illuminate\Http\Request;
 
 class ScoreSettingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $i = 1;
@@ -38,19 +33,28 @@ class ScoreSettingController extends Controller
             return view('dashboard.admin.scoresettings.index', compact('scores', 'i') );
         }
           
-          elseif(Auth()->user()->role_id == "Teacher"){
-              $scores = ScoreSetting::where('program_id', '=', Auth::user()->program_id )->orderBy('program_id', 'DESC')->get();
-              return view('dashboard.admin.scoresettings.index', compact('scores', 'i') );
-            }
+        if(Auth()->user()->role_id == "Facilitator"){
+            $scores = ScoreSetting::where('program_id', auth()->user()->program->id)->orderBy('program_id', 'DESC')->get();
             
+            foreach($scores as $score){
+                $score['module_count'] = 0;
+                $score['module_status_count'] = 0;
+
+                if(!isset($score->program->module)){ $score['module_count'] = 0; };
+
+                foreach($score->program->modules as $modules){
+                    if($modules->status == 1){
+                        $score['module_status_count'] += 1;
+                    }
+                }
+                
+            }       
+            
+            return view('dashboard.admin.scoresettings.index', compact('scores', 'i') );
+        }
             return redirect('/dashboard');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
 
@@ -73,12 +77,25 @@ class ScoreSettingController extends Controller
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
-        elseif(auth()->user()->role_id == "Teacher"){
-            $programs = Program::where('id', '=', auth()->user()->program_id)->where('id', '<>', '1')->get();
-            $users = User::where('role_id', '=', "Student")->where('hasResult', '<>', 1)->where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
-                //return view('dashboard.admin.results.create', compact('users', 'programs'));
-                }else
-                    return redirect('/dashboard');
+
+        if(auth()->user()->role_id == "Facilitator"){
+            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
+        foreach($programs as $program){
+            
+            $program['counter'] = 0;
+            if(isset($program->scoresettings)){ $program['settings_count'] = 1; }else $program['settings_count'] = 0;
+
+            //check if any of program's module is enabled
+            foreach($program->modules as $module){
+                
+                if($module->status == 1){
+                    $program['counter'] +=1;
+                };
+            }  
+        }
+        
+            return view('dashboard.admin.scoresettings.create', compact('programs'));
+        } return redirect('/dashboard');
     }
 
     public function store(Request $request)

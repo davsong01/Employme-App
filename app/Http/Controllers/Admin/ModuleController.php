@@ -26,12 +26,25 @@ class ModuleController extends Controller
             $questions_count = Question::all()->count();
           
             return view('dashboard.admin.modules.index', compact('modules', 'i', 'questions_count'));
+        }
+        if(Auth::user()->role_id == "Facilitator"){
+            $i = 1;  
+            //my first use of Eager loading
+            $modules = Module::with( ['program', 'questions'] )->where('program_id', auth()->user()->program->id)->orderBy('id', 'DECS')->get();          
+            $questions_count = Question::all()->count();
+          
+            return view('dashboard.admin.modules.index', compact('modules', 'i', 'questions_count'));
         } return back();
     }
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
             $programs = Program::where('id', '<>', 1)->orderBy('id', 'DESC')->get();
+            return view('dashboard.admin.modules.create', compact('programs'));
+        }
+
+        if(Auth::user()->role_id == "Facilitator"){
+            $programs = Program::where('id', '<>', 1)->where('id', auth()->user()->program->id)->orderBy('id', 'DESC')->get();
             return view('dashboard.admin.modules.create', compact('programs'));
         }
         return back();
@@ -94,6 +107,11 @@ class ModuleController extends Controller
     {
         if(Auth::user()->role_id == "Admin"){
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            return view('dashboard.admin.modules.edit', compact('module', 'programs'));
+        }
+
+        if(Auth::user()->role_id == "Facilitator"){
+            $programs = Program::where('id', '<>', 1)->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
             return view('dashboard.admin.modules.edit', compact('module', 'programs'));
         }
         return back();

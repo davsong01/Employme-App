@@ -10,7 +10,7 @@
            @include('layouts.partials.alerts')
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Questions <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a></h5> 
+                    <h5 class="card-title"> All Questions <a href="{{route('questions.create')}}">@if(auth()->user()->role_id == "Admin")<button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5> 
                 </div>
             </div>
             
@@ -35,7 +35,7 @@
                             <td>{{ $question->title }}</td>
                             <td>{{$question->module->title}}</td>
                             <td>{{ $question->correct }}</td>
-
+                            @if(Auth::user()->role_id == "Admin")
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit question"
@@ -56,6 +56,12 @@
                                 </div>
 
                             </td>
+                            @endif
+                            @if(Auth::user()->role_id == "Facilitator")
+                            <td>
+                                N/A
+                            </td>
+                            @endif
                         </tr> 
                         @endforeach
                     </tbody>

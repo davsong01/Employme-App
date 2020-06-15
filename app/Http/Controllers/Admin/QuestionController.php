@@ -16,11 +16,13 @@ class QuestionController extends Controller
 
     public function index()
     {
-        if(Auth::user()->role_id == "Admin"){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             $i = 1;  
             $questions = Question::with( 'module' )->orderBy('id', 'DECS')->get();
             return view('dashboard.admin.questions.index', compact('questions', 'i'));
-        } return back();
+        }
+        
+        return back();
     }
 
     public function create()

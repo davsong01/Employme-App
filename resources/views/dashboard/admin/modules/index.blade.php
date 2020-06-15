@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Column -->
-        <div class="col-md-6 col-lg-6">
+        <div class="col-md-3 col-lg-3">
         <a href="{{ route('modules.index')}}">
             <div class="card card-hover">
                 <div class="box bg-info text-center">
@@ -18,7 +18,7 @@
         </a>
         </div>
         <!-- Column -->
-        <div class="col-md-6 col-lg-6">
+        <div class="col-md-3 col-lg-3">
         <a href="{{ route('questions.index')}}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
@@ -28,6 +28,28 @@
             </div>
         </a>
         </div>
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('results.index')}}">
+                <div class="card card-hover">
+                    <div class="box bg-warning text-center">
+                        <h1 class="font-light text-white"><i class="fas fa-user-graduate"></i></h1>
+                    <h6 class="text-white"><b></b> Grades </h6>
+                    </div>
+                </div>
+            </a>
+            </div>
+        @if(Auth()->user()->role_id == "Admin")
+        <div class="col-md-3 col-lg-3">
+        <a href="{{ route('scoreSettings.index')}}">
+            <div class="card card-hover">
+                <div class="box bg-success text-center">
+                    <h1 class="font-light text-white"><i class="fa fa-cog"></i></h1>
+                <h6 class="text-white"><b></b> Score Settings </h6>
+                </div>
+            </div>
+        </a>
+        </div>
+        @endif
     </div>
 
     <div class="card">
