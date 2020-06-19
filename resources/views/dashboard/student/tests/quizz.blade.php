@@ -11,6 +11,7 @@
         </div>
 
         <div class="content">
+            @include('layouts.partials.alerts')
             <p><strong>Training: {{ $program }}</strong><br>
                 <strong>Module: {{ $module_title }}</strong><br><br>
                 Select the correct answer

@@ -30,14 +30,13 @@ class TeacherController extends Controller
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
-            $users = User::orderBy('created_at', 'DESC');
-            $user = User::all();
-        $programs = Program::all();
-            return view('dashboard.admin.teachers.create', compact('users', 'user', 'programs'));
+            $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
+            return view('dashboard.admin.teachers.create', compact('programs'));
         }return back();
     }
     public function store(Request $request)
     {        
+        //dd(request()->all());
         $data = request()->validate([
             'name' => 'required | min:5',
             'email' =>'required | email',
@@ -45,7 +44,6 @@ class TeacherController extends Controller
             'password' => 'required',
             'role'=>'required',
             'training' => 'required',
-            'gender' => '',    
         ]);
         
         User::create([
@@ -55,10 +53,9 @@ class TeacherController extends Controller
             'password' => bcrypt($data['password']),
             'role_id' => $data['role'],
             'program_id' => $data['training'],
-            'gender' => $data['gender'],
         ]);
         
-        return back()->with('message', 'User added succesfully'); 
+        return back()->with('message', 'Facilitator added succesfully'); 
       
         }
 
@@ -89,19 +86,19 @@ class TeacherController extends Controller
         $user->t_phone = $request['phone'];
         $user->program_id = $request['training'];
         $user->role_id = $request['role'];
-        $user->gender = $request['gender'];
 
         $user->save();
         //I used return redirect so as to avoid creating new instances of the user and program class
         if(Auth::user()->role_id == "Admin"){
-        return redirect('teachers')->with('message', 'user updated successfully');
+        return redirect('teachers')->with('message', 'Facilitator updated successfully');
         } return back();
     
     }
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
         $user->delete();
-        return redirect('teachers')->with('message', 'user deleted successfully');
+        return redirect('teachers')->with('message', 'Facilitator deleted successfully');
     }
     
 }

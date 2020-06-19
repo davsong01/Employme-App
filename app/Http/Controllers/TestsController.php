@@ -40,15 +40,30 @@ class TestsController extends Controller
 
     public function store(Request $request)
     {
+        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
 
+        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
+      
+        foreach($certification_test_details as $key => $value)
+        {
+            // print_r(str_word_count($certification_test_details[$key]);
+            if(str_word_count($certification_test_details[$key]) > 500 ){
+                return back()->with('error', 'Maximum number of words allowed for each question is 500, please try again');
+            };
+        }
+        
+        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->count();
+        
+        if($check > 0){
+            return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
+        };
+        
         $module = Module::findOrFail($request->mod_id);
        
         $questions = $module->questions->toarray();
         $no_of_questions = count($questions);
         $score = 0;
         
-        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
-        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
 
         if($module->type == 'Certification Test'){
             try{

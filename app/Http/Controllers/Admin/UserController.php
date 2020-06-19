@@ -280,7 +280,7 @@ class UserController extends Controller
             'content' => 'required | min: 10'
         ]);
 
-        $recipients = User::where('program_id', $request->program)->get();
+        $recipients = User::where('program_id', $request->program)->where('role_id', 'Student')->get();
         $data = $request->content;
         // dd($recipients);'
         Mail::to('employmeng@gmail.com')->send(new Email($data));

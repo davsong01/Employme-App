@@ -18,9 +18,9 @@ class ProfileController extends Controller
         $programs = Program::all();
         if(Auth::user()->role_id == "Admin" && $id == Auth::user()->id){
         return view('dashboard.admin.profiles.edit', compact('programs','user'));
-        }elseif(Auth::user()->role_id == "Teacher" && $id == Auth::user()->id){
-            return view('dashboard.teacher.profiles.edit', compact('programs','user'));
-        }elseif($id == Auth::user()->id){
+        }elseif(Auth::user()->role_id == "Facilitator" && $id == Auth::user()->id){
+            return view('dashboard.admin.profiles.edit', compact('programs','user'));
+        }elseif(Auth::user()->role_id == "Student" && $id == Auth::user()->id){
             return view('dashboard.student.profiles.edit', compact('programs','user'));
         }
         return back();
@@ -28,30 +28,33 @@ class ProfileController extends Controller
    
     public function update(Request $request, $id)
     {   
+        // dd($request->all());
         $user = User::findorFail(Auth::user()->id);
-    
-            if($request['password']){
-                $user-> password = bcrypt($request['password']);
-            };
+       
+        $user->name = $request->name;
+        $user->t_phone = $request->t_phone;
+        $user->gender = $request->gender;
 
-            if(request()->has('file')){ 
-               // dd($request->file);
+        if($request['password']){
+            $user->password = bcrypt($request['password']);
+        };
 
-                $imgName = $request->file->getClientOriginalName();
-                
-                $picture = Image::make($request->file)->resize(100, 100);
-                
-                $picture->save('profiles/'.'/'.$imgName);
+        if(request()->has('file')){ 
+            // dd($request->file);
 
-                $user->update([
-                    'profile_picture' => $imgName,
-                ]);
-            }
-    
+            $imgName = $request->file->getClientOriginalName();
+            
+            $picture = Image::make($request->file)->resize(100, 100);
+            
+            $picture->save('profiles/'.'/'.$imgName);
 
-        //check amount against payment
-        // $user->update($this->validateRequest());
-        // $this->storeImage($user);
+            $user->update([
+                'profile_picture' => $imgName,
+            ]);
+
+        }
+        
+        $user->save();
        
         return back()->with('message', 'Profile update successful');
     
@@ -59,8 +62,8 @@ class ProfileController extends Controller
     private function validateRequest(){
         return tap(request()->validate([
         'name' => 'required',
-        't_phone' => '',
-        'gender' => 'required',
+        't_phone' =>'required | numeric | min:9',
+        'gender' => 'required | numeric',
         ]), function (){
             if (request()->hasFile('file')){
                 request()->validate([

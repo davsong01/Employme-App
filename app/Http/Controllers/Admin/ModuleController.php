@@ -58,7 +58,7 @@ class ModuleController extends Controller
             'status' => 'required|numeric',
             'time' => 'required|numeric|min:2',
             'type' => 'required|numeric',
-            'noofquestions' => 'required|numeric|min:5|max:20'
+            'noofquestions' => 'required|numeric'
         ]);
 
         //check if scoresettings exist for this program

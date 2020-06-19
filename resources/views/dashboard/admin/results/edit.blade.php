@@ -61,12 +61,12 @@
                                     <label for="title">{{ $i ++ .'. ' }}{{$key}}</label><br>
             
                                     <div class="form-group">
-                                    <textarea style="max-width: 100%;" name="answer" id="" rows="12" cols="100"
-                                        placeholder="{{ $value }}" disabled></textarea>
+                                    <textarea style="max-width: 100%; padding:10px; text-align: justify;" name="answer" id="" rows="12" cols="100"
+                                        readonly>{{ $value }}</textarea>
                                     </div>
                                 </div>
                                 @endforeach
-                                <h6 style="color:red">Now, score this candidate's certification test. </h6>
+                                <h6 style="color:red">Now, score this candidate's certification test: </h6>
                                 <div class="form-group">
                                     <label><span style="color:green">(Max score = {{$user_results->program->scoresettings->certification}})</span></label>
                                     <input type="number" name="certification_score"

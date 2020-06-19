@@ -23,7 +23,7 @@
                             <th>Phone</th>
                             <th>Email</th>
                             <th>Training</th>
-                            <th>Type</th>
+                          
                             <th>Manage</th>
                         </tr>
                     </thead>
@@ -36,40 +36,29 @@
                             <td>{{ $user->t_phone}}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->program->p_name }}</td>
-                            <td>{{ $user->role_id }}</td>
-                     
+                                          
                             <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-primary dropdown-toggle" type="button"
-                                        data-toggle="dropdown">Action
-                                        <span class="caret"></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li><i class="far fa-edit"></i><a href="{{ route('teachers.edit', $user->id) }}"> Edit</a></li>
-                                      <!--  <li><i class="far fa-envelope"></i><a href="{{ route('teachers.show', $user->id) }}"> Send E-receipt</a></li> -->
+                                <div class="btn-group">
+                                    <a data-toggle="tooltip" data-placement="top" title="Edit facilitator"
+                                        class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
+                                            class="fa fa-edit"></i>
+                                    </a>
                                         
-                                    <form class="delete" action="{{ route('teachers.destroy', $user->id) }}" method="POST">
-                                            <i class="fas fa-trash"></i>
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            {{ csrf_field() }}
-                                            <input type="submit" class="custombutton" value="Delete">
-                                        </form> </li>
-                                    </ul>
+                                    
+                                    <form action="{{ route('teachers.destroy', $user->id) }}" method="POST"
+                                        onsubmit="return confirm('Are you really sure?');">
+                                        {{ csrf_field() }}
+                                        {{method_field('DELETE')}}
+
+                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                            data-placement="top" title="Delete facilitator"> <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                             @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Type</th>
-                            <th>Manage</th>
-                        </tr>
-                    </tfoot>
+                   
                 </table>
             </div>
 

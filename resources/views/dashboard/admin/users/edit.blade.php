@@ -85,7 +85,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Amount Paid *</label><span>Already paid: <strong>{{$user->t_amount}}</strong></span>
-                                    <input type="number" name="amount" value="{{ old('amount') ?? 0 }}" min="0" class="form-control">
+                                    <input type="number" name="amount" value="{{ old('amount') ?? 0 }}" class="form-control">
                                 </div>
                                 <!--Gives the first error for input name-->
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
@@ -118,8 +118,8 @@
                                     <label for="class">Gender</label>
                                     <select name="gender" id="class" class="form-control">
                                         <option value="" disabled>Select Gender</option>
-                                        <option value="1" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
-                                        <option value="0" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female</option>
+                                        <option value="1" {{ $user->gender == 1 ? 'selected' : ''}}>Male</option>
+                                        <option value="0" {{ $user->gender == 0 ? 'selected' : ''}}>Female</option>
                         
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>

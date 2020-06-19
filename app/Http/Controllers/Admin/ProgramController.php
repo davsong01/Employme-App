@@ -29,12 +29,14 @@ class ProgramController extends Controller
                 $program['part_paid'] = 0;
 
                 foreach($program->users as $users){
-                    if($users->balance <= 0){
-                        $program['fully_paid'] = $program['fully_paid'] + 1;
-                    }
+                    if($users->role_id == 'Student'){
+                        if($users->balance <= 0){
+                            $program['fully_paid'] = $program['fully_paid'] + 1;
+                        }
 
-                    if($users->balance > 0){
-                        $program['part_paid'] = $program['part_paid'] + 1;
+                        if($users->balance > 0){
+                            $program['part_paid'] = $program['part_paid'] + 1;
+                        }
                     }
                     // print_r();
                 }

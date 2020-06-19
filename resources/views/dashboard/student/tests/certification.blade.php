@@ -14,8 +14,8 @@
         <div class="content">
             @include('layouts.partials.alerts')
             <p><strong>Training: {{ $program }}</strong><br>
-                <strong>Module: {{ $module_title }}</strong>
-                Select the correct answer
+                <strong>Module: {{ $module_title }}</strong><br>
+                Please Type in your answer in the text boxes under each question
             </p>
             <form name="quiz" id="quiz_form" action="{{route('tests.store')}}" method="POST" class="pb-2">
                 {{ csrf_field() }}
@@ -24,15 +24,33 @@
                 <div class="form-group">
                     <label for="title">{{ $i ++ .'. ' }}{{ $question->title }}</label><br>
 
-                    <label for="{{ $question->id}}">Your answer</label><br>
+                    <label for="{{ $question->id}}">Your answer <strong style="color:green">( Maximum words: 500 )</strong></label><br>
+                    Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span>
                     <div class="form-group">
-                    <textarea style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="10" cols="100"
+                    <textarea id= "text{{ $question->id}}" style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="20" cols="100"
                         placeholder="Enter your answer for question {{ $i - 1 }} here"></textarea>
                     </div>
+                  
                     <input type="hidden" name="id" value="{{$question->id}}">
                     <input type="hidden" name="mod_id" value="{{$question->module->id}}">
                 </div>
+                <script>
+                    $('#text{{ $question->id}}').keydown(function() {
+                        var length = jQuery.trim($(this).val()).split(/\s+/).length;
+                        $('#{{ $question->id}}').text(length);
+
+                        //stop user input
+                        if(length > 500){
+                            $(this).prop("maxLength", 1);
+                            
+                        }else{
+                            $(this).removeAttr("maxLength");
+                        }
+                    });
+
+                </script>
                 @endforeach
+
                 
                 <div class="row">
                     <button type="submit" class="btn btn-primary" style="width:100%">
@@ -40,6 +58,7 @@
                     </button>
                 </div>
             </form>
+           
         </div>
 
     </div>
@@ -88,7 +107,6 @@
             }
 
         }
-
 
         init();
     </script>

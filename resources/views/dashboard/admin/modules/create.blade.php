@@ -56,9 +56,9 @@
                                 </div>
 
                                 <div class="form-group{{ $errors->has('noofquestions') ? ' has-error' : '' }}">
-                                    <label for="noofquestions">No of Questions(Min: 5; Max: 20)</label>
+                                    <label for="noofquestions">No of Questions</label>
                                     <input id="noofquestions" type="number" class="form-control" name="noofquestions"
-                                        value="{{ old('noofquestions') }}" autofocus required min="5" max="20">
+                                        value="{{ old('noofquestions') }}" autofocus required>
                                     @if ($errors->has('noofquestions'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('noofquestions') }}</strong>
