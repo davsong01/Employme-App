@@ -24,16 +24,70 @@ class ResultController extends Controller
     {
        if(Auth::user()->role_id == "Admin"){
             $i = 1;
-            //$results = Result::with(['user', 'program', 'module'])->orderBy('id', 'DESC')->get();
-
-            $users = User::with(['results'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->get();
-
+            
+            $users = User::with(['results', 'program'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->get();
+        
             foreach($users as $user){
             
                 $user['total_ct_score'] = 0;
                 $user['total_cert_score'] = 0;
                 $user['program_score_settings'] = 0;
-                $user['no_of_questions'] = 0;
+                $user['total_email_test_score'] = 0;
+
+                $user['class_test_module_count'] = Module::where('program_id', $user->program->id)->where('type', 'Class Test')->count();  
+                $user['total_role_play_score'] = 0;
+                if(isset($user->results)){
+                    foreach($user->results as $results){
+                        $user['marked_by'] = $results->marked_by; 
+                        $user['total_role_play_score'] = $results->role_play_score + $user['total_role_play_score']; 
+                        $user['total_email_test_score'] = $results->email_test_score + $user['total_email_test_score']; 
+
+                    $user['module'] = $results->module->id;
+                        if($results->module->type == 'Class Test'){
+                            $user['total_ct_score'] = $results->class_test_score + $user['total_ct_score']; 
+                            //$user['modules'] = $results->module->count();
+                            $user['program_score_settings'] = $results->program->scoresettings->class_test;
+                            //print_r( $results->module->questions->count());
+                            $user['program_score_settings'] = $results->program->scoresettings->class_test;
+                           
+                            $u =  Module::where('type', 0)->get();
+                            $obtainable = array();
+                            foreach($u as $t){
+                                $questions = array_push($obtainable, $t->questions->count());
+                            }
+                            $obtainable = array_sum($obtainable);
+                            
+                            $user['test_score'] = ($user['total_ct_score'] * $user['program_score_settings'] ) / $obtainable;
+
+                            $user['test_score'] = round($user['test_score'] , 0);
+                   
+                        }
+                        
+                        if($results->module->type == 'Certification Test'){
+                            $user['result_id'] = $results->id;
+                        }
+                        
+                        $user['total_cert_score'] = $results->certification_test_score + $user['total_cert_score'];       
+                    } 
+                }
+        
+            }
+           
+            return view('dashboard.admin.results.index', compact('users', 'i') );
+        }
+            
+        if(Auth::user()->role_id == "Facilitator"){
+      
+            $i = 1;
+            //$results = Result::with(['user', 'program', 'module'])->orderBy('id', 'DESC')->get();
+    
+            $users = User::with(['results'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->where('program_id', auth()->user()->program->id)->get();
+           
+            foreach($users as $user){
+            
+                $user['total_ct_score'] = 0;
+                $user['total_cert_score'] = 0;
+                $user['program_score_settings'] = 0;
                 $user['total_email_test_score'] = 0;
 
                 $user['class_test_module_count'] = Module::where('program_id', $user->program->id)->where('type', 'Class Test')->count();  
@@ -52,15 +106,25 @@ class ResultController extends Controller
                             //$user['modules'] = $results->module->count();
                             $user['program_score_settings'] = $results->program->scoresettings->class_test;
                             //print_r( $results->module->questions->count());
-                            $user['no_of_questions'] = $results->module->questions->count() + $user['no_of_questions'];
-                        
-                            $user['test_score'] = ($user['total_ct_score'] * $user['program_score_settings'] ) /$user['no_of_questions'];
+                            $user['program_score_settings'] = $results->program->scoresettings->class_test;
+                            // print_r( $results->modules->questions->count());
+                            // print_r($results->program->questions->count());
+                            
+                            // $user['no_of_questions'] = $results->program->questions->count() + $user['no_of_questions'];
+                            // print_r($results->program->questions->count());
+                            $u =  Module::where('type', 0)->get();
+                            $obtainable = array();
+                            foreach($u as $t){
+                                $questions = array_push($obtainable, $t->questions->count());
+                            }
+                            $obtainable = array_sum($obtainable);
+                            // dd( $user['total_ct_score'], $obtainable);
+                            $user['test_score'] = ($user['total_ct_score'] * $user['program_score_settings'] ) / $obtainable;
 
                             $user['test_score'] = round($user['test_score'] , 0);
-                            // $user['result_id'] = $results->id;
-                            //print_r($r);
+                   
                         }
-
+                        
                         if($results->module->type == 'Certification Test'){
                             $user['result_id'] = $results->id;
                         }
@@ -70,60 +134,7 @@ class ResultController extends Controller
                 }
         
             }
-          
-            return view('dashboard.admin.results.index', compact('users', 'i') );
-        }
             
-        if(Auth::user()->role_id == "Facilitator"){
-      
-            $i = 1;
-            //$results = Result::with(['user', 'program', 'module'])->orderBy('id', 'DESC')->get();
-    
-            $users = User::with(['results'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->where('program_id', auth()->user()->program->id)->get();
-    
-            foreach($users as $user){
-                
-                $user['total_ct_score'] = 0;
-                $user['total_cert_score'] = 0;
-                $user['program_score_settings'] = 0;
-                $user['no_of_questions'] = 0;
-                $user['total_email_test_score'] = 0;
-    
-                $user['class_test_module_count'] = Module::where('program_id', $user->program->id)->where('type', 'Class Test')->count();  
-                $user['total_role_play_score'] = 0;
-                if(isset($user->results)){
-                    foreach($user->results as $results){
-                        $user['marked_by'] = $results->marked_by; 
-                        $user['total_role_play_score'] = $results->role_play_score + $user['total_role_play_score']; 
-                        $user['total_email_test_score'] = $results->email_test_score + $user['total_email_test_score']; 
-    
-                        // $user['result_id'] = $results->id;
-    
-                        $user['module'] = $results->module->id;
-                        if($results->module->type == 'Class Test'){
-                            $user['total_ct_score'] = $results->class_test_score + $user['total_ct_score']; 
-                            //$user['modules'] = $results->module->count();
-                            $user['program_score_settings'] = $results->program->scoresettings->class_test;
-                            //print_r( $results->module->questions->count());
-                            $user['no_of_questions'] = $results->module->questions->count() + $user['no_of_questions'];
-                            
-                            $user['test_score'] = ($user['total_ct_score'] * $user['program_score_settings'] ) /$user['no_of_questions'];
-    
-                            $user['test_score'] = round($user['test_score'] , 0);
-                            // $user['result_id'] = $results->id;
-                            //print_r($r);
-                        }
-    
-                        if($results->module->type == 'Certification Test'){
-                            $user['result_id'] = $results->id;
-                        }
-                        
-                        $user['total_cert_score'] = $results->certification_test_score + $user['total_cert_score'];       
-                    } 
-                }
-            
-            }
-            // dd($users);
                 return view('dashboard.admin.results.index', compact('users', 'i') );
         } return redirect('/dashboard');
     }
@@ -201,7 +212,7 @@ class ResultController extends Controller
             $program->hasresult = 1;
     
             $program->save();
-    
+        
             return back()->with('message', 'Participants of this program can now print their statement of result');
         }return back();
     }
@@ -238,11 +249,13 @@ class ResultController extends Controller
                 $certification = 0;
                 $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id',Auth::user()->program->id)->get();
                 
-                $obtainable = 0;
-            
+                $obtainable = array();
+                
                 foreach($modules as $module){
-                    $obtainable = $module->questions->count() + $obtainable;
+                    $questions = array_push($obtainable, $module->questions->count());
                 }
+
+                $obtainable = array_sum($obtainable);
 
                foreach($result as $t){    
                 // dd( $t->module->id );       
@@ -260,12 +273,14 @@ class ResultController extends Controller
                 }
                 
                 $details['class_test_score'] = ($class  *  $t['ct_set_score']) /  $obtainable;
-                                
+                $details['class_test_score'] = round($details['class_test_score'] , 0);
+
                 $details['email_test_score'] = $email;
                 $details['role_play_score'] = $roleplay;
                 $details['certification_test_score'] = $certification;
             
                 $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
+                
                 $details['passmark'] = $t['passmark'];
 
                 $details['program'] = $t['program'];

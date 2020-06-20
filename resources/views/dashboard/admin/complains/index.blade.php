@@ -1,6 +1,6 @@
 @extends('dashboard.admin.index')
 @section('title')
-    {{ config('app.name') .' CRM Management' }}
+    {{ config('app.name') .' CRM Tool' }}
 @endsection
 @section('content')
 
@@ -53,7 +53,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Complains <a href="{{route('complains.create')}}"><button type="button" class="btn btn-outline-primary">Add New Complain</button></a></h5> 
+                    <h5 class="card-title"> All Queries <a href="{{route('complains.create')}}"><button type="button" class="btn btn-outline-primary">Add New Query</button></a></h5> 
                 </div>
             </div>
             
@@ -78,7 +78,7 @@
                             <td>
                                 <div class="btn-group">
 
-                                    <a data-toggle="tooltip" data-placement="top" title="View Complain"
+                                    <a data-toggle="tooltip" data-placement="top" title="View Query"
                                         class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
                                             class="fa fa-eye"></i></a>
 
@@ -92,7 +92,7 @@
                                             {{method_field('DELETE')}}
 
                                             <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete Complain"> <i
+                                                data-placement="top" title="Delete Query"> <i
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>

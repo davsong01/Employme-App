@@ -58,7 +58,7 @@
             <div class="card card-hover">
                 <div class="box bg-warning text-center">
                     <h1 class="font-light text-white"><i class="far fa-comments"></i></h1>
-                    <h6 class="text-white">CRM Management</h6>
+                    <h6 class="text-white">CRM Tool</h6>
                 </div>
             </div>
             </a>
@@ -104,7 +104,7 @@
             <div class="card card-hover">
                 <div class="box bg-warning text-center">
                     <h1 class="font-light text-white"><i class="far fa-comments"></i></h1>
-                    <h6 class="text-white">CRM Management</h6>
+                    <h6 class="text-white">CRM Tool</h6>
                 </div>
             </div>
             </a>

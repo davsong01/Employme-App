@@ -17,17 +17,8 @@
                 </li>
                 @if(Auth::user()->program->hascrm == 1)
 
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="far fa-comments"></i><span
-                            class="hide-menu">CRM Management </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
-                        <li class="sidebar-item"><a href="{{route('complains.create')}}" class="sidebar-link"><span
-                                    class="hide-menu">- Add New Complain</span></a>
-                        </li>
-                        <li class="sidebar-item"><a href="{{route('complains.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- View All Complains</span></a>
-                        </li>
-                    </ul>
+                <li class="sidebar-item"><a href="{{ route('complains.index')}}" class="sidebar-link"><i
+                    class="fas fa-comments"></i><span class="hide-menu">CRM Tool</span></a>
                 </li>
                 @endif
 

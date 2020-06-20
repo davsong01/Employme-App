@@ -7,6 +7,7 @@ use App\Result;
 use App\Material;
 use App\ScoreSetting;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
@@ -36,5 +37,9 @@ class Program extends Model
         return $this->hasMany(Module::class);
     }
 
-
+    public function questions()
+    {
+        return $this->hasManyThrough('App\Question', 'App\Module');
+    }
+    
 }
