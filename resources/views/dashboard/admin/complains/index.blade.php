@@ -11,7 +11,7 @@
             <div class="card card-hover">
                 <div class="box bg-info text-center">
                     <h1 class="font-light text-white"><i class=" fa fa-list-alt"></i></h1>
-                    <h6 class="text-white"><b></b> {{$complains->count()}} Complain(s)</h6>
+                    <h6 class="text-white"><b></b> {{$complains->count()}} Query(s)</h6>
 
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>
-                    <h6 class="text-white"><b></b>{{$resolvedComplains}} Complains Resolved</h6>
+                    <h6 class="text-white"><b></b>{{$resolvedComplains}} Query(s) Resolved</h6>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="card card-hover">
                 <div class="box bg-danger text-center">
                     <h1 class="font-light text-white"><i class="fa fa-clock"></i></h1>
-                    <h6 class="text-white">{{$pendingComplains}} Complain(s) Pending</h6>
+                    <h6 class="text-white">{{$pendingComplains}} Query(s) Pending</h6>
                 </div>
             </div>
         </div>
@@ -65,6 +65,7 @@
                             <th>Assignee</th>                            
                             <th>Date Created</th>
                             <th>Status</th>
+                            <th>SLA</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -75,6 +76,7 @@
                             <td>{{ $complain->user->name }} <span style="color:blue">({{ $complain->user->responseStatus }}% Response Rate)</span></td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
+                            <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                             <td>
                                 <div class="btn-group">
 
@@ -100,15 +102,7 @@
                             </td>
                         </tr> @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>Ticket Number</th>
-                            <th>Assignee</th>
-                            <th>Date Created</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </tfoot>
+                    
                 </table>
             </div>
 

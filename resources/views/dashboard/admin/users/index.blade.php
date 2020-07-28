@@ -50,9 +50,13 @@
                             <td>{{ $user->t_type }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit Users"
+                                    <a data-toggle="tooltip" data-placement="top" title="Edit User"
                                         class="btn btn-info" href="{{ route('users.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
+                                    </a>
+                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                        class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
+                                            class="fa fa-unlock"></i>
                                     </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
                                         class="btn btn-primary" href="{{ route('users.show', $user->id) }}"><i

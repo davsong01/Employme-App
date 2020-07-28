@@ -18,7 +18,7 @@ class ComplainController extends Controller
             $i = 1;  
 
             $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
-            //  $users = User::with(['complain'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->where('program_id', auth()->user()->program->id)->get();
+            
 
             $resolvedComplains =  Complain::where('status', '=', 'Resolved' )->count();
             $pendingComplains =  Complain::where('status', '=', 'Pending' )->count(); 
@@ -68,12 +68,17 @@ class ComplainController extends Controller
             'response' => 'sometimes',
             'notes' => 'sometimes',
         ]);
-
+           
         if(!empty($data['notes'])){
             $data['notes'] =  $data['notes'];
         }else{
-            $data['notes'] = "";
+            $data['notes'] = 0;
         }
+
+        if($data['type'] == "Enquiry"){
+            $sla = 0;
+        }else $sla = rand(4, 6);
+
         Complain::create([
             'user_id' => Auth::user()->id,
             'name' => $data['name'],
@@ -93,6 +98,7 @@ class ComplainController extends Controller
             'notes' => $data['notes'],
             'content' => $data['complain'],
             'response' => $data['response'],
+            'sla' => $sla,
         ]);
 
         return back()->with('message', 'CRM has been created succesfully');

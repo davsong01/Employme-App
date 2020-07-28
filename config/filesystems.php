@@ -67,9 +67,6 @@ return [
             'driver' => 'local',
             'root' => base_path() . '/uploads',
         ],
-
-        
-
     ],
 
 ];

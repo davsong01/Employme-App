@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Welcomemail;
 use Paystack;
-use PDF;
 
 class PaymentController extends Controller
 {
@@ -89,9 +88,7 @@ class PaymentController extends Controller
                   
                     return redirect('/')->with('message', 'Balance payment succesful');
                     } return back();
-                
-             
-                        
+                 
                     };
                     
                     

@@ -1,0 +1,46 @@
+@extends('dashboard.admin.index')
+@section('title', 'Add Certificate')
+@section('content')
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        @include('layouts.partials.alerts')
+                        <h4 class="card-title">Add new Certificate</h4>
+                    </div>
+                    <form action="{{ route('certificates.store') }}" method="POST" enctype="multipart/form-data"
+                        class="pb-2">
+                        {{ csrf_field() }}
+                        <!--Gives the first error for input name-->
+
+                        <div><small>{{ $errors->first('title')}}</small></div>
+                        <div class="form-group">
+
+                            <label for="class">Select User *</label>
+
+                            <select name="user_id" id="user_id" class="form-control" required>
+                                <option value=""></option>
+                                @foreach ($users as $user)
+                                    @if(!isset($user->certificate))
+                                        <option value="{{ $user->id }}">{{$user->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <div><small style="color:red">{{ $errors->first('user_id')}}</small></div>
+
+                            <div class="form-group">
+                                <label>Choose Certificate</label>
+                                <input type="file" id="file" name="file[]" value="" class="form-control" multiple>
+                            </div>
+                            <div><small style="color:red">{{ $errors->first('file[]')}}</small></div>
+                        </div>
+
+                        <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection

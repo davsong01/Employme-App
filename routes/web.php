@@ -12,9 +12,9 @@ Auth::routes();
 Route::get('/demo', 'HomeController@demo')->name('demo'); 
 
 //route for the home
-Route::get('/', 'HomeController@index', ['accept' =>['show'], 'index'])->middleware(['auth']);
+Route::get('/', 'HomeController@index', ['accept' =>['show'], 'index'])->middleware(['impersonate','auth']);
 //route for dashboard.index only
-Route::get('/dashboard', 'HomeController@index', ['accept' =>['show'], 'index'])->name('home');
+Route::get('/dashboard', 'HomeController@index', ['accept' =>['show'], 'index'])->name('home')->middleware(['impersonate','auth']);
 
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
@@ -39,16 +39,14 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
-Route::resource('tests', 'TestsController')->middleware(['auth']);
-Route::get('userresults', 'TestsController@userresults')->middleware(['auth'])->name('tests.results');
-Route::resource('profiles', 'ProfileController')->middleware(['auth']);
+Route::resource('tests', 'TestsController')->middleware(['impersonate','auth']);
+Route::get('userresults', 'TestsController@userresults')->middleware(['impersonate','auth'])->name('tests.results');
+Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
+
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
 
-// Route::namespace('Admin')->middleware(['auth'])->group(function(){
-//     Route::get('sms', 'UserController@Edex');
-// });
 
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('complains', 'ComplainController');
     Route::get('complainresolved/{complain}', 'ComplainController@resolve')->name('crm.resolved');
 });
@@ -57,18 +55,20 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
     //Send Mails
     Route::get('usermail', 'UserController@mails')->name('users.mail');
-    Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');
-   
+    Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');  
 });
+
+Route::get('/impersonate/{id}', 'Admin\ImpersonateController@index')->name('impersonate')->middleware('impersonate');
+Route::get('/stopimpersonating', 'Admin\ImpersonateController@stopImpersonate')->name('stop.impersonate');
+
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
 });
 
-
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('teachers', 'TeacherController');
 });
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('results', 'ResultController');
     Route::get('user/{uid}/module/{modid}', 'ResultController@add')->name('results.add');
     Route::get('certifications', 'ResultController@certifications')->name('certifications.index');
@@ -87,13 +87,18 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('enablemodule/{id}', 'ModuleController@enablemodule')->name('modules.enable');
     Route::get('disablemodule/{id}', 'ModuleController@disablemodule')->name('modules.disable');
 });
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('materials', 'MaterialController');
-;    Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');
-    Route::get('studymaterials/{filename}', 'MaterialController@getfile')->middleware(['auth']);
+    Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');
+    Route::get('studymaterials/{filename}', 'MaterialController@getfile');
 });
+
+Route::resource('certificates', 'CertificateController')->middleware(['impersonate','auth']);;
+   Route::get('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
+   Route::post('suser', 'CertificateController@selectUser')->name('user.select')->middleware(['impersonate','auth']);
+
 //route for payments history
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('payments', 'PaymentController');
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){

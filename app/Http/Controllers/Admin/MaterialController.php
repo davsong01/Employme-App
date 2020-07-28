@@ -14,8 +14,9 @@ class MaterialController extends Controller
 {
     public function index(Request $request)
     {
+       
       $userid = Auth::user()->id;
-      $i = 1;
+        $i = 1;
         if(Auth::user()->role_id == "Admin"){
             $materials = Material::orderBy('created_at', 'desc')->get();
             // $materials= $image= str_replace(' ', '%20', $materials);

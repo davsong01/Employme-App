@@ -5,7 +5,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Sttudy Materials</h5>
+            <h5 class="card-title">Study Materials</h5>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>

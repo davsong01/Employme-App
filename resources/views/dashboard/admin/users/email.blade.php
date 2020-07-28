@@ -42,8 +42,23 @@
                                 </span>
                             @endif
                         </div>
+                        <div class="form-group{{ $errors->has('subject') ? ' has-error' : '' }}">
+
+                            <label for="subject">Subject</label>
+
+                            <input id="subject" type="text" class="form-control" name="subject"
+                                value="{{ old('subject')}}" required autofocus>
+
+                            @if ($errors->has('subject'))
+                            <span class="help-block">
+                                <strong>{{ $errors->first('subject') }}</strong>
+                            </span>
+
+                            @endif
+
+                        </div>
                         <div class="form-group">
-                            <label>Type Email Content</label>
+                            <label>Type Email Content (<strong style="color:red">Dear {Participant's name} is automatically added at the top of this mail</strong>)</label>
 
                             <textarea class="form-control" id="summary-ckeditor" name="content"></textarea>
                         </div>
@@ -76,6 +91,7 @@
                                 <th>Date</th>
                                 <th>Training</th>
                                 <th>Sender</th>
+                                <th>Subject</th>
                                 <th>No of Recipients</th>
                                 <th>Actions</th>
                             </tr>
@@ -87,6 +103,7 @@
                                     <td>{{ $email->created_at->format('d/m/Y') }}</td>
                                     <td>{{ $email->program }}</td>
                                     <td>{{ $email->sender }}</td>
+                                    <td>{{ $email->subject }}</td>
                                     <td>{{ $email->noofemails }}</td>
                                     <td>
                                         <div class="btn-group">

@@ -264,7 +264,7 @@ class UserController extends Controller
     public function mails(){
         $i = 1;
         $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
-        $updateemails = UpdateMails::all();
+        $updateemails = UpdateMails::orderby('created_at', 'DESC')->get();
         return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i') );
     }
 
@@ -277,15 +277,19 @@ class UserController extends Controller
      
         $data = $this->validate($request, [
             'program' => 'required | numeric',
+            'subject' => 'required | min: 5',
             'content' => 'required | min: 10'
         ]);
 
         $recipients = User::where('program_id', $request->program)->where('role_id', 'Student')->get();
         $data = $request->content;
+        $subject = $request->subject;
         // dd($recipients);'
-        Mail::to('employmeng@gmail.com')->send(new Email($data));
+        $name = auth()->user()->name;
+        Mail::to('employmeng@gmail.com')->send(new Email($data, $name, $subject));
         foreach($recipients as $recipient){
-            Mail::to($recipient->email)->send(new Email($data));       
+            $name = $recipient->name;
+            Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
         }
 
         if( count(Mail::failures()) > 0 ) {
@@ -303,6 +307,7 @@ class UserController extends Controller
                 UpdateMails::create([
                     'sender' => Auth::user()->name,
                     'program' => Program::where('id', $request->program )->value('p_name'),
+                    'subject' => $request->subject,
                     'content' => $request->content,
                     'noofemails' => count($recipients),
                 ]);

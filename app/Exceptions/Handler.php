@@ -48,6 +48,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if($request->is('api/*')){
+            $warning = 'User NOT found on '. config('app.name');
+            return response()->json($response = ['success' => false,'error' => $warning], 200);
+        }
+        
         return parent::render($request, $exception);
     }
 }

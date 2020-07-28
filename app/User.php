@@ -6,6 +6,8 @@ use Auth;
 use App\Result;
 use App\Program;
 use App\Complain;
+use App\Certificate;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -26,6 +28,29 @@ class User extends Authenticatable
         public function complains(){
             return $this->hasMany(Complain::class);
         }
+
+        public function certificate(){
+            return $this->hasOne(Certificate::class);
+        }
+
+        public function certificates(){
+            return $this->hasMany(Certificate::class);
+        }
+
+        public function setImpersonating($id)
+        {
+            Session::put('impersonate', $id);
+        }
+    
+        public function stopImpersonating()
+        {
+            Session::forget('impersonate');
+        }
+    
+        public function isImpersonating()
+        {
+            return Session::has('impersonate');
+        }        
        
 }
    

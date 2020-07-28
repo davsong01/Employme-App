@@ -71,6 +71,10 @@
                     <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
                     class="hide-menu">- Grades</span></a>
                     @if(Auth()->user()->role_id == "Admin")
+                    <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span
+                        class="hide-menu">- Certificates</span></a>
+
+                    </li>
                     <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Score Settings</span></a>
 
