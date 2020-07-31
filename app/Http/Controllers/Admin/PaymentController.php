@@ -28,7 +28,7 @@ class PaymentController extends Controller
           return view('dashboard.admin.payments.index', compact('users', 'i') );
 
         }
-        if(Auth::user()->role_id == "Teacher"){
+        if(Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader"){
             return back();
         }
         if(Auth::user()->role_id == "Student"){          

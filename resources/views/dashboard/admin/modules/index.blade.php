@@ -59,7 +59,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Modules <a href="{{route('modules.create')}}"><button type="button" class="btn btn-outline-primary">Add New Module</button></a></h5> 
+                    <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin")<a href="{{route('modules.create')}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
                 </div>
             </div>
             <div class="table-responsive">

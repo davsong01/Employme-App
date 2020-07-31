@@ -27,7 +27,8 @@
                             <th>Email Score</th>
                             <th>Passmark</th>
                             <th>T. Score</th>
-                            <th>Marked by</th>
+                            <th>Facilitator</th>
+                            <th>Grader</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -46,6 +47,7 @@
                             <td>{{ $user->program->scoresettings->passmark }}%</td>
                             <td>{{ $user->total_cert_score + $user->test_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>
                             <th>{{ $user->marked_by }}</th>
+                            <th>{{ $user->grader }}</th>
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                           
                             <td>

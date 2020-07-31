@@ -19,7 +19,7 @@ class TeacherController extends Controller
     {
         $i = 1;
         //$users = User::all();
-        $users = User::where('role_id', "Facilitator")->get();
+        $users = User::where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->get();
         $programs = Program::where('id', '<>', 1)->get();
         
        if(Auth::user()->role_id == "Admin"){

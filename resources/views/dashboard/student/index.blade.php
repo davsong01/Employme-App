@@ -14,7 +14,6 @@
                     style="color:yellow !important; font-weight:bolder" href="{{ route('stop.impersonate') }}" aria-expanded="false"><i class="fa fa-arrow-left"></i><span
                         class="hide-menu">BACK TO ADMIN</span></a></li>
                 @endif
-
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Student Dashboard</span></a></li>

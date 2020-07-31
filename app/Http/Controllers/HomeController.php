@@ -51,7 +51,9 @@ class HomeController extends Controller
        $currentUser = DB::table('users')->where('id', '==', Auth::user()->id)->get(); 
         $currentUsermaterialsCount = Material::where('program_id', '=', Auth::user()->program_id)->get()->count();
       
-        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+       
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader" ){
+            
             $programCount = Program::where('id', '<>', 1)->count();
             //count number of users owing
             $userowing = $userCount = DB::table('users')->where([
@@ -63,14 +65,14 @@ class HomeController extends Controller
             $materialCount = Material::count();
             $i = 0;
            $requests = $request;
-            
+           
         return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount'));
 
         } 
-        if(Auth::user()->role_id == "Teacher"){
+        // if(Auth::user()->role_id == "Facilitator"){
             
-            return view('dashboard.teacher.dashboard', compact('currentUser', 'calendar','currentUsermaterialsCount'));
-        }
+        //     return view('dashboard.teacher.dashboard', compact('currentUser', 'calendar','currentUsermaterialsCount'));
+        // }
         if(Auth::user()->role_id == "Student"){
             
             //Get Length of training

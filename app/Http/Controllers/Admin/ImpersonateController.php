@@ -44,5 +44,14 @@ class ImpersonateController extends Controller
         return redirect(route('users.index'))->with('message', 'Welcome back!');   
 
     }
+
+    public function stopImpersonateFacilitator()
+    {
+        
+        Auth::user()->stopImpersonating();
+
+        return redirect(route('teachers.index'))->with('message', 'Welcome back!');   
+
+    }
     
 }

@@ -25,7 +25,7 @@ class ResultController extends Controller
        if(Auth::user()->role_id == "Admin"){
             $i = 1;
             
-            $users = User::with(['results', 'program'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->get();
+            $users = User::with(['results', 'program'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Grader')->where('role_id', '<>', 'Facilitator')->get();
         
             foreach($users as $user){
             
@@ -39,6 +39,7 @@ class ResultController extends Controller
                 if(isset($user->results)){
                     foreach($user->results as $results){
                         $user['marked_by'] = $results->marked_by; 
+                        $user['grader'] = $results->grader;
                         $user['total_role_play_score'] = $results->role_play_score + $user['total_role_play_score']; 
                         $user['total_email_test_score'] = $results->email_test_score + $user['total_email_test_score']; 
 
@@ -76,12 +77,12 @@ class ResultController extends Controller
             return view('dashboard.admin.results.index', compact('users', 'i') );
         }
             
-        if(Auth::user()->role_id == "Facilitator"){
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
       
             $i = 1;
             //$results = Result::with(['user', 'program', 'module'])->orderBy('id', 'DESC')->get();
     
-            $users = User::with(['results'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->where('program_id', auth()->user()->program->id)->get();
+            $users = User::with(['results'])->orderBy('id', 'DESC')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Facilitator')->where('role_id', '<>', 'Admin')->where('role_id', '<>', 'Grader')->where('program_id', auth()->user()->program->id)->get();
            
             foreach($users as $user){
             
@@ -95,6 +96,7 @@ class ResultController extends Controller
                 if(isset($user->results)){
                     foreach($user->results as $results){
                         $user['marked_by'] = $results->marked_by; 
+                        $user['grader'] = $results->grader;
                         $user['total_role_play_score'] = $results->role_play_score + $user['total_role_play_score']; 
                         $user['total_email_test_score'] = $results->email_test_score + $user['total_email_test_score']; 
 
@@ -143,7 +145,7 @@ class ResultController extends Controller
     {
         if(Auth::user()->role_id == "Admin"){
             $programs = Program::where('id', '<>', 1)->get();
-            $users = User::where('role_id', '<>', "Admin")->where('role_id', '<>', "Teacher")->where('hasResult', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            $users = User::where('role_id', '<>', "Admin")->where('role_id', '<>', "Teacher")->where('role_id', '<>', "Grader")->where('hasResult', '<>', 1)->orderBy('created_at', 'DESC')->get();
                 return view('dashboard.admin.results.create', compact('users', 'programs'));
                 }
             elseif(Auth::user()->role_id == "Teacher"){
@@ -200,11 +202,11 @@ class ResultController extends Controller
             unset($array[$key]);
         }
 
-
         return view('dashboard.admin.results.edit', compact('user_results', 'array', 'i'));
     }
     
     public function enable($id){
+
         if(Auth::user()->role_id == "Admin"){
 
             $program = Program::findorfail($id);
@@ -307,32 +309,63 @@ class ResultController extends Controller
         return redirect('/');
     }
         
-    public function edit($id)
-    {
-        if(Auth::user()->role_id == "Admin"){
-            $results = Result::where('user_id', $id)->first();
+    // public function edit($id)
+    // {
+    //     if(Auth::user()->role_id == "Admin"){
+    //         $results = Result::where('user_id', $id)->first();
 
-            return view('dashboard.admin.results.edit', compact('results'));
-    }elseif(Auth::user()->role_id == "Teacher"){
-            $results = Result::where('user_id', $id)->first();
-            return view('dashboard.teacher.results.edit', compact('results'));
-} 
-    return back();
-}
+    //         return view('dashboard.admin.results.edit', compact('results'));
+    // }elseif(Auth::user()->role_id == "Teacher"){
+    //         $results = Result::where('user_id', $id)->first();
+    //         return view('dashboard.teacher.results.edit', compact('results'));
+    // } 
+    // return back();
+    // }
 
     public function update(Request $request, $id)
     {
-        // dd($request->all(), $id);
-        DB::table('results')
-            ->where('id', $id)
-            ->update([
-                'marked_by' => auth()->user()->name,
-                'certification_test_score' => $request->certification_score,
-                'role_play_score' => $request->roleplayscore,
-                'email_test_score' => $request->emailscore,
-                ]);
-       
 
+        $result = Result::findOrFail($id);
+        
+        try{
+            if(Auth::user()->role_id == 'Facilitator'){
+                $marked_by = Auth::user()->name;
+                $roleplayscore = $request->roleplayscore;
+                $grader = $result->grader;
+                $email_test_score = $result->email_test_score;
+                $certification_score = $result->certification_test_score;
+            }
+
+            if(Auth::user()->role_id == 'Admin'){
+
+                $marked_by = $result->marked_by;
+                $roleplayscore = $request->roleplayscore;
+                $grader = 'Admin';
+                $email_test_score = $request->emailscore;
+                $certification_score = $request->certification_score;
+            }
+
+            if(Auth::user()->role_id == 'Grader'){
+                $marked_by = $result->marked_by;
+                $roleplayscore = $result->role_play_score;
+                $grader = Auth::user()->name;
+                $email_test_score = $request->emailscore;
+                $certification_score = $request->certification_score;
+            }
+            
+            $result->marked_by = $marked_by;
+            $result->grader = $grader;
+            $result->certification_test_score = $certification_score;
+            $result->role_play_score = $roleplayscore;
+            $result->email_test_score = $email_test_score;
+            
+            // dd($result->id);
+            $result->save();
+
+        }catch(PDOException $ex){
+            return back()->with('error', $ex->getMessage());
+        }
+       
         return redirect('results')->with('message', 'User Scores have been updated successfully');
     }
 

@@ -7,12 +7,19 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
-                @if(Auth()->user()->role_id == "Facilitator")
+               
+                @if(Auth::user()->isImpersonating() )
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    style="color:yellow !important; font-weight:bolder" href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i class="fa fa-arrow-left"></i><span
+                        class="hide-menu">BAK TO ADMIN</span></a></li>
+                @endif
+                @if(Auth::user()->role_id == "Facilitator")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                         class="hide-menu">Facilitator Dashboard</span></a></li>
                 @endif
-                @if(Auth()->user()->role_id == "Admin")
+                @if(Auth::user()->role_id == "Admin")
+               
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Admin Dashboard</span></a></li>
@@ -47,7 +54,7 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
                             class="hide-menu">View All study Materials</span></a></li>
-            @if(Auth()->user()->role_id == "Admin")
+            @if(Auth::user()->role_id == "Admin")
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
                         class="hide-menu">Payment History</span></a></li>
@@ -81,7 +88,7 @@
                     </li>
                     @endif
                 </ul>
-                @if(Auth()->user()->role_id == "Admin")
+                @if(Auth::user()->role_id == "Admin")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
                         class="hide-menu">Email Participants</span></a></li>

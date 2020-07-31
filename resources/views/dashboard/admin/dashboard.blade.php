@@ -88,7 +88,7 @@
     <div class="row">     
         <!-- Column -->
        
-        @if(Auth()->user()->role_id == "Facilitator")
+        @if(Auth()->user()->role_id == "Facilitator" || Auth()->user()->role_id == "Grader")
         <div class="col-md-4 col-lg-4">
             <a href="{{ route('materials.index') }}">
             <div class="card card-hover">

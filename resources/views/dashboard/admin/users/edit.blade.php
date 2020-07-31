@@ -99,8 +99,8 @@
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Student" {{ $user->role_id == 'Student' ? 'selected' : ''}}>Student</option>
-                                        <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Teacher</option>
-                                        <option value="Admin" {{ $user->role_id == 'Admin' ? 'selected' : ''}}>Admin</option>
+                                        <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
+                                        <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>

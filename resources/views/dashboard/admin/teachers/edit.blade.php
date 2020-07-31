@@ -7,17 +7,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
-                        @if(session()->get('message'))
-                        <div class="alert alert-success" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span></button>
-                            <strong>Success!</strong> {{ session()->get('message')}}
-                        </div>
-                        @endif
-                        @if(session()->get('warning'))
-                            <script>alert('WARNING! Details not saved! Student cannot pay more than program fee')</script>
-                            <script>alert('Please try again')</script>
-                        @endif
+                        @include('layouts.partials.alerts')
                         <h4 class="card-title">Edit details for: {{$user->name}}</h4>
                     </div>
                     <form action="{{route('teachers.update', $user->id)}}" method="POST"
@@ -57,10 +47,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="class">Role *</label>
+                                    <label for="class">Role*</label>
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Facilitator" {{ $user->role_id == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
+                                        <option value="Student" {{ $user->role_id == 'Student' ? 'selected' : ''}}>Student</option>
+                                        <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
                                         <option value="Admin" {{ $user->role_id == 'Admin' ? 'selected' : ''}}>Admin</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>

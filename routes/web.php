@@ -60,6 +60,7 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 Route::get('/impersonate/{id}', 'Admin\ImpersonateController@index')->name('impersonate')->middleware('impersonate');
 Route::get('/stopimpersonating', 'Admin\ImpersonateController@stopImpersonate')->name('stop.impersonate');
+Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImpersonateFacilitator')->name('stop.impersonate.facilitator');
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
@@ -75,7 +76,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('resultenable/{id}', 'ResultController@enable')->name('results.enable');
     Route::get('resultdisable/{id}', 'ResultController@disable')->name('results.disable');
 });
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');

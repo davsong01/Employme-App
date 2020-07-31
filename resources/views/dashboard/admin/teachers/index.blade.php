@@ -10,7 +10,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Facilitators <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New Facilitator</button></a></h5> 
+                    <h5 class="card-title">Facilitators $ Graders <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 
                 </div>
             </div>
             <div class="table-responsive">
@@ -20,10 +20,9 @@
                             <th>S/N</th>
                             <th>Date</th>
                             <th>Name</th>
-                            <th>Phone</th>
+                            <th>Role</th>
                             <th>Email</th>
                             <th>Training</th>
-                          
                             <th>Manage</th>
                         </tr>
                     </thead>
@@ -33,7 +32,7 @@
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
                             <td>{{ $user->name }}</td>
-                            <td>{{ $user->t_phone}}</td>
+                            <td>{{ $user->role_id}}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->program->p_name }}</td>
                                           
@@ -43,8 +42,10 @@
                                         class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
-                                        
-                                    
+                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
+                                        class="fa fa-unlock"></i>
+                                    </a>
                                     <form action="{{ route('teachers.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}

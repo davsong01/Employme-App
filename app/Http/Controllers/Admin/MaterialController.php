@@ -22,7 +22,7 @@ class MaterialController extends Controller
             // $materials= $image= str_replace(' ', '%20', $materials);
             $programs = Program::where('id', '<>', 1)->get();
             return view('dashboard.admin.materials.index', compact('programs', 'i', 'materials'));
-        }elseif(Auth::user()->role_id == "Facilitator"){
+        }elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
                 //show only trainings attached to this user
                 $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
                    return view('dashboard.admin.materials.index', compact('materials','i') );

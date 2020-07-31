@@ -10,7 +10,7 @@
            @include('layouts.partials.alerts')
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Questions <a href="{{route('questions.create')}}">@if(auth()->user()->role_id == "Admin")<button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5> 
+                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5> 
                 </div>
             </div>
             

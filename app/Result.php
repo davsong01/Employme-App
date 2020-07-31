@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Result extends Model
 {
     protected $guarded = [];
-    protected $primaryKey = 'user_id';
+    // protected $primaryKey = 'user_id';
 
     public function program(){
         return $this->belongsTo(Program::class);
