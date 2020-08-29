@@ -37,12 +37,6 @@
                             class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
-                @if(auth()->user()->certificate)
-                <li class="sidebar-item"><a href="{{ route('certificates.index') }}" class="sidebar-link"><i
-                            class="fas fa-certificate"></i><span class="hide-menu">My Certificate
-                        </span></a>
-                </li>
-                @endif
                 <li class="sidebar-item"><a href="{{ route('tests.results')}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">My Completed Tests</span></a>
                 </li>
@@ -52,6 +46,12 @@
                 </span></a>
                 </li>
                 
+                @if(auth()->user()->certificate)
+                <li class="sidebar-item"><a href="{{ route('certificates.index') }}" class="sidebar-link"><i
+                            class="fas fa-certificate"></i><span class="hide-menu">My Certificate
+                    </span></a>
+                </li>
+                @endif
                 @if(Auth::user()->balance > 0)
                 <!--li class="sidebar-item blinking hide-menu"><i class="far fa-money-bill-alt"></i-->
                 <li class="sidebar-item">

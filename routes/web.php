@@ -94,9 +94,13 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('studymaterials/{filename}', 'MaterialController@getfile');
 });
 
-Route::resource('certificates', 'CertificateController')->middleware(['impersonate','auth']);;
-   Route::get('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
-   Route::post('suser', 'CertificateController@selectUser')->name('user.select')->middleware(['impersonate','auth']);
+Route::GET('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
+Route::GET('certificates/create', 'CertificateController@create')->middleware(['impersonate','auth'])->name('certificates.create');
+Route::GET('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
+Route::POST('suser', 'CertificateController@selectUser')->name('user.select');
+Route::POST('certificate/save', 'CertificateController@save')->middleware(['impersonate','auth'])->name('certificates.save');
+Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->name('certificates.destroy');
+   
 
 //route for payments history
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){

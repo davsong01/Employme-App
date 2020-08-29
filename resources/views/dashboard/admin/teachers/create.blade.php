@@ -51,6 +51,7 @@
                                         <select name="role" id="class" class="form-control" >
                                             <option value="" disabled>Assign Role</option>
                                             <option value="Facilitator">Facilitator</option>
+                                            <option value="Grader">Grader</option>
                                             <option value="Admin">Admin</option>
                                         </select>
                                         <div><small style="color:red">{{ $errors->first('role')}}</small></div>

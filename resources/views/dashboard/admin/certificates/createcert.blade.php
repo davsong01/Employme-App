@@ -10,7 +10,7 @@
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">Add new Certificate</h4>
                     </div>
-                    <form action="{{ route('certificates.store') }}" method="POST" enctype="multipart/form-data"
+                    <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data"
                         class="pb-2">
                         {{ csrf_field() }}
                         <!--Gives the first error for input name-->
@@ -32,12 +32,12 @@
 
                             <div class="form-group">
                                 <label>Choose Certificate</label>
-                                <input type="file" id="file" name="file[]" value="" class="form-control" multiple>
+                                <input type="file" id="certificate" name="certificate" class="form-control" required>
                             </div>
-                            <div><small style="color:red">{{ $errors->first('file[]')}}</small></div>
+                            <div><small style="color:red">{{ $errors->first('certificate')}}</small></div>
                         </div>
 
-                        <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
+                        <input type="submit" class="btn btn-primary" style="width:100%">
                     </form>
                 </div>
             </div>

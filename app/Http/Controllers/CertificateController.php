@@ -55,25 +55,27 @@ class CertificateController extends Controller
                 }return back();
     }
 
-    public function store(Request $request)
+    public function save(Request $request)
     {
-        $data = request()->validate([
-            'user_id' => 'required',
-            'file' => 'required',
-            'file.*' => 'mimes:pdf',
-        ]);
+        if(Auth::user()->role_id == "Admin"){
+      
+            $data = $this->validate($request, [
+                'user_id' => 'required',
+                'certificate' => 'required | max:3048 | mimes:pdf,doc,docx,jpg,jpeg,png',
+            ]);
+            
+            $file = $data['certificate'];
 
-        foreach($request->file('file') as $file){
-          
             $imagePath = $file->storeAs('certificates', $file->getClientOriginalName(), 'uploads');  
-           
+        
             certificate::create([
                 'user_id' =>  $request->user_id,
                 'file' => $file->getClientOriginalName(),
             ]);
-        }
-     
-        return redirect(route('certificates.create'))->with('message', ' certificate succesfully added');
+            return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
+        } return abort(404);
+
+        
     }
 
     public function show(certificate $certificate)
@@ -83,6 +85,7 @@ class CertificateController extends Controller
 
     public function destroy(certificate $certificate)
     {
+        
         $certificate_count = certificate::where('file', $certificate->file)->count();
 
         if($certificate_count <= 1){

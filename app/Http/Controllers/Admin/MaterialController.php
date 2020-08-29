@@ -99,8 +99,7 @@ class MaterialController extends Controller
         }
        
         $material->delete();
-
-        //delete material from storage           
+         
         return redirect('materials')->with('message','Study material succesfully deleted');
 
 

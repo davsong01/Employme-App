@@ -10,8 +10,7 @@
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">Add new Certificate</h4>
                     </div>
-                    <form action="{{ route('user.select') }}" method="POST" enctype="multipart/form-data"
-                        class="pb-2">
+                    <form action="{{ route('user.select') }}" method="POST" class="pb-2">
                         {{ csrf_field() }}
                         <!--Gives the first error for input name-->
 

@@ -308,20 +308,7 @@ class ResultController extends Controller
         }
         return redirect('/');
     }
-        
-    // public function edit($id)
-    // {
-    //     if(Auth::user()->role_id == "Admin"){
-    //         $results = Result::where('user_id', $id)->first();
-
-    //         return view('dashboard.admin.results.edit', compact('results'));
-    // }elseif(Auth::user()->role_id == "Teacher"){
-    //         $results = Result::where('user_id', $id)->first();
-    //         return view('dashboard.teacher.results.edit', compact('results'));
-    // } 
-    // return back();
-    // }
-
+    
     public function update(Request $request, $id)
     {
 

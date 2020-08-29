@@ -37,6 +37,11 @@ class User extends Authenticatable
             return $this->hasMany(Certificate::class);
         }
 
+        // public function questions()
+        // {
+        //     return $this->hasManyThrough('App\Question', 'App\program');
+        // }
+
         public function setImpersonating($id)
         {
             Session::put('impersonate', $id);
@@ -50,7 +55,9 @@ class User extends Authenticatable
         public function isImpersonating()
         {
             return Session::has('impersonate');
-        }        
+        }   
+        
+        
        
 }
    
