@@ -14,9 +14,6 @@ class Welcomemail extends Mailable
     public $details; 
 
     public $pdf;
-    // public $programName; 
-    // public $programAbbr; 
-    // public $message;
     /**
      * Create a new message instance.
      *

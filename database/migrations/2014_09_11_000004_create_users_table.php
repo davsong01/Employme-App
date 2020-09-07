@@ -24,18 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('role_id')->nullable();
             $table->string('t_phone')->nullable();
             $table->string('profile_picture')->nullable();
-            $table->integer('paymentStatus')->nullable();
             $table->string('gender')->nullable();
-            $table->string('t_type')->nullable();
-            $table->integer('t_amount')->nullable();
-            $table->integer('balance')->nullable();
-            $table->string('transid')->nullable();
-            $table->string('bank')->nullable();
-            $table->string('invoice_id')->nullable();
-            $table->string('t_location')->nullable();
-            $table->string('paymenttype')->nullable();
-
-            $table->integer('responseStatus')->nullable();
             
             $table->rememberToken();
             $table->timestamps();

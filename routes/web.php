@@ -8,11 +8,11 @@ Route::get('/clear', function () {
 });
 Auth::routes();
 
-//Test Routes
-Route::get('/demo', 'HomeController@demo')->name('demo'); 
 
 //route for the home
-Route::get('/', 'HomeController@index', ['accept' =>['show'], 'index'])->middleware(['impersonate','auth']);
+Route::get('/', 'FrontendController@index')->name('welcome');
+
+Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
 //route for dashboard.index only
 Route::get('/dashboard', 'HomeController@index', ['accept' =>['show'], 'index'])->name('home')->middleware(['impersonate','auth']);
 

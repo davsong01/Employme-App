@@ -10,7 +10,7 @@ curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt(
   $ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer sk_test_aaca18115edcd1e67cd88e38a981a79ecf0fc49c']
+    'Authorization: Bearer sk_test_9ef3c9b3235ec79555f13bae938717223d79e380']
 );
 $request = curl_exec($ch);
 curl_close($ch);

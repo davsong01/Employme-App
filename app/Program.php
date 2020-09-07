@@ -21,8 +21,12 @@ class Program extends Model
     }
     //Create relationship between this model and the students model
     public function users(){
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class);
     }
+
+    // public function users(){
+    //     return $this->hasMany(User::class);
+    // }
 
     //Create relationship between this model and the materials model
     public function materials(){

@@ -26,8 +26,10 @@ class CreateComplainsTable extends Migration
             $table->string('state')->nullable();
             $table->string('lga')->nullable();
             $table->string('address')->nullable();
-    
+            $table->string('issues')->nullable();
+            $table->integer('sla');
             $table->string('mode');
+            $table->text('notes');
             $table->string('type');
             $table->text('content');
             $table->string('response')->nullable();

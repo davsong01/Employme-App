@@ -37,10 +37,9 @@ class User extends Authenticatable
             return $this->hasMany(Certificate::class);
         }
 
-        // public function questions()
-        // {
-        //     return $this->hasManyThrough('App\Question', 'App\program');
-        // }
+        public function programs(){
+            return $this->belongsToMany(Program::class);
+        } 
 
         public function setImpersonating($id)
         {

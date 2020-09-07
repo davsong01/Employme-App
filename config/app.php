@@ -15,6 +15,7 @@ return [
 
     'name' => env('APP_NAME', 'EmployMeNg'),
 
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

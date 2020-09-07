@@ -21,9 +21,7 @@ class AppServiceProvider extends ServiceProvider
         
             Schema::defaultStringLength(191);
             Schema::enableForeignKeyConstraints();
-
-            //make data available in all channels
-            // View::share('materials', Material::all());     
+            
     }
 
     /**
