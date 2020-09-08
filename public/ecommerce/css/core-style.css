@@ -778,6 +778,7 @@ img {
     position: relative;
     z-index: 1;
     -webkit-box-flex: 0;
+    padding-top:20px;
     -ms-flex: 0 0 calc(95% - 320px);
     flex: 0 0 calc(95% - 320px);
     width: calc(95% - 320px);

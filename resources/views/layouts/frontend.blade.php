@@ -59,7 +59,7 @@
         </div>
 
         <!-- Header Area Start -->
-        <header class="header-area clearfix">
+        <header class="header-area clearfix" style="padding-top: 10px;">
             <!-- Close Icon -->
             <div class="nav-close">
                 <i class="fa fa-close" aria-hidden="true"></i>
@@ -74,8 +74,16 @@
                 <ul>
                     <li class="active"><a href="/">All Trainings</a></li>
                     <li><a href="#" class="search-nav"><img src="img/core-img/search.png" alt="">Search Training</a></li>
-                    <li><a href="/login">My Account</a></li>
-               
+                    @guest
+                    <li><a href="/login">Login</a></li>
+                    @endguest
+                    @auth
+                    <li><a href="/login">My Dashboard</a></li>
+                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
+                    document.getElementById('logout-form').submit();">
+                       </i>Logout
+                    </a></li>
+                    @endauth
                 </ul>
             </nav>          
            

@@ -17,14 +17,13 @@ class CreateProgramUserTable extends Migration
             $table->increments('id');
             $table->integer('program_id')->nullable;
             $table->integer('user_id')->nullable;
-             $table->integer('t_amount')->nullable();
+            $table->integer('t_amount')->nullable();
             $table->integer('balance')->nullable();
             $table->string('transid')->nullable();
-            $table->string('bank')->nullable();
             $table->string('invoice_id')->nullable();
             $table->string('t_location')->nullable();
             $table->string('paymenttype')->nullable();
-             $table->integer('paymentStatus')->nullable();  
+            $table->integer('paymentStatus')->nullable();  
             $table->string('t_type')->nullable();
             $table->timestamps();
         });

@@ -30,7 +30,7 @@ class UsersTableSeeder extends Seeder
             'role_id' => 'Admin',
             'password' => bcrypt('123456'),
             'profile_picture' => 'avatar.jpg',
-            'program_id' => $default_program->id,
+           
         ]);        
         
     }

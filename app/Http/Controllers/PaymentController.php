@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use App\User;
 use Paystack;
 use App\Program;
 use App\Http\Requests;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -22,11 +24,12 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
+        //dd($request->all());
         //Get Training ID and price sent
         $pid = json_decode($request['metadata'], true);
         $pid = $pid['pid'];
         $amount = $request->amount/100;
-
+        
         //Find corresponding Training
         $program = Program::findorFail($pid);
 
@@ -53,7 +56,7 @@ class PaymentController extends Controller
         if($paymentDetails['data']['status'] === 'success'){
 
             $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
-        
+       
             //Get Training Details
             $programFee = $training->p_amount;
             $programName = $training->p_name;
@@ -78,10 +81,14 @@ class PaymentController extends Controller
             $transid = $paymentDetails['data']['reference'];
             
             //Check if user email exists for the program id and redirect them to login if yes
-            $user = User::where('program_id', $program_id)->where('email', $email)->first();
-            if($user){
-                return redirect(route('home'));
-            }
+            // $user_email = User::where('email', $email)->first();
+            // $user = DB::table('program_user')->where('program_id', $program_id)->first();
+            // // dd($user_email, $user, $email);
+            // if($user){
+            //     if($user_email == $email && $user->program_id == $program_id){
+            //         return redirect(route('home'));
+            //     }
+            // }
 
             //check amount against payment
             if($amount == $programEarlyBird){
@@ -101,33 +108,56 @@ class PaymentController extends Controller
             if(!$user){
                 //save to database
                 $user = User::updateOrCreate([
-                        'name' => $name,
-                        'email' => $email,
-                        't_phone' => $phone,
-                        'password' => $password,
-                        'program_id' => $program_id,
-                        't_amount' => $amount,
-                        't_type' => $t_type,
-                        't_location' => $location,
-                        'role_id' => $role_id,
-                        'transid' => $transid,
-                        'paymenttype' => $payment_type,
-                        'paymentStatus' => $paymentStatus,
-                        'balance' => $balance,
-                        'invoice_id' =>  $invoice_id,
+                    'name' => $name,
+                    'email' => $email,
+                    't_phone' => $phone,
+                    'password' => $password,
+                    'role_id' => $role_id,
                 ]);
+                
             }
             
-            
-            $user->programs()->attach($program_id);
+            $user->programs()->attach($program_id, [
+                    'created_at' =>  date("Y-m-d H:i:s"),
+                    't_amount' => $amount,
+                    't_type' => $t_type,
+                    't_location' => $location,
+                    'transid' => $transid,
+                    'paymenttype' => $payment_type,
+                    'paymentStatus' => $paymentStatus,
+                    'balance' => $balance,
+                    'invoice_id' =>  $invoice_id,
+                ] );
 
-            //Send Emails
-dd('done');
-        }
+            //send email
+            $details = [
+                'programFee' => $programFee,
+                'programName' => $programName,
+                'programAbbr' => $programAbbr,
+                'balance' => $balance,
+                'message' => $message,
+                'booking_form' => base_path() . '/uploads'.'/'.$bookingForm,
+                'invoice_id' =>  $invoice_id,
 
-           
-            return redirect(route('thankyou', 'check'))->with('message', 'Your Payment has been recieved');
-            $paymentDetails = Paystack::getPaymentData();
+            ];
+      
+            $data = [
+                'name' =>$name,
+                'email' =>$email,
+                'bank' =>$t_type,
+                'amount' =>$amount,
+            ];
+
+  
+            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            // return view('emails.receipt', compact('data', 'details'));
+            Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+                
+            //include thankyou page
+            return view('emails.thankyou', compact('data',  'details'));
+
+        }dd('Transaction failed! We have not received any money from you.');
+     
     }
 
     private function process($paymentDetails){
