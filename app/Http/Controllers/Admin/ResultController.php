@@ -232,15 +232,18 @@ class ResultController extends Controller
         }return back();
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {    
         if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){   
             $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();    
+            $program = Program::find($request->p_id);
+
+            //Check if balance
+            $balance = DB::table('program_user')->whereUserId(Auth::user()->id)->whereProgramId($program->id)->value('balance');
 
             if($result->count() > 0){
-
-                if(Auth::user()->balance > 0){
-                    return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. Auth::user()->balance.' in order to view/print your result');
+                if($balance > 0){
+                    return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. $balance.' in order to view/print your result');
                 }
                 
                 $details = array();
@@ -249,7 +252,7 @@ class ResultController extends Controller
                 $email = 0;
                 $roleplay = 0; 
                 $certification = 0;
-                $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id',Auth::user()->program->id)->get();
+                $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id', $program->id)->get();
                 
                 $obtainable = array();
                 
@@ -260,20 +263,18 @@ class ResultController extends Controller
                 $obtainable = array_sum($obtainable);
 
                foreach($result as $t){    
-                // dd( $t->module->id );       
-                // $r['email_test_score'] = 0;
                 $class = $t['class_test_score'] + $class;
                 $email =  $t['email_test_score'] + $email;
                 $roleplay =  $t['role_play_score'] + $roleplay;
                 $certification =  $t['certification_test_score'] + $certification;
                
                 $t['program'] = $t->program->p_name;
-                $t['passmark'] = $t->user->program->scoresettings->passmark;
-                $t['ct_set_score'] = $t->user->program->scoresettings->class_test;
+                $t['passmark'] = $program->scoresettings->passmark;
+                $t['ct_set_score'] = $program->scoresettings->class_test;
                 $t['name'] = $t->user->name;
                 
                 }
-                
+             
                 $details['class_test_score'] = ($class  *  $t['ct_set_score']) /  $obtainable;
                 $details['class_test_score'] = round($details['class_test_score'] , 0);
 
@@ -296,8 +297,8 @@ class ResultController extends Controller
                     $details['status'] = 'CERTIFIED';
                 }else $details['status'] = 'NOT CERTIFIED';         
                 
-                // dd($details);
-                return view('dashboard.admin.results.show', compact('details'));   
+               
+                return view('dashboard.admin.results.show', compact('details', 'program'));   
             } 
             return redirect('/dashboard')->with('error', 'Result not found for current user, please try again later');
         }

@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
-use App\Module;
-use App\Material;
+use App\Program;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,10 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        
-            Schema::defaultStringLength(191);
-            Schema::enableForeignKeyConstraints();
-            
+        Schema::defaultStringLength(191);
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

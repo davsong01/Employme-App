@@ -24,7 +24,22 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
-        //dd($request->all());
+        //Get Type if type is balance
+        $type = json_decode($request['metadata'], true);
+        
+        if(isset($type['type']) && $type['type'] == 'balance'){
+            //Check if userid tallys with trainingid
+            $check = DB::table('program_user')->whereUserId(Auth()->user()->id)->whereProgramId($type['p_id'])->first();
+            
+            if(($check->balance * 100) == $request->amount){
+                try{
+                    return Paystack::getAuthorizationUrl()->redirectNow();
+                }catch(\Exception $e) {
+                    return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again');
+                }  
+            }else return Redirect::back()->with('error', 'Invalid Transaction');
+        }
+
         //Get Training ID and price sent
         $pid = json_decode($request['metadata'], true);
         $pid = $pid['pid'];
@@ -41,7 +56,8 @@ class PaymentController extends Controller
         try{
             return Paystack::getAuthorizationUrl()->redirectNow();
         }catch(\Exception $e) {
-            return Redirect::back()->with('msg', 'The paystack token has expired. Please refresh the page and try again.');
+            return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again');
+            
         }  
     }
 
@@ -55,6 +71,61 @@ class PaymentController extends Controller
 
         if($paymentDetails['data']['status'] === 'success'){
 
+            if(isset($paymentDetails['data']['metadata']['type']) && $paymentDetails['data']['metadata']['type'] == 'balance'){
+                // dd($paymentDetails);
+                //Get training details details
+                $training = Program::where('id', $paymentDetails['data']['metadata']['p_id'])->first();
+                $programFee = $training->p_amount;
+                $programName = $training->p_name;
+                $programAbbr = $training->p_abbr;
+                $invoice_id = 'Invoice'.rand(10, 100);
+
+                //Get Transaction details
+                $amount = $paymentDetails['data']['amount']/100;
+                $t_type = "PAYSTACK";
+
+                //Get User details
+                $user = DB::table('program_user')->where('user_id', $paymentDetails['data']['metadata']['user_id'])->where('program_id', $training->id)->first();
+                $balance = $amount - $user->balance;
+                $message = $this->dosubscript1($balance);
+                // dd($user->program_id);
+                $attributes = [
+                    't_amount' => $user->t_amount + $amount,
+                    'balance' => $balance,
+                    'invoice_id' => $invoice_id,
+                    'updated_at' => now()
+                ];
+
+                $training->users()->updateExistingPivot($paymentDetails['data']['metadata']['user_id'], $attributes);
+
+                //Send Notification
+                $details = [
+                    'programFee' => $programFee,
+                    'programName' => $programName,
+                    'programAbbr' => $programAbbr,
+                    'balance' => $balance,
+                    'message' => 'Full Payment',
+                    'invoice_id' =>  $invoice_id,
+                ];
+      
+                $data = [
+                    'name' => $paymentDetails['data'] ['metadata']['name'],
+                    'email' => $paymentDetails['data']['customer']['email'],
+                    'bank' => $t_type,
+                    'amount' => $user->t_amount + $amount,
+                ];
+                
+             
+                $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+                // return view('emails.receipt', compact('data', 'details'));
+                Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+                    
+                //include thankyou page
+                return redirect(route('trainings.show', $training->id))->with('message', 'Balance Payment Succesful');
+
+                return view('emails.thankyou', compact('data',  'details'));
+
+            }else
             $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
        
             //Get Training Details
@@ -79,16 +150,6 @@ class PaymentController extends Controller
             }else $location = ' ' ;
             $role_id = "Student";
             $transid = $paymentDetails['data']['reference'];
-            
-            //Check if user email exists for the program id and redirect them to login if yes
-            // $user_email = User::where('email', $email)->first();
-            // $user = DB::table('program_user')->where('program_id', $program_id)->first();
-            // // dd($user_email, $user, $email);
-            // if($user){
-            //     if($user_email == $email && $user->program_id == $program_id){
-            //         return redirect(route('home'));
-            //     }
-            // }
 
             //check amount against payment
             if($amount == $programEarlyBird){
@@ -103,7 +164,7 @@ class PaymentController extends Controller
             
             $paymentStatus =  $this->paymentStatus($balance);
 
-            // check if email exists in the system and attach it to the new pregram to that email
+            //Check if email exists in the system and attach it to the new pregram to that email
             $user = User::where('email', $email)->first();
             if(!$user){
                 //save to database
@@ -113,8 +174,7 @@ class PaymentController extends Controller
                     't_phone' => $phone,
                     'password' => $password,
                     'role_id' => $role_id,
-                ]);
-                
+                ]); 
             }
             
             $user->programs()->attach($program_id, [
@@ -138,7 +198,6 @@ class PaymentController extends Controller
                 'message' => $message,
                 'booking_form' => base_path() . '/uploads'.'/'.$bookingForm,
                 'invoice_id' =>  $invoice_id,
-
             ];
       
             $data = [
@@ -148,9 +207,8 @@ class PaymentController extends Controller
                 'amount' =>$amount,
             ];
 
-  
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            // return view('emails.receipt', compact('data', 'details'));
+            // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                 
             //include thankyou page

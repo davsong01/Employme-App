@@ -6,6 +6,7 @@ use App\Module;
 use App\Result;
 use App\Material;
 use App\ScoreSetting;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,13 +20,13 @@ class Program extends Model
     public function scoresettings(){
         return $this->hasOne(ScoreSetting::class);
     }
-    //Create relationship between this model and the students model
+
     public function users(){
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('t_amount', 'invoice_id', 'balance', 'transid');
     }
 
     // public function users(){
-    //     return $this->hasMany(User::class);
+    //     return $this->hasMany(User::class)->withPivot('t_amount', 'invoice_id', 'balance', 'transid');
     // }
 
     //Create relationship between this model and the materials model
@@ -44,6 +45,12 @@ class Program extends Model
     public function questions()
     {
         return $this->hasManyThrough('App\Question', 'App\Module');
+    }
+
+    public function checkBalance($p_id)
+    {
+        $balance = DB::table('program_user')->where('user_id', auth()->user()->id)->where('program_id', $p_id)->value('balance');
+        return $balance;
     }
     
 }

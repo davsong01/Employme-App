@@ -21,20 +21,31 @@ class PaymentController extends Controller
     {
         
         $i = 1;
-        //$users = User::all();
-        $users = User::where('role_id', "Student")->orderBy('program_id', 'DESC')->get();
-       
-       if(Auth::user()->role_id == "Admin"){
+        $users = DB::table('program_user')->orderBy('program_id', 'DESC')->get();
+
+        foreach($users as $user){
+            $user->details = User::select('name', 'email')->where('id', $user->user_id)->first(); 
+            $user->program = Program::select('p_name')->first();
+        }
+        
+
+        if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.payments.index', compact('users', 'i') );
 
         }
         if(Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader"){
             return back();
         }
-        if(Auth::user()->role_id == "Student"){          
-            $users = User::where('email', '=', Auth::user()->email)->orderBy('updated_at', 'DESC')->get();
-            return view('dashboard.student.payments.index', compact('users'));
-            return back();
+        if(Auth::user()->role_id == "Student"){  
+
+            $transactiondetails = DB::table('program_user')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+            foreach($transactiondetails as $details){
+                $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();
+                $details->p_name = $details->programs[0]['p_name'];
+                $details->p_amount = $details->programs[0]['p_amount'];
+            }
+            // dd($transactiondetails->balance);
+            return view('dashboard.student.payments.index', compact('transactiondetails'));
         }
     }
 }

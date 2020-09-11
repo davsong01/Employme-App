@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\User;
+use App\Program;
 use App\Complain;
 use Illuminate\Http\Request;
+use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\facades\DB;
 
 class ComplainController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $i = 1;
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
@@ -19,30 +20,34 @@ class ComplainController extends Controller
 
             $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
             
-
             $resolvedComplains =  Complain::where('status', '=', 'Resolved' )->count();
             $pendingComplains =  Complain::where('status', '=', 'Pending' )->count(); 
             $InProgressComplains =  Complain::where('status', '=', 'In Progress' )->count();  
             //   dd( $complains);
             return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
-        }elseif(Auth::user()->role_id == "Student"){    
+        }elseif(Auth::user()->role_id == "Student"){  
+
+                $program = Program::find($request->p_id); 
+                  
                 $resolvedComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'Resolved' )->count();
                 $pendingComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'Pending' )->count(); 
                 $InProgressComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'In Progress' )->count();          
                 $complains = Complain::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
-                return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
+                return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains', 'program'));
         } 
     else return back();
 }
 
-    public function create()
+    public function create(Request $request)
     {
           if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             return view('dashboard.admin.complains.create')->with('extend', 'dashboard.admin.index');
 
     }elseif(Auth::user()->role_id == "Student"){
-        return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.index');
+        $program = Program::find($request->p_id); 
+
+        return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
 } return back();
     }
 
@@ -109,26 +114,22 @@ class ComplainController extends Controller
         
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Complain $complain)
+    public function edit(Complain $complain, Request $request)
     {
         
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.admin.index');
     }elseif (Auth::user()->role_id == "Student"){
-        return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.student.index');
+        $program = Program::find($request->p_id); 
+        return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
 }return back();
     }
 
     public function update(Complain $complain, Request $request)
     {
         // dd($request->all());
-        $complain->update($request->all());
+        $data = $request->except(['p_id']);
+        $complain->update($data);
 
         //Update User Percentage Response
         $this->percentage($complain->user_id);

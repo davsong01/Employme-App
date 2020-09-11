@@ -54,11 +54,11 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
                             class="hide-menu">View All study Materials</span></a></li>
-            @if(Auth::user()->role_id == "Admin")
-            <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                    href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
-                        class="hide-menu">Payment History</span></a></li>
-            @endif
+                @if(Auth::user()->role_id == "Admin")
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
+                            class="hide-menu">Transactions</span></a></li>
+                @endif
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('complains.index')}}" aria-expanded="false"><i class="far fa-comments"></i><span
                         class="hide-menu">CRM Tool</span></a></li>

@@ -22,8 +22,8 @@ class CreateProgramsTable extends Migration
             $table->date('p_start');
             $table->date('p_end');
             $table->string('booking_form')->nullable();
-            $table->string('f_paid')->nullable();
-            $table->string('p_paid')->nullable();
+            // $table->string('f_paid')->nullable();
+            // $table->string('p_paid')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
             $table->boolean('hasresult')->nullable()->default(0);
             // $table->boolean('hasmodule')->default(0);

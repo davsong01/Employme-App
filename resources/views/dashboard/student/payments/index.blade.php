@@ -12,45 +12,30 @@
                         <tr>
                             <th>Date</th>
                             <th>Invoice ID</th>
-                            <th>Transaction ID</th>
+                            <th>Channel</th>
                             <th>Type</th>
-                            <th>Email</th>
                             <th>Training</th>
                             <th>Amount</th>
                             <th>Amount Paid</th>
                             <th>Balance</th>
                         </tr>
                     </thead>
-                    <tfoot>
-                        <tr>
-                            <th>Date</th>
-                            <th>Invoice ID</th>
-                            <th>Transaction ID</th>
-                            <th>Type</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Amount</th>
-                            <th>Amount Paid</th>
-                            <th>Balance</th>
-                        </tr>
-                    </tfoot>
+                    
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($transactiondetails as $details)
                         <tr>
-                            <td>{{ $user->updated_at }}</td>
-                            <td>{{ $user->invoice_id }}</td>
-                            <td>{{ $user->transid }}</td>
-                            <td>{{ $user->t_type }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->program->p_name }}</td>
-                            <td>₦{{ $user->program->p_amount }}</td>
-                            <td>₦{{ $user->t_amount }}</td>
-                            @if($user->paymentStatus == 0 )
-                            <td><b style="color:red">₦{{ $user->balance }} </b></td>
+                            <td>{{ $details->created_at}}</td>
+                            <td>{{ $details->invoice_id }}</td>
+                            <td>{{ $details->bank }}</td>
+                            <td>{{ $details->paymenttype }}</td>
+                            <td>{{ $details->p_name }}</td>
+                            <td>{{ $details->p_amount }}</td>
+                            <td>{{ config('custom.default_currency') }}{{ $details->t_amount }}</td>
+                            @if($details->paymentStatus == 0 )
+                            <td><b style="color:red">{{ config('custom.default_currency') }}{{ $details->balance }} </b></td>
                             @else
-                            <td><b style="color:green">₦{{ $user->balance }}</b></td>
+                            <td><b style="color:green">{{ config('custom.default_currency') }}{{ $details->balance }}</b></td>
                             @endif
-
                         </tr>
                         @endforeach
                     </tbody>

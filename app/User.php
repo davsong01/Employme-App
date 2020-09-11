@@ -6,6 +6,7 @@ use Auth;
 use App\Result;
 use App\Program;
 use App\Complain;
+use App\Material;
 use App\Certificate;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -40,6 +41,7 @@ class User extends Authenticatable
         public function programs(){
             return $this->belongsToMany(Program::class);
         } 
+
 
         public function setImpersonating($id)
         {

@@ -83,7 +83,7 @@
                        
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="First Name" required>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Full Name" required>
                             </div>
                         </div>
                         @if ($errors->has('name'))
@@ -93,7 +93,7 @@
                         @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="email" name="email" class="form-control" id="email" value="{{ old('email') }}" placeholder="First email" required>
+                                <input type="email" name="email" class="form-control" id="email" value="{{ old('email') }}" placeholder="Email" required>
                             </div>
                         </div>
                         @if ($errors->has('email'))
@@ -113,7 +113,7 @@
                         @endif
                         
                         <input type="hidden" name="quantity" value="1">
-                        <input type="hidden" name="currency" value="NGN">
+                        <input type="hidden" name="currency" value="{{  config('custom.curr_abbreviation') }}">
                         {{-- <input type="hidden" name="metadata2" value="{{ json_encode($array = ['pid' => $training->id]) }}" >  --}}
                         
                         <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}

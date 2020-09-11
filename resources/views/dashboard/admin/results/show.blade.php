@@ -162,7 +162,7 @@
                                         School Administrator
                                         <br /><br /><br />ANY ALTERATION WHATSOVER RENDERS THIS RESULT INVALID<br />
                                         <br /><span>Printed: {{now()}}</span><br /><br /><br />
-                                        <a id="lnkclose" href="/">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a id="lnkclose" href="/training/{{ $program->id }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <a onclick="javascript:window.print();" id="LinkButton1"
                                             href="javascript:__doPostBack(&#39;LinkButton1&#39;,&#39;&#39;)">PRINT</a>
                                     </div>

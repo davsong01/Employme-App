@@ -22,6 +22,11 @@ class TeacherController extends Controller
         $users = User::where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->get();
         $programs = Program::where('id', '<>', 1)->get();
         
+        foreach($users as $user){
+            $user['p_name'] = Program::where('id', $user->program_id)->value('p_name');
+            $user['p_name'] = Program::where('id', $user->program_id)->value('p_name');
+        }
+        
        if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.teachers.index', compact('users', 'i', 'programs') );
         }

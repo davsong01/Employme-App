@@ -14,7 +14,6 @@ class MaterialController extends Controller
 {
     public function index(Request $request)
     {
-       
       $userid = Auth::user()->id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
@@ -28,9 +27,11 @@ class MaterialController extends Controller
                    return view('dashboard.admin.materials.index', compact('materials','i') );
 
                 } elseif(Auth::user()->role_id == "Student"){       
-                $i = 1;            
-                $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
-                return view('dashboard.student.materials.index', compact('i', 'materials'));
+                $i = 1;   
+                $program = Program::find($request->p_id);         
+                $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
+   
+                return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
         }
             else  return redirect('/');
     }

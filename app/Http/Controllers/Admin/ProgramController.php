@@ -22,37 +22,22 @@ class ProgramController extends Controller
     {
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
+            //Get all programs
             $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+           
+            //Get all students
+            $users = User::where('role_id', 'Student')->get();
 
+            //Get Users payment status
             foreach($programs as $program){
-                $program['fully_paid'] = 0;
-                $program['part_paid'] = 0;
-
-                foreach($program->users as $users){
-                    if($users->role_id == 'Student'){
-                        if($users->balance <= 0){
-                            $program['fully_paid'] = $program['fully_paid'] + 1;
-                        }
-
-                        if($users->balance > 0){
-                            $program['part_paid'] = $program['part_paid'] + 1;
-                        }
-                    }
-                    // print_r();
-                }
+                $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
+                $program['fully_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '<=', 0)->count();        
             }
 
-            $users = User::where('role_id', '<>', 'Admin')->get();
-             return view('dashboard.admin.programs.index', compact('programs', 'i'));
-        }
-            else  return redirect('/');
+            return view('dashboard.admin.programs.index', compact('programs', 'i'));
+        } else  return redirect('/');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
@@ -117,23 +102,18 @@ class ProgramController extends Controller
     public function trashed()
     {
         $i = 1;
+        //Get all programs
         $programs = Program::with('users')->onlyTrashed()->get();
+        
+        //Get all students
+        $users = User::where('role_id', 'Student')->get();
 
+        //Get Users payment status
         foreach($programs as $program){
-            $program['fully_paid'] = 0;
-            $program['part_paid'] = 0;
-
-            foreach($program->users as $users){
-                if($users->balance <= 0){
-                    $program['fully_paid'] = $program['fully_paid'] + 1;
-                }
-
-                if($users->balance > 0){
-                    $program['part_paid'] = $program['part_paid'] + 1;
-                }
-                // print_r();
-            }
+            $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
+            $program['fully_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '<=', 0)->count();        
         }
+
         // dd($programs);
        return view('dashboard.admin.programs.trash', compact('programs', 'i'));
     }

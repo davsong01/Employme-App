@@ -19,7 +19,7 @@
                             <th>S/N</th>
                             <th>Title</th>
                             <th>Date Uploaded</th>
-                            <th>Program/Class</th>
+                            <th>Program</th>
                             <th>Actions</th>
                         </tr>
                     </thead>

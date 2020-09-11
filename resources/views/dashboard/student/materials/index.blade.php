@@ -1,11 +1,14 @@
-@extends('dashboard.student.index')
+@extends('dashboard.student.trainingsindex')
 @section('title', 'Download Study materials')
 @section('content')
 
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Study Materials</h5>
+            <div class="card-title">
+                <h2 style="color:green; text-align:center; padding:20px">{{ strtoupper($program->p_name) }}</h2>
+                <h5>Study Materials</h5>
+            </div>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>

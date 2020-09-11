@@ -9,7 +9,7 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                     </div>
-                    <form action="{{route('complains.update',  $complain->id)}}" method="POST" class="pb-2">
+                    <form action="{{route('complains.update',  ['id'=>$complain->id, 'p_id'=>$program->id] ) }}" method="POST" class="pb-2">
                         {{ method_field('PATCH') }}
 
                         <div class="row">
@@ -178,8 +178,6 @@
                                     <label for="class">Status</label>
                                     <select name="status" id="status" class="form-control">
                                         <option value="{{ $complain->status }}" selected="selected">{{ $complain->status }}</option>
-                                        
-
                                         @if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator")
                                         <option value="Resolved" {{ $complain->status == 'Resolved' ? 'selected' : ''}}>
                                             Resolved</option>

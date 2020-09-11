@@ -33,7 +33,7 @@
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td>{{ $program->p_name }}<br><span
-                                    style="color:red">https://portal.employme.ng/paystack?id={{ $program->id }}&t=</span>
+                                    style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span>
                             </td>
                             <td>₦{{ $program->p_amount }}</td>
                             <td>₦{{ $program->e_amount }}</td>

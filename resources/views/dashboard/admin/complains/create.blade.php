@@ -345,5 +345,7 @@
         <script>
             CKEDITOR.replace('ckeditor');
         </script>
-        @endsection
-        @endsection
+    </div>
+
+    @endsection
+    @endsection

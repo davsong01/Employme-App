@@ -16,6 +16,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('result_id')->unsigned()->nullable();
+            $table->integer('program_id')->unsigned()->nullable();//For Facilitators and Graders
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
@@ -23,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('t_phone')->nullable();
             $table->string('profile_picture')->nullable();
             $table->string('gender')->nullable();
+             $table->integer('responseStatus')->nullable();//For CRM
             
             $table->rememberToken();
             $table->timestamps();

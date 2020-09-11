@@ -1,4 +1,4 @@
-@extends('dashboard.student.index')
+@extends('dashboard.student.trainingsindex')
 @section('title', 'My Tests')
 @section('content')
 
@@ -13,11 +13,12 @@
 
         <div class="content">
             @include('layouts.partials.alerts')
-            <p><strong>Training: {{ $program }}</strong><br>
+            <p><strong>Training: {{ $program_name}}</strong><br>
                 <strong>Module: {{ $module_title }}</strong><br>
                 Please Type in your answer in the text boxes under each question
             </p>
-            <form name="quiz" id="quiz_form" action="{{route('tests.store')}}" method="POST" class="pb-2">
+          
+            <form name="quiz" id="quiz_form" action="{{route('tests.store', ['p_id'] => $program->id)}}" method="POST" class="pb-2">
                 {{ csrf_field() }}
 
                 @foreach($questions as $question)

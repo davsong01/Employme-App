@@ -10,13 +10,9 @@
             </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Participants <a href="{{route('users.create')}}"><button type="button"
-                        class="btn btn-outline-primary">Add New Student</button></a><button class="btn btn-success" id="csv">Export Participants</button></h5>
-                </div>
-                {{-- <div>
                     <h5 class="card-title"> All Students <a href="{{route('users.create')}}"><button type="button"
-                                class="btn btn-outline-primary">Add New Student</button></a> <a class="btn btn-success" href="{{ route('user.export') }}">Export User Data</a></h5>
-                </div> --}}
+                        class="btn btn-outline-primary">Add New Student</button></a><button class="btn btn-success" id="csv">Export Studentss</button></h5>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -28,26 +24,22 @@
                             <th>Name</th>
                             <th>Phone</th>
                             <th>Email</th>
-                            <th>Training</th>
-                            <th>Role</th>
-                            <th>Location</th>
-                            <th>Bank</th>
+                            <th>Trainings</th>
                             <th>Manage</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $user)
+                        
                         <tr>
+                            
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                            <td>{{ $user->name }}</td>
+                            <td><a href="#">{{ $user->name }}</a></td> 
                             <td>{{ $user->t_phone}}</td>
                             <td>{{ $user->email }}</td>
-                            <td {{!$user->program ? 'style=color:red' : ''}}>
-                                {{ $user->program->p_name ?? 'Trashed Training' }}</td>
-                            <td>{{ $user->role_id }}</td>
-                            <td>{{ $user->t_location }}</td>
-                            <td>{{ $user->t_type }}</td>
+                            <td>{{ $user->programs()->count() }}</td>
+                           
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit User"

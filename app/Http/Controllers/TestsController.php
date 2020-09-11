@@ -8,20 +8,21 @@ use App\Program;
 use App\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class TestsController extends Controller
 {
     
-    public function index()
+    public function index(Request $request)
     {
        if(Auth::user()->role_id == "Student"){
-           $i = 1;
-            $modules = Module::with('questions')->where('program_id', Auth::user()->program->id)->where('status', 1)->get();
-
+            $i = 1;
+            $program = Program::find($request->p_id);
+            $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
+           
             foreach($modules as $module){
-                
                 $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
-               
+                
                 if($module_check->count() > 0){
                     $module['completed'] = 1;
                 }else{ 
@@ -29,7 +30,7 @@ class TestsController extends Controller
                 }
             }
             //  dd($modules);
-            return view('dashboard.student.tests.index', compact('modules', 'i') );
+            return view('dashboard.student.tests.index', compact('modules', 'i', 'program') );
          }
     }
 
@@ -40,6 +41,8 @@ class TestsController extends Controller
 
     public function store(Request $request)
     {
+        $program = Program::find($request->p_id);
+   
         $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
 
         $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
@@ -63,8 +66,7 @@ class TestsController extends Controller
         $questions = $module->questions->toarray();
         $no_of_questions = count($questions);
         $score = 0;
-        
-
+       
         if($module->type == 'Certification Test'){
             try{
                 $results = Result::create([
@@ -89,7 +91,7 @@ class TestsController extends Controller
                     $score;
                 }
             }
-
+ 
             try{
                 if($module->type == 'Class Test'){
                      $results = Result::create([
@@ -106,40 +108,49 @@ class TestsController extends Controller
                 return back()->with('error', 'something went wrong, please take test again');
             }
         }
-       
-        return redirect(route('tests.results'));
+    
+        return Redirect::to('userresults?p_id='. $program->id);
         
     }
 
-    public function userresults(){
+    public function userresults(Request $request){
+        
         if(Auth::user()->role_id == "Student"){
-            $i = 1;
             
-            $results = Result::with('module')->where('user_id', auth()->user()->id)->orderBy('id', 'DESC')->get();
-            // dd($results);
-            return view('dashboard.student.tests.result', compact('results', 'i') );
+            $i = 1;
+            $program = Program::find($request->p_id);
+                
+            $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('id', 'DESC')->get();         
+                return view('dashboard.student.tests.result', compact('results','i', 'program') );
+
           }
     }
 
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         $questions = Question::with('module')->where('module_id', $id)->get();      
         $i = 1;
+        //check if registered module
+        $questionsarray = $questions->toArray();
+        if($questionsarray[0]['module']['program_id'] <> $request->p_id ){
+            return abort(404);
+        };
 
         $module_type = Module::where('id', $id)->value('type');
 
         foreach($questions as $question){
-            $program = $question->module->program->p_name;
+            $program_name = $question->module->program->p_name;
+            $program = $question->module->program()->first();
             $time= $question->module->time;
             $module_title = $question->module->title;
         }
-
+        
         if($module_type == 'Class Test'){
-            return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program','module_title', 'time'));
+            return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program','program_name','module_title', 'time'));
         }
         if($module_type == 'Certification Test'){
-            return view('dashboard.student.tests.certification', compact('questions', 'i', 'program','module_title', 'time'));
+            return view('dashboard.student.tests.certification', compact('questions', 'i', 'program','program_name','module_title', 'time'));
         }
     }
 

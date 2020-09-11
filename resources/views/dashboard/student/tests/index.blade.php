@@ -1,4 +1,4 @@
-@extends('dashboard.student.index')
+@extends('dashboard.student.trainingsindex')
 @section('title', 'My Tests')
 @section('content')
 
@@ -53,10 +53,10 @@
                         <p class="text-blue">No of Questions: {{ $module->questions->count() }} </p>
                         <p class="text-blue">Time: {{ $module->time }}minutes </p>
                         @if($module->completed == 0)
-                            <a href="{{route('tests.show', $module->id)}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                            <a href="{{route('tests.show', ['id' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
                         @if($module->completed == 1)
-                            <a href="{{route('tests.results')}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details</b></button></a>
+                            <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details</b></button></a>
                         @endif
                     </div>
                 </div>

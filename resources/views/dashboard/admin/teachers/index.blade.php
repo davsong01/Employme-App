@@ -18,7 +18,7 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Date</th>
+                            {{-- <th>Date</th> --}}
                             <th>Name</th>
                             <th>Role</th>
                             <th>Email</th>
@@ -30,11 +30,11 @@
                         @foreach($users as $user)
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            {{-- <td>{{ $user->created_at->format('d/m/Y') }}</td> --}}
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->role_id}}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{ $user->program->p_name }}</td>
+                            <td>{{ $user->p_name }}</td>
                                           
                             <td>
                                 <div class="btn-group">
