@@ -50,6 +50,10 @@
                                         class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
+                                    <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
+                                        class="btn btn-primary" href="{{ route('users.show', $user->id) }}"><i
+                                            class="far fa-envelope"></i>
+                                    </a>
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}

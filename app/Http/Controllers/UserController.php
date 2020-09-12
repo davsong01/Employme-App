@@ -152,43 +152,9 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    //tweaked this to send mails
+   
     {
-        if(Auth::user()->role_id == "Admin"){
-        $user = User::findorFail($id);
-        $program = Program::all();
-        
-        if($user->t_amount == $user->program->e_amount){
-            $message = $this->dosubscript2($user->balance);
-         }else{
-        $message = $this->dosubscript1($user->balance);
-         }
-        //determine the program details
-        $details = [
-            'programFee' => $user->program->p_amount,
-            'programName' => $user->program->p_name,
-            'programAbbr' => $user->program->p_abbr,
-            'balance' => $user->balance,
-            'message' => $user->$message,
-            'booking_form' => base_path() . '/uploads'.'/'. $user->program->booking_form,
-            'invoice_id' =>  $user->invoice_id,
-            'message' =>$message,
-        ];
-     //dd($details,$user->t_amount );
-  
-        $data = [
-            'name' =>$user->name,
-            'email' =>$user->email,
-            'bank' =>$user->t_type,
-            'amount' =>$user->t_amount,
-        ];
-        //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-        //return view('emails.receipt', compact('data', 'details'));
-        Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-        
-        return back()->with('message', 'Receipt sent succesfully'); 
-    }return back();
+        //This has been move to Admin/PaymentController     
     }
 
     public function edit($id)
@@ -246,7 +212,6 @@ class UserController extends Controller
     {
         if($user->balance <= 0){
             $f_paid = ($user->program->f_paid - 1);
-            // dd($f_paid);
 
             Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
         }
