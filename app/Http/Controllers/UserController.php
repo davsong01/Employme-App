@@ -45,13 +45,16 @@ class UserController extends Controller
         if(Auth::user()->role_id == "Admin"){
             $users = User::orderBy('created_at', 'DESC');
             $user = User::all();
-            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            $programs= Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs'));
-    }return back();
-}
+        }return back();
+    }
 
     public function store(Request $request)
     {
+       
+       
+       
         //determine the program details
         $programFee = Program::findorFail($request['training'])->p_amount;
         $programName = Program::findorFail($request['training'])->p_name;
@@ -97,7 +100,7 @@ class UserController extends Controller
             'training' =>'required',
             'amount' => 'required',
             'bank' =>'required',
-            'location'=>'required',
+            'location'=> 'nullable',
             'password' => 'required',
             'role'=>'required',
             'gender' => '',

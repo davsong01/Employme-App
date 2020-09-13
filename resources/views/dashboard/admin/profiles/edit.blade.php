@@ -51,8 +51,8 @@
                                 <div class="form-group">
                                     <label for="class">Gender</label>
                                     <select name="gender" id="class" class="form-control" required>
-                                        <option value="1" {{ $user->gender == 1 ? 'selected' : ''}}>Male</option>
-                                        <option value="0" {{ $user->gender == 0 ? 'selected' : ''}}>Female
+                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
+                                        <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female
                                         </option>
 
                                     </select>

@@ -63,7 +63,7 @@ class ProfileController extends Controller
         return tap(request()->validate([
         'name' => 'required',
         't_phone' =>'required | numeric | min:9',
-        'gender' => 'required | numeric',
+        'gender' => 'required',
         ]), function (){
             if (request()->hasFile('file')){
                 request()->validate([

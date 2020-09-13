@@ -74,7 +74,7 @@
 
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
 
-                                    <label for="location">Location *</label>
+                                    <label for="location">Location </label>
 
                                     <input id="location" type="text" class="form-control" name="location"
                                         value="{{ old('location')}}" autofocus>
@@ -122,7 +122,7 @@
 
                                         @foreach ($programs as $program)
 
-                                        <option value="{{ $program->id }}">
+                                        <option value="{{ $program->id }}" {{ old('training') == $program->id ? 'selected' : '' }}>
 
                                             {{$program->p_name}}</option>
 
@@ -220,9 +220,9 @@
 
                                         <option value="" disabled>Select gender</option>
 
-                                        <option value="Male">Male</option>
+                                        <option value="Male" {{ old('gender') == 'Male' ? 'selected' : '' }}>Male</option>
 
-                                        <option value="Female">Female</option>
+                                        <option value="Female" {{ old('gender') == 'Female' ? 'selected' : '' }}>Female</option>
 
 
 
@@ -236,14 +236,7 @@
 
                                     <label for="class">Bypass EarlyBird Check</label>
 
-                                    <input type="checkbox" name="earlybird"> <small style="color:red"> Check this only
-                                        if student paid EarlyBird
-
-                                        amount
-
-                                        after Earlybird has expired</small>
-
-                                    </select>
+                                    <input type="checkbox" name="earlybird"> <small style="color:red"> Check this only amount after Earlybird has expired</small>
 
                                     <div><small style="color:red">{{ $errors->first('earlybird')}}</small></div>
 

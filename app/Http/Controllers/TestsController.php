@@ -7,6 +7,7 @@ use App\Result;
 use App\Program;
 use App\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
@@ -16,7 +17,14 @@ class TestsController extends Controller
     public function index(Request $request)
     {
        if(Auth::user()->role_id == "Student"){
+
+            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            if($user_balance->balance > 0){
+                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to take tests');
+            }  
+
             $i = 1;
+
             $program = Program::find($request->p_id);
             $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
            

@@ -118,4 +118,47 @@ class PaymentController extends Controller
         }return 'Part payment';
     }
 
+      public function update(Request $request, $id)
+    {
+       
+        $user = User::findorFail($id);
+        if($request['password']){
+            $user->password = bcrypt($request['password']);
+        };
+        //check amount against payment
+        $programFee = Program::findorFail($request['training'])->p_amount;
+
+        $newamount = $user->t_amount + $request['amount'];
+        if($newamount > $programFee){
+            return back()->with('warning', 'Student cannot pay more than program fee');
+        }else 
+        $balance = $programFee - $newamount;
+        $message = $this->dosubscript1($balance);
+        $paymentStatus =  $this->paymentStatus($balance);
+       
+        //update the program table here @ column fully paid or partly paid
+        $this->programStat2($request['training'], $paymentStatus);
+
+        $user->name = $request['name'];
+        $user->email = $request['email'];
+        $user->t_phone = $request['phone'];
+        $user->program_id = $request['training'];
+        $user->t_amount = $newamount;
+        $user->balance = $balance;
+        $user->t_type = $request['bank'];
+        $user->t_location = $request['location'];
+        $user->role_id = $request['role'];
+        $user->gender = $request['gender'];
+        // $user->bank = $request['bank'];
+        $user->transid = $request['transaction_id'];
+        $user->paymentStatus =  $paymentStatus;
+
+        $user->save();
+        //I used return redirect so as to avoid creating new instances of the user and program class
+        if(Auth::user()->role_id == "Admin"){
+        return redirect('users')->with('message', 'user updated successfully');
+        } return back();
+    
+    }
+
 }

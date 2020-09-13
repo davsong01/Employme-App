@@ -207,8 +207,8 @@ class PaymentController extends Controller
                 'amount' =>$amount,
             ];
 
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            // return view('emails.receipt', compact('data', 'details'));
+            // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                 
             //include thankyou page

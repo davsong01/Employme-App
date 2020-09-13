@@ -19,10 +19,13 @@ class MaterialController extends Controller
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
             $materials = Material::orderBy('created_at', 'desc')->get();
-            // $materials= $image= str_replace(' ', '%20', $materials);
+ dd($materials);
             $programs = Program::where('id', '<>', 1)->get();
+
             return view('dashboard.admin.materials.index', compact('programs', 'i', 'materials'));
-        }elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+        }
+        
+        elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
                 //show only trainings attached to this user
                 $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
                    return view('dashboard.admin.materials.index', compact('materials','i') );
@@ -32,10 +35,10 @@ class MaterialController extends Controller
                 $program = Program::find($request->p_id);  
                 $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
                 if($user_balance->balance > 0){
+
                     return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
                 }   
                 $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
-                
 
                 return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
         }
