@@ -30,12 +30,18 @@ Route::get('thanks', function() {
     return view('emails.thankyou');
 })->name('thankyou');
 
+
+//Upload Payment Evidence
+
 //Export Routes
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('export/users', 'UserController@export')->name('user.export');
     //Show email history
     Route::get('updateemails/{id}', 'UserController@emailHistory')->name('updateemails.show');
 });
+
+//upload proof of payment 
+Route::resource('pop', 'PopController');
 
 
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
@@ -76,12 +82,17 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
     Route::get('resultenable/{id}', 'ResultController@enable')->name('results.enable');
     Route::get('resultdisable/{id}', 'ResultController@disable')->name('results.disable');
 });
+
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');
     Route::get('complainhide/{crm}', 'ProgramController@hidecrm')->name('crm.hide');
+    Route::get('close/{id}', 'ProgramController@closeRegistration')->name('registration.close');
+    Route::get('open/{id}', 'ProgramController@openRegistration')->name('registration.open');
+    Route::get('earlybirdopen/{id}', 'ProgramController@openEarlyBird')->name('earlybird.open');
+    Route::get('earlybirdclose/{id}', 'ProgramController@closeEarlyBird')->name('earlybird.close');
 
     Route::resource('questions', 'QuestionController');
     Route::resource('modules', 'ModuleController');

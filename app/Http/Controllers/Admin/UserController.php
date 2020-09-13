@@ -287,7 +287,7 @@ class UserController extends Controller
         $subject = $request->subject;
         // dd($recipients);'
         $name = auth()->user()->name;
-        Mail::to('employmeng@gmail.com')->send(new Email($data, $name, $subject));
+        Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
         foreach($recipients as $recipient){
             $name = $recipient->name;
             Mail::to($recipient->email)->send(new Email($data, $name, $subject));       

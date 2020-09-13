@@ -11,6 +11,9 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
+                </div> <div>
+                    <h5 class="card-title"> Actions Legend:</h5>
+                    <p style="color:green">1. Edit Training | 2. Close/Extend Registration | 3. Enable/Disable CRM | 4. Enable/Disable Result Availability| 5. Trash Training | 6. Close EarlyBird Payment(if applicable)  </p> 
                 </div>
             </div>
             <div class="table-responsive">
@@ -49,6 +52,16 @@
                                             class="fa fa-edit"></i>
                                     </a>
 
+                                    @if($program->close_registration == 0)
+                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger" href="{{ route('registration.close', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i>
+                                    </a>
+                                    @else
+                                    <a data-toggle="tooltip" data-placement="top" title="Extend Registration"
+                                        class="btn btn-success" href="{{ route('registration.open', $program->id)}}" ><i
+                                           onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i>
+                                    </a>
+                                    @endif
+
                                     @if($program->hascrm == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable CRM"
                                         class="btn btn-primary" href="{{ route('crm.show', $program->id)}}" onclick="return confirm('Are you really sure?');"><i
@@ -79,18 +92,22 @@
                                             data-placement="top" title="Trash Training"> <i class="fa fa-recycle"></i>
                                         </button>
                                     </form>
-
-                                    {{-- <form action="{{ route('programs.destroy', $program->id) }}" method="POST"
-                                        onsubmit="return confirm('Do you really want to delete?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
-                                            data-placement="top" title="Delete Training"> <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form> --}}
                                 </div>
-
+                                @if($program->e_amount > 0)
+                                <div class="extra-actions" style="padding-top:10px">
+                                    @if($program->close_earlybird == 1)
+                                    <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment"
+                                            class="btn btn-info" href="{{ route('earlybird.close', $program->id)}}" ><i
+                                            onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i>
+                                    </a>
+                                    @else
+                                    <a data-toggle="tooltip" data-placement="top" title="Extend Early Bird Payment"
+                                            class="btn btn-info" href="{{ route('earlybird.open', $program->id)}}" ><i
+                                            onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i>
+                                    </a>
+                                    @endif
+                                </div>
+                                @endif
                             </td>
                         </tr>
                         @endforeach

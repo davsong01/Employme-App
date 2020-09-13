@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 use App\Role;
 use App\User;
-use App\Material;
 use App\Program;
+use App\Material;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -28,9 +29,14 @@ class MaterialController extends Controller
 
                 } elseif(Auth::user()->role_id == "Student"){       
                 $i = 1;   
-                $program = Program::find($request->p_id);         
+                $program = Program::find($request->p_id);  
+                $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
+                }   
                 $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
-   
+                
+
                 return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
         }
             else  return redirect('/');

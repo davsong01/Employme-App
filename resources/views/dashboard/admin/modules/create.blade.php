@@ -31,7 +31,7 @@
                                     <select name="program" id="program" class="form-control" required>
                                         <option value=""></option>
                                         @foreach ($programs as $program)
-                                        <option value="{{ $program->id }}">{{$program->p_name}}</option>
+                                        <option value="{{ $program->id }}" {{ old('program') == $program->id ? 'selected' : '' }}>{{$program->p_name}}</option>
                                         @endforeach
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('program')}}</small></div>

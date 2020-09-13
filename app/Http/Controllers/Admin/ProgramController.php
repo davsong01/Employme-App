@@ -13,11 +13,6 @@ use Illuminate\Support\facades\DB;
 
 class ProgramController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Program $program)
     {
         $i = 1;
@@ -77,12 +72,7 @@ class ProgramController extends Controller
         return redirect('programs')->with('message', 'training updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
         $program = program::withTrashed()->where('id', $id)->firstOrFail();
@@ -135,6 +125,7 @@ class ProgramController extends Controller
             'e_amount' => 'required',
             'p_start' => 'required',
             'p_end' => 'required',
+            'hasmock' => 'required'
             ]), function (){
                 if (request()->hasFile('booking_form')){
                     request()->validate([
@@ -153,11 +144,8 @@ class ProgramController extends Controller
 
         public function showcrm($id){
             $program = Program::findorfail($id);
-        
             $programName = Program::where('id', $id)->pluck('p_name');
-
             $program->hascrm = 1;
-    
             $program->save();
     
             return redirect('programs')->with('message', 'CRM has been succesfully enabled for '.$programName);
@@ -165,13 +153,46 @@ class ProgramController extends Controller
     
         public function hidecrm($id){
             $program = Program::findorfail($id);
-        
             $programName = Program::where('id', $id)->pluck('p_name');
-
             $program->hascrm = 0;
-    
             $program->save();
     
             return redirect('programs')->with('message', 'CRM has been succesfully disabled for '.$programName);
+        }
+
+        public function closeRegistration($id){
+            $program = Program::findorfail($id);
+            $programName = Program::where('id', $id)->pluck('p_name');
+            $program->close_registration = 1;
+            $program->save();
+
+            return redirect('programs')->with('message', 'Registration is now closed for '.$programName);
+        }
+
+        public function openRegistration($id){
+            $program = Program::findorfail($id);
+            $programName = Program::where('id', $id)->pluck('p_name');
+            $program->close_registration = 0;
+            $program->save();
+
+            return redirect('programs')->with('message', 'Registration is now extended for '.$programName);
+        }
+
+        public function openEarlyBird($id){
+            $program = Program::findorfail($id);
+            $programName = Program::where('id', $id)->pluck('p_name');
+            $program->close_earlybird = 1;
+            $program->save();
+
+            return redirect('programs')->with('message', 'Early is now extended for '.$programName);
+        }
+
+        public function closeEarlyBird($id){
+            $program = Program::findorfail($id);
+            $programName = Program::where('id', $id)->pluck('p_name');
+            $program->close_earlybird = 0;
+            $program->save();
+
+            return redirect('programs')->with('message', 'EarlyBird payment is now closed for '.$programName);
         }
 }

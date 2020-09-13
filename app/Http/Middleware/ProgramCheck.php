@@ -18,8 +18,15 @@ class ProgramCheck
             $programs = DB::table('program_user')->where('user_id', Auth::user()->id)->whereProgram_id($request->p_id)->first();
             if(empty($programs)){
                 return abort(404);
-            }return $next($request);   
+            }
+            return $next($request);   
         }
+
+         if(Auth::user()->role_id == 'Student' || Auth::user()->role_id == 'Facilitator' || Auth::user()->role_id == 'Grader'){
+              return $next($request); 
+         }
+
+
               
         
     }

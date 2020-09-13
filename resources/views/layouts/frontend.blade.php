@@ -72,14 +72,15 @@
             <!-- Amado Nav -->
             <nav class="amado-nav">
                 <ul>
-                    <li class="active"><a href="/">All Trainings</a></li>
-                    <li><a href="#" class="search-nav"><img src="img/core-img/search.png" alt="">Search Training</a></li>
+                    <li @yield('status')><a href="/">All Trainings</a></li>
+                    <li class=""><a href="#" class="search-nav"><img src="img/core-img/search.png" alt="">Search Training</a></li>
+                    <li  class="@yield('link_status')"><a href="{{ route('pop.create') }}">Upload POP</a></li>
                     @guest
-                    <li><a href="/login">Login</a></li>
+                    <li  class="@yield('link_status')"><a href="/login">Login</a></li>
                     @endguest
                     @auth
-                    <li><a href="/login">My Dashboard</a></li>
-                    <li><a href="{{ route('logout') }}" onclick="event.preventDefault();
+                    <li  class="@yield('link_status')"><a href="/login">My Dashboard</a></li>
+                    <li  class="@yield('link_status')"><a href="{{ route('logout') }}" onclick="event.preventDefault();
                     document.getElementById('logout-form').submit();">
                        </i>Logout
                     </a></li>

@@ -50,16 +50,24 @@
                             <input type="date" name="p_end" value="{{ old('p_end') }}" class="form-control" required>
                         </div>
                         <!--Gives the first error for input name-->
-                        <small><small style="color:red">{{ $errors->first('p_end')}}</small></small>
-                </div>
-                <div class="form-group">
-                    <label>Upload Booking form</label>
-                    <input type="file" name="booking_form" value="{{ old('booking_form') }}" class="form-control">
-                </div>
-                <div><small style="color:red">{{ $errors->first('booking_form')}}</small></div>
-                <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
-                {{ csrf_field() }}
-                </form>
+                        <small style="color:red">{{ $errors->first('p_end')}}</small>
+                        <div class="form-group">
+                        <label>Does Training have pre class tests?</label>
+                        <select name="hasmock" class="form-control" id="hasmock" required>
+                            <option value="">--Select Option --</option>
+                            <option value="1" {{ old('hasmock') == 1 ? 'selected' : '' }}>Yes</option>
+                            <option value="0" {{ old('hasmock') == 0 ? 'selected' : '' }}>No</option>
+                        </select>
+                        </div>
+                        <small style="color:red">{{ $errors->first('p_end')}}</small>
+                        <div class="form-group">
+                            <label>Upload Booking form</label>
+                            <input type="file" name="booking_form" value="{{ old('booking_form') }}" class="form-control">
+                        </div>
+                        <div><small style="color:red">{{ $errors->first('booking_form')}}</small></div>
+                        <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
+               
+                    </form>
             </div>
         </div>
     </div>

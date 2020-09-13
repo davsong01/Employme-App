@@ -27,7 +27,7 @@ class PaymentController extends Controller
 
         foreach($transactions as $transaction){
             $transaction->details = User::select('name', 'email')->where('id', $transaction->user_id)->first(); 
-            $transaction->program = Program::select('p_name')->first();
+            $transaction->program = Program::select('p_name')->where('id', $transaction->program_id)->first();
         }
 
         if(Auth::user()->role_id == "Admin"){

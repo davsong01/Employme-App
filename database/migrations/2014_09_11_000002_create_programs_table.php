@@ -19,14 +19,14 @@ class CreateProgramsTable extends Migration
             $table->string('p_abbr');
             $table->bigInteger('p_amount');
             $table->bigInteger('e_amount');
+            $table->boolean('close_earlybird')->default(0);
             $table->date('p_start');
             $table->date('p_end');
             $table->string('booking_form')->nullable();
-            // $table->string('f_paid')->nullable();
-            // $table->string('p_paid')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
+            $table->boolean('hasmock')->nullable()->default(0);
             $table->boolean('hasresult')->nullable()->default(0);
-            // $table->boolean('hasmodule')->default(0);
+            $table->boolean('close_registration')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
