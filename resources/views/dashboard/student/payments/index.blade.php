@@ -18,6 +18,7 @@
                             <th>Amount</th>
                             <th>Amount Paid</th>
                             <th>Balance</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     
@@ -26,7 +27,7 @@
                         <tr>
                             <td>{{ $details->created_at}}</td>
                             <td>{{ $details->invoice_id }}</td>
-                            <td>{{ $details->bank }}</td>
+                            <td>{{ $details->t_type }}</td>
                             <td>{{ $details->paymenttype }}</td>
                             <td>{{ $details->p_name }}</td>
                             <td>{{ $details->p_amount }}</td>
@@ -36,6 +37,12 @@
                             @else
                             <td><b style="color:green">{{ config('custom.default_currency') }}{{ $details->balance }}</b></td>
                             @endif
+                            <td>
+                                <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                        class="btn btn-warning" href="{{ route('payments.print', $details->id) }}"><i
+                                            class="fa fa-print"></i>
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

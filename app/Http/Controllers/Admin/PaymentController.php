@@ -21,7 +21,6 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        
         $i = 1;
         $transactions = DB::table('program_user')->orderBy('program_id', 'DESC')->get();
 
@@ -40,6 +39,7 @@ class PaymentController extends Controller
         if(Auth::user()->role_id == "Student"){  
 
             $transactiondetails = DB::table('program_user')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+         
             foreach($transactiondetails as $details){
                 $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();
                 $details->p_name = $details->programs[0]['p_name'];
@@ -52,8 +52,13 @@ class PaymentController extends Controller
 
     public function edit($id){
             $transaction = DB::table('program_user')->whereId($id)->first();
+            $transaction->name = User::find($transaction->user_id)->value('name');
+            $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->get();
+            $transaction->p_name = $program_details[0]['p_name'];
+            $transaction->p_amount = $program_details[0]['p_amount'];
+
             if(Auth::user()->role_id == "Admin"){
-            return view('dashboard.admin.transactions.edit', compact('programs','user'));
+            return view('dashboard.admin.transactions.edit', compact('transaction'));
     }return back();
     }
 
@@ -99,6 +104,51 @@ class PaymentController extends Controller
     }else return back();
     }
 
+    public function printReceipt($id){
+        $transaction = DB::table('program_user')->where('id', $id)->first();
+      
+        if(Auth::user()->role_id == "Student"){
+            if(!$transaction){
+                return back()->with('warning', 'Unauthorized Action'); 
+            }
+            if($transaction->user_id <> auth()->user()->id){
+                return back()->with('warning', 'Unauthorized Action');
+            }
+        }
+            //get user details
+            $user = User::findorFail($transaction->user_id);
+
+            if($transaction->t_amount == $user->programs[0]['e_amount']){
+                $message = $this->dosubscript2($transaction->balance);
+            }else{
+            $message = $this->dosubscript1($user->balance);
+            }
+
+            //determine the program details
+            $details = [
+                'programFee' => $user->programs[0]['p_amount'],
+                'programName' => $user->programs[0]['p_name'],
+                'programAbbr' => $user->programs[0]['p_abbr'],
+                'balance' => $transaction->balance,
+                'message' => $message,
+                'booking_form' => base_path() . '/uploads'.'/'. $user->program[0]['booking_form'],
+                'invoice_id' =>  $transaction->invoice_id,
+                'message' => $message,
+            ];
+    
+            $data = [
+                'name' =>$user->name,
+                'email' =>$user->email,
+                'bank' =>$user->t_type,
+                'amount' =>$transaction->t_amount,
+            ];
+            //generate pdf from receipt view
+            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            
+            return view('emails.printreceipt', compact('data', 'details'));
+
+    }
+
     //set balance and determine user receipt values
     private function dosubscript1($balance){
         if($balance <= 0){
@@ -118,47 +168,37 @@ class PaymentController extends Controller
         }return 'Part payment';
     }
 
-      public function update(Request $request, $id)
-    {
-       
-        $user = User::findorFail($id);
-        if($request['password']){
-            $user->password = bcrypt($request['password']);
-        };
-        //check amount against payment
-        $programFee = Program::findorFail($request['training'])->p_amount;
+      public function update(Request $request, $id){
 
-        $newamount = $user->t_amount + $request['amount'];
+        $transaction = DB::table('program_user')->whereId($id)->first();
+       
+        $user = User::findorFail($transaction->user_id);
+        
+        //check amount against payment
+        $programFee = $request->program_amount;
+
+        $newamount = $transaction->t_amount + $request->amount;
         if($newamount > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
         }else 
+
         $balance = $programFee - $newamount;
         $message = $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
-       
+        
         //update the program table here @ column fully paid or partly paid
-        $this->programStat2($request['training'], $paymentStatus);
+        
 
-        $user->name = $request['name'];
-        $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
-        $user->program_id = $request['training'];
-        $user->t_amount = $newamount;
-        $user->balance = $balance;
-        $user->t_type = $request['bank'];
-        $user->t_location = $request['location'];
-        $user->role_id = $request['role'];
-        $user->gender = $request['gender'];
-        // $user->bank = $request['bank'];
-        $user->transid = $request['transaction_id'];
-        $user->paymentStatus =  $paymentStatus;
+        DB::table('program_user')->whereId($transaction->id)->update([
+            't_amount' => $newamount,
+           'balance' => $balance,
+            't_type' => $request['bank'],
+            't_location' => $request['location'],
+            'transid' => $request['transaction_id'],
+            'paymentStatus' =>  $paymentStatus,
+        ]);
 
-        $user->save();
-        //I used return redirect so as to avoid creating new instances of the user and program class
-        if(Auth::user()->role_id == "Admin"){
-        return redirect('users')->with('message', 'user updated successfully');
-        } return back();
-    
+        return back()->with('message', 'Transaction updated successfully');
     }
 
 }

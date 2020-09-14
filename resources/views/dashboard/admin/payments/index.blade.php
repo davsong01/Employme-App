@@ -46,7 +46,10 @@
                                         class="btn btn-info" href="{{ route('payments.edit', $transaction->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
-                                  
+                                    <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                        class="btn btn-warning" href="{{ route('payments.print', $transaction->id) }}"><i
+                                            class="fa fa-print"></i>
+                                    </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
                                         class="btn btn-primary" href="{{ route('payments.show', $transaction->id) }}"><i
                                             class="far fa-envelope"></i>

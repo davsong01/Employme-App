@@ -96,13 +96,20 @@
 			</tbody>
 		</table>
 	<div>
-			<h5 style='font-style: italic;'><span style='color:#FF0000;'><strong>Please carefully read our Terms and Conditions!</strong></span></h5>
+			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
 			</div>
 			<br />
 	{{-- <div style="float-left; padding-left: 20px;"><img alt="signature" src="{{ asset('assets/images/sign.png') }}" style="width:8%" /> --}}
 		<p><b><i>School Administrator</i></b></p>
 	</div>
+	<div>
+		<br /><br />
+		<br /><span>Printed: {{now()}}</span><br /><br /><br />
+		<a id="lnkclose" href="{{ route('payments.index', Auth::user()->id) }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a onclick="javascript:window.print();" id="LinkButton1"
+			href="javascript:__doPostBack(&#39;LinkButton1&#39;,&#39;&#39;)">PRINT</a>
 
+	</div>
 </div>
 
 </body>

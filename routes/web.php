@@ -116,6 +116,7 @@ Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->na
 //route for payments history
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('payments', 'PaymentController');
+    Route::get('printreceipt/{id}', 'PaymentController@printReceipt')->name('payments.print');
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('pictures', 'PictureController');
