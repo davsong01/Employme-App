@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use DB;
 use Auth;
+use App\Pop;
 use App\User;
 use Calendar;
 use App\Module;
 use App\Picture;
-use App\Program;
 
+use App\Program;
 use App\Material;
 use Illuminate\Http\Request;
 
@@ -55,10 +56,12 @@ class HomeController extends Controller
             $users = User::where('role_id', 'Student')->get();
             $userCount = $users->count();
 
+            //Get pending payments
+            $pending_payments = Pop::all()->count();
+            
             //Get Users owing
             foreach($users as $user){
                $users['userowing'] = DB::table('program_user')->where('user_id', $user->id)->where('balance', '>', 0)->count();
-
             }
             $userowing = ($users['userowing']);
             $materialCount = Material::count();
@@ -66,7 +69,7 @@ class HomeController extends Controller
 
            $requests = $request;
            
-        return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount'));
+        return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
 
         } 
 

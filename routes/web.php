@@ -42,7 +42,8 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 //upload proof of payment 
 Route::resource('pop', 'PopController');
-
+//View proofofpayment
+Route::get('view/pop/{filename}', 'PopController@getfile');
 
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);

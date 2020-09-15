@@ -28,6 +28,10 @@
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
                             class="hide-menu">Student Management</span></a></li>
 
+                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                href="{{route('pop.index')}}" aria-expanded="false"><i class="fa fa-check-circle"></i><span
+                    class="hide-menu">Approve Payment</span></a></li>
+
                 <!---end of student management links-->
                 <!---teacher management links-->
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

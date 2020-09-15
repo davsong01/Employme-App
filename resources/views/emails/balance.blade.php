@@ -6,7 +6,6 @@
 
 <strong style="color:red">NOTE: </strong>Please find your E-receipt attached to this email.</strong> <br><br>
 
-
 @component('mail::button', ['url' => config('app.url')])
 Login to your Portal to continue learning<br><br>
 @endcomponent

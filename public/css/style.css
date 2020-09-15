@@ -14800,24 +14800,7 @@ This is for the horizontal layout
   [data-sidebar-position="fixed"] .left-sidebar {
     overflow: auto; } }
 
-/*
-Template Name: Admin Template
-Author: Wrappixel
 
-File: scss
-*/
-/*============================================================== 
- For Desktop & above all (1650px) 
- ============================================================== */
-/*============================================================== 
- For Laptop & above all (1370px) 
- ============================================================== */
-/*-- ============================================================== 
- Small Desktop & above all (1024px) 
- ============================================================== */
-/*-- ============================================================== 
- Ipad & above all(768px) 
- ============================================================== */
 @media (min-width: 768px) {
   .bc-content {
     -webkit-box-pack: end;
@@ -14830,3 +14813,19 @@ File: scss
 @media (max-width: 991.98px) {
   .do-block {
     display: block !important; } }
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}

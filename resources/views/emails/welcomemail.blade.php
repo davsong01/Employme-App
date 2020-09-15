@@ -10,7 +10,7 @@ Your customized portal is where you can view/download study materials for this t
 
 <strong>Your customized portal login details are:</strong> <br><br>
 Username: {{ $data['email'] }} <br>
-Password: 12345
+Password: 12345 <small> <strong>(Use existing password if you are a returning participant)</strong> </small> 
 </p>
 
 @component('mail::button', ['url' => config('app.url')])

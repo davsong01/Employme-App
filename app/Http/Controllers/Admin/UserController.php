@@ -62,7 +62,7 @@ class UserController extends Controller
          //Check if program exist for the incoming training
         $user = User::where('email', $request->email)->first();
         $check = DB::table('program_user')->whereProgramId($request->training)->whereUserId
-        (121)->get();
+        ($user->id)->get();
 
         if($check->count() > 0){
             return back()->with('error', 'Participant has already paid for this training');

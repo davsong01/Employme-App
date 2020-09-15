@@ -207,8 +207,8 @@ class PaymentController extends Controller
                 'amount' =>$amount,
             ];
 
-            // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            return view('emails.receipt', compact('data', 'details'));
+            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            // return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                 
             //include thankyou page
@@ -217,7 +217,6 @@ class PaymentController extends Controller
         }dd('Transaction failed! We have not received any money from you.');
      
     }     
-
 
     private function process($paymentDetails){
         

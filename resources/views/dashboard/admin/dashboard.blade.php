@@ -43,6 +43,7 @@
             </div>
             </a>
         </div>
+        
         <div class="col-md-3 col-lg-3">
             <a href="{{ route('users.index') }}">
             <div class="card card-hover">
@@ -53,7 +54,17 @@
             </div>
             </a>
         </div>
-        <div class="col-md-4 col-lg-4">
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('pop.index') }}">
+            <div class="card card-hover">
+                <div class="box bg-danger text-center">
+                    <h1 class="font-light text-white"><i class="fa fa-check-circle"></i></h1>
+                    <h6 class="text-white"><b> {{$pending_payments}} </b> Pending Payments</h6>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('complains.index') }}">
             <div class="card card-hover">
                 <div class="box bg-warning text-center">
@@ -63,7 +74,7 @@
             </div>
             </a>
         </div>
-        <div class="col-md-4 col-lg-4">
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('modules.index') }}">
             <div class="card card-hover">
                 <div class="box bg-info text-center">
@@ -73,7 +84,7 @@
             </div>
             </a>
         </div>
-        <div class="col-md-4 col-lg-4">
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('users.mail') }}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
