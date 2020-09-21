@@ -24,10 +24,20 @@ class CreateUsersTable extends Migration
             $table->string('t_phone')->nullable();
             $table->string('profile_picture')->nullable();
             $table->string('gender')->nullable();
-             $table->integer('responseStatus')->nullable();//For CRM
+            $table->integer('responseStatus')->nullable();//For CRM
             
             $table->rememberToken();
             $table->timestamps();
+            //To be deleted in production
+            $table->integer('t_amount')->nullable();
+            $table->integer('balance')->nullable();
+            $table->string('transid')->nullable();
+            $table->string('invoice_id')->nullable();
+            $table->string('t_location')->nullable();
+            $table->string('paymenttype')->nullable();
+            $table->integer('paymentStatus')->nullable();  
+            $table->string('t_type')->nullable();
+
         });
     }
 

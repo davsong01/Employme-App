@@ -18,7 +18,7 @@
                 Please Type in your answer in the text boxes under each question
             </p>
           
-            <form name="quiz" id="quiz_form" action="{{route('tests.store', ['p_id'] => $program->id)}}" method="POST" class="pb-2">
+            <form name="quiz" id="quiz_form" action="{{route('tests.store', ['p_id' => $program->id ])}}" method="POST" class="pb-2">
                 {{ csrf_field() }}
 
                 @foreach($questions as $question)

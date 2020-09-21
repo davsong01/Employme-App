@@ -192,6 +192,7 @@ class ResultController extends Controller
 
     public function add($uid, $modid){
         $user_results = Result::with(['program', 'user'])->where('id', $modid)->where('user_id', $uid)->first();
+
         $i = 1;
         $array = json_decode($user_results->certification_test_details, true);
        
@@ -358,22 +359,17 @@ class ResultController extends Controller
     }
 
    
-    public function destroy(Result $result, Request $id)
+    public function destroy(Request $request)
     {
-
         if(Auth::user()->role_id == "Admin"){
+            $users_results = Result::where('user_id', $request->id)->get();
 
-            //change user result status back to no result
-            $user = User::where('id', $result->user_id)->first();
-            $user->hasResult = 0; 
-
-            //update user
-            $user->save();
-
-            //delete result
-            $result->delete();
-
-            return redirect('results')->with('message', 'result deleted successfully');
+            //delete all user results
+            foreach($users_results as $results){
+                $results->delete();
+            };
+            
+            return redirect('results')->with('message', 'All Post Test Results for this user have been deleted successfully');
         } return back();
     }
 

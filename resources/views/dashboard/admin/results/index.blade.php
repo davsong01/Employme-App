@@ -58,14 +58,11 @@
                                             class="btn btn-info" href="{{ route('results.add', ['uid' => $user->id, 'modid' => $user->result_id]) }}"><i
                                                 class="fa fa-eye"></i>
                                         </a>
-                                        {{-- <a data-toggle="tooltip" data-placement="top" title="Update User scores"
-                                        class="btn btn-warning" href="{{ route('results.edit', $user->id) }}"><i
-                                            class="fa fa-edit"></i>
-                                        </a> --}}
+
                                             <form action="{{ route('results.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
-
+                                            <input type="hidden" name="id" value="{{ $user->id }}">
                                             <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
                                                 data-placement="top" title="Delete Result"> <i
                                                     class="fa fa-trash"></i>

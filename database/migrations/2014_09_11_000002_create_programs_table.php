@@ -22,6 +22,7 @@ class CreateProgramsTable extends Migration
             $table->boolean('close_earlybird')->default(0);
             $table->date('p_start');
             $table->date('p_end');
+            $table->string('image')->default('trainingimage/default.jpg');
             $table->string('booking_form')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
             $table->boolean('hasmock')->nullable()->default(0);

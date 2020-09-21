@@ -20,7 +20,7 @@ class PopController extends Controller
             return abort(404);
         }
 
-        $transactions = Pop::with('program')->get();
+        $transactions = Pop::ordered()->with('program')->get();
 
         $i = 1;
 
@@ -174,10 +174,27 @@ class PopController extends Controller
             // return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                 
-        
         return back()->with('message', 'Student added succesfully'); 
       
         }
+    }
+
+    public function reconcile(){
+        $users = User::where('role_id', 'Student')->get();
+        foreach($users as $user){
+            //get user extra details
+            $user->programs()->attach($user->program_id, [
+                    'created_at' =>  $user->created_at,
+                    't_amount' => $user->t_amount,
+                    't_type' => $user->t_type,
+                    't_location' => $user->location,
+                    'paymentStatus' => $user->paymentStatus,
+                    'balance' => $user->balance,
+                    'invoice_id' =>  $user->invoice_id,
+                ] );
+            
+        }
+        return back()->with('message', 'All user details have been moved succesfully');
     }
 
     public function getfile($filename){

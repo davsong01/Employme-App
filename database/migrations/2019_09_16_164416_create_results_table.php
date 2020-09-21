@@ -23,7 +23,7 @@ class CreateResultsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
             $table->text('marked_by')->nullable();
-
+            $table->text('grader')->nullable();
             $table->integer('class_test_score')->nullable();
             $table->text('class_test_details')->nullable();
 

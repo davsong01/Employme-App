@@ -11,6 +11,7 @@ Auth::routes();
 
 //route for the home
 Route::get('/', 'FrontendController@index')->name('welcome');
+Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
 
 Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
 //route for dashboard.index only
@@ -45,9 +46,17 @@ Route::resource('pop', 'PopController');
 //View proofofpayment
 Route::get('view/pop/{filename}', 'PopController@getfile');
 
+//Reconcile route
+Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
+
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
+Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
+Route::get('pretestresults', 'MockController@mockresults')->name('pretest.results');
+Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate','auth', 'programCheck'])->name('mocks.grade');
 Route::get('userresults', 'TestsController@userresults')->middleware(['impersonate','auth','programCheck'])->name('tests.results');
+Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
+
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
 
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);

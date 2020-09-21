@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Mocks;
 use App\Program;
 use App\Question;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,10 @@ class Module extends Model
 
     public function results(){
         return $this->hasMany(Result::Class);
+    }
+
+    public function mocks(){
+        return $this->hasMany(Mocks::Class);
     }
 
     public function program(){

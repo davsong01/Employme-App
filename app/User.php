@@ -7,6 +7,7 @@ use App\Result;
 use App\Program;
 use App\Complain;
 use App\Material;
+use App\Mocks;
 use App\Certificate;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -25,6 +26,9 @@ class User extends Authenticatable
         }  
         public function results(){
             return $this->hasMany(Result::class);
+        }
+        public function mocks(){
+            return $this->hasMany(Mocks::class);
         }
         public function complains(){
             return $this->hasMany(Complain::class);

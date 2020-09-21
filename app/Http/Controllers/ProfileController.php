@@ -51,7 +51,6 @@ class ProfileController extends Controller
             $user->update([
                 'profile_picture' => $imgName,
             ]);
-
         }
         
         $user->save();

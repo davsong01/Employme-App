@@ -27,4 +27,9 @@ class FrontendController extends Controller
 
         return view('single_training', compact('training'));
     }
+
+    public function getfile($filename){
+        $realpath = base_path() . '/uploads/trainings'. '/' .$filename;
+        return response()->download($realpath);
+    }  
 }

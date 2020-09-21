@@ -1,3 +1,12 @@
     /* ---------------------------------------
     ##### - PLACE YOUR CUSTOM CSS HERE - #####
     --------------------------------------- */
+
+    .details p {
+        background: #eeefea;
+        color: black;
+        padding: 7px 0 7px 0;
+        text-align: center;
+        min-height: 60px;
+        font-size:14px;
+    }

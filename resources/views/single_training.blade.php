@@ -22,10 +22,8 @@
                 <div class="" style="margin-bottom: 20px;">
                     <div id="product_details_slider" class="carousel slide" data-ride="carousel">
                         <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <a class="gallery_img" href="{{ asset('ecommerce/img/product-img/pro-big-1.jpg') }}">
-                                    <img class="d-block w-100" src="{{ asset('ecommerce/img/product-img/pro-big-1.jpg') }}" alt="First slide">
-                                </a>
+                            <div class="">
+                                <img src="{{ '/'.$training->image }}" alt="Training image">
                             </div>
                         </div>
                     </div>

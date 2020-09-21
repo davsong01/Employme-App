@@ -12,24 +12,26 @@ class="active"
         <!-- Single Catagory -->
         <div class="single-products-catagory clearfix">
             <a href="{{ route('trainings', $training->id ) }}">
-                <img src="{{ asset('ecommerce/img/bg-img/a.jpg') }}"
+                <img src="{{ $training->image }}"
                     alt="program image">
                 <!-- Hover Content -->
-                <div class="hover-content">
-                    <div class="line"></div>
-                    <h4>{{ $training->p_name }}</h4><br>
-                        <p><strong>Price:</strong> {{ config('custom.default_currency') }}{{ $training->p_amount }}
-                            @if($training->close_earlybird == 1)
-                                @if($training->e_amount > 0)<strong> |  Early Bird:</strong> {{ config('custom.default_currency') }}{{ $training->e_amount }}@endif
-                        </p>
-                           
-                    @endif
-                    @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
-                    <p class="closed" style="color:red">Registration Closed</p>
-                    @endif
-                    
-                </div>
+                
+                
             </a>
+            <div class="details">
+                <p class="detailsp">{{ mb_strimwidth($training->p_name, 0, 46, "...") }}<br>
+                {{ config('custom.default_currency') }}{{ $training->p_amount }}
+                    @if($training->close_earlybird == 1)
+                        @if($training->e_amount > 0)<strong> |  Early Bird:</strong> {{ config('custom.default_currency') }}{{ $training->e_amount }}@endif
+                    @endif
+                <br>
+                @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                    <strong class="closed" style="color:red">Registration Closed</strong>
+                @else <br>
+                @endif
+
+                </p>
+            </div>
         </div>
         @endforeach
     </div>

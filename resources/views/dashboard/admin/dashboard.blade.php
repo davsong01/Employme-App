@@ -8,6 +8,12 @@
     <!-- ============================================================== -->
     @if(Auth()->user()->role_id == "Admin")
     <div class="row">
+        <div class="card-title">
+                @include('layouts.partials.alerts')
+        </div>
+    </div>
+    
+    <div class="row">
         <!-- Column -->
         
         <div class="col-md-3 col-lg-3">

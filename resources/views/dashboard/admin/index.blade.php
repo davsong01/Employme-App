@@ -23,6 +23,10 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Admin Dashboard</span></a></li>
+                
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ route('reconcile') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
+                        class="hide-menu">Reconcile</span></a></li>
                 <!---Student management links-->
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
@@ -79,8 +83,12 @@
                                 class="hide-menu">- Questions</span></a>
                     </li>
                   
+                    <li class="sidebar-item"><a href="{{route('pretest.results')}}" class="sidebar-link"><span
+                    class="hide-menu">- Pre Test Grades</span></a>
+
                     <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
                     class="hide-menu">- Grades</span></a>
+                     
                     @if(Auth()->user()->role_id == "Admin")
                     <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span
                         class="hide-menu">- Certificates</span></a>

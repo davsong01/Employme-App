@@ -22,7 +22,7 @@ class ProgramCheck
             return $next($request);   
         }
 
-         if(Auth::user()->role_id == 'Student' || Auth::user()->role_id == 'Facilitator' || Auth::user()->role_id == 'Grader'){
+         if(Auth::user()->role_id == 'Admin' || Auth::user()->role_id == 'Facilitator' || Auth::user()->role_id == 'Grader'){
               return $next($request); 
          }
 

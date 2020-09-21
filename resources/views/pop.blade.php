@@ -97,7 +97,7 @@ class="active"
                         @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" placeholder="amount" required>
+                                <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" placeholder="Amount" required>
                             </div>
                         </div>
                         @if ($errors->has('amount'))

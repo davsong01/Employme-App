@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\User;
 use App\Program;
 use App\Material;
-use App\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
@@ -47,14 +48,47 @@ class ProgramController extends Controller
     }
 
 
-    public function store()
+    public function store(Request $request)
     {  
-        $program = Program::create($this->validateRequest());
-        $this->storeImage($program);
+       $data = $this->validate($request, [
+            'p_name' => 'required',
+            'p_abbr' => 'required',
+            'p_amount' => 'required',
+            'e_amount' => 'required',
+            'p_start' => 'required',
+            'p_end' => 'required',
+            'hasmock' => 'required',
+            'booking_form' =>'file|mimes:pdf|max:10000',
+            'image' =>'required|image |max:10000',
+        ]);
+
+        //Save booking form
+        $file = $request->file('booking_form')->getClientOriginalName();
+        $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
+
+        //Resize and save program banner
+        $file = $request->file('image')->getClientOriginalName();
+            
+        $image = Image::make($request->image)->resize(533, 533);
+ 
+        Storage::disk('uploads')->put('trainings/'.$file, (string) $image->encode());
+
+        $data['image'] = $file;
+
+        Program::Create([
+            'p_name' => $data['p_name'],
+            'p_abbr' => $data['p_abbr'],
+            'p_amount' => $data['p_amount'],
+            'e_amount' => $data['e_amount'],
+            'p_start' => $data['p_start'],
+            'p_end' => $data['p_end'],
+            'hasmock' => $data['hasmock'],
+            'booking_form' => $filePath,
+            'image' => 'trainingimage/'.$file,
+        ]); 
         
         return redirect('programs')->with('message', 'Program added succesfully');
     }
-
 
     public function edit($id)
     {
@@ -64,11 +98,44 @@ class ProgramController extends Controller
         return view('dashboard.admin.programs.edit', compact('program'));
     }
 
-    public function update(Program $program)
+    public function update(Request $request, Program $program)
     {
-        $program->update($this->validateRequest());
-        $this->storeImage($program);
-        //I used return redirect so as to avoid creating new instances of the user and program class
+
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'p_end', 'hasmock']);
+
+        //check if new featured image
+        if($request->hasFile('image')){
+           
+            //Resize and save program banner
+            $file = $request->file('image')->getClientOriginalName();
+                
+            $image = Image::make($request->image)->resize(533, 533);
+    
+            Storage::disk('uploads')->put('trainings/'.$file, (string) $image->encode());
+
+            //delete old one
+            if($program->image != 'trainingimage/default.jpg'){
+                unlink( base_path() . '/uploads/trainings/'. substr($program->image, 14));
+            }
+           
+            $data['image'] = 'trainingimage/'.$file;
+
+        }
+
+        if($request->hasFile('booking_form')){
+            //Save booking form
+            $file = $request->file('booking_form')->getClientOriginalName();
+            $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
+
+            //delete old one
+            unlink( base_path() . '/uploads/'.$program->booking_form);
+
+            //update attribute
+            $data['booking_form'] = $filePath;
+        }
+
+        $program->update($data);
+
         return redirect('programs')->with('message', 'training updated successfully');
     }
 
@@ -115,31 +182,6 @@ class ProgramController extends Controller
         $program->restore();
 
        return redirect(route('programs.index'))->with('message', 'Program has been restored');
-    }
-
-        private function validateRequest(){
-            return tap(request()->validate([
-            'p_name' => 'required',
-            'p_abbr' => 'required',
-            'p_amount' => 'required',
-            'e_amount' => 'required',
-            'p_start' => 'required',
-            'p_end' => 'required',
-            'hasmock' => 'required'
-            ]), function (){
-                if (request()->hasFile('booking_form')){
-                    request()->validate([
-                        'booking_form' =>'file|mimes:pdf|max:10000',
-                    ]);
-                }
-            });
-    }           
-        private function storeImage($program){
-            if(request()->has('booking_form')){ 
-                $program->update([
-                    'booking_form' => request()->booking_form->storeAs('bookingforms', request()->booking_form->getClientOriginalName(), 'uploads'),
-                ]); 
-        }
     }
 
         public function showcrm($id){

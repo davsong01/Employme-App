@@ -2,6 +2,7 @@
 
 namespace App;
 use App\User;
+use App\Mocks;
 use App\Module;
 use App\Result;
 use App\Material;
@@ -36,6 +37,10 @@ class Program extends Model
 
     public function results(){
         return $this->hasMany(Result::class);
+    }
+
+    public function mocks(){
+        return $this->hasMany(Mocks::class);
     }
     
     public function modules(){
