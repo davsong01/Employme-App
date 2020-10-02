@@ -74,6 +74,7 @@ class PopController extends Controller
     }
 
     public function show(Pop $pop){
+       
         if(auth()->user()->role_id != 'Admin'){
             return abort(404);
         }
@@ -173,8 +174,9 @@ class PopController extends Controller
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
             // return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-                
-        return back()->with('message', 'Student added succesfully'); 
+              
+            $pop->delete();
+        return redirect(route('payments.index'))->with('message', 'Student added succesfully'); 
       
         }
     }

@@ -61,10 +61,6 @@ class PaymentController extends Controller
         }  
     }
 
-    /**
-     * Obtain Paystack payment information
-     * @return void
-     */
     public function handleGatewayCallback()
     {
         $paymentDetails = Paystack::getPaymentData();
@@ -122,8 +118,6 @@ class PaymentController extends Controller
                     
                 //include thankyou page
                 return redirect(route('trainings.show', $training->id))->with('message', 'Balance Payment Succesful');
-
-                return view('emails.thankyou', compact('data',  'details'));
 
             }else
             $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();

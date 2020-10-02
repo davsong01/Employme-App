@@ -27,12 +27,10 @@ Route::get('bookingforms/{filename}', function($filename){
 // Route::get('paystack', 'PayController@process');
 Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 
-Route::get('thanks', function() {
+Route::get('/thanks', function() {
     return view('emails.thankyou');
 })->name('thankyou');
 
-
-//Upload Payment Evidence
 
 //Export Routes
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
@@ -68,7 +66,6 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
 });
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
-    Route::resource('users', 'UserController');
     //Send Mails
     Route::get('usermail', 'UserController@mails')->name('users.mail');
     Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');  

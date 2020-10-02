@@ -77,11 +77,11 @@
       </tr>
       <tr>
         <td>Amount Paid</td>
-        <td class="value">₦{{ $data['amount'] }}</td>
+        <td class="value">{{ config('custom.default_currency').$data['amount'] }}</td>
       </tr>
       <tr>
         <td>Balance</td>
-        <td class="value">₦{{ $details['balance']}}</td>
+        <td class="value">{{ config('custom.default_currency'). $details['balance']}}</td>
       </tr>
       <tr>
         <td>Payment Type</td>
@@ -99,7 +99,8 @@
   <!-- Footer -->
   <footer class="bg-light py-5">
     <div class="container">
-      <div class="small text-center text-muted">Copyright &copy; 2019 - Designed by <a href="https://techdaves.com/">Techdaves.com</a></div>
+      <div class="small text-center text-muted">©{{ date("Y") }} All Rights Reserved by {{ config('app.name') }} | <a
+                href="https://techdaves.com">Designed by TechDaves</a></div>
     </div>
   </footer>
 

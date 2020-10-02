@@ -61,9 +61,7 @@ class User extends Authenticatable
         {
             return Session::has('impersonate');
         }   
-        
-        
-       
+            
 }
    
 

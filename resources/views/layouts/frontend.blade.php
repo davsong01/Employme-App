@@ -80,10 +80,17 @@
                     @endguest
                     @auth
                     <li  class="@yield('link_status')"><a href="/login">My Dashboard</a></li>
-                    <li  class="@yield('link_status')"><a href="{{ route('logout') }}" onclick="event.preventDefault();
-                    document.getElementById('logout-form').submit();">
-                       </i>Logout
-                    </a></li>
+                    <li  class="@yield('link_status')">
+                    <a class="nav-item dropdown-item" href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                        document.getElementById('logout-form').submit();">
+                            {{ __('Logout') }}
+                        </a> 
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                             {{ csrf_field() }}
+                        </form>
+                    
+                    </li>
                     @endauth
                 </ul>
             </nav>          

@@ -70,16 +70,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
-                                    <label for="training">Current Training</label>
-                                    <input id="training" type="text" class="form-control" name="training"
-                                        value="{{ $user->program->p_name }}" autofocus disabled>
-                                    @if ($errors->has('training'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('training') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                                
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                     <label for="location">Location</label>
                                     <input id="location" type="text" class="form-control" name="location"

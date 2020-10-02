@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Redirect;
 
 class TestsController extends Controller
 {
-    
     public function index(Request $request)
     {
        if(Auth::user()->role_id == "Student"){

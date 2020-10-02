@@ -61,11 +61,14 @@ class UserController extends Controller
 
          //Check if program exist for the incoming training
         $user = User::where('email', $request->email)->first();
-        $check = DB::table('program_user')->whereProgramId($request->training)->whereUserId
-        ($user->id)->get();
 
-        if($check->count() > 0){
-            return back()->with('error', 'Participant has already paid for this training');
+        if($user){
+            $check = DB::table('program_user')->whereProgramId($request->training)->whereUserId
+            ($user->id)->get();
+            
+            if($check->count() > 0){
+                return back()->with('error', 'Participant has already paid for this training');
+            }
         }
 
         //determine the program details
@@ -104,7 +107,7 @@ class UserController extends Controller
         }
        
         //update the program table here @ column fully paid or partly paid
-        $this->programStat($request['training'], $paymentStatus);
+        // $this->programStat($request['training'], $paymentStatus);
         
         $data = request()->validate([
             'name' => 'required | min:5',
@@ -133,9 +136,9 @@ class UserController extends Controller
                     'gender' => $data['gender'],
                 ]);  
             }
-
+          
             // dd($data['training']);
-            $user->programs()->attach(4, [
+            $user->programs()->attach($request->training, [
                     'created_at' =>  date("Y-m-d H:i:s"),
                     't_amount' => $data['amount'],
                     't_type' => $data['bank'],
@@ -239,20 +242,7 @@ class UserController extends Controller
     
     }
     public function destroy(User $user)
-    {
-        if($user->balance <= 0){
-            $f_paid = ($user->program->f_paid - 1);
-            // dd($f_paid);
-
-            Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
-        }
-
-        if($user->balance > 0){
-            $p_paid = $user->program->p_paid - 1;
-            // dd($f_paid);
-            Program::where('id', $user->program->id)->update(['p_paid' => $p_paid]); 
-        }
-  
+    {  
         $user->delete();
         return redirect('users')->with('message', 'user deleted successfully');
     }
@@ -339,26 +329,26 @@ class UserController extends Controller
     }
 
     //update program payment statistics when adding new user
-    private function programStat($program_id, $paymentStatus){
-        $program = Program::findorFail($program_id);
-        if($paymentStatus == 1)
-        $program->f_paid = $program->f_paid + 1;
-        if($paymentStatus == 0)
-        $program->p_paid = $program->p_paid + 1;
-        $program->save(); 
-    }
+    // private function programStat($program_id, $paymentStatus){
+    //     $program = Program::findorFail($program_id);
+    //     if($paymentStatus == 1)
+    //     $program->f_paid = $program->f_paid + 1;
+    //     if($paymentStatus == 0)
+    //     $program->p_paid = $program->p_paid + 1;
+    //     $program->save(); 
+    // }
 
     //update program payment statistics when adding new user
-    private function programStat2($program_id, $paymentStatus){
-        $program = Program::findorFail($program_id);
-        if($paymentStatus == 1){
-            $program->f_paid = $program->f_paid + 1;
-            $program->p_paid = $program->p_paid - 1;
-        }
-        if($paymentStatus == 0){
-            $program->p_paid = $program->p_paid;
-            $program->p_paid = $program->p_paid;
-        }
-        $program->save(); 
-    }
+    // private function programStat2($program_id, $paymentStatus){
+    //     $program = Program::findorFail($program_id);
+    //     if($paymentStatus == 1){
+    //         $program->f_paid = $program->f_paid + 1;
+    //         $program->p_paid = $program->p_paid - 1;
+    //     }
+    //     if($paymentStatus == 0){
+    //         $program->p_paid = $program->p_paid;
+    //         $program->p_paid = $program->p_paid;
+    //     }
+    //     $program->save(); 
+    // }
 }

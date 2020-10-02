@@ -26,9 +26,3 @@ class Impersonate
     }
 }
 
-// if(Auth::user()->role_id == 'Student'){
-//                 $programs = DB::table('program_user')->where('user_id', Auth::user()->id)->where('program_id', $program->id)->get();
-//                 if(!$programs){
-//                     return back();
-//                 }
-//             }

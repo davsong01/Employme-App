@@ -22,7 +22,7 @@ class PaymentController extends Controller
     public function index()
     {
         $i = 1;
-        $transactions = DB::table('program_user')->orderBy('program_id', 'DESC')->get();
+        $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')->get();
 
         foreach($transactions as $transaction){
             $transaction->details = User::select('name', 'email')->where('id', $transaction->user_id)->first(); 

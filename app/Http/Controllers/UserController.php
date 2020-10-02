@@ -52,9 +52,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-       
-       
-       
+              
         //determine the program details
         $programFee = Program::findorFail($request['training'])->p_amount;
         $programName = Program::findorFail($request['training'])->p_name;
@@ -91,8 +89,8 @@ class UserController extends Controller
         }
         
         //update the program table here @ column fully paid or partly paid
-        $this->programStat($request['training'], $paymentStatus);
-        
+        // $this->programStat($request['training'], $paymentStatus);
+        dd($request);
         $data = request()->validate([
             'name' => 'required | min:5',
             'email' =>'required | email',
@@ -188,7 +186,7 @@ class UserController extends Controller
         $paymentStatus =  $this->paymentStatus($balance);
        
         //update the program table here @ column fully paid or partly paid
-        $this->programStat2($request['training'], $paymentStatus);
+        // $this->programStat2($request['training'], $paymentStatus);
 
         $user->name = $request['name'];
         $user->email = $request['email'];
@@ -213,17 +211,17 @@ class UserController extends Controller
     }
     public function destroy(User $user)
     {
-        if($user->balance <= 0){
-            $f_paid = ($user->program->f_paid - 1);
+        // if($user->balance <= 0){
+        //     $f_paid = ($user->program->f_paid - 1);
 
-            Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
-        }
+        //     Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
+        // }
 
-        if($user->balance > 0){
-            $p_paid = $user->program->p_paid - 1;
-            // dd($f_paid);
-            Program::where('id', $user->program->id)->update(['p_paid' => $p_paid]); 
-        }
+        // if($user->balance > 0){
+        //     $p_paid = $user->program->p_paid - 1;
+        //     // dd($f_paid);
+        //     Program::where('id', $user->program->id)->update(['p_paid' => $p_paid]); 
+        // }
   
         $user->delete();
         return redirect('users')->with('message', 'user deleted successfully');
@@ -311,26 +309,26 @@ class UserController extends Controller
     }
 
     //update program payment statistics when adding new user
-    private function programStat($program_id, $paymentStatus){
-        $program = Program::findorFail($program_id);
-        if($paymentStatus == 1)
-        $program->f_paid = $program->f_paid + 1;
-        if($paymentStatus == 0)
-        $program->p_paid = $program->p_paid + 1;
-        $program->save(); 
-    }
+    // private function programStat($program_id, $paymentStatus){
+    //     $program = Program::findorFail($program_id);
+    //     if($paymentStatus == 1)
+    //     $program->f_paid = $program->f_paid + 1;
+    //     if($paymentStatus == 0)
+    //     $program->p_paid = $program->p_paid + 1;
+    //     $program->save(); 
+    // }
 
     //update program payment statistics when adding new user
-    private function programStat2($program_id, $paymentStatus){
-        $program = Program::findorFail($program_id);
-        if($paymentStatus == 1){
-            $program->f_paid = $program->f_paid + 1;
-            $program->p_paid = $program->p_paid - 1;
-        }
-        if($paymentStatus == 0){
-            $program->p_paid = $program->p_paid;
-            $program->p_paid = $program->p_paid;
-        }
-        $program->save(); 
-    }
+    // private function programStat2($program_id, $paymentStatus){
+    //     $program = Program::findorFail($program_id);
+    //     if($paymentStatus == 1){
+    //         $program->f_paid = $program->f_paid + 1;
+    //         $program->p_paid = $program->p_paid - 1;
+    //     }
+    //     if($paymentStatus == 0){
+    //         $program->p_paid = $program->p_paid;
+    //         $program->p_paid = $program->p_paid;
+    //     }
+    //     $program->save(); 
+    // }
 }

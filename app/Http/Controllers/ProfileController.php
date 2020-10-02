@@ -15,13 +15,13 @@ class ProfileController extends Controller
     public function edit($id)
     {
         $user = User::findorFail($id);
-        $programs = Program::all();
+      
         if(Auth::user()->role_id == "Admin" && $id == Auth::user()->id){
-        return view('dashboard.admin.profiles.edit', compact('programs','user'));
+        return view('dashboard.admin.profiles.edit', compact('user'));
         }elseif(Auth::user()->role_id == "Facilitator" && $id == Auth::user()->id){
-            return view('dashboard.admin.profiles.edit', compact('programs','user'));
+            return view('dashboard.admin.profiles.edit', compact('user'));
         }elseif(Auth::user()->role_id == "Student" && $id == Auth::user()->id){
-            return view('dashboard.student.profiles.edit', compact('programs','user'));
+            return view('dashboard.student.profiles.edit', compact('user'));
         }
         return back();
     }

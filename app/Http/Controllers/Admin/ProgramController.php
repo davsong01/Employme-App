@@ -105,6 +105,11 @@ class ProgramController extends Controller
 
         //check if new featured image
         if($request->hasFile('image')){
+
+            //delete old one
+            if($program->image != 'trainingimage/default.jpg'){
+                unlink( base_path() . '/uploads/trainings/'. substr($program->image, 14));
+            }
            
             //Resize and save program banner
             $file = $request->file('image')->getClientOriginalName();
@@ -112,11 +117,6 @@ class ProgramController extends Controller
             $image = Image::make($request->image)->resize(533, 533);
     
             Storage::disk('uploads')->put('trainings/'.$file, (string) $image->encode());
-
-            //delete old one
-            if($program->image != 'trainingimage/default.jpg'){
-                unlink( base_path() . '/uploads/trainings/'. substr($program->image, 14));
-            }
            
             $data['image'] = 'trainingimage/'.$file;
 

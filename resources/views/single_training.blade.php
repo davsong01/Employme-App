@@ -94,7 +94,17 @@
                        
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" placeholder="Full Name" required>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                @auth
+                                value="{{ auth()->user()->name }}"  
+                                placeholder="Full Name"
+                                @endauth
+
+                                @guest 
+                                 value="{{ old('name') }}" placeholder="Full Name"  
+                                 @endguest 
+                                
+                                required>
                             </div>
                         </div>
                         @if ($errors->has('name'))
@@ -104,7 +114,17 @@
                         @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="email" name="email" class="form-control" id="email" value="{{ old('email') }}" placeholder="Email" required>
+                                <input type="email" name="email" class="form-control" id="email" 
+                                @auth
+                                value="{{ auth()->user()->email }}"  
+                                placeholder="Email"
+                                @endauth
+
+                                @guest 
+                                 value="{{ old('email') }}" placeholder="Email"  
+                                 @endguest 
+                                
+                                required>
                             </div>
                         </div>
                         @if ($errors->has('email'))
@@ -114,7 +134,17 @@
                         @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="text" class="form-control" name="phone" id="phone" value="{{ old('phone') }}" placeholder="Phone" required>
+                                <input type="text" class="form-control" name="phone" id="phone" 
+                                @auth
+                                value="{{ auth()->user()->phone }}"  
+                                placeholder="Phone Number"
+                                @endauth
+
+                                @guest 
+                                 value="{{ old('phone') }}" placeholder="Phone Number"  
+                                 @endguest 
+                                
+                                required>
                             </div>
                         </div>
                         @if ($errors->has('phone'))
@@ -145,7 +175,10 @@
                         </script>
                         <div>
                             <button type="submit" onclick="fetchMetaValues()" class="btn btn-block login-btn mb-4">Make Payment</button>
-                        </div>                        
+                        </div>  
+                        <div>
+                        <a href="{{ url('/') }}" style="background:green" class="btn btn-block login-btn mb-4">VIEW OTHER TRAININGS</a>
+                    </div>                      
                     </form>
                     @endif
                 </div>
