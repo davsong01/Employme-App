@@ -19,7 +19,7 @@
                     <tbody>
                         @forelse($certificates as $certificate)
                         <div class="text-center">
-                            <h5 class="card-title">Congratulations!!! You made it at last. Please Download your Certificate below</h5>
+                            <h5 class="card-title">Please Download your certificate below</h5>
                         </div>
                         <tr>
                             <td>{{ $certificate->user->name }}</td>
@@ -27,7 +27,7 @@
                             <td>
                                 <a data-toggle="tooltip" data-placement="top" title="Download certificate"
                                 class="btn btn-info" href="certificate/{{ $certificate->file }}"><i
-                                    class="fa fa-download"> Download</i></a>
+                                    class="fa fa-download"> Download Certificate</i></a>
                             </td>
                         </tr>
                         @empty

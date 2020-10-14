@@ -11,7 +11,7 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Students <a href="{{route('users.create')}}"><button type="button"
-                        class="btn btn-outline-primary">Add New Student</button></a><button class="btn btn-success" id="csv">Export Studentss</button></h5>
+                        class="btn btn-outline-primary">Add New Student</button></a><button class="btn btn-success" id="csv">Export Students</button></h5>
                 </div>
             </div>
 

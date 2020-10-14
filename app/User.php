@@ -3,12 +3,13 @@
 namespace App;
 
 use Auth;
+use App\Mocks;
 use App\Result;
 use App\Program;
 use App\Complain;
 use App\Material;
-use App\Mocks;
 use App\Certificate;
+use App\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -46,6 +47,11 @@ class User extends Authenticatable
             return $this->belongsToMany(Program::class);
         } 
 
+        //Facilitator's relationship
+        public function trainings()
+        {
+            return $this->hasMany(FacilitatorTraining::class);
+        }
 
         public function setImpersonating($id)
         {

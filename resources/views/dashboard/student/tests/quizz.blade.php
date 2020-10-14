@@ -24,19 +24,19 @@
 
                         </label><br>
                         <input type="radio" id="{{ $question->id}}{{ $question->optionA}}" name="{{ $question->id}}"
-                            value="A">
+                            value="A" required>
                         <label for="{{ $question->id}}{{ $question->optionA}}">{{ $question->optionA }}</label><br>
 
                         <input type="radio" id="{{ $question->id}}{{ $question->optionB }}" name="{{ $question->id}}"
-                            value="B">
+                            value="B" required>
                         <label for="{{ $question->id}}{{ $question->optionB }}">{{ $question->optionB }}</label><br>
 
                         <input type="radio" id="{{ $question->id}}{{ $question->optionC }}" name="{{ $question->id}}"
-                            value="C">
+                            value="C" required>
                         <label for="{{ $question->id}}{{ $question->optionC }}">{{ $question->optionC }}</label><br>
 
                         <input type="radio" id="{{ $question->id}}{{ $question->optionD }}" name="{{ $question->id}}"
-                            value="D">
+                            value="D" required>
                         <label for="{{ $question->id}}{{ $question->optionD }}">{{ $question->optionD }}</label><br>
                         
                             <input type="hidden" name="id" value="{{$question->id}}">

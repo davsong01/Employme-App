@@ -57,14 +57,32 @@
                        
                         </div>
                         <div class="col-md-6 col-lg-6 col-sm-12">
-                             <div class="form-group">
-                            <label>Does Program have pre class tests?</label>
-                            <select name="hasmock" class="form-control" id="hasmock" required>
-                                <option value="1" {{ $program->hasmock == 1 ? 'selected' : '' }}>Yes</option>
-                                <option value="0" {{ $program->hasmock == 0 ? 'selected' : '' }}>No</option>
-                            </select>
+                            <div class="form-group">
+                                <label>Does Program have pre class tests?</label>
+                                <select name="hasmock" class="form-control" id="hasmock" required>
+                                    <option value="1" {{ $program->hasmock == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $program->hasmock == 0 ? 'selected' : '' }}>No</option>
+                                </select>
+                                <small style="color:red">{{ $errors->first('p_end')}}</small>
                             </div>
-                            <small style="color:red">{{ $errors->first('p_end')}}</small>
+                            
+                            <div class="form-group">
+                                <label>Enable Part Payment?</label>
+                                <select name="haspartpayment" class="form-control" id="hasmock" required>
+                                    <option value="1" {{ $program->haspartpayment == 1 ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $program->haspartpayment == 0 ? 'selected' : '' }}>No</option>
+                                </select>
+                                <small style="color:red">{{ $errors->first('haspartpayment')}}</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status" class="form-control" id="hasmock" required>
+                                    <option value="1" {{ $program->status == 1 ? 'selected' : '' }}>Published</option>
+                                    <option value="0" {{ $program->status == 0 ? 'selected' : '' }}>Draft</option>
+                                </select>
+                                <small style="color:red">{{ $errors->first('status')}}</small>
+                            </div>
+
                             <div class="form-group">
                                 <label>Change Program Banner</label>
                                 <input type="file" name="image" value="{{ old('image') ??  $program->image }}" class="form-control">

@@ -20,7 +20,7 @@ class PopController extends Controller
             return abort(404);
         }
 
-        $transactions = Pop::ordered()->with('program')->get();
+        $transactions = Pop::with('program')->Ordered('date', 'DESC')->get();
 
         $i = 1;
 
@@ -43,34 +43,42 @@ class PopController extends Controller
             'amount' => 'required | numeric',
             'training' => 'required | numeric',
             'location' => 'nullable',
+            'date' => 'date',
             'file' => 'required | max:2048 | mimes:pdf,doc,docx,jpg,jpeg,png',
         ]);
 
-        
         //handle file
         $file = $data['name'].'-'.date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();
         $filePath = $request->file('file')->storeAs('pop', $file.'.'.$extension  ,'uploads');
 
-        //Store new pop
-        $pop = Pop::create([
-            'name' => $data['name'],
-            'email' =>  $data['email'],
-            'phone' =>  $data['phone'],
-            'bank' =>  $data['bank'],
-            'amount' =>  $data['amount'],
-            'program_id' =>  $data['training'],
-            'location' =>  $data['location'],
-            'file' => $filePath,
-        ]);
-        
-        //Prepare Attachment
-        $data['pop'] = base_path() . '/uploads'.'/'. $filePath;
-        $data['training'] = Program::where('id', $data['training'])->value('p_name');
+        try{
+            //Store new pop
+            $pop = Pop::create([
+                'name' => $data['name'],
+                'email' =>  $data['email'],
+                'phone' =>  $data['phone'],
+                'bank' =>  $data['bank'],
+                'amount' =>  $data['amount'],
+                'program_id' =>  $data['training'],
+                'location' =>  $data['location'],
+                'date' => $data['date'],
+                'file' => $filePath,
+            ]);
 
-        //Send mail to admin
-        Mail::to(config('custom.official_email'))->send(new POPemail($data));
-        return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
+        
+        }catch(\Exception $e) 
+        {
+            return back()->with('error', 'You cannot upload proof of payment twice. Your email already exist');
+        }  
+         //Prepare Attachment
+            $data['pop'] = base_path() . '/uploads'.'/'. $filePath;
+            $data['training'] = Program::where('id', $data['training'])->value('p_name');
+
+            //Send mail to admin
+            Mail::to(config('custom.official_email'))->send(new POPemail($data));
+            return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
+           
     }
 
     public function show(Pop $pop){
@@ -206,6 +214,12 @@ class PopController extends Controller
 
         $realpath = base_path() . '/uploads/pop'. '/' .$filename;
         return response()->download($realpath);
+    }
+
+    public function destroy(Pop $pop){
+        unlink( base_path() . '/uploads'.'/'. $pop->file);
+        $pop->delete();
+        return back()->with('message', 'Pop succesfully deleted');
     }
 
     //set balance and determine user receipt values

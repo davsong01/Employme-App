@@ -73,8 +73,8 @@
                         </div>
                         <div class="row">
                             
-                            <input type="submit" name="submit" value="Submit" class="btn btn-primary"
-                                style="width:100%">
+                            <button type="submit" class="btn btn-primary"
+                                style="width:100%">Submit</button>
                         </div>
                         
                 </div>

@@ -62,9 +62,11 @@
                                     <option value="">Select Payment Type</option>
                                     <option value="{{ $training->p_amount * 100}}">Full Payment ({{ config('custom.default_currency') }}{{ $training->p_amount }})</option>
                                     @if($training->close_earlybird == 1)
-                                     @if($training->e_amount > 0)<option value="{{ $training->e_amount * 100}}">Earlybird {{ config('custom.default_currency') }}{{ $training->e_amount }})</option>@endif
+                                    @if($training->e_amount > 0)<option value="{{ $training->e_amount * 100}}">Earlybird {{ config('custom.default_currency') }}{{ $training->e_amount }})</option>@endif
                                     @endif
+                                    @if($training->haspartpayment == 1)
                                     <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ config('custom.default_currency') }}{{ $training->p_amount/2 }})</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>

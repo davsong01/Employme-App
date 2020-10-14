@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-use App\User;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Welcomemail;
+use PDF;
 use App\Role;
+use App\User;
 use App\Program;
 use App\Material;
+use App\Mail\Welcomemail;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PDF;
+use Illuminate\Support\Facades\Mail;
 
 class TeacherController extends Controller
 {
@@ -19,16 +20,22 @@ class TeacherController extends Controller
     {
         $i = 1;
         //$users = User::all();
-        $users = User::where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->get();
-        $programs = Program::where('id', '<>', 1)->get();
+        $users = User::with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->get();
+        $names = [];
         
         foreach($users as $user){
-            $user['p_name'] = Program::where('id', $user->program_id)->value('p_name');
-            $user['p_name'] = Program::where('id', $user->program_id)->value('p_name');
+            
+            foreach($user->trainings as $trainings){
+                $trainingp_name = Program::whereId($trainings->program_id)->value('p_name');
+
+                array_push($names, $trainingp_name);
+            }
+           
+            $user->p_names =  $names ;
         }
         
-       if(Auth::user()->role_id == "Admin"){
-          return view('dashboard.admin.teachers.index', compact('users', 'i', 'programs') );
+        if(Auth::user()->role_id == "Admin"){
+          return view('dashboard.admin.teachers.index', compact('users', 'i') );
         }
     }
     
@@ -41,26 +48,45 @@ class TeacherController extends Controller
     }
     public function store(Request $request)
     {        
-        //dd(request()->all());
-        $data = request()->validate([
+        // dd(request()->all());
+        
+            $data = request()->validate([
             'name' => 'required | min:5',
             'email' =>'required | email',
-            'phone' =>'required',
             'password' => 'required',
             'role'=>'required',
-            'training' => 'required',
-        ]);
+            'training' => 'nullable',
+            ]);
+        if($data['role'] == "Facilitator" || $data['role'] == "Grader"){    
+           $facilitator = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'role_id' => $data['role'],
+            ]);
+
+            //attach facilitator to program
+            foreach($data['training'] as $training){
+                FacilitatorTraining::create([
+                    'user_id' => $facilitator->id,
+                    'program_id' =>$training
+                ]);
+            }
+            
+            return redirect(route('teachers.index'))->with('message', 'Facilitator added succesfully'); 
+        }
         
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            't_phone' => $data['phone'],
-            'password' => bcrypt($data['password']),
-            'role_id' => $data['role'],
-            'program_id' => $data['training'],
-        ]);
+        if($data['role'] == "Admin"){ 
+            User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($data['password']),
+                'role_id' => $data['role'],
+            ]); 
+
+            return redirect(route('teachers.index'))->with('message', 'Admin added succesfully'); 
+        }
         
-        return back()->with('message', 'Facilitator added succesfully'); 
       
         }
 
@@ -71,8 +97,14 @@ class TeacherController extends Controller
 
     public function edit($id)
     { 
-            $user = User::findorFail($id);
-            $programs = Program::all();
+        $user = User::findorFail($id);
+        $programs = Program::all();
+        foreach($programs as $program){
+            $program['associated'] = FacilitatorTraining::whereUserId($user->id)->get();
+        }
+
+    //    dd($programs);
+       
         if(Auth::user()->role_id == "Admin"){
         return view('dashboard.admin.teachers.edit', compact('programs','user'));
     }return back();

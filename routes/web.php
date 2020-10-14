@@ -50,15 +50,17 @@ Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
-Route::get('pretestresults', 'MockController@mockresults')->name('pretest.results');
-Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate','auth', 'programCheck'])->name('mocks.grade');
+
+Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
+Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
+
+Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate','auth', 'programCheck'])->name('mocks.add');
 Route::get('userresults', 'TestsController@userresults')->middleware(['impersonate','auth','programCheck'])->name('tests.results');
 Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
 
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
 
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
-
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('complains', 'ComplainController');
@@ -84,6 +86,10 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 });
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
     Route::resource('results', 'ResultController');
+
+    Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
+    Route::get('postclassresults/{id}', 'ResultController@getgrades')->name('results.getgrades');
+    
     Route::get('user/{uid}/module/{modid}', 'ResultController@add')->name('results.add');
     Route::get('certifications', 'ResultController@certifications')->name('certifications.index');
     Route::get('resultenable/{id}', 'ResultController@enable')->name('results.enable');
@@ -102,14 +108,21 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('earlybirdclose/{id}', 'ProgramController@closeEarlyBird')->name('earlybird.close');
 
     Route::resource('questions', 'QuestionController');
+    Route::get('questionsimport-export', 'QuestionController@importExport')->middleware(['impersonate','auth', 'programCheck']);
+    Route::post('import', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
+    Route::post('importquestions', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
+
     Route::resource('modules', 'ModuleController');
+    Route::get('facilitatormodules/{p_id}', 'ModuleController@all')->name('facilitatormodules');
     Route::get('enablemodule/{id}', 'ModuleController@enablemodule')->name('modules.enable');
     Route::get('disablemodule/{id}', 'ModuleController@disablemodule')->name('modules.disable');
 });
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
     Route::resource('materials', 'MaterialController');
+    Route::get('materialscreate/{p_id}', 'MaterialController@add')->name('creatematerials');
+    Route::get('facilitatormaterials/{p_id}', 'MaterialController@all')->name('facilitatormaterials');
     Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');
-    Route::get('studymaterials/{filename}', 'MaterialController@getfile');
+    Route::get('/studymaterials/{filename}/{p_id}', 'MaterialController@getfile')->name('getmaterial');
 });
 
 Route::GET('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
@@ -134,4 +147,6 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('details', 'DetailsController');
 });
+
+
 

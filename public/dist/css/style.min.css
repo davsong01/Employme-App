@@ -16398,8 +16398,8 @@ body .jqstooltip {
 .select2-container--classic .select2-selection--multiple .select2-selection__choice,
 .select2-container--default .select2-selection--multiple .select2-selection__choice,
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    background-color: #2255a4;
-    border-color: #2255a4;
+    /* background-color: #2255a4;
+    border-color: #2255a4; */
     color: #fff
 }
 

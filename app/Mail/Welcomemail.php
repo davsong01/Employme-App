@@ -29,14 +29,20 @@ class Welcomemail extends Mailable
 
     public function build()
     {
-        
-        return $this->markdown('emails.welcomemail')
-        ->attachData($this->pdf->output(), "E-receipt.pdf")
-        ->subject('E - Receipt and Booking Form')
-        ->attach($this->details['booking_form'], [
+        if(isset($this->data['type']) && $this->data['type'] == 'balance'){
+            return $this->markdown('emails.welcomemail')
+            ->subject('Balance Payment Received');
+            
+        }else{
+            return $this->markdown('emails.welcomemail')
+            ->attachData($this->pdf->output(), "E-receipt.pdf")
+            ->subject('E - Receipt and Booking Form')
+            ->attach($this->details['booking_form'], [
             'as' => 'Booking form.pdf',
             'mime' => 'application/pdf',
         ]);
+        }
+        
 
        // ->attachData($pdf->output(), "invoice.pdf");
     }

@@ -1,4 +1,4 @@
-<?php
+$table->integer('user_id');<?php
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;

@@ -10,7 +10,7 @@ class Pop extends Model
 
      public function scopeOrdered($query)
     {
-        return $query->orderBy('created_at', 'DESC');
+        return $query->ORDERBY('date', 'DESC');
     }
 
     public function program(){

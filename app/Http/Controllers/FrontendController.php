@@ -12,10 +12,10 @@ class FrontendController extends Controller
          $search = $request->query('search');
 
         if($search){
-            $trainings = Program::where('p_name', 'LIKE', "%{$search}%")->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
+            $trainings = Program::where('p_name', 'LIKE', "%{$search}%")->where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
             // dd($trainings);
         }else{
-            $trainings = Program::where('p_name', 'LIKE', "%{$search}%")->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
+            $trainings = Program::where('p_name', 'LIKE', "%{$search}%")->where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }
 
         return view('welcome', compact('trainings'));

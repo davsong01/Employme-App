@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use DB;
 use App\User;
 use App\Program;
 use App\Material;
 use Illuminate\Http\Request;
-use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -60,6 +60,8 @@ class ProgramController extends Controller
             'hasmock' => 'required',
             'booking_form' =>'file|mimes:pdf|max:10000',
             'image' =>'required|image |max:10000',
+            'haspartpayment' => 'required',
+            'status' => 'required'
         ]);
 
         //Save booking form
@@ -83,6 +85,8 @@ class ProgramController extends Controller
             'p_start' => $data['p_start'],
             'p_end' => $data['p_end'],
             'hasmock' => $data['hasmock'],
+            'haspartpayment' => $data['haspartpayment'],
+            'status' => $data['status'],
             'booking_form' => $filePath,
             'image' => 'trainingimage/'.$file,
         ]); 
@@ -101,8 +105,8 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
 
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'p_end', 'hasmock']);
-
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'haspartpayment']);
+   
         //check if new featured image
         if($request->hasFile('image')){
 
@@ -136,7 +140,7 @@ class ProgramController extends Controller
 
         $program->update($data);
 
-        return redirect('programs')->with('message', 'training updated successfully');
+        return back()->with('message', 'Training updated successfully');
     }
 
 
@@ -150,6 +154,9 @@ class ProgramController extends Controller
             return redirect('programs')->with('message', 'Training has been deleted forever');
         
         } else {
+
+            $program->users()->detach();
+            
             $program->delete();
 
             return redirect('programs')->with('message', 'Training has been trashed');

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 use App\Role;
 use App\User;
 use App\Mocks;
+use App\Module;
 use App\Program;
 use App\Material;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -23,25 +25,38 @@ class MaterialController extends Controller
         
         if(Auth::user()->role_id == "Admin"){
             
-            $materials = Material::orderBy('created_at', 'desc')->get();
+            $materials = Material::with('program')->orderBy('created_at', 'desc')->get();
+
+            return view('dashboard.admin.materials.index', compact('i', 'materials'));
+        }
+
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+            
+            $facilitator_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+
+            $materialCount = 0;
+            
+            if($facilitator_programs->count() > 0){
+                foreach($facilitator_programs as $trainings){
+                    $trainings['p_name'] = Program::whereId($trainings->program_id)->value('p_name');
+                    $trainings['materialCount'] = Material::whereProgramId($trainings->program_id)->count();
+                } 
+            }
 
             $programs = Program::where('id', '<>', 1)->get();
-
-            return view('dashboard.admin.materials.index', compact('programs', 'i', 'materials'));
+            
+            return view('dashboard.teacher.materials.show', compact( 'i', 'facilitator_programs'));
         }
 
         if(Auth::user()->role_id == "Student"){       
             $i = 1;   
             $program = Program::find($request->p_id);  
-            $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
-
-                if($user_balance->balance > 0){
-                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
-                }   
-
+            
                 if($program->hasmock == 1){
+                    
                     //Check if user has taken pre tests and return back if otherwise
-                    $expected_pre_class_tests = $program->modules->count();
+                    $expected_pre_class_tests = Module::ClassTests($program->id)->count();
+                    
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
  
                     if($completed_pre_class_tests < $expected_pre_class_tests ){
@@ -53,42 +68,72 @@ class MaterialController extends Controller
                 $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
 
                 return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
-                }
-            }
-    
-
-    
-            public function create()
-        {
+        }
         
-        if(Auth::user()->role_id == "Admin"){
-            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-            $materials = Material::all();
-            return view('dashboard.admin.materials.create', compact('programs'));
-        }
+    }
+    
+        
+    public function all($p_id){
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Admin"){
+            $i = 1;
+            $materials = Material::with('program')->where('program_id', $p_id)->get();
 
-        if(Auth::user()->role_id == "Facilitator"){
-            $programs = Program::where('id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
-            $materials = Material::where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
-            return view('dashboard.admin.materials.create', compact('programs'));
-        }
+            return view('dashboard.teacher.materials.index', compact( 'i', 'materials', 'p_id'));
+        }return abort(404);
+    }
 
+    public function create()
+    {
+
+    if(Auth::user()->role_id == "Admin"){
+        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+        // $materials = Material::with('program')->all();
+    
+        return view('dashboard.admin.materials.create', compact('programs'));
+    }
         return back();
+    }
+
+    public function add($p_id){
+        if(Auth::user()->role_id == "Facilitator"){
+
+            $program = Program::select('id', 'p_name')->whereId($p_id)->first();
+
+            return view('dashboard.teacher.materials.create', compact('p_id', 'program'));
+        
+        }
+
     }
     
     public function store(Request $request)
     {
-        $data = request()->validate([
-            'program_id' => 'required',
+        if($request->has('p_id')){
+            //$imagePath = request('booking_form')->store('/uploads', 'public');
+            foreach($request->file('file') as $file){
+          
+                $imagePath = $file->storeAs('materials', $file->getClientOriginalName(), 'uploads');  
+            
+                Material::create([
+                    'title' =>$file->getClientOriginalName(),
+                    'program_id' =>  $request->p_id,
+                    'file' => $file->getClientOriginalName(),
+                ]);
+            }
+
+            return redirect(url('/facilitatormaterials/'.$request->p_id))->with('message', 'Study material succesfully added');
+        }
+        else{
+            $data = request()->validate([
+            'program_id' => 'nullable',
             'file' => 'required',
             'file.*' => 'mimes:doc,pdf,docx',
-        ]);
-        
-        //get id of selected program
-        $program_id = $data['program_id'];
-        //$imagePath = request('booking_form')->store('/uploads', 'public');
-        foreach($request->file('file') as $file){
-          
+            ]);
+
+            //get id of selected program
+            $program_id = $data['program_id'];
+            //$imagePath = request('booking_form')->store('/uploads', 'public');
+            foreach($request->file('file') as $file){
+            
             $imagePath = $file->storeAs('materials', $file->getClientOriginalName(), 'uploads');  
            
             Material::create([
@@ -97,7 +142,9 @@ class MaterialController extends Controller
                 'file' => $file->getClientOriginalName(),
             ]);
         }
-     
+        
+
+    }     
         return redirect('materials')->with('message', 'Study material succesfully added');
     }
 
@@ -125,7 +172,9 @@ class MaterialController extends Controller
         }
        
         $material->delete();
-         
+        if(auth()->user()->role_id == 'Facilitator'){
+            return back()->with('message', 'Material has been deleted forever');
+        }
         return redirect('materials')->with('message','Study material succesfully deleted');
 
 
@@ -144,6 +193,7 @@ class MaterialController extends Controller
     } 
 
     public function getfile($filename){
+       
         $realpath = base_path() . '/uploads/materials'. '/' .$filename;
         return response()->download($realpath);
     }  

@@ -26,6 +26,8 @@ class CreateProgramsTable extends Migration
             $table->string('booking_form')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
             $table->boolean('hasmock')->nullable()->default(0);
+            $table->boolean('haspartpayment')->default(0);
+            $table->boolean('status')->default(1);
             $table->boolean('verification')->nullable()->default(0);
             $table->boolean('hasresult')->nullable()->default(0);
             $table->boolean('close_registration')->default(0);

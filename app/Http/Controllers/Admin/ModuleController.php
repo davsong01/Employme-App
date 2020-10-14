@@ -8,6 +8,7 @@ use App\Program;
 use App\Complain;
 use App\Question;
 use App\ScoreSetting;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
@@ -27,14 +28,32 @@ class ModuleController extends Controller
           
             return view('dashboard.admin.modules.index', compact('modules', 'i', 'questions_count'));
         }
+        
+        if(Auth::user()->role_id == "Facilitator"){
+            
+            $facilitator_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+
+            $materialCount = 0;
+            $i = 1;
+            if($facilitator_programs->count() > 0){
+                foreach($facilitator_programs as $modules){
+                    $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
+                    $modules['materialCount'] = Module::whereProgramId($modules->program_id)->count();
+                } 
+            }
+            
+            return view('dashboard.teacher.modules.show', compact( 'i', 'facilitator_programs'));
+        } return back();
+    }
+
+    public function all($p_id){
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             $i = 1;  
-            //my first use of Eager loading
-            $modules = Module::with( ['program', 'questions'] )->where('program_id', auth()->user()->program->id)->orderBy('id', 'DECS')->get();          
+            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('id', 'DECS')->get();          
             $questions_count = Question::all()->count();
           
-            return view('dashboard.admin.modules.index', compact('modules', 'i', 'questions_count'));
-        } return back();
+            return view('dashboard.teacher.modules.show', compact('modules', 'i', 'questions_count'));
+        }
     }
     public function create()
     {
@@ -82,7 +101,7 @@ class ModuleController extends Controller
 
     public function show(Module $module)
     {
-        //
+        
     }
 
     public function enablemodule($id){

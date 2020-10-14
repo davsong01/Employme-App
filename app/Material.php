@@ -9,6 +9,6 @@ class Material extends Model
     protected $guarded = [];
 
     public function program(){
-        return $this->belongsTo(Program::class)->orderBy('p_name');
+        return $this->belongsTo(Program::class);
     }
 }

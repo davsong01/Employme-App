@@ -24,12 +24,13 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
+       
         //Get Type if type is balance
         $type = json_decode($request['metadata'], true);
         
         if(isset($type['type']) && $type['type'] == 'balance'){
             //Check if userid tallys with trainingid
-            $check = DB::table('program_user')->whereUserId(Auth()->user()->id)->whereProgramId($type['p_id'])->first();
+            $check = DB::table('program_user')->whereUserId($type['user_id'])->whereProgramId($type['p_id'])->first();
             
             if(($check->balance * 100) == $request->amount){
                 try{
@@ -64,11 +65,11 @@ class PaymentController extends Controller
     public function handleGatewayCallback()
     {
         $paymentDetails = Paystack::getPaymentData();
-
+      
         if($paymentDetails['data']['status'] === 'success'){
 
             if(isset($paymentDetails['data']['metadata']['type']) && $paymentDetails['data']['metadata']['type'] == 'balance'){
-                // dd($paymentDetails);
+              
                 //Get training details details
                 $training = Program::where('id', $paymentDetails['data']['metadata']['p_id'])->first();
                 $programFee = $training->p_amount;
@@ -89,6 +90,9 @@ class PaymentController extends Controller
                     't_amount' => $user->t_amount + $amount,
                     'balance' => $balance,
                     'invoice_id' => $invoice_id,
+                    'paymentStatus' => $this->paymentStatus($balance),
+                    't_type' => $t_type,
+                    'transid' => $paymentDetails['data']['reference'],
                     'updated_at' => now()
                 ];
 
@@ -109,9 +113,11 @@ class PaymentController extends Controller
                     'email' => $paymentDetails['data']['customer']['email'],
                     'bank' => $t_type,
                     'amount' => $user->t_amount + $amount,
+                    'type'=> 'balance',
+                    'amount' => $amount,
                 ];
                 
-             
+              
                 $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
                 // return view('emails.receipt', compact('data', 'details'));
                 Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
@@ -121,7 +127,7 @@ class PaymentController extends Controller
 
             }else
             $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
-       
+           
             //Get Training Details
             $programFee = $training->p_amount;
             $programName = $training->p_name;
@@ -202,6 +208,7 @@ class PaymentController extends Controller
             ];
 
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            // return view('emails.welcomemail', compact('data', 'details'));
             // return view('emails.receipt', compact('data', 'details'));
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                 

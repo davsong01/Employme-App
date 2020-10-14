@@ -36,7 +36,7 @@
                                 <!--Gives the first error for input name-->
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
-                                    <label for="location">Location *</label>
+                                    <label for="location">Location </label>
                                     <input id="location" type="text" class="form-control" name="location"
                                         value="{{ old('location') ?? $transaction->t_location }}" autofocus>
                                     @if ($errors->has('location'))
@@ -45,13 +45,14 @@
                                     </span>
                                     @endif
                                 </div>
-                        </div>
-                        <div class="row">
-                            <button type="submit" class="btn btn-primary" style="width:100%">
-                                Submit
-                            </button>
+                            <div class="row">
+                                <button type="submit" class="btn btn-primary" style="width:100%">
+                                    Submit
+                                </button>
+                            </div>
                         </div>
                         {{ csrf_field() }}
+                    </form>
                 </div>
             </div>
         </div>

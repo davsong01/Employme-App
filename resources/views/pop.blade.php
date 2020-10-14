@@ -31,7 +31,7 @@ class="active"
                         <div class="line"></div>
                        
                     </div>
-                    <div><p>Please fill the form below, click browse and then the Submit button to upload proof of payment</p></div>
+                    <div><p>Please fill the form below to upload proof of payment</p></div>
                     <!-- Add to Cart Form -->
                     <form class="cart clearfix" action="{{ route('pop.store') }}" method="post" enctype="multipart/form-data" >
                          {{ csrf_field() }}
@@ -105,8 +105,9 @@ class="active"
                                 <strong>{{ $errors->first('amount') }}</strong>
                             </span>
                         @endif
-                         <div class="cart-btn d-flex">
+                        <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
+                                <label for="file">Upload proof of payment</label>
                                 <input type="file" class="form-control" name="file" id="file" value="{{ old('file') }}" placeholder="Upload payment evidence" required>
                             </div>
                         </div>
@@ -115,6 +116,19 @@ class="active"
                                 <strong>{{ $errors->first('file') }}</strong>
                             </span>
                         @endif
+                        <div class="cart-btn d-flex">
+                            <div class="col-md-12 mb-3">
+                                <label for="date">Date of Payment</label>
+                                <input type="date" name="date" value="{{ old('date') }}" class="form-control"
+                                    required>
+                            </div>
+                        </div>
+                        @if ($errors->has('date'))
+                            <span class="help-block">
+                                <strong>{{ $errors->first('date') }}</strong>
+                            </span>
+                        @endif
+                        
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
                                 <select name="location" id="location" class="form-control">

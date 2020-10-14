@@ -26,6 +26,7 @@
     <link href="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/extra-libs/calendar/calendar.css') }}" rel="stylesheet" />
     <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/dist/css/select2.min.css') }}">
     @yield('css')
 
 
@@ -39,7 +40,7 @@
     {{-- <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script> --}}
 
     {{-- <script type="text/javascript" src="{{ asset('assets/libs/exporttable/tableExport.min.js')}}"></script> --}}
-
+    
     <!---Calender scripts-->
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
@@ -58,9 +59,13 @@
             document.getElementById('ct').innerHTML = x1;
             tt = display_c();
         }
+
     </script>
 
     <style>
+        .selecttraining{
+            display:none;
+        }
         .trix-toolbar .trix-button-row {
             display: flex;
             flex-wrap: wrap !important;
@@ -196,8 +201,16 @@
     <script src="{{asset('dist/js/lga.min.js')}}"></script>
     <!--End of states and LGA script-->
 
+    <!--Select 2-->
+    <script src="{{ asset('assets/libs/select2/dist/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/select2/dist/js/select2.min.js') }}"></script>
+        
     <script>
         $('#zero_config').DataTable();
+        // For select 2
+        //***********************************//
+        $(".select2").select2();
+
     </script>
     <script>
         $(".delete").on("submit", function () {

@@ -83,12 +83,12 @@
                                 class="hide-menu">- Questions</span></a>
                     </li>
                   
-                    <li class="sidebar-item"><a href="{{route('pretest.results')}}" class="sidebar-link"><span
+                    <li class="sidebar-item"><a href="{{route('pretest.select')}}" class="sidebar-link"><span
                     class="hide-menu">- Pre Test Grades</span></a>
 
-                    <li class="sidebar-item"><a href="{{route('results.index')}}" class="sidebar-link"><span
+                    <li class="sidebar-item"><a href="{{route('posttest.results')}}" class="sidebar-link"><span
                     class="hide-menu">- Grades</span></a>
-                     
+                    
                     @if(Auth()->user()->role_id == "Admin")
                     <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span
                         class="hide-menu">- Certificates</span></a>

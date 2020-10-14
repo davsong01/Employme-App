@@ -26,10 +26,11 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                        @if(isset($transaction->details->name))
                         <tr>
                             <td>{{ $transaction->created_at }}</td>
-                            <td>{{ $transaction->details->name }}</td>
-                            <td>{{ $transaction->details->email }}</td>
+                            <td>{{isset($transaction->details->name ) ? $transaction->details->name : 'N/A' }}</td>
+                            <td>{{isset($transaction->details->email ) ? $transaction->details->email : 'N/A' }}</td>
                             <td>{{ $transaction->program->p_name }}</td>
                             <td>{{ config('custom.default_currency'). $transaction->t_amount }}</td>
                             @if($transaction->paymentStatus == 0 )
@@ -67,6 +68,7 @@
 
                             </td>
                         </tr>
+                        @endif
                         @endforeach
                     </tbody>
                     

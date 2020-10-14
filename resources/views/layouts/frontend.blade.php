@@ -74,7 +74,7 @@
                 <ul>
                     <li @yield('status')><a href="/">All Trainings</a></li>
                     <li class=""><a href="#" class="search-nav"><img src="img/core-img/search.png" alt="">Search Training</a></li>
-                    <li  class="@yield('link_status')"><a href="{{ route('pop.create') }}">Upload POP</a></li>
+                    <li  class="@yield('link_status')"><a href="{{ route('pop.create') }}">Upload Proof of Payment</a></li>
                     @guest
                     <li  class="@yield('link_status')"><a href="/login">Login</a></li>
                     @endguest

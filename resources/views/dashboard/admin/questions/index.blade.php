@@ -10,7 +10,8 @@
            @include('layouts.partials.alerts')
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5> 
+                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5><br> 
+                    <a href = "{{ url('questionsimport-export') }}" class="btn btn-custon-four btn-success"><i class="fa fa-upload"></i> Import Questions</a>
                 </div>
             </div>
             

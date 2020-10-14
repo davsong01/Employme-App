@@ -1,5 +1,5 @@
 @extends('dashboard.admin.index')
-@section('title', 'Payment History')
+@section('title', 'Proofs of Payment')
 @section('content')
 
 <div class="container-fluid">
@@ -24,9 +24,9 @@
                     </thead>
                     
                     <tbody>
-                        @foreach($transactions as $transaction)
+                        @foreach($transactions->sortBy('date') as $transaction)
                         <tr>
-                            <td>{{ $transaction->created_at }}</td>
+                            <td>{{ $transaction->date }}</td>
                             <td>{{ $transaction->program->p_name }}</td>
                             <td>{{ $transaction->name }}</td>
                             <td>{{ $transaction->email }}</td>
@@ -37,13 +37,20 @@
                              <td>
                                 <div class="btn-group">
                                     <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $transaction->file }}" src="view/{{ $transaction->file }}" alt="{{ $transaction->name }}" style="width:40px;max-width:300px"></a>
-
                                     
                                     <a data-toggle="tooltip" data-placement="top" title="Approve Payment"  onclick="return confirm('Are you really sure?');"
                                         class="btn btn-success" href="{{ route('pop.show', $transaction->id) }}"><i
                                             class="fa fa-check"></i>
                                     </a>
-                                   
+                                    <form action="{{ route('pop.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                        {{ csrf_field() }}
+                                        {{method_field('DELETE')}}
+
+                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                            data-placement="top" title="Delete proof of payment"> <i
+                                                class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

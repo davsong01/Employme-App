@@ -33,7 +33,7 @@
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
-                    <h6 class="text-white"><b>{{$materialCount}}</b> Material(s)</h6>
+                    <h6 class="text-white"><b>{{ isset($materialCount) ? $materialCount : ''}}</b> Material(s)</h6>
                 </div>
             </div>
             </a>
@@ -44,7 +44,7 @@
             <div class="card card-hover">
                 <div class="box bg-danger text-center">
                     <h1 class="font-light text-white"><i class="fas fa-dollar-sign"></i></h1>
-                    <h6 class="text-white"><b> {{$userowing}} </b> Owing</h6>
+                    <h6 class="text-white"><b> {{ isset($userowing) ? $userowing : ''}} </b> Owing</h6>
                 </div>
             </div>
             </a>
@@ -55,7 +55,7 @@
             <div class="card card-hover">
                 <div class="box bg-warning text-center">
                     <h1 class="font-light text-white"><i class="fa fa-users"></i></h1>
-                    <h6 class="text-white">{{$userCount}} Student(s)</h6>
+                    <h6 class="text-white">{{ isset($userCount) ? $userCount : ''}} Student(s)</h6>
                 </div>
             </div>
             </a>
@@ -65,7 +65,7 @@
             <div class="card card-hover">
                 <div class="box bg-danger text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check-circle"></i></h1>
-                    <h6 class="text-white"><b> {{$pending_payments}} </b> Pending Payments</h6>
+                    <h6 class="text-white"><b> {{ isset($pending_payments) ? $pending_payments : ''}} </b> Pending Payments</h6>
                 </div>
             </div>
             </a>
@@ -106,17 +106,27 @@
         <!-- Column -->
        
         @if(Auth()->user()->role_id == "Facilitator" || Auth()->user()->role_id == "Grader")
-        <div class="col-md-4 col-lg-4">
-            <a href="{{ route('materials.index') }}">
+        <div class="col-md-3 col-lg-3">
+            <a>
             <div class="card card-hover">
-                <div class="box bg-success text-center">
-                    <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
-                    <h6 class="text-white"><b>{{ auth()->user()->program->materials->count() }}</b> Material(s)</h6>
+                <div class="box bg-warning text-center">
+                    <h1 class="font-light text-white"><i class="fa fa-users"></i></h1>
+                    <h6 class="text-white">{{ isset($userCount) ? $userCount : ''}} Student(s)</h6>
                 </div>
             </div>
             </a>
         </div>
-        <div class="col-md-4 col-lg-4">
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('materials.index') }}">
+            <div class="card card-hover">
+                <div class="box bg-success text-center">
+                    <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
+                    <h6 class="text-white"><b>{{ $materialCount }}</b> Material(s)</h6>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('complains.index') }}">
             <div class="card card-hover">
                 <div class="box bg-warning text-center">
@@ -126,7 +136,7 @@
             </div>
             </a>
         </div>
-        <div class="col-md-4 col-lg-4">
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('modules.index') }}">
             <div class="card card-hover">
                 <div class="box bg-info text-center">

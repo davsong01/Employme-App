@@ -11,12 +11,13 @@ class CreatePopsTable extends Migration
         Schema::create('pops', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('program_id');
-            $table->string('email');
+            $table->string('email')->unique();
             $table->string('name');
             $table->string('phone');
             $table->string('bank');
             $table->double('amount');
             $table->string('location')->nullable();
+            $table->date('date');
             $table->string('file');
           
             $table->timestamps();

@@ -30,7 +30,7 @@
                     Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span>
                     <div class="form-group">
                     <textarea id= "text{{ $question->id}}" style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="20" cols="100"
-                        placeholder="Enter your answer for question {{ $i - 1 }} here"></textarea>
+                        placeholder="Enter your answer for question {{ $i - 1 }} here" required></textarea>
                     </div>
                   
                     <input type="hidden" name="id" value="{{$question->id}}">

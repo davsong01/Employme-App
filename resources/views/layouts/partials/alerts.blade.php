@@ -28,3 +28,11 @@
     alert('Please try again')
 </script>
 @endif
+
+@if($errors->any())
+ <div class="alert alert-warning" role="alert">
+    @foreach($errors->all() as $error)
+        {{ $error }}<br>
+    @endforeach
+</div>
+@endif

@@ -118,7 +118,7 @@
 
                                     <select name="training" id="training" class="form-control">
 
-                                        <option value=""></option>
+                                        <option value="">-- Select Option --</option>
 
                                         @foreach ($programs as $program)
 

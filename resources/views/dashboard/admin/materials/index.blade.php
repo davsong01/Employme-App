@@ -19,7 +19,7 @@
                             <th>S/N</th>
                             <th>Title</th>
                             <th>Date Uploaded</th>
-                            <th>Program</th>
+                            <th>Program/Class</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -29,26 +29,29 @@
                             <td>{{  $i++ }}</td>
                             <td>{{ $material->title }}</td>
                             <td>{{ $material->created_at->format('d/m/Y') }}</td>
-                            <td>{{ isset($material->program->id) ? $material->program->p_name: "Program has been trashed" }}</td>
+                            <td>{{ isset($material->program->p_name) ? $material->program->p_name : 'Training has been trashed'}}</td>
                             <td>
                                 <div class="btn-group">
+                                    @if(isset($material->program->id))
                                     <a data-toggle="tooltip" data-placement="top" title="Download Material"
-                                        class="btn btn-info" href="studymaterials/{{ $material->file }}"><i
+                                        class="btn btn-info" href="{{ route('getmaterial', ['p_id'=>$material->program->id, 'filename'=> $material->file])}}"><i
                                             class="fa fa-download"></i>
                                     </a>
+                                    
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Material"
                                     class="btn btn-primary" onclick="return confirm('Are you really sure?');" href="{{ route('materials.show', $material->id) }}"><i
                                         class="fa fa-clone"></i>
-                                </a>
-                                        <form action="{{ route('materials.destroy', $material->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                            {{ csrf_field() }}
-                                            {{method_field('DELETE')}}
+                                    </a>
+                                    @endif
+                                    <form action="{{ route('materials.destroy', $material->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                        {{ csrf_field() }}
+                                        {{method_field('DELETE')}}
 
-                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete material"> <i
-                                                    class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                            data-placement="top" title="Delete material"> <i
+                                                class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                         </tr>
                         @endforeach

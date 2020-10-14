@@ -55,12 +55,26 @@
                        
                         </div>
                         <div class="col-md-6 col-lg-6 col-sm-12">
-                             <div class="form-group">
+                            <div class="form-group">
                             <label>Does Program have pre class tests?</label>
                             <select name="hasmock" class="form-control" id="hasmock" required>
                                 <option value="">--Select Option --</option>
                                 <option value="1" {{ old('hasmock') == 1 ? 'selected' : '' }}>Yes</option>
                                 <option value="0" {{ old('hasmock') == 0 ? 'selected' : '' }}>No</option>
+                            </select>
+                            </div>
+                            <small style="color:red">{{ $errors->first('p_end')}}</small>
+                            <div class="form-group">
+                            <label>Enable Part Payment?</label>
+                            <select name="haspartpayment" class="form-control" id="hasmock" required>
+                                <option value="0" {{ old('haspartpayment') == 0 ? 'selected' : '' }}>No</option>
+                                <option value="1" {{ old('haspartpayment') == 1 ? 'selected' : '' }}>Yes</option>
+                            </select>
+                            </div>
+                            <label>Status</label>
+                            <select name="status" class="form-control" id="hasmock" required>
+                                <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Published</option>
+                                <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Draft</option>
                             </select>
                             </div>
                             <small style="color:red">{{ $errors->first('p_end')}}</small>
@@ -78,7 +92,7 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <input type="submit" class="btn btn-primary" style="width:100%">
+                        <button name="submit" class="btn btn-primary" style="width:100%">Submit</button>
                     </div>
                         
                     </form>

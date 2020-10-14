@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use DB;
 use PDF;
 use App\User;
 use App\Program;
@@ -10,7 +11,6 @@ use App\UpdateMails;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use App\Exports\UsersExport;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -148,7 +148,7 @@ class UserController extends Controller
                     'paymentStatus' => $paymentStatus,
                     'balance' => $balance,
                     'invoice_id' =>  $invoice_id,
-                ] );
+            ] );
 
         //send mail here
         $details = [
@@ -243,7 +243,11 @@ class UserController extends Controller
     }
     public function destroy(User $user)
     {  
+        
+        $user->programs()->detach();
+
         $user->delete();
+
         return redirect('users')->with('message', 'user deleted successfully');
     }
 
@@ -267,17 +271,19 @@ class UserController extends Controller
             'content' => 'required | min: 10'
         ]);
 
-        $recipients = User::where('program_id', $request->program)->where('role_id', 'Student')->get();
+        $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
         $data = $request->content;
         $subject = $request->subject;
         // dd($recipients);'
         $name = auth()->user()->name;
         Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
         foreach($recipients as $recipient){
-            $name = $recipient->name;
+            $name = User::whereId($recipient->user_id)->value('name');
+            $recipient->email = User::whereId($recipient->user_id)->value('email');
+       
             Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
         }
-
+      
         if( count(Mail::failures()) > 0 ) {
             $error = array('The following emails were not sent:');
             

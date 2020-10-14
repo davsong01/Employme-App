@@ -7,6 +7,7 @@ use App\Module;
 use App\Result;
 use App\Material;
 use App\ScoreSetting;
+use App\FacilitatorTraining;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,12 +47,20 @@ class Program extends Model
     public function modules(){
         return $this->hasMany(Module::class);
     }
+    
+
 
     public function questions()
     {
         return $this->hasManyThrough('App\Question', 'App\Module');
     }
 
+    //Facilitator's relationship
+    public function trainings()
+    {
+        return $this->hasManyThrough(FacilitatorTraining::class);
+    }
+    
     public function checkBalance($p_id)
     {
         $balance = DB::table('program_user')->where('user_id', auth()->user()->id)->where('program_id', $p_id)->value('balance');

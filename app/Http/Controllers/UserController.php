@@ -88,9 +88,6 @@ class UserController extends Controller
             $payment_type = 'Full';
         }
         
-        //update the program table here @ column fully paid or partly paid
-        // $this->programStat($request['training'], $paymentStatus);
-        dd($request);
         $data = request()->validate([
             'name' => 'required | min:5',
             'email' =>'required | email',
@@ -106,6 +103,7 @@ class UserController extends Controller
             'invoice_id' => '',
     
         ]);
+        
         User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -139,7 +137,6 @@ class UserController extends Controller
         ];
      
         $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-        //return view('emails.receipt', compact('data', 'details'));
         Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
         
         return back()->with('message', 'Student added succesfully'); 
@@ -247,7 +244,7 @@ class UserController extends Controller
             'content' => 'required | min: 10'
         ]);
 
-        $recipients = User::where('program_id', $request->program)->where('role_id', 'Student')->get();
+        $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
         $data = $request->content;
         $subject = $request->subject;
         // dd($recipients);'

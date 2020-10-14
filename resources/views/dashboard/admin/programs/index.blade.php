@@ -28,6 +28,7 @@
                             <th>End date</th>
                             <th>Partly Paid</th>
                             <th>Fully Paid</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -44,6 +45,7 @@
                             <td>{{ $program->p_end }}</td>
                             <td>{{ $program->part_paid }}</td>
                             <td>{{ $program->fully_paid }}</td>
+                            <td>{{ $program->status == 1 ? 'Published' : 'Draft'}}</td>
                             <td>
                                 <div class="btn-group">
 
@@ -112,19 +114,7 @@
                         </tr>
                         @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>S/N</th>
-                            <th>Program Title</th>
-                            <th>Training Fee</th>
-                            <th>Early Bird Fee</th>
-                            <th>Start date</th>
-                            <th>End date</th>
-                            <th>Partly Paid</th>
-                            <th>Fully Paid</th>
-                            <th>Actions</th>
-                        </tr>
-                    </tfoot>
+                    
                 </table>
             </div>
 

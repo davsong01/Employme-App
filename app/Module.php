@@ -34,4 +34,11 @@ class Module extends Model
     public function program(){
         return $this->belongsTo(Program::Class);
     }
+
+    public function scopeClassTests($query, $program){
+           
+        return $query->where('type', 0)->where('program_id', $program);
+       
+    }
+
 }

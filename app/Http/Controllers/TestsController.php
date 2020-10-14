@@ -28,6 +28,18 @@ class TestsController extends Controller
             $program = Program::find($request->p_id);
             $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
            
+            
+            //Check if user has taken pre tests and return back if otherwise
+                if($program->hasmock == 1){
+ 
+                    $expected_pre_class_tests = Module::ClassTests($program->id)->count();
+                    
+                    $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+                    if($completed_pre_class_tests < $expected_pre_class_tests ){
+                            return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
+                    }                     
+                }
+
             foreach($modules as $module){
                 $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
                 
@@ -49,20 +61,28 @@ class TestsController extends Controller
 
     public function store(Request $request)
     {
+
         $program = Program::find($request->p_id);
    
         $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
+       
+        if(sizeof($class_test_details) < 2){
+            return back()->with('error', 'You must answer at least 1 question');
+        };
 
         $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
       
         foreach($certification_test_details as $key => $value)
         {
+             if((!isset($certification_test_details[$key]))){
+                return back()->with('error', 'You must answer at least 1 question');
+            };
             // print_r(str_word_count($certification_test_details[$key]);
             if(str_word_count($certification_test_details[$key]) > 500 ){
                 return back()->with('error', 'Maximum number of words allowed for each question is 500, please try again');
             };
         }
-        
+     
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->count();
         
         if($check > 0){
@@ -134,9 +154,10 @@ class TestsController extends Controller
                     return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
                 }   
 
+                //Check if user has taken pre tests and return back if otherwise
                 if($program->hasmock == 1){
-                    //Check if user has taken pre tests and return back if otherwise
-                    $expected_pre_class_tests = $program->modules->count();
+ 
+                    $expected_pre_class_tests = Module::ClassTests($program->id)->count();
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
                     
                     if($completed_pre_class_tests < $expected_pre_class_tests ){

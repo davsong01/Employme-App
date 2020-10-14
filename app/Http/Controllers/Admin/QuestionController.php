@@ -8,11 +8,43 @@ use App\Complain;
 use App\Material;
 use App\Question;
 use Illuminate\Http\Request;
+use App\Imports\QuestionsImport;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionController extends Controller
 {
+
+    public function importExport(){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+            
+            return view('dashboard.admin.questions.import');
+        }
+        return abort(404);
+    }
+
+    public function import(Request $request){
+		if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+
+            $this->validate(request(),[
+				'file' => 'required|
+				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+				application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv'
+                ], [
+                    'file.mimetypes' => 'The file must be a file of type: xlsx'
+                ]);
+        
+            try {
+                Excel::import(new QuestionsImport, request()->file('file'));
+            }catch (\Illuminate\Database\QueryException $ex) {
+                $error = $ex->getMessage();        
+                return back()->with('error', $error);
+            }
+            return redirect(route('questions.index'))->with('message', 'Data has been imported succesfully');
+        }
+        return abort(404);
+    }
 
     public function index()
     {

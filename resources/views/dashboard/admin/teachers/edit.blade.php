@@ -1,4 +1,4 @@
-@extends('dashboard.admin.index')
+{{-- @extends('dashboard.admin.index')
 @section('title', $user->name )
 @section('content')
 <div class="container-fluid">
@@ -33,16 +33,6 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-                                    <label for="phone">Phone</label>
-                                    <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone }}" autofocus>
-                                    @if ($errors->has('phone'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('phone') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-                                
                                
                             </div>
                             <div class="col-md-6">
@@ -57,22 +47,7 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
-                                <div><small style="color:red">{{ $errors->first('training')}}</small></div>
-                                <div class="form-group">
-                                    <label for="training">Select Training *</label>
-                                    <select name="training" id="training" class="form-control">
-                                        <option value=""></option>
-                                        @foreach ($programs as $program)
-                                        <option value="{{ $program->id }}" {{ $program->id == $user->program_id ? 'selected' : ''}}>
-                                            {{$program->p_name}}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('training'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('training') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
+                               
                                 <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
@@ -88,6 +63,27 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-12">
+                                <div class="form-group row">
+                                        <label class="training">Select Training(s)</label>
+                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
+                                        @foreach($programs as $key=> $program)
+                                            <option value="{{ $key }}"> {{ $program }} {{ $program->id }}</option>
+                                           
+                                        @endforeach
+                                        </select>
+                                    <div>
+                                        @if ($errors->has('training'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('training') }}</strong>
+                                        </span>
+                                        @endif
+                                    </div>
+                                <div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">
                                 Submit
                             </button>
@@ -100,4 +96,5 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection --}}
+Javascript need to add or remove programs

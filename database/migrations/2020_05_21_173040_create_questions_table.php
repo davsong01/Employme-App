@@ -20,11 +20,11 @@ class CreateQuestionsTable extends Migration
             $table->foreign('module_id')->references('id')->on('modules')->onDelete('cascade');
            
             $table->text('title');
-            $table->string('optionA')->nullable();
-            $table->string('optionB')->nullable();
-            $table->string('optionC')->nullable();
-            $table->string('optionD')->nullable();
-            $table->string('correct')->nullable();
+            $table->text('optionA')->nullable();
+            $table->text('optionB')->nullable();
+            $table->text('optionC')->nullable();
+            $table->text('optionD')->nullable();
+            $table->text('correct')->nullable();
 
             $table->timestamps();
         });

@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+use DB;
 use PDF;
 use App\Role;
 use App\User;
 use App\Program;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -51,11 +51,12 @@ class PaymentController extends Controller
     }
 
     public function edit($id){
+   
             $transaction = DB::table('program_user')->whereId($id)->first();
-            $transaction->name = User::find($transaction->user_id)->value('name');
-            $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->get();
-            $transaction->p_name = $program_details[0]['p_name'];
-            $transaction->p_amount = $program_details[0]['p_amount'];
+            $transaction->name = User::whereId($transaction->user_id)->value('name');
+            $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->first();
+            $transaction->p_name = $program_details->p_name;
+            $transaction->p_amount = $program_details->p_amount;
 
             if(Auth::user()->role_id == "Admin"){
             return view('dashboard.admin.transactions.edit', compact('transaction'));
@@ -173,7 +174,7 @@ class PaymentController extends Controller
         $transaction = DB::table('program_user')->whereId($id)->first();
        
         $user = User::findorFail($transaction->user_id);
-        
+     
         //check amount against payment
         $programFee = $request->program_amount;
 
@@ -199,6 +200,13 @@ class PaymentController extends Controller
         ]);
 
         return back()->with('message', 'Transaction updated successfully');
+    }
+
+    public function destroy($id){
+        $transaction = DB::table('program_user')->whereId($id)->delete();
+        
+        return back()->with('message', 'Transaction has been deleted forever');
+        
     }
 
 }

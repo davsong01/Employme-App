@@ -27,7 +27,7 @@ class CertificateController extends Controller
         
         if(Auth::user()->role_id == "Student"){       
 
-                $certificates = Certificate::with('user')->where('user_id', Auth::user()->id)->get();
+                $certificates = Certificate::with('user')->where('user_id', Auth::user()->id)->first();
 
                 return view('dashboard.student.certificates.index', compact('certificates'));
 

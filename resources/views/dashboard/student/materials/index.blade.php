@@ -30,7 +30,7 @@
                             <td>{{ $material->program->p_name }}</td>
                             <td>
                                 <a data-toggle="tooltip" data-placement="top" title="Download Material"
-                                class="btn btn-info" href="studymaterials/{{ $material->file }}"><i
+                                class="btn btn-info" href="{{ route('getmaterial', ['p_id'=>$program->id, 'filename'=> $material->file])}}"><i
                                     class="fa fa-download"> Download</i>
                             </a>
             

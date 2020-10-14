@@ -411,7 +411,7 @@ img {
     width: 320px;
     max-width: 320px;
     background-color: #fff;
-    padding: 60px 75px; }
+    padding: 0 10px 0 80px; }
     @media only screen and (min-width: 768px) and (max-width: 991px) {
       .main-content-wrapper .header-area {
         -webkit-box-flex: 0;
