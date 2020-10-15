@@ -20,50 +20,66 @@ class ModuleController extends Controller
 
     public function index()
     {
+        $i = 1; 
+
         if(Auth::user()->role_id == "Admin"){
-            $i = 1;  
-            //my first use of Eager loading
+             
             $modules = Module::with( ['program', 'questions'] )->orderBy('id', 'DECS')->get();          
             $questions_count = Question::all()->count();
-          
-            return view('dashboard.admin.modules.index', compact('modules', 'i', 'questions_count'));
+            
+            $programs_with_modules = Program::whereHas('modules', function ($query) {
+                return $query->orderby('created_at', 'DESC');
+            })->get();
+
+            return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
         }
         
-        if(Auth::user()->role_id == "Facilitator"){
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             
-            $facilitator_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+            $programs_with_modules = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
 
-            $materialCount = 0;
-            $i = 1;
-            if($facilitator_programs->count() > 0){
-                foreach($facilitator_programs as $modules){
+            if($programs_with_modules->count() > 0){
+                foreach($programs_with_modules as $modules){
                     $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
-                    $modules['materialCount'] = Module::whereProgramId($modules->program_id)->count();
-                } 
+                    $modules['modules_count'] = Program::withCount('modules')->whereId($modules->program_id)->get()->sum('modules_count');
+                    $modules['questions_count'] = Module::withCount('questions')->whereProgramId($modules->program_id)->get()->sum('questions_count');
+                }
             }
             
-            return view('dashboard.teacher.modules.show', compact( 'i', 'facilitator_programs'));
+            // dd($programs_with_modules);
+            return view('dashboard.teacher.modules.index', compact( 'i', 'programs_with_modules'));
         } return back();
     }
 
     public function all($p_id){
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-            $i = 1;  
-            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('id', 'DECS')->get();          
-            $questions_count = Question::all()->count();
+        $i = 1;  
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Grader"){
+            $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
+            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'DECS')->get();          
+            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
+            
+            return view('dashboard.admin.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));
+        }
+
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){ 
+
+           $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
+            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'DECS')->get();          
+            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
           
-            return view('dashboard.teacher.modules.show', compact('modules', 'i', 'questions_count'));
+            return view('dashboard.teacher.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));
         }
     }
-    public function create()
+    public function create(Request $request)
     {
         if(Auth::user()->role_id == "Admin"){
-            $programs = Program::where('id', '<>', 1)->orderBy('id', 'DESC')->get();
-            return view('dashboard.admin.modules.create', compact('programs'));
+            $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
+
+            return view('dashboard.admin.modules.create', compact('program'));
         }
 
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-            $programs = Program::where('id', '<>', 1)->where('id', auth()->user()->program->id)->orderBy('id', 'DESC')->get();
+           
             return view('dashboard.admin.modules.create', compact('programs'));
         }
         return back();
@@ -71,6 +87,7 @@ class ModuleController extends Controller
 
     public function store(Request $request)
     {
+
         $data = $this->validate($request, [
             'title' => 'required|min:5',
             'program' => 'required',
@@ -96,12 +113,57 @@ class ModuleController extends Controller
             'type' => $request->type,
         ]);
 
-        return redirect('modules')->with('message', 'Module succesfully added');
+        return redirect(route('facilitatormodules', $request->program))->with('message', 'Module succesfully added');
     }
+
+    public function clone(Request $request)
+    {
+        //find module
+        $module = Module::findOrFail($request->id);
+        
+        //convert module type to integer
+        if($module->type == 'Class Test'){
+            $type = 0;
+        }
+
+        if($module->type == 'Certification Test'){
+            $type = 0;
+        }
+
+        //Get Module questions 
+        $module_questions = Question::whereModuleId($request->id)->get();
+
+        //Create new module
+        $new_module = Module::create([
+            'title' => $module->title,
+            'program_id' => $request->program_id,
+            'status' => $module->status,
+            'noofquestions' => $module->noofquestions,
+            'time' => $module->time,
+            'type' => $type,
+        ]);
+        
+       //Duplicate module questions for newly created module       
+        foreach($module_questions as $question){
+            $new = Question::create([
+                'title' => $question->title,
+                'optionA' => $question->optionA,
+                'optionB' => $question->optionB,
+                'optionC' => $question->optionC,
+                'optionD' => $question->optionD,
+                'correct' => $question->correct,
+                'module_id' => $new_module->id,
+            ]);
+            
+        }       
+
+        return redirect(route('facilitatormodules', $request->program_id))->with('message','Module and associated questions succesfully cloned');
+    } 
 
     public function show(Module $module)
     {
-        
+        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+        return view('dashboard.teacher.modules.showclone', compact('module', 'programs'));
     }
 
     public function enablemodule($id){
@@ -125,28 +187,39 @@ class ModuleController extends Controller
     public function edit(Module $module)
     {
         if(Auth::user()->role_id == "Admin"){
-            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-            return view('dashboard.admin.modules.edit', compact('module', 'programs'));
+
+            $program = Program::whereId($module->program_id)->first();
+
+            return view('dashboard.admin.modules.edit', compact('module', 'program'));
+
         }
 
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-            $programs = Program::where('id', '<>', 1)->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
-            return view('dashboard.admin.modules.edit', compact('module', 'programs'));
+
+            $program = Program::whereId($module->program_id)->first();
+
+            return view('dashboard.teacher.modules.edit', compact('module', 'program'));
+
         }
         return back();
     }
 
     public function update(Request $request, Module $module)
     {
-            $module->update([
-                'title' => $request->title,
-                'program_id' => $request->program_id,
-                'status' => $request->status,
-                'noofquestions' => $request->noofquestions,
-                'time' => $request->time,
-                'type' => $request->type,
-            ]);
-        return redirect('modules')->with('message', 'Module has been succesfully updated');
+        dd($request->all());
+        if($request->type == 0){
+            $type = 0;
+        }
+        $module->update([
+            'title' => $request->title,
+            'program_id' => $request->program_id,
+            'status' => $request->status,
+            'noofquestions' => $request->noofquestions,
+            'time' => $request->time,
+            'type' => $request->type,
+        ]);
+        return redirect(route('facilitatormodules', $module->program))->with('message', 'Module succesfully updated');
+   
     }
 
     public function destroy(Module $module)

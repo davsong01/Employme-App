@@ -35,9 +35,12 @@ Route::get('/thanks', function() {
 //Export Routes
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('export/users', 'UserController@export')->name('user.export');
+    Route::get('export/participantdetails/{id}', 'ProgramController@exportdetails')->name('program.detailsexport');
     //Show email history
     Route::get('updateemails/{id}', 'UserController@emailHistory')->name('updateemails.show');
 });
+
+
 
 //upload proof of payment 
 Route::resource('pop', 'PopController');
@@ -113,6 +116,8 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::post('importquestions', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
 
     Route::resource('modules', 'ModuleController');
+    // Route::post('clonemodule/{mmodule_id}', 'ModuleController@clone')->name('module.showclone');
+    Route::post('clonemodule', 'ModuleController@clone')->name('module.clone');
     Route::get('facilitatormodules/{p_id}', 'ModuleController@all')->name('facilitatormodules');
     Route::get('enablemodule/{id}', 'ModuleController@enablemodule')->name('modules.enable');
     Route::get('disablemodule/{id}', 'ModuleController@disablemodule')->name('modules.disable');

@@ -7,10 +7,13 @@ use App\User;
 use App\Program;
 use App\Material;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\ProgramDetailsExport;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+
 
 class ProgramController extends Controller
 {
@@ -32,6 +35,13 @@ class ProgramController extends Controller
 
             return view('dashboard.admin.programs.index', compact('programs', 'i'));
         } else  return redirect('/');
+    }
+
+     public function exportdetails($id) 
+    {   
+        $programname = Program::whereId($id)->value('p_name');
+        $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);
+        return Excel::download(new ProgramDetailsExport($id), $programname.' participants.xlsx');
     }
 
     public function create()

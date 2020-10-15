@@ -27,13 +27,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="class">Select Training *</label>
-                                    <select name="program" id="program" class="form-control" required>
-                                        <option value=""></option>
-                                        @foreach ($programs as $program)
-                                        <option value="{{ $program->id }}" {{ old('program') == $program->id ? 'selected' : '' }}>{{$program->p_name}}</option>
-                                        @endforeach
-                                    </select>
+                                    <label for="class">Training</label>
+                                    <input type="text" readonly  id="program" name="program" value="{{ $program->id }}" placeholder= "{{ $program->p_name }}" class="form-control" required>
+
                                     <div><small style="color:red">{{ $errors->first('program')}}</small></div>
                                 </div>
 

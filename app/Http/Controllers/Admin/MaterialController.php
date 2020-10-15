@@ -60,8 +60,8 @@ class MaterialController extends Controller
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
  
                     if($completed_pre_class_tests < $expected_pre_class_tests ){
-                            return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
-                        }
+                        return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
+                    }
                                         
                 }
                 

@@ -79,14 +79,16 @@
                         @foreach($modules as $module)
                         <tr>
                             <td>{{ $i++ }}</td>
+
                             <td>{{ $module->created_at->format('d/m/Y') }}</td>
                             <td>{{ $module->title }}<br><span style="color: red">{{$module->type }}</span></td>
-                            <td>{{$module->program->p_name}}</td>
+                            <td>{{ $module->program->p_name}}</td>
                             <td>{{ $module->noofquestions }}</td>
                             <td>{{ $module->questions->count() }}</td>
                             <td>{{ $module->time}} minutes</td>
                             <td>{{ $module->type }}</td>
                             <td>{{$module->status == 0 ? 'Disabled' : 'Enabled' }}</td>
+                           
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Module"
@@ -104,6 +106,14 @@
                                         class="btn btn-info" href="{{ route('modules.disable', $module->id)}}" ><i
                                            onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
+                                    @endif
+                                    @if(auth()->user()->role_id == 'Admin')
+                                    @if($module->questions->count() > 0)
+                                    <a data-toggle="tooltip" data-placement="top" title="Clone Module"
+                                        class="btn btn-primary" href="{{ route('modules.show', $module->id) }}"><i
+                                            class="fa fa-clone"></i>
+                                    </a>
+                                    @endif
                                     @endif
                                     <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete?');">

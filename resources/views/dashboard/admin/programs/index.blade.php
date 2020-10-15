@@ -37,7 +37,9 @@
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td>{{ $program->p_name }}<br><span
-                                    style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span>
+                                    style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br>
+                                    <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
+                                    
                             </td>
                             <td>₦{{ $program->p_amount }}</td>
                             <td>₦{{ $program->e_amount }}</td>

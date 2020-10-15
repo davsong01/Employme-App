@@ -59,7 +59,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin")<a href="{{route('modules.create')}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
+                    <h5 class="card-title"> Select a Training to manage its modules </h5> 
                 </div>
             </div>
             <div class="table-responsive">
@@ -67,63 +67,24 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Date</th>
-                            <th>Title</th>                            
-                            <th>Associated Training</th>
-                            <th>Expected Questions</th>
-                            <th>Set Questions</th>
-                            <th>Question Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Training</th>
+                            <th>Modules</th> 
+                            <th>Questions</th>                           
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($modules as $module)
-                        <tr>
-                            <td>{{ $i++ }}</td>
-
-                            <td>{{ $module->created_at->format('d/m/Y') }}</td>
-                        <td>{{ $module->title }}<br><span style="color: red">{{$module->type }}</span></td>
-                            <td>{{$module->program->p_name}}</td>
-                            <td>{{ $module->noofquestions }}</td>
-                            <td>{{ $module->questions->count() }}</td>
-                            <td>{{ $module->time}} minutes</td>
-                            <td>{{ $module->type }}</td>
-                            <td>{{$module->status == 0 ? 'Disabled' : 'Enabled' }}</td>
-                           
-                            <td>
-                                <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit Module"
-                                        class="btn btn-info" href="{{ route('modules.edit', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
-                                            class="fa fa-edit"></i>
-                                    </a>
-
-                                    @if($module->status == 0)
-                                    <a data-toggle="tooltip" data-placement="top" title="Enable Module Questions"
-                                        class="btn btn-primary" href="{{ route('modules.enable', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
-                                            class="fa fa-check"></i>
-                                    </a>
-                                    @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Disable Module Questions"
-                                        class="btn btn-info" href="{{ route('modules.disable', $module->id)}}" ><i
-                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
-                                    </a>
-                                    @endif
-                                    <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
-                                        onsubmit="return confirm('Do you really want to Delete?');">
-                                        
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        {{-- <button type="submit" class="btn btn-warning" data-toggle="tooltip"
-                                            data-placement="top" title="Trash Training"> <i class="fa fa-trash"></i>
-                                        </button> --}}
-                                    </form>
-                                </div>
-
-                            </td>
-                        </tr> 
+                         @foreach($programs_with_modules as $programs)
+                            <tr>
+                                <td>{{  $i++ }}</td>
+                                
+                                <td><a data-toggle="tooltip" data-placement="top" title="Click to view modules for this training"
+                                    class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
+                                    {{ $programs->p_name }}
+                                </a>
+                                </td>
+                                <td>{{ $programs->modules->count() }}</td>
+                                <td>{{ $programs->questions->count() }}</td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

@@ -28,27 +28,23 @@
                                 </div>
                         
                                 <div class="form-group">
-                                    <label for="class">Select Training *</label>
-                                    <select name="program_id" id="program" class="form-control" required>
-                                            <option value=""></option>        
-                                            @foreach ($programs as $program)     
-                                            <option value="{{ $program->id }}" {{ $program->id == $module->program_id ? 'selected' : ''}}>
-                                                {{$program->p_name}}</option>  
-                                            @endforeach 
-                                    </select>
+                                    <label for="class">Training</label>
+                                    <input type="text" readonly value="{{ $program->name }}" placeholder= "{{ $program->p_name }}" class="form-control" required
                                     <div><small style="color:red">{{ $errors->first('program')}}</small></div>
+                                    <input type="hidden" id="program" name="program_id" value="{{ $program->id }}" class="form-control" required>
                                 </div>
+                            </div>
                         
                                 <div class="form-group">
                                     <label for="class">Type</label>
                                     @if( $module->questions->count() <= 0 )
                                         <select name="type" id="class" class="form-control" required>
-                                        <option value="0" {{ $module->type == 'Class Test' ? 'selected' : ''}}>Class Test</option>
+                                            <option value="0" {{ $module->type == 'Class Test' ? 'selected' : ''}}>Class Test</option>
                                             <option value="1" {{ $module->type == 'Certification Test' ? 'selected' : ''}}>Certification Test</option>
                                         </select>
                                     @else
                                         <select name="type" id="class" class="form-control" required readonly>
-                                            <option value="{{ $module->type == "Class Test" ?? 0}} {{ $module->type == 'Certification Test' ?? 1}}">{{ $module->type }}</option>
+                                            <option value="{{ $module->type == 'Class Test' ? 0 : 1 }}">{{ $module->type }}</option>
                                         </select>
                                     @endif
                                     <div><small style="color:red">{{ $errors->first('type')}}</small></div>
@@ -87,7 +83,7 @@
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">
-                                Submit
+                                Update
                             </button>
                         </div>
                       
