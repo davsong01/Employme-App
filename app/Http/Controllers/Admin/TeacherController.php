@@ -20,15 +20,20 @@ class TeacherController extends Controller
     {
         $i = 1;
         //$users = User::all();
-        $users = User::with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->get();
-        $names = [];
+       
+        $users = User::select('id', 'name', 'email', 'role_id')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
+        
         
         foreach($users as $user){
-            
+            $names = [];
             foreach($user->trainings as $trainings){
-                $trainingp_name = Program::whereId($trainings->program_id)->value('p_name');
+               
+                if(isset($trainings)){
+                    $trainingp_name = Program::whereId($trainings->program_id)->value('p_name');
 
-                array_push($names, $trainingp_name);
+                    array_push($names, $trainingp_name);
+                }else;
+                
             }
            
             $user->p_names =  $names ;
@@ -98,12 +103,16 @@ class TeacherController extends Controller
     public function edit($id)
     { 
         $user = User::findorFail($id);
-        $programs = Program::all();
+       
+        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+
         foreach($programs as $program){
-            $program['associated'] = FacilitatorTraining::whereUserId($user->id)->get();
+            $program['is_associated'] = FacilitatorTraining::whereUserId($user->id)->whereProgramId($program->id)->value('program_id');
         }
 
-    //    dd($programs);
+      
+        // $programs_associated = FacilitatorTraining::whereUserId($user->id)->get();
+    //    dd($programs_associated);
        
         if(Auth::user()->role_id == "Admin"){
         return view('dashboard.admin.teachers.edit', compact('programs','user'));
@@ -121,11 +130,25 @@ class TeacherController extends Controller
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->t_phone = $request['phone'];
-        $user->program_id = $request['training'];
         $user->role_id = $request['role'];
 
+        //Delete corresponding Facilitator Program details
+        $facilitator = FacilitatorTraining::whereUserId($user->id);
+
+        if(!isset($facilitator) && !isset($request['training'])){
+            return back()->with('error', 'Facilitator is not attached to any training, please add a training to facilitator');
+        }
+       
+        $facilitator->delete();
+
+        foreach($request['training'] as $training){
+            FacilitatorTraining::UpdateorCreate([
+                'user_id' => $user->id,
+                'program_id' =>$training
+            ]);
+        }
         $user->save();
-        //I used return redirect so as to avoid creating new instances of the user and program class
+       
         if(Auth::user()->role_id == "Admin"){
         return redirect('teachers')->with('message', 'Facilitator updated successfully');
         } return back();
@@ -134,6 +157,9 @@ class TeacherController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
+        //Delete corresponding programs
+        $programs = FacilitatorTraining::whereUserId($user->id)->delete();
+
         $user->delete();
         return redirect('teachers')->with('message', 'Facilitator deleted successfully');
     }

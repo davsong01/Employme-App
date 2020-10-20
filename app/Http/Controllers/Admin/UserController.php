@@ -30,7 +30,7 @@ class UserController extends Controller
        if(Auth::user()->role_id == "Admin"){
          
           return view('dashboard.admin.users.index', compact('users', 'i', 'programs') );
-        }elseif(Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader"){
+        }elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
            $users = User::where([
             'role_id' => "Student",
             'program_id' => Auth::user()->program_id,
@@ -50,7 +50,7 @@ class UserController extends Controller
 
             $user = User::all();
 
-            $programs =  Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
+            $programs =  Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
 
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs'));
     }return back();

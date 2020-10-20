@@ -7,6 +7,7 @@ use App\Program;
 use App\Complain;
 use App\Material;
 use App\Question;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Imports\QuestionsImport;
 use App\Http\Controllers\Controller;
@@ -16,15 +17,16 @@ use Maatwebsite\Excel\Facades\Excel;
 class QuestionController extends Controller
 {
 
-    public function importExport(){
+    public function importExport($p_id){
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             
-            return view('dashboard.admin.questions.import');
+            return view('dashboard.admin.questions.import', compact('p_id'));
         }
         return abort(404);
     }
 
     public function import(Request $request){
+      
 		if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
 
             $this->validate(request(),[
@@ -36,7 +38,7 @@ class QuestionController extends Controller
                 ]);
         
             try {
-                Excel::import(new QuestionsImport, request()->file('file'));
+                Excel::import(new QuestionsImport($request->p_id), request()->file('file'));
             }catch (\Illuminate\Database\QueryException $ex) {
                 $error = $ex->getMessage();        
                 return back()->with('error', $error);
@@ -48,21 +50,52 @@ class QuestionController extends Controller
 
     public function index()
     {
-        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
-            $i = 1;  
-            $questions = Question::with( 'module' )->orderBy('id', 'DECS')->get();
-            return view('dashboard.admin.questions.index', compact('questions', 'i'));
+        $i = 1;  
+
+        if(Auth::user()->role_id == "Admin"){
+           
+            $programs_with_questions = Program::withCount('questions')->orderBy('id', 'DECS')->get();
+            
+            return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
         }
-        
-        return back();
+
+         
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+            
+            $programs_with_questions = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+
+            if($programs_with_questions->count() > 0){
+                foreach($programs_with_questions as $modules){
+                    $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
+                    $modules['program_id'] = Program::whereId($modules->program_id)->value('id');
+                    $modules['questions_count'] = Module::withCount('questions')->whereProgramId($modules->program_id)->get()->sum('questions_count');
+                }
+            }
+            
+            // dd($programs_with_modules);
+            return view('dashboard.teacher.questions.index', compact( 'i', 'programs_with_questions'));
+        }return back();
     }
 
-    public function create()
+    public function create(Request $request)
+    {
+       
+    }
+
+    
+    public function add($p_id)
     {
         if(Auth::user()->role_id == "Admin"){
-            $modules = Module::all();
+            $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
+           
             return view('dashboard.admin.questions.create', compact('modules'));
         }
+
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+            $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
+            return view('dashboard.admin.questions.create', compact('modules'));
+        }
+
         return back();
     }
 
@@ -107,9 +140,20 @@ class QuestionController extends Controller
 
         return redirect('questions')->with('message', 'Question succesfully added');
     }
-    public function show(Question $question)
+    public function show($p_id)
     {
-        //
+
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+            $i = 1;
+            
+            $questions = Question::whereHas( 'module', function($query) use ($p_id) {
+                $query->whereProgramId($p_id);
+            })->get();
+
+            $p_name = Program::whereId($p_id)->value('p_name');
+
+            return view('dashboard.admin.questions.show', compact('questions', 'i', 'p_name', 'p_id'));
+        }
     }
 
     public function edit(Question $question)

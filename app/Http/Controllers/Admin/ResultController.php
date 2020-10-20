@@ -9,6 +9,7 @@ use App\Result;
 use App\Program;
 use App\Question;
 use App\ScoreSetting;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -22,14 +23,29 @@ class ResultController extends Controller
     }
 
     public function posttest(){
-
-        //Select only programs that have results
-        $programs = Program::whereHas('results', function ($query) {
-                return $query->orderby('created_at', 'DESC');
-        })->get();
-
         $i = 1;
-        return view('dashboard.admin.results.selecttraining', compact('programs', 'i'));
+
+        if(Auth::user()->role_id == "Admin"){
+            //Select only programs that have results
+            $programs = Program::whereHas('results', function ($query) {
+                    return $query->orderby('created_at', 'DESC');
+            })->get();
+        }
+        
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+  
+            $programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+
+            if($programs->count() > 0){
+                foreach($programs as $program){
+                    $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
+                    
+                    $program['result_count'] = Result::whereProgramId($program->program_id)->count();
+                }
+            }
+        }
+        
+        return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
     }
 
     public function getgrades(Request $request, $id)

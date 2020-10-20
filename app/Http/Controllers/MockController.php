@@ -31,7 +31,7 @@ class MockController extends Controller
             return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
         }
 
-        if(auth()->user()->role_id == 'Facilitator' || auth()->user->role_id == 'Grader' ){
+        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             //select all programs for this user
             $teacher_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
             

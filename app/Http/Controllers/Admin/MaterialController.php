@@ -50,6 +50,13 @@ class MaterialController extends Controller
 
         if(Auth::user()->role_id == "Student"){       
             $i = 1;   
+
+            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            
+            if($user_balance->balance > 0){
+                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to materials');
+            }
+
             $program = Program::find($request->p_id);  
             
                 if($program->hasmock == 1){
@@ -74,9 +81,10 @@ class MaterialController extends Controller
     
         
     public function all($p_id){
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Admin"){
+        if(Auth::user()->role_id == "Grader" || Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Admin"){
             $i = 1;
-            $materials = Material::with('program')->where('program_id', $p_id)->get();
+
+            $materials = Material::with('program')->where('program_id', $p_id)->orderBy('created_at', 'DESC')->get();
 
             return view('dashboard.teacher.materials.index', compact( 'i', 'materials', 'p_id'));
         }return abort(404);
@@ -119,7 +127,7 @@ class MaterialController extends Controller
                     'file' => $file->getClientOriginalName(),
                 ]);
             }
-
+            
             return redirect(url('/facilitatormaterials/'.$request->p_id))->with('message', 'Study material succesfully added');
         }
         else{
@@ -144,8 +152,8 @@ class MaterialController extends Controller
         }
         
 
-    }     
-        return redirect('materials')->with('message', 'Study material succesfully added');
+    }   return response()->json(['success'=>'Study Material Uploaded Successfully']);
+        // return redirect('materials')->with('message', 'Study material succesfully added');
     }
 
     public function show(Material $material)

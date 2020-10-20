@@ -21,7 +21,11 @@
                                     <select name="module" id="module" class="form-control" required>
                                         <option value="">Select Option</option>
                                         @foreach ($modules as $module)
-                                        <option value="{{ $module->id }}">{{$module->title}}</option>
+                                        @if($module->questions_count < $module->noofquestions)
+                                        <option value="{{ $module->id }}">{{$module->title}} ({{ $module->noofquestions - $module->questions_count .' question(s) left to complete' }})</option>
+                                      
+                                        @endif
+                                       
                                         @endforeach
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('program')}}</small></div>

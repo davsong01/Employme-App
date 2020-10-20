@@ -1,4 +1,4 @@
-{{-- @extends('dashboard.admin.index')
+@extends('dashboard.admin.index')
 @section('title', $user->name )
 @section('content')
 <div class="container-fluid">
@@ -41,7 +41,6 @@
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Facilitator" {{ $user->role_id == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Student" {{ $user->role_id == 'Student' ? 'selected' : ''}}>Student</option>
                                         <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
                                         <option value="Admin" {{ $user->role_id == 'Admin' ? 'selected' : ''}}>Admin</option>
                                     </select>
@@ -66,10 +65,9 @@
                             <div class="col-12">
                                 <div class="form-group row">
                                         <label class="training">Select Training(s)</label>
-                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
-                                        @foreach($programs as $key=> $program)
-                                            <option value="{{ $key }}"> {{ $program }} {{ $program->id }}</option>
-                                           
+                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
+                                        @foreach($programs as $program)
+                                             <option value="{{ $program->id }}" {{ $program->id == $program->is_associated ? 'selected' : ''}} >{{ $program->p_name }}</option>
                                         @endforeach
                                         </select>
                                     <div>
@@ -96,5 +94,4 @@
         </div>
     </div>
 </div>
-@endsection --}}
-Javascript need to add or remove programs
+@endsection

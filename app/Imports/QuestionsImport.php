@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Question;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Validator;
 class QuestionsImport implements ToModel, WithHeadingRow
 {
     use Importable;
+
+    protected $p_id;
+
+    function __construct($p_id) {
+        $this->p_id = $p_id;
+    }
+
 
     public function model(array $row)
     {

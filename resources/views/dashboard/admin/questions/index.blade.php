@@ -1,84 +1,48 @@
 @extends('dashboard.admin.index')
 @section('title')
-{{ config('app.name') }} Test Management
+    {{ config('app.name') .'Questions' }}
 @endsection
 @section('content')
 
 <div class="container-fluid">
-     <div class="card">
+    <div class="card">
         <div class="card-body">
-           @include('layouts.partials.alerts')
+            <div class="card-title">
+                @include('layouts.partials.alerts')
+             </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5><br> 
-                    <a href = "{{ url('questionsimport-export') }}" class="btn btn-custon-four btn-success"><i class="fa fa-upload"></i> Import Questions</a>
+                    <h5 class="card-title"> Select a Training to manage its questions. Trainings which have no questions will not appear here </h5> 
                 </div>
             </div>
-            
             <div class="table-responsive">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Date</th>
-                            <th>Title</th>                            
-                            <th>Associated Module</th>
-                            <th>Correct Option</th>
-                            <th>Actions</th>
+                            <th>Training</th>
+                            <th>Questions</th>                           
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($questions as $question)
-                        <tr>
-                            <td>{{ $i++ }}</td>
-
-                            <td>{{ $question->created_at->format('d/m/Y') }}</td>
-                            <td>{{ $question->title }}</td>
-                            <td>{{$question->module->title}}</td>
-                            <td>{{ $question->correct }}</td>
-                            @if(Auth::user()->role_id == "Admin")
-                            <td>
-                                <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit question"
-                                        class="btn btn-info" href="{{ route('questions.edit', $question->id)}}"><i
-                                            class="fa fa-edit"></i>
-                                    </a>
-
-                                    <form action="{{ route('questions.destroy', $question->id) }}" method="POST"
-                                        onsubmit="return confirm('Do you really want to Delete forever?');">
-                                        
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-warning" data-toggle="tooltip"
-                                            data-placement="top" title="Delete Questions"> <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-
-                            </td>
+                         @foreach($programs_with_questions as $programs)
+                         @if($programs->questions_count >0)
+                            <tr>
+                                <td>{{  $i++ }}</td>
+                                <td><a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training"
+                                    class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}">
+                                    {{ $programs->p_name }}
+                                </a>
+                                </td>
+                                <td>{{ $programs->questions_count}}</td>
+                            </tr>
                             @endif
-                            @if(Auth::user()->role_id == "Facilitator")
-                            <td>
-                                N/A
-                            </td>
-                            @endif
-                        </tr> 
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 </div>
 
-<script>
-    $('#zero_config').DataTable();
-</script>
-<script>
-    $(".delete").on("submit", function () {
-        return confirm("Are you sure?");
-    });
-</script>
 @endsection

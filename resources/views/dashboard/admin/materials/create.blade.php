@@ -37,7 +37,14 @@
                             <input type="file" id="file" name="file[]" value="" class="form-control" multiple>
                         </div>
                         <div><small style="color:red">{{ $errors->first('file[]')}}</small></div>
+                            <div class="progress2">
 
+                            <div class="bar2"></div >
+
+                            <div class="percent">0%</div >
+
+                        </div>
+                        <br>
                         <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
 
                         {{ csrf_field() }}
@@ -45,4 +52,56 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+
+var SITEURL = "{{URL('/')}}";
+
+$(function() {
+
+    $(document).ready(function()
+
+    {
+
+        var bar = $('.bar');
+
+        var percent = $('.percent');
+
+          $('form').ajaxForm({
+
+            beforeSend: function() {
+
+                var percentVal = '0%';
+
+                bar.width(percentVal)
+
+                percent.html(percentVal);
+
+            },
+
+            uploadProgress: function(event, position, total, percentComplete) {
+
+                var percentVal = percentComplete + '%';
+
+                bar.width(percentVal)
+
+                percent.html(percentVal);
+
+            },
+
+            complete: function(xhr) {
+
+                alert('Study Material has Been Uploaded Successfully');
+
+                window.location.href = SITEURL +"/"+"ajax-file-upload-progress-bar";
+
+            }
+
+          });
+
+    }); 
+
+ });
+
+</script>
+
     @endsection

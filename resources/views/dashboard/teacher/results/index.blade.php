@@ -1,17 +1,18 @@
-@extends('dashboard.teacher.index')
+@extends('dashboard.admin.index')
 @section('title', 'All Results')
 @section('content')
 
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-                @if(session()->get('message'))
-                <div class="alert alert-success" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <strong>Success!</strong> {{ session()->get('message')}}
-                      </div>
-                @endif
-            <h5 class="card-title">All Results</h5>
+            <div lass="card-title">
+                @include('layouts.partials.alerts')
+                <div class="card-header">
+                    <div>
+                        <h5 class="card-title"> All Results for: {{ $program_name }} </h5><br><button class="btn btn-success" id="csv">Export Results</button>
+                    </div>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -19,64 +20,86 @@
                             <th>S/N</th>
                             <th>Date</th>
                             <th>Name</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Score</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th>Cert. Score</th>
+                            <th>C.T. Score</th>
+                            <th>R. Play Score</th>
+                            <th>Email Score</th>
+                            <th>Passmark</th>
+                            <th>T. Score</th>
+                            <th>Facilitator</th>
+                            <th>Grader</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($results as $result)
+                        @foreach($users as $user)
+                        @if($user->passmark)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{ $result->created_at->format('d/m/Y') }}</td>
-                            <td>{{ $result->user->name }}</td>
-                            <td>{{ $result->user->email }}</td>
-                            <td>{{ $result->user->program->p_name }}</td>
-                            <td>{{ $result->total }}</td>
-                            <td style="color:{{ $result->status == 'CERTIFIED' ? 'green' : 'red'}}"><b>{{ $result->status}}</b></td>
+                            <td>{{isset($user->created_at) ? $user->created_at->format('d/m/Y') : ''}}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>
+                            <td>{{ $user->final_ct_score }}%</td>
+                            <td>{{ $user->total_role_play_score }}%</td>
+                            <td>{{ $user->total_email_test_score }}%</td>
+                            <td>{{ $user->passmark }}%</td>
+                            <td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td> 
+                            <th>{{ $user->marked_by }}</th>
+                            <th>{{ $user->grader }}</th>
+                            {{-- <th> {{ $user->cl_module_count}}</th> --}}
+                          
                             <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-primary dropdown-toggle" type="button"
-                                        data-toggle="dropdown">Action
-                                        <span class="caret"></span></button>
-                                    <ul class="dropdown-menu">
+                                @if( $user->result_id )
+                                    <div class="btn-group">
+                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                            class="btn btn-info" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id]) }}"><i
+                                                class="fa fa-eye"></i>
+                                        </a>
 
-                                        <li><i class="far fa-eye"></i><a href="{{ route('results.show', $result->user_id) }}"> View Result</a></li>
-                                        <li><i class="far fa-edit"></i><a href="{{ route('results.edit', $result->user_id) }}"> Edit</a></li>
-                                        <li>
-                                        <form class="delete" action="{{ route('results.destroy', $result->user->id) }}" method="POST">
-                                                <i class="fas fa-trash"></i>
-                                                <input type="hidden" name="_method" value="DELETE">
-                                                {{ csrf_field() }}
-                                                <input type="submit" class="custombutton" value="Delete">
-                                            </form> </li>
-                                    </ul>
-                                </div>
+                                            <form action="{{ route('results.destroy', $user->result_id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                            {{ csrf_field() }}
+                                            {{method_field('DELETE')}}
+                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
+                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                                data-placement="top" title="Delete Result"> <i
+                                                    class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @else
+                                    N/A
+                                @endif
                             </td>
+                            @endif
                             @endforeach
                     </tbody>
-                    <tfoot>
-                        <tr>
-                                <th>S/N</th>
-                                <th>Date</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Training</th>
-                                <th>Score</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                        </tr>
-                    </tfoot>
                 </table>
+               
+                    
+                    {{-- <script type="text/javascript" src="{{ asset('src/jquery-3.3.1.slim.min.js') }}"></script> --}}
+                    
+                    <script type="text/javascript" src="{{ asset('src/jspdf.min.js')}} "></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/jspdf.plugin.autotable.min.js'
+                    )}}"></script>
+                    
+                    <script type="text/javascript" src="{{ asset('src/tableHTMLExport.js')}}"></script>
+                    
+                    <script type="text/javascript">
+                      
+                     
+                      $("#csv").on("click",function(){
+                        $("#zero_config").tableHTMLExport({
+                          type:'csv',
+                          filename:'Results.csv'
+                        });
+                      });
+                    
+                    </script>
             </div>
 
         </div>
     </div>
 </div>
 
-<script>
-    $('#zero_config').DataTable();
-</script>
 @endsection

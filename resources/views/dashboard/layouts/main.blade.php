@@ -16,9 +16,14 @@
     <meta name="author" content="">
     <!--Calender links-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css" />
-    <!--Working Datatables-->
+    <!--Working Datatables-->  
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
-    <!-- Favicon icon -->
+     
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.js"></script>
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}">
     <title>{{ config('app.name') }}</title>
@@ -35,11 +40,6 @@
 
     <!--Include CK Editor-->
     <script src="https://cdn.ckeditor.com/4.14.0/standard-all/ckeditor.js"></script>
-
-    {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
-    {{-- <script src="{{ asset('assets/extra-libs/DataTables/datatables.min.js') }}"></script> --}}
-
-    {{-- <script type="text/javascript" src="{{ asset('assets/libs/exporttable/tableExport.min.js')}}"></script> --}}
     
     <!---Calender scripts-->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -63,6 +63,12 @@
     </script>
 
     <style>
+        .progress2 { position:relative; width:100%; }
+
+        .bar2 { background-color: #00ff00; width:0%; height:20px; }
+
+        .percent2 { position:absolute; display:inline-block !important; left:50%; color: #040608;}
+
         .selecttraining{
             display:none;
         }
@@ -179,6 +185,7 @@
     
     <script src="{{ asset('dist/js/jquery.ui.touch-punch-improved.js') }}"></script>
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
+    
     <!-- Bootstrap tether Core JavaScript -->
     <script src="{{ asset('assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
     <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>

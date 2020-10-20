@@ -11,7 +11,7 @@
                 @if(Auth::user()->isImpersonating() )
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     style="color:yellow !important; font-weight:bolder" href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i class="fa fa-arrow-left"></i><span
-                        class="hide-menu">BAK TO ADMIN</span></a></li>
+                        class="hide-menu">BACK TO ADMIN</span></a></li>
                 @endif
                 @if(Auth::user()->role_id == "Facilitator")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

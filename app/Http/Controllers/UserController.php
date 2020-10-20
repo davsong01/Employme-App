@@ -29,7 +29,7 @@ class UserController extends Controller
        if(Auth::user()->role_id == "Admin"){
          
           return view('dashboard.admin.users.index', compact('users', 'i', 'programs') );
-        }elseif(Auth::user()->role_id == "Teacher"){
+        }elseif(Auth::user()->role_id == "Facilitator"){
            $users = User::where([
             'role_id' => "Student",
             'program_id' => Auth::user()->program_id,

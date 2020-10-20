@@ -9,7 +9,7 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                     </div>
-                    <form action="{{ url('importquestions') }}" method="POST" name="importform" class="pb-2"  enctype="multipart/form-data">
+                    <form action="{{ route('questions.import')}}" method="POST" name="importform" class="pb-2"  enctype="multipart/form-data">
                         {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-12">
@@ -26,6 +26,7 @@
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" value="{{ $p_id  }}" name="p_id">
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">
                                 Submit

@@ -111,9 +111,10 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('earlybirdclose/{id}', 'ProgramController@closeEarlyBird')->name('earlybird.close');
 
     Route::resource('questions', 'QuestionController');
-    Route::get('questionsimport-export', 'QuestionController@importExport')->middleware(['impersonate','auth', 'programCheck']);
+    Route::get('questions/all/{p_id}', 'QuestionController@add')->middleware(['impersonate','auth', 'programCheck'])->name('questions.add');
+    Route::get('questionsimport-export/{p_id}', 'QuestionController@importExport')->middleware(['impersonate','auth', 'programCheck'])->name('questions.import');
     Route::post('import', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
-    Route::post('importquestions', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
+    Route::post('importquestions', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck'])->name('questions.import');
 
     Route::resource('modules', 'ModuleController');
     // Route::post('clonemodule/{mmodule_id}', 'ModuleController@clone')->name('module.showclone');

@@ -48,8 +48,6 @@ class Program extends Model
         return $this->hasMany(Module::class);
     }
     
-
-
     public function questions()
     {
         return $this->hasManyThrough('App\Question', 'App\Module');
