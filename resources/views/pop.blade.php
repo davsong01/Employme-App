@@ -97,7 +97,7 @@ class="active"
                         @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
-                                <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" placeholder="Amount" required>
+                                <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" placeholder="Amount" min=1 required>
                             </div>
                         </div>
                         @if ($errors->has('amount'))
@@ -130,16 +130,21 @@ class="active"
                         @endif
                         
                         <div class="cart-btn d-flex">
+                            @if($locations->count() <= 0)
+                            <input type= 'hidden' name="location" id="location"
                             <div class="col-md-12 mb-3">
+                                @else
                                 <select name="location" id="location" class="form-control">
-                                    <option value="">Select Location (Optional)</option>
-                                    <option value="Abuja">Abuja</option>
-                                    <option value="Ibadan">Ibadan</option>
-                                    <option value="Lagos">Lagos</option>
-                                    <option value="PHC">Port Harcourt</option>
-                                    <option value="Others">Others</option>
+                                    <option value="">-- Select Location --</option>
+                                   @foreach($locations as $location)
+                                        <option value="{{ $location->id }}" {{ old('location') == $location->id ? 'selected' : '' }}>
+                                            {{ $location->title }}
+                                        </option>
+                                    @endforeach
                                 </select>
+                               
                             </div>
+                            @endif
                         </div>
                         @if ($errors->has('location'))
                             <span class="help-block">

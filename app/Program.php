@@ -5,6 +5,7 @@ use App\User;
 use App\Mocks;
 use App\Module;
 use App\Result;
+use App\Location;
 use App\Material;
 use App\ScoreSetting;
 use App\FacilitatorTraining;
@@ -23,13 +24,13 @@ class Program extends Model
         return $this->hasOne(ScoreSetting::class);
     }
 
+    public function locations(){
+        return $this->hasMany(Location::class);
+    }
+
     public function users(){
         return $this->belongsToMany(User::class)->withPivot('t_amount', 'invoice_id', 'balance', 'transid');
     }
-
-    // public function users(){
-    //     return $this->hasMany(User::class)->withPivot('t_amount', 'invoice_id', 'balance', 'transid');
-    // }
 
     //Create relationship between this model and the materials model
     public function materials(){

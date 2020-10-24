@@ -27,7 +27,7 @@
                                       
                                         @foreach ($programs as $program)
                                         
-                                            @if($program->counter == 0 && $program->settings_count == 0)
+                                            @if($program->scoresettings_count <= 0)
                                                 <option value="{{ $program->id }}">{{$program->p_name}}</option>
                                             @endif
                 

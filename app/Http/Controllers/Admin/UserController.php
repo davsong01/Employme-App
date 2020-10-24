@@ -6,14 +6,15 @@ use DB;
 use PDF;
 use App\User;
 use App\Program;
+use App\Location;
 use App\Mail\Email;
 use App\UpdateMails;
 use App\Mail\Welcomemail;
-use Illuminate\Http\Request;
 use App\Exports\UsersExport;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
@@ -22,10 +23,10 @@ class UserController extends Controller
     public function index()
     {
 
-        $i = 1;
-        //$users = User::all();
+       $i = 1;
+
        $users = User::where('role_id', 'Student')->orderBy('created_at', 'DESC')->get();
-       //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
+      
        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
        if(Auth::user()->role_id == "Admin"){
          
@@ -47,12 +48,12 @@ class UserController extends Controller
     
 
             $users = User::orderBy('created_at', 'DESC');
-
+            $locations = Location::select('title')->distinct()->orderBy('created_at', 'DESC')->get();
             $user = User::all();
 
             $programs =  Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
 
-            return view('dashboard.admin.users.create', compact('users', 'user', 'programs'));
+            return view('dashboard.admin.users.create', compact('users', 'user', 'programs', 'locations'));
     }return back();
 }
 
@@ -253,9 +254,17 @@ class UserController extends Controller
 
     public function mails(){
         $i = 1;
-        $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
+        $programs = Program::withCount('users')->where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
+        $users = DB::table('program_user')->select('user_id')->orderby('created_at', 'DESC')->get();
+      
+        foreach($users as $user){
+            $details = User::select('name', 'email')->whereId($user->user_id)->get();
+            $user->name = $details->pluck('name')[0];
+            $user->email = $details->pluck('email')[0];
+        }
+
         $updateemails = UpdateMails::orderby('created_at', 'DESC')->get();
-        return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i') );
+        return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i', 'users') );
     }
 
     public function emailHistory($id){
@@ -264,26 +273,42 @@ class UserController extends Controller
         return view('dashboard.admin.users.emailhistory', compact('email') );
     }
     public function sendmail(Request $request){
-     
+        
         $data = $this->validate($request, [
-            'program' => 'required | numeric',
+            'type' => 'required | alpha',
             'subject' => 'required | min: 5',
-            'content' => 'required | min: 10'
+            'content' => 'required | min: 10',
+            'selectedemail' => 'nullable',
+            'program' => 'nullable'
         ]);
 
-        $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
         $data = $request->content;
         $subject = $request->subject;
-        // dd($recipients);'
         $name = auth()->user()->name;
-        Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
-        foreach($recipients as $recipient){
-            $name = User::whereId($recipient->user_id)->value('name');
-            $recipient->email = User::whereId($recipient->user_id)->value('email');
-       
-            Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
+
+        if($request->has('selectedemail')){
+            $recipients = $request->selectedemail;
+            $program = 'Selected Recipients';
+            Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+            foreach($recipients as $recipient){
+                $name = User::whereEmail($recipient)->value('name');
+                Mail::to($recipient)->send(new Email($data, $name, $subject));       
+            }
         }
-      
+
+        if($request->has('program')){
+            $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
+            $program = Program::where('id', $request->program )->value('p_name');
+            Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+            foreach($recipients as $recipient){
+                $name = User::whereId($recipient->user_id)->value('name');
+                $recipient->email = User::whereId($recipient->user_id)->value('email');
+        
+                Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
+            }
+          
+        }
+        
         if( count(Mail::failures()) > 0 ) {
             $error = array('The following emails were not sent:');
             
@@ -293,22 +318,21 @@ class UserController extends Controller
             //return view with error
             return back()->with('error', $error);
 
-            } else {
-                $message =  "All ". count($recipients). " emails were successfully sent!";
+        } else {
+            $message =  "All ". count($recipients). " emails were successfully sent!";
 
-                UpdateMails::create([
-                    'sender' => Auth::user()->name,
-                    'program' => Program::where('id', $request->program )->value('p_name'),
-                    'subject' => $request->subject,
-                    'content' => $request->content,
-                    'noofemails' => count($recipients),
-                ]);
+            UpdateMails::create([
+                'sender' => Auth::user()->name,
+                'program' => $program,
+                'subject' => $request->subject,
+                'content' => $request->content,
+                'noofemails' => count($recipients),
+            ]);
 
-                //return view with success
-                return back()->with('message', $message);
-            } 
+            //return view with success
+            return back()->with('message', $message);
+        } 
     }
-    // return view('dashboard.admin.users.email', compact('programs') );
 
     public function export() 
     {

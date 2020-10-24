@@ -101,6 +101,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
+    Route::resource('locations', 'LocationController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use DB;
 use PDF;
+use App\Pop;
 use App\Role;
 use App\User;
 use App\Program;
@@ -22,15 +23,22 @@ class PaymentController extends Controller
     public function index()
     {
         $i = 1;
-        $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')->get();
-
-        foreach($transactions as $transaction){
-            $transaction->details = User::select('name', 'email')->where('id', $transaction->user_id)->first(); 
-            $transaction->program = Program::select('p_name')->where('id', $transaction->program_id)->first();
-        }
 
         if(Auth::user()->role_id == "Admin"){
-          return view('dashboard.admin.payments.index', compact('transactions', 'i') );
+            $transactions = DB::table('program_user')->orderBy('id', 'ASC')->get();
+
+            $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
+
+            $i = 1;
+
+            foreach($transactions as $transaction){
+                $transaction->name = User::where('id', $transaction->user_id)->value('name'); 
+                $transaction->email = User::where('id', $transaction->user_id)->value('email'); 
+                $transaction->program = Program::select('p_name')->where('id', $transaction->program_id)->first();
+            }
+// dd($transactions);
+        
+          return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 
         }
         if(Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader"){

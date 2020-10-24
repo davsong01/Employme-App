@@ -6,6 +6,7 @@ use App\User;
 use App\Program;
 use App\Certificate;
 use Illuminate\Http\Request;
+use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,19 +18,23 @@ class CertificateController extends Controller
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
 
-            $certificates = Certificate::with('user')->orderBy('created_at', 'desc')->get();
-
-            $programs = Program::where('id', '<>', 1)->get();
+            $certificates = Certificate::with(['user', 'program'])->orderBy('created_at', 'desc')->get();
             
-            return view('dashboard.admin.certificates.index', compact('programs', 'i', 'certificates'));
+            return view('dashboard.admin.certificates.index', compact('i', 'certificates'));
 
         }
         
-        if(Auth::user()->role_id == "Student"){       
+        if(Auth::user()->role_id == "Student"){    
+            
+                $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+                $program = Program::find($request->p_id);  
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get view/download certificate');
+                }
 
-                $certificates = Certificate::with('user')->where('user_id', Auth::user()->id)->first();
+                $certificate = Certificate::with(['program', 'user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
 
-                return view('dashboard.student.certificates.index', compact('certificates'));
+                return view('dashboard.student.certificates.index', compact('certificate', 'program'));
 
         }return back();
     }
@@ -38,7 +43,7 @@ class CertificateController extends Controller
     {
         if(Auth::user()->role_id == "Admin"){
             
-            $programs = Program::select('id', 'p_name')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            $programs = Program::withCount('users')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
 
             return view('dashboard.admin.certificates.create', compact('programs'));
         }
@@ -48,20 +53,27 @@ class CertificateController extends Controller
     {
         if(Auth::user()->role_id == "Admin"){
       
-            $users = User::where('program_id', $request->program_id)->where('role_id', 'Student')->get();
-            
-                return view('dashboard.admin.certificates.createcert', compact('users'));
-    
-                }return back();
+            $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
+            foreach($users as $user){
+                $user->name = User::whereId($user->user_id)->value('name');
+                $user->certificates_count = Certificate::whereUserId($user->user_id)->whereProgramId($request->program_id)->count();
+            }
+
+            $p_id = $request->program_id;
+
+            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id'));
+
+            }return back();
     }
 
     public function save(Request $request)
     {
         if(Auth::user()->role_id == "Admin"){
-      
+
             $data = $this->validate($request, [
                 'user_id' => 'required',
                 'certificate' => 'required | max:3048 | mimes:pdf,doc,docx,jpg,jpeg,png',
+                'p_id' => 'required'
             ]);
             
             $file = $data['certificate'];
@@ -71,6 +83,7 @@ class CertificateController extends Controller
             certificate::create([
                 'user_id' =>  $request->user_id,
                 'file' => $file->getClientOriginalName(),
+                'program_id' => $request->p_id,
             ]);
             return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
         } return abort(404);

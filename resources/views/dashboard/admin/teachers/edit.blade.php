@@ -87,8 +87,6 @@
                             </button>
                         </div>
                         {{ csrf_field() }}
-                            
-                                
                 </div>
             </div>
         </div>

@@ -40,7 +40,6 @@
                                     <label for="role">Role *</label>
                                     <select name="role" id="role" class="form-control" >
                                         <option value="">Assign Role</option>
-                                     
                                         <option value="Facilitator" {{ old('role') == 'Facilitator' ? 'selected' : '' }}>Facilitator</option>
                                         <option value="Grader" {{ old('role') == 'Grader' ? 'selected' : '' }}>Grader</option>
                                         <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>

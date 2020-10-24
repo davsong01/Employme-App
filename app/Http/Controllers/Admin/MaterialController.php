@@ -22,7 +22,6 @@ class MaterialController extends Controller
         $userid = Auth::user()->id;
         $i = 1;
         
-        
         if(Auth::user()->role_id == "Admin"){
             
             $materials = Material::with('program')->orderBy('created_at', 'desc')->get();

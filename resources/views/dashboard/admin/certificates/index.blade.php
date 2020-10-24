@@ -26,10 +26,10 @@
                     <tbody>
                         @foreach($certificates as $certificate)
                         <tr>
-                            <td>{{  $i++ }}</td>
-                            <td>{{ $certificate->user->name }}</td>
+                            <td>{{ $i++ }}</td>
+                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }}</td>
                             <td>{{ $certificate->created_at->format('d/m/Y') }}</td>
-                            <td>{{ isset($certificate->user->program->id) ? $certificate->user->program->p_name: "Program has been trashed" }}</td>
+                            <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Download certificate"

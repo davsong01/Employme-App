@@ -20,7 +20,7 @@
                                     <label for="name">Name</label>
 
                                     <input id="name" type="text" class="form-control" name="name"
-                                        value="{{ old('name')}}" autofocus>
+                                        value="{{ old('name')}}" autofocus required>
 
                                     @if ($errors->has('name'))
 
@@ -39,7 +39,7 @@
                                     <label for="email">E-Mail Address</label>
 
                                     <input id="email" type="email" class="form-control" name="email"
-                                        value="{{ old('email') }}">
+                                        value="{{ old('email') }}" required>
 
                                     @if ($errors->has('email'))
 
@@ -58,7 +58,7 @@
                                     <label for="phone">Phone</label>
 
                                     <input id="phone" type="text" class="form-control" name="phone"
-                                        value="{{ old('phone')}}" autofocus>
+                                        value="{{ old('phone')}}" autofocus required>
 
                                     @if ($errors->has('phone'))
 
@@ -75,18 +75,20 @@
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
 
                                     <label for="location">Location </label>
+                                    <select name="location" id="location" class="form-control">
 
-                                    <input id="location" type="text" class="form-control" name="location"
-                                        value="{{ old('location')}}" autofocus>
+                                        <option value="">-- Select Option --</option>
+                                        @foreach( $locations as $location )
+                                        <option value="{{ $location->id }}" {{ old('location') == $location->id ? 'selected' : '' }}>
+                                            {{ $location->title }}
+                                        </option>
+                                        @endforeach
 
+                                    </select>
                                     @if ($errors->has('location'))
-
                                     <span class="help-block">
-
                                         <strong>{{ $errors->first('location') }}</strong>
-
                                     </span>
-
                                     @endif
 
                                 </div>
@@ -122,7 +124,7 @@
 
                                         @foreach ($programs as $program)
 
-                                        <option value="{{ $program->id }}" {{ old('training') == $program->id ? 'selected' : '' }}>
+                                        <option value="{{ $program->id }}" {{ old('training') == $program->id ? 'selected' : '' }} required>
 
                                             {{$program->p_name}}</option>
 
@@ -151,11 +153,9 @@
                                     <label>Amount Paid *</label>
 
                                     <input type="number" name="amount" value="{{ old('amount') }}" min="0"
-                                        class="form-control">
+                                        class="form-control" required>
 
                                 </div>
-
-                                <!--Gives the first error for input name-->
 
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
 
@@ -163,7 +163,7 @@
 
                                     <label>Bank *</label>
 
-                                    <input type="text" name="bank" value="{{ old('bank') }}" class="form-control">
+                                    <input type="text" name="bank" value="{{ old('bank') }}" class="form-control" required>
 
                                 </div>
 

@@ -21,19 +21,32 @@
                 {{ csrf_field() }}
                 <div class="row">
                     <div class="col-md-12">
-                        <p>Please select a program and type in the content of the mail you want to send, then click send
-                            button to email all the participants of that program</p>
+                        <p>Please select an email type and type in the content of the mail you want to send, the content and then the send button</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div
-                            class="form-group{{ $errors->has('program') ? ' has-error' : '' }}">
+                        <div class="form-group type">
+                            <label>Select Type</label>
+                            <select name="type" id="type" class="form-control custom-select-value" required>
+                                <option value="">Choose option</option>
+                                <option value="bulk">Program Participants</option>
+                                <option value="selected">Selected Participants</option>
+                            </select>
+                            @if($errors->has('type'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('type') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+                        <div class="form-group bulkemail">
                             <label>Choose Program</label>
-                            <select name="program" id="program" class="form-control custom-select-value" required>
+                            <select name="program" id="program" class="form-control custom-select-value">
                                 <option value="">Choose option</option>
                                 @foreach($programs as $program)
-                                    <option value="{{ $program->id }}">{{ $program->p_name }}</option>
+                                    @if($program->users_count > 0)
+                                    <option value="{{ $program->id }}">{{ $program->p_name }} ({{ $program->users_count }})</option>
+                                    @endif
                                 @endforeach
                             </select>
                             @if($errors->has('program'))
@@ -42,7 +55,21 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="form-group{{ $errors->has('subject') ? ' has-error' : '' }}">
+                        <div class="form-group selectedemail">
+                            <label>Select recipients</label>
+                            <select name="selectedemail[]" id="selectedemail" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
+                                <option value="">Choose option</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->email }}">{{ $user->email }} ( {{ $user->name }} )</option>
+                                @endforeach
+                            </select>
+                            @if($errors->has('selectedemal'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('selectedemail') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+                        <div class="form-group">
 
                             <label for="subject">Subject</label>
 
@@ -143,7 +170,27 @@
 <script src="https://cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.replace('summary-ckeditor');
-</script>
+    
+    var program = $('#program');
+    var selectedemail = $('#selectedemail');
 
+    $('#type').on('change', function(){
+        console.log($('#type').val());
+            
+            if($('#type').val()=='bulk' ){
+                $('.bulkemail').css('display','block');
+                program.attr('required', true);
+                $('.selectedemail').css('display','none');
+                selectedemail.attr('required', false);
+                
+                
+            }else if($('#type').val()=='selected'){
+                $('.selectedemail').css('display','block');
+                selectedemail.attr('required', true);
+                $('.bulkemail').css('display','none');
+                program.attr('required', false);
+            }
+    });
 
+</script> 
 @endsection

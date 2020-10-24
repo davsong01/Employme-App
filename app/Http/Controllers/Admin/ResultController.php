@@ -30,6 +30,10 @@ class ResultController extends Controller
             $programs = Program::whereHas('results', function ($query) {
                     return $query->orderby('created_at', 'DESC');
             })->get();
+
+            foreach($programs as $program){
+                $program['result_count'] = Result::whereProgramId($program->id)->count();
+            }
         }
         
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
@@ -44,7 +48,7 @@ class ResultController extends Controller
                 }
             }
         }
-        
+
         return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
     }
 
@@ -303,7 +307,15 @@ class ResultController extends Controller
 
     public function show($id, Request $request)
     {    
-        if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){   
+        if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){ 
+            
+            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            
+            if($user_balance->balance > 0){
+                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to view results');
+            }
+
+
             $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();    
             $program = Program::find($request->p_id);
 
@@ -366,9 +378,9 @@ class ResultController extends Controller
                     $details['status'] = 'CERTIFIED';
                 }else $details['status'] = 'NOT CERTIFIED';         
                 
-               
                 return view('dashboard.admin.results.show', compact('details', 'program'));   
             } 
+
             return redirect('/dashboard')->with('error', 'Result not found for current user, please try again later');
         }
         elseif(Auth::user()->role_id == "Teacher"){   

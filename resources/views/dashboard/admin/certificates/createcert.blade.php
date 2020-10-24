@@ -23,8 +23,8 @@
                             <select name="user_id" id="user_id" class="form-control" required>
                                 <option value=""></option>
                                 @foreach ($users as $user)
-                                    @if(!isset($user->certificate))
-                                        <option value="{{ $user->id }}">{{$user->name}}</option>
+                                    @if($user->certificates_count <= 0))
+                                        <option value="{{ $user->user_id }}">{{$user->name}}</option>
                                     @endif
                                 @endforeach
                             </select>
@@ -36,8 +36,9 @@
                             </div>
                             <div><small style="color:red">{{ $errors->first('certificate')}}</small></div>
                         </div>
-
-                        <input type="submit" class="btn btn-primary" style="width:100%">
+                        <input type="hidden" value="{{ $p_id }}" name="p_id">
+                       
+                        <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
                     </form>
                 </div>
             </div>

@@ -24,7 +24,6 @@ class Email extends Mailable
         
         return $this->markdown('emails.email')
         ->subject($this->subject);
-       // ->attachData($pdf->output(), "invoice.pdf");
     }
   
 }

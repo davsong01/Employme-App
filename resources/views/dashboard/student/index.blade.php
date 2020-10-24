@@ -22,8 +22,10 @@
                     class="far fa-money-bill-alt"></i><span class="hide-menu">Payment History
                 </span></a>
                 </li>
+               
             </ul>
         </nav>
     </div>
 </aside>
 @endsection
+

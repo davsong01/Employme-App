@@ -147,7 +147,7 @@ class TestsController extends Controller
             
             $i = 1;
             $program = Program::find($request->p_id);
-            
+            $hasmock = $program->hasmock;
             $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
 
                 if($user_balance->balance > 0){
@@ -167,7 +167,7 @@ class TestsController extends Controller
 
             $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();   
             $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();               
-            return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results') );
+            return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results', 'hasmock') );
           }
     }
 

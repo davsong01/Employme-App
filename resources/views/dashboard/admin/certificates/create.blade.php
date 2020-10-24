@@ -21,12 +21,12 @@
 
                             <select name="program_id" id="program_id" class="form-control" required>
 
-                                <option value=""></option>
+                                <option value="">-- Select Training --</option>
 
                                 @foreach ($programs as $program)
-
+                                @if($program->users_count)
                                 <option value="{{ $program->id }}">{{$program->p_name}}</option>
-
+                                @endif
                                 @endforeach
                             </select>
                             <div><small style="color:red">{{ $errors->first('program_id')}}</small></div>

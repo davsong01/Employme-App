@@ -25,7 +25,7 @@
                 </div>
             </a>
         </div>
-        
+                
         <div class="col-md-6 col-lg-6">
             <a href="{{ route('payments.index') }}">
                 <div class="card card-hover">

@@ -17,7 +17,7 @@
     <!--Calender links-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css" />
     <!--Working Datatables-->  
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
      
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
 
@@ -68,10 +68,19 @@
         .bar2 { background-color: #00ff00; width:0%; height:20px; }
 
         .percent2 { position:absolute; display:inline-block !important; left:50%; color: #040608;}
-
+        
         .selecttraining{
             display:none;
         }
+
+        .selectedemail{
+            display:none;
+        }
+
+        .bulkemail{
+            display:none;
+        }
+
         .trix-toolbar .trix-button-row {
             display: flex;
             flex-wrap: wrap !important;
@@ -202,7 +211,8 @@
     {{-- <script src="{{ asset('assets/libs/moment/min/moment.min.js') }}../"></script> --}}
     <script src="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.js') }}"></script>
     <script src="{{ asset('dist/js/pages/calendar/cal-init.js') }}"></script>
-    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+
 
     <!--Script for States and LGA Dropdown-->
     <script src="{{asset('dist/js/lga.min.js')}}"></script>
@@ -213,13 +223,18 @@
     <script src="{{ asset('assets/libs/select2/dist/js/select2.min.js') }}"></script>
         
     <script>
-        $('#zero_config').DataTable();
+        $('#zero_config').DataTable({
+             "pageLength": 50
+        });
         // For select 2
         //***********************************//
         $(".select2").select2();
+        
+        
+        $(document).ready( function () {
+        $('#myTable').DataTable();
+        } );
 
-    </script>
-    <script>
         $(".delete").on("submit", function () {
             return confirm("Are you sure?");
         });

@@ -6,6 +6,7 @@ use PDF;
 use App\Pop;
 use App\User;
 use App\Program;
+use App\Location;
 use App\Mail\POPemail;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
@@ -29,8 +30,11 @@ class PopController extends Controller
 
     public function create(){
         $trainings = Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
-
-        return view('pop')->with('trainings', $trainings);
+        $locations = Location::select('title')->distinct()->get();
+        
+        return view('pop')
+            ->with('trainings', $trainings)
+            ->with('locations', $locations);
     }
 
     public function store(Request $request){
@@ -69,7 +73,7 @@ class PopController extends Controller
         
         }catch(\Exception $e) 
         {
-            return back()->with('error', 'You cannot upload proof of payment twice. Your email already exist');
+            return back()->with('error', 'You cannot upload proof of payment twice. Your email exists in the Proof of payment list');
         }  
          //Prepare Attachment
             $data['pop'] = base_path() . '/uploads'.'/'. $filePath;

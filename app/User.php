@@ -35,10 +35,6 @@ class User extends Authenticatable
             return $this->hasMany(Complain::class);
         }
 
-        public function certificate(){
-            return $this->hasOne(Certificate::class);
-        }
-
         public function certificates(){
             return $this->hasMany(Certificate::class);
         }

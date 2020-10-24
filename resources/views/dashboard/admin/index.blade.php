@@ -49,11 +49,13 @@
                             class="hide-menu">Training Management </span></a>
                     <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
                         <li class="sidebar-item"><a href="{{route('programs.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- View all Trainings </span></a>
+                                class="hide-menu">- View all Trainings </span></a>
                         </li>
-
+                        <li class="sidebar-item"><a href="{{route('locations.index')}}" class="sidebar-link"><span
+                                class="hide-menu">- Training Locations </span></a>
+                        </li>
                         <li class="sidebar-item"><a href="{{route('programs.trashed')}}" class="sidebar-link"><span
-                                    class="hide-menu">- Trashed Programs </span></a>
+                                class="hide-menu">- Trashed Trainings </span></a>
                         </li>
 
                     </ul>

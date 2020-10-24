@@ -39,14 +39,14 @@
                 <li class="sidebar-item"><a href="{{ route('tests.results', ['p_id' => $program->id])}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">My Completed Tests</span></a>
                 </li>
-                @if($program->hasresult == 1)
+                {{-- @if($program->hasresult == 1) --}}
                 <li class="sidebar-item"><a href="{{ route('results.show', ['id' => Auth::user()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i
                             class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
-                @endif
+                {{-- @endif --}}
                 
-                @if(auth()->user()->certificate)
+                @if(auth()->user()->certificates->count() > 0 )
                 <li class="sidebar-item"><a href="{{ route('certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                             class="fas fa-certificate"></i><span class="hide-menu">My Certificate
                     </span></a>

@@ -76,16 +76,20 @@
                             </span>
                         @endif
 
+                        @if($locations->count() <= 0)
+                        <input type= 'hidden' name="location" id="location"
+                        @else
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
                                 <select name="location" id="location" class="form-control">
                                     <option value="">Select Location (Optional)</option>
-                                    <option value="Abuja">Abuja</option>
-                                    <option value="Ibadan">Ibadan</option>
-                                    <option value="Lagos">Lagos</option>
-                                    <option value="PHC">Port Harcourt</option>
-                                    <option value="Others">Others</option>
+                                    @foreach($locations as $location)
+                                        <option value="{{ $location->id }}" {{ old('location') == $location->id ? 'selected' : '' }}>
+                                            {{ $location->title }}
+                                        </option>
+                                    @endforeach
                                 </select>
+                                {{-- @endif --}}
                             </div>
                         </div>
                         @if ($errors->has('location'))
@@ -93,7 +97,7 @@
                                 <strong>{{ $errors->first('location') }}</strong>
                             </span>
                         @endif
-                       
+                        @endif
                         <div class="cart-btn d-flex">
                             <div class="col-md-12 mb-3">
                                 <input type="text" class="form-control" id="name" name="name" 
