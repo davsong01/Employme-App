@@ -73,8 +73,8 @@
                             </div>
                             <label>Status</label>
                             <select name="status" class="form-control" id="hasmock" required>
-                                <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Published</option>
-                                <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Draft</option>
+                                <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Published</option>
+                                <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Draft</option>
                             </select>
                             </div>
                             <small style="color:red">{{ $errors->first('p_end')}}</small>

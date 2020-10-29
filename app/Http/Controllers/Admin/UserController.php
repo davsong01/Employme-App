@@ -162,9 +162,9 @@ class UserController extends Controller
             'invoice_id' =>  $invoice_id,
         ];
 
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
         // return view('emails.receipt', compact('data', 'details'));
-        Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+        // Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
         
         return back()->with('message', 'Student added succesfully'); 
       
@@ -281,11 +281,11 @@ class UserController extends Controller
             'selectedemail' => 'nullable',
             'program' => 'nullable'
         ]);
-
+        
         $data = $request->content;
         $subject = $request->subject;
         $name = auth()->user()->name;
-
+        
         if($request->has('selectedemail')){
             $recipients = $request->selectedemail;
             $program = 'Selected Recipients';
@@ -306,7 +306,6 @@ class UserController extends Controller
         
                 Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
             }
-          
         }
         
         if( count(Mail::failures()) > 0 ) {
@@ -345,12 +344,14 @@ class UserController extends Controller
             return 'Full payment';
         }return 'Part payment';
     }
+
     //return payment status
     private function paymentStatus($balance){
         if($balance <= 0){
             return 1;
         }return 0;
     }
+    
     //return message for if earlybird is not checked
     private function dosubscript2($balance){
         if($balance <= 0){

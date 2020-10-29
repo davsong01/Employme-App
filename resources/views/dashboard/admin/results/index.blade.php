@@ -20,14 +20,14 @@
                             <th>S/N</th>
                             <th>Date</th>
                             <th>Name</th>
-                            <th>Cert. Score</th>
-                            <th>C.T. Score</th>
-                            <th>R. Play Score</th>
-                            <th>Email Score</th>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
+                            @if(auth()->user()->role_id == 'Admin')<th>C.T. Score</th>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>R. Play Score</th>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>Email Score</th>@endif
                             <th>Passmark</th>
-                            <th>T. Score</th>
-                            <th>Facilitator</th>
-                            <th>Grader</th>
+                            @if(auth()->user()->role_id == 'Admin')<th>T. Score</th>@endif
+                           <th>Facilitator</th>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Grader</th>@endif
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -36,16 +36,16 @@
                         @if($user->passmark)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{isset($user->created_at) ? $user->created_at->format('d/m/Y') : ''}}</td>
+                            <td>{{isset($user->updated_at) ? $user->updated_at->format('d/m/Y') : ''}}</td>
                             <td>{{ $user->name }}</td>
-                            <td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>
-                            <td>{{ $user->final_ct_score }}%</td>
-                            <td>{{ $user->total_role_play_score }}%</td>
-                            <td>{{ $user->total_email_test_score }}%</td>
+                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>@endif
+                            @if(auth()->user()->role_id == 'Admin')<td>{{ $user->final_ct_score }}%</td>@endif
+                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_role_play_score }}%</td>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_email_test_score }}%</td>@endif
                             <td>{{ $user->passmark }}%</td>
-                            <td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td> 
-                            <th>{{ $user->marked_by }}</th>
-                            <th>{{ $user->grader }}</th>
+                            @if(auth()->user()->role_id == 'Admin')<td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>@endif
+                           <th>{{ $user->marked_by }}</th>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                           
                             <td>

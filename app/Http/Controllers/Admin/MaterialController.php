@@ -157,7 +157,10 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        return view('dashboard.admin.materials.edit')->with('material', $material)->with('programs', Program::orderBy('created_at', 'desc')->get());
+
+        $programs = Program::orderBy('created_at', 'desc')->where('id', '<>', $material->program_id)->where('id', '<>', 1)->get();
+
+        return view('dashboard.admin.materials.edit')->with('material', $material)->with('programs', $programs);
     }
 
     public function edit($id)

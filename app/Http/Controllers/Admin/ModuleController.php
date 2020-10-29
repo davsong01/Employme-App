@@ -206,7 +206,7 @@ class ModuleController extends Controller
 
     public function update(Request $request, Module $module)
     {
-        dd($request->all());
+
         if($request->type == 0){
             $type = 0;
         }

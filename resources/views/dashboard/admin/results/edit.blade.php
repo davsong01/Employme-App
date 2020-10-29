@@ -34,24 +34,30 @@
                                 <small><small style="color:red">{{ $errors->first('passmark')}}</small></small>
                             </div>
 
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
                             <div class="col-md-6">
+                                
                                <h6 style="color:red">Add Email and Role play scores here</h6>
-                                <div class="form-group">
+                               <div class="form-group">
                                     <label>Email Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->email }})</span></label>
-                                    <input type="number" name="emailscore" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('emailscore') ?? $user_results->email_test_score }}" class="form-control"
+                                    <input type="number" name="emailscore" value="{{ old('emailscore') ?? $user_results->email_test_score }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->email }}">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                                 <div class="form-group">
                                     <label>Role Play Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->role_play }})</span></label>
-                                    <input type="number" {{ (Auth::user()->role_id == "Grader") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
+                                    <input type="number" name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
                                         class="form-control" min="0" max="{{$user_results->program->scoresettings->role_play }}" required>
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
                             </div>
+                            @endif
+                            
                         </div>
+                       
                         <div class="row">
                             <div class="col-md-12">
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                 <h6 style="color:red">Certificate Test Submision</h6>
                                 <p>Please go through this user's attempt and grade user with the grade box below</p>
                                 @foreach ($array as $key => $value) 
@@ -63,14 +69,20 @@
                                     </div>
                                 </div>
                                 @endforeach
+                                
                                 <h6 style="color:red">Now, score this candidate's certification test: </h6>
                                 <div class="form-group">
                                     <label><span style="color:green">(Max score = {{$user_results->program->scoresettings->certification}})</span></label>
                                     <input type="number" name="certification_score" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('certification_score') ?? $user_results->certification_test_score }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->certification}}">
                                 </div>
+                                @else
+                                <input type="hidden" value="{{ $user_results->certification_test_score }}" name="certification_score">
+                                @endif
                             </div>
                         </div>
+                        
+                       
                         <div class="row">
                             
                             <button type="submit" class="btn btn-primary"

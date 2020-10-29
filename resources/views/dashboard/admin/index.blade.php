@@ -18,6 +18,11 @@
                     href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                         class="hide-menu">Facilitator Dashboard</span></a></li>
                 @endif
+                 @if(Auth::user()->role_id == "Grader")
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
+                        class="hide-menu">Grader Dashboard</span></a></li>
+                @endif
                 @if(Auth::user()->role_id == "Admin")
                
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

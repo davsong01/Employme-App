@@ -247,14 +247,12 @@ class MockController extends Controller
                            
                         } 
                         $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
-
-                        
-                    $program_name = Program::whereId($request->pid)->value('p_name');
             
-                }
-               
+                    }
+      
             }
-
+            
+            $program_name = Program::whereId($request->pid)->value('p_name');
             return view('dashboard.admin.mocks.index', compact('users', 'i', 'program_name') );
         }
     }

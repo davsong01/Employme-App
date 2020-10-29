@@ -34,12 +34,15 @@ class ResultController extends Controller
             foreach($programs as $program){
                 $program['result_count'] = Result::whereProgramId($program->id)->count();
             }
+
+            return view('dashboard.admin.results.selecttraining', compact('programs', 'i'));
+  
         }
         
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
   
-            $programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-
+            $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
+            
             if($programs->count() > 0){
                 foreach($programs as $program){
                     $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
@@ -88,7 +91,7 @@ class ResultController extends Controller
 
                     foreach($results as $result){                      
                         $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score; 
-                        $user->created_at = $result->created_at; 
+                        $user->updated_at = $result->updated_at; 
                         $user->marked_by = $result->marked_by;
                         $user->grader = $result->grader;
                         $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
@@ -128,15 +131,14 @@ class ResultController extends Controller
                     }     
             }
             $program_name = Program::whereId($request->pid)->value('p_name');
-            
 
             return view('dashboard.admin.results.index', compact('users', 'i', 'program_name') );
         }
             
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-
+            
             $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
-       
+            
             foreach($users as $user){
                 $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
                 
@@ -148,7 +150,7 @@ class ResultController extends Controller
                     $user->program_id = $request->pid;
                     $user->program_ct_score_settings = 0;
                     $user->passmark = 0; 
-                    $user->created_at = NULL;
+                    $user->updated_at = NULL;
                     $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->count(); 
                     $user->marked_by = '';
                     $user->grader = '';
@@ -164,7 +166,7 @@ class ResultController extends Controller
 
                     foreach($results as $result){                      
                         $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score; 
-                        $user->created_at = $result->created_at; 
+                        $user->updated_at = $result->updated_at; 
                         $user->marked_by = $result->marked_by;
                         $user->grader = $result->grader;
                         $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
@@ -205,7 +207,6 @@ class ResultController extends Controller
             }
             $program_name = Program::whereId($request->pid)->value('p_name');
             
-
             return view('dashboard.admin.results.index', compact('users', 'i', 'program_name') );
         }
         
@@ -230,39 +231,11 @@ class ResultController extends Controller
 
     public function store(Request $request)
     {
-        // $data = request()->validate([
-        //     'id' => 'required',
-        //     'program_id' => 'required',
-        //     'workbookscore' => 'required|numeric|min:0|max:35',
-        //     'emailscore' => 'required|numeric|min:0|max:20',
-        //     'roleplayscore' => 'required|numeric|min:0|max:25',
-        //     'certificationscore' => 'required|numeric|min:0|max:20',
-        //     'passmark' => 'required|numeric|min:50|max:100',
-        //     'id' => 'required',
-        // ]);
-        // $total = $data['workbookscore'] + $data['emailscore'] + $data['roleplayscore'] + $data['certificationscore'];
-        // $passmark = $data['passmark'];
-        // $status = $this->certification($total, $passmark);
 
-        // Result::create([
-        //     'user_id' => $data['id'],
-        //     'program_id' => $data['program_id'],
-        //     'workbookscore' => $data['workbookscore'],
-        //     'emailscore' => $data['emailscore'],
-        //     'roleplayscore' => $data['roleplayscore'],
-        //     'certificationscore' => $data['certificationscore'],
-        //     'passmark' => $data['passmark'],
-        //     'total' => $total,
-        //     'status' => $status,
-        // ]);
-
-        // DB::table('users')
-        //     ->where("id", '=', $data['id'])
-        //     ->update(['hasResult'=> '1']);
-        // return back()->with('message', 'Result saved');
     }
 
     public function add($uid, $modid){
+        
         $user_results = Result::with(['program', 'user'])->where('id', $modid)->where('user_id', $uid)->first();
 
         $i = 1;
@@ -393,13 +366,25 @@ class ResultController extends Controller
     
     public function update(Result $result, Request $request)
     { 
+
         try{
             if(Auth::user()->role_id == 'Facilitator'){
                 $marked_by = Auth::user()->name;
                 $roleplayscore = $request->roleplayscore;
+                $email_test_score = $request->emailscore;
+                
                 $grader = $result->grader;
-                $email_test_score = $result->email_test_score;
                 $certification_score = $result->certification_test_score;
+            }
+
+            if(Auth::user()->role_id == 'Grader'){
+                $marked_by = $result->marked_by;
+                $certification_score = $request->certification_score;
+
+                $roleplayscore = $result->role_play_score;
+                $grader = Auth::user()->name;
+                $email_test_score = $result->emailscore;
+                
             }
             
             if(Auth::user()->role_id == 'Admin'){
@@ -411,14 +396,6 @@ class ResultController extends Controller
                 $certification_score = $request->certification_score;
             }
 
-            if(Auth::user()->role_id == 'Grader'){
-                $marked_by = $result->marked_by;
-                $roleplayscore = $result->role_play_score;
-                $grader = Auth::user()->name;
-                $email_test_score = $request->emailscore;
-                $certification_score = $request->certification_score;
-            }
-            
             $result->marked_by = $marked_by;
             $result->grader = $grader;
             $result->certification_test_score = $certification_score;
