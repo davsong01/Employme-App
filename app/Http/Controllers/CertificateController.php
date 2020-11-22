@@ -33,7 +33,7 @@ class CertificateController extends Controller
                 }
 
                 $certificate = Certificate::with(['program', 'user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
-
+                
                 return view('dashboard.student.certificates.index', compact('certificate', 'program'));
 
         }return back();

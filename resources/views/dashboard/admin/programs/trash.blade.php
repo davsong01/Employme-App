@@ -50,7 +50,7 @@
                                         {{method_field('DELETE')}}
 
                                         <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
-                                            data-placement="top" title="Delete Training"> <i class="fa fa-trash"></i>
+                                            data-placement="top" title="Delete Training"> <i class="fas fa-trash-restore"></i>
                                         </button>
                                     </form>
                                         <a href="{{ route('programs.restore', $program->id) }}" type="submit" class="btn btn-success btn-sm" data-toggle="tooltip"

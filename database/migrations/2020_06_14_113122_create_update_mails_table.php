@@ -16,7 +16,7 @@ class CreateUpdateMailsTable extends Migration
         Schema::create('update_mails', function (Blueprint $table) {
             $table->increments('id');
             $table->string('sender');
-            $table->string('program');
+            $table->string('program')->nullable();
             $table->string('subject');
             $table->text('content');
             $table->integer('noofemails');

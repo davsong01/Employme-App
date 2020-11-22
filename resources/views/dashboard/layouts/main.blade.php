@@ -81,6 +81,10 @@
             display:none;
         }
 
+        .bulkrecipients{
+            display:none;
+        }
+
         .trix-toolbar .trix-button-row {
             display: flex;
             flex-wrap: wrap !important;

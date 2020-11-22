@@ -48,16 +48,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
-                                    <label for="class">Gender</label>
-                                    <select name="gender" id="class" class="form-control" required>
-                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
-                                        <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female
-                                        </option>
-
-                                    </select>
-                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
-                                </div>
+                                
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -70,17 +61,17 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="training">Current Training</label>
                                     <input id="training" type="text" class="form-control" name="training"
-                                        value="{{ $user->program->p_name }}" autofocus disabled>
+                                        value="{{ $user->programs->p_name }}" autofocus disabled>
                                     @if ($errors->has('training'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('training') }}</strong>
                                     </span>
                                     @endif
-                                </div>
-                                <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
+                                </div> --}}
+                                {{-- <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                     <label for="location">Location</label>
                                     <input id="location" type="text" class="form-control" name="location"
                                         value="{{ old('location') ?? $user->t_location }}" autofocus disabled>
@@ -89,6 +80,14 @@
                                         <strong>{{ $errors->first('location') }}</strong>
                                     </span>
                                     @endif
+                                </div> --}}
+                                <div class="form-group">
+                                    <label for="class">Gender</label>
+                                    <select name="gender" id="class" class="form-control" required>
+                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
+                                        <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female</option>
+                                    </select>
+                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
 
                                 <div class="form-group">

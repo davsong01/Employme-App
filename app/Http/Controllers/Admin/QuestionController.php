@@ -143,7 +143,7 @@ class QuestionController extends Controller
     public function show($p_id)
     {
 
-        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             $i = 1;
             
             $questions = Question::whereHas( 'module', function($query) use ($p_id) {
@@ -165,7 +165,7 @@ class QuestionController extends Controller
     public function update(Request $request, Question $question)
     {
         $question->update($request->all());
-        return redirect('questions')->with('message', 'Question has been succesfully updated');
+        return back()->with('message', 'Question has been succesfully updated');
     }
 
     public function destroy(Question $question)

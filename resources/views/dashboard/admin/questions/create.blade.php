@@ -33,8 +33,8 @@
 
                                 <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
                                     <label for="title">Title</label>
-                                    <input id="title" type="text" class="form-control" name="title"
-                                        value="{{ old('title') }}" autofocus required>
+                                    <textarea id="title" type="text" class="form-control" name="title"
+                                        value="{{ old('title') }}" autofocus required>{{ old('title') }}</textarea>
                                     @if ($errors->has('title'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('title') }}</strong>

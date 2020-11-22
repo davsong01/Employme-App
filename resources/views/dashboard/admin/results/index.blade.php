@@ -23,10 +23,10 @@
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin')<th>C.T. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>R. Play Score</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>Email Score</th>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Email Score</th>@endif
                             <th>Passmark</th>
                             @if(auth()->user()->role_id == 'Admin')<th>T. Score</th>@endif
-                           <th>Facilitator</th>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>Facilitator</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Grader</th>@endif
                             <th>Actions</th>
                         </tr>
@@ -41,10 +41,10 @@
                              @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>@endif
                             @if(auth()->user()->role_id == 'Admin')<td>{{ $user->final_ct_score }}%</td>@endif
                              @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_role_play_score }}%</td>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_email_test_score }}%</td>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ $user->total_email_test_score }}%</td>@endif
                             <td>{{ $user->passmark }}%</td>
                             @if(auth()->user()->role_id == 'Admin')<td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>@endif
-                           <th>{{ $user->marked_by }}</th>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>{{ $user->marked_by }}</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                           
@@ -56,12 +56,13 @@
                                                 class="fa fa-eye"></i>
                                         </a>
 
-                                            <form action="{{ route('results.destroy', $user->result_id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                            <form action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id]) }}" method="POST" onsubmit="return confirm('This will possibly delete user role play and email score, do you want to proceed?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
-                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
+                                            <input type="hidden" name="uid" value="{{ $user->user_id }}">
+                                            <input type="hidden" name="pid" value="{{ $user->program_id }}">
                                             <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete Result"> <i
+                                                data-placement="top" title="Delete certification test details"> <i
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>

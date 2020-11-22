@@ -20,7 +20,6 @@ class CreateResultsTable extends Migration
             $table->integer('module_id')->unsigned();
             
             $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
             $table->text('marked_by')->nullable();
             $table->text('grader')->nullable();

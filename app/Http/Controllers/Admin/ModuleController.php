@@ -24,12 +24,12 @@ class ModuleController extends Controller
 
         if(Auth::user()->role_id == "Admin"){
              
-            $modules = Module::with( ['program', 'questions'] )->orderBy('id', 'DECS')->get();          
+            $modules = Module::with( ['program', 'questions'] )->orderBy('created_at', 'DECS')->get();          
             $questions_count = Question::all()->count();
             
             $programs_with_modules = Program::whereHas('modules', function ($query) {
-                return $query->orderby('created_at', 'DESC');
-            })->get();
+                return $query;
+            })->orderby('created_at', 'DESC')->get();
 
             return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
         }

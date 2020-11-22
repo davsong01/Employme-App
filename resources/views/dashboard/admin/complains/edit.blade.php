@@ -9,7 +9,7 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                     </div>
-                    <form action="{{route('complains.update',  ['id'=>$complain->id, 'p_id'=>$program->id] ) }}" method="POST" class="pb-2">
+                    <form action="{{route('complains.update',  ['id'=>$complain->id] ) }}" method="POST" class="pb-2">
                         {{ method_field('PATCH') }}
 
                         <div class="row">

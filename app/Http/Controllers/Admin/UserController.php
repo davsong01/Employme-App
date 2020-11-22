@@ -227,16 +227,25 @@ class UserController extends Controller
             $password = bcrypt($request['password']);
         }else $password = $user->password;
 
-         $user->update([
+        try{
+
+            $user->update([
             'name' => $request->name,
             'email' => $request->email,
             't_phone' => $request->phone,
             'password' => $password,
             'role_id' => $request->role,
             'gender' =>$request->gender,
-        ]);  
+        ]); 
+
+        }catch (\Illuminate\Database\QueryException $e) {
+
+            $error = $e->getMessage();
+
+            return back()->with('error', $error);
+        }
+          
         
-        //I used return redirect so as to avoid creating new instances of the user and program class
         if(Auth::user()->role_id == "Admin"){
         return back()->with('message', 'Update successfully');
         } return back();
@@ -253,12 +262,14 @@ class UserController extends Controller
     }
 
     public function mails(){
+        
         $i = 1;
         $programs = Program::withCount('users')->where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
         $users = DB::table('program_user')->select('user_id')->orderby('created_at', 'DESC')->get();
-      
+     
         foreach($users as $user){
             $details = User::select('name', 'email')->whereId($user->user_id)->get();
+          
             $user->name = $details->pluck('name')[0];
             $user->email = $details->pluck('email')[0];
         }
@@ -273,7 +284,9 @@ class UserController extends Controller
         return view('dashboard.admin.users.emailhistory', compact('email') );
     }
     public function sendmail(Request $request){
-        
+        // dd($request->bulkrecipients);
+       
+
         $data = $this->validate($request, [
             'type' => 'required | alpha',
             'subject' => 'required | min: 5',
@@ -286,9 +299,25 @@ class UserController extends Controller
         $subject = $request->subject;
         $name = auth()->user()->name;
         
-        if($request->has('selectedemail')){
+        if($request->has('bulkrecipients') && $request->program == NULL && $request->type == 'bulkrecipients'){
+            $recipients = preg_replace('#\s+#',',',trim($request->bulkrecipients));
+            $recipients = explode (",", $recipients); 
+            $program = 'Selected Recipients';
+
+            // Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+            foreach($recipients as $recipient){
+                $name = User::whereEmail($recipient)->value('name');
+                if(!$name){
+                    $name = 'Participant';
+                }
+                Mail::to($recipient)->send(new Email($data, $name, $subject));       
+            }
+        }
+
+        if($request->has('selectedemail') && $request->program == NULL && $request->type == 'selected'){
             $recipients = $request->selectedemail;
             $program = 'Selected Recipients';
+
             Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
@@ -296,9 +325,11 @@ class UserController extends Controller
             }
         }
 
-        if($request->has('program')){
+        if($request->has('program') && $request->program <> NULL && $request->type == 'bulk'){
+            
             $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
             $program = Program::where('id', $request->program )->value('p_name');
+          
             Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
             foreach($recipients as $recipient){
                 $name = User::whereId($recipient->user_id)->value('name');
@@ -306,8 +337,9 @@ class UserController extends Controller
         
                 Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
             }
+
         }
-        
+       
         if( count(Mail::failures()) > 0 ) {
             $error = array('The following emails were not sent:');
             
@@ -319,7 +351,7 @@ class UserController extends Controller
 
         } else {
             $message =  "All ". count($recipients). " emails were successfully sent!";
-
+            
             UpdateMails::create([
                 'sender' => Auth::user()->name,
                 'program' => $program,

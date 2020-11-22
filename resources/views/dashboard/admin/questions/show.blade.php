@@ -34,10 +34,10 @@
                         <tr>
                             <td>{{ $i++ }}</td>
                             <td>{{ $question->created_at->format('d/m/Y') }}</td>
-                            <td>{{ $question->title }}</td>
-                            <td>{{$question->module->title}}</td>
+                            <td>{!! $question->title !!}</td>
+                            <td>{{ $question->module->title  }}</td>
                             <td>{{ $question->correct }}</td>
-                            @if(Auth::user()->role_id == "Admin")
+                           
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit question"
@@ -58,12 +58,8 @@
                                 </div>
 
                             </td>
-                            @endif
-                            @if(Auth::user()->role_id == "Facilitator")
-                            <td>
-                                N/A
-                            </td>
-                            @endif
+                          
+                            
                         </tr> 
                         @endforeach
                     </tbody>

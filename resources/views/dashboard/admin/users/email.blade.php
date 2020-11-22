@@ -32,6 +32,7 @@
                                 <option value="">Choose option</option>
                                 <option value="bulk">Program Participants</option>
                                 <option value="selected">Selected Participants</option>
+                                <option value="bulkrecipients">Bulk Email</option>
                             </select>
                             @if($errors->has('type'))
                                 <span class="help-block">
@@ -63,12 +64,23 @@
                                     <option value="{{ $user->email }}">{{ $user->email }} ( {{ $user->name }} )</option>
                                 @endforeach
                             </select>
-                            @if($errors->has('selectedemal'))
+                            @if($errors->has('selectedemail'))
                                 <span class="help-block">
                                     <strong>{{ $errors->first('selectedemail') }}</strong>
                                 </span>
                             @endif
                         </div>
+
+                        <div class="form-group bulkrecipients">
+                            <textarea style="width:100%" name="bulkrecipients" id="bulkrecipients" rows="15" placeholder="Paste the emails here, each email on a new line"></textarea>
+                            @if($errors->has('bulkrecipients'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('bulkrecipients') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
+                        
                         <div class="form-group">
 
                             <label for="subject">Subject</label>
@@ -173,6 +185,7 @@
     
     var program = $('#program');
     var selectedemail = $('#selectedemail');
+    var bulkrecipients = $('#bulkrecipients');
 
     $('#type').on('change', function(){
         console.log($('#type').val());
@@ -181,15 +194,29 @@
                 $('.bulkemail').css('display','block');
                 program.attr('required', true);
                 $('.selectedemail').css('display','none');
+                $('.bulkrecipients').css('display','none');
                 selectedemail.attr('required', false);
+                bulkrecipients.attr('required', false);
                 
                 
             }else if($('#type').val()=='selected'){
                 $('.selectedemail').css('display','block');
                 selectedemail.attr('required', true);
                 $('.bulkemail').css('display','none');
+                $('.bulkrecipients').css('display','none');
                 program.attr('required', false);
+                bulkrecipients.attr('required', false);
+
+            }else if($('#type').val()=='bulkrecipients'){
+                $('.bulkrecipients').css('display','block');
+                bulkrecipients.attr('required', true);
+                $('.bulkemail').css('display','none');
+                $('.selectedemail').css('display','none');
+                program.attr('required', false);
+                selectedemail.attr('required', false);
+               
             }
+           
     });
 
 </script> 

@@ -14,11 +14,7 @@ class Welcomemail extends Mailable
     public $details; 
 
     public $pdf;
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
+   
     public function __construct($data, $details, $pdf)
     {
         $this->data = $data;

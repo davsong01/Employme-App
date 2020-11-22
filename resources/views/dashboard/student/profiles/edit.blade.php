@@ -48,16 +48,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
-                                    <label for="class">Gender</label>
-                                    <select name="gender" id="class" class="form-control" required>
-                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
-                                        <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female
-                                        </option>
-
-                                    </select>
-                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
-                                </div>
+                                
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -70,24 +61,22 @@
                                     </span>
                                     @endif
                                 </div>
-                                
-                                <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
-                                    <label for="location">Location</label>
-                                    <input id="location" type="text" class="form-control" name="location"
-                                        value="{{ old('location') ?? $user->t_location }}" autofocus disabled>
-                                    @if ($errors->has('location'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('location') }}</strong>
-                                    </span>
-                                    @endif
-                                </div>
-
                                 <div class="form-group">
+                                    <label for="class">Gender</label>
+                                    <select name="gender" id="class" class="form-control" required>
+                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
+                                        <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female
+                                        </option>
+
+                                    </select>
+                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
+                                </div>
+                                {{-- <div class="form-group">
                                     <label>Profile Picture</label>
                                     <input type="file" name="file" value="" class="form-control">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('file')}}</small></div>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">

@@ -166,7 +166,16 @@ class TestsController extends Controller
                 }
 
             $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();   
-            $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();               
+            $cert_score = Result::where('user_id', auth()->user()->id)->whereProgramId($program->id)->sum('certification_test_score'); 
+            
+                      
+            foreach($results as $result){
+                $result['certification_test_score'] =  $cert_score;
+            }
+            
+            $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();    
+            
+
             return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results', 'hasmock') );
           }
     }

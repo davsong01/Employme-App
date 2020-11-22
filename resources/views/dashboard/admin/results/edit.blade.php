@@ -34,16 +34,19 @@
                                 <small><small style="color:red">{{ $errors->first('passmark')}}</small></small>
                             </div>
 
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                           
                             <div class="col-md-6">
-                                
-                               <h6 style="color:red">Add Email and Role play scores here</h6>
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                               <h6 style="color:red">Add Email score here</h6>
                                <div class="form-group">
                                     <label>Email Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->email }})</span></label>
                                     <input type="number" name="emailscore" value="{{ old('emailscore') ?? $user_results->email_test_score }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->email }}">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
+                                @endif
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                                <h6 style="color:red">Add Role play score here</h6>
                                 <div class="form-group">
                                     <label>Role Play Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->role_play }})</span></label>
                                     <input type="number" name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
@@ -60,24 +63,26 @@
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                 <h6 style="color:red">Certificate Test Submision</h6>
                                 <p>Please go through this user's attempt and grade user with the grade box below</p>
+                                @foreach($user_certification_test_details as $details)
                                 @foreach ($array as $key => $value) 
                                 <div class="form-group">
-                                    <label for="title">{{ $i ++ .'. ' }}{{$key}}</label><br>
-            
+                                    
+                                    <label for="title">{{ $i ++ .'. ' }}{!! $key !!}</label><br>
+                                    <span style="color:green"><strong>Module: </strong>{{ $details->module->title }}</span><br><br>
                                     <div class="form-group">
                                     <textarea style="max-width: 100%; padding:10px; text-align: justify;" name="answer" id="" rows="12" cols="100" readonly>{{ $value }}</textarea>
                                     </div>
                                 </div>
                                 @endforeach
-                                
+                                @endforeach
                                 <h6 style="color:red">Now, score this candidate's certification test: </h6>
                                 <div class="form-group">
                                     <label><span style="color:green">(Max score = {{$user_results->program->scoresettings->certification}})</span></label>
-                                    <input type="number" name="certification_score" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('certification_score') ?? $user_results->certification_test_score }}" class="form-control"
+                                    <input type="number" name="certification_score" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('certification_score') ?? $user_certification_test_details->sum('certification_test_score') }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->certification}}">
                                 </div>
-                                @else
-                                <input type="hidden" value="{{ $user_results->certification_test_score }}" name="certification_score">
+                                {{-- @else
+                                <input type="hidden" value="{{ $user_results->certification_test_score }}" name="certification_score"> --}}
                                 @endif
                             </div>
                         </div>

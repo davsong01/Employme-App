@@ -14,13 +14,15 @@ class ProfileController extends Controller
     
     public function edit($id)
     {
-        $user = User::findorFail($id);
-      
+        $user = User::select('id', 'name', 'email', 'password', 't_phone', 'profile_picture', 'gender')->whereId($id)->first();
+
         if(Auth::user()->role_id == "Admin" && $id == Auth::user()->id){
         return view('dashboard.admin.profiles.edit', compact('user'));
-        }elseif(Auth::user()->role_id == "Facilitator" && $id == Auth::user()->id){
+        }
+        elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             return view('dashboard.admin.profiles.edit', compact('user'));
-        }elseif(Auth::user()->role_id == "Student" && $id == Auth::user()->id){
+        }
+        elseif(Auth::user()->role_id == "Student" && $id == Auth::user()->id){
             return view('dashboard.student.profiles.edit', compact('user'));
         }
         return back();
@@ -28,7 +30,7 @@ class ProfileController extends Controller
    
     public function update(Request $request, $id)
     {   
-        // dd($request->all());
+
         $user = User::findorFail(Auth::user()->id);
        
         $user->name = $request->name;
@@ -40,8 +42,7 @@ class ProfileController extends Controller
         };
 
         if(request()->has('file')){ 
-            // dd($request->file);
-
+           
             $imgName = $request->file->getClientOriginalName();
             
             $picture = Image::make($request->file)->resize(100, 100);

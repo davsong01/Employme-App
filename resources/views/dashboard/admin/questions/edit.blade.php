@@ -26,10 +26,10 @@
                                     <div><small style="color:red">{{ $errors->first('module')}}</small></div>
                                 </div>
 
-                                <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
+                                <div class="form-group">
                                     <label for="title">Title</label>
-                                    <input id="title" type="text" class="form-control" name="title"
-                                        value="{{ old('title') ?? $question->title}}" autofocus required>
+                                    <textarea id="title" type="text" class="form-control" name="title"
+                                        value="{!! old('title') ?? $question->title !!}" autofocus required>{!! old('title') ?? $question->title !!}</textarea>
                                     @if ($errors->has('title'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('title') }}</strong>
