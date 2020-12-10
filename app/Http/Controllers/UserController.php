@@ -206,6 +206,8 @@ class UserController extends Controller
         } return back();
     
     }
+
+
     public function destroy(User $user)
     {
         // if($user->balance <= 0){

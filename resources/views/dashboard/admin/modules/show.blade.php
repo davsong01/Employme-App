@@ -26,7 +26,7 @@
         </div>
         <!-- Column -->
         <div class="col-md-4 col-lg-4">
-        <a href="{{ route('questions.index')}}">
+        <a href="{{ route('questions.show', $p_id)}}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>

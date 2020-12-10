@@ -22,6 +22,25 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+        public function startRedoStatus($pid){
+            $this->redotest = $pid;
+            return $this->save(); 
+        }
+        
+        public function endRedoTest(){
+            $this->redotest = 0;
+            return $this->save();
+        }
+
+        public function getRedoStatus(){
+            return $this->redotest;
+        }
+
+
+        public function getName(){
+            return $this->name;
+        }
+
         public function program(){
             return $this->belongsTo(Program::class);
         }  

@@ -21,4 +21,10 @@ class Result extends Model
     public function module(){
         return $this->belongsTo(Module::class);
     }
+
+     public function getName($pid){
+        $p_name = DB::table('program')->where('id', $pid)->value('p_name');
+        return $p_name;       
+    }
+
 }

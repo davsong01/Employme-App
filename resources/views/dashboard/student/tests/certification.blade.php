@@ -26,12 +26,12 @@
                     <label for="title">{{ $i ++ .'. ' }}{!! $question->title !!}</label><br>
 
                     <label for="{{ $question->id}}">Your answer <strong style="color:green">( Maximum words: 500 )</strong></label><br>
-                    Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span>
+                    {{-- Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span> --}}
                     <div class="form-group">
-                    <textarea id= "text{{ $question->id}}" style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="20" cols="100"
+                    <textarea id="text{{ $question->id}}" style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="20" cols="100"
                         placeholder="Enter your answer for question {{ $i - 1 }} here" required></textarea>
                     </div>
-                  
+                    
                     <input type="hidden" name="id" value="{{$question->id}}">
                     <input type="hidden" name="mod_id" value="{{$question->module->id}}">
                 </div>
@@ -39,7 +39,7 @@
                     $('#text{{ $question->id}}').keydown(function() {
                         var length = jQuery.trim($(this).val()).split(/\s+/).length;
                         $('#{{ $question->id}}').text(length);
-
+                        
                         //stop user input
                         if(length > 500){
                             $(this).prop("maxLength", 1);
@@ -48,7 +48,7 @@
                             $(this).removeAttr("maxLength");
                         }
                     });
-
+                    CKEDITOR.replace(text{{ $question->id }});
                 </script>
                 @endforeach
 
@@ -65,6 +65,7 @@
     </div>
 
     <script>
+       
         window.onscroll = function () {
             myFunction()
         };

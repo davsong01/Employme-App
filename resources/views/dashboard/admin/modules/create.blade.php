@@ -37,8 +37,8 @@
 
                                 <div class="form-group">
                                     <label for="class">Type</label>
-                                    <select name="type" id="class" class="form-control" required>
-                                        <option value="">Select Option</option>
+                                    <select name="type" id="type" class="form-control" required>
+                                         <option value="" selected>-- Select Option --</option>
                                         <option value="0">Class Test</option>
                                         <option value="1">Certification Test</option>
                                     </select>
@@ -47,16 +47,16 @@
 
                                 <div class="form-group">
                                     <label for="class">Status</label>
-                                    <select name="status" id="class" class="form-control">
+                                    <select name="status" id="status" class="form-control">
                                         <option value="0" selected>Disabled</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('status')}}</small></div>
                                 </div>
 
                                 <div class="form-group{{ $errors->has('noofquestions') ? ' has-error' : '' }}">
-                                    <label for="noofquestions">No of Questions</label>
+                                    <label for="noofquestions">No of Questions<small class = "cwarning" style="color:red"> <b>(You can only add 1 question for a certification text)</b> </small> </label>
                                     <input id="noofquestions" type="number" class="form-control" name="noofquestions"
-                                        value="{{ old('noofquestions') }}" autofocus required>
+                                        value="{{ old('noofquestions') }}" min="0" utofocus required>
                                     @if ($errors->has('noofquestions'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('noofquestions') }}</strong>
@@ -86,5 +86,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
+   
     @endsection

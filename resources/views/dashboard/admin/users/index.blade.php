@@ -35,7 +35,16 @@
                             
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                            <td><a href="#">{{ $user->name }}</a></td> 
+                            <b style="display:none">{{ $count = 1 }}</b>
+                            <td>
+                                {{ $user->name }} <br>
+                                @foreach($user->programs as $programs)
+                               
+                            <small style="color:green">{{ $count ++ }}.
+                            {{ $programs->p_name }} <br></small>
+                                    <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
+                                @endforeach
+                            </td> 
                             <td>{{ $user->t_phone}}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->programs()->count() }}</td>
@@ -50,6 +59,15 @@
                                         class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
+                                    @if($user->redotest === 0)
+                                    <a  onclick="return confirm('Are you really sure?');" data-toggle="tooltip" data-placement="top" title="Allow to retake Test"
+                                        class="btn btn-success" href="{{ route('redotest', $user->id) }}"><i class="fa fa-redo" aria-hidden="true"></i>
+                                    </a>
+                                    @else
+                                    <a onclick="return confirm('Are you really sure?');" data-toggle="tooltip" data-placement="top" title="Stop from retaking Test"
+                                        class="btn btn-primary" href="{{ route('stopredotest', $user->id) }}"><i class="fa fa-stop" aria-hidden="true"></i>
+                                    </a>
+                                    @endif
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}

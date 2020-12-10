@@ -25,8 +25,8 @@ class PaymentController extends Controller
         $i = 1;
 
         if(Auth::user()->role_id == "Admin"){
-            $transactions = DB::table('program_user')->orderBy('id', 'ASC')->get();
-
+            $transactions = DB::table('program_user')->get();
+           
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
 
             $i = 1;
@@ -36,7 +36,7 @@ class PaymentController extends Controller
                 $transaction->email = User::where('id', $transaction->user_id)->value('email'); 
                 $transaction->program = Program::select('p_name')->where('id', $transaction->program_id)->first();
             }
-// dd($transactions);
+
         
           return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 

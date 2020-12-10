@@ -24,29 +24,53 @@ class UserController extends Controller
     {
 
        $i = 1;
+       $users = User::withCount('programs')->where('role_id', 'Student')->orderBy('created_at', 'DESC')->get();
 
-       $users = User::where('role_id', 'Student')->orderBy('created_at', 'DESC')->get();
-      
-       $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
        if(Auth::user()->role_id == "Admin"){
          
-          return view('dashboard.admin.users.index', compact('users', 'i', 'programs') );
+          return view('dashboard.admin.users.index', compact('users', 'i') );
+
         }elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
            $users = User::where([
             'role_id' => "Student",
             'program_id' => Auth::user()->program_id,
            ])->orderBy('created_at', 'DESC')
-           
            ->get();
+
             return view('dashboard.teacher.users.index', compact('users', 'i', 'programs') );
         }
+    }
+
+    public function redotest($id){
+
+        $programs = DB::table('program_user')->whereUserId($id)->get();
+  
+        foreach($programs as $program){
+            $program->name = Program::whereId($program->program_id)->value('p_name');
+        }
+
+        return view('dashboard.admin.users.redotest', compact('programs', 'id'));
+    }
+
+    public function saveredotest(Request $request){
+        $user = User::find($request->user_id);
+        $user->startRedoStatus($request->program);
+
+        return redirect(route('users.index'))->with('message', 'Update Successful');
+    }
+
+     public function stopredotest($id){
+        $user = User::find($id);
+       
+        $user->endRedoTest();
+       
+        return back()->with('message', 'Update Successful');
     }
 
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
     
-
             $users = User::orderBy('created_at', 'DESC');
             $locations = Location::select('title')->distinct()->orderBy('created_at', 'DESC')->get();
             $user = User::all();

@@ -38,6 +38,9 @@ class CreateUsersTable extends Migration
             $table->integer('paymentStatus')->nullable();  
             $table->string('t_type')->nullable();
 
+            $table->integer('redotest')->default(0);
+           
+
         });
     }
 

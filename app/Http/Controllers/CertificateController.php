@@ -14,7 +14,7 @@ class CertificateController extends Controller
 {
     public function index(Request $request)
     {
-      $userid = Auth::user()->id;
+        $userid = Auth::user()->id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
 
@@ -32,8 +32,12 @@ class CertificateController extends Controller
                     return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get view/download certificate');
                 }
 
-                $certificate = Certificate::with(['program', 'user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
+                $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
                 
+                if(!isset($certificate)){
+                    return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
+                }
+
                 return view('dashboard.student.certificates.index', compact('certificate', 'program'));
 
         }return back();

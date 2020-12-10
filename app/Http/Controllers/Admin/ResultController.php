@@ -28,8 +28,8 @@ class ResultController extends Controller
         if(Auth::user()->role_id == "Admin"){
             //Select only programs that have results
             $programs = Program::whereHas('results', function ($query) {
-                    return $query->orderby('created_at', 'DESC');
-            })->get();
+                    return $query;
+            })->orderby('created_at', 'DESC')->get();
 
             foreach($programs as $program){
                 $program['result_count'] = Result::whereProgramId($program->id)->count();
@@ -57,13 +57,14 @@ class ResultController extends Controller
 
     public function getgrades(Request $request, $id)
     {
-
+        
         $request->pid = $id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
             
-            $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
-       
+            $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();            
+
+            // dd($status->getRedoStatus());
             foreach($users as $user){
                 $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
                 
@@ -83,7 +84,12 @@ class ResultController extends Controller
                     $user->program_ct_score_settings = $score_settings->class_test;
                     $user->passmark = $score_settings->passmark;
                     $user->result_id = 0;
-                    $user->name =  User::where('id', $user->user_id)->value('name');
+                    // $user->name =  User::where('id', $user->user_id)->value('name');
+
+                    $userdetails = User::find($user->user_id);
+                    $user->name = $userdetails->name;
+                    $user->redotest = $userdetails->redotest;
+
                     $user->final_ct_score = 0;
                     $user->total_class_test_score = 0;
                     $user->obtainable = 0;
@@ -139,6 +145,7 @@ class ResultController extends Controller
             $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
             
             foreach($users as $user){
+              
                 $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
                 
                     $user->total_cert_score = 0;
@@ -234,32 +241,47 @@ class ResultController extends Controller
 
     }
 
-    public function add($uid, $modid){
-       
-        $user_results = Result::with(['program', 'user'])->where('id', $modid)->where('user_id', $uid)->first();
-        
-        $user_certification_test_details =  Result::select(
-            'id',
-            'module_id',
-            'certification_test_score',
-            'certification_test_details'
-        )->with(
-            'program', 
-            'user', 
-            'module'
-            )->where('certification_test_details', '<>', NULL)->whereUserId($uid)->whereProgramId($user_results->program_id)->get();
+    public function add(Request $request, $uid, $modid){
+        $result_id = $modid;
+        $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
+
+        $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
 
         $i = 1;
-        $array = json_decode($user_results->certification_test_details, true);
-       
+        $details['certification_score'] = 0;
+        $details['email_test_score'] = 0;
+        $details['role_play_score'] = 0;
+        $details['user_name'] = "";
+        $details['allow_editing'] = 0;
 
-        foreach($array as $key => $value)
-        {
-            $array[Question::where('id',$key)->value('title')] = $value;
-            unset($array[$key]);
+        foreach($user_results as $results){
+            $details['certification_score'] = $results->certification_test_score + $details['certification_score'];
+            $details['email_test_score'] = $results->email_test_score +  $details['email_test_score'];
+            $details['role_play_score'] = $results->role_play_score +  $details['role_play_score'];
+            $results['module_title'] = $results->module->title;
+            $details['user_name'] = $results->user->name;
+            $details['allow_editing'] = 1;
+
+            $questions = json_decode($results->certification_test_details, true);
+                if(!$questions){
+                    $results['title'] = 'User is re-writing test';
+                    $results['answer'] = 'User is re-writing test';
+                   
+                }
+                foreach($questions as $key=>$value){
+                    $results['title'] = Question::whereId($key)->value('title');
+                    $results['answer'] = $value;
+                   ;
+                   
+                }
+
+                unset($results['certification_test_details']);
+                unset($results['certification_test_score']);
+                unset($results['role_play_score']);
+                unset($results['email_test_score']);
         }
 
-        return view('dashboard.admin.results.edit', compact('user_results', 'user_certification_test_details', 'array', 'i'));
+        return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details'));
     }
     
     public function enable($id){
@@ -299,8 +321,8 @@ class ResultController extends Controller
                 return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to view results');
             }
 
-
-            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->get();    
+            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->get();    
+            
             $program = Program::find($request->p_id);
             if($program->hasresult == 0){
                 return back()->with('error', 'Results for this program have not been enabled, Please check back!');
@@ -356,10 +378,11 @@ class ResultController extends Controller
                 $details['program'] = $t['program'];
                 $details['name'] = $t['name'];
 
-                if($details['class_test_score'] <= 0 || $details['certification_test_score'] <= 0 ){
-                    return back()->with('error', 'Your result is being processed, please check back later or notify your facilitator');
-                }
-
+                // if($details['class_test_score'] <= 0 || $details['certification_test_score'] <= 0 ){
+                // if($details['class_test_score'] <= 0 || $details['certification_test_score'] <= 0 ){
+                //     return back()->with('error', 'Your result is being processed, please check back later or notify your facilitator');
+                // }
+                
                 if($details['total_score'] >= $details['passmark']){
                     $details['status'] = 'CERTIFIED';
                 }else $details['status'] = 'NOT CERTIFIED';         
@@ -367,7 +390,7 @@ class ResultController extends Controller
                 return view('dashboard.admin.results.show', compact('details', 'program'));   
             } 
 
-            return redirect('/dashboard')->with('error', 'Result not found for current user, please try again later');
+            return redirect('/dashboard')->with('error', 'Result not found! Looks like you did not take the tests, please contact program coordinator');
         }
         elseif(Auth::user()->role_id == "Teacher"){   
             $result = Result::where('user_id', $id)->first();
@@ -382,40 +405,23 @@ class ResultController extends Controller
         
         try{
             if(Auth::user()->role_id == 'Facilitator'){
-                $marked_by = Auth::user()->name;
-                $roleplayscore = $request->roleplayscore;
-                $email_test_score = $result->emailscore;
-                
-                $grader = $result->grader;
-                $certification_score = $result->certification_test_score;
+                $result->marked_by = Auth::user()->name;
+                $result->role_play_score = $request->roleplayscore;                
             }
 
             if(Auth::user()->role_id == 'Grader'){
-                $marked_by = $result->marked_by;
-                $certification_score = $request->certification_score;
-
-                $roleplayscore = $result->role_play_score;
-                $grader = Auth::user()->name;
-                $email_test_score = $request->emailscore;
+                $result->certification_test_score = $request->certification_score;
+                $result->grader = Auth::user()->name;
+                $result->email_test_score = $request->emailscore;
                 
             }
             
             if(Auth::user()->role_id == 'Admin'){
-
-                $marked_by = $result->marked_by;
-                $roleplayscore = $request->roleplayscore;
-                $grader = 'Admin';
-                $email_test_score = $request->emailscore;
-                $certification_score = $request->certification_score;
+                $result->role_play_score = $request->roleplayscore;
+                $result->email_test_score = $request->emailscore;
+                $result->certification_test_score = $request->certification_score;
             }
 
-            $result->marked_by = $marked_by;
-            $result->grader = $grader;
-            $result->certification_test_score = $certification_score;
-            $result->role_play_score = $roleplayscore;
-            $result->email_test_score = $email_test_score;
-            
-            
             $result->save();
 
         }catch(PDOException $ex){
@@ -427,14 +433,23 @@ class ResultController extends Controller
    
     public function destroy(Request $request, $result)
     {
-        
+         
         if(Auth::user()->role_id == "Admin"){
-            $users_results = Result::whereProgramId($request->pid)->where('user_id', $request->uid)->where('certification_test_details', '<>', NULL)->get();
+            $users_results = Result::whereProgramId($request->pid)->where('user_id', $request->uid)->get();
+            // dd($users_results);
             foreach($users_results as $results){
-                $results->delete();
+                $results->certification_test_details = NULL;
+                $results->certification_test_score = NULL;
+                $results->grader = NULL;
+                // $results->certification_test
+                $results->save();
             };
-            
-            return back()->with('message', 'All Post Test Certification details for this user have been deleted successfully');
+
+            $user = User::find($request->uid);
+            $user->redotest = $request->pid;
+            $user->save();
+        
+            return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         } return back();
     }
 

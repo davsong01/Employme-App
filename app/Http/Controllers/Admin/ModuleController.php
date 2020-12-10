@@ -30,7 +30,7 @@ class ModuleController extends Controller
             $programs_with_modules = Program::whereHas('modules', function ($query) {
                 return $query;
             })->orderby('created_at', 'DESC')->get();
-
+            
             return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
         }
         
@@ -46,7 +46,6 @@ class ModuleController extends Controller
                 }
             }
             
-            // dd($programs_with_modules);
             return view('dashboard.teacher.modules.index', compact( 'i', 'programs_with_modules'));
         } return back();
     }
@@ -58,7 +57,7 @@ class ModuleController extends Controller
             $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'DECS')->get();          
             $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
             
-            return view('dashboard.admin.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));
+            return view('dashboard.admin.modules.show', compact('program_name', 'p_id', 'modules', 'i', 'questions_count'));
         }
 
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){ 
@@ -87,7 +86,6 @@ class ModuleController extends Controller
 
     public function store(Request $request)
     {
-
         $data = $this->validate($request, [
             'title' => 'required|min:5',
             'program' => 'required',
@@ -97,13 +95,16 @@ class ModuleController extends Controller
             'noofquestions' => 'required|numeric'
         ]);
 
+        if($data['type'] == 1 && $data['noofquestions'] > 1){
+            return back()->with('error', 'Module of type certification can only accomodate 1 question per module');
+        }
         //check if scoresettings exist for this program
         $score_settings_check = ScoreSetting::where('program_id', $data['program'])->get();
 
         if($score_settings_check->count() < 1){
             return redirect('scoreSettings')->with('error', 'No score settings defined! Please define Score settings for this program below');
         }
-        
+       
         $module = Module::create([
             'title' => $request->title,
             'program_id' => $request->program,

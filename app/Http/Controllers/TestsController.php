@@ -16,6 +16,7 @@ class TestsController extends Controller
 {
     public function index(Request $request)
     {
+        
        if(Auth::user()->role_id == "Student"){
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
@@ -27,7 +28,10 @@ class TestsController extends Controller
 
             $program = Program::find($request->p_id);
             $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
-           
+            
+            if(Auth::user()->redotest == $program->id){
+               $modules = Module::with('questions')->where('program_id', $program->id)->get();
+            }
             
             //Check if user has taken pre tests and return back if otherwise
                 if($program->hasmock == 1){
@@ -36,20 +40,31 @@ class TestsController extends Controller
                     
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
                     if($completed_pre_class_tests < $expected_pre_class_tests ){
-                            return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
+                        return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
                     }                     
                 }
 
             foreach($modules as $module){
                 $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
-                
+               
+                $redo_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
+
+                foreach($redo_check as $check){
+                    if($check->certification_test_details != NULL){
+                        $module['redo'] = 1;
+                    }else{ 
+                    $module['redo'] = 0;
+                    }
+                }
                 if($module_check->count() > 0){
                     $module['completed'] = 1;
                 }else{ 
                 $module['completed'] = 0;
                 }
             }
-            //  dd($modules);
+
+        //  dd($modules);
+             
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program') );
          }
     }
@@ -65,30 +80,36 @@ class TestsController extends Controller
         $program = Program::find($request->p_id);
    
         $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
-       
+      
         if(sizeof($class_test_details) < 2){
             return back()->with('error', 'You must answer at least 1 question');
         };
 
         $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
-      
+        
         foreach($certification_test_details as $key => $value)
         {
              if((!isset($certification_test_details[$key]))){
                 return back()->with('error', 'You must answer at least 1 question');
             };
-            // print_r(str_word_count($certification_test_details[$key]);
+            
             if(str_word_count($certification_test_details[$key]) > 500 ){
                 return back()->with('error', 'Maximum number of words allowed for each question is 500, please try again');
             };
         }
      
-        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->count();
-        
-        if($check > 0){
+        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->get();
+        if(auth()->user()->redotest == 0){
+        if($check->count() > 0){
             return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
         };
-        
+        }
+
+        if($check->count() > 0 && auth()->user()->redotest != 0){
+            $check->certification_test_details = json_encode($certification_test_details);
+            $check->save();
+        }
+
         $module = Module::findOrFail($request->mod_id);
        
         $questions = $module->questions->toarray();
@@ -127,7 +148,7 @@ class TestsController extends Controller
                     'user_id' => Auth::user()->id,
                     'module_id' => $module->id,
                     'class_test_score' => $score,
-                    'class_test_details' =>  json_encode($class_test_details),
+                    'class_test_details' => json_encode($class_test_details),
                     ]);
                 }
     

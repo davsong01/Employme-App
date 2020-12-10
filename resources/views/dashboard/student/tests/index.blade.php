@@ -52,12 +52,21 @@
                         <h6 class="text-blue">Type: {{ $module->type }} </h6>
                         <p class="text-blue">No of Questions: {{ $module->questions->count() }} </p>
                         <p class="text-blue">Time: {{ $module->time }}minutes </p>
+                         
                         @if($module->completed == 0)
                             <a href="{{route('tests.show', ['id' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
-                        @if($module->completed == 1)
-                            <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details</b></button></a>
+                       
+                        @if($module->completed == 1 && auth()->user()->redotest == 0)
+                            <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details </b></button></a>
                         @endif
+                        @if(auth()->user()->redotest != 0 && $module->redo != 0)
+                            <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details </b></button></a>
+                        @endif
+                        @if($module->type == 'Certification Test' && auth()->user()->redotest != 0 &&$module->redo == 0) 
+                            <a href="{{route('tests.show', ['id' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                        @endif
+                       
                     </div>
                 </div>
             </div>
