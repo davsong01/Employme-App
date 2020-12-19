@@ -98,7 +98,7 @@ class TestsController extends Controller
             };
         }
      
-        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->get();
+        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
         if(auth()->user()->redotest == 0){
         if($check->count() > 0){
             return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
@@ -107,8 +107,11 @@ class TestsController extends Controller
 
         if($check->count() > 0 && auth()->user()->redotest != 0){
             $check->certification_test_details = json_encode($certification_test_details);
+           
             $check->save();
         }
+        else{
+
 
         $module = Module::findOrFail($request->mod_id);
        
@@ -143,7 +146,7 @@ class TestsController extends Controller
  
             try{
                 if($module->type == 'Class Test'){
-                     $results = Result::create([
+                    $results = Result::create([
                     'program_id' => $module->program->id,
                     'user_id' => Auth::user()->id,
                     'module_id' => $module->id,
@@ -157,7 +160,7 @@ class TestsController extends Controller
                 return back()->with('error', 'something went wrong, please take test again');
             }
         }
-    
+        }
         return Redirect::to('userresults?p_id='. $program->id);
         
     }
