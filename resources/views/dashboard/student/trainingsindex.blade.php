@@ -67,7 +67,7 @@
 
                                     <input type="hidden" name="amount" id="amount" value="{{ $balance * 100}}" required>
                                     <input type="hidden" name="quantity" value="1">
-                                    <input type="hidden" name="currency" value="{{  config('custom.curr_abbreviation') }}">
+                                    <input type="hidden" name="currency" value="{{ \App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL') }}">
                                     <input type="hidden" name="metadata"
                                         value="{{ json_encode($array = ['user_id' => Auth::user()->id, 'p_id' => $program->id, 'type' =>'balance', 'name'=> auth()->user()->name ]) }}">
                                     <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
@@ -95,7 +95,7 @@
                                     <input type="hidden" name="email" value="{{Auth::user()->email}}"> {{-- required --}}
                                     <input type="hidden" name="amount" id="amount" value="{{ $program->checkBalance(request()->query('p_id')) * 100}}" required>
                                     <input type="hidden" name="quantity" value="1">
-                                    <input type="hidden" name="currency" value="{{  config('custom.curr_abbreviation') }}">
+                                    <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
                                     <input type="hidden" name="metadata"
                                         value="{{ json_encode($array = ['user_id' => Auth::user()->id, 'p_id' => request()->query('p_id'), 'type' =>'balance' , 'name'=> auth()->user()->name]) }}">
                                     <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">

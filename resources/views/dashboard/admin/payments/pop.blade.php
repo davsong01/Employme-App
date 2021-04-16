@@ -30,7 +30,7 @@
                             <td>{{ $transaction->program->p_name }}</td>
                             <td>{{ $transaction->name }}</td>
                             <td>{{ $transaction->email }}</td>
-                            <td>{{ config('custom.default_currency'). $transaction->amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->amount }}</td>
                             <td>{{ $transaction->bank }}</td>
                             <td>{{ $transaction->location }}</td>
                            

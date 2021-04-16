@@ -36,8 +36,8 @@
                             <td>{{ $program->p_name }}<br><span
                                     style="color:red">https://portal.employme.ng/paystack?id={{ $program->id }}&t=</span>
                             </td>
-                            <td>₦{{ $program->p_amount }}</td>
-                            <td>₦{{ $program->e_amount }}</td>
+                            <td>{{\App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $program->p_amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$program->e_amount }}</td>
                             <td>{{ $program->p_start }}</td>
                             <td>{{ $program->p_end }}</td>
                             <td>{{ $program->part_paid }}</td>

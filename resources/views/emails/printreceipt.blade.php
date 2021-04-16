@@ -70,8 +70,8 @@
 					<td class="col-md-1" style="text-align: center">1</td>
 					<td class="col-md-8">{{ $details['programName']}}<br />
 					<small><i>({{ $details['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ config('custom.default_currency') }}{{ $details['programFee']}}</td>
-					<td class="col-md-2 text-center">{{ config('custom.default_currency') }}{{ $data['amount'] }}</td>
+					<td class="col-md-1 text-center">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $details['programFee']}}</td>
+					<td class="col-md-2 text-center">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $data['amount'] }}</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -80,7 +80,7 @@
 					<p><strong>Total:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-					<p><strong>{{ config('custom.default_currency') }}{{ $data['amount'] }}</strong></p>
+					<p><strong>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $data['amount'] }}</strong></p>
 					</td>
 				</tr>
 				<tr>
@@ -90,7 +90,7 @@
 					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
 					</td>
 					<td class="text-center">
-					<h4><strong style="color:red !important">{{ config('custom.default_currency') }}{{ $details['balance'] }}</strong></h4>
+					<h4><strong style="color:red !important">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $details['balance'] }}</strong></h4>
 					</td>
 				</tr>
 			</tbody>

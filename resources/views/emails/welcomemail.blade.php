@@ -3,14 +3,14 @@
 
 @if(isset($data['type']) && $data['type'] == 'balance')
 <div>
-    <p style="text-align:justify !important">Your balance payment of {{ config('custom.default_currency'). $data['amount'] }} for {{ $details['programName'] }} has been received.<br><br>
+    <p style="text-align:justify !important">Your balance payment of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $data['amount'] }} for {{ $details['programName'] }} has been received.<br><br>
 
     <strong style="color:red">NOTE: </strong>Please login to your customized portal, click the "Payment History" menu to download or print your updated receipt.</strong>
     </p>
 </div>
 @else 
 <div>   
-    <p style="text-align:justify !important">Your {{ $details['message'] }} of {{ config('custom.default_currency').$data['amount'] }} for the {{ $details['programName'] }} ({{ $details['programAbbr'] }}) via {{ $data['bank'] }} has been received. 
+    <p style="text-align:justify !important">Your {{ $details['message'] }} of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }} for the {{ $details['programName'] }} ({{ $details['programAbbr'] }}) via {{ $data['bank'] }} has been received. 
     
 
     <strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form and feedback form which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br>

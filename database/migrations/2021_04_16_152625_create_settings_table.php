@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -17,21 +18,18 @@ class CreateSettingsTable extends Migration
             $table->increments('id');
             $table->timestamps();
 
-            //Payment gateway settings
-            $table->text('PAYSTACK_PUBLIC_KEY');
-            $table->text('PAYSTACK_SECRET_KEY');
-            $table->text('PAYSTACK_PAYMENT_URL');
-            $table->text('MERCHANT_EMAIL');
+            $table->string('OFFICIAL_EMAIL')->nullable();
+            $table->string('CURR_ABBREVIATION')->default('NGN');
+            $table->text('ADDRESS_ON_RECEIPT')->default("IFECHUKWU HOUSE<br>Plot 87A Mustapha Azeeza Close, Off Alakoso Road<br /><small>(ABC Transport Terminal Axis) Amuwo-Odofin Industrial Area</small><br><br><br />");
+            $table->string('DEFAULT_CURRENCY')->default("&#8358;"); 
+        });
 
-             //Mail settings
-            $table->string('MAIL_DRIVER')->default('smtp');
-            $table->string('MAIL_HOST')->default('smtp.googlemail.com');
-            $table->string('MAIL_PORT')->default('587');
-            $table->string('MAIL_USERNAME')->default('davedeloper@gmail.com');
-            $table->string('MAIL_PASSWORD')->default('developerpassworD');
-            $table->string('MAIL_ENCRYPTION')->default('tls');
-           
-
+        // DB::table('settings')->insert(
+        //     array(
+        //         'OFFICIAL_EMAIL' => 'name@domain.com',
+               
+        //     )
+        // );
 
     }
 

@@ -1,5 +1,11 @@
 <?php
 
+use App\Settings;
+
+// Route::get('/test', function () {
+//     dd(Settings::all());
+// });
+
 Route::get('/clear', function () {
     Artisan::call('cache:clear');
     Artisan::call('view:clear');
@@ -40,6 +46,7 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('export/participantdetails/{id}', 'ProgramController@exportdetails')->name('program.detailsexport');
     //Show email history
     Route::get('updateemails/{id}', 'UserController@emailHistory')->name('updateemails.show');
+   
 });
 
 
@@ -51,6 +58,7 @@ Route::get('view/pop/{filename}', 'PopController@getfile');
 
 //Reconcile route
 Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
+Route::resource('settings', 'SettingsController');
 
 Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);

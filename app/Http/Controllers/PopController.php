@@ -7,6 +7,7 @@ use App\Pop;
 use App\User;
 use App\Program;
 use App\Location;
+use App\Settings;
 use App\Mail\POPemail;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
@@ -80,7 +81,7 @@ class PopController extends Controller
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
 
             //Send mail to admin
-            Mail::to(config('custom.official_email'))->send(new POPemail($data));
+            Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
             return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
            
     }

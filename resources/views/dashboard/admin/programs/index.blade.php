@@ -41,9 +41,9 @@
                                     <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
                                     
                             </td>
-                            <td>₦{{ $program->p_amount }}</td>
-                            <td>₦{{ $program->e_amount }}</td>
-                            <td>{{ config('app.currency') }}{{ $program->p_start }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$program->p_amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $program->e_amount }}</td>
+                            <td>{{ $program->p_start }}</td>
                             <td>{{ $program->p_end }}</td>
                             <td>{{ $program->part_paid }}</td>
                             <td>{{ $program->fully_paid }}</td>

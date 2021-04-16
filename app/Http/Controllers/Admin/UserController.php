@@ -7,6 +7,7 @@ use PDF;
 use App\User;
 use App\Program;
 use App\Location;
+use App\Settings;
 use App\Mail\Email;
 use App\UpdateMails;
 use App\Mail\Welcomemail;
@@ -328,7 +329,7 @@ class UserController extends Controller
             $recipients = explode (",", $recipients); 
             $program = 'Selected Recipients';
 
-            // Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+           
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
                 if(!$name){
@@ -342,7 +343,7 @@ class UserController extends Controller
             $recipients = $request->selectedemail;
             $program = 'Selected Recipients';
 
-            Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+            Mail::to(config(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL')))->send(new Email($data, $name, $subject));
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
                 Mail::to($recipient)->send(new Email($data, $name, $subject));       
@@ -354,7 +355,7 @@ class UserController extends Controller
             $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
             $program = Program::where('id', $request->program )->value('p_name');
           
-            Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
+            Mail::to(config(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL')))->send(new Email($data, $name, $subject));
             foreach($recipients as $recipient){
                 $name = User::whereId($recipient->user_id)->value('name');
                 $recipient->email = User::whereId($recipient->user_id)->value('email');

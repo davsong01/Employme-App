@@ -77,11 +77,11 @@
       </tr>
       <tr>
         <td>Amount Paid</td>
-        <td class="value">{{ config('custom.default_currency').$data['amount'] }}</td>
+        <td class="value">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }}</td>
       </tr>
       <tr>
         <td>Balance</td>
-        <td class="value">{{ config('custom.default_currency'). $details['balance']}}</td>
+        <td class="value">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $details['balance']}}</td>
       </tr>
       <tr>
         <td>Payment Type</td>

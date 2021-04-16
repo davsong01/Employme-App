@@ -29,9 +29,9 @@
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Admin Dashboard</span></a></li>
                 
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                {{-- <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{ route('reconcile') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                        class="hide-menu">Reconcile</span></a></li>
+                        class="hide-menu">Reconcile</span></a></li> --}}
                 <!---Student management links-->
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
@@ -111,6 +111,10 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
                         class="hide-menu">Email Participants</span></a></li>
+
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{route('settings.edit', 1)}}" aria-expanded="false"><i class="fa fa-cog"></i><span
+                        class="hide-menu">Settings</span></a></li>
                 @endif
         </nav>
         <!-- End Sidebar navigation -->

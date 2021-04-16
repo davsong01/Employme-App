@@ -238,52 +238,7 @@ class UserController extends Controller
 
         return view('dashboard.admin.users.emailhistory', compact('email') );
     }
-    // public function sendmail(Request $request){
-     
-    //     $data = $this->validate($request, [
-    //         'program' => 'required | numeric',
-    //         'subject' => 'required | min: 5',
-    //         'content' => 'required | min: 10'
-    //     ]);
-
-    //     $recipients = DB::table('program_user')->where('program_id', $request->program)->get();
-    //     $data = $request->content;
-    //     $subject = $request->subject;
-     
-    //     $name = auth()->user()->name;
-    //     Mail::to(config('custom.official_email'))->send(new Email($data, $name, $subject));
-        
-    //     foreach($recipients as $recipient){
-    //         $name = $recipient->name;
-    //         Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
-    //     }
-
-    //     if( count(Mail::failures()) > 0 ) {
-    //         $error = array('The following emails were not sent:');
-            
-    //            foreach(Mail::failures() as $email_address) {
-    //                $error = array_push($error,  - $email_address);
-    //             }
-    //         //return view with error
-    //         return back()->with('error', $error);
-
-    //         } else {
-    //             $message =  "All ". count($recipients). " emails were successfully sent!";
-
-    //             UpdateMails::create([
-    //                 'sender' => Auth::user()->name,
-    //                 'program' => Program::where('id', $request->program )->value('p_name'),
-    //                 'subject' => $request->subject,
-    //                 'content' => $request->content,
-    //                 'noofemails' => count($recipients),
-    //             ]);
-
-    //             //return view with success
-    //             return back()->with('message', $message);
-    //         } 
-    // }
-    // return view('dashboard.admin.users.email', compact('programs') );
-        
+   
     public function export() 
     {
         return Excel::download(new UsersExport, 'users.xlsx');

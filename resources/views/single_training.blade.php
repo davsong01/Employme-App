@@ -160,7 +160,7 @@
                         @endif
                         
                         <input type="hidden" name="quantity" value="1">
-                        <input type="hidden" name="currency" value="{{  config('custom.curr_abbreviation') }}">
+                        <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
                         {{-- <input type="hidden" name="metadata2" value="{{ json_encode($array = ['pid' => $training->id]) }}" >  --}}
                         
                         <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}

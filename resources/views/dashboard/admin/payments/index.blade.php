@@ -29,7 +29,7 @@
                             <td>{{ $transaction->program->p_name }}</td>
                             <td>{{ $transaction->name }}</td>
                             <td>{{ $transaction->email }}</td>
-                            <td>{{ config('custom.default_currency'). $transaction->amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->amount }}</td>
                             <td>{{ $transaction->bank }}</td>
                             <td>{{ $transaction->location }}</td>
                            
@@ -115,11 +115,11 @@
                             <td>{{isset($transaction->name ) ? $transaction->name : $transaction->user_id }}</td>
                             <td>{{isset($transaction->email ) ? $transaction->email : 'N/A' }}</td>
                             <td>{{ $transaction->program->p_name }}</td>
-                            <td>{{ config('custom.default_currency'). $transaction->t_amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}</td>
                             @if($transaction->paymentStatus == 0 )
-                                <td><b style="color:red">{{  config('custom.default_currency'). $transaction->balance }} </b></td> 
+                                <td><b style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </b></td> 
                             @else
-                                <td><b style="color:green">{{ config('custom.default_currency').  $transaction->balance }}</b></td> 
+                                <td><b style="color:green">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').  $transaction->balance }}</b></td> 
                             @endif
                             <td>{{ $transaction->t_type }}</td>
                             <td>{{ $transaction->invoice_id }}</td>
