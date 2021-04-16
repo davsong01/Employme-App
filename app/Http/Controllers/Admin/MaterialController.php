@@ -205,6 +205,7 @@ class MaterialController extends Controller
     public function getfile($filename){
        
         $realpath = base_path() . '/uploads/materials'. '/' .$filename;
+        
         return response()->download($realpath);
     }  
 

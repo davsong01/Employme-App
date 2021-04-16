@@ -88,6 +88,7 @@ class ResultController extends Controller
 
                     $userdetails = User::find($user->user_id);
                     $user->name = $userdetails->name;
+                    $user->email = $userdetails->email;
                     $user->redotest = $userdetails->redotest;
 
                     $user->final_ct_score = 0;
@@ -169,12 +170,13 @@ class ResultController extends Controller
                     // $user->name =  User::where('id', $user->user_id)->value('name');
                     $userdetails = User::find($user->user_id);
                     $user->name = $userdetails->name;
+                    $user->email = $userdetails->email;
                     $user->redotest = $userdetails->redotest;
 
                     $user->final_ct_score = 0;
                     $user->total_class_test_score = 0;
                     $user->obtainable = 0;
-
+                
                     foreach($results as $result){                      
                         $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score; 
                         $user->updated_at = $result->updated_at; 

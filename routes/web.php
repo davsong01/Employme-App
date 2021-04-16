@@ -16,6 +16,8 @@ Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('tra
 Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
 //route for dashboard.index only
 Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate','auth']);
+Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate','auth']);
+
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate','auth','programCheck']);
 
 //Get Booking form Link

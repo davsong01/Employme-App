@@ -249,34 +249,4 @@ class PopController extends Controller
         }else return 'Part payment';
     }
 
-
-public function te(){
-add_filter('woocommerce_package_rates', 'change_shipping_method_name_based_on_shipping_class', 50, 2);
-function change_shipping_method_name_based_on_shipping_class($rates, $package){
-    // HERE set the shipping class for "Fragile"
-    $shipping_class_id = 64;
-    $found = false;
-
-    // Check for the "Fragile" shipping class in cart items
-    foreach( $package['contents'] as $cart_item ) {
-        if( $cart_item['data']->get_shipping_class_id() == $shipping_class_id ){
-            $found = get_shipping_class_id_by_slug();
-            break;
-        }
-    }
-
-    // Loop through shipping methods
-    foreach ( $rates as $rate_key => $rate ) {
-        // Change "Flat rate" Shipping method label name
-        if ( 'flat_rate' === $rate->method_id ) {
-            if( $found )
-                $rates[$rate_key]->label = __( get_shipping_class_id_by_slug(), 'woocommerce' );
-            else
-                $rates[$rate_key]->label = __( 'International', 'woocommerce' );
-			
-        }
-    }
-    return $rates;
-}
-
 }

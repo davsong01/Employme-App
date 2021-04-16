@@ -20,6 +20,9 @@
                             <th>S/N</th>
                             <th>Date</th>
                             <th>Name</th>
+                            @if(auth()->user()->role_id == 'Admin' )
+                            <th>Email</th>
+                            @endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin')<th>C.T. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>R. Play Score</th>@endif
@@ -38,6 +41,9 @@
                             <td>{{ $i++ }}</td>
                             <td>{{isset($user->updated_at) ? $user->updated_at->format('d/m/Y') : ''}}</td>
                             <td>{{ $user->name }}</td>
+                             @if(auth()->user()->role_id == 'Admin' )
+                            <td>{{ $user->email }}</td>
+                            @endif
                              @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>@endif
                             @if(auth()->user()->role_id == 'Admin')<td>{{ $user->final_ct_score }}%</td>@endif
                              @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_role_play_score }}%</td>@endif

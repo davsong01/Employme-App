@@ -109,10 +109,6 @@ class TeacherController extends Controller
         foreach($programs as $program){
             $program['is_associated'] = FacilitatorTraining::whereUserId($user->id)->whereProgramId($program->id)->value('program_id');
         }
-
-      
-        // $programs_associated = FacilitatorTraining::whereUserId($user->id)->get();
-    //    dd($programs_associated);
        
         if(Auth::user()->role_id == "Admin"){
         return view('dashboard.admin.teachers.edit', compact('programs','user'));
