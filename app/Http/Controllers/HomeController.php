@@ -17,7 +17,7 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -32,9 +32,9 @@ class HomeController extends Controller
     {
         //Get calendar details
        $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
-        
+
         if(Auth::user()->role_id == "Admin" ){
-        
+
             $events = [];
             $data = Program::all();
             if($data->count()){
@@ -47,35 +47,39 @@ class HomeController extends Controller
                 );
             }
             }
-    
-            $calendar = Calendar::addEvents($events); 
+
+            $calendar = Calendar::addEvents($events);
 
             //Get all Programs
             $programCount = Program::where('id', '<>', 1)->count();
-            
+
             //Get all students
             $users = User::where('role_id', 'Student')->get();
             $userCount = $users->count();
 
             //Get pending payments
             $pending_payments = Pop::all()->count();
-            
+
             //Get Users owing
             foreach($users as $user){
                $users['userowing'] = DB::table('program_user')->where('balance', '>', 0)->count();
             }
-            $userowing = ($users['userowing']);
+            if(isset($users['userowing']))
+                $userowing = ($users['userowing']);
+            else
+                $userowing = null;
+
             $materialCount = Material::count();
             $i = 0;
 
             $requests = $request;
-           
+
             return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
 
-        } 
+        }
 
          if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader" ){
-        
+
             $events = [];
             $data = Program::all();
             if($data->count()){
@@ -88,19 +92,19 @@ class HomeController extends Controller
                 );
             }
             }
-    
-            $calendar = Calendar::addEvents($events); 
+
+            $calendar = Calendar::addEvents($events);
 
             //Get all Programs
             $programCount = Program::where('id', '<>', 1)->count();
-            
+
             //Get all students
             $users = User::where('role_id', 'Student')->get();
-         
+
 
             //Get pending payments
             $pending_payments = Pop::all()->count();
-            
+
             //Get Users owing
             foreach($users as $user){
                $users['userowing'] = DB::table('program_user')->where('user_id', $user->id)->where('balance', '>', 0)->count();
@@ -116,13 +120,13 @@ class HomeController extends Controller
             if($facilitator_programs->count() > 0){
 
                 foreach($facilitator_programs as $programs){
-                    $userCount = DB::table('program_user')->whereProgramId($programs->program_id)->count() + $userCount; 
+                    $userCount = DB::table('program_user')->whereProgramId($programs->program_id)->count() + $userCount;
                     $materialCount = Material::whereProgramId($programs->program_id)->count() + $materialCount;
                 }
             }
 
             $requests = $request;
-           
+
             return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
          }
 
@@ -130,7 +134,7 @@ class HomeController extends Controller
 
             //get enabled module Tests for this user
             $thisusertransactions = DB::table('program_user')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
-                
+
             foreach($thisusertransactions as $transactions){
                 $transactions->modules = Module::where('program_id', $transactions->program_id)->where('status', 1)->count();
                 $transactions->materials = Material::where('program_id', $transactions->program_id)->count();
@@ -141,7 +145,7 @@ class HomeController extends Controller
             return view('dashboard.student.dashboard', compact('thisusertransactions' ));
         }
 
-    } 
+    }
 
     public function trainings($id){
         //Get calendar details
@@ -158,12 +162,12 @@ class HomeController extends Controller
         }
         }
 
-        $calendar = Calendar::addEvents($events); 
+        $calendar = Calendar::addEvents($events);
 
         if(Auth::user()->role_id == "Student"){
             //Get Length of training
             $program = Program::findOrFail($id);
-            
+
             $trainingStartDate = $program->p_start;
             $trainingEndDate = $program->p_end;
 
@@ -179,9 +183,9 @@ class HomeController extends Controller
 
             $date1 = new \DateTime($trainingStartDate);
             $date2 = new \DateTime("now");
-         
+
             $length = $date1->diff($date2);
-             
+
             // check if training is still in progress
             if( date("Y-m-d") >= $trainingStartDate && date("Y-m-d") <= $trainingEndDate)
             {
