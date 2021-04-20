@@ -58,23 +58,25 @@ class SettingsController extends Controller
             'DEFAULT_CURRENCY' => 'required',
             'primary_color' => 'required|regex:/^#[\da-f]{6}/i',
             'secondary_color' => 'required|regex:/^#[\da-f]{6}/i',
+            'logo' => 'nullable|image|mimes:png',
+            'favicon' => 'nullable|image|mimes:png'
         ]);
 
+        if($request->has('logo') && $request->file('logo')){
+            Image::make($request->logo)->resize(152, 60)->save('assets/images/logo-text.png', 80, 'png');
+        }
 
-            $imgName = $request->logo->getClientOriginalName();
-            //
-            $logo = (string) Image::make($request->logo)->resize(152, 60)->save('assets/images'.'/'.$imgName, 80, 'png');
-
-
-// $jpg = (string) Image::make('public/'.$file)->encode('png', 90);
-        // $image = Image::make($request->logo)->resize(152, 60);
-
+        if($request->has('favicon') && $request->file('favicon')){
+            Image::make($request->favicon)->resize(16, 16)->save('assets/images/favicon.png', 80, 'png');
+        }
 
         $setting->update([
             'OFFICIAL_EMAIL' => $request->OFFICIAL_EMAIL,
             'ADDRESS_ON_RECEIPT' => $request->ADDRESS_ON_RECEIPT,
             'CURR_ABBREVIATION' => $request->CURR_ABBREVIATION,
             'DEFAULT_CURRENCY' => $request->DEFAULT_CURRENCY,
+            'primary_color' => $request->primary_color,
+            'secondary_color' => $request->secondary_color
         ]);
 
         return back()->with('message', 'Update successful');

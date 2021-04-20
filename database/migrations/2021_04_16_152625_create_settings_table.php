@@ -22,8 +22,8 @@ class CreateSettingsTable extends Migration
             $table->string('CURR_ABBREVIATION')->default('NGN');
             $table->text('ADDRESS_ON_RECEIPT')->default("IFECHUKWU HOUSE<br>Plot 87A Mustapha Azeeza Close, Off Alakoso Road<br /><small>(ABC Transport Terminal Axis) Amuwo-Odofin Industrial Area</small><br><br><br />");
             $table->string('DEFAULT_CURRENCY')->default("&#8358;");
-            $table->char('primary_colour', 7)->default('#000000');
-            $table->char('secondary_colour', 7)->default('#000000');
+            $table->char('primary_color', 7)->default('#000000');
+            $table->char('secondary_color', 7)->default('#000000');
         });
 
         // DB::table('settings')->insert(

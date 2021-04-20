@@ -59,9 +59,17 @@
                         <div class="col-md-12 col-lg-12 col-sm-12">
                             <div class="form-group">
                                 <label>Upload logo</label>
-                                <input type="file" name="logo"  class="form-control">
+                                <input type="file" name="logo"  class="form-control" accept="image/x-png">
                             </div>
                             <div><small style="color:red">{{ $errors->first('logo')}}</small></div>
+
+                        </div>
+                        <div class="col-md-12 col-lg-12 col-sm-12">
+                            <div class="form-group">
+                                <label>Upload site favicon</label>
+                                <input type="file" name="favicon"  class="form-control" accept="image/x-png">
+                            </div>
+                            <div><small style="color:red">{{ $errors->first('favicon')}}</small></div>
 
                         </div>
                         <div class="col-12">
