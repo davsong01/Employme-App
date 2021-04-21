@@ -16,9 +16,9 @@
     <meta name="author" content="">
     <!--Calender links-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css" />
-    <!--Working Datatables-->  
+    <!--Working Datatables-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
-     
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -40,7 +40,7 @@
 
     <!--Include CK Editor-->
     <script src="https://cdn.ckeditor.com/4.14.0/standard-all/ckeditor.js"></script>
-    
+
     <!---Calender scripts-->
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
@@ -68,7 +68,7 @@
         .bar2 { background-color: #00ff00; width:0%; height:20px; }
 
         .percent2 { position:absolute; display:inline-block !important; left:50%; color: #040608;}
-        
+
         .selecttraining{
             display:none;
         }
@@ -89,7 +89,7 @@
             display: flex;
             flex-wrap: wrap !important;
             justify-content: space-between;
-        } 
+        }
         .help-block {
             color: red !important;
         }
@@ -157,7 +157,7 @@
 
 .sticky + .content {
   padding-top: 102px;
-}    
+}
 
 </style>
 </head>
@@ -175,19 +175,26 @@
         <!-- ============================================================== -->
         <!-- Topbar header - style you can find in pages.scss -->
         <!-- ============================================================== -->
+        @if($colors->primary_color)
+            <style>
+                #navbarSupportedContent, .btn-primary {
+                    background: @php echo $colors->primary_color @endphp !important;
+                }
+            </style>
+        @endif
         <header class="topbar" data-navbarbg="skin5">
             @include('dashboard.layouts.nav')
         </header>
         @yield('dashboard')
-       
+
         <div class="page-wrapper">
-           
+
             @yield('content')
-           
+
             @include('dashboard.layouts.footer')
-            
+
         </div>
-       
+
     </div>
 
 
@@ -195,10 +202,10 @@
     <!--problmatic script-->
     {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
     <!--End of problmatic script-->
-    
+
     <script src="{{ asset('dist/js/jquery.ui.touch-punch-improved.js') }}"></script>
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
-    
+
     <!-- Bootstrap tether Core JavaScript -->
     <script src="{{ asset('assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
     <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
@@ -225,7 +232,7 @@
     <!--Select 2-->
     <script src="{{ asset('assets/libs/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/dist/js/select2.min.js') }}"></script>
-        
+
     <script>
         $('#zero_config').DataTable({
              "pageLength": 50
@@ -233,8 +240,8 @@
         // For select 2
         //***********************************//
         $(".select2").select2();
-        
-        
+
+
         $(document).ready( function () {
         $('#myTable').DataTable();
         } );

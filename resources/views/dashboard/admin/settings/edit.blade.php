@@ -46,12 +46,12 @@
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label for="primary_color">Primary colour</label>
-                                <input type="text" class="form-control" id="primary_color" minlength="7" maxlength="7" name="primary_color" placeholder="Eg #000000" title="accepts only color code" pattern="#[\da-f]{6}" value="{{ old('primary_color') ?? $setting->primary_color }}" required>
+                                <input type="text" class="form-control" id="primary_color" minlength="7" maxlength="7" name="primary_color" placeholder="Eg #000000" title="accepts only color code" pattern="#[\daA-fF]{6}" value="{{ old('primary_color') ?? $setting->primary_color }}" required>
                                 <div><small style="color:red">{{ $errors->first('primary_color')}}</small></div>
                             </div>
                             <div class="form-group col-md-6">
                                  <label for="secondary_color">Secondary colour</label>
-                                <input type="text" class="form-control" id="secondary_color" minlength="7" maxlength="7" name="secondary_color" placeholder="Eg #000000" title="accepts only color code" pattern="#[\da-f]{6}" value="{{ old('secondary_color') ?? $setting->secondary_color }}" required>
+                                <input type="text" class="form-control" id="secondary_color" minlength="7" maxlength="7" name="secondary_color" placeholder="Eg #000000" title="accepts only color code" pattern="#[\daA-fF]{6}" value="{{ old('secondary_color') ?? $setting->secondary_color }}" required>
                                 <div><small style="color:red">{{ $errors->first('secondary_color')}}</small></div>
                             </div>
                         </div>

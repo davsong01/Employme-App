@@ -56,8 +56,8 @@ class SettingsController extends Controller
             'ADDRESS_ON_RECEIPT' => 'required',
             'CURR_ABBREVIATION' => 'required',
             'DEFAULT_CURRENCY' => 'required',
-            'primary_color' => 'required|regex:/^#[\da-f]{6}/i',
-            'secondary_color' => 'required|regex:/^#[\da-f]{6}/i',
+            'primary_color' => 'required|regex:/^#[\daA-fF]{6}/i',
+            'secondary_color' => 'required|regex:/^#[\daA-fF]{6}/i',
             'logo' => 'nullable|image|mimes:png',
             'favicon' => 'nullable|image|mimes:png'
         ]);
