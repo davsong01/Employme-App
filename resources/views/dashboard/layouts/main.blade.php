@@ -177,8 +177,22 @@
         <!-- ============================================================== -->
         @if($colors->primary_color)
             <style>
-                #navbarSupportedContent, .btn-primary {
+                #navbarSupportedContent, #main-wrapper .left-sidebar[data-sidebarbg=skin5], #main-wrapper .left-sidebar[data-sidebarbg=skin5] ul ,.btn-primary {
                     background: @php echo $colors->primary_color @endphp !important;
+                }
+                .btn-primary {
+                    border: @php echo $colors->primary_color @endphp !important;
+                }
+            </style>
+        @endif
+        @if ($colors->secondary_color)
+            <style>
+                .btn-primary:hover{
+                    background: @php echo $colors->secondary_color @endphp !important;
+                    border: @php echo $colors->secondary_color @endphp !important;
+                }
+                .sidebar-nav ul .sidebar-item.selected>.sidebar-link{
+                    background: @php echo $colors->secondary_color @endphp !important;
                 }
             </style>
         @endif

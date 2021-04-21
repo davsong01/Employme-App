@@ -22,8 +22,8 @@ class CreateSettingsTable extends Migration
             $table->string('CURR_ABBREVIATION')->default('NGN');
             $table->text('ADDRESS_ON_RECEIPT')->nullable();
             $table->string('DEFAULT_CURRENCY')->default("&#8358;");
-            $table->char('primary_color', 7)->default('#000000');
-            $table->char('secondary_color', 7)->default('#000000');
+            $table->char('primary_color', 7)->default('#1F262D');
+            $table->char('secondary_color', 7)->default('#b11a1a');
         });
 
         // DB::table('settings')->insert(
