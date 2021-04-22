@@ -64,6 +64,7 @@ class SettingsController extends Controller
 
         if($request->has('logo') && $request->file('logo')){
             Image::make($request->logo)->resize(152, 60)->save('assets/images/logo-text.png', 80, 'png');
+            Image::make($request->logo)->resize(270, 92)->save('login_files/assets/images/logo.png', 80, 'png');
         }
 
         if($request->has('favicon') && $request->file('favicon')){
