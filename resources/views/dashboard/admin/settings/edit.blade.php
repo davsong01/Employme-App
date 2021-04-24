@@ -72,6 +72,13 @@
                             <div><small style="color:red">{{ $errors->first('favicon')}}</small></div>
 
                         </div>
+                        <div class="col-md-12 col-lg-12 col-sm-12">
+                            <div class="form-group">
+                                <label>Upload banner</label>
+                                <input type="file" name="banner"  class="form-control" accept="image/jpg">
+                            </div>
+                            <div><small style="color:red">{{ $errors->first('banner')}}</small></div>
+                        </div>
                         <div class="col-12">
                              <input type="submit" class="btn btn-primary" style="width:100%">
                         </div>

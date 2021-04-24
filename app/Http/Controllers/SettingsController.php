@@ -59,13 +59,19 @@ class SettingsController extends Controller
             'primary_color' => 'required|regex:/^#[\daA-fF]{6}/i',
             'secondary_color' => 'required|regex:/^#[\daA-fF]{6}/i',
             'logo' => 'nullable|image|mimes:png',
-            'favicon' => 'nullable|image|mimes:png'
+            'favicon' => 'nullable|image|mimes:png',
+            'banner' => 'nullable|image'
         ]);
 
         if($request->has('logo') && $request->file('logo')){
             Image::make($request->logo)->resize(152, 60)->save('assets/images/logo-text.png', 80, 'png');
             Image::make($request->logo)->resize(270, 92)->save('login_files/assets/images/logo.png', 80, 'png');
         }
+
+        if($request->has('banner') && $request->file('banner')){
+            Image::make($request->banner)->resize(270, 92)->save('login_files/assets/images/picture.jpg', 80, 'png');
+        }
+
 
         if($request->has('favicon') && $request->file('favicon')){
             Image::make($request->favicon)->resize(16, 16)->save('assets/images/favicon.png', 80, 'png');
