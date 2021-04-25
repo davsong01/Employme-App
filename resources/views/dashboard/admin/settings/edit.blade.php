@@ -32,21 +32,26 @@
 
                         <div class="form-group">
                             <label>Currency Abbreviation *</label>
-                            <input type="text" name="CURR_ABBREVIATION" value="{{ old('CURR_ABBREVIATION') ??  $setting->CURR_ABBREVIATION}}"value="{{ old('CURR_ABBREVIATION') ?? $setting->CURR_ABBREVIATION}}" 
+                            <input type="text" name="CURR_ABBREVIATION" value="{{ old('CURR_ABBREVIATION') ??  $setting->CURR_ABBREVIATION}}"
                                 class="form-control" required>
                         </div>
                         <div><small style="color:red">{{ $errors->first('CURR_ABBREVIATION')}}</small></div>
                         <div class="form-group">
                             <label>Default Currency code(Change this to dropdown of naira ghana cedes and dollar) *</label>
-                            <input type="text" name="DEFAULT_CURRENCY" value="{!! old('DEFAULT_CURRENCY') ??  $setting->DEFAULT_CURRENCY !!}"value="{!! old('DEFAULT_CURRENCY') ?? $setting->DEFAULT_CURRENCY !!}" 
-                                class="form-control" required>
+                            <input type="text" name="DEFAULT_CURRENCY" value="{!! old('DEFAULT_CURRENCY') ??  $setting->DEFAULT_CURRENCY !!}"       class="form-control" required>
                         </div>
                         <div><small style="color:red">{{ $errors->first('DEFAULT_CURRENCY')}}</small></div>             
-                    
+                        <div class="form-group">
+                            <label>Program Coordinator *</label>
+                            <input type="text" name="program_coordinator" value="{!! old('program_coordinator') ??  $setting->program_coordinator !!}" 
+                                class="form-control" required>
+                        </div>
+                        <div><small style="color:red">{{ $errors->first('program_coordinator')}}</small></div>             
+                        
                         </div>
                         <div class="col-md-12 col-lg-12 col-sm-12">
                             <div class="form-group">
-                                <label>Upload logo</label>
+                                <label>Upload logo (152px by 60px preferred)</label>
                                 <input type="file" name="logo"  class="form-control">
                             </div>
                             <div><small style="color:red">{{ $errors->first('logo')}}</small></div>

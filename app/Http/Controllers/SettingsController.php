@@ -51,22 +51,18 @@ class SettingsController extends Controller
   
     public function update(Request $request, Settings $setting)
     {
-        // dd($request->all());
 
-            $imgName = $request->logo->getClientOriginalName();
-            // 
-            $logo = (string) Image::make($request->logo)->resize(152, 60)->save('assets/images'.'/'.$imgName, 80, 'png');
-           
- 
-// $jpg = (string) Image::make('public/'.$file)->encode('png', 90);
-        // $image = Image::make($request->logo)->resize(152, 60);
- 
+        $file = 'logo';
+        $extension = $request->file('logo')->getClientOriginalExtension();
+        $filePath = $request->file('logo')->storeAs('public/assets/images', $file.'.'.$extension  ,'public');
+
        
         $setting->update([
             'OFFICIAL_EMAIL' => $request->OFFICIAL_EMAIL,
             'ADDRESS_ON_RECEIPT' => $request->ADDRESS_ON_RECEIPT,
             'CURR_ABBREVIATION' => $request->CURR_ABBREVIATION,
             'DEFAULT_CURRENCY' => $request->DEFAULT_CURRENCY,
+            'program_coordinator' => $request->program_coordinator
         ]);
         
         return back()->with('message', 'Update successful');

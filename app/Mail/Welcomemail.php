@@ -31,7 +31,7 @@ class Welcomemail extends Mailable
             
         }else{
             return $this->markdown('emails.welcomemail')
-            // ->attachData($this->pdf->output(), "E-receipt.pdf")
+            ->attachData($this->pdf->output(), "E-receipt.pdf")
             ->subject('E - Receipt and Booking Form')
             ->attach($this->details['booking_form'], [
             'as' => 'Booking form.pdf',
