@@ -52,7 +52,7 @@ class SettingsController extends Controller
     public function update(Request $request, Settings $setting)
     {
         $this->validate($request, [
-            'OFFICIAL_EMAIL' => 'required|email|unique:users,email,' . $setting->id,
+            'OFFICIAL_EMAIL' => 'required|email',
             'ADDRESS_ON_RECEIPT' => 'required',
             'CURR_ABBREVIATION' => 'required',
             'DEFAULT_CURRENCY' => 'required',
