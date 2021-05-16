@@ -8,7 +8,7 @@
 <body>
 <div class="container">
 
-	<div style="float:left"><img src="{{ asset('assets/images/elearninglogo.jpg') }}" style="width:50%" /></div>
+	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width:100%" /></div>
 
 	<div style="float:right">
 		<h4></h4>
@@ -27,7 +27,7 @@
 	</div>
 
 	<div class="row">&nbsp;
-		<div class="col-8"><strong>School Address: </strong>{!! config('custom.address_on_receipt') !!}
+		<div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
 		</div>
 	</div>
 
@@ -70,8 +70,8 @@
 					<td class="col-md-1" style="text-align: center">1</td>
 					<td class="col-md-8">{{ $details['programName']}}<br />
 					<small><i>({{ $details['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $details['programFee']}}</td>
-					<td class="col-md-2 text-center">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $data['amount'] }}</td>
+					<td class="col-md-1 text-center">{{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}{{ $details['programFee']}}</td>
+					<td class="col-md-2 text-center">{{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}{{ $data['amount'] }}</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -80,7 +80,7 @@
 					<p><strong>Total:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-					<p><strong>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $data['amount'] }}</strong></p>
+					<p><strong>{{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}{{ $data['amount'] }}</strong></p>
 					</td>
 				</tr>
 				<tr>
@@ -90,7 +90,7 @@
 					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
 					</td>
 					<td class="text-center">
-					<h4><strong style="color:red !important">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY') }}{{ $details['balance'] }}</strong></h4>
+					<h4><strong style="color:red !important">{{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}{{ $details['balance'] }}</strong></h4>
 					</td>
 				</tr>
 			</tbody>
@@ -99,8 +99,7 @@
 			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
 			</div>
 			<br />
-	{{-- <div style="float-left; padding-left: 20px;"><img alt="signature" src="{{ asset('assets/images/sign.png') }}" style="width:8%" /> --}}
-		<p><b><i>School Administrator</i></b></p>
+			<p><b><i>School Administrator</i></b></p>
 	</div>
 	<div>
 		<br /><br />

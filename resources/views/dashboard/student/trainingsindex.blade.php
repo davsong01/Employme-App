@@ -21,7 +21,7 @@
                 @if($program->hasmock == 1)
                     <li class="sidebar-item"><a href="{{ route('mocks.index', ['p_id' => $program->id])}}" class="sidebar-link"><i
                         class="fa fa-chalkboard"></i><span class="hide-menu">Pre Class Tests</span></a>
-                    </li>
+                    </li>    
                 @endif
                 <li class="sidebar-item"><a href="{{ route('materials.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                     class="fas fa-download"></i><span class="hide-menu">My Study Materials

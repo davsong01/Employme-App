@@ -6,6 +6,7 @@ use PDF;
 use App\User;
 use Paystack;
 use App\Program;
+use App\Settings;
 use App\Http\Requests;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
@@ -205,6 +206,7 @@ class PaymentController extends Controller
                 'email' =>$email,
                 'bank' =>$t_type,
                 'amount' =>$amount,
+                
             ];
 
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));

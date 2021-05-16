@@ -60,9 +60,9 @@
                             <div class="col-md-12 mb-3">
                                 <select name="amount" id="amount" class="form-control" required>
                                     <option value="">Select Payment Type</option>
-                                    <option value="{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $training->p_amount * 100}}">Full Payment ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$training->p_amount }})</option>
+                                    <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$training->p_amount }})</option>
                                     @if($training->close_earlybird == 0 && $training->e_amount > 0)
-                                    <option value="{{ $training->e_amount * 100}}">Earlybird {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$training->e_amount }})</option>
+                                    <option value="{{ $training->e_amount * 100}}">Earlybird ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$training->e_amount }})</option>
                                     @endif
                                     @if($training->haspartpayment == 1)
                                     <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$training->p_amount/2 }})</option>

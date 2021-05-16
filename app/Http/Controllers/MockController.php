@@ -52,10 +52,11 @@ class MockController extends Controller
     {
        if(Auth::user()->role_id == "Student"){
 
-            // $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            // if($user_balance->balance > 0){
-            //     return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to take tests');
-            // }
+            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            if($user_balance->balance > 0){
+                
+                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to access pre-tests');
+            }
 
             $i = 1;
 
@@ -72,6 +73,7 @@ class MockController extends Controller
                 }
             }
             //  dd($modules);
+            
             return view('dashboard.student.pretests.index', compact('modules', 'i', 'program') );
          }
     }

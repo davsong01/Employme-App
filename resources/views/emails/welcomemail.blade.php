@@ -10,7 +10,7 @@
 </div>
 @else 
 <div>   
-    <p style="text-align:justify !important">Your {{ $details['message'] }} of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }} for the {{ $details['programName'] }} ({{ $details['programAbbr'] }}) via {{ $data['bank'] }} has been received. 
+    <p style="text-align:justify !important">Your {{ $details['message'] }} of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }} for the {{ $details['programName'] }} ({{ $details['programAbbr'] }}) via {{ $data['bank'] }} has been received. <br><br>
     
 
     <strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form and feedback form which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br>
@@ -30,6 +30,6 @@
 @endif
 
 Accept our warm regards.<br><br>
-<b>Chris Anozie</b><br>
+<b> {{ \App\Settings::select('program_coordinator')->first()->value('program_coordinator') }}</b><br>
 Program Coordinator
 @endcomponent

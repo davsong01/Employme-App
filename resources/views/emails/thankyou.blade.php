@@ -38,7 +38,7 @@
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
     <div class="container">
         
-      <a class="navbar-brand js-scroll-trigger" href="#page-top"><img src="assets/inc/img/logo-text.png" alt="logo"></a>
+      <a class="navbar-brand js-scroll-trigger" href="#page-top"><img src="{{ asset('assets/images/logo-text.png') }}" alt="logo"></a>
     </div>
   </nav>
 
