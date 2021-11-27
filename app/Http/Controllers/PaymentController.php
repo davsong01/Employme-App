@@ -70,7 +70,6 @@ class PaymentController extends Controller
         if($paymentDetails['data']['status'] === 'success'){
 
             if(isset($paymentDetails['data']['metadata']['type']) && $paymentDetails['data']['metadata']['type'] == 'balance'){
-              
                 //Get training details details
                 $training = Program::where('id', $paymentDetails['data']['metadata']['p_id'])->first();
                 $programFee = $training->p_amount;
@@ -136,7 +135,7 @@ class PaymentController extends Controller
             $bookingForm = $training->booking_form;
             $programEarlyBird = $training->e_amount;
             $invoice_id = 'Invoice'.rand(10, 100);
-
+         
             //Create User details
             $name = $paymentDetails['data'] ['metadata']['name'];
             $email = $paymentDetails['data']['customer']['email'];
@@ -165,8 +164,9 @@ class PaymentController extends Controller
             
             $paymentStatus =  $this->paymentStatus($balance);
 
-            //Check if email exists in the system and attach it to the new pregram to that email
+            //Check if email exists in the system and attach it to the new program to that email
             $user = User::where('email', $email)->first();
+            // if user doesnt exist, create new user and attach program
             if(!$user){
                 //save to database
                 $user = User::updateOrCreate([
@@ -177,46 +177,40 @@ class PaymentController extends Controller
                     'role_id' => $role_id,
                 ]); 
             }
-            
-            $user->programs()->attach($program_id, [
-                    'created_at' =>  date("Y-m-d H:i:s"),
-                    't_amount' => $amount,
-                    't_type' => $t_type,
-                    't_location' => $location,
-                    'transid' => $transid,
-                    'paymenttype' => $payment_type,
-                    'paymentStatus' => $paymentStatus,
+            //If program id is not in array of user program, attach program
+            $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $program_id)->count();
+
+            if( $userPrograms < 1){
+                // Attach program
+                $this->attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id);
+               
+                //prepare and send email
+                $details = [
+                    'programFee' => $programFee,
+                    'programName' => $programName,
+                    'programAbbr' => $programAbbr,
                     'balance' => $balance,
+                    'message' => $message,
+                    'booking_form' => !is_null($bookingForm) ? base_path() . '/uploads'.'/'. $bookingForm : null,
                     'invoice_id' =>  $invoice_id,
-                ] );
+                ];
+        
+                $data = [
+                    'name' =>$name,
+                    'email' =>$email,
+                    'bank' =>$t_type,
+                    'amount' =>$amount,
+                ];
 
-            //send email
-            $details = [
-                'programFee' => $programFee,
-                'programName' => $programName,
-                'programAbbr' => $programAbbr,
-                'balance' => $balance,
-                'message' => $message,
-                'booking_form' => base_path() . '/uploads'.'/'.$bookingForm,
-                'invoice_id' =>  $invoice_id,
-            ];
-      
-            $data = [
-                'name' =>$name,
-                'email' =>$email,
-                'bank' =>$t_type,
-                'amount' =>$amount,
+                $this->sendWelcomeMail($details, $data);
                 
-            ];
+                //include thankyou page
+                return view('emails.thankyou', compact('data',  'details'));
 
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            // return view('emails.welcomemail', compact('data', 'details'));
-            // return view('emails.receipt', compact('data', 'details'));
-            Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-                
-            //include thankyou page
-            return view('emails.thankyou', compact('data',  'details'));
-
+            }else{
+                dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
+            }
+        
         }dd('Transaction failed! We have not received any money from you.');
      
     }     

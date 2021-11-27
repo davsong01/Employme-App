@@ -17,7 +17,7 @@ class CreateScoreSettingsTable extends Migration
             $table->increments('id');
 
             $table->integer('program_id')->unsigned();
-            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
+            // $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
 
             $table->integer('certification')->unsigned();
             $table->integer('class_test')->unsigned();

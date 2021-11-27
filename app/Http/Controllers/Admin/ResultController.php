@@ -8,7 +8,9 @@ use App\Module;
 use App\Result;
 use App\Program;
 use App\Question;
+use App\Settings;
 use App\ScoreSetting;
+use GuzzleHttp\Client;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -137,8 +139,9 @@ class ResultController extends Controller
                     }     
             }
             $program_name = Program::whereId($request->pid)->value('p_name');
+            $passmark = $score_settings->passmark;
             
-            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name') );
+            return view('dashboard.admin.results.index', compact('passmark', 'users', 'i', 'program_name') );
         }
             
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
@@ -226,7 +229,6 @@ class ResultController extends Controller
         
         return redirect('/dashboard');
     }
-
     
     public function create()
     {
@@ -278,7 +280,6 @@ class ResultController extends Controller
                 foreach($questions as $key=>$value){
                     $results['title'] = Question::whereId($key)->value('title');
                     $results['answer'] = $value;
-                   ;
                    
                 }
 
@@ -458,6 +459,29 @@ class ResultController extends Controller
         
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         } return back();
+    }
+
+    public function verify(Request $request){
+       
+        //Check if Parter has filled WAACSP details
+        if( Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL') == NULL || Settings::select('token')->first()->value('token') == NULL){
+            return back()->with('fill', 'You must fill your official email and WAASP token. <a target="_blank" href="/settings/1/edit"><strong> CLICK HERE TO FILL</strong></a>');
+        }
+        $client = new Client();
+        $res = $client->request('POST', 'http://127.0.0.1:8000/api/verify', [
+            'form_params' => [
+                'participants' => $request->participants,
+                'passmark' => $request->passmark,
+                'training' => $request->training,
+                'token' => $request->token,
+                'email' => $request->email,
+            ]
+        ]);
+
+        $res = json_decode($res->getBody()->getContents());
+
+        return back()->with($res->status, $res->message);
+         
     }
 
     //return certification status

@@ -266,7 +266,7 @@
                                     </div>
                                 </div> 
                             </div>
-                            @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                            {{-- @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
@@ -282,13 +282,14 @@
                                 </div>
                                
                             </div>
-                            @endif
+                            @endif --}}
                             <div class="row">
                                 <button type="submit" class="btn btn-primary" style="width:100%">
                                     Submit
                                 </button>
                             </div>
-                            {{ csrf_field() }}
+                        </form>
+                        {{ csrf_field() }}
                     </div>
                 </div>
             </div>

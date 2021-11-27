@@ -23,7 +23,13 @@
 
                                 <!--Gives the first error for input name-->
                                 <div><small style="color:red">{{ $errors->first('OFFICIAL_EMAIL')}}</small></div>
+                                <div class="form-group">
+                                    <label>WAACSP Token</label>
+                                    <input type="text" name="token" value="{{ old('token') ?? $setting->token}}" class="form-control">
+                                </div>
 
+                                <!--Gives the first error for input name-->
+                                <div><small style="color:red">{{ $errors->first('token')}}</small></div>
                                 <div class="form-group">
                                     <label>Address on receipt (You can use html tags)*</label>
                                     <textarea name="ADDRESS_ON_RECEIPT" value="{{ old('ADDRESS_ON_RECEIPT') ??  $setting->ADDRESS_ON_RECEIPT}}"
@@ -90,7 +96,7 @@
                         
                        
                         <div class="col-12">
-                             <input type="submit" class="btn btn-primary" style="width:100%">
+                             <button class="btn btn-primary" style="width:100%">Update Settings</button>
                         </div>
 
                     </form>

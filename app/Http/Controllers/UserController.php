@@ -210,18 +210,6 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        // if($user->balance <= 0){
-        //     $f_paid = ($user->program->f_paid - 1);
-
-        //     Program::where('id', $user->program->id)->update(['f_paid' => $f_paid]); 
-        // }
-
-        // if($user->balance > 0){
-        //     $p_paid = $user->program->p_paid - 1;
-        //     // dd($f_paid);
-        //     Program::where('id', $user->program->id)->update(['p_paid' => $p_paid]); 
-        // }
-  
         $user->delete();
         return redirect('users')->with('message', 'user deleted successfully');
     }

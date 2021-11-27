@@ -15,9 +15,8 @@ class CreateMaterialsTable extends Migration
     {
         Schema::create('materials', function (Blueprint $table) {
             $table->increments('id');
-            //$table->unsignedInteger('program_id');
             $table->integer('program_id')->unsigned();
-            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
+            // $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
             $table->string('title');
             $table->string('file')->nullable();
             $table->timestamps();

@@ -106,6 +106,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 
     Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
     Route::get('postclassresults/{id}', 'ResultController@getgrades')->name('results.getgrades');
+    Route::post('waacsp', 'ResultController@verify')->name('send.waacsp');
     
     Route::get('user/{uid}/module/{modid}/{pid}', 'ResultController@add')->name('results.add');
     Route::get('certifications', 'ResultController@certifications')->name('certifications.index');

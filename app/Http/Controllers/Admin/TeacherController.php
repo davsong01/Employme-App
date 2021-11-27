@@ -21,7 +21,7 @@ class TeacherController extends Controller
         $i = 1;
         //$users = User::all();
        
-        $users = User::select('id', 'name', 'email', 'role_id')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
+        $users = User::select('id', 'name', 'email', 'role_id', 'created_at')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
         
         
         foreach($users as $user){

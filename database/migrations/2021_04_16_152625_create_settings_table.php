@@ -19,6 +19,8 @@ class CreateSettingsTable extends Migration
             $table->timestamps();
 
             $table->string('OFFICIAL_EMAIL')->nullable();
+            $table->string('token')->nullable();
+            
             $table->string('CURR_ABBREVIATION')->default('NGN');
             $table->text('ADDRESS_ON_RECEIPT')->default("IFECHUKWU HOUSE<br>Plot 87A Mustapha Azeeza Close, Off Alakoso Road<br /><small>(ABC Transport Terminal Axis) Lagos</small><br><br><br />");
             $table->string('DEFAULT_CURRENCY')->default("&#8358;"); 
@@ -26,7 +28,6 @@ class CreateSettingsTable extends Migration
             $table->char('primary_color', 7)->default('#1F262D');
             $table->char('secondary_color', 7)->default('#b11a1a');
         });
-
 
     }
 

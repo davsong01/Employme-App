@@ -17,7 +17,7 @@ class CreateQuestionsTable extends Migration
             $table->increments('id');
             
             $table->integer('module_id')->unsigned();
-            $table->foreign('module_id')->references('id')->on('modules')->onDelete('cascade');
+            // $table->foreign('module_id')->references('id')->on('modules')->onDelete('cascade');
            
             $table->text('title');
             $table->text('optionA')->nullable();

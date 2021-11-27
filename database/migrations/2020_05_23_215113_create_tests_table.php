@@ -18,7 +18,7 @@ class CreateTestsTable extends Migration
             $table->integer('program_id')->unsigned();
             
             $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->integer('class_test_score')->nullable();
             $table->integer('class_test_details')->nullable();

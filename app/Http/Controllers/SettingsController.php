@@ -85,7 +85,8 @@ class SettingsController extends Controller
             'DEFAULT_CURRENCY' => $request->DEFAULT_CURRENCY,
             'program_coordinator' => $request->program_coordinator,
             'primary_color' => $request->primary_color,
-            'secondary_color' => $request->secondary_color
+            'secondary_color' => $request->secondary_color,
+            'token' => $request->token,
         ]);
 
         return back()->with('message', 'Update successful');

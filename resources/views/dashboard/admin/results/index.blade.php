@@ -9,7 +9,18 @@
                 @include('layouts.partials.alerts')
                 <div class="card-header">
                     <div>
-                        <h5 class="card-title"> All Results for: {{ $program_name }} </h5><br><button class="btn btn-success" id="csv">Export Results</button>
+                        <h5 class="card-title"> All Results for: {{ $program_name }} </h5><br>
+                        <button class="btn btn-success" id="csv">Export Results</button>
+                        <form id="waacsp" action="{{ route('send.waacsp')}}" class="btn btn-success" method="POST">
+                            {{ csrf_field() }}
+                        <input type="hidden" id="participants" name="participants" value="{{ $users }}">
+                        <input type="hidden" name="passmark" id="passmark" value="{{  $passmark }}">
+                        <input type="hidden" name="training" id="training" value="{{ $program_name }}">
+                        <input type="hidden" name="email" id="email" value="{{ \App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL')}}">
+                        <input type="hidden" name="token" id="token" value="{{ \App\Settings::select('token')->first()->value('token')}}">
+                        <button type="submit" class="btn btn-primary">Send to WAACSP</button>
+                        </form>
+                        
                     </div>
                 </div>
             </div>
@@ -53,7 +64,8 @@
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>{{ $user->marked_by }}</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
-                          
+                            
+                            
                             <td>
                                
                                 @if( $user->result_id) 
@@ -118,5 +130,33 @@
         </div>
     </div>
 </div>
+<script>
+    
+// $(document).ready(function () {
+//   $("#waacsp").submit(function (event) {
 
+//     var formData = {
+//       participants: $("#participants").val(),
+//       passmark: $("#passmark").val(),
+//       training: $("#training").val(),
+//       token: $("#token").val(),
+//       email: $("#email").val(),
+//     };
+
+//      $.ajax({
+//       type: "POST",
+//       url: "https://127.0.0.1:8000/api/verify"+"/callback=?",
+//       data: formData,
+//       dataType: "json",
+//       encode: true,
+//       crossdomain:true
+      
+//     }).done(function (data) {
+//       console.log(data);
+//     });
+
+//     event.preventDefault();
+//   });
+// });
+</script>
 @endsection

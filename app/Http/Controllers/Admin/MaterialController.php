@@ -151,8 +151,9 @@ class MaterialController extends Controller
         }
         
 
-    }   return response()->json(['success'=>'Study Material Uploaded Successfully']);
-        // return redirect('materials')->with('message', 'Study material succesfully added');
+    }  
+        // return response()->json(['success'=>'Study Material Uploaded Successfully']);
+        return redirect('materials')->with('message', 'Study material succesfully added');
     }
 
     public function show(Material $material)

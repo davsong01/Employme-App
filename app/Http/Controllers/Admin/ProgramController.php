@@ -75,8 +75,11 @@ class ProgramController extends Controller
         ]);
 
         //Save booking form
-        $file = $request->file('booking_form')->getClientOriginalName();
-        $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
+        if($request->file('booking_form')){
+            $file = $request->file('booking_form')->getClientOriginalName();
+            $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
+        }
+        
 
         //Resize and save program banner
         $file = $request->file('image')->getClientOriginalName();
@@ -97,7 +100,7 @@ class ProgramController extends Controller
             'hasmock' => $data['hasmock'],
             'haspartpayment' => $data['haspartpayment'],
             'status' => $data['status'],
-            'booking_form' => $filePath,
+            'booking_form' => $filePath ?? null,
             'image' => 'trainingimage/'.$file,
         ]); 
         

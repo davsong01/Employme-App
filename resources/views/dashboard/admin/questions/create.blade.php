@@ -33,8 +33,7 @@
 
                                 <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
                                     <label for="title">Title</label>
-                                    <textarea id="title" type="text" class="form-control" name="title"
-                                        value="{{ old('title') }}" autofocus required>{{ old('title') }}</textarea>
+                                    <textarea id="title" type="text" class="form-control" name="title" value="{{ old('title') }}" autofocus required>{{ old('title') }}</textarea>
                                     @if ($errors->has('title'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('title') }}</strong>
@@ -109,9 +108,8 @@
             </div>
         </div>
     </div>
- 
-        <script>
-            CKEDITOR.replace('title');
-        </script>
+    <script>
+        CKEDITOR.replace('title');
+    </script>
  
     @endsection

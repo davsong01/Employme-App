@@ -99,13 +99,14 @@ class TestsController extends Controller
         }
      
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
+       
         if(auth()->user()->redotest == 0){
-        if($check->count() > 0){
+        if($check != NULL){
             return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
         };
         }
 
-        if($check->count() > 0 && auth()->user()->redotest != 0){
+        if($check != NULL && auth()->user()->redotest != 0){
             $check->certification_test_details = json_encode($certification_test_details);
            
             $check->save();

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Illuminate\Support\Str;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -25,18 +26,30 @@ class Welcomemail extends Mailable
 
     public function build()
     {
+        
         if(isset($this->data['type']) && $this->data['type'] == 'balance'){
             return $this->markdown('emails.welcomemail')
             ->subject('Balance Payment Received');
             
         }else{
-            return $this->markdown('emails.welcomemail')
-            ->attachData($this->pdf->output(), "E-receipt.pdf")
-            ->subject('E - Receipt')
-            ->attach($this->details['booking_form'], [
-            'as' => 'Booking form.pdf',
-            'mime' => 'application/pdf',
-        ]);
+            // if (file_exists(base_path() . '/uploads/products'.'/'.$value))
+       
+            if(Str::contains($this->details['booking_form'], 'bookingforms')){
+            //    dd($this->details['booking_form']);
+                    return $this->markdown('emails.welcomemail')
+                        ->attachData($this->pdf->output(), "E-receipt.pdf")
+                        ->subject('E - Receipt')
+                        ->attach($this->details['booking_form'], [
+                        'as' => 'Booking form.pdf',
+                        'mime' => 'application/pdf',
+                    ]);
+            }else{
+            
+                return $this->markdown('emails.welcomemail')
+                ->attachData($this->pdf->output(), "E-receipt.pdf")
+                ->subject('E - Receipt');
+            }
+            
         }
         
 

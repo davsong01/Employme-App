@@ -23,25 +23,25 @@
                     </thead>
                     
                     <tbody>
-                        @foreach($pops->sortBy('date') as $transaction)
+                        @foreach($pops as $pop)
                         <tr>
-                            <td>{{ $transaction->date }}</td>
-                            <td>{{ $transaction->program->p_name }}</td>
-                            <td>{{ $transaction->name }}</td>
-                            <td>{{ $transaction->email }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->amount }}</td>
-                            <td>{{ $transaction->bank }}</td>
-                            <td>{{ $transaction->location }}</td>
+                            <td>{{ $pop->date }}</td>
+                            <td>{{ $pop->program->p_name }}</td>
+                            <td>{{ $pop->name }}</td>
+                            <td>{{ $pop->email }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $pop->amount }}</td>
+                            <td>{{ $pop->bank }}</td>
+                            <td>{{ $pop->location }}</td>
                            
                              <td>
                                 <div class="btn-group">
-                                    <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $transaction->file }}" src="view/{{ $transaction->file }}" alt="{{ $transaction->name }}" style="width:40px;max-width:300px"></a>
+                                    <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $pop->file }}" src="view/{{ $pop->file }}" alt="{{ $pop->name }}" style="width:40px;max-width:300px"></a>
                                     
                                     <a data-toggle="tooltip" data-placement="top" title="Approve Payment"  onclick="return confirm('Are you really sure?');"
-                                        class="btn btn-success" href="{{ route('pop.show', $transaction->id) }}"><i
+                                        class="btn btn-success" href="{{ route('pop.show', $pop->id) }}"><i
                                             class="fa fa-check"></i>
                                     </a>
-                                    <form action="{{ route('pop.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                    <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
@@ -63,7 +63,7 @@
                         var modal = document.getElementById("myModal");
 
                         // Get the image and insert it inside the modal - use its "alt" text as a caption
-                        var img = document.getElementById("myImg{{ $transaction->file }}");
+                        var img = document.getElementById("myImg{{ $pop->file }}");
                         var modalImg = document.getElementById("img01");
                         var captionText = document.getElementById("caption");
                         img.onclick = function(){
@@ -112,9 +112,9 @@
                         <tr>
                             
                             <td>{{ $transaction->created_at }} </td>
-                            <td>{{isset($transaction->name ) ? $transaction->name : $transaction->user_id }}</td>
-                            <td>{{isset($transaction->email ) ? $transaction->email : 'N/A' }}</td>
-                            <td>{{ $transaction->program->p_name }}</td>
+                            <td>{{isset($transaction->user ) ? $transaction->user->name : 'N/A' }}</td>
+                            <td>{{isset($transaction->user ) ? $transaction->user->email : 'N/A' }}</td>
+                            <td>{{ isset($transaction->program) ? $transaction->program->p_name : 'N/A' }}</td>
                             <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}</td>
                             @if($transaction->paymentStatus == 0 )
                                 <td><b style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </b></td> 

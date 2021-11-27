@@ -48,7 +48,7 @@
                             $(this).removeAttr("maxLength");
                         }
                     });
-                    CKEDITOR.replace(text{{ $question->id }});
+                    // CKEDITOR.replace(text{{ $question->id }});
                 </script>
                 @endforeach
 

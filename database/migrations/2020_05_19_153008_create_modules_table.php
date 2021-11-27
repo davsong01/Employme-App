@@ -22,7 +22,7 @@ class CreateModulesTable extends Migration
             $table->integer('type')->default(0);
             
             $table->integer('program_id')->unsigned();
-            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
+            // $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
 
             $table->timestamps();
         });

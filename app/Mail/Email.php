@@ -21,7 +21,6 @@ class Email extends Mailable
 
     public function build()
     {
-        
         return $this->markdown('emails.email')
         ->subject($this->subject);
     }

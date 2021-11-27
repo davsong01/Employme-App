@@ -108,4 +108,7 @@
             </div>
         </div>
     </div>
+    <script>
+        CKEDITOR.replace('title');
+    </script>
     @endsection

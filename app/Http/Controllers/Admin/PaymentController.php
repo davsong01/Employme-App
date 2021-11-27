@@ -7,6 +7,7 @@ use App\Pop;
 use App\Role;
 use App\User;
 use App\Program;
+use App\Transaction;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -25,19 +26,14 @@ class PaymentController extends Controller
         $i = 1;
 
         if(Auth::user()->role_id == "Admin"){
-            $transactions = DB::table('program_user')->get();
-           
+            $transactions = Transaction::with('user', 'program')->orderBy('created_at', 'DESC')->get();
+
+            // dd($transactions);
+            
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
-
+            
             $i = 1;
-
-            foreach($transactions as $transaction){
-                $transaction->name = User::where('id', $transaction->user_id)->value('name'); 
-                $transaction->email = User::where('id', $transaction->user_id)->value('email'); 
-                $transaction->program = Program::select('p_name')->where('id', $transaction->program_id)->first();
-            }
-
-        
+            
           return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 
         }
@@ -91,7 +87,7 @@ class PaymentController extends Controller
             'programAbbr' => $user->programs[0]['p_abbr'],
             'balance' => $transaction->balance,
             'message' => $message,
-            'booking_form' => base_path() . '/uploads'.'/'. $user->program[0]['booking_form'],
+            'booking_form' => base_path() . '/uploads'.'/'. $user->programs[0]['booking_form'],
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
         ];
@@ -140,7 +136,7 @@ class PaymentController extends Controller
                 'programAbbr' => $user->programs[0]['p_abbr'],
                 'balance' => $transaction->balance,
                 'message' => $message,
-                'booking_form' => base_path() . '/uploads'.'/'. $user->program[0]['booking_form'],
+                'booking_form' => $user->programs[0]['booking_form'],
                 'invoice_id' =>  $transaction->invoice_id,
                 'message' => $message,
             ];
