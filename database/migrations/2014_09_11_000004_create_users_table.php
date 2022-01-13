@@ -23,7 +23,12 @@ class CreateUsersTable extends Migration
             $table->string('role_id')->nullable();
             $table->string('t_phone')->nullable();
             $table->string('profile_picture')->nullable();
+            $table->text('profile')->nullable();
+            $table->integer('facilitator_id')->nullable();
+            $table->integer('off_season_availability')->nullable();
             $table->string('gender')->nullable();
+            $table->string('earnings')->nullable();
+            $table->string('earning_per_head')->nullable();
             $table->integer('responseStatus')->nullable();//For CRM
             
             $table->rememberToken();

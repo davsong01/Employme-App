@@ -83,7 +83,7 @@
                                 </div>
                                 {{-- @endforeach --}}
                                
-                                <h6 style="color:red">Now, score this candidate's certification test: </h6>
+                                <h6 style="color:red">Now, score this candidate's certification test (Result with score of 10 will be recorded as 'processing' on cadidate's dashboard): </h6>
                                 <div class="form-group">
                                     <label><span style="color:green">(Max score = {{ $program->scoresettings->certification}})</span></label>
                                     <input type="number" name="certification_score" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"

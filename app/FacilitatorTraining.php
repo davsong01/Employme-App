@@ -18,4 +18,8 @@ class FacilitatorTraining extends Model
     public function users(){
         return $this->belongsTo(User::class);
     }
+
+    public function programName(){
+        return $this->belongsTo(Program::class, 'program_id');
+    }
 }

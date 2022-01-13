@@ -25,6 +25,8 @@ class CreateProgramsTable extends Migration
             $table->string('image')->default('trainingimage/default.jpg');
             $table->string('booking_form')->nullable();
             $table->boolean('hascrm')->nullable()->default(0);
+            $table->boolean('off_season')->nullable();
+             
             $table->boolean('hasmock')->nullable()->default(0);
             $table->boolean('haspartpayment')->default(0);
             $table->boolean('status')->default(1);

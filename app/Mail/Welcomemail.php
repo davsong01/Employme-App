@@ -27,15 +27,17 @@ class Welcomemail extends Mailable
     public function build()
     {
         
+        if(isset($this->data['type']) && $this->data['type'] == 'notify_facilitator'){
+            return $this->markdown('emails.notificationemail')
+            ->subject('Notification to facilitate');
+        }
+        
         if(isset($this->data['type']) && $this->data['type'] == 'balance'){
             return $this->markdown('emails.welcomemail')
             ->subject('Balance Payment Received');
             
         }else{
-            // if (file_exists(base_path() . '/uploads/products'.'/'.$value))
-       
-            if(Str::contains($this->details['booking_form'], 'bookingforms')){
-            //    dd($this->details['booking_form']);
+            if($this->pdf && Str::contains($this->details['booking_form'], 'bookingforms')){
                     return $this->markdown('emails.welcomemail')
                         ->attachData($this->pdf->output(), "E-receipt.pdf")
                         ->subject('E - Receipt')
@@ -52,8 +54,6 @@ class Welcomemail extends Mailable
             
         }
         
-
-       // ->attachData($pdf->output(), "invoice.pdf");
     }
   
 }

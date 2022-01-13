@@ -20,10 +20,14 @@ class Controller extends BaseController
     protected function sendWelcomeMail($details, $data){
         set_time_limit(360);
         try {
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            if(isset($details['invoice_id'])){
+                $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            }else $pdf = null;
+           
             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
         } catch(\Exception $e){
             // Get error here
+            dd($e->getMessage());
             Log::error($e);
             return false;
         }
@@ -44,4 +48,11 @@ class Controller extends BaseController
         ] );
     }
    
+    public function creditFacilitator($facilitator, $program){
+        $facilitator->update([
+            'earnings' => $facilitator->earnings + $facilitator->earning_per_head,
+        ]);
+        
+        return;
+    }
 }

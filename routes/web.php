@@ -72,6 +72,8 @@ Route::get('userresults', 'TestsController@userresults')->middleware(['impersona
 Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
 
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
+Route::get('selectfacilitator/{id}', 'ProfileController@showFacilitator')->middleware(['impersonate', 'auth']);
+Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savefacilitator')->middleware(['impersonate', 'auth']);
 
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
 
@@ -83,6 +85,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     //Send Mails
     Route::get('usermail', 'UserController@mails')->name('users.mail');
+
     Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');  
 });
 

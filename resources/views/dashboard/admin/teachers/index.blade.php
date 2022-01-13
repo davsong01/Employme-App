@@ -18,9 +18,13 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Name</th>
+                            <th>Avatar</th>
+                            <th>Joined</th>
                             <th>Role</th>
-                            <th>Email</th>
+                            <th>Students</th>
+                            <th>Earnings</th>
+                            <th>Name</th>
+                            <th>Off Season</th>
                             <th>Manage</th>
                         </tr>
                     </thead>
@@ -28,7 +32,15 @@
                         @foreach($users as $user)
                         <tr>
                             <td>{{  $i++ }}</td>
-                            {{-- <td>{{ $user->created_at->format('d/m/Y') }}</td> --}}
+                            <td><img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="50"
+                                height="50"></td>
+                            <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            
+                            <td>{{ $user->role_id}}</td>
+                            <td>{{ $user->students->count()}}</td>
+                            
+                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings ? number_format($user->earnings) : 0 }}</td>
+                            
                             <td>
                                 <strong>{{ $user->name }}</strong><br>
                                 
@@ -36,15 +48,14 @@
                                     {{ $names }} <strong style="color:red">||</strong>
                                 @endforeach
                             </td>
-                            <td>{{ $user->role_id}}</td>
-                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
                                           
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit facilitator"
                                         class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
-                                    </a>
+                                    </a>                                   
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>
@@ -69,4 +80,35 @@
         </div>
     </div>
 </div>
+{{-- Payment modal --}}
+<!-- Button to Open the Modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    Open modal
+  </button>
+  
+  <!-- The Modal -->
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Modal Heading</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          Modal body..
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  {{-- end payment modal --}}
 @endsection

@@ -44,7 +44,7 @@
                                     {{$result->class_test_score .'/'.$result->module->noofquestions}}
                                 @endif
                                 @if($result->module->type == 'Certification Test')
-                                    {{isset($result->certification_test_score) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                    {{ ($result->certification_test_score > 0) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing' }}
                                 @endif
                             </p>
                             <p class="text-white" style="font-style:italic">Pre Class Test Score: 
@@ -74,7 +74,7 @@
                             <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                             <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                 @if($result->module->type == 'Certification Test')
-                                    {{isset($result->certification_test_score) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                    {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
                                 @endif
                                  <p class="text-white" style="font-style:italic">&nbsp </p>
                         </div>

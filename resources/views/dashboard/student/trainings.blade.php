@@ -33,14 +33,16 @@
                         class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
                         <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
                         <h6 class="text-white">Payment Status </h6>
-                        <p class="text-white">Paid: {{ config('custom.default_currency') . $paid}} ; Balance:
-                            {{ config('custom.default_currency') . $balance }} </p>
+                        <p class="text-white">Paid: {{ \App\Settings::first()->value('DEFAULT_CURRENCY') . number_format($paid) }} ; Balance:
+                            {{ \App\Settings::first()->value('DEFAULT_CURRENCY') . number_format($balance) }} </p>
                     </div>
                 </div>
             </a>
         </div>
     </div>
-
+    
+  
+    @if(!$program->off_season)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -63,9 +65,42 @@
             </div>
         </div>
     </div>
+    @endif
+    @if(auth()->user()->facilitator_id)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title m-b-0">Your Facilitator</h1> <br><br>
+                    <div class="row pt-2">
+                        <div class="col-md-2">
+                            <div class="d-flex no-block align-items-center">
+                                <img src="{{ asset('profiles/'. auth()->user()->facilitator->profile_picture )}}" alt="{{ auth()->user()->facilitator->profile_picture }}" class="rounded-circle" width="150"
+                                height="150" style="margin: auto;">
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div>
+                               
+                                    <b>Name: </b>{{ auth()->user()->facilitator->name }} <br>
+                                    <b>Email: </b>{{ auth()->user()->facilitator->email }} <br>
+                                    <b>Phone: </b>{{ auth()->user()->facilitator->t_phone }} <br>
+                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! auth()->user()->facilitator->profile !!}</span> 
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="padding-top:20px">
                 <div class="card-title">
                     <h2 style="text-align: center;; color:green">All {{ config('app.name') }} Training
                         Schedules

@@ -82,6 +82,21 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
+                                <div class="form-group row">
+                                    <label class="training">Select Training(s)</label>
+                                    <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
+                                    @foreach($programs as $program)
+                                         <option value="{{ $program->id }}" {{ $program->is_associated == $program->id ? 'selected' : ''}} >{{ $program->p_name }}</option>
+                                    @endforeach
+                                    </select>
+                                <div>
+                                    @if ($errors->has('training'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('training') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
+                            <div>
                             </div>
                         </div>
                         <div class="row">

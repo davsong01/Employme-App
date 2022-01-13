@@ -21,8 +21,9 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Program Title</th>
-                            <th>Training Fee</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Fee</th>
                             <th>Early Bird Fee</th>
                             <th>Start date</th>
                             <th>End date</th>
@@ -36,13 +37,14 @@
                         @foreach($programs as $program)
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td>{{ $program->p_name }}<br><span
-                                    style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br>
+                            <td>{{ $program->p_name }}<br>
+                                {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
                                     <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
                                     
                             </td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$program->p_amount }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $program->e_amount }}</td>
+                            <td>@if($program->off_season)Off Season @else Normal @endif</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->p_amount) }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->e_amount) }}</td>
                             <td>{{ $program->p_start }}</td>
                             <td>{{ $program->p_end }}</td>
                             <td>{{ $program->part_paid }}</td>

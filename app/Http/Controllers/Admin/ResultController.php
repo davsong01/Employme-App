@@ -86,12 +86,11 @@ class ResultController extends Controller
                     $user->program_ct_score_settings = $score_settings->class_test;
                     $user->passmark = $score_settings->passmark;
                     $user->result_id = 0;
-                    // $user->name =  User::where('id', $user->user_id)->value('name');
 
                     $userdetails = User::find($user->user_id);
-                    $user->name = $userdetails->name;
-                    $user->email = $userdetails->email;
-                    $user->redotest = $userdetails->redotest;
+                    $user->name = $userdetails->name ?? NULL;
+                    $user->email = $userdetails->email ?? NULL;
+                    $user->redotest = $userdetails->redotest ?? NULL;
 
                     $user->final_ct_score = 0;
                     $user->total_class_test_score = 0;
@@ -223,10 +222,11 @@ class ResultController extends Controller
             }
 
             $program_name = Program::whereId($request->pid)->value('p_name');
-          
-            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name') );
+            $passmark = $score_settings->passmark;
+           
+            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark') );
         }
-        
+       
         return redirect('/dashboard');
     }
     

@@ -63,8 +63,7 @@ class TestsController extends Controller
                 }
             }
 
-        //  dd($modules);
-             
+                         
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program') );
          }
     }
@@ -190,17 +189,18 @@ class TestsController extends Controller
                     }                     
                 }
 
-            $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();   
-            $cert_score = Result::where('user_id', auth()->user()->id)->whereProgramId($program->id)->sum('certification_test_score'); 
-            
-                      
+            $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get(); 
+             
+            $cert_score = Result::where('user_id', auth()->user()->id)->whereProgramId($program->id)->sum('certification_test_score');
+           
+            //If cert score is 0 or less, it is recorded as processing
+                        
             foreach($results as $result){
                 $result['certification_test_score'] =  $cert_score;
             }
             
             $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();    
-            
-
+       
             return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results', 'hasmock') );
           }
     }

@@ -71,7 +71,8 @@ class ProgramController extends Controller
             'booking_form' =>'file|mimes:pdf|max:10000',
             'image' =>'required|image |max:10000',
             'haspartpayment' => 'required',
-            'status' => 'required'
+            'status' => 'required',
+            'off_season' => 'required'
         ]);
 
         //Save booking form
@@ -100,6 +101,7 @@ class ProgramController extends Controller
             'hasmock' => $data['hasmock'],
             'haspartpayment' => $data['haspartpayment'],
             'status' => $data['status'],
+            'off_season' => $data['off_season'],
             'booking_form' => $filePath ?? null,
             'image' => 'trainingimage/'.$file,
         ]); 
@@ -118,7 +120,7 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
 
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'haspartpayment']);
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment']);
    
         //check if new featured image
         if($request->hasFile('image')){

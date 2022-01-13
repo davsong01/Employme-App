@@ -8,9 +8,9 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        <h4 class="card-title">Edit details for: {{$user->name}}</h4>
+                        <h4 class="card-title">{{$user->name}}</h4>
                     </div>
-                    <form action="{{route('teachers.update', $user->id)}}" method="POST"
+                    <form action="{{route('profiles.update', $user->id)}}" method="POST"
                         enctype="multipart/form-data" class="pb-2">
                         {{ method_field('PATCH') }}
                         <div class="row">
@@ -18,16 +18,6 @@
                                 <div class="form-group">
                                     <img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="100"
                                     height="100">
-                                </div>
-                                <div class="form-group">
-                                    <label for="class">Role*</label>
-                                    <select name="role" id="class" class="form-control">
-                                        <option value="" disabled>Assign Role</option>
-                                        <option value="Facilitator" {{ $user->role_id == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
-                                        <option value="Admin" {{ $user->role_id == 'Admin' ? 'selected' : ''}}>Admin</option>
-                                    </select>
-                                    <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
                                
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
@@ -41,17 +31,33 @@
                                 </div>
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                     <label for="email">E-Mail Address</label>
-                                    <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email}}">
+                                    <input id="email" disabled class="form-control" value="{{ $user->email}}">
                                     @if ($errors->has('email'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                                     @endif
                                 </div>
+                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                    <label for="name">Name</label>
+                                    <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus >
+                                    @if ($errors->has('name'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('name') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
+                                <div class="form-group">
+                                    <label for="class">Gender</label>
+                                    <select name="gender" id="class" class="form-control">
+                                        <option value="Male" {{ $user->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                        <option value="1" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female</option>
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <label for="class">Available off season?</label>
                                     <select name="off_season_availability" id="class" class="form-control">
-                                        <option value="" {{ is_null($user->off_season_availability) ?? 'selected' }}>No</option>
+                                        <option value="" {{ is_null($user->off_season_availability) ? 'selected' : '' }}>No</option>
                                         <option value="1" {{ $user->off_season_availability == '1' ? 'selected' : ''}}>Yes</option>
                                     </select>
                                 </div>
@@ -66,20 +72,21 @@
                                  <div class="form-group">
                                     <label for=""></label>
                                  </div>
+                                 <div class="form-group">
+                                    
+                                 </div>
                                
-                                
+                                 <div class="form-group">
+                                    <label for="t_phone">Phone</label>
+                                    <input id="t_phone" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}">
+                                </div>
                                 <div class="form-group">
                                     <label>Change Profile Picture</label>
                                     <input type="file" name="file" value="" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="earning_per_head">Earning per head ({{ \App\Settings::first()->value('DEFAULT_CURRENCY') }})</label>
-                                    <input id="earning_per_head" type="number" step="0.01" class="form-control" name="earning_per_head" value="{{ old('earning_per_head') ?? $user->earning_per_head}}">
-                                    @if ($errors->has('earning_per_head'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('earning_per_head') }}</strong>
-                                    </span>
-                                    @endif
+                                    <input step="0.01"  disabled class="form-control" value="{{ $user->earning_per_head }}">
                                 </div>
                                 <div class="form-group">
                                     <label style="color:green" for="">Total Earnings : {{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings ? number_format($user->earnings) : 0 }}</label>
@@ -103,10 +110,9 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
-                                        <label class="training">Select Training(s)</label>
-                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
-                                        @foreach($programs as $program)
-                                             <option value="{{ $program->id }}" {{ $program->id == $program->is_associated ? 'selected' : ''}} >{{ $program->p_name }}</option>
+                                        <label class="training">My Training(s):</label> <br>
+                                        @foreach(auth()->user()->trainings as $program)
+                                        {{ $program->programName->p_name }} <span style="color:blue">||</span> 
                                         @endforeach
                                         </select>
                                     <div>
@@ -143,7 +149,7 @@
                         @if($students->count() > 0)
                         <div class="row" style="padding-top:20px">
                             <div class="col-md-12">
-                                <h3>Assigned Students</h3>
+                                <h3>My Students </h3>
                                 <div class="table-responsive">
                                     <table id="zero_config" class="table table-striped table-bordered">
                                         <thead>
@@ -152,6 +158,7 @@
                                                 <th>Avatar</th>
                                                 <th>Joined</th>
                                                 <th>Name</th>
+                                                <th>Training</th>
                                                 <th>Phone</th>
                                             </tr>
                                         </thead>
@@ -166,11 +173,11 @@
                                                     <td>
                                                         <strong>{{ $student->name }}</strong><br>
                                                     </td>
+                                                    <td>{{ $single_program->p_name }}</td>
                                                     <td>{{ $student->t_phone }}</td>
-                                                    
                                                 </tr>
                                             @endforeach
-                                           
+                                            
                                         </tbody>
                                     </table>
                                 </div>

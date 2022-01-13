@@ -68,6 +68,15 @@ class User extends Authenticatable
             return $this->hasMany(FacilitatorTraining::class);
         }
 
+        public function students()
+        {
+            return $this->hasMany(User::class, 'facilitator_id');
+        }
+
+        public function facilitator()
+        {
+            return $this->belongsTo(User::class, 'facilitator_id');
+        }
         public function setImpersonating($id)
         {
             Session::put('impersonate', $id);

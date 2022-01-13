@@ -9,6 +9,7 @@ use App\Program;
 use App\Location;
 use App\Settings;
 use App\Mail\Email;
+use App\Transaction;
 use App\UpdateMails;
 use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
@@ -240,6 +241,15 @@ class UserController extends Controller
             $user = User::findorFail($id);
             $programs = Program::where('id', '<>', 1)->get();
         if(Auth::user()->role_id == "Admin"){
+            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            
+            foreach($programs as $program){
+                $associated = Transaction::whereUserId($user->id)->whereProgramId($program->id)->first();
+                if($associated){
+                    $program['is_associated'] = $associated->value('program_id');
+                }
+            }
+           
         return view('dashboard.admin.users.edit', compact('programs','user'));
     }return back();
 }
@@ -263,6 +273,37 @@ class UserController extends Controller
             'gender' =>$request->gender,
         ]); 
 
+      
+        // Get User programs and pop out of array
+        $user_programs = DB::table('program_user')->select('program_id')->where('user_id', $user->id)->get();
+        $collections = [];
+        foreach($user->programs as $program){
+            array_push($collections, $program->id);
+        }
+        
+        $trainings = $request['training'];
+        foreach( $trainings as $key=>$value){
+            // dd($key, $value);
+            if(in_array($value, $collections)){
+                unset($trainings[$key]);
+            }
+
+            $training = Program::find($value);
+
+            if($training){
+                $user->programs()->attach($training->id, [
+                    'created_at' =>  date("Y-m-d H:i:s"),
+                    't_amount' => $training->p_amount,
+                    't_type' => 'System Admin',
+                    't_location' => null,
+                    'paymentStatus' => 1,
+                    'balance' => 0,
+                    'invoice_id' =>  'Invoice' . $user->id,
+                ] );
+            }
+            
+        }
+   
         }catch (\Illuminate\Database\QueryException $e) {
 
             $error = $e->getMessage();
