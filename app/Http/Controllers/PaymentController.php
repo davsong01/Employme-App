@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use PDF;
 use App\User;
-use Paystack;
+use App\Coupon;
 use App\Program;
 use App\Settings;
+use App\CouponUser;
 use App\Http\Requests;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
@@ -14,53 +15,109 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
+use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
 
+    public function checkout(Request $request){
+
+        $amount = $request->amount;
+
+        // inject facilitator details
+        if($request->has('facilitator')){
+            Session::put('facilitator', $request->facilitator);
+            Session::put('facilitator_id', $request->facilitator_id);
+            Session::put('facilitator_name', $request->facilitator_name);
+            Session::put('facilitator_license', $request->facilitator_license);
+        }
+
+        $training = json_decode($request->training, true);
+        
+        return view('checkout', compact('amount', 'training'));
+ 
+    }
+
+    public function validateCoupon(Request $request){
+        $verifyCoupon = $this->getCouponValue($request->code);
+        $response = null;
+        if(!is_null($verifyCoupon)){
+            $response = $this->getCouponUsage($request->code, $request->email, $request->pid, $request->price);
+        }
+     
+        return response()->json($response);
+    }
     /**
      * Redirect the User to Paystack Payment Page
      * @return Url
      */
     public function redirectToGateway(Request $request)
     {
-       
-        //Get Type if type is balance
-        $type = json_decode($request['metadata'], true);
-        
-        if(isset($type['type']) && $type['type'] == 'balance'){
-            //Check if userid tallys with trainingid
-            $check = DB::table('program_user')->whereUserId($type['user_id'])->whereProgramId($type['p_id'])->first();
+    
+        $template = Settings::first()->templateName->name;
             
-            if(($check->balance * 100) == $request->amount){
-                try{
-                    return Paystack::getAuthorizationUrl()->redirectNow();
-                }catch(\Exception $e) {
-                    return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again');
-                }  
-            }else return Redirect::back()->with('error', 'Invalid Transaction');
-        }
+        if($template == 'contai'){
+            $request['amount'] = $request['amount'] * 100;
+            $type = json_decode($request['metadata'], true);
+            if($request->coupon && !empty($request->coupon)){
+                $verifyCoupon = $this->getCouponValue($request->coupon);
 
-        //Get Training ID and price sent
-        $pid = json_decode($request['metadata'], true);
-        $pid = $pid['pid'];
-        $amount = $request->amount/100;
-        
-        //Find corresponding Training
-        $program = Program::findorFail($pid);
+                if(!is_null($verifyCoupon)){
+                    $response = $this->getCouponUsage($request->coupon, $request->email, $type['pid'], 2);
+                }else{
+                    $response = null;
+                }
 
-        //check if sent price is same as real price or earlybird or half paymet
-        if($amount <> $program->p_amount && $amount <> $program->e_amount && $amount <> ($program->p_amount/2)){
-            return Redirect::back()->with('msg', 'No match found for payment type');
+                if(is_null($response)){
+                    // Modify amount to suit program
+                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
+                }else{
+                    // Modify coupon_id in metadata
+                    $type['coupon_id'] = $response['id'];
+                    $type = json_encode($type);
+                    $request['metadata'] = $type;
+                }
+            }
+
+            try{
+                return Paystack::getAuthorizationUrl()->redirectNow();
+            }catch(\Exception $e) {
+                dd($e->getMessage());
+                \Log::info($e->getMessage());
+                return abort(500);
+            } 
+
         }
         
-        try{
-            return Paystack::getAuthorizationUrl()->redirectNow();
-        }catch(\Exception $e) {
-            return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again');
+        if($template == 'default'){
+        
+            if(isset($type['type']) && $type['type'] == 'balance'){
             
-        }  
+                //Check if userid tallys with trainingid
+                $check = DB::table('program_user')->whereUserId($type['user_id'])->whereProgramId($type['p_id'])->first();
+                
+                if(($check->balance * 100) == $request->amount){
+                    try{
+                        return Paystack::getAuthorizationUrl()->redirectNow();
+                    }catch(\Exception $e) {
+                        return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again');
+                    }  
+                }else return Redirect::back()->with('error', 'Invalid Transaction');
+            }
+
+            
+            
+            try{
+                return Paystack::getAuthorizationUrl()->redirectNow();
+            }catch(\Exception $e) {
+                dd($e->getMessage());
+                \Log::info($e->getMessage());
+                return abort(500);
+                // return Redirect::back()->with('error', 'The paystack token has expired. Please refresh the page and try again'); 
+            }  
+        }
     }
 
     public function handleGatewayCallback()

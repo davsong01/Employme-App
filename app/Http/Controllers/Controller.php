@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use App\Coupon;
+use App\CouponUser;
 use App\Mail\Welcomemail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -53,6 +55,59 @@ class Controller extends BaseController
             'earnings' => $facilitator->earnings + $facilitator->earning_per_head,
         ]);
         
+        return;
+    }
+
+    public function getCouponUsage($code, $email, $pid, $price){
+        
+        $coupon = Coupon::where('code', $code)->first();
+        
+        if(isset($coupon) && !empty($coupon)){
+            $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
+
+            if(isset($usage)){
+                if($usage->status == 1){
+                    return NULL;
+                }
+                
+            }else{
+                CouponUser::Create([
+                    'email' => $email,
+                    'coupon_id' => $coupon->id,
+                    'status' => 0,
+                    'program_id' => $pid,
+                ]);
+            }
+            
+            $coupon_amount = $coupon->amount;
+            $coupon_id = $coupon->id;
+            $coupon_code = $coupon->code;
+
+            return [
+                'amount' => $coupon_amount,
+                'id' => $coupon_id,
+                'code' => $coupon_code,
+                'grand_total' => $price -$coupon_amount,
+            ];
+        }
+
+        return null;
+        
+    }
+
+    public function getCouponValue($code){
+        $coupon = Coupon::where('code', $code)->first();
+        if(isset($coupon) && !empty($coupon)){
+            $coupon_amount = $coupon->amount;
+            $coupon_id = $coupon->id;
+            $coupon_code = $coupon->code;
+
+            return [
+                'amount' => $coupon_amount,
+                'id' => $coupon_id,
+                'code' => $coupon_code,
+            ];
+        }
         return;
     }
 }

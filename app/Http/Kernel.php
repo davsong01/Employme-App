@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'impersonate' => \App\Http\Middleware\Impersonate::class,
         'programCheck' => \App\Http\Middleware\ProgramCheck::class,
+        'template' => \App\Http\Middleware\TemplateCheck::class,
         //register custom middleware
        
     ];

@@ -16,13 +16,23 @@ Auth::routes();
 
 
 //route for the home
-Route::get('/', 'FrontendController@index')->name('welcome');
-Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
 
-Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
-//route for dashboard.index only
-Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate','auth']);
-Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate','auth']);
+Route::middleware(['template'])->group(function(){
+    Route::get('/', 'FrontendController@index')->name('welcome');
+    Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
+
+    Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
+    //route for dashboard.index only
+    Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate','auth']);
+    Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate','auth']);
+    
+    Route::post('/checkout', 'PaymentController@checkout')->name('checkout'); 
+
+    Route::post('/validate-coupon', 'PaymentController@validateCoupon');
+
+});
+
+Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate','auth','programCheck']);
 
@@ -46,7 +56,6 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::get('export/participantdetails/{id}', 'ProgramController@exportdetails')->name('program.detailsexport');
     //Show email history
     Route::get('updateemails/{id}', 'UserController@emailHistory')->name('updateemails.show');
-   
 });
 
 
@@ -60,7 +69,7 @@ Route::get('view/pop/{filename}', 'PopController@getfile');
 Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::resource('settings', 'SettingsController');
 
-Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
+
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
