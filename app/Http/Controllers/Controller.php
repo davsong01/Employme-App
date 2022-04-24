@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use PDF;
 use App\Coupon;
+use App\Program;
+use App\Settings;
 use App\CouponUser;
 use App\Mail\Welcomemail;
 use Illuminate\Support\Facades\Log;
@@ -109,5 +111,57 @@ class Controller extends BaseController
             ];
         }
         return;
+    }
+
+    public function getEligibleEarners(){
+        
+    }
+
+    public function confirmProgramAmount($pid, $type){
+        $program_amount = Program::where('id', $pid)->first()->$type;
+       
+        return $program_amount;
+    }
+
+    public function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL){
+        // Admin created coupon
+        if($coupon > 0){
+            $coupon = $coupon;
+        }else{
+            $coupon = 0;
+        }
+        
+        if($createdBy == 0){
+            $toShare = $amount - $coupon;
+        }else{
+            $toShare = $amount;
+        }
+
+        $data['tech_percent'] = ($toShare * $program->tech_percent) /100;
+        $data['faculty_percent'] =($toShare * $program->faculty_percent) /100;
+        $data['admin_percent'] =($toShare * $program->admin_percent) /100;
+        $data['other_percent'] = ($toShare * $program->other_percent) /100;
+
+        if(isset($programFacilitator)){
+            if($createdBy == $programFacilitator){
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) /100) - $coupon;
+            }else{
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) /100);
+            }
+        }else{
+            $data['facilitator_percent'] = 0;
+        }
+    
+        return [
+            'facilitator' => $data['facilitator_percent'] ?? 0,
+            'admin' => $data['admin_percent'] ?? 0,
+            'tech' => $data['tech_percent'] ?? 0,
+            'faculty' =>  $data['faculty_percent'] ?? 0,
+            'other' => $data['other_percent'] ?? 0,
+        ];
+    }
+
+    protected function getInvoiceId(){
+        return 'Invoice'.rand(10, 100);
     }
 }

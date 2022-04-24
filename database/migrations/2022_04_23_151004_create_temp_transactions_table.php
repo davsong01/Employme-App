@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCouponUsersTable extends Migration
+class CreateTempTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,15 @@ class CreateCouponUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('coupon_users', function (Blueprint $table) {
+        Schema::create('temp_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('email');
-            $table->integer('coupon_id');
+            $table->string('type'); // part, earlybird, full
             $table->integer('program_id');
-            $table->integer('status')->nullable();
+            $table->integer('coupon_id')->nullable();
+            $table->integer('facilitator_id')->nullable();
+            $table->float('amount');
+            $table->string('email')->unique();
+            
             $table->timestamps();
         });
     }
@@ -30,6 +33,6 @@ class CreateCouponUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('coupon_users');
+        Schema::dropIfExists('temp_transactions');
     }
 }

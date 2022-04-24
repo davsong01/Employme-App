@@ -29,6 +29,14 @@ class CreateProgramsTable extends Migration
              
             $table->boolean('hasmock')->nullable()->default(0);
             $table->boolean('haspartpayment')->default(0);
+            
+            $table->integer('facilitator_percent')->default(0);
+            $table->integer('admin_percent')->default(0);
+            $table->integer('faculty_percent')->default(0);
+            $table->integer('other_percent')->default(0);
+            $table->integer('tech_percent')->default(0);
+
+
             $table->boolean('status')->default(1);
             $table->boolean('verification')->nullable()->default(0);
             $table->boolean('hasresult')->nullable()->default(0);

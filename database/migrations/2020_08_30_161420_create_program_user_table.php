@@ -25,6 +25,18 @@ class CreateProgramUserTable extends Migration
             $table->string('paymenttype')->nullable();
             $table->integer('paymentStatus')->nullable();  
             $table->string('t_type')->nullable();
+
+            $table->float('admin_earning')->default(0);
+            $table->float('facilitator_earning')->default(0);
+            $table->float('tech_earning')->default(0);
+            $table->float('faculty_earning')->default(0);
+            $table->float('other_earning')->default(0);
+           
+            $table->integer('facilitator_id')->nullable();
+            $table->integer('coupon_id')->nullable();
+            $table->string('coupon_code')->nullable();
+            $table->float('coupon_amount')->nullable();
+
             $table->timestamps();
         });
     }

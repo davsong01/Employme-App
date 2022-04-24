@@ -11,11 +11,17 @@
 @section('content')
 <section class="checkout spad">
     <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                @include('layouts.partials.alerts')
+            </div>
+        </div>
         <div class="checkout__form">
             <h4>Billing Details</h4>
             <form action="{{ route('pay') }}" method="POST">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="row">
+                    
                     <div class="col-lg-6 col-md-6">
                         <div class="row">
                             <div class="col-lg-12">
@@ -67,7 +73,7 @@
                         <div class="checkout__input__checkbox">
                             <label for="acc">
                                 Agree to <a href="{{ !is_null(\App\Settings::first()->value('tac_link')) ? \App\Settings::first()->value('tac_link') : '#'}}">terms and conditions?</a> 
-                                <input type="checkbox" id="acc">
+                                <input type="checkbox" id="acc" required>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -120,7 +126,7 @@
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
                             <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
-                            <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL]) }}" > 
+                            <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}" > 
                             
                             <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}
                 
