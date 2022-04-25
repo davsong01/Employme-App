@@ -24,8 +24,6 @@ class PaymentController extends Controller
 {
 
     public function checkout(Request $request){
-
-        
         $training = json_decode($request->training, true);
        
         if($request->type == 'full'){
@@ -47,10 +45,7 @@ class PaymentController extends Controller
             Session::put('facilitator_license', $request->facilitator_license);
         }
 
-        
-        
         return view('checkout', compact('amount', 'training', 'type'));
- 
     }
 
     public function validateCoupon(Request $request){
@@ -62,6 +57,7 @@ class PaymentController extends Controller
      
         return response()->json($response);
     }
+
     /**
      * Redirect the User to Paystack Payment Page
      * @return Url
@@ -69,7 +65,15 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $template = Settings::first()->templateName->name;
-            
+      
+        $this->validate(request(), [
+            'email' => 'required|email',
+            'name' => 'required|string',
+            'phone' => 'required|string',
+            'quantity' => 'required|numeric',
+            'currency' => 'required|string',
+        ]);
+
         if($template == 'contai'){
             $request['amount'] = $request['amount'] * 100;
             $type = json_decode($request['metadata'], true);
@@ -77,48 +81,26 @@ class PaymentController extends Controller
             $coupon_id = $type['coupon_id'];
             $facilitator_id = $type['facilitator'];
             $payment_type = $type['type'];
-            if($request->coupon && !empty($request->coupon)){
-                $verifyCoupon = $this->getCouponValue($request->coupon);
-
-                if(!is_null($verifyCoupon)){
-                    $response = $this->getCouponUsage($request->coupon, $request->email, $pid, 2);
-                }else{
-                    $response = null;
-                }
-
-                if(is_null($response)){
-                    // Modify amount to suit program
-                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
-                }else{
-                    // Modify coupon_id in metadata
-                    $type['coupon_id'] = $response['id'];
-                    $coupon_id = $response['id'];
-                    $type = json_encode($type);
-                    $request['metadata'] = $type;
-                }
-            }
-         
-            // Prepare temp values
-            $temp = TempTransaction::where('email', $request->email)->first();
-            if(isset($temp) && !empty($temp)){
-                $temp->update([
-                    'type' => $payment_type,
-                    'program_id' => $pid,
-                    'coupon_id' =>  $coupon_id,
-                    'facilitator_id' =>  $facilitator_id,
-                    'amount' =>  $request['amount']
-                ]);
+            $type['name'] = $request['name'];
+            $type['phone'] = $request['phone'];
+            
+            $response = $this->verifyCoupon($request, $type['pid']);
+            
+            if(is_null($response)){
+                // Modify amount to suit program
+                $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
             }else{
-                TempTransaction::create([
-                    'email' => $request->email,
-                    'type' => $payment_type,
-                    'program_id' => $pid,
-                    'coupon_id' =>  $coupon_id,
-                    'facilitator_id' =>  $facilitator_id,
-                    'amount' =>  $request['amount']
-                ]);
+                // Modify coupon_id in metadata
+                $type['coupon_id'] = $response['id'];
+                $coupon_id = $response['id'];
             }
 
+            $type = json_encode($type);
+          
+            $request['metadata'] = $type;
+            $this->createTempDetails($request, $payment_type, $pid, $coupon_id, $facilitator_id);
+         
+            
             try{
                 return Paystack::getAuthorizationUrl()->redirectNow();
             }catch(\Exception $e) {
@@ -168,90 +150,65 @@ class PaymentController extends Controller
         if($template == 'contai'){
             $temp = TempTransaction::where('email', $paymentDetails['data']['customer']['email'])->where('program_id', $paymentDetails['data']['metadata']['pid'])->first();
             if(isset($temp) && !empty($temp)){
-                // Sort coupon
-                if(isset($temp->coupon_id)){
-                    $c = Coupon::where('id', $temp->coupon_id)->first();
-                    $coupon = $c->amount;
-                    $createdBy = $c->facilitator_id;
-                }else{
-                    $coupon = 0;
-                    $createdBy = 0;
-                }
+                
              
                 // Compare
                 if($temp->type == 'full'){
+                    // Sort coupon
+                    if(isset($temp->coupon_id)){
+                        $c = Coupon::where('id', $temp->coupon_id)->first();
+                        $coupon = $c->amount;
+                        $createdBy = $c->facilitator_id;
+                    }else{
+                        $coupon = 0;
+                        $createdBy = 0;
+                    }
+
                     $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
                     if($expectedAmount == $paymentDetails['data']['amount']){
-                        // dd($expectedAmount, $temp, $paymentDetails['data']['amount'], $coupon);
-                        // Get all earnings in an array
                         $earnings = $this->getEarnings(($temp->amount/100), $coupon, $createdBy, $program, $paymentDetails['data']['metadata']['facilitator'] ?? NULL);
+                        
+                        $balance = 0;
+                        $payment_type = 'Full';
+                        $message = 'Full payment';
+                        $coupon_applied = $c ?? NULL;
+                        $paymentStatus =  1;
                         // Update transaction
                         
                     }
                 }elseif($temp->type == 'part'){
                     $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2) - $coupon;
                 }elseif($temp->type == 'earlybird'){
+                    $balance = 0;
+                    $payment_type = 'Full';
+                    $message = 'Earlybird payment';
+                    $paymentStatus =  1;
 
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
                 }
 
-                    // .............
-                    $training = $program;
-                    $programFee = $training->p_amount;
-                    $programName = $training->p_name;
-                    $programAbbr = $training->p_abbr;
+                // process data
+                // Get training details
+                $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails['data']['amount']);
 
-                    $invoice_id = $this->getInvoiceId();
+                $data['balance'] = $balance;
+                $data['payment_type'] = $payment_type;
+                $data['message'] = $message;
+                $data['paymentStatus'] =  $paymentStatus;
+                $c = $c ?? NULL; // Coupon
 
-                    //Get Transaction details
-                    $amount = $paymentDetails['data']['amount'];
-                    $t_type = "PAYSTACK";
-                    
-                    //Get User details
-                    $user = DB::table('program_user')->where('user_id', $paymentDetails['data']['metadata']['user_id'])->where('program_id', $training->id)->first();
-                    $balance = $amount - $user->balance;
-                    $message = $this->dosubscript1($balance);
-                    // dd($user->program_id);
-                    $attributes = [
-                        't_amount' => $user->t_amount + $amount,
-                        'balance' => $balance,
-                        'invoice_id' => $invoice_id,
-                        'paymentStatus' => $this->paymentStatus($balance),
-                        't_type' => $t_type,
-                        'transid' => $paymentDetails['data']['reference'],
-                        'updated_at' => now()
-                    ];
+                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
+                isset($c) ?? $this->updateCoupon($c);
+                // $this->deleteFromTemp($temp);
+ 
+                $this->sendWelcomeMail($data);
 
-                    $training->users()->updateExistingPivot($paymentDetails['data']['metadata']['user_id'], $attributes);
+                // Login User in
+                //include thankyou page
+                return view('emails.thankyou', compact('data',  'details'));
 
-                    //Send Notification
-                    $details = [
-                        'programFee' => $programFee,
-                        'programName' => $programName,
-                        'programAbbr' => $programAbbr,
-                        'balance' => $balance,
-                        'message' => 'Full Payment',
-                        'invoice_id' =>  $invoice_id,
-                    ];
-        
-                    $data = [
-                        'name' => $paymentDetails['data'] ['metadata']['name'],
-                        'email' => $paymentDetails['data']['customer']['email'],
-                        'bank' => $t_type,
-                        'amount' => $user->t_amount + $amount,
-                        'type'=> 'balance',
-                        'amount' => $amount,
-                    ];
-                    
-                
-                    $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-                    // return view('emails.receipt', compact('data', 'details'));
-                    Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-                        
-                    //include thankyou page
-                    return redirect(route('trainings.show', $training->id))->with('message', 'Balance Payment Succesful');
-                    //'''''''''''''''''''''''
+                //'''''''''''''''''''''''
 
                 // Process receipt and other transactions
                         // Send email
@@ -263,7 +220,7 @@ class PaymentController extends Controller
             dd($paymentDetails);
             // Compare details with details in temp table
         }
-
+        
         if($template == 'default'){
             if($paymentDetails['data']['status'] === 'success'){
 
@@ -412,12 +369,8 @@ class PaymentController extends Controller
             
             }dd('Transaction failed! We have not received any money from you.');
         }
-    }     
-
-    private function process($paymentDetails){
         
     }
-
     //set balance and determine user receipt values
     private function dosubscript1($balance){
 

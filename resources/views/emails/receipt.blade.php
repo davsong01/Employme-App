@@ -18,7 +18,7 @@
 
 		<p></p>
 
-		<p><b style="color:red !important">INVOICE ID: {{ $details['invoice_id']}} </b></p>
+		<p><b style="color:red !important">INVOICE ID: {{ $data['invoice_id']}} </b></p>
 
 		<p><em>Date: {{ date('Y:m:d') }}</em></p>
 	</div>
@@ -51,7 +51,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $details['programName']}} </em></td>
+					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
 					<td class="col-md-2" style="color:red !important">{{ $data['bank']}}</td>
 				</tr>
 			</tbody>
@@ -70,11 +70,11 @@
 			<tbody>
 				<tr>
 					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $details['programName']}}<br />
-					<small><i>({{ $details['message']}})</i></small></td>
+					<td class="col-md-8">{{ $data['programName']}}<br />
+					<small><i>({{ $data['message']}})</i></small></td>
 					<td class="col-md-1 text-center">
 						
-						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}{{ $details['programFee']}}
+						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}{{ $data['programFee']}}
 					</td>
 					<td class="col-md-2 text-center">
 						
@@ -106,7 +106,7 @@
 						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}
 						
 					
-						{{$details['balance'] }}
+						{{$data['balance'] }}
 					</strong></h4>
 					</td>
 				</tr>
