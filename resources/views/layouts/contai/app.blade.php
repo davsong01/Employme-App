@@ -1,3 +1,6 @@
+<?php
+    $logo = \App\Settings::first()->value('logo');
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -7,7 +10,9 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon.png') }}">
+   
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($logo)}}">
+
     <title>@yield('title')</title>
 
     <!-- Google Font -->
@@ -33,8 +38,9 @@
     <!-- Humberger Begin -->
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
+       
         <div class="humberger__menu__logo">
-            <a href="#"><img src="{{ asset('contai/img/logo.png')}}" alt=""></a>
+            <a href="#"><img src="{{ asset($logo)}}" alt=""></a>
         </div>
        
         <nav class="humberger__menu__nav mobile-menu">
@@ -50,7 +56,7 @@
             <div class="row">
                 <div class="col-lg-2">
                     <div class="header__logo">
-                        <a href="./index.html"><img src="{{ asset('contai/img/logo.png')}}" alt=""></a>
+                        <a href="/"><img src="{{ asset($logo)}}" alt=""></a>
                     </div>
                 </div>
                 <div class="col-lg-8">
@@ -117,10 +123,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="footer__about">
-                        <div class="footer__about__logo">
-                            <a href="./index.html"><img src="{{ asset('contai/img/logo.png')}}" alt=""></a>
-                        </div>
+                    <div class="footer__widget">
+                        {{-- <div class="footer__about__logo">
+                            <a href="/"><img src="{{ asset($logo)}}" alt=""></a>
+                        </div> --}}
+                        <h6>About</h6>
                         <ul>
                             <li>Address: 60-49 Road 11378 New York</li>
                             <li>Phone: +65 11.188.888</li>

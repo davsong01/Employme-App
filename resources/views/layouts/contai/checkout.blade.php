@@ -73,27 +73,30 @@
                         <div class="checkout__input__checkbox">
                             <label for="acc">
                                 Agree to <a href="{{ !is_null(\App\Settings::first()->value('tac_link')) ? \App\Settings::first()->value('tac_link') : '#'}}">terms and conditions?</a> 
-                                <input type="checkbox" id="acc" required>
+                                <input type="checkbox" id="acc" required checked>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
+                         <div class="row">
+                           <div class="col-lg-12">
+                                <h6 style="margin-bottom: 10px !important;"><span class="icon_tag_alt"></span> Have a coupon? <b onclick="showCoupon()" style="text-decoration: underline; cursor: pointer;" >Click here</b> to enter your code
+                                </h6>
+                            </div>
+                        </div>
                         <span style="color:red; display:none" id="enter-email">You must enter your email and coupon code</span>
                         <span style="color:green; display:none" id="coupon-applied"></span>
-                        <div class="row">
-                            
+                       
+                        <div class="row" id="coupon-field" style="display:none">
                             <div class="col-lg-6" style="padding-right:0px">
-                            <div class="checkout__input">
-                           
-                            <p>Enter Coupon (if available) <br> <span id="validate-coupon"></span></p>
-                            <input type="text" id="coupon" name="coupon" value="{{ old('coupon') }}">
+                                <div class="checkout__input">
+                                    <input type="text" id="coupon" name="coupon" value="{{ old('coupon') }}">
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6" >
-                            <div class="checkout__input">
-                                <p>&nbsp</p>
-                            <p id="validate-coupon" onclick="validateCoupon({{ old('coupon') }})" class="site-btn">Apply Coupon</p>
+                            <div class="col-lg-6" >
+                                <div class="checkout__input">
+                                <p id="validate-coupon" onclick="validateCoupon({{ old('coupon') }})" class="site-btn">Apply Coupon</p>
+                                </div>
                             </div>
-                        </div>
                         </div>
                         
                         
@@ -139,7 +142,10 @@
     </div>
 </section>
 <script>
-    
+    function showCoupon(){       
+        $('#coupon-field').toggle();
+    }
+   
     function validateCoupon(id){
         email = $('#email').val();
         code = $('#coupon').val();

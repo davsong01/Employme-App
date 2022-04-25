@@ -53,4 +53,9 @@ class FrontendController extends Controller
         $realpath = base_path() . '/uploads/trainings'. '/' .$filename;
         return response()->download($realpath);
     }  
+
+    public function thankyou(Request $request){
+         dd($request->all());
+        return view('emails.thankyou');
+    }
 }

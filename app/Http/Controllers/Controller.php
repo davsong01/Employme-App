@@ -27,14 +27,13 @@ class Controller extends BaseController
     protected function sendWelcomeMail($data){
         set_time_limit(360);
         try {
-            if(isset($details['invoice_id'])){
+            if(isset($data['invoice_id'])){
                 $pdf = PDF::loadView('emails.receipt', compact('data'));
             }else $pdf = null;
            
             Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         } catch(\Exception $e){
             // Get error here
-            dd($e->getMessage());
             Log::error($e);
             return false;
         }
@@ -69,7 +68,7 @@ class Controller extends BaseController
         
         if(isset($coupon) && !empty($coupon)){
             $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
-
+            
             if(isset($usage)){
                 if($usage->status == 1){
                     return NULL;
@@ -242,7 +241,7 @@ class Controller extends BaseController
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         $user = User::where('email', $data['email'])->first();
-        
+       
         $data['facilitator_id'] = NULL;
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
@@ -274,6 +273,7 @@ class Controller extends BaseController
             ]); 
         }
        
+    
         //If program id is not in array of user program, attach program
         $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
        
@@ -281,7 +281,6 @@ class Controller extends BaseController
             // Attach program
             $user->programs()->attach( $data['program_id'], [
                 'created_at' =>  date("Y-m-d H:i:s"),
-                'program_id' => $data['program_id'], 
                 't_amount' => $data['amount'], 
                 't_type' => $data['t_type'], 
                 't_location' => $data['location'], 
@@ -300,17 +299,26 @@ class Controller extends BaseController
                 'faculty_earning' => $data['faculty_earning'],
                 'other_earning' => $data['other_earning'],
             ] );
-        } else{
-            dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
+        } 
+        else{
+            $data['user_id'] = $user->id;
+            
+            return $data;
+            // return view('emails.thankyou', compact('data'));
+            // dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
         }
-        
+   
+        $data['user_id'] = $user->id;
+
         return $data;
     }
 
-    public function updateCoupon($c){
-        $c->status = 1;
-        $c->save();
-
+    public function updateCoupon($c, $email, $pid){
+        $coupon = CouponUser::where('coupon_id', $c)->where('email', $email)->where('program_id', $pid)->first();
+       
+        $coupon->status = 1;
+        $coupon->save();
+     
         return;
     }
     public function deleteFromTemp($temp){

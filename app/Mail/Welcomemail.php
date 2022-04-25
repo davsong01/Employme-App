@@ -24,7 +24,6 @@ class Welcomemail extends Mailable
 
     public function build()
     {
-        
         if(isset($this->data['type']) && $this->data['type'] == 'notify_facilitator'){
             return $this->markdown('emails.notificationemail')
             ->subject('Notification to facilitate');

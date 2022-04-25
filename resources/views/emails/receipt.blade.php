@@ -52,7 +52,7 @@
 			<tbody>
 				<tr>
 					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $data['bank']}}</td>
+					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? NULL}}</td>
 				</tr>
 			</tbody>
 		</table>

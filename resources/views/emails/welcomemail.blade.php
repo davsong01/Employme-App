@@ -10,10 +10,10 @@
 </div>
 @else 
 <div>   
-    <p style="text-align:justify !important">Your {{ $data['message'] }} of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }} for the {{ $data['programName'] }} ({{ $data['programAbbr'] }}) via {{ $data['bank'] }} has been received. <br><br>
+    <p style="text-align:justify !important">Your {{ $data['message'] }} of {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$data['amount'] }} for the {{ $data['programName'] }} ({{ $data['programAbbr'] }}) via {{ $data['t_type'] }} has been received. <br><br>
     
 
-    <strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form and feedback form which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br>
+    <strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form (if available) and feedback form(if available) which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br>
 
     Your customized portal is where you can view/download study materials for this training, view your payment history and do much more. <br><br>
 

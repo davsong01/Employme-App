@@ -54,7 +54,7 @@ class PaymentController extends Controller
         if(!is_null($verifyCoupon)){
             $response = $this->getCouponUsage($request->code, $request->email, $request->pid, $request->price);
         }
-     
+       
         return response()->json($response);
     }
 
@@ -150,8 +150,7 @@ class PaymentController extends Controller
         if($template == 'contai'){
             $temp = TempTransaction::where('email', $paymentDetails['data']['customer']['email'])->where('program_id', $paymentDetails['data']['metadata']['pid'])->first();
             if(isset($temp) && !empty($temp)){
-                
-             
+              
                 // Compare
                 if($temp->type == 'full'){
                     // Sort coupon
@@ -165,6 +164,7 @@ class PaymentController extends Controller
                     }
 
                     $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
+                  
                     if($expectedAmount == $paymentDetails['data']['amount']){
                         $earnings = $this->getEarnings(($temp->amount/100), $coupon, $createdBy, $program, $paymentDetails['data']['metadata']['facilitator'] ?? NULL);
                         
@@ -172,12 +172,17 @@ class PaymentController extends Controller
                         $payment_type = 'Full';
                         $message = 'Full payment';
                         $coupon_applied = $c ?? NULL;
-                        $paymentStatus =  1;
-                        // Update transaction
-                        
+                        $paymentStatus =  1;                        
                     }
                 }elseif($temp->type == 'part'){
-                    $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2) - $coupon;
+                    $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2);
+                    $balance = $program->p_amount -  $expectedAmount;
+                    $payment_type = 'Full';
+                    $message = 'Full payment';
+                    $coupon_applied = $c ?? NULL;
+                    $paymentStatus =  1;
+                    $earnings = $this->getEarnings(($temp->amount/100), '', '', $program, $paymentDetails['data']['metadata']['facilitator'] ?? NULL);
+
                 }elseif($temp->type == 'earlybird'){
                     $balance = 0;
                     $payment_type = 'Full';
@@ -191,7 +196,7 @@ class PaymentController extends Controller
                 // process data
                 // Get training details
                 $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails['data']['amount']);
-
+              
                 $data['balance'] = $balance;
                 $data['payment_type'] = $payment_type;
                 $data['message'] = $message;
@@ -199,25 +204,55 @@ class PaymentController extends Controller
                 $c = $c ?? NULL; // Coupon
 
                 $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-                isset($c) ?? $this->updateCoupon($c);
-                // $this->deleteFromTemp($temp);
- 
-                $this->sendWelcomeMail($data);
+           
+                if(isset($c) && !empty($c)){
+                    $this->updateCoupon($c->id, $data['email'], $data['program_id']);
+                } 
+                $this->deleteFromTemp($temp);
+                // $this->sendWelcomeMail($data);
 
                 // Login User in
+                // $data = [
+                //     "programFee" => 25000,
+                //     "programName" => "Microsoft & Accounting Applications Master Class 2020(Lagos)",
+                //     "programAbbr" => "#MAAT2020L",
+                //     "bookingForm" => "bookingforms/MAAT2020 forms.pdf",
+                //     "invoice_id" => "Invoice874",
+                //     "name" => "asas",
+                //     "email" => "ass@adasad.com",
+                //     "phone" => "23232323",
+                //     "password" => "$2y$10$MT17dVxZ0A8B.1LwTuM8YuJ4tI/sbcochC6hSTrhpT7ZXZl2HxN1.",
+                //     "program_id" => 8,
+                //     "amount" => 25000,
+                //     "t_type" => "PAYSTACK",
+                //     "location" => " ",
+                //     "role_id" => "Student",
+                //     "transid" => "87UYe0GnRRukil9zbQwEYo3UA",
+                //     "balance" => 0,
+                //     "payment_type" => "Full",
+                //     "message" => "Full payment",
+                //     "paymentStatus" => 1,
+                //     "facilitator_id" => null,
+                //     "coupon_amount" => null,
+                //     "coupon_id" => null,
+                //     "coupon_code" => null,
+                //     "booking_form" => "C:\xampp\htdocs\Laravel Projects\Employme-App/uploads/bookingforms/MAAT2020 forms.pdf",
+                //     "admin_earning" => 6250.0,
+                //     "facilitator_earning" => 0,
+                //     "tech_earning" => 6250.0,
+                //     "faculty_earning" => 6250.0,
+                //     "other_earning" => 0.0,
+                //     "user_id" => 477
+                // ]
+              
                 //include thankyou page
-                return view('emails.thankyou', compact('data',  'details'));
-
-                //'''''''''''''''''''''''
-
-                // Process receipt and other transactions
-                        // Send email
-                        // Delete temp transaction
-                dd('stop');
-                $invoice_id = $this->getInvoiceId();
+               
+                return view('emails.thankyou', compact('data'));
 
             }
-            dd($paymentDetails);
+
+            return redirect(route('welcome'));
+            // dd($paymentDetails, 'as');
             // Compare details with details in temp table
         }
         
