@@ -128,7 +128,7 @@ class ModuleController extends Controller
         }
 
         if($module->type == 'Certification Test'){
-            $type = 0;
+            $type = 1;
         }
 
         //Get Module questions 

@@ -119,6 +119,8 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
+    Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
+
     Route::resource('locations', 'LocationController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');

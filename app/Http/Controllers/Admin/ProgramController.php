@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use DB;
 use App\User;
+use App\Module;
 use App\Program;
 use App\Material;
+use App\Question;
+use App\ScoreSetting;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProgramDetailsExport;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
@@ -258,5 +261,91 @@ class ProgramController extends Controller
             $program->save();
 
             return redirect('programs')->with('message', 'EarlyBird payment is now closed for '.$programName);
+        }
+
+        public function cloneTraining(Program $training){
+            $scoresettings = $training->scoresettings;
+            $materials = $training->materials;
+            $modules = $training->modules;
+            $questions = $training->questions;
+            
+            // Create new program
+            $new = Program::create([
+                "p_name" => 'copy_'.$training->p_name,
+                "p_abbr" => $training->p_abbr,
+                "description" => $training->description,
+                "p_amount" => $training->p_amount,
+                "e_amount" => $training->e_amount,
+                "close_earlybird" => $training->close_earlybird,
+                "p_start" => $training->p_start,
+                "p_end" => $training->p_end,
+                "image" => $training->image,
+                "booking_form" => $training->booking_form,
+                "hascrm" => $training->hascrm,
+                "hasmock" => $training->hasmock,
+                "haspartpayment" => $training->haspartpayment,
+                "status" => 0,
+                "off_season" => $training->off_season,
+                "verification" => $training->verification,
+                "hasresult" => $training->hasresult,
+                "close_registration" => $training->close_registration
+            ]);
+
+            // Create scoresettings
+            if(isset($training->scoresettings) && !empty($training->scoresettings)){
+                $score = ScoreSetting::create([
+                    'program_id' => $new->id,
+                    'certification' => $training->scoresettings->certification,
+                    'class_test' => $training->scoresettings->class_test,
+                    'role_play' => $training->scoresettings->role_play,
+                    'email' => $training->scoresettings->email,
+                    'passmark' => $training->scoresettings->passmark,
+                    'total' => $training->scoresettings->total,
+                ]);
+            }
+
+            // Material
+            if (isset($training->materials) && !empty($training->materials)) {
+                foreach($training->materials as $material){
+                    Material::create([
+                        "program_id" => $new->id,
+                        "title" => $material->title,
+                        "file" => $material->file,
+                    ]);
+                }
+            }
+
+            // Modules
+            if (isset($training->modules) && !empty($training->modules)) {
+                foreach ($training->modules as $module) {
+                $new_module =  Module::create([
+                        "program_id" => $new->id,
+                        "title" => $module->title,
+                        "time" => $module->time,
+                        "noofquestions" => $module->noofquestions,
+                        "status" => 0,
+                        "type" => $module->type == 'Class Test' ? 0 : 1,
+                    ]);
+
+                    //Get Module questions 
+                    $module_questions = Question::whereModuleId($module->id)->get();
+
+                    //Duplicate module questions for newly created module       
+                    foreach ($module_questions as $question) {
+                        Question::create([
+                            'title' => $question->title,
+                            'optionA' => $question->optionA,
+                            'optionB' => $question->optionB,
+                            'optionC' => $question->optionC,
+                            'optionD' => $question->optionD,
+                            'correct' => $question->correct,
+                            'module_id' => $new_module->id,
+                        ]);
+                    }
+
+                }
+            }
+
+            return back()->with('message', 'Training cloned successfully');
         }
 }
