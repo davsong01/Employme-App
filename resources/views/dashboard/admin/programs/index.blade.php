@@ -11,10 +11,11 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
-                </div> <div>
+                </div> 
+                {{-- <div>
                     <h5 class="card-title"> Actions Legend:</h5>
                     <p style="color:green">1. Edit Training | 2. Close/Extend Registration | 3. Enable/Disable CRM | 4. Enable/Disable Result Availability| 5. Trash Training | 6. Close EarlyBird Payment(if applicable)  </p> 
-                </div>
+                </div> --}}
             </div>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">

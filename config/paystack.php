@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Contracts\Session\Session;
+
 /*
  * This file is part of the Laravel Paystack package.
  *
