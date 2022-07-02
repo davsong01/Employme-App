@@ -13,6 +13,7 @@ use App\Mail\Welcomemail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -30,14 +31,15 @@ class Controller extends BaseController
             if(isset($data['invoice_id'])){
                 $pdf = PDF::loadView('emails.receipt', compact('data'));
             }else $pdf = null;
-           
             Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         } catch(\Exception $e){
             // Get error here
             Log::error($e);
+
             return false;
         }
-        
+        return;
+        // return view('emails.receipt', compact('data'));
     }
 
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id){
@@ -139,6 +141,7 @@ class Controller extends BaseController
 
     public function createTempDetails($request, $payment_type, $pid, $coupon_id, $facilitator_id){
         $temp = TempTransaction::where('email', $request->email)->first();
+        
         if(isset($temp) && !empty($temp)){
             $temp->update([
                 'type' => $payment_type,
@@ -206,7 +209,9 @@ class Controller extends BaseController
     }
 
     protected function getInvoiceId($id){
-        return 'Invoice'.$id.rand(10, 100);
+        date_default_timezone_set("Africa/Lagos");
+        $invoice_id = date("YmdHi"). '-' .$id. '-'.rand(10000, 99999);
+        return $invoice_id;
     }
 
     protected function prepareTrainingDetails($program, $paymentDetails, $amount){
@@ -215,9 +220,7 @@ class Controller extends BaseController
         $data['programName'] = $training->p_name;
         $data['programAbbr'] = $training->p_abbr;
         $data['bookingForm'] = $training->booking_form;
-        // $data['programEarlyBird'] = $training->e_amount;
-        $data['invoice_id'] = $this->getInvoiceId($training->id);
-    
+        
         //Create User details
         $data['name'] = $paymentDetails['data'] ['metadata']['name'];
         $data['email'] = $paymentDetails['data']['customer']['email'];
@@ -246,7 +249,8 @@ class Controller extends BaseController
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
         $data['coupon_code'] = NULL;
-
+        $data['invoice_id'] = $this->getInvoiceId($user->id);
+        
         if(!is_null($coupon)){
             $data['facilitator_id'] = $coupon->facilitator_id;
             $data['coupon_amount'] = $coupon->amount;
@@ -298,6 +302,8 @@ class Controller extends BaseController
                 'tech_earning' => $data['tech_earning'],
                 'faculty_earning' => $data['faculty_earning'],
                 'other_earning' => $data['other_earning'],
+                'currency' =>  \Session::get('currency'),
+               
             ] );
         } 
         else{
@@ -325,5 +331,10 @@ class Controller extends BaseController
         $temp->delete();
 
         return;
+    }
+
+    public function getUserDetails($user_id){
+        $user = User::where('id', $user_id)->select('name', 'email', 't_phone')->first();
+        return $user;
     }
 }

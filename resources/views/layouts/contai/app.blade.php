@@ -1,6 +1,7 @@
 <?php
     $logo = \App\Settings::first()->value('logo');
 ?>
+
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -69,7 +70,7 @@
                     <div class="header__cart">
                         <div class="hero__search__phone">
                             <div class="hero__search__phone__icon">
-                                <i class="fa fa-phone"></i>
+                                <img src="{{ asset('contai/img/wtnlogo.jpeg') }}" alt="">
                             </div>
                            
                             <div class="hero__search__phone__text">
@@ -86,12 +87,12 @@
             </div>
             <div class="hero__search">
                 <div class="hero__search__form">
-                    <form action="#">
+                    <form action="/" method="get">
                         <div class="hero__search__categories">
                             Search course
                             <span class="arrow_carrot-right"></span>
                         </div>
-                        <input type="text" placeholder="Search for a course">
+                        <input type="text" name="search" value="{{ old('search') }}" placeholder="Search for a course">
                         <button type="submit" class="site-btn">SEARCH</button>
                     </form>
                 </div>
@@ -117,21 +118,17 @@
     </section>
 
     @yield('content')
-
+    <?php $setting = App\Settings::first() ?>
+  
     <!-- Footer Section Begin -->
     <footer class="footer spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-6 col-sm-6">
                     <div class="footer__widget">
-                        {{-- <div class="footer__about__logo">
-                            <a href="/"><img src="{{ asset($logo)}}" alt=""></a>
-                        </div> --}}
                         <h6>About</h6>
                         <ul>
-                            <li>Address: 60-49 Road 11378 New York</li>
-                            <li>Phone: +65 11.188.888</li>
-                            <li>Email: hello@colorlib.com</li>
+                            <li>{!! $setting->ADDRESS_ON_RECEIPT !!}</li>
                         </ul>
                     </div>
                 </div>
@@ -139,23 +136,47 @@
                     <div class="footer__widget">
                         <h6>Useful Links</h6>
                         <ul>
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">Contact Us</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Terms and Conditions</a></li>
+                            @if(isset($setting->about_link))
+                            <li><a href="{{ $setting->about_link }}">About Us</a></li>
+                            @endif
+                            @if(isset($setting->contact_link))
+                            <li><a href="{{ $setting->contact_link }}">Contact Us</a></li>
+                            @endif
+                            @if(isset($setting->privacy_link))
+                            <li><a href="{{ $setting->privacy_link }}">Privacy Policy</a></li>
+                            @endif
+                            @if(isset($setting->tac_link))
+                            <li><a href="{{ $setting->tac_link }}">Terms and Conditions</a></li>
+                            @endif
                         </ul>
                        
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-12">
                     <div class="footer__widget">
-                        <h6>Follow us on social media</h6>
+                        <h6>Contact us</h6>
                         <div class="footer__widget__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-instagram"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
+                             <li>Phone: {{ $setting->phone }}</li>
+                            <li>Email: {{ $setting->OFFICIAL_EMAIL }}</li>
                         </div>
                     </div>
+                    <div class="footer__widget">
+                        @if(isset($setting->facebook_link) || isset($setting->instagram_link) || isset($setting->twitter_link))
+                        <h6>Follow us on social media</h6>
+                        <div class="footer__widget__social">
+                            @if(isset($setting->facebook_link))
+                            <a href="{{ $setting->facebook_link }}" target="_blank"><i class="fa fa-facebook"></i></a>
+                            @endif
+                            @if(isset($setting->instagram_link))
+                            <a href="{{ $setting->instagram_link }}" target="_blank"><i class="fa fa-instagram"></i></a>
+                            @endif
+                            @if(isset($setting->twitter_link))
+                            <a href="{{ $setting->twitter_link }}" target="_blank"><i class="fa fa-twitter"></i></a>
+                            @endif
+                        </div>
+                        @endif
+                    </div>
+                    
                 </div>
             </div>
             <div class="row">

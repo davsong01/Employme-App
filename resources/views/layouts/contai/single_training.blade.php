@@ -1,7 +1,3 @@
-<?php
-    $currency = \Request::get('currency');
-?>
-
 @extends('layouts.contai.app')
 @section('title')
     {{ config('app.name') }} - {{ $training->p_name }}
@@ -31,10 +27,10 @@
                     
                     <div class="product__details__price">
                         @if($training->close_earlybird == 0 || $training->e_amount != 0)
-                            {{ $currency }}{{ number_format($training->e_amount) }}
-                            <span class="discount-color">&nbsp; {{ $currency }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
+                            {{ $currency_symbol }}{{ number_format($training->e_amount) }}
+                            <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                         @else
-                            {{ $currency }}{{ number_format($training->p_amount) }}
+                            {{ $currency_symbol }}{{ number_format($training->p_amount) }}
                         @endif
                     </div>
                     <p>{{ $training->description }}</p>
@@ -47,12 +43,12 @@
                                         <p>Select payment type<span>*</span></p>
                                         <select name="type" id="" required>
                                             <option value="">Select</option>
-                                            <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency.number_format($training->p_amount) }})</option>
+                                            <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
                                             @if($training->close_earlybird == 0 || $training->e_amount > 0)
-                                            <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency.number_format($training->e_amount) }})</option>
+                                            <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
                                             @endif
                                             @if($training->haspartpayment == 1)
-                                            <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency.number_format($training->p_amount/2) }})</option>
+                                            <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
                                             @endif
                                         </select>
                                         

@@ -36,7 +36,9 @@ class CreateProgramUserTable extends Migration
             $table->integer('coupon_id')->nullable();
             $table->string('coupon_code')->nullable();
             $table->float('coupon_amount')->nullable();
-
+            $table->string('currency')->nullable();
+            $table->string('payment_mode')->nullable();
+            
             $table->timestamps();
         });
     }

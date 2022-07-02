@@ -1,6 +1,7 @@
 <ul>
     <li class="active"><a href="/">All Trainings</a></li>
     <li class=""><a href="{{ route('pop.create') }}">Upload Proof of Payment</a></li>
+    <li class=""><a href="{{ route('reset') }}">Reset All</a></li>
     @guest
     <li><a href="/login">Login</a></li>
     @endguest

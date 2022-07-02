@@ -94,36 +94,45 @@
                 <table id="zero_config" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Amount Paid</th>
-                            <th>Balance</th> 
-                            <th>Bank</th> 
-                            <th>Invoice ID</th>
-                            <th>Transaction ID</th> 
+                            <th>Customer details</th>
+                            <th>Training details</th>
+                            <th>Payment details</th>
                             <th>Manage</th>       
                         </tr>
                     </thead>
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                        
                         <tr>
-                            
-                            <td>{{ $transaction->created_at }} </td>
-                            <td>{{isset($transaction->user ) ? $transaction->user->name : 'N/A' }}</td>
-                            <td>{{isset($transaction->user ) ? $transaction->user->email : 'N/A' }}</td>
-                            <td>{{ isset($transaction->program) ? $transaction->program->p_name : 'N/A' }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}</td>
-                            @if($transaction->paymentStatus == 0 )
-                                <td><b style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </b></td> 
-                            @else
-                                <td><b style="color:green">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').  $transaction->balance }}</b></td> 
-                            @endif
-                            <td>{{ $transaction->t_type }}</td>
-                            <td>{{ $transaction->invoice_id }}</td>
-                            <td>{{ $transaction->transid }}</td>
+                            <td>{{ $transaction->user->name ?? 'N/A' }} <br> {{ $transaction->user->email ?? 'N/A' }} <br>{{ $transaction->user->t_phone ?? 'N/A' }}  </td>
+                            <td>
+                                <small class="training-details">
+                                    <strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }} <br>  
+                                    <strong>Paid:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}<br>  
+                                    <strong>Balance:</strong>
+                                         @if($transaction->paymentStatus == 0 )
+                                            <span style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </span>
+                                        @else
+                                            <span style="color:green">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').  $transaction->balance }}</span>
+                                        @endif
+                                    <br>      
+                                    <strong>Bank: </strong>{{ $transaction->t_type }} <br>
+                                    <strong>Date: </strong>{{ $transaction->created_at }}
+                                   
+                                </small>
+                                
+                            </td>   
+                            <td>
+                                <small class="id-details">
+                                    <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
+                                    <strong>Transaction ID:</strong> {{ $transaction->transid }} <br>
+                                    <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
+                                     <strong>Type: </strong>{{ $transaction->t_type }} <br>
+                                    <strong>Currency: </strong>{{ $transaction->currency }}
+                                     
+                                </small>
+                            </td>
                              <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"

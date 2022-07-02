@@ -44,14 +44,15 @@ class SettingsController extends Controller
 
     public function edit(Settings $setting)
     {
-
-        return view('dashboard.admin.settings.edit', compact('setting'));
+        $templates = \DB::table('frontend_templates')->get();
+        
+        return view('dashboard.admin.settings.edit', compact('setting', 'templates'));
     }
 
 
     public function update(Request $request, Settings $setting)
     {
-        $this->validate($request, [
+        $data = $this->validate($request, [
             'OFFICIAL_EMAIL' => 'required|email',
             'ADDRESS_ON_RECEIPT' => 'required',
             'CURR_ABBREVIATION' => 'required',
@@ -61,33 +62,35 @@ class SettingsController extends Controller
             'logo' => 'nullable|image|mimes:png',
             'favicon' => 'nullable|image|mimes:png',
             'banner' => 'nullable|image',
-            'program_coordinator' => 'required'
+            'program_coordinator' => 'nullable',
+            'token' => 'nullable',
+            'frontend_template' => 'sometimes',
+            'tac_link' => 'sometimes',
+            'contact_link' => 'sometimes',
+            'about_link' => 'sometimes',
+            'privacy_link' => 'sometimes',
+            'facebook_link' => 'sometimes',
+            'twitter_link' => 'sometimes',
+            'instagram_link' => 'sometimes',
+            'phone' => 'sometimes',
         ]);
 
         if($request->has('logo') && $request->file('logo')){
-            Image::make($request->logo)->resize(152, 60)->save('assets/images/logo-text.png', 80, 'png');
-            Image::make($request->logo)->resize(270, 92)->save('login_files/assets/images/logo.png', 80, 'png');
+            Image::make($request->logo)->resize(152, 60)->save('assets/images/logo.png', 80, 'png');
+            $data['logo'] = 'assets/images/logo.png';
         }
-
+       
         if($request->has('banner') && $request->file('banner')){
             Image::make($request->banner)->resize(1280, 853)->save('login_files/assets/images/picture.jpg', 80, 'png');
+            $data['banner'] = 'login_files/assets/images/picture.jpg';
         }
 
 
         if($request->has('favicon') && $request->file('favicon')){
             Image::make($request->favicon)->resize(16, 16)->save('assets/images/favicon.png', 80, 'png');
+            $data['favicon'] = 'assets/images/favicon.png';
         }
-
-        $setting->update([
-            'OFFICIAL_EMAIL' => $request->OFFICIAL_EMAIL,
-            'ADDRESS_ON_RECEIPT' => $request->ADDRESS_ON_RECEIPT,
-            'CURR_ABBREVIATION' => $request->CURR_ABBREVIATION,
-            'DEFAULT_CURRENCY' => $request->DEFAULT_CURRENCY,
-            'program_coordinator' => $request->program_coordinator,
-            'primary_color' => $request->primary_color,
-            'secondary_color' => $request->secondary_color,
-            'token' => $request->token,
-        ]);
+        $setting->update($data);
 
         return back()->with('message', 'Update successful');
     }

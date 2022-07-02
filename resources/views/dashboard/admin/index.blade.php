@@ -56,9 +56,9 @@
                         <li class="sidebar-item"><a href="{{route('programs.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- View all Trainings </span></a>
                         </li>
-                        <li class="sidebar-item"><a href="{{route('locations.index')}}" class="sidebar-link"><span
+                        {{-- <li class="sidebar-item"><a href="{{route('locations.index')}}" class="sidebar-link"><span
                                 class="hide-menu">- Training Locations </span></a>
-                        </li>
+                        </li> --}}
                         <li class="sidebar-item"><a href="{{route('programs.trashed')}}" class="sidebar-link"><span
                                 class="hide-menu">- Trashed Trainings </span></a>
                         </li>
@@ -111,7 +111,10 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
                         class="hide-menu">Email Participants</span></a></li>
-
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('payment-modes.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
+                            class="hide-menu">Payment modes</span></a></li>
+                            
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('settings.edit', 1)}}" aria-expanded="false"><i class="fa fa-cog"></i><span
                         class="hide-menu">Settings</span></a></li>

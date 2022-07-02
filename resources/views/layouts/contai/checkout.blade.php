@@ -1,5 +1,4 @@
 <?php
-    $currency = \Request::get('currency');
     $facilitator = \Session::get('facilitator_id');
     $price = $amount;
 ?>
@@ -112,23 +111,23 @@
                                 
                                 <tr class="bor-bottom">
                                     <th class="col1">Sub total</th>
-                                    <td class="col2">{{ $currency. number_format($amount) }}</td>
+                                    <td class="col2">{{ $currency_symbol. number_format($amount) }}</td>
                                 </tr>
 
                                 <tr class="bor-bottom" id="show-coupon" style="display:none">
                                     <th class="col1">Coupon Applied</th>
-                                    <td class="col2">{{ $currency}}<span id="coupon_amount"></span> </td>
+                                    <td class="col2">{{ $currency_symbol }}<span id="coupon_amount"></span> </td>
                                 </tr>
                                 <tr class="bor-bottom">
                                     <th class="col1">Total</th>
-                                    <td class="col2">{{ $currency}}<span id="total">{{ number_format($amount) }}</span> </td>
+                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}</span> </td>
                                 </tr>
                             </table>
                             
                             <input type="hidden" name="orderID" value="{{ $training['id'] }}">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
-                            <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
+                            <input type="hidden" name="currency" value="{{  $currency }}">
                             <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}" > 
                             
                             <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}

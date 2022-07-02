@@ -16,25 +16,22 @@ Auth::routes();
 
 
 //route for the home
+Route::get('/reset', 'FrontendController@reset')->name('reset');
 
 Route::middleware(['template'])->group(function(){
-    Route::get('/', 'FrontendController@index')->name('welcome');
+    Route::get('/', 'FrontendController@index')->name('welcome');    
     Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
-
     Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
-    //route for dashboard.index only
-    Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate','auth']);
-    Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate','auth']);
-    
     Route::post('/checkout', 'PaymentController@checkout')->name('checkout'); 
-
     Route::post('/validate-coupon', 'PaymentController@validateCoupon');
-
+    //upload proof of payment 
+    Route::resource('pop', 'PopController');
+    Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');
+    Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 });
 
-Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay'); 
 
-Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate','auth','programCheck']);
+
 
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
@@ -43,7 +40,6 @@ Route::get('bookingforms/{filename}', function($filename){
     });
 
 // Route::get('paystack', 'PayController@process');
-Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 
 Route::get('/thanks', function() {
     return view('emails.thankyou');
@@ -59,9 +55,6 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 });
 
 
-
-//upload proof of payment 
-Route::resource('pop', 'PopController');
 //View proofofpayment
 Route::get('view/pop/{filename}', 'PopController@getfile');
 
@@ -70,21 +63,27 @@ Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::resource('settings', 'SettingsController');
 
 
+
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
+Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
 Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
 Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
-
-Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate','auth', 'programCheck'])->name('mocks.add');
+Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
 Route::get('userresults', 'TestsController@userresults')->middleware(['impersonate','auth','programCheck'])->name('tests.results');
-Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
 
+
+Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
+Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
+
+
 Route::get('selectfacilitator/{id}', 'ProfileController@showFacilitator')->middleware(['impersonate', 'auth']);
 Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savefacilitator')->middleware(['impersonate', 'auth']);
+Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate', 'auth']);
+Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate', 'auth']);
 
-Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('complains', 'ComplainController');
@@ -94,7 +93,6 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     //Send Mails
     Route::get('usermail', 'UserController@mails')->name('users.mail');
-
     Route::post('sendmail', 'UserController@sendmail')->name('user.sendmail');  
 });
 
@@ -104,6 +102,7 @@ Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImp
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
+    Route::resource('payment-modes', 'PaymentModeController');
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
     Route::get('users/stopredotest/{id}', 'UserController@stopredotest')->name('stopredotest');
@@ -112,7 +111,11 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('teachers', 'TeacherController');
+    Route::get('teachers_students/{id}', 'TeacherController@showStudents')->name('teachers.students');
+    Route::get('teachers_programs/{id}', 'TeacherController@showPrograms')->name('teachers.programs');
+    Route::get('teachers_earnings/{id}', 'TeacherController@showEarnings')->name('teachers.earnings');
 });
+
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
     Route::resource('results', 'ResultController');
 
@@ -128,6 +131,8 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
+    Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
+
     Route::resource('locations', 'LocationController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');

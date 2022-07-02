@@ -11,10 +11,11 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
-                </div> <div>
+                </div> 
+                {{-- <div>
                     <h5 class="card-title"> Actions Legend:</h5>
                     <p style="color:green">1. Edit Training | 2. Close/Extend Registration | 3. Enable/Disable CRM | 4. Enable/Disable Result Availability| 5. Trash Training | 6. Close EarlyBird Payment(if applicable)  </p> 
-                </div>
+                </div> --}}
             </div>
             <div class="table-responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
@@ -22,11 +23,8 @@
                         <tr>
                             <th>S/N</th>
                             <th>Title</th>
-                            <th>Type</th>
                             <th>Fee</th>
-                            <th>Early Bird Fee</th>
-                            <th>Start date</th>
-                            <th>End date</th>
+                            <th>Dates</th>
                             <th>Partly Paid</th>
                             <th>Fully Paid</th>
                             <th>Status</th>
@@ -38,15 +36,19 @@
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td>{{ $program->p_name }}<br>
+                                Type: @if($program->off_season)Off Season @else Normal @endif <br>
                                 {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
                                     <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
                                     
                             </td>
-                            <td>@if($program->off_season)Off Season @else Normal @endif</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->p_amount) }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->e_amount) }}</td>
-                            <td>{{ $program->p_start }}</td>
-                            <td>{{ $program->p_end }}</td>
+                           
+                            <td><strong>Normal Fee:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->p_amount) }} <br>
+                               <strong>EarlyBird:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->e_amount) }}
+                            
+                            </td>
+                            <td> <strong>Start:</strong> {{ $program->p_start }} <br>
+                                <strong>End: </strong>{{ $program->p_end }}
+                            </td>
                             <td>{{ $program->part_paid }}</td>
                             <td>{{ $program->fully_paid }}</td>
                             <td>{{ $program->status == 1 ? 'Published' : 'Draft'}}</td>
@@ -81,7 +83,7 @@
                                     @endif
                                     @if($program->hasresult == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
-                                        class="btn btn-success" href="{{ route('results.enable', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fas fa-user-graduate"></i>
+                                        class="btn btn-success" href="{{ route('results.enable', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i>
                                     </a>
                                     @else
                                     <a data-toggle="tooltip" data-placement="top" title="Disable User Results"
@@ -89,6 +91,9 @@
                                            onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     @endif
+                                    <a data-toggle="tooltip" data-placement="top" title="Clone Training"
+                                        class="btn btn-success" style="background:#183153" href="{{ route('training.clone', $program->id)}}" onclick="return confirm('This will clone training materials, modules, questions, settings, etc?');"><i class="fa fa-copy"></i>
+                                    </a>
                                     <form action="{{ route('programs.destroy', $program->id) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to trash?');">
                                         {{ csrf_field() }}

@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Requests;
+use App\TempTransaction;
+use App\Mail\Welcomemail;
+use Illuminate\Http\Request;
 /*
  * This file is part of the Laravel Paystack package.
  *
@@ -9,6 +13,9 @@
  * file that was distributed with this source code.
  */
 
+// $r = app('App\Http\Controllers\PaymentController')->getPaymentMode();
+
+// dd(Session::get('facilitator'));
 return [
 
     /**

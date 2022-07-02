@@ -8,8 +8,7 @@
 <body>
 <div class="container">
 
-	<div style="float:left"><img src="{{ asset('login_files/assets/images/logo.png') }}" style="width:20%" />
-	</div>
+	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width:100%" /></div>
 
 	<div style="float:right">
 		<h4></h4>
@@ -18,7 +17,7 @@
 
 		<p></p>
 
-		<p><b style="color:red !important">INVOICE ID: {{ $data['invoice_id']}} </b></p>
+		<p><b style="color:red !important">INVOICE ID: {{ $details['invoice_id']}} </b></p>
 
 		<p><em>Date: {{ date('Y:m:d') }}</em></p>
 	</div>
@@ -28,7 +27,6 @@
 	</div>
 
 	<div class="row">&nbsp;
-		<br><br><br>
 		<div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
 		</div>
 	</div>
@@ -51,8 +49,8 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? NULL}}</td>
+					<td class="col-md-10"><em style="color:red !important">{{ $details['programName']}} </em></td>
+					<td class="col-md-2" style="color:red !important">{{ $data['bank']}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -70,17 +68,10 @@
 			<tbody>
 				<tr>
 					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $data['programName']}}<br />
-					<small><i>({{ $data['message']}})</i></small></td>
-					<td class="col-md-1 text-center">
-						
-						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}{{ $data['programFee']}}
-					</td>
-					<td class="col-md-2 text-center">
-						
-					
-						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}{{ $data['amount'] }}
-					</td>
+					<td class="col-md-8">{{ $details['programName']}}<br />
+					<small><i>({{ $details['message']}})</i></small></td>
+					<td class="col-md-1 text-center">{{ $details['currency'] }}{{ $details['programFee']}}</td>
+					<td class="col-md-2 text-center">{{ $details['currency'] }}{{ $data['amount'] }}</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -89,10 +80,7 @@
 					<p><strong>Total:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-						
-						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}
-						
-						{{ $data['amount'] }}
+					<p><strong>{{ $details['currency'] }}{{ $data['amount'] }}</strong></p>
 					</td>
 				</tr>
 				<tr>
@@ -101,25 +89,18 @@
 					<td class="text-right">
 					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
 					</td>
-					<td class="text-center"><h4><strong style="color:red !important">
-					
-						{!! \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') !!}
-						
-					
-						{{$data['balance'] }}
-					</strong></h4>
+					<td class="text-center">
+					<h4><strong style="color:red !important">{{ $details['currency'] }}{{ $details['balance'] }}</strong></h4>
 					</td>
 				</tr>
 			</tbody>
 		</table>
 	<div>
-			<h5 style='font-style: italic;'><span style='color:#FF0000;'><strong><a href="/tac">Please carefully read our Terms and Conditions!</a></strong></span></h5>
+			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
 			</div>
 			<br />
-
-		<p><b><i>School Administrator</i></b></p>
+			<p><b><i>School Administrator</i></b></p>
 	</div>
-
 </div>
 
 </body>

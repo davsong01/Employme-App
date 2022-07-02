@@ -26,14 +26,19 @@ class PaymentController extends Controller
         $i = 1;
 
         if(Auth::user()->role_id == "Admin"){
-            $transactions = Transaction::with('user', 'program')->orderBy('created_at', 'DESC')->get();
+            $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
+            // $transactions = Transaction::join("programs", "program_id", "=", "programs.id")
+            // ->join("users", "user_id", "=", "users.id")
+            // ->select("program_user.created_at", "programs.p_name", "program_user.t_amount", "program_user.balance", "program_user.transid", "program_user.invoice_id", "facilitator_id", "coupon_amount", "coupon_id", "coupon_code", "currency", "t_type", "users.name AS namex", "users.email AS emailx")
+            // ->orderBy('program_user.id', 'DESC')->get();
             // dd($transactions);
-            
+       
+
+            $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             
-            $i = 1;
-            
+        
           return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 
         }
@@ -69,7 +74,7 @@ class PaymentController extends Controller
 
     public function show(Request $request, $id){
         $transaction = DB::table('program_user')->where('id', $id)->first();
-
+       
         if(Auth::user()->role_id == "Admin"){
         //get user details
         $user = User::findorFail($transaction->user_id);
@@ -79,7 +84,7 @@ class PaymentController extends Controller
          }else{
         $message = $this->dosubscript1($user->balance);
          }
-
+         
         //determine the program details
         $details = [
             'programFee' => $user->programs[0]['p_amount'],
@@ -87,17 +92,21 @@ class PaymentController extends Controller
             'programAbbr' => $user->programs[0]['p_abbr'],
             'balance' => $transaction->balance,
             'message' => $message,
-            'booking_form' => base_path() . '/uploads'.'/'. $user->programs[0]['booking_form'],
+            'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads'.'/'. $user->programs[0]['booking_form'] : NULL,
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
+            'currency' => $transaction->currency,
         ];
-  
+      
         $data = [
             'name' =>$user->name,
             'email' =>$user->email,
             'bank' =>$user->t_type,
+            'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
             'amount' =>$transaction->t_amount,
         ];
+        // return view('emails.receipt', compact('data', 'details'));
+
         //generate pdf from receipt view
         $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
         
@@ -111,7 +120,7 @@ class PaymentController extends Controller
 
     public function printReceipt($id){
         $transaction = DB::table('program_user')->where('id', $id)->first();
-      
+        
         if(Auth::user()->role_id == "Student"){
             if(!$transaction){
                 return back()->with('warning', 'Unauthorized Action'); 
@@ -120,37 +129,39 @@ class PaymentController extends Controller
                 return back()->with('warning', 'Unauthorized Action');
             }
         }
-            //get user details
-            $user = User::findorFail($transaction->user_id);
+        //get user details
+        $user = User::findorFail($transaction->user_id);
 
-            if($transaction->t_amount == $user->programs[0]['e_amount']){
-                $message = $this->dosubscript2($transaction->balance);
-            }else{
-            $message = $this->dosubscript1($user->balance);
-            }
+        if($transaction->t_amount == $user->programs[0]['e_amount']){
+            $message = $this->dosubscript2($transaction->balance);
+        }else{
+        $message = $this->dosubscript1($user->balance);
+        }
 
-            //determine the program details
-            $details = [
-                'programFee' => $user->programs[0]['p_amount'],
-                'programName' => $user->programs[0]['p_name'],
-                'programAbbr' => $user->programs[0]['p_abbr'],
-                'balance' => $transaction->balance,
-                'message' => $message,
-                'booking_form' => $user->programs[0]['booking_form'],
-                'invoice_id' =>  $transaction->invoice_id,
-                'message' => $message,
-            ];
-    
-            $data = [
-                'name' =>$user->name,
-                'email' =>$user->email,
-                'bank' =>$user->t_type,
-                'amount' =>$transaction->t_amount,
-            ];
-            //generate pdf from receipt view
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            
-            return view('emails.printreceipt', compact('data', 'details'));
+        //determine the program details
+        $details = [
+            'programFee' => $user->programs[0]['p_amount'],
+            'programName' => $user->programs[0]['p_name'],
+            'programAbbr' => $user->programs[0]['p_abbr'],
+            'balance' => $transaction->balance,
+            'message' => $message,
+            'booking_form' => $user->programs[0]['booking_form'],
+            'invoice_id' =>  $transaction->invoice_id,
+            'message' => $message,
+            'currency' => $transaction->currency,
+        ];
+        
+        $data = [
+            'name' =>$user->name,
+            'email' =>$user->email,
+            'bank' =>$user->t_type,
+            'amount' =>$transaction->t_amount,
+        ];
+        
+        //generate pdf from receipt view
+        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        
+        return view('emails.printreceipt', compact('data', 'details'));
 
     }
 

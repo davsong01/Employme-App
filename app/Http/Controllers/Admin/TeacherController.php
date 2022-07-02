@@ -22,16 +22,22 @@ class TeacherController extends Controller
         $i = 1;
         //$users = User::all();
        
-        $users = User::select('id', 'off_season_availability','name', 'earnings', 'email','profile_picture', 'role_id', 'created_at')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
+        $users = User::select('id', 'off_season_availability','name', 'earnings', 'email','profile_picture', 'role_id', 'created_at','t_phone','license')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
         
-        
+        $users->map(function($users){
+            $details = DB::table('facilitator_trainings')->where('user_id',$users->id);
+            $users->program_count = $details->distinct()->count();
+            $transactions = DB::table('program_user')->where('facilitator_id', $users->id);
+            $users->students_count = $transactions->count();
+            $users->earnings = $transactions->sum('facilitator_earning');
+            return $users;
+        });
+
         foreach($users as $user){
             $names = [];
             foreach($user->trainings as $trainings){
-               
                 if(isset($trainings)){
                     $trainingp_name = Program::whereId($trainings->program_id)->value('p_name');
-
                     array_push($names, $trainingp_name);
                 }else;
                 
@@ -39,12 +45,31 @@ class TeacherController extends Controller
            
             $user->p_names =  $names ;
         }
-        
+       
         if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.teachers.index', compact('users', 'i') );
         }
     }
     
+    public function showStudents($id){
+        $users = DB::table('program_user')->where('facilitator_id', $id)
+        ->join('users', 'program_user.user_id', '=', 'users.id')
+        ->join('programs', 'programs.id','=', 'program_user.program_id')
+        ->orderBy('program_user.created_at')
+        ->get();
+       
+       $i = 1;
+        return view('dashboard.admin.teachers.my_students', compact('users', 'i'));
+    }
+
+    public function showPrograms($id)
+    {
+        $user = User::find($id);
+        $users = $user->trainings;
+        return view('dashboard.admin.teachers.my_programs', compact('users', 'i'));
+
+    }
+
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
@@ -121,18 +146,28 @@ class TeacherController extends Controller
 
     public function edit($id)
     { 
-        $user = User::findorFail($id);
-       
-        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+        $user = User::with('trainings')->where('id',$id)->first();
 
-        foreach($programs as $program){
-            $program['is_associated'] = FacilitatorTraining::whereUserId($user->id)->whereProgramId($program->id)->value('program_id');
-        }
-        $students = $user->students()->get();
+        $programs = Program::whereIn('id', $user->trainings->pluck('program_id'))->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
        
+        $allprograms = Program::where('id', '<>', 1)
+        ->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
+
+        // dd($programs, $allprograms);
+
+        $other_details = DB::table('program_user')->where('facilitator_id', $user->id);
+        $user->students_count = $other_details->count();
+        $user->earnings = $other_details->sum('facilitator_earning');
+        // $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+        // dd($programs);
+        // foreach($programs as $program){
+        //     $program['is_associated'] = FacilitatorTraining::whereUserId($user->id)->whereProgramId($program->id)->value('program_id');
+        // }
+        // $students = $user->students()->get();
+      
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
-        return view('dashboard.admin.teachers.edit', compact('programs','user', 'students', 'i'));
+        return view('dashboard.admin.teachers.edit', compact('programs','user', 'i', 'allprograms'));
     }return back();
 }
 
@@ -156,7 +191,7 @@ class TeacherController extends Controller
         $user->role_id = $request['role'];
         $user->profile = $request['profile'];
         $user->profile_picture = $imgName ?? $user->profile_picture;
-        $user->earning_per_head = $request['earning_per_head'];
+        // $user->earning_per_head = $request['earning_per_head'];
         $user->off_season_availability = $request['off_season_availability'];
         
         //Delete corresponding Facilitator Program details

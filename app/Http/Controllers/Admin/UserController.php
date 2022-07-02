@@ -350,7 +350,7 @@ class UserController extends Controller
         return view('dashboard.admin.users.emailhistory', compact('email') );
     }
     public function sendmail(Request $request){
-
+       
         ini_set('max_execution_time', 300); //5 minutes
         
         $data = $this->validate($request, [
@@ -370,12 +370,10 @@ class UserController extends Controller
             $recipients = explode (",", $recipients); 
             $program = 'Selected Recipients';
 
-           
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
-                if(!$name){
-                    $name = 'Participant';
-                }
+                $name = $name ?? 'Participant';
+               
                 Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }

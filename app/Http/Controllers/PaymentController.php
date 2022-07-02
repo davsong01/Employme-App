@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
@@ -45,6 +46,8 @@ class PaymentController extends Controller
             Session::put('facilitator_license', $request->facilitator_license);
         }
 
+        // dd(Session::get('facilitator'));
+       
         return view('checkout', compact('amount', 'training', 'type'));
     }
 
@@ -64,8 +67,9 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
+        
         $template = Settings::first()->templateName->name;
-      
+        
         $this->validate(request(), [
             'email' => 'required|email',
             'name' => 'required|string',
@@ -75,8 +79,9 @@ class PaymentController extends Controller
         ]);
 
         if($template == 'contai'){
-            $request['amount'] = $request['amount'] * 100;
+            $request['amount'] = \Session::get('exchange_rate') * $request['amount'] * 100;
             $type = json_decode($request['metadata'], true);
+            
             $pid = $type['pid'];
             $coupon_id = $type['coupon_id'];
             $facilitator_id = $type['facilitator'];
@@ -85,10 +90,23 @@ class PaymentController extends Controller
             $type['phone'] = $request['phone'];
             
             $response = $this->verifyCoupon($request, $type['pid']);
-            
+           
             if(is_null($response)){
                 // Modify amount to suit program
-                $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
+                if ($type['type'] == 'full') {
+                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
+                }
+
+                if($type['type'] == 'earlybird'){
+                    $request['amount'] = Program::where('id', $type['pid'])->value('e_amount') * 100;
+                }
+
+                if ($type['type'] == 'part') {
+                    $request['amount'] = (Program::where('id', $type['pid'])->value('p_amount') * 100) / 2;
+                }
+                
+                // $request['amount'] *= Session::get('exchange_rate');
+             
             }else{
                 // Modify coupon_id in metadata
                 $type['coupon_id'] = $response['id'];
@@ -96,11 +114,31 @@ class PaymentController extends Controller
             }
 
             $type = json_encode($type);
-          
+            
+            if(isset($facilitator_id) && !empty($facilitator_id)){
+                // Set payment mode if money is going somewhere else
+                try {
+                    $payment_mode = User::with('payment_modes')->where('id', $facilitator_id)->first();
+                   
+                    if (isset($payment_mode->payment_modes) &&  !empty($payment_mode->payment_modes)) {
+                        $public = $payment_mode->payment_modes->public_key;
+                        $secret = $payment_mode->payment_modes->secret_key;
+                        $email = $payment_mode->payment_modes->merchant_email;
+                      
+                        Config::set('paystack.publicKey', $public);
+                        Config::set('paystack.secretKey', $secret);
+                        Config::set('paystack.merchantEmail', $email);
+                    }
+
+                } catch (\Exception $th) {
+                   \Log::error($th->getMessage());
+                }
+                
+            }
+           
             $request['metadata'] = $type;
             $this->createTempDetails($request, $payment_type, $pid, $coupon_id, $facilitator_id);
-         
-            
+           
             try{
                 return Paystack::getAuthorizationUrl()->redirectNow();
             }catch(\Exception $e) {
@@ -209,7 +247,10 @@ class PaymentController extends Controller
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
                 } 
                 $this->deleteFromTemp($temp);
-                // $this->sendWelcomeMail($data);
+                $data['currency'] = \Session::get('currency');
+                $data['currency_symbol'] = \Session::get('currency_symbol');
+                $data['exchange_rate'] = \Session::get('exchange_rate');
+                $this->sendWelcomeMail($data);
 
                 // Login User in
                 // $data = [
@@ -246,166 +287,179 @@ class PaymentController extends Controller
                 // ]
               
                 //include thankyou page
-               
+                    
                 return view('emails.thankyou', compact('data'));
 
             }
 
+          
             return redirect(route('welcome'));
             // dd($paymentDetails, 'as');
             // Compare details with details in temp table
         }
         
-        if($template == 'default'){
-            if($paymentDetails['data']['status'] === 'success'){
+        // if($template == 'default'){
+        //     if($paymentDetails['data']['status'] === 'success'){
 
-                if(isset($paymentDetails['data']['metadata']['type']) && $paymentDetails['data']['metadata']['type'] == 'balance'){
-                    //Get training details details
-                    $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
-                    $programFee = $training->p_amount;
-                    $programName = $training->p_name;
-                    $programAbbr = $training->p_abbr;
+        //         if(isset($paymentDetails['data']['metadata']['type']) && $paymentDetails['data']['metadata']['type'] == 'balance'){
+        //             //Get training details details
+        //             $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
+        //             $programFee = $training->p_amount;
+        //             $programName = $training->p_name;
+        //             $programAbbr = $training->p_abbr;
+        //             //Get Transaction details
+        //             $amount = $paymentDetails['data']['amount']/100;
+        //             $t_type = "PAYSTACK";
 
-                    $invoice_id = 'Invoice'.rand(10, 100);
+        //             //Get User details
+        //             $user = DB::table('program_user')->where('user_id', $paymentDetails['data']['metadata']['user_id'])->where('program_id', $training->id)->first();
+        //             $balance = $amount - $user->balance;
+        //             $invoice_id = $this->getInvoiceId($user->user_id);
+                    
+        //             $message = $this->dosubscript1($balance);
+        //             // dd($user->program_id);
+        //             $attributes = [
+        //                 't_amount' => $user->t_amount + $amount,
+        //                 'balance' => $balance,
+        //                 'invoice_id' => $invoice_id,
+        //                 'paymentStatus' => $this->paymentStatus($balance),
+        //                 't_type' => $t_type,
+        //                 'transid' => $paymentDetails['data']['reference'],
+        //                 'updated_at' => now()
+        //             ];
 
-                    //Get Transaction details
-                    $amount = $paymentDetails['data']['amount']/100;
-                    $t_type = "PAYSTACK";
+        //             $training->users()->updateExistingPivot($paymentDetails['data']['metadata']['user_id'], $attributes);
 
-                    //Get User details
-                    $user = DB::table('program_user')->where('user_id', $paymentDetails['data']['metadata']['user_id'])->where('program_id', $training->id)->first();
-                    $balance = $amount - $user->balance;
-                    $message = $this->dosubscript1($balance);
-                    // dd($user->program_id);
-                    $attributes = [
-                        't_amount' => $user->t_amount + $amount,
-                        'balance' => $balance,
-                        'invoice_id' => $invoice_id,
-                        'paymentStatus' => $this->paymentStatus($balance),
-                        't_type' => $t_type,
-                        'transid' => $paymentDetails['data']['reference'],
-                        'updated_at' => now()
-                    ];
-
-                    $training->users()->updateExistingPivot($paymentDetails['data']['metadata']['user_id'], $attributes);
-
-                    //Send Notification
-                    $details = [
-                        'programFee' => $programFee,
-                        'programName' => $programName,
-                        'programAbbr' => $programAbbr,
-                        'balance' => $balance,
-                        'message' => 'Full Payment',
-                        'invoice_id' =>  $invoice_id,
-                    ];
+        //             //Send Notification
+        //             $details = [
+        //                 'programFee' => $programFee,
+        //                 'programName' => $programName,
+        //                 'programAbbr' => $programAbbr,
+        //                 'balance' => $balance,
+        //                 'message' => 'Full Payment',
+        //                 'invoice_id' =>  $invoice_id,
+        //             ];
         
-                    $data = [
-                        'name' => $paymentDetails['data'] ['metadata']['name'],
-                        'email' => $paymentDetails['data']['customer']['email'],
-                        'bank' => $t_type,
-                        'amount' => $user->t_amount + $amount,
-                        'type'=> 'balance',
-                        'amount' => $amount,
-                    ];
+        //             $data = [
+        //                 'name' => $paymentDetails['data'] ['metadata']['name'],
+        //                 'email' => $paymentDetails['data']['customer']['email'],
+        //                 'bank' => $t_type,
+        //                 'amount' => $user->t_amount + $amount,
+        //                 'type'=> 'balance',
+        //                 'amount' => $amount,
+        //             ];
                     
                 
-                    $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-                    // return view('emails.receipt', compact('data', 'details'));
-                    Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+        //             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        //             // return view('emails.receipt', compact('data', 'details'));
+        //             Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
                         
-                    //include thankyou page
-                    return redirect(route('trainings.show', $training->id))->with('message', 'Balance Payment Succesful');
+        //             //include thankyou page
+        //             return redirect(route('trainings.show', $training->id))->with('message', 'Balance Payment Succesful');
 
-                }else
-                $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
+        //         }else
+        //         $training = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
             
-                //Get Training Details
-                $programFee = $training->p_amount;
-                $programName = $training->p_name;
-                $programAbbr = $training->p_abbr;
-                $bookingForm = $training->booking_form;
-                $programEarlyBird = $training->e_amount;
-                $invoice_id = 'Invoice'.rand(10, 100);
-            
-                //Create User details
-                $name = $paymentDetails['data'] ['metadata']['name'];
-                $email = $paymentDetails['data']['customer']['email'];
-                $phone = $paymentDetails['data'] ['metadata']['phone'];
-                $password = bcrypt('12345');
-                $program_id = $paymentDetails['data']['metadata']['pid'];
-                $amount = $paymentDetails['data']['amount']/100;
-                $t_type = "PAYSTACK";
-
-                if(isset($paymentDetails['data']['metadata']['location'])){
-                    $location = $paymentDetails['data']['metadata']['location']; 
-                }else $location = ' ' ;
-                $role_id = "Student";
-                $transid = $paymentDetails['data']['reference'];
-
-                //check amount against payment
-                if($amount == $programEarlyBird){
-                    $balance = $programEarlyBird - $amount;
-                    $message = $this->dosubscript2($balance);
-                    $payment_type = 'EB';
-                }else{
-                $balance = $programFee - $amount;
-                $message = $this->dosubscript1($balance);
-                $payment_type = 'Full';
-                }
+        //         //Get Training Details
+        //         $programFee = $training->p_amount;
+        //         $programName = $training->p_name;
+        //         $programAbbr = $training->p_abbr;
+        //         $bookingForm = $training->booking_form;
+        //         $programEarlyBird = $training->e_amount;
+        //         $invoice_id = $this->getInvoiceId($paymentDetails['data']['metadata']['user_id']);
                 
-                $paymentStatus =  $this->paymentStatus($balance);
+        //         //Create User details
+        //         $name = $paymentDetails['data'] ['metadata']['name'];
+        //         $email = $paymentDetails['data']['customer']['email'];
+        //         $phone = $paymentDetails['data'] ['metadata']['phone'];
+        //         $password = bcrypt('12345');
+        //         $program_id = $paymentDetails['data']['metadata']['pid'];
+        //         $amount = $paymentDetails['data']['amount']/100;
+        //         $t_type = "PAYSTACK";
 
-                //Check if email exists in the system and attach it to the new program to that email
-                $user = User::where('email', $email)->first();
-                // if user doesnt exist, create new user and attach program
-                if(!$user){
-                    //save to database
-                    $user = User::updateOrCreate([
-                        'name' => $name,
-                        'email' => $email,
-                        't_phone' => $phone,
-                        'password' => $password,
-                        'role_id' => $role_id,
-                    ]); 
-                }
-                //If program id is not in array of user program, attach program
-                $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $program_id)->count();
+        //         if(isset($paymentDetails['data']['metadata']['location'])){
+        //             $location = $paymentDetails['data']['metadata']['location']; 
+        //         }else $location = ' ' ;
+        //         $role_id = "Student";
+        //         $transid = $paymentDetails['data']['reference'];
 
-                if( $userPrograms < 1){
-                    // Attach program
-                    $this->attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id);
+        //         //check amount against payment
+        //         if($amount == $programEarlyBird){
+        //             $balance = $programEarlyBird - $amount;
+        //             $message = $this->dosubscript2($balance);
+        //             $payment_type = 'EB';
+        //         }else{
+        //         $balance = $programFee - $amount;
+        //         $message = $this->dosubscript1($balance);
+        //         $payment_type = 'Full';
+        //         }
                 
-                    //prepare and send email
-                    $details = [
-                        'programFee' => $programFee,
-                        'programName' => $programName,
-                        'programAbbr' => $programAbbr,
-                        'balance' => $balance,
-                        'message' => $message,
-                        'booking_form' => !is_null($bookingForm) ? base_path() . '/uploads'.'/'. $bookingForm : null,
-                        'invoice_id' =>  $invoice_id,
-                    ];
-            
-                    $data = [
-                        'name' =>$name,
-                        'email' =>$email,
-                        'bank' =>$t_type,
-                        'amount' =>$amount,
-                    ];
+        //         $paymentStatus =  $this->paymentStatus($balance);
 
-                    $this->sendWelcomeMail($details, $data);
+        //         //Check if email exists in the system and attach it to the new program to that email
+        //         $user = User::where('email', $email)->first();
+        //         // if user doesnt exist, create new user and attach program
+        //         if(!$user){
+        //             //save to database
+        //             $user = User::updateOrCreate([
+        //                 'name' => $name,
+        //                 'email' => $email,
+        //                 't_phone' => $phone,
+        //                 'password' => $password,
+        //                 'role_id' => $role_id,
+        //             ]); 
+        //         }
+        //         //If program id is not in array of user program, attach program
+        //         $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $program_id)->count();
+
+        //         if( $userPrograms < 1){
+        //             // Attach program
+        //             $this->attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id);
+                
+        //             //prepare and send email
+        //             $details = [
+        //                 'programFee' => $programFee,
+        //                 'programName' => $programName,
+        //                 'programAbbr' => $programAbbr,
+        //                 'balance' => $balance,
+        //                 'message' => $message,
+        //                 'booking_form' => !is_null($bookingForm) ? base_path() . '/uploads'.'/'. $bookingForm : null,
+        //                 'invoice_id' =>  $invoice_id,
+        //             ];
+            
+        //             $data = [
+        //                 'name' =>$name,
+        //                 'email' =>$email,
+        //                 'bank' =>$t_type,
+        //                 'amount' =>$amount,
+        //             ];
+
+        //             $this->sendWelcomeMail($details, $data);
                     
-                    //include thankyou page
-                    return view('emails.thankyou', compact('data',  'details'));
+        //             //include thankyou page
+        //             return view('emails.thankyou', compact('data',  'details'));
 
-                }else{
-                    dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
-                }
+        //         }else{
+        //             dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
+        //         }
             
-            }dd('Transaction failed! We have not received any money from you.');
-        }
+        //     }dd('Transaction failed! We have not received any money from you.');
+        // }
         
     }
+
+    public function getPaymentMode(){
+        // dd(Session::get('facilitator'));
+        // if (Session::has('facilitator')) {
+
+           
+        // }else{
+        //     $facilitator = null;
+        // }
+
+        // return $facilitator;
+    }
+
     //set balance and determine user receipt values
     private function dosubscript1($balance){
 

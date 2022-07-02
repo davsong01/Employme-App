@@ -9,6 +9,7 @@ use App\Program;
 use App\Complain;
 use App\Material;
 use App\Certificate;
+use App\PaymentMode;
 use App\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -68,15 +69,20 @@ class User extends Authenticatable
             return $this->hasMany(FacilitatorTraining::class);
         }
 
-        public function students()
-        {
-            return $this->hasMany(User::class, 'facilitator_id');
+        // public function students()
+        // {
+        //     return $this->hasMany(User::class, 'facilitator_id');
+        // }
+
+        // public function facilitator()
+        // {
+        //     return $this->belongsTo(User::class, 'facilitator_id');
+        // }
+
+        public function payment_modes(){
+            return $this->belongsTo(PaymentMode::class, 'payment_mode');
         }
 
-        public function facilitator()
-        {
-            return $this->belongsTo(User::class, 'facilitator_id');
-        }
         public function setImpersonating($id)
         {
             Session::put('impersonate', $id);

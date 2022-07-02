@@ -1,5 +1,10 @@
 <?php
     $logo = \App\Settings::first()->value('logo');
+    // $currency = \Session::get('currency');
+    // $currency_symbol = \Session::get('currency_symbol');
+    // $exchange_rate = \Session::get('exchange_rate');
+    $currency_symbol = $data['currency_symbol'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,7 +48,7 @@
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
     <div class="container">
        
-      <a class="navbar-brand js-scroll-trigger" href="#page-top"><img style="width: 25% !important;" src="{{ asset($logo)}}" alt="logo"></a>
+      <a class="navbar-brand js-scroll-trigger" href="/"><img style="width: 25% !important;" src="{{ asset($logo)}}" alt="logo"></a>
     </div>
   </nav>
 
@@ -55,7 +60,7 @@
           <h4 class="text-uppercase text-white font-weight-bold">THANK YOU {{ $data['name'] }}</h4>
         </div>
         <div class="col-lg-8 align-self-baseline">
-          <p class="text-white-75 font-weight-light mb-5">Thank you for making payment. Please save the details of your payment below. Please check your email ({{ $data['email'] }}) for your booking form, E-receipt and login details </p>
+          <p class="text-white-75 font-weight-light mb-5">Thank you for making payment. Please save the details of your payment below. Please check your email ({{ $data['email'] }}) for your E-receipt and login details </p>
           <div class="row">
               <div class="container">
 
@@ -82,11 +87,11 @@
                     </tr>
                     <tr>
                       <td>Amount Paid</td>
-                      <td class="value">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($data['amount']) }}</td>
+                      <td class="value">{{  $currency_symbol.number_format($data['amount']) }}</td>
                     </tr>
                     <tr>
                       <td>Balance</td>
-                      <td class="value">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($data['balance'])}}</td>
+                      <td class="value">{{ $currency_symbol. number_format($data['balance'])}}</td>
                     </tr>
                     <tr>
                       <td>Payment Type</td>

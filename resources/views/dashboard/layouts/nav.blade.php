@@ -9,8 +9,7 @@
             <b class="logo-icon p-l-10"></b>
 
             <span class="logo-text">
-                <!-- dark Logo text -->
-                <img src="{{ asset('assets/images/logo-text.png') }}" alt="homepage" class="light-logo" />
+                <img src="{{ asset(\App\Settings::value('logo')) }}" alt="homepage" class="light-logo" />
             </span>
         </a>
 

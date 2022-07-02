@@ -1,7 +1,3 @@
-<?php
-    $currency = \Request::get('currency');
-?>
-
 @extends('layouts.contai.app')
 @section('title')
     {{ config('app.name') }}
@@ -34,7 +30,7 @@
                             <a href="{{ route('trainings', $discount->id ) }}" target="_blank">
                                 <h5 style="color: #c2c2c2">{{ $discount->p_name }}</h5>
                             </a>
-                            <div class="product__item__price">{{ $currency. number_format($discount->e_amount) }}<span>{{ $currency. number_format($discount->p_amount) }}</span></div>
+                            <div class="product__item__price">{{ $currency_symbol. number_format($exchange_rate * $discount->e_amount ) }}<span>{{ $currency_symbol. number_format($exchange_rate * $discount->p_amount) }}</span></div>
                         </div>
                     </div>
                 </div>
@@ -85,10 +81,10 @@
                             </h6>
                             <h5>
                                  @if($training->close_earlybird == 0 || $training->e_amount != 0)
-                                    {{ $currency }}{{ number_format($training->e_amount) }}
-                                    <span class="discount-color">&nbsp; {{ $currency }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
+                                    {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
+                                    <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
                                 @else
-                                    {{ $currency }}{{ number_format($training->p_amount) }}
+                                    {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
                                 @endif
                                 
                             </h5> 
@@ -100,17 +96,14 @@
     </div>
 </section>
 <!-- Featured Section End -->
-<section>
+{{-- <section>
     <div class="container">
         <div class="row">
             <!-- <div class="row"> -->
             <div class="col-lg-12">
                 <!-- <div class="col-lg-12"> -->
-                <div class="product__pagination blog__pagination homepage-pagination">
-                    <a href="#">1</a>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#"><i class="fa fa-long-arrow-right"></i></a>
+                 <div class="homepage-pagination">
+                    {{  $trainings->appends($_GET)->links()  }}
                 </div>
                     <!-- </div> -->
             </div>
@@ -134,11 +127,11 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 <!-- Banner End -->
 
 <!-- Blog Section Begin -->
-<section class="from-blog spad">
+{{-- <section class="from-blog spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -192,7 +185,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> --}}
 <!-- Blog Section End -->
 @endsection
 {{-- @extends('layouts.frontend')

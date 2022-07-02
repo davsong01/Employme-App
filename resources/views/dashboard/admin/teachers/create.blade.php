@@ -23,7 +23,7 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
-                               
+                                Do not forget to add payment mode!!!!
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" autofocus >
