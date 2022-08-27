@@ -9,7 +9,7 @@
                 <h2 style="color:green; text-align:center; padding:20px">{{ strtoupper($program->p_name) }} STUDY MATERIALS</h2>
                 <h5>Study Materials</h5>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>

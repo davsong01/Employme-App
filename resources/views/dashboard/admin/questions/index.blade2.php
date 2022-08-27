@@ -5,23 +5,23 @@
 @section('content')
 
 <div class="container-fluid">
-     <div class="card">
+    <div class="card">
         <div class="card-body">
-           @include('layouts.partials.alerts')
+            @include('layouts.partials.alerts')
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5><br> 
-                    <a href = "{{ url('questionsimport-export') }}" class="btn btn-custon-four btn-success"><i class="fa fa-upload"></i> Import Questions</a>
+                    <h5 class="card-title"> All Questions @if(auth()->user()->role_id == "Admin") <a href="{{route('questions.create')}}"><button type="button" class="btn btn-outline-primary">Add New question</button></a>@endif</h5><br>
+                    <a href="{{ url('questionsimport-export') }}" class="btn btn-custon-four btn-success"><i class="fa fa-upload"></i> Import Questions</a>
                 </div>
             </div>
-            
-            <div class="table-responsive">
+
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
                             <th>S/N</th>
                             <th>Date</th>
-                            <th>Title</th>                            
+                            <th>Title</th>
                             <th>Associated Module</th>
                             <th>Correct Option</th>
                             <th>Actions</th>
@@ -39,19 +39,15 @@
                             @if(Auth::user()->role_id == "Admin")
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit question"
-                                        class="btn btn-info" href="{{ route('questions.edit', $question->id)}}"><i
-                                            class="fa fa-edit"></i>
+                                    <a data-toggle="tooltip" data-placement="top" title="Edit question" class="btn btn-info" href="{{ route('questions.edit', $question->id)}}"><i class="fa fa-edit"></i>
                                     </a>
 
-                                    <form action="{{ route('questions.destroy', $question->id) }}" method="POST"
-                                        onsubmit="return confirm('Do you really want to Delete forever?');">
-                                        
+                                    <form action="{{ route('questions.destroy', $question->id) }}" method="POST" onsubmit="return confirm('Do you really want to Delete forever?');">
+
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-warning" data-toggle="tooltip"
-                                            data-placement="top" title="Delete Questions"> <i class="fa fa-trash"></i>
+                                        <button type="submit" class="btn btn-warning" data-toggle="tooltip" data-placement="top" title="Delete Questions"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -63,7 +59,7 @@
                                 N/A
                             </td>
                             @endif
-                        </tr> 
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -77,7 +73,7 @@
     $('#zero_config').DataTable();
 </script>
 <script>
-    $(".delete").on("submit", function () {
+    $(".delete").on("submit", function() {
         return confirm("Are you sure?");
     });
 </script>

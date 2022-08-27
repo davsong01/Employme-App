@@ -76,6 +76,7 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
+                        @if(isset($type) && $type == 'full')
                          <div class="row">
                            <div class="col-lg-12">
                                 <h6 style="margin-bottom: 10px !important;"><span class="icon_tag_alt"></span> Have a coupon? <b onclick="showCoupon()" style="text-decoration: underline; cursor: pointer;" >Click here</b> to enter your code
@@ -98,7 +99,7 @@
                             </div>
                         </div>
                         
-                        
+                        @endif
                     </div>
                     <div class="col-lg-6 col-md-6">
                         <div class="checkout__order">

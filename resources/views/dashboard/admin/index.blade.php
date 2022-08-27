@@ -17,6 +17,18 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                         class="hide-menu">Facilitator Dashboard</span></a></li>
+
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ route('teachers.students', auth()->user()->id) }}" aria-expanded="false"><i class="fa fa-users"></i><span
+                    class="hide-menu">My Students</span></a></li>
+                
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ route('teachers.programs', auth()->user()->id) }}" aria-expanded="false"><i class="fas fa-chalkboard-teacher"></i><span
+                class="hide-menu">My Programs</span></a></li>
+
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ route('teachers.earnings', auth()->user()->id) }}" aria-expanded="false"><i class="fas fa-wallet"></i><span
+                class="hide-menu">My Earnings</span></a></li>
                 @endif
                  @if(Auth::user()->role_id == "Grader")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
@@ -69,6 +81,9 @@
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
                             class="hide-menu">View All study Materials</span></a></li>
+                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{ route('coupon.index') }}" aria-expanded="false"><i class="fa fa-gift"></i><span
+                class="hide-menu">Coupons</span></a></li>
                 @if(Auth::user()->role_id == "Admin")
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span

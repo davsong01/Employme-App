@@ -32,7 +32,9 @@
                     class="fas fa-comments"></i><span class="hide-menu">CRM Tool</span></a>
                 </li>
                 @endif
-                
+                <li class="sidebar-item"><a href="{{ route('training.instructor', ['p_id'=>$program->id])}}" class="sidebar-link"><i
+                    class="fas fa-chalkboard-teacher"></i><span class="hide-menu">Program Instructor</span></a>
+                </li>
                 <li class="sidebar-item"><a href="{{ route('tests.index', ['p_id'=>$program->id])}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">Post Class Tests</span></a>
                 </li>

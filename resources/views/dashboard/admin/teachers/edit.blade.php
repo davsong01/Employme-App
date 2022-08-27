@@ -30,15 +30,14 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="100"
-                                    height="100">
+                                    <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="100" height="100">
                                 </div>
                             </div>
                             <div class="col-md-10">
                                 <div class="form-group">
                                     <table class="table table-bordered">
                                         <th><strong>Trainings</strong><a href="{{ route('teachers.programs', $user->id) }}" target="_blank" class="btn btn-info btn-sm view"> View</a></th>
-                                        <th><strong>Downlines</strong><a href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
+                                        <th><strong>Students</strong><a href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
                                         <th><strong>WTN License</strong></th>
                                         <th><strong>Off season</strong></th>
                                         <th><strong>Total Earnings</strong> <a href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a> </th>
@@ -47,7 +46,7 @@
                                            <td>{{ $programs->count() }}</td>
                                            <td>{{  $user->students_count }} </td>
                                            <td>{{ $user->license }}</td>
-                                           <td>{{ isset($user->off_season_availability) ? 'Yes' : 'No'}}</td>
+                                           <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No'}}</td>
                                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings }}</td>
                                         </tr>
                                         
@@ -92,7 +91,7 @@
                             <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
                                     <label for="phone">Phone</label>
-                                    <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone}}">
+                                    <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone}}">
                                     @if ($errors->has('phone'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('phone') }}</strong>
@@ -172,7 +171,7 @@
                         <div class="row" style="padding-top:20px">
                             <div class="col-md-12">
                                 <h3>Assigned Students</h3>
-                                <div class="table-responsive">
+                                <div class="">
                                     <table id="zero_config" class="table table-striped table-bordered">
                                         <thead>
                                             <tr>

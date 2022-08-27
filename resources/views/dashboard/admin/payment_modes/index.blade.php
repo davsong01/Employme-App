@@ -16,7 +16,7 @@
                 </div>
             </div>
             <?php $default_currency = \App\Settings::value('CURR_ABBREVIATION') ?>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>

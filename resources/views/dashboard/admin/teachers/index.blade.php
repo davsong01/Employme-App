@@ -13,7 +13,7 @@
                     <h5 class="card-title">Facilitators $ Graders <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -32,8 +32,10 @@
                         @foreach($users as $user)
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td><img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="50"
-                                height="50"></td>
+                            <td>
+                                <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="50" height="50">
+                              
+                            </td>
                             <td>
                                 <small>
                                 <strong>Name: </strong> {{ $user->name }}<br>
@@ -55,9 +57,13 @@
                                     @endforeach
                                 </small>
                             </td>
-                            <td>{{ $user->students_count }}</td>
+                            <td>{{ $user->students_count }} <br>
+                                <a target="_blank" href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                            </td>
                             
-                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings ? number_format($user->earnings) : 0 }}</td>
+                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings ? number_format($user->earnings) : 0 }} <br>
+                                <a target="_blank" href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                            </td>
                           
                             <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
                                           
@@ -91,35 +97,5 @@
         </div>
     </div>
 </div>
-{{-- Payment modal --}}
-<!-- Button to Open the Modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-    Open modal
-  </button>
-  
-  <!-- The Modal -->
-  <div class="modal" id="myModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-  
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Modal Heading</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-  
-        <!-- Modal body -->
-        <div class="modal-body">
-          Modal body..
-        </div>
-  
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-        </div>
-  
-      </div>
-    </div>
-  </div>
-  {{-- end payment modal --}}
+
 @endsection

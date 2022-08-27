@@ -10,7 +10,7 @@
                 <h5>All Submitted Certification Test</h5>
             </div>
            
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>

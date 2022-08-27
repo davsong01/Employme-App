@@ -70,7 +70,7 @@
             </div>
             
 
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>

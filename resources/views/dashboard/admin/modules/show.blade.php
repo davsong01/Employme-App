@@ -59,7 +59,7 @@
                     <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin")<a href="{{route('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>

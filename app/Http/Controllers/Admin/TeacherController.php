@@ -6,6 +6,7 @@ use App\Role;
 use App\User;
 use App\Program;
 use App\Material;
+use App\PaymentMode;
 use App\Mail\Welcomemail;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
@@ -30,9 +31,11 @@ class TeacherController extends Controller
             $transactions = DB::table('program_user')->where('facilitator_id', $users->id);
             $users->students_count = $transactions->count();
             $users->earnings = $transactions->sum('facilitator_earning');
+            $users->image = (filter_var($users->profile_picture, FILTER_VALIDATE_URL) !== false) ? $users->profile_picture : url('/'). '/profiles'.'/'.$users->profile_picture;
+                
             return $users;
         });
-
+       
         foreach($users as $user){
             $names = [];
             foreach($user->trainings as $trainings){
@@ -45,7 +48,7 @@ class TeacherController extends Controller
            
             $user->p_names =  $names ;
         }
-       
+
         if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.teachers.index', compact('users', 'i') );
         }
@@ -53,44 +56,67 @@ class TeacherController extends Controller
     
     public function showStudents($id){
         $users = DB::table('program_user')->where('facilitator_id', $id)
-        ->join('users', 'program_user.user_id', '=', 'users.id')
-        ->join('programs', 'programs.id','=', 'program_user.program_id')
-        ->orderBy('program_user.created_at')
-        ->get();
+            ->join('users', 'program_user.user_id', '=', 'users.id')
+                ->join('programs', 'programs.id','=', 'program_user.program_id')
+                    ->orderBy('program_user.created_at')
+                        ->get();
        
-       $i = 1;
+        $i = 1;
         return view('dashboard.admin.teachers.my_students', compact('users', 'i'));
     }
 
     public function showPrograms($id)
     {
-        $user = User::find($id);
-        $users = $user->trainings;
+        $users = DB::table('facilitator_trainings')->where(['user_id'=>$id, 'status'=>1])
+            ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
+            ->select('programs.id', 'programs.p_name', 'facilitator_trainings.created_at')
+                ->orderBy('facilitator_trainings.created_at')
+                    ->get();
+        
+        $i = 1;
+       
         return view('dashboard.admin.teachers.my_programs', compact('users', 'i'));
 
+    }
+
+    public function showEarnings($id)
+    {
+        $earnings = DB::table('program_user')->where('facilitator_id', $id)->where('facilitator_earning','>',0)
+            ->join('users', 'users.id', '=', 'program_user.user_id')
+            ->join('programs', 'programs.id', '=', 'program_user.program_id')
+            ->select('p_name','name','program_user.id', 'program_user.facilitator_id', 'currency','paymenttype','t_amount','invoice_id','p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code','facilitator_earning', 'profile_picture','program_user.created_at')
+            ->orderBy('program_user.created_at')
+            ->get();
+
+        $i = 1;
+        // dd($earnings);
+        return view('dashboard.admin.teachers.my_student_earnings', compact('earnings', 'i', 'id'));
     }
 
     public function create()
     {
         if(Auth::user()->role_id == "Admin"){
             $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
-            return view('dashboard.admin.teachers.create', compact('programs'));
+            $payment_methods=PaymentMode::all();
+            return view('dashboard.admin.teachers.create', compact('programs', 'payment_methods'));
         }return back();
     }
     public function store(Request $request)
-    {        
-            $data = request()->validate([
+    {       
+        $data = request()->validate([
+            'payment_method' => 'required',
+            'license' => 'nullable',
+            'picture' => 'nullable',
             'name' => 'required | min:5',
             'profile' => 'nullable',
             'file' => 'nullable',
             'email' =>'required | email',
-            'password' => 'required',
+            'password' => 'sometimes',
             'role'=>'required',
             'training' => 'nullable',
             'off_season_availability' => 'nullable',
-            'earning_per_head' => 'nullable'
-            ]);
-
+        ]);
+    
         if(request()->has('file')){ 
         
             $imgName = $request->file->getClientOriginalName();
@@ -99,43 +125,49 @@ class TeacherController extends Controller
             
             $picture->save('profiles/'.'/'.$imgName);
         }
-          
-        if($data['role'] == "Facilitator" || $data['role'] == "Grader"){    
-           $facilitator = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'profile' => $data['profile'],
-                'off_season_availability' => $data['off_season_availability'],
-                'profile_picture' => $imgName,
-                'password' => bcrypt($data['password']),
-                'role_id' => $data['role'],
-                'earning_per_head' => $data['earning_per_head'],
-            ]);
+        
+        try {
+            if ($data['role'] == "Facilitator" || $data['role'] == "Grader") {
+                $facilitator = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'profile' => $data['profile'],
+                    'phone' => $data['phone'],
+                    'off_season_availability' => $data['off_season_availability'],
+                    'profile_picture' => $data['picture'] ?? $imgName,
+                    'license' => $data['license'],
+                    'password' => bcrypt($data['password']),
+                    'role_id' => $data['role'],
+                    // 'earning_per_head' => $data['earning_per_head'],
+                ]);
 
-            if($request->has('training')){
-                //attach facilitator to program
-                foreach($data['training'] as $training){
-                    FacilitatorTraining::create([
-                        'user_id' => $facilitator->id,
-                        'program_id' =>$training
-                    ]);
+                if ($request->has('training')) {
+                    //attach facilitator to program
+                    foreach ($data['training'] as $training) {
+                        FacilitatorTraining::create([
+                            'user_id' => $facilitator->id,
+                            'program_id' => $training
+                        ]);
+                    }
                 }
+                return redirect(route('teachers.index'))->with('message', 'Facilitator added succesfully');
             }
-            return redirect(route('teachers.index'))->with('message', 'Facilitator added succesfully'); 
-        }
-        
-        if($data['role'] == "Admin"){ 
-            User::create([
-                'name' => $data['name'],
-                'profile' => $data['profile'],
-                'email' => $data['email'],
-                'password' => bcrypt($data['password']),
-                'role_id' => $data['role'],
-            ]); 
 
-            return redirect(route('teachers.index'))->with('message', 'Admin added succesfully'); 
+            if ($data['role'] == "Admin") {
+                User::create([
+                    'name' => $data['name'],
+                    'profile' => $data['profile'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'password' => bcrypt($data['password']),
+                    'role_id' => $data['role'],
+                ]);
+
+                return redirect(route('teachers.index'))->with('message', 'Admin added succesfully');
+            }
+        } catch (\Throwable $th) {
+            return back()->with('error', $th->getMessage());
         }
-        
             
     }
 
@@ -153,21 +185,13 @@ class TeacherController extends Controller
         $allprograms = Program::where('id', '<>', 1)
         ->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
 
-        // dd($programs, $allprograms);
-
         $other_details = DB::table('program_user')->where('facilitator_id', $user->id);
         $user->students_count = $other_details->count();
         $user->earnings = $other_details->sum('facilitator_earning');
-        // $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-        // dd($programs);
-        // foreach($programs as $program){
-        //     $program['is_associated'] = FacilitatorTraining::whereUserId($user->id)->whereProgramId($program->id)->value('program_id');
-        // }
-        // $students = $user->students()->get();
-      
-        $i = 1;
+        $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . $user->profile_picture;
+        
         if(Auth::user()->role_id == "Admin"){
-        return view('dashboard.admin.teachers.edit', compact('programs','user', 'i', 'allprograms'));
+        return view('dashboard.admin.teachers.edit', compact('programs','user', 'allprograms'));
     }return back();
 }
 

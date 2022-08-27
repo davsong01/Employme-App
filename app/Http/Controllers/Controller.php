@@ -172,18 +172,28 @@ class Controller extends BaseController
 
     public function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL){
         // Admin created coupon
+        if(is_null($coupon)){
+            return [
+                'facilitator' => $data['facilitator_percent'] ?? 0,
+                'admin' => $data['admin_percent'] ?? 0,
+                'tech' => $data['tech_percent'] ?? 0,
+                'faculty' =>  $data['faculty_percent'] ?? 0,
+                'other' => $data['other_percent'] ?? 0,
+            ];
+        }
+       
         if($coupon > 0){
             $coupon = $coupon;
         }else{
             $coupon = 0;
         }
-        
+       
         if($createdBy == 0){
             $toShare = $amount - $coupon;
         }else{
             $toShare = $amount;
         }
-
+        
         $data['tech_percent'] = ($toShare * $program->tech_percent) /100;
         $data['faculty_percent'] =($toShare * $program->faculty_percent) /100;
         $data['admin_percent'] =($toShare * $program->admin_percent) /100;
@@ -193,7 +203,7 @@ class Controller extends BaseController
             if($createdBy == $programFacilitator){
                 $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) /100) - $coupon;
             }else{
-                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) /100);
+                $data[ 'facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100);
             }
         }else{
             $data['facilitator_percent'] = 0;
@@ -225,39 +235,43 @@ class Controller extends BaseController
         $data['name'] = $paymentDetails['data'] ['metadata']['name'];
         $data['email'] = $paymentDetails['data']['customer']['email'];
         $data['phone'] = $paymentDetails['data'] ['metadata']['phone'];
-        $data['phone'] = $paymentDetails['data'] ['metadata']['phone'];
+
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $amount;
         $data['t_type'] = "PAYSTACK";
 
+        // Create Facilitator details
+        if (isset($paymentDetails['data']['metadata']['facilitator'])) {
+            $data['facilitator_id'] = $paymentDetails['data']['metadata']['facilitator'];
+            $data['facilitator_name'] = User::where('id', $paymentDetails['data']['metadata']['facilitator'])->value('name');
+        }
+          
         if(isset($paymentDetails['data']['metadata']['location'])){
             $data['location'] = $paymentDetails['data']['metadata']['location']; 
         }else $data['location'] = ' ' ;
 
         $data['role_id'] = "Student";
         $data['transid'] = $paymentDetails['data']['reference'];
-
+        
         return $data;
     }
 
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         $user = User::where('email', $data['email'])->first();
-       
-        $data['facilitator_id'] = NULL;
+        
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
         $data['coupon_code'] = NULL;
-        $data['invoice_id'] = $this->getInvoiceId($user->id);
-        
+       
         if(!is_null($coupon)){
-            $data['facilitator_id'] = $coupon->facilitator_id;
+            // $data['facilitator_id'] = $coupon->facilitator_id;
             $data['coupon_amount'] = $coupon->amount;
             $data['coupon_id'] = $coupon->id;
             $data['coupon_code'] = $coupon->code;
         }
-
+        
         $data['booking_form'] = !is_null($data['bookingForm']) ? base_path() . '/uploads'.'/'. $data['bookingForm'] : null;
         $data['admin_earning'] = $earnings['admin'];
         $data['facilitator_earning'] = $earnings['facilitator'];
@@ -266,7 +280,7 @@ class Controller extends BaseController
         $data['other_earning'] = $earnings['other'];
 
         // if user doesnt exist, create new user and attach program
-        if(!$user){
+        if (!isset($user)) {
             //save to database
             $user = User::updateOrCreate([
                 'name' => $data['name'],
@@ -276,11 +290,12 @@ class Controller extends BaseController
                 'role_id' => $data['role_id'],
             ]); 
         }
-       
-    
+
+        $data['invoice_id'] = $this->getInvoiceId($user->id);
+     
         //If program id is not in array of user program, attach program
         $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
-       
+        
         if( $userPrograms < 1){
             // Attach program
             $user->programs()->attach( $data['program_id'], [
@@ -293,15 +308,15 @@ class Controller extends BaseController
                 'paymentStatus' => $data['paymentStatus'], 
                 'balance' => $data['balance'], 
                 'invoice_id' => $data['invoice_id'],
-                'facilitator_id' => $data['facilitator_id'],
-                'coupon_amount' => $data['coupon_amount'],
-                'coupon_id' => $data['coupon_id'],
-                'coupon_code' => $data['coupon_code'],
-                'admin_earning'=> $data['admin_earning'],
-                'facilitator_earning' => $data['facilitator_earning'],
-                'tech_earning' => $data['tech_earning'],
-                'faculty_earning' => $data['faculty_earning'],
-                'other_earning' => $data['other_earning'],
+                'facilitator_id' => $data['facilitator_id'] ?? NULL,
+                'coupon_amount' => $data['coupon_amount'] ?? NULL,
+                'coupon_id' => $data['coupon_id'] ?? NULL,
+                'coupon_code' => $data['coupon_code'] ?? NULL,
+                'admin_earning'=> $data['admin_earning'] ?? NULL,
+                'facilitator_earning' => $data['facilitator_earning'] ?? NULL,
+                'tech_earning' => $data['tech_earning'] ?? NULL,
+                'faculty_earning' => $data['faculty_earning'] ?? NULL,
+                'other_earning' => $data['other_earning'] ?? NULL,
                 'currency' =>  \Session::get('currency'),
                
             ] );
@@ -322,9 +337,13 @@ class Controller extends BaseController
     public function updateCoupon($c, $email, $pid){
         $coupon = CouponUser::where('coupon_id', $c)->where('email', $email)->where('program_id', $pid)->first();
        
-        $coupon->status = 1;
-        $coupon->save();
-     
+        try {
+            $coupon->status = 1;
+            $coupon->save();
+        } catch (\Throwable $th) {
+            
+        }
+       
         return;
     }
     public function deleteFromTemp($temp){
@@ -337,4 +356,5 @@ class Controller extends BaseController
         $user = User::where('id', $user_id)->select('name', 'email', 't_phone')->first();
         return $user;
     }
+
 }

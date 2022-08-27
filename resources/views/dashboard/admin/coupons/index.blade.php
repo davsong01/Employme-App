@@ -1,5 +1,5 @@
 @extends('dashboard.admin.index')
-@section('title', 'Download certificates')
+@section('title', 'All Coupons')
 @section('content')
 
 <div class="container-fluid">
@@ -9,7 +9,7 @@
          </div>
         <div class="card-header">
             <div>
-                <h5 class="card-title"> All Certificates <a href="{{route('certificates.create')}}"><button type="button" class="btn btn-outline-primary">Add New Certificate</button></a></h5> 
+                <h5 class="card-title"> All Coupons <a href="{{route('coupon.create')}}"><button type="button" class="btn btn-outline-primary">Add New Coupon</button></a></h5> 
             </div>
         </div>
             <div class="">
@@ -17,31 +17,32 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Name</th>
-                            <th>Date</th>
-                            <th>Program</th>
+                            <th>Code</th>
+                            <th>Amount</th>
+                            <th>Training</th>
+                            <th>Created by</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($certificates as $certificate)
+                        @foreach($coupons as $coupon)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }}</td>
-                            <td>{{ $certificate->created_at->format('d/m/Y') }}</td>
-                            <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>
+                            <td>{{ $coupon->code }}</td>
+                            <td>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($coupon->amount) }}</td>                          
+                            <td>{{$coupon->program->p_name }}</td>                          
+                            <td>{{ isset($coupon->facilitator->name) ? $coupon->facilitator->name : 'Admin' }}</td>                          
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Download certificate"
-                                        class="btn btn-info" href="certificate/{{ $certificate->file }}"><i
-                                            class="fa fa-download"></i>
+                                    <a data-toggle="tooltip" data-placement="top" title="edit coupon details"
+                                        class="btn btn-info" href="{{ route('coupon.edit', $coupon->id)}}"><i class="fa fa-edit"></i>
                                     </a>
-                                        <form action="{{ route('certificates.destroy', $certificate->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                        <form action="{{ route('coupon.destroy', $coupon->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
 
                                             <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete certificate"> <i
+                                                data-placement="top" title="Delete coupon"> <i
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>

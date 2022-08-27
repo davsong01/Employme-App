@@ -19,7 +19,9 @@ Auth::routes();
 Route::get('/reset', 'FrontendController@reset')->name('reset');
 
 Route::middleware(['template'])->group(function(){
-    Route::get('/', 'FrontendController@index')->name('welcome');    
+    Route::get('/', 'FrontendController@index')->name('welcome');
+    Route::get('/thankyou', 'FrontendController@thankyou')->name('thankyou');    
+
     Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
     Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
     Route::post('/checkout', 'PaymentController@checkout')->name('checkout'); 
@@ -71,7 +73,10 @@ Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show
 Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
 Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
 Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
-Route::get('userresults', 'TestsController@userresults')->middleware(['impersonate','auth','programCheck'])->name('tests.results');
+Route::get( 'userresults', 'TestsController@userresults')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
+Route::get('training.instructor', 'ProfileController@showFacilitator')->middleware(['impersonate','auth','programCheck'])->name('training.instructor');
+
+
 
 
 Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
@@ -109,8 +114,9 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
  
 });
 
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
+Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
     Route::resource('teachers', 'TeacherController');
+    Route::resource('coupon', 'CouponController');
     Route::get('teachers_students/{id}', 'TeacherController@showStudents')->name('teachers.students');
     Route::get('teachers_programs/{id}', 'TeacherController@showPrograms')->name('teachers.programs');
     Route::get('teachers_earnings/{id}', 'TeacherController@showEarnings')->name('teachers.earnings');

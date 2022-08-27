@@ -6,7 +6,7 @@
         <div class="card-body">
             @include('layouts.partials.alerts')
             <h5 class="card-title">Payment History</h5>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>

@@ -22,4 +22,9 @@ class FacilitatorTraining extends Model
     public function programName(){
         return $this->belongsTo(Program::class, 'program_id');
     }
+
+    public function materials()
+    {
+        return $this->hasMany(Material::class, 'program_id');
+    }
 }

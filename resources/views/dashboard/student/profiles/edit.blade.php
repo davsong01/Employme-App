@@ -71,12 +71,7 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
-                                {{-- <div class="form-group">
-                                    <label>Profile Picture</label>
-                                    <input type="file" name="file" value="" class="form-control">
-                                </div>
-                                <div><small style="color:red">{{ $errors->first('file')}}</small></div>
-                            </div> --}}
+                                
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">

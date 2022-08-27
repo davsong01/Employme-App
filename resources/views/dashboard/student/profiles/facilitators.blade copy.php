@@ -79,17 +79,17 @@
 }
 .testimonial .pic{
     display: inline-block;
-    /* width: 100px;
-    height: 100px; */
-    border-radius: 50%;
-    border: 2px solid #6b2014;
+    width: 100px;
+    height: 100px;
+    border-radius: 25px;
+    border: 4px solid #6b2014;
     box-shadow: 0 7px rgba(0, 0, 0, 0.1), 0 5px #e4ac01;
     margin-bottom: 15px;
     overflow: hidden;
 }
 .testimonial .pic img{
-    width: 224px;;
-    height: 100%;
+    width: 100%;
+    height: auto;
 }
 .testimonial .description{
     padding: 0 20px 20px;
@@ -133,7 +133,7 @@
 }
 </style>
 @endsection
-@section('title', 'Facilitator' )
+@section('title', 'Select Facilitator' )
 @section('content')
 @if(is_null(auth()->user()->facilitator_id))
 <div class="container-fluid">
@@ -143,10 +143,11 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        {{-- <h4>Select your preferred facilitator for  from the list of our available  facilitators</h4>
-                        <p>Please note that, You can only do this once</p> --}}
+                        <h4>Select your preferred facilitator for  from the list of our available  facilitators</h4>
+                        <p>Please note that, You can only do this once</p>
                     </div>
-                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        @foreach($facilitators as $facilitator)
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="headingThree">
@@ -156,32 +157,23 @@
                                         </a>
                                     </h4>
                                 </div>
-                                <div id="collapseThree{{ $facilitator->id }}" class="panel" role="tabpanel" aria-labelledby="headingThree">
+                                <div id="collapseThree{{ $facilitator->id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                                     <div class="panel-body">
                                         {{-- <div class="row">
                                             <div class="col-md-12"> --}}
                                                 <div id="testimonial-slider" class="owl-carousel">
                                                     <div class="testimonial">
-                                                        <div class="row">
-                                                            <div class="pic col-md-2">
-                                                            <img src="{{ (filter_var($facilitator->profile_picture, FILTER_VALIDATE_URL) !== false) ? $facilitator->profile_picture : url('/'). '/profiles'.'/'.$facilitator->profile_picture }}" alt="avatar">
+                                                        <div class="pic">
+                                                            <img src="{{ asset('profiles/'. $facilitator->profile_picture  )}}" alt="{{$facilitator->profile_picture }}">
                                                         </div>
-                                                        <div class="col-md-6" style="color:#333" class="description">
-                                                           <strong>Email:</strong> {{ $facilitator->email }} <br>
-                                                           <strong>Phone:</strong> {{ $facilitator->phone }} <br>
-                                                           <a target="_blank" class="btn btn-primary btn-xs" href="https://thewaacsp.com/" {{ $facilitator->slug }}>View Profile on WAACSP</a>
-                                                        </div>
-                                                         
-                                                        </div>
-                                                        
                                                         <div class="description">
                                                             {!! $facilitator->profile !!}
-                                                                {{-- <form action="{{ route('savefacilitator') }}" method="POST">
+                                                                <form action="{{ route('savefacilitator') }}" method="POST">
                                                                     {{ csrf_field() }}
                                                                     <input type="hidden" name="facilitator_id" value="{{ $facilitator->id }}" required>
                                                                     <input required type="hidden" name="program_id" value="{{ $program->id }}">
                                                                     <button class="btn btn-dark" style="width: 100%;">Select facilitator</button>
-                                                                </form> --}}
+                                                                </form>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -191,6 +183,8 @@
                                 </div>
                             </div>
                         </div>
+                        @endforeach
+                    
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@
         <div class="card-body">
             @include('layouts.partials.alerts')
             <h5 class="card-title">Proof of Payment History</h5>
-            <div class="table-responsive">
+            <div class="">
                 <table id="myTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
@@ -90,7 +90,7 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Payment History</h5>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>

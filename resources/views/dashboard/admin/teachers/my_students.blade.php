@@ -13,18 +13,18 @@
                     <h5 class="card-title">My Students</h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>
+                            <th>Date Joined</th>
                             <th>Avatar</th>
                             <th>Name</th>
+                            @if(auth()->user()->role_id == 'Admin')
                             <th>Email</th>
+                            @endif
                             <th>Phone</th>
-                            <th>Earning</th>
-                            <th>currency</th>
-                            <th>Date</th>
                             <th>Training</th>
                         </tr>
                     </thead>
@@ -32,15 +32,15 @@
                         @foreach($users as $user)
                         <tr>
                             <td>{{  $i++ }}</td>
+                            <td>{{ $user->created_at}}</td>
                             <td><img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="50"
                                 height="50"></td>
                             <td>{{ $user->name ?? NULL }}</td>
+                            @if(auth()->user()->role_id == 'Admin')
                             <td>{{ $user->email ?? NULL }}</td>
+                            @endif
                             <td>{{ $user->t_phone ?? NULL}}</td>
-                            {{-- <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ number_format($user->t_amount) }}</td> --}}
-                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->facilitator_earning }}</td>
-                            <td>{{ $user->currency ?? NULL}}</td>
-                            <td>{{ $user->created_at}}</td>
+                            
                             <td>{{ $user->p_name ?? NULL}}</td>
                             @endforeach
                     </tbody>

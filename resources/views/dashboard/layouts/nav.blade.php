@@ -35,9 +35,9 @@
             {{ Auth::user()->name }} <b style="color:yellow"> |</b> </li>
         <li class="nav-item dropdown" style="list-style: none;">
             <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="{{ asset('profiles/'. Auth::user()->profile_picture  )}}" alt="{{Auth::user()->profile_picture }}" class="rounded-circle" width="50"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="{{ (filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) ? Auth::user()->profile_picture : url('/'). '/profiles'.'/'.Auth::user()->profile_picture }}" alt="avatar" class="rounded-circle" width="50"
                     height="50"></a>
-
+            
             <div class="dropdown-menu dropdown-menu-right user-dd animated">
                 @guest
                 <a class="dropdown-item" href="{{ route('login') }}"><i class="ti-user m-r-5 m-l-5"></i> Login</a>

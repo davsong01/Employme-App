@@ -12,7 +12,7 @@
                 <h5 class="card-title"> All Materials <a href="{{route('materials.create')}}"><button type="button" class="btn btn-outline-primary">Add New study Material</button></a></h5> 
             </div>
         </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>

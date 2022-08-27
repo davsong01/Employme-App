@@ -122,7 +122,7 @@
                 <div class="card-title" style="margin-top:30px">
                     <h3>Emails History</h3>
                 </div>
-                <div class="table-responsive">
+                <div class="">
                     <table id="zero_config" class="">
                         <thead>
                             <tr>

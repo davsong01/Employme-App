@@ -95,39 +95,28 @@ class HomeController extends Controller
 
             $calendar = Calendar::addEvents($events);
 
-            //Get all Programs
-            $programCount = Program::where('id', '<>', 1)->count();
-
-            //Get all students
-            $users = User::where('role_id', 'Student')->get();
-
-
-            //Get pending payments
-            $pending_payments = Pop::all()->count();
-
-            //Get Users owing
-            foreach($users as $user){
-               $users['userowing'] = DB::table('program_user')->where('user_id', $user->id)->where('balance', '>', 0)->count();
-            }
-            $userowing = ($users['userowing']);
-
             //get number of users and materials for this faciliator/grader
-            $facilitator_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-            $i = 0;
-            $userCount = 0;
-            $materialCount = 0;
+            $user = Auth::user();
+            $details = DB::table('facilitator_trainings')->where('user_id', $user->id);
+            $user->programCount = $details->distinct()->count();
+            $transactions = DB::table('program_user')->where('facilitator_id', $user->id);
+            $user->students_count = $transactions->count();
+            $user->earnings = $transactions->sum('facilitator_earning');
 
-            if($facilitator_programs->count() > 0){
 
-                foreach($facilitator_programs as $programs){
-                    $userCount = DB::table('program_user')->whereProgramId($programs->program_id)->count() + $userCount;
-                    $materialCount = Material::whereProgramId($programs->program_id)->count() + $materialCount;
-                }
-            }
+            $user->trainings->map(function($q){
+                $q->p_name = Program::whereId($q->program_id)->value('p_name');
+                $q->materials = Material::where('program_id', $q->program_id)->count();
+                $user['materials'] = $q->materials;
+                return $q;
+            });
 
+            $materialCount = $user->trainings->sum('materials');
+        
             $requests = $request;
+            $i = 1;
 
-            return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
+            return view('dashboard.admin.dashboard', compact( 'calendar','requests',  'i', 'user','materialCount'));
          }
 
         if(Auth::user()->role_id == "Student"){
