@@ -26,7 +26,7 @@
                     <h3>{{ $training->p_name }}</h3>
                     
                     <div class="product__details__price">
-                        @if($training->close_earlybird == 0 || $training->e_amount != 0)
+                        @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
                             {{ $currency_symbol }}{{ number_format($training->e_amount) }}
                             <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                         @else
@@ -44,7 +44,7 @@
                                         <select name="type" id="" required>
                                             <option value="">Select</option>
                                             <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
-                                            @if($training->close_earlybird == 0 || $training->e_amount > 0)
+                                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
                                             <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
                                             @endif
                                             @if($training->haspartpayment == 1)

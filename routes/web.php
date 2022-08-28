@@ -76,9 +76,6 @@ Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(
 Route::get( 'userresults', 'TestsController@userresults')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
 Route::get('training.instructor', 'ProfileController@showFacilitator')->middleware(['impersonate','auth','programCheck'])->name('training.instructor');
 
-
-
-
 Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
