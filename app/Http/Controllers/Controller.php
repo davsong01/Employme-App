@@ -108,6 +108,8 @@ class Controller extends BaseController
             $coupon_id = $coupon->id;
             $coupon_code = $coupon->code;
 
+            $facilitator = $coupon->facilitator_id;
+            
             return [
                 'amount' => $coupon_amount,
                 'id' => $coupon_id,

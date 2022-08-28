@@ -26,12 +26,14 @@ class PaymentController extends Controller
         $i = 1;
 
         if(Auth::user()->role_id == "Admin"){
-            $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
+            // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
-            // $transactions = Transaction::join("programs", "program_id", "=", "programs.id")
-            // ->join("users", "user_id", "=", "users.id")
-            // ->select("program_user.created_at", "programs.p_name", "program_user.t_amount", "program_user.balance", "program_user.transid", "program_user.invoice_id", "facilitator_id", "coupon_amount", "coupon_id", "coupon_code", "currency", "t_type", "users.name AS namex", "users.email AS emailx")
-            // ->orderBy('program_user.id', 'DESC')->get();
+            $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
+                ->join("programs", "program_user.program_id", "=", "programs.id")
+                ->join("users", "users.id", "=", "program_user.user_id")
+                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "t_type")
+                ->get();
+
             // dd($transactions);
        
 
@@ -62,6 +64,7 @@ class PaymentController extends Controller
     public function edit($id){
    
             $transaction = DB::table('program_user')->whereId($id)->first();
+           
             $transaction->name = User::whereId($transaction->user_id)->value('name');
             $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->first();
             $transaction->p_name = $program_details->p_name;

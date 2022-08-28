@@ -105,10 +105,10 @@
                         @foreach($transactions as $transaction)
                         
                         <tr>
-                            <td>{{ $transaction->name ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }}  </td>
+                            <td>{{ $transaction->user->name ?? 'N/A' }} <br> {{ $transaction->user->email ?? 'N/A' }} <br>{{ $transaction->user->t_phone ?? 'N/A' }}  </td>
                             <td>
                                 <small class="training-details">
-                                    <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
+                                    <strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }} <br>  
                                     <strong>Paid:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}<br>  
                                     <strong>Balance:</strong>
                                          @if($transaction->paymentStatus == 0 )

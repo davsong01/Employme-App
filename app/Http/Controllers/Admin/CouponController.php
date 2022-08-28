@@ -23,7 +23,7 @@ class CouponController extends Controller
         if (Auth::user()->role_id == "Admin") {
 
             $coupons = Coupon::orderBy('created_at', 'desc')->get();
-
+        //    dd($coupons);
             return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
         } else if (Auth::user()->role_id == "Facilitator") {
             $coupons = Coupon::where('facilitator_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
