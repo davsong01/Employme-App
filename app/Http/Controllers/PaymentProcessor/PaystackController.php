@@ -10,9 +10,10 @@ use Illuminate\Support\Facades\Session;
 class PaystackController extends Controller
 {
     public function query($request, $mode){
+    
         $request['transid'] = $this->getReference('PYSTK');
+
         $this->createTempDetails($request, $mode->id);
-        
         $url = "https://api.paystack.co/transaction/initialize";
        
         $fields = [

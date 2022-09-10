@@ -163,7 +163,7 @@ class Controller extends BaseController
                 ]);
             } else {
                 try {
-                    $trans = TempTransaction::create([
+                    $temp = TempTransaction::create([
                         'email' => $request->email,
                         'type' => $request->payment_type,
                         'program_id' => $request['metadata']['pid'],
@@ -180,7 +180,7 @@ class Controller extends BaseController
                 }
             }
         
-        return;
+        return $temp;
     }
 
     public function confirmProgramAmount($pid, $type){

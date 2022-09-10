@@ -122,7 +122,7 @@ class TeacherController extends Controller
         
             $imgName = $request->file->getClientOriginalName();
             
-            $picture = Image::make($request->file)->resize(100, 100);
+            $picture = Image::make($request->file)->resize(400, 400);
             
             $picture->save('profiles/'.'/'.$imgName);
         }
@@ -207,7 +207,7 @@ class TeacherController extends Controller
        
         if(request()->has('file')){ 
             $imgName = $request->file->getClientOriginalName();
-            $picture = Image::make($request->file)->resize(100, 100);
+            $picture = Image::make($request->file)->resize(400, 400);
             $picture->save('profiles/'.'/'.$imgName);
         }
           

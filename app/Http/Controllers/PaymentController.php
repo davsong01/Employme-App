@@ -83,7 +83,6 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
-
         $template = Settings::first()->templateName->name;
         
         $this->validate(request(), [
@@ -153,7 +152,7 @@ class PaymentController extends Controller
             // }
            
             $request['metadata'] = $type;
-                      
+            
             try{
                 $url = $this->queryProcessor($request);
                 return redirect()->away($url);
@@ -196,6 +195,7 @@ class PaymentController extends Controller
 
     public function queryProcessor($request){
         $mode = PaymentMode::find($request->payment_mode);
+
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
                 $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode);
@@ -211,15 +211,19 @@ class PaymentController extends Controller
         }
     }
 
-    public function verifyProcessor($reference, $payment_mode){
-        $mode = PaymentMode::find($payment_mode);
+    public function verifyProcessor($reference, $temp){
+       
+        $mode = PaymentMode::find($temp->payment_mode);
+       
         if (isset($mode) && !empty($mode)) {
             if ($mode->processor == 'paystack') {
                 $status = app('App\Http\Controllers\PaymentProcessor\PaystackController')->verify($reference, $mode);
             }
+            if ($mode->processor == 'coinbase') {
+                $status = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->verify($reference, $mode, $temp);
+            }
         }
        
-        // redirect away
         if (isset($status) && $status == 'success') {
             return $status;
         }else{
@@ -230,7 +234,11 @@ class PaymentController extends Controller
     public function handleGatewayCallback(Request $request)
     {
         $temp = TempTransaction::where('transid', $request->reference)->first();
-        $status = $this->verifyProcessor($request->reference, $temp->payment_mode);
+        if (!$temp) {
+            return redirect(route('home'));
+        }
+
+        $status = $this->verifyProcessor($request->reference, $temp);
         if($status == 'success'){
             $paymentDetails = $temp;
         }
