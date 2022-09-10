@@ -174,7 +174,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\BladeExtraServiceProvider::class,
         MaddHatter\LaravelFullcalendar\ServiceProvider::class,
-        Unicodeveloper\Paystack\PaystackServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
