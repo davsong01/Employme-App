@@ -21,13 +21,10 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
+                            <th>Image</th>
+                            <th>Type</th>
+                            <th>Name</th>
                             <th>Processor</th>
-                            <th>Slug</th>
-                            <th>Keys</th>
-                            <th>Currency</th>
-                            <th>Symbol</th>
-                            <th>Exchange rate</th>
-                            <th>Merchant Email</th>
                             <th>Manage</th>
                         </tr>
                     </thead>
@@ -36,15 +33,16 @@
                         
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td>{{ $mode->processor }}</td>
-                            <td>{{ $mode->slug }}</td>
-                            <td><strong style="color:green">Public: </strong>{{ $mode->public_key}} <br>
-                                <strong style="color:green">Secret: </strong>{{ $mode->secret_key }}
+                            <td> <img src="paymentmodes/{{ $mode->image }}" alt="image" class="rounded-circle" width="50" height="50" style="margin: auto;display: block;"> </td>
+                            <td>{{ $mode->type }}</td>
+                            
+                            <td>
+                               <strong style="color:blue">{{ $mode->name }}</strong> | {{ $mode->currency }} | 1 {{ $default_currency }} = {{ $mode->exchange_rate . ' '. $mode->currency }} <br>
+                                <strong style="color:green">Secret: </strong>{{ $mode->secret_key }} <br>
+                                <strong style="color:green">Public: </strong>{{ $mode->public_key}} <br>
+                                <button class="btn btn-{{ $mode->status == 'active' ? 'success':'danger'}} btn-xs">{{ ucFirst($mode->status) }}</button>
                             </td>
-                            <td>{{ $mode->currency }}</td>
-                            <td>{{ $mode->currency_symbol }}</td>
-                            <td> 1 {{ $default_currency }} = {{ $mode->exchange_rate . ' '. $mode->currency }} </td>
-                            <td>{{ $mode->merchant_email}}</td>
+                            <td>{{ $mode->processor }}</td>
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit payment mode"

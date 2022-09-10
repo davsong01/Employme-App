@@ -28,6 +28,27 @@
     <link rel="stylesheet" href="{{ asset('contai/css/owl.carousel.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('contai/css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('contai/css/style.css') }}" type="text/css">
+
+    <style>
+        .pay-option{
+            width:auto !important;
+            border:0px;
+            border-radius:10px;
+            height:55px;
+            background-position: center;
+            border: black solid 0.9px;
+            font-weight: normal;
+        }
+        .checkout__order button {
+            font-weight: lighter;
+        }
+        .checkout__form h4 {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 10px;
+            margin-top: 25px;
+        }
+    </style>
 </head>
 
 <body>

@@ -33,10 +33,6 @@ class PaymentController extends Controller
                 ->join("users", "users.id", "=", "program_user.user_id")
                 ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "t_type")
                 ->get();
-
-            // dd($transactions);
-       
-
             $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             

@@ -25,6 +25,11 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     public $check = 98;
 
+    protected function getReference($prefix){
+        date_default_timezone_set("Africa/Lagos");
+        return $prefix.'-'.date('YmdHi') . '-' . rand(11111111, 99999999);
+    } 
+
     protected function sendWelcomeMail($data){
         set_time_limit(360);
         try {
@@ -141,28 +146,40 @@ class Controller extends BaseController
         return $response;
     }
 
-    public function createTempDetails($request, $payment_type, $pid, $coupon_id, $facilitator_id){
+    public function createTempDetails($request, $payment_mode){
+       
         $temp = TempTransaction::where('email', $request->email)->first();
+            if (isset($temp) && !empty($temp)) {
+                $temp->update([
+                    'type' => $request->payment_type,
+                    'name' => $request->name,
+                    'program_id' => $request['metadata']['pid'],
+                    'coupon_id' =>  $request['metadata']['coupon_id'],
+                    'facilitator_id' => $request['metadata']['facilitator'],
+                    'amount' =>  $request['amount'],
+                    'transid' =>  $request->transid,
+                    'payment_mode' => $payment_mode,
+                    'location' => $request->location ?? NULL
+                ]);
+            } else {
+                try {
+                    $trans = TempTransaction::create([
+                        'email' => $request->email,
+                        'type' => $request->payment_type,
+                        'program_id' => $request['metadata']['pid'],
+                        'coupon_id' =>  $request['metadata']['coupon_id'],
+                        'facilitator_id' => $request['metadata']['facilitator'],
+                        'amount' =>  $request['amount'],
+                        'transid' =>  $request->transid,
+                        'payment_mode' => $payment_mode,
+                        'name' => $request->name,
+                        'location' => $request->location ?? NULL
+                    ]);
+                } catch (\Throwable $th) {
+                    return $th->getMessage();
+                }
+            }
         
-        if(isset($temp) && !empty($temp)){
-            $temp->update([
-                'type' => $payment_type,
-                'program_id' => $pid,
-                'coupon_id' =>  $coupon_id,
-                'facilitator_id' =>  $facilitator_id,
-                'amount' =>  $request['amount']
-            ]);
-        }else{
-            TempTransaction::create([
-                'email' => $request->email,
-                'type' => $payment_type,
-                'program_id' => $pid,
-                'coupon_id' =>  $coupon_id,
-                'facilitator_id' =>  $facilitator_id,
-                'amount' =>  $request['amount']
-            ]);
-        }
-
         return;
     }
 
@@ -227,6 +244,7 @@ class Controller extends BaseController
     }
 
     protected function prepareTrainingDetails($program, $paymentDetails, $amount){
+       
         $training = $program;
         $data['programFee'] = $training->p_amount;
         $data['programName'] = $training->p_name;
@@ -234,9 +252,9 @@ class Controller extends BaseController
         $data['bookingForm'] = $training->booking_form;
         
         //Create User details
-        $data['name'] = $paymentDetails['data'] ['metadata']['name'];
-        $data['email'] = $paymentDetails['data']['customer']['email'];
-        $data['phone'] = $paymentDetails['data'] ['metadata']['phone'];
+        $data['name'] = $paymentDetails->name;
+        $data['email'] = $paymentDetails->email;
+        $data['phone'] = $paymentDetails->phone;
 
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
@@ -244,18 +262,18 @@ class Controller extends BaseController
         $data['t_type'] = "PAYSTACK";
 
         // Create Facilitator details
-        if (isset($paymentDetails['data']['metadata']['facilitator'])) {
-            $data['facilitator_id'] = $paymentDetails['data']['metadata']['facilitator'];
-            $data['facilitator_name'] = User::where('id', $paymentDetails['data']['metadata']['facilitator'])->value('name');
+        if (isset($paymentDetails->facilitator_id)) {
+            $data['facilitator_id'] = $paymentDetails->facilitator_id;
+            $data['facilitator_name'] = User::where('id', $paymentDetails->facilitator_id)->value('name');
         }
           
-        if(isset($paymentDetails['data']['metadata']['location'])){
-            $data['location'] = $paymentDetails['data']['metadata']['location']; 
+        if(isset($paymentDetails->location)){
+            $data['location'] = $paymentDetails->location; 
         }else $data['location'] = ' ' ;
 
         $data['role_id'] = "Student";
-        $data['transid'] = $paymentDetails['data']['reference'];
-        
+        $data['transid'] = $paymentDetails->transid;
+    
         return $data;
     }
 
@@ -357,6 +375,29 @@ class Controller extends BaseController
     public function getUserDetails($user_id){
         $user = User::where('id', $user_id)->select('name', 'email', 't_phone')->first();
         return $user;
+    }
+
+    public function uploadImage($file, $folder)
+    {
+
+        $imageName = uniqid(9) . '.' . $file->getClientOriginalExtension();
+
+        if (!is_dir($folder)) {
+            mkdir($folder);
+        }
+
+        $file->move(public_path($folder), $imageName);
+        return $imageName;
+    }
+
+    public function deleteImage($image)
+    {
+
+        if (file_exists(public_path($image))) {
+            unlink(public_path($image));
+        }
+
+        return;
     }
 
 }

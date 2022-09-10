@@ -34,7 +34,6 @@
                             <td>{{  $i++ }}</td>
                             <td>
                                 <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="50" height="50">
-                              
                             </td>
                             <td>
                                 <small>
@@ -49,7 +48,9 @@
                                 </small>
                             </td>
                            
-                            <td> <button class="disabled btn btn-{{ $user->role_id == 'Facilitator' ? 'primary' : 'info'}} btn-sm">{{ $user->role_id}}</button></td>
+                            <td style="margin: auto;display: flex;border-bottom: none;"><button class="disabled btn btn-{{ $user->role_id == 'Facilitator' ? 'primary' : 'info'}} btn-sm">{{ $user->role_id}}</button> <br>
+                            @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
+                            </td>
                             <td>
                                 <small>
                                     @foreach($user->p_names as $index=>$names)

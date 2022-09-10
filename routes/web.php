@@ -105,6 +105,7 @@ Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImp
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('users', 'UserController');
     Route::resource('payment-modes', 'PaymentModeController');
+    Route::resource('paymentmethod', 'PaymentMethodController');
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
     Route::get('users/stopredotest/{id}', 'UserController@stopredotest')->name('stopredotest');

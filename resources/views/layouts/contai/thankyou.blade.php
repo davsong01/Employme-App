@@ -20,7 +20,7 @@
 
                 </div>
                 <div class="section-title" style="margin-bottom: 10px; !important">
-                    <a href="/dashboard">
+                    <a href="{{ url('/').'/dashboard' }}">
                     <button class="btn btn-primary">Continue to Dashboard <i class="fa fa-arrow-right"></i></button>
                     </a>
                 </div>

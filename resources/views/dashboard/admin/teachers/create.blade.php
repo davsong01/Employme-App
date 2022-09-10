@@ -24,25 +24,23 @@
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                                    <label for="license">WAACSP license</label>
-                                    <input id="license" type="text" class="form-control" name="license" value="{{ old('license') }}" autofocus >
+                                    <label for="license">WAACSP license</label> <br>
+                                    <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
+                                    <span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span>
+
                                     <span class="help-block">
                                         <strong style="color:green" id="result"></strong>
                                     </span>
-                                <span class="btn btn-info" id="verify" onclick="myFunction()">Verify license</span>
 
                                 </div>
-                               
-                                <div class="form-group">
-                                    <label for="class">Payment method*</label>
-                                    <select name="payment_method" id="class" class="form-control">
-                                        <option value="" disabled>Select</option>
-                                        @foreach($payment_methods as $method)
-                                        <option value="payment_method" {{ old('payment_method') == $method->id ? 'selected' : ''}}>{{ ucfirst($method->slug) }}</option>
+                               <br> <br>
+                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <label for="payment_mode ">Payment Mode</label>
+                                    <select name="payment_mode " id="payment_mode " class="form-control">
+                                        @foreach($payment_modes as $mode)
+                                        <option value="{{ $mode->id }}" selected alt="">{{ ucFirst($mode->name) }}</option> 
                                         @endforeach
-                                        
                                     </select>
-                                    <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="name">Name</label>
@@ -53,7 +51,14 @@
                                     </span>
                                     @endif
                                 </div>
-                                
+                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <label for="status">Status</label>
+                                    <select name="status" id="type" class="form-control" required>
+                                        <option value="active" selected>Active</option> 
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                    
+                                </div>
                                 
                             </div>
                             <div class="col-md-6">
@@ -73,10 +78,9 @@
                                     @endif
                                 </div>
 
-                                <div class="form-group">
+                                <div style="margin-top: 5px;" class="form-group">
                                     <label for="email">Phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') }}">
-                                    
                                 </div>
                                 <div class="form-group">
                                     <label for="class">Available off season?</label>
@@ -106,6 +110,7 @@
                                     </span>
                                     @endif
                                 </div>
+                                 
                             </div>
                         </div>
                         <div class="row">
@@ -159,7 +164,7 @@
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ !is_null(env('ENT')) ? 'http://127.0.0.1:8001/api/verifyinstructor' : 'http://thewaacsp.com/api/verifyinstructor' }}";
+    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8001/api/verifyinstructor' : 'http://thewaacsp.com/api/verifyinstructor' }}";
     token = "{{ \App\Settings::value('token') }}";
     function myFunction() {
         $.ajax({

@@ -1,5 +1,7 @@
 @extends('dashboard.layouts.main')
-
+@section('css')
+    <link rel = "stylesheet" href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+@endsection
 @section('dashboard')
 <aside class="left-sidebar" data-sidebarbg="skin5">
     <!-- Sidebar scroll-->
@@ -127,9 +129,9 @@
                     href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
                         class="hide-menu">Email Participants</span></a></li>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('payment-modes.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
+                        href="{{route('payment-modes.index')}}" aria-expanded="false"><i class="fa fa-credit-card"></i><span
                             class="hide-menu">Payment modes</span></a></li>
-                            
+                
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('settings.edit', 1)}}" aria-expanded="false"><i class="fa fa-cog"></i><span
                         class="hide-menu">Settings</span></a></li>

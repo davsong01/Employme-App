@@ -14,6 +14,7 @@ use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\PaymentMode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
@@ -46,13 +47,27 @@ class PaymentController extends Controller
             Session::put('facilitator_license', $request->facilitator_license);
         }
 
-        // dd(Session::get('facilitator'));
-       
-        return view('checkout', compact('amount', 'training', 'type'));
+        $payment_modes = $this->getPaymentModes();
+ 
+        return view('checkout', compact('amount', 'training', 'type', 'payment_modes'));
+    }
+
+    public function getPaymentModes(){
+        $payment_modes = PaymentMode::where('status', 'active')->get();
+        if(Session::has('facilitator_id')){
+            $mode_id = User::where('id', Session::get('facilitator_id'))->first()->payment_mode;
+            if(isset($mode_id) && !empty($mode_id)){
+                $modes = PaymentMode::where('id', $mode_id)->where('status', 'active')->get();
+                if (isset($modes) && !empty($modes)) {
+                    // $admins->merge($users)
+                    $payment_modes = $modes;
+                }
+            }
+        }
+        return $payment_modes;
     }
 
     public function validateCoupon(Request $request){
-        
         $verifyCoupon = $this->getCouponValue($request->code);
         $response = null;
         if(!is_null($verifyCoupon)){
@@ -68,7 +83,7 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
-        
+
         $template = Settings::first()->templateName->name;
         
         $this->validate(request(), [
@@ -77,16 +92,20 @@ class PaymentController extends Controller
             'phone' => 'required|string',
             'quantity' => 'required|numeric',
             'currency' => 'required|string',
+            "amount"=>'required',
+            "coupon"=>'sometimes',
+            "metadata"=>'sometimes',
+            "payment_mode"=>'required',
         ]);
-
+        
         if($template == 'contai'){
-            $request['amount'] = \Session::get('exchange_rate') * $request['amount'] * 100;
+            $request['amount'] = \Session::get('exchange_rate') * $request['amount'];
             $type = json_decode($request['metadata'], true);
             
             $pid = $type['pid'];
             $coupon_id = $type['coupon_id'];
             $facilitator_id = $type['facilitator'];
-            $payment_type = $type['type'];
+            $request['payment_type'] = $type['type'];
             $type['name'] = $request['name'];
             $type['phone'] = $request['phone'];
             
@@ -95,53 +114,50 @@ class PaymentController extends Controller
             if(is_null($response)){
                 // Modify amount to suit program
                 if ($type['type'] == 'full') {
-                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount') * 100;
+                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount');
                 }
 
                 if($type['type'] == 'earlybird'){
-                    $request['amount'] = Program::where('id', $type['pid'])->value('e_amount') * 100;
+                    $request['amount'] = Program::where('id', $type['pid'])->value('e_amount');
                 }
 
                 if ($type['type'] == 'part') {
-                    $request['amount'] = (Program::where('id', $type['pid'])->value('p_amount') * 100) / 2;
+                    $request['amount'] = (Program::where('id', $type['pid'])->value('p_amount')) / 2;
                 }
                 
-                // $request['amount'] *= Session::get('exchange_rate');
-             
             }else{
                 // Modify coupon_id in metadata
                 $type['coupon_id'] = $response['id'];
                 $coupon_id = $response['id'];
             }
 
-            $type = json_encode($type);
-            
-            if(isset($facilitator_id) && !empty($facilitator_id)){
-                // Set payment mode if money is going somewhere else
-                try {
-                    $payment_mode = User::with('payment_modes')->where('id', $facilitator_id)->first();
+            // if(isset($facilitator_id) && !empty($facilitator_id)){
+            //     // Set payment mode if money is going somewhere else
+            //     try {
+            //         $payment_mode = User::with('payment_modes')->where('id', $facilitator_id)->first();
                    
-                    if (isset($payment_mode->payment_modes) &&  !empty($payment_mode->payment_modes)) {
-                        $public = $payment_mode->payment_modes->public_key;
-                        $secret = $payment_mode->payment_modes->secret_key;
-                        $email = $payment_mode->payment_modes->merchant_email;
+            //         if (isset($payment_mode->payment_modes) &&  !empty($payment_mode->payment_modes)) {
+            //             $public = $payment_mode->payment_modes->public_key;
+            //             $secret = $payment_mode->payment_modes->secret_key;
+            //             $email = $payment_mode->payment_modes->merchant_email;
                       
-                        Config::set('paystack.publicKey', $public);
-                        Config::set('paystack.secretKey', $secret);
-                        Config::set('paystack.merchantEmail', $email);
-                    }
+            //             Config::set('paystack.publicKey', $public);
+            //             Config::set('paystack.secretKey', $secret);
+            //             Config::set('paystack.merchantEmail', $email);
+            //         }
 
-                } catch (\Exception $th) {
-                   \Log::error($th->getMessage());
-                }
+            //     } catch (\Exception $th) {
+            //        \Log::error($th->getMessage());
+            //     }
                 
-            }
+            // }
            
             $request['metadata'] = $type;
-            $this->createTempDetails($request, $payment_type, $pid, $coupon_id, $facilitator_id);
-           
+                      
             try{
-                return Paystack::getAuthorizationUrl()->redirectNow();
+                $url = $this->queryProcessor($request);
+                return redirect()->away($url);
+
             }catch(\Exception $e) {
                 \Log::info($e->getMessage());
                 return abort(500);
@@ -178,15 +194,52 @@ class PaymentController extends Controller
         }
     }
 
-    public function handleGatewayCallback()
-    {
-        $paymentDetails = Paystack::getPaymentData();
-        $paymentDetails['data']['amount'] = $paymentDetails['data']['amount']/100;
-        $template = Settings::first()->templateName->name;
-        $program = Program::where('id', $paymentDetails['data']['metadata']['pid'])->first();
+    public function queryProcessor($request){
+        $mode = PaymentMode::find($request->payment_mode);
+        if(isset($mode) && !empty($mode)){
+            if($mode->processor == 'paystack'){
+                $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode);
+            }
 
+            if ($mode->processor == 'coinbase') {
+                $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode);
+            }
+        }
+        // redirect away
+        if($url){
+            return $url;
+        }
+    }
+
+    public function verifyProcessor($reference, $payment_mode){
+        $mode = PaymentMode::find($payment_mode);
+        if (isset($mode) && !empty($mode)) {
+            if ($mode->processor == 'paystack') {
+                $status = app('App\Http\Controllers\PaymentProcessor\PaystackController')->verify($reference, $mode);
+            }
+        }
+       
+        // redirect away
+        if (isset($status) && $status == 'success') {
+            return $status;
+        }else{
+            return back()->with('error', 'Payment was not succusful');
+        }
+    }
+
+    public function handleGatewayCallback(Request $request)
+    {
+        $temp = TempTransaction::where('transid', $request->reference)->first();
+        $status = $this->verifyProcessor($request->reference, $temp->payment_mode);
+        if($status == 'success'){
+            $paymentDetails = $temp;
+        }
+        
+        $template = Settings::first()->templateName->name;
+        $program = Program::where('id', $paymentDetails->program_id)->first();
+        
         if($template == 'contai'){
-            $temp = TempTransaction::where('email', $paymentDetails['data']['customer']['email'])->where('program_id', $paymentDetails['data']['metadata']['pid'])->first();
+            // $temp = TempTransaction::where('email', $paymentDetails->email)->where('program_id', $paymentDetails->program_id)->first();
             if(isset($temp) && !empty($temp)){
               
                 // Compare
@@ -203,8 +256,8 @@ class PaymentController extends Controller
 
                     $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
                   
-                    if($expectedAmount == $paymentDetails['data']['amount']){
-                        $earnings = $this->getEarnings(($temp->amount/100), $coupon, $createdBy, $program, $paymentDetails['data']['metadata']['facilitator'] ?? NULL);
+                    if($expectedAmount == $paymentDetails->amount){
+                        $earnings = $this->getEarnings(($temp->amount), $coupon, $createdBy, $program, $paymentDetails->facilitator_id ?? NULL);
                         
                         $balance = 0;
                         $payment_type = 'Full';
@@ -219,14 +272,14 @@ class PaymentController extends Controller
                     $message = 'Part payment';
                     $coupon_applied = $c ?? NULL;
                     $paymentStatus =  1;
-                    $earnings = $this->getEarnings(($temp->amount/100), NULL, '', $program, $paymentDetails['data']['metadata']['facilitator']);
+                    $earnings = $this->getEarnings(($temp->amount), NULL, '', $program, $paymentDetails->facilitator_id);
                     
                 }elseif($temp->type == 'earlybird'){
                     $balance = 0;
                     $payment_type = 'Full';
                     $message = 'Earlybird payment';
                     $paymentStatus =  1;
-                    $earnings = $this->getEarnings(($temp->amount / 100), NULL, '', $program, $paymentDetails['data']['metadata']['facilitator']);
+                    $earnings = $this->getEarnings(($temp->amount), NULL, '', $program, $paymentDetails->facilitator_id);
 
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
@@ -234,7 +287,7 @@ class PaymentController extends Controller
                
                 // process data
                 // Get training details
-                $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails['data']['amount']);
+                $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
                
                 $data['balance'] = $balance;
                 $data['payment_type'] = $payment_type;
@@ -243,7 +296,7 @@ class PaymentController extends Controller
                 $c = $c ?? NULL; // Coupon
                
                 $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-               
+                
                 if(isset($c) && !empty($c)){
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
                 } 

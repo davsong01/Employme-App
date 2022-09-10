@@ -246,8 +246,14 @@
 
     <script>
         $('#zero_config').DataTable({
-             "pageLength": 50
+             "pageLength": 50,
         });
+
+        $('#transTable').DataTable({
+             "ordering": false,
+              "pageLength": 100,
+        });
+        
         // For select 2
         //***********************************//
         $(".select2").select2();
@@ -256,6 +262,7 @@
         $(document).ready( function () {
         $('#myTable').DataTable();
         } );
+        
 
         $(".delete").on("submit", function () {
             return confirm("Are you sure?");

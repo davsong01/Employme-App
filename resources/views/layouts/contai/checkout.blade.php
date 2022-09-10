@@ -129,11 +129,27 @@
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
                             <input type="hidden" name="currency" value="{{  $currency }}">
-                            <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}" > 
-                            
-                            <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}
-                
-                            <button type="submit" class="site-btn checkout-button">MAKE PAYMENT</button>
+                            <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}"> 
+                                                        
+                            <div class="d-lg-flex justify-content-center align-items-start flex-column d-none">
+                            <h4 class="">Choose payment method</h4>
+                            <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
+                                @foreach($payment_modes as $mode)
+                               
+                                @if($mode->type == 'card')
+                                <input type="hidden" name="payment_mode" value="{{  $mode->id }}">
+                                <button class="mr-1 mb-1 pay-option"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                @endif
+                                @if($mode->type == 'crypto')
+                                <input type="hidden" name="payment_mode" value="{{  $mode->id }}">
+                                <button class="mr-1 mb-1 pay-option"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                @endif
+                                @endforeach
+                                {{-- <input class="mr-1 mb-1 pay-option" style="width:160px;border:0px;border-radius:10px;height:65px;background-image:url('paymentmodes/walletcard.jpeg');background-position: center;background-repeat: no-repeat;background-size: cover;" type="submit" name="submit" value="" id="payment_mode" alt="Submit"> --}}
+                            </div>
+                            <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
+                                
+                            </div>
                         </div>
                     </div>
                 </div>

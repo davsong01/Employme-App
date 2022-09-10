@@ -91,7 +91,7 @@
         <div class="card-body">
             <h5 class="card-title">Payment History</h5>
             <div class="">
-                <table id="zero_config" class="table table-striped table-bordered" style="width:100%">
+                <table id="transTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Customer details</th>

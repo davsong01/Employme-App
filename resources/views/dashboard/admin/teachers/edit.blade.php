@@ -22,7 +22,9 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        <h4 class="card-title">Edit details for: {{$user->name}}</h4>
+                        <h4 class="card-title">{{$user->name}}</h4>
+                        <p>Referal link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b></p>
+
                     </div>
                     <form action="{{route('teachers.update', $user->id)}}" method="POST"
                         enctype="multipart/form-data" class="pb-2">
@@ -67,7 +69,22 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
-                               
+                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <label for="status">Status</label>
+                                    <select name="status" id="type" class="form-control" required>
+                                        <option value="active" {{ $user->status == 'active' ? 'selected':'' }}>Active</option> 
+                                        <option value="inactive" {{ $user->status == 'inactive' ? 'selected':'' }}>Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <label for="payment_mode ">Payment Mode</label>
+                                    <select name="payment_mode" id="payment_mode" class="form-control">
+                                        <option value="">...Select</option>
+                                        @foreach($payment_modes as $mode)
+                                        <option value="{{ $mode->id }}" {{ $user->payment_mode == $mode->id ? 'selected':'' }}>{{ ucFirst($mode->name) }}</option> 
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus >
@@ -77,6 +94,10 @@
                                     </span>
                                     @endif
                                 </div>
+                                
+                                
+                            </div>
+                            <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email}}">
@@ -86,9 +107,6 @@
                                     </span>
                                     @endif
                                 </div>
-                                
-                            </div>
-                            <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone}}">

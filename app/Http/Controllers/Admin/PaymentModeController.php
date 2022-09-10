@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Settings;
 use App\PaymentMode;
+use App\PaymentMethod;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Settings;
+use Intervention\Image\Facades\Image;
 
 class PaymentModeController extends Controller
 {
@@ -17,7 +20,7 @@ class PaymentModeController extends Controller
     public function index()
     {
         $i = 1;
-        $modes = PaymentMode::all();
+        $modes = PaymentMode::orderBy('created_at', 'DESC')->get();
 
         return view('dashboard.admin.payment_modes.index', compact('modes', 'i'));
         
@@ -32,7 +35,7 @@ class PaymentModeController extends Controller
     {
         $currency = Settings::value('CURR_ABBREVIATION');
         $currency_symbol = Settings::value('DEFAULT_CURRENCY');
-        
+
         return view('dashboard.admin.payment_modes.create', compact('currency', 'currency_symbol'));
     }
 
@@ -45,15 +48,26 @@ class PaymentModeController extends Controller
     public function store(Request $request)
     {
         $data = $this->validate($request, [
-            'processor' => 'required',
-            'slug' => 'required',
+            'type' => 'required',
             'public_key' => 'required',
             'secret_key' => 'required',
             'merchant_email' => 'required|email',
             'currency' => 'required',
             'currency_symbol' => 'required',
             'exchange_rate' => 'required',
+            'processor' => 'required',
+            'name' => 'required|unique:payment_modes|string|max:30',
+            'image' => 'sometimes'
         ]);
+        
+        $data['slug'] = Str::slug($data['name']);
+        if (request()->has('image')) {
+            $imageFile = Image::make($request->image)->resize(200, 150);
+            $imageName = rand(111111111, 999999999);
+            $imageFile->save('paymentmodes/' . $imageName . '.jpg');
+            $data['image'] = $imageName . '.jpg';
+        }
+
         // dd($data);
         PaymentMode::create($data);
 
@@ -81,7 +95,7 @@ class PaymentModeController extends Controller
     {
         $currency = Settings::value('CURR_ABBREVIATION');
         $currency_symbol = Settings::value('DEFAULT_CURRENCY');
-
+       
         return view('dashboard.admin.payment_modes.edit', compact('currency', 'paymentMode', 'currency_symbol'));
     }
 
@@ -94,8 +108,31 @@ class PaymentModeController extends Controller
      */
     public function update(Request $request, PaymentMode $paymentMode)
     {
-        $paymentMode->update($request->all());
+       
+        $data =$this->validate($request, [
+            'name' => 'required|string|max:30|unique:payment_methods,name,' . $paymentMode->id,
+            'merchant_email' => 'required|email',
+            'currency' => 'required',
+            'currency_symbol' => 'required',
+            'exchange_rate' => 'required',
+            'processor' => 'required',
+            'type' => 'required',
+            'image' => 'sometimes',
+            'status' => 'required',
+            'secret_key' => 'required',
+        ]);
+       
+        $request['slug'] = Str::slug($data['name']);
+        if (request()->has('image')) {
+            $imageFile = Image::make($request->image)->resize(200, 150);
+            $imageName = rand(111111111, 999999999);
+            $imageFile->save('paymentmodes/' . $imageName . '.jpg');
+            $data = $request->except(['image', '_method', '_token']);
+            $data['image'] = $imageName . '.jpg';
+        }
         
+        $paymentMode->update($data);
+        // dd($data,$paymentMode);
         return redirect(route('payment-modes.index'))->with('message', 'Operation successful');
     }
 
