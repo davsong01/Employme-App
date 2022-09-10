@@ -136,10 +136,10 @@
                             <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                                 @foreach($payment_modes as $mode)
                                 @if($mode->type == 'card')
-                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with {{  $mode->id }} <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                 @endif
                                 @if($mode->type == 'crypto')
-                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with {{  $mode->id }}<span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                 @endif
                                 @endforeach
                                 {{-- <input class="mr-1 mb-1 pay-option" style="width:160px;border:0px;border-radius:10px;height:65px;background-image:url('paymentmodes/walletcard.jpeg');background-position: center;background-repeat: no-repeat;background-size: cover;" type="submit" name="submit" value="" id="payment_mode" alt="Submit"> --}}
