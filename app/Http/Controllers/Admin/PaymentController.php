@@ -95,8 +95,10 @@ class PaymentController extends Controller
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
             'currency' => $transaction->currency,
+            'transid' =>  $transaction->transid,
+            't_type' =>  $transaction->t_type
         ];
-      
+          
         $data = [
             'name' =>$user->name,
             'email' =>$user->email,
@@ -108,10 +110,12 @@ class PaymentController extends Controller
 
         //generate pdf from receipt view
         $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-        
+       
         //send user mails
         // return view('emails.receipt', compact('data', 'details'));
-        Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+        $data = array_merge($data, $details);
+       
+        Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         
         return back()->with('message', 'Receipt sent succesfully'); 
     }else return back();
@@ -148,6 +152,8 @@ class PaymentController extends Controller
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
             'currency' => $transaction->currency,
+            'transid' =>  $transaction->transid,
+            't_type' =>  $transaction->t_type
         ];
         
         $data = [

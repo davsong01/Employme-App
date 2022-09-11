@@ -239,6 +239,7 @@ class PaymentController extends Controller
         }
 
         $status = $this->verifyProcessor($request->reference, $temp);
+        
         if($status == 'success'){
             $paymentDetails = $temp;
         }
@@ -312,6 +313,8 @@ class PaymentController extends Controller
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
+                
+       
                 $this->sendWelcomeMail($data);
 
                 // Login User in

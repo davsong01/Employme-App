@@ -47,6 +47,10 @@
                       <td class="value">{{ $data['email'] ?? null}}</td>
                   
                     </tr>
+                     <tr>
+                      <td>Transaction ID</td>
+                      <td class="value">{{ $data['transid'] ?? null}}</td>
+                    </tr>
                     <tr>
                       <td>Invoice ID</td>
                       <td class="value">{{ $data['invoice_id'] ?? null}}</td>

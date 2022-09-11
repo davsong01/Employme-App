@@ -16,9 +16,8 @@
 		<h4><strong><span style="font-size:36px;">E - RECEIPT</span></strong></h4>
 
 		<p></p>
-
-		<p><b style="color:red !important">INVOICE ID: {{ $details['invoice_id']}} </b></p>
-
+		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $details['transid']}}</span>  </b></p>
+		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $details['invoice_id']}}</span> </b></p>
 		<p><em>Date: {{ date('Y:m:d') }}</em></p>
 	</div>
 
@@ -50,7 +49,7 @@
 			<tbody>
 				<tr>
 					<td class="col-md-10"><em style="color:red !important">{{ $details['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $data['bank']}}</td>
+					<td class="col-md-2" style="color:red !important">{{ $details['t_type']}}</td>
 				</tr>
 			</tbody>
 		</table>

@@ -15,7 +15,7 @@ class Welcomemail extends Mailable
 
     public $pdf;
    
-    public function __construct($data, $pdf)
+    public function __construct($data,$pdf)
     {
         $this->data = $data;
         $this->pdf = $pdf;
@@ -43,7 +43,6 @@ class Welcomemail extends Mailable
                         'mime' => 'application/pdf',
                     ]);
             }else{
-            
                 return $this->markdown('emails.welcomemail')
                 ->attachData($this->pdf->output(), "E-receipt.pdf")
                 ->subject('E - Receipt');

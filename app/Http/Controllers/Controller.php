@@ -10,6 +10,7 @@ use App\Settings;
 use App\CouponUser;
 use App\TempTransaction;
 use App\Mail\Welcomemail;
+use App\PaymentMode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -47,7 +48,7 @@ class Controller extends BaseController
         // return view('emails.receipt', compact('data'));
     }
 
-    protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id){
+    protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){
         $user->programs()->attach($program_id, [
             'created_at' =>  date("Y-m-d H:i:s"),
             't_amount' => $amount,
@@ -58,6 +59,7 @@ class Controller extends BaseController
             'paymentStatus' => $paymentStatus,
             'balance' => $balance,
             'invoice_id' =>  $invoice_id,
+            'payload' =>  $payload,
         ] );
     }
    
@@ -244,7 +246,9 @@ class Controller extends BaseController
     }
 
     protected function prepareTrainingDetails($program, $paymentDetails, $amount){
-       
+
+        $payment_mode = PaymentMode::find($paymentDetails->payment_mode);
+        $processor = $payment_mode->processor;
         $training = $program;
         $data['programFee'] = $training->p_amount;
         $data['programName'] = $training->p_name;
@@ -259,8 +263,9 @@ class Controller extends BaseController
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $amount;
-        $data['t_type'] = "PAYSTACK";
-
+        $data['t_type'] = strtoupper($processor);
+        $data['payload'] = $paymentDetails->payload;
+        
         // Create Facilitator details
         if (isset($paymentDetails->facilitator_id)) {
             $data['facilitator_id'] = $paymentDetails->facilitator_id;
@@ -270,10 +275,19 @@ class Controller extends BaseController
         if(isset($paymentDetails->location)){
             $data['location'] = $paymentDetails->location; 
         }else $data['location'] = ' ' ;
+        
+        $data['paymentModeDetails'] = [
+            'id' => $payment_mode->id,
+            'type' => $payment_mode->type,
+            'processor' => $payment_mode->processor,
+            'currency' => $payment_mode->currency,
+            'currency_symbol' => $payment_mode->currency_symbol,
+            'exchange_rate' => $payment_mode->exchange_rate,
+        ];
 
         $data['role_id'] = "Student";
         $data['transid'] = $paymentDetails->transid;
-    
+        
         return $data;
     }
 
@@ -298,7 +312,7 @@ class Controller extends BaseController
         $data['tech_earning'] = $earnings['tech'];
         $data['faculty_earning'] = $earnings['faculty'];
         $data['other_earning'] = $earnings['other'];
-
+       
         // if user doesnt exist, create new user and attach program
         if (!isset($user)) {
             //save to database
@@ -338,19 +352,19 @@ class Controller extends BaseController
                 'faculty_earning' => $data['faculty_earning'] ?? NULL,
                 'other_earning' => $data['other_earning'] ?? NULL,
                 'currency' =>  \Session::get('currency'),
-               
+                'payload' => $data['payload'],
+                'payment_mode' => $data['paymentModeDetails']['id'],
+                
             ] );
         } 
         else{
             $data['user_id'] = $user->id;
             
             return $data;
-            // return view('emails.thankyou', compact('data'));
-            // dd('Duplicate transaction detected, please check your email for login instructions. You may close this tab now');
         }
    
         $data['user_id'] = $user->id;
-
+        
         return $data;
     }
 
