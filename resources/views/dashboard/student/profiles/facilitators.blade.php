@@ -86,9 +86,12 @@
     box-shadow: 0 7px rgba(0, 0, 0, 0.1), 0 5px #e4ac01;
     margin-bottom: 15px;
     overflow: hidden;
+    max-width: 100px;
+    max-height: 100px;
+    padding: unset;
 }
 .testimonial .pic img{
-    width: 224px;;
+    width: 100px;
     height: 100%;
 }
 .testimonial .description{

@@ -12,9 +12,21 @@
             </div>
         </div>
     </div>
-
     <div class="row">
-        <div class="col-md-6 col-lg-6">
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('payments.index') }}">
+                <div class="card card-hover">
+                    <div
+                        class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
+                        <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
+                        <h6 class="text-white">Payment Status {{ $currency_symbol }}{{ number_format($balance)  }} </h6>
+                        <p class="text-white">Paid: {{ $paid }} ; Balance:
+                            {{ $balance }} </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('materials.index', ['p_id'=> $program->id]) }}">
                 <div class="card card-hover">
                     <div class="box bg-info text-center">
@@ -25,16 +37,26 @@
                 </div>
             </a>
         </div>
-                
-        <div class="col-md-6 col-lg-6">
-            <a href="{{ route('payments.index') }}">
+        @if($program->hasmock == 1)
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('mocks.index', ['p_id' => $program->id])}}">
                 <div class="card card-hover">
-                    <div
-                        class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
-                        <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
-                        <h6 class="text-white">Payment Status </h6>
-                        <p class="text-white">Paid: {{ \App\Settings::first()->value('DEFAULT_CURRENCY') . number_format($paid) }} ; Balance:
-                            {{ \App\Settings::first()->value('DEFAULT_CURRENCY') . number_format($balance) }} </p>
+                    <div class="box bg-warning text-center">
+                        <h1 class="font-light text-white"><i class="fa fa-chalkboard"></i></h1>
+                        <h6 class="text-white">&nbsp;</h6>
+                        <p class="text-white">Pre Class Tests</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        @endif
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('tests.index', ['p_id'=>$program->id])}}">
+                <div class="card card-hover">
+                    <div class="box bg-success text-center">
+                        <h1 class="font-light text-white"><i class="fas fa-question"></i></h1>
+                        <h6 class="text-white">&nbsp;</h6>
+                        <p class="text-white">Post class Tests</p>
                     </div>
                 </div>
             </a>

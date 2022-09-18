@@ -9,11 +9,16 @@ use Illuminate\Support\Facades\Session;
 
 class PaystackController extends Controller
 {
-    public function query($request, $mode){
-    
-        $request['transid'] = $this->getReference('PYSTK');
-
-        $this->createTempDetails($request, $mode->id);
+    public function query($request, $mode, $data=null){
+        if(isset($request->user_program)){
+            $request['transid'] = $this->getReference('PYSTK');
+            $request['invoice_id'] = $data->invoice_id;
+            DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
+        }else{ 
+            $request['transid'] = $this->getReference('PYSTK');
+            $this->createTempDetails($request, $mode->id);
+        }
+        
         $url = "https://api.paystack.co/transaction/initialize";
        
         $fields = [
@@ -80,6 +85,4 @@ class PaystackController extends Controller
         }
     }
 
-    // public function transactionId(){
-    // }
 }

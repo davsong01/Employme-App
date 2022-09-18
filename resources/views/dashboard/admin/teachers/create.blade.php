@@ -26,17 +26,20 @@
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="license">WAACSP license</label> <br>
                                     <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
-                                    <span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span>
-
+                                    <span id="verify-button"><span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span></span>
                                     <span class="help-block">
-                                        <strong style="color:green" id="result"></strong>
+                                        <strong id="result"></strong>
                                     </span>
-
                                 </div>
-                               <br> <br>
+                                <div class="form-group">
+                                    <label for="waacsp_url" style="margin-top: 15px;">WAACSP url</label> <br>
+                                    <input id="waacsp_url" type="text"  class="form-control" name="waacsp_url" value="{{ old('waacsp_url') }}" autofocus >
+                                    
+                                </div>
+                              
                                 <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
-                                    <label for="payment_mode ">Payment Mode</label>
-                                    <select name="payment_mode " id="payment_mode " class="form-control">
+                                    <label for="payment_mode">Payment Mode</label>
+                                    <select name="payment_mode" id="payment_mode " class="form-control" required>
                                         @foreach($payment_modes as $mode)
                                         <option value="{{ $mode->id }}" selected alt="">{{ ucFirst($mode->name) }}</option> 
                                         @endforeach
@@ -89,15 +92,7 @@
                                         <option value="1" {{ old('off_season_availability') == '1' ? 'selected' : ''}}>Yes</option>
                                     </select>
                                 </div>
-                                {{-- <div class="form-group">
-                                    <label for="earning_per_head">Earning per head ({{ \App\Settings::first()->value('DEFAULT_CURRENCY') }})</label>
-                                    <input id="earning_per_head" type="number" step="0.01" class="form-control" name="earning_per_head" value="{{ old('earning_per_head')}}" required>
-                                    @if ($errors->has('earning_per_head'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('earning_per_head') }}</strong>
-                                    </span>
-                                    @endif
-                                </div> --}}
+                                
                                 <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
@@ -164,32 +159,43 @@
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8001/api/verifyinstructor' : 'http://thewaacsp.com/api/verifyinstructor' }}";
+    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'http://thewaacsp.com/api/verifyinstructor' }}";
     token = "{{ \App\Settings::value('token') }}";
+
     function myFunction() {
         $.ajax({
             url: src,
-            type: "POST",
-            data: {
+            headers: {
                 license:  $('#license').val(),
                 token: token
             },
+
             beforeSend: function(xhr){
                 $('#result').prepend('LOADING...');
             },
             success: function(res){
                 // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
-                $('#result').html(res.message);
+                $('#result').css('display','none');
                 $('#name').val(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
                 $('#license').val(res.data.license);
                 $('#email').val(res.data.email);
                 $('#phone').val(res.data.phone);
+                $('#waacsp_url').val(res.data.url);
                 editor.insertText(res.data.short_profile); 
                 $("#profile_picture").css("display",'block'); 
                 $("#profile_picture").attr("src",res.data.avatar); 
                 $("#picture").val(res.data.avatar); 
-                $("#verify").css("display",'none'); 
-                
+                $("#verify-button").css("bakground:green");
+                $("#verify-button").html("<span class='btn btn-success' style='float:left' id='verify'>Verified!</span>"); 
+
+            },
+
+            error: function(xhr, status, error) {
+                var err = eval("(" + xhr.responseText + ")");
+                // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
+                $('#result').html(err.message);
+                $('#result').css('color','red');
+
             }
         });
     }

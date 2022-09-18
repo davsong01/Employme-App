@@ -10,7 +10,7 @@
              </div>
              <div class="card-header">
                 <div>
-                    <h5 class="card-title">Earnings ({{ \App\Settings::value('DEFAULT_CURRENCY').number_format($earnings->sum('facilitator_earning')) }})</h5> 
+                    <h5 class="card-title">Earnings ({{ $currency?? 'NGN' }}{{ number_format($earnings->sum('facilitator_earning')) }})</h5> 
                 </div>
             </div>
             <div class="">
@@ -32,11 +32,12 @@
                             <td>{{ $earning->created_at ?? NULL }}</td>
                             <td>{{ $earning->name ?? NULL }}</td>  
                             <td>{{ $earning->p_name ?? NULL}}</td>
-                            <td>{{ $earning->currency}} {{ number_format($earning->facilitator_earning, 2) ?? NULL}}</td>
+                            <td>{{ $earning->currency_symbol}} {{ number_format($earning->facilitator_earning, 2) ?? NULL}}</td>
                             <td>
                                 @if($earning->coupon_id)
                                     <strong>Coupon Code:</strong> {{ $earning->coupon_code}}  <br>
-                                    <strong>Amount: </strong> {{$earning->currency. number_format($earning->coupon_amount,2) }} <br>
+                                   
+                                    <strong>Amount: </strong> {{ $earning->currency_symbol }} {{number_format($earning->coupon_amount,2) }} <br>
                                         @if(isset($earning->coupon_id))
                                         <strong>Created by: </strong>
                                             @if(isset($earning->facilitator_id))

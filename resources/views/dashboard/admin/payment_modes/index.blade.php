@@ -37,9 +37,9 @@
                             <td>{{ $mode->type }}</td>
                             
                             <td>
-                               <strong style="color:blue">{{ $mode->name }}</strong> | {{ $mode->currency }} | 1 {{ $default_currency }} = {{ $mode->exchange_rate . ' '. $mode->currency }} <br>
-                                <strong style="color:green">Secret: </strong>{{ $mode->secret_key }} <br>
-                                <strong style="color:green">Public: </strong>{{ $mode->public_key}} <br>
+                               <strong style="color:blue"> {{ $mode->name }}({{ $mode->currency_symbol }})</strong> | <strong style="color:red"> {{ $mode->currency }}</strong> | 1 {{ $default_currency }} = {{ $mode->exchange_rate . ' '. $mode->currency }} <br>
+                                <strong style="color:green">Secret key: </strong>{{ $mode->secret_key }} <br>
+                                
                                 <button class="btn btn-{{ $mode->status == 'active' ? 'success':'danger'}} btn-xs">{{ ucFirst($mode->status) }}</button>
                             </td>
                             <td>{{ $mode->processor }}</td>

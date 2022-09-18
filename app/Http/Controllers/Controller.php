@@ -41,7 +41,6 @@ class Controller extends BaseController
         } catch(\Exception $e){
             // Get error here
             Log::error($e);
-
             return false;
         }
         return;

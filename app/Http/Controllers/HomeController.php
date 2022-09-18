@@ -12,6 +12,7 @@ use App\Picture;
 
 use App\Program;
 use App\Material;
+use App\PaymentMode;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 
@@ -136,6 +137,21 @@ class HomeController extends Controller
 
     }
 
+    public function balanceCheckout(Request $request)
+    {
+        $data = DB::table('program_user')
+        ->where('program_id', $request->p_id)
+        ->where('user_id', auth()->user()->id)
+        ->where('balance', '>', 0)
+        ->first();
+        // dd($data);
+        $program = Program::select('id','p_name')->whereId($request->p_id)->first();
+       
+        $payment_mode =  PaymentMode::where('id',$data->payment_mode)->first();
+        
+        return view('dashboard.student.balance_checkout', compact('data','payment_mode', 'program'));
+    }
+
     public function trainings($id){
         //Get calendar details
         $events = [];
@@ -193,13 +209,23 @@ class HomeController extends Controller
 
             //get materials count
             $materialsCount = Material::where('program_id', $program->id)->count();
-            $paid = DB::table('program_user')->where('program_id', $program->id)->where('user_id', auth()->user()->id)->value('t_amount');
-            $balance = DB::table('program_user')->where('program_id', $program->id)->where('user_id', auth()->user()->id)->value('balance');
-
-            return view('dashboard.student.trainings', compact('calendar', 'materialsCount',  'trainingProgress', 'paid', 'balance', 'program' ));
+            $data = DB::table('program_user')->where('program_id', $program->id)->where('user_id', auth()->user()->id);
+            $paid = $data->value('currency_symbol').number_format($data->value('t_amount'));
+            $balance = $data->value('balance');
+            $currency_symbol = $data->value('currency_symbol');
+            $facilitator = $data->value('facilitator_id');
+           
+            if($facilitator){
+                $facilitator = User::select('name')->whereId($facilitator)->value('name');
+            }else{
+                $facilitaor = null;
+            }
+            
+            return view('dashboard.student.trainings', compact('currency_symbol','facilitator','calendar', 'materialsCount',  'trainingProgress', 'paid', 'balance', 'program' ));
         }else return abort(404);
     }
 
+   
     public function demo(){
         return view('dashboard.admin.demo');
     }

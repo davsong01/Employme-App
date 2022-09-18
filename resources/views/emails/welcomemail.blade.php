@@ -9,9 +9,9 @@
 
 @if(isset($data['type']) && $data['type'] == 'balance')
 <div>
-    <p style="text-align:justify !important">Your balance payment of {{  $currency_symbol. $data['amount'] }} for {{ $data['programName'] }} has been received.<br><br>
+    <p style="text-align:justify !important">Your balance payment of {{ $data['currency_symbol'] }}{{ $data['amount'] }} for {{ $data['programName'] }} has been received.<br><br>
 
-    <strong style="color:red">NOTE: </strong>Please login to your customized portal, click the "Payment History" menu to download or print your updated receipt.</strong>
+    You can now access all sections of your portal!
     </p>
 </div>
 @else 

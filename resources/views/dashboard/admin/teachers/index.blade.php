@@ -62,7 +62,7 @@
                                 <a target="_blank" href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-xs">View</a>
                             </td>
                             
-                            <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings ? number_format($user->earnings) : 0 }} <br>
+                            <td>{{ $user->payment_modes->currency_symbol ?? 'NGN' }}{{ $user->earnings ? number_format($user->earnings) : 0 }} <br>
                                 <a target="_blank" href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-xs">View</a>
                             </td>
                           

@@ -54,7 +54,7 @@
                                     <input type="text" class="form-control" name="currency" value="{{ old('currency') ?? $paymentMode->currency }}" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="currency">Currency symbol ( e.g. {{ $currency_symbol }})</label>
+                                    <label for="currency">Currency symbol ( e.g. ₦)</label>
                                     <input type="text" class="form-control" name="currency_symbol" value="{{ old('currency_symbol') ?? $paymentMode->currency_symbol }}" required>
                                 </div>
                                 <div class="form-group">

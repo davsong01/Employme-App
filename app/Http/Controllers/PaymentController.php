@@ -84,6 +84,23 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $template = Settings::first()->templateName->name;
+
+        if ($request->user_program && $request->type == 'balance') {
+            $data = DB::table('program_user')->find($request->user_program);
+
+            $request['amount'] = $data->balance;
+            $request['payment_mode'] = $data->payment_mode;
+            $request['currency'] = $data->currency;
+            $type['type'] = 'balance';
+
+            try {
+                $url = $this->queryProcessor($request, $data);
+                return redirect()->away($url);
+            } catch (\Exception $e) {
+                \Log::info($e->getMessage());
+                return abort(500);
+            }
+        }
         
         $this->validate(request(), [
             'email' => 'required|email',
@@ -130,27 +147,6 @@ class PaymentController extends Controller
                 $coupon_id = $response['id'];
             }
 
-            // if(isset($facilitator_id) && !empty($facilitator_id)){
-            //     // Set payment mode if money is going somewhere else
-            //     try {
-            //         $payment_mode = User::with('payment_modes')->where('id', $facilitator_id)->first();
-                   
-            //         if (isset($payment_mode->payment_modes) &&  !empty($payment_mode->payment_modes)) {
-            //             $public = $payment_mode->payment_modes->public_key;
-            //             $secret = $payment_mode->payment_modes->secret_key;
-            //             $email = $payment_mode->payment_modes->merchant_email;
-                      
-            //             Config::set('paystack.publicKey', $public);
-            //             Config::set('paystack.secretKey', $secret);
-            //             Config::set('paystack.merchantEmail', $email);
-            //         }
-
-            //     } catch (\Exception $th) {
-            //        \Log::error($th->getMessage());
-            //     }
-                
-            // }
-           
             $request['metadata'] = $type;
             
             try{
@@ -193,16 +189,15 @@ class PaymentController extends Controller
         }
     }
 
-    public function queryProcessor($request){
+    public function queryProcessor($request,$data=null){
         $mode = PaymentMode::find($request->payment_mode);
-
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
-                $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode);
+                $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode, $data);
             }
 
             if ($mode->processor == 'coinbase') {
-                $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode);
+                $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data);
             }
         }
         // redirect away
@@ -212,7 +207,6 @@ class PaymentController extends Controller
     }
 
     public function verifyProcessor($reference, $temp){
-       
         $mode = PaymentMode::find($temp->payment_mode);
        
         if (isset($mode) && !empty($mode)) {
@@ -233,17 +227,45 @@ class PaymentController extends Controller
 
     public function handleGatewayCallback(Request $request)
     {
-        $temp = TempTransaction::where('transid', $request->reference)->first();
-        if (!$temp) {
-            return redirect(route('home'));
+        $balance_payment = DB::table('program_user')->where('balance_transaction_id', $request->reference)->first();
+        if($balance_payment){
+            //process as balance
+            $status = $this->verifyProcessor($request->reference, $balance_payment);
+        }else{
+            $temp = TempTransaction::where('transid', $request->reference)->first();
+            if (!$temp) {
+                return redirect(route('home'));
+            } else {
+                $status = $this->verifyProcessor($request->reference, $temp);
+            }
         }
-
-        $status = $this->verifyProcessor($request->reference, $temp);
         
         if($status == 'success'){
-            $paymentDetails = $temp;
+            if ($balance_payment) {
+                $data['type'] = 'balance';
+                
+                $data['currency_symbol'] = $balance_payment->currency_symbol;
+                $data['amount'] = $balance_payment->balance;
+                $data['email'] = User::whereId($balance_payment->user_id)->value('email');
+                $data['programName'] = Program::where('id', $balance_payment->program_id)->value('p_name');
+                // Do facilitator stuff here later
+                DB::table('program_user')->where('balance_transaction_id', $request->reference)->update([
+                    'balance' => 0,
+                    'paymentStatus' => 1,
+                    'paymentType' => 'Full',
+                    't_amount' => $balance_payment->t_amount + $balance_payment->balance,
+                    'balance_paid' => now(),
+                ]);
+               
+                $this->sendWelcomeMail($data);
+
+                return redirect(route('trainings.show', ['p_id' => $balance_payment->program_id]))->with('message','Balance payment received!');
+
+            }else{
+                $paymentDetails = $temp;
+            }
         }
-        
+       
         $template = Settings::first()->templateName->name;
         $program = Program::where('id', $paymentDetails->program_id)->first();
         

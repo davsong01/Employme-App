@@ -21,7 +21,7 @@ class TestsController extends Controller
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to take tests');
+                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
             }  
 
             $i = 1;
@@ -173,9 +173,8 @@ class TestsController extends Controller
             $program = Program::find($request->p_id);
             $hasmock = $program->hasmock;
             $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
-
                 if($user_balance->balance > 0){
-                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to access tests');
                 }   
 
                 //Check if user has taken pre tests and return back if otherwise

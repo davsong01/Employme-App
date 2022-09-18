@@ -3,10 +3,10 @@
     <li class=""><a href="{{ route('pop.create') }}">Upload Proof of Payment</a></li>
     <li class=""><a href="{{ route('reset') }}">Reset All</a></li>
     @guest
-    <li><a href="/login">Login</a></li>
+    <li><a href="{{ url('/').'/login' }}">Login</a></li>
     @endguest
     @auth
-    <li  class=""><a href="/login">My Dashboard</a></li>
+    <li  class=""><a href="{{ url('/').'/dashboard' }}">My Dashboard</a></li>
     <li  class=""><a class="" href="{{ route('logout') }}"
         onclick="event.preventDefault();
                         document.getElementById('logout-form').submit();">

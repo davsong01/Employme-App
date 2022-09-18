@@ -111,6 +111,16 @@
             animation: blinkingText 2s infinite;
         }
 
+         .pay-option{
+            width:auto !important;
+            border:0px;
+            border-radius:10px;
+            background-position: center;
+            border: black solid 0.9px;
+            font-weight: normal;
+            padding: 25px;
+            margin: 10px;
+        }
         @keyframes blinkingText {
             0% {
                 color: white;

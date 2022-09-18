@@ -12,11 +12,15 @@ class CoinbaseController extends Controller
 {
     public function query($request, $mode){
         // Query Payment
-        $request['transid'] = $this->getReference('CNBSE');
+        if (isset($request->user_program)) {
+            $request['transid'] = $this->getReference('CNBSE');
+            DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
+        } else {
+            $request['transid'] = $this->getReference('CNBSE');
+            $temp = $this->createTempDetails($request, $mode->id);
+        }
+
         $logo = url('/').'/'.Settings::value('logo');
-        
-        $temp = $this->createTempDetails($request, $mode->id);
-        
         $headers = array(
             "Content-Type: application/json",
             "X-CC-Api-Key: " . $mode->secret_key,
@@ -69,34 +73,6 @@ class CoinbaseController extends Controller
         }
     }
 
-    // public function verify($reference, $mode){
-    //     $curl = curl_init();
-    //     curl_setopt_array($curl, array(
-    //         CURLOPT_URL => "https://api.paystack.co/transaction/verify/".$reference,
-    //         CURLOPT_RETURNTRANSFER => true,
-    //         CURLOPT_ENCODING => "",
-    //         CURLOPT_MAXREDIRS => 10,
-    //         CURLOPT_TIMEOUT => 30,
-    //         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    //         CURLOPT_CUSTOMREQUEST => "GET",
-    //         CURLOPT_HTTPHEADER => array(
-    //             "Authorization: Bearer ".$mode->secret_key,
-    //             "Cache-Control: no-cache",
-    //         ),
-    //     ));
-
-    //     $response = curl_exec($curl);
-    //     $err = curl_error($curl);
-
-    //     curl_close($curl);
-    //     if ($err) {
-    //         return "cURL Error #:" . $err;
-    //     } else {
-    //         $response = json_decode($response);
-    //         return $response->data->status;
-    //     }
-    // }
-
     public function verify($reference, $mode, $temp)
     {
         $curl = curl_init();
@@ -126,7 +102,9 @@ class CoinbaseController extends Controller
                 $status = $response->data->payments[0]->status;
             }
             try {
-                $temp->update(['payload' => json_encode($response->data)]);
+                if($temp){
+                    $temp->update(['payload' => json_encode($response->data)]);
+                }
             } catch (\Throwable $th) {
                 \Log::info($th->getMessage());
             }

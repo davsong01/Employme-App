@@ -32,9 +32,11 @@
                     class="fas fa-comments"></i><span class="hide-menu">CRM Tool</span></a>
                 </li>
                 @endif
+                @if(isset($facilitator) && !empty($facilitator))
                 <li class="sidebar-item"><a href="{{ route('training.instructor', ['p_id'=>$program->id])}}" class="sidebar-link"><i
                     class="fas fa-chalkboard-teacher"></i><span class="hide-menu">Program Instructor</span></a>
                 </li>
+                @endif
                 <li class="sidebar-item"><a href="{{ route('tests.index', ['p_id'=>$program->id])}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">Post Class Tests</span></a>
                 </li>
@@ -56,62 +58,10 @@
                 </li>
                 @endif
 
-                @if(isset($balance))
-                    @if($balance > 0)
-                    <!--li class="sidebar-item blinking hide-menu"><i class="far fa-money-bill-alt"></i-->
+                @if(isset($balance) && $balance > 0)
                     <li class="sidebar-item">
-                        <form action="{{ route('pay') }}" accept-charset="UTF-8" class="form-horizontal" method="POST"
-                            role="form" target="_blank">
-                            <div class="row" style="margin-bottom:40px;">
-                                <div class="col-md-12 col-md-offset-2">
-
-                                    <input type="hidden" name="email" value="{{Auth::user()->email}}"> {{-- required --}}
-
-                                    <input type="hidden" name="amount" id="amount" value="{{ $balance * 100}}" required>
-                                    <input type="hidden" name="quantity" value="1">
-                                    <input type="hidden" name="currency" value="{{ \App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL') }}">
-                                    <input type="hidden" name="metadata"
-                                        value="{{ json_encode($array = ['user_id' => Auth::user()->id, 'p_id' => $program->id, 'type' =>'balance', 'name'=> auth()->user()->name ]) }}">
-                                    <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
-                                    {{-- required --}}
-                                     <input type="hidden" name="_token" value="{{ csrf_token() }}"> {{-- employ this in place of csrf_field only in laravel 5.0 --}}
-                                    <p>
-                                        <button class="blinking btn btn-danger btn-lg btn-block" type="submit">Pay balance of {{ config('custom.default_currency'). $balance }} now!
-                                        </button>
-                                    </p>
-                                </div>
-                            </div>
-                        </form>
+                        <a class="blinking btn btn-danger btn-lg btn-block" href="{{ route('balance.checkout', ['p_id' => $program->id] )}}" class="form-horizontal">Pay balance of {{ number_format($balance) }} now</a>
                     </li>
-                    @endif
-                @endif
-                
-                @if(!empty(request()->query('p_id')))
-                     @if($program->checkBalance(request()->query('p_id')) > 0)
-                    <!--li class="sidebar-item blinking hide-menu"><i class="far fa-money-bill-alt"></i-->
-                    <li class="sidebar-item">
-                        <form method="POST" action="{{ route('pay') }}" accept-charset="UTF-8" class="form-horizontal"
-                            role="form" target="_blank">
-                            <div class="row" style="margin-bottom:40px;">
-                                <div class="col-md-12 col-md-offset-2">
-                                    <input type="hidden" name="email" value="{{Auth::user()->email}}"> {{-- required --}}
-                                    <input type="hidden" name="amount" id="amount" value="{{ $program->checkBalance(request()->query('p_id')) * 100}}" required>
-                                    <input type="hidden" name="quantity" value="1">
-                                    <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
-                                    <input type="hidden" name="metadata"
-                                        value="{{ json_encode($array = ['user_id' => Auth::user()->id, 'p_id' => request()->query('p_id'), 'type' =>'balance' , 'name'=> auth()->user()->name]) }}">
-                                    <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
-                                    {{-- required --}}
-                                     <input type="hidden" name="_token" value="{{ csrf_token() }}"> {{-- employ this in place of csrf_field only in laravel 5.0 --}}
-                                    <p>
-                                        <button class="blinking btn btn-danger btn-lg btn-block" type="submit">Pay balance of {{ config('custom.default_currency'). $program->checkBalance(request()->query('p_id')) }} now!
-                                        </button>
-                                    </p>
-                                </div>
-                            </div>
-                        </form>
-                    </li>
-                    @endif
                 @endif
             </ul>
         </nav>

@@ -74,6 +74,8 @@ Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->
 Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
 Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
 Route::get( 'userresults', 'TestsController@userresults')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
+Route::get('balance-checkout', 'HomeController@balanceCheckout')->name('balance.checkout')->middleware(['impersonate', 'auth', 'programCheck']);
+
 Route::get('training.instructor', 'ProfileController@showFacilitator')->middleware(['impersonate','auth','programCheck'])->name('training.instructor');
 
 Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->name('mocks.results');
@@ -162,6 +164,8 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
 });
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
     Route::resource('materials', 'MaterialController');
+
+    
     Route::get('materialscreate/{p_id}', 'MaterialController@add')->name('creatematerials');
     Route::get('facilitatormaterials/{p_id}', 'MaterialController@all')->name('facilitatormaterials');
     Route::post('cloneMaterial/{material_id}', 'MaterialController@clone')->name('material.clone');

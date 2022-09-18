@@ -23,8 +23,11 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">{{$user->name}}</h4>
-                        <p>Referal link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b></p>
-
+                         @if($user->role_id == 'Facilitator')  
+                        <p>Referal link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b> <br>
+                            WAACSP Profile link: <b>{{ $user->waaccsp_link }}</b>
+                        </p>
+                        @endif
                     </div>
                     <form action="{{route('teachers.update', $user->id)}}" method="POST"
                         enctype="multipart/form-data" class="pb-2">
@@ -39,17 +42,20 @@
                                 <div class="form-group">
                                     <table class="table table-bordered">
                                         <th><strong>Trainings</strong><a href="{{ route('teachers.programs', $user->id) }}" target="_blank" class="btn btn-info btn-sm view"> View</a></th>
+                                        @if($user->role_id == 'Facilitator')
                                         <th><strong>Students</strong><a href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
                                         <th><strong>WTN License</strong></th>
                                         <th><strong>Off season</strong></th>
                                         <th><strong>Total Earnings</strong> <a href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a> </th>
-                                        
+                                        @endif
                                         <tr>
                                            <td>{{ $programs->count() }}</td>
+                                           @if($user->role_id == 'Facilitator')    
                                            <td>{{  $user->students_count }} </td>
                                            <td>{{ $user->license }}</td>
                                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No'}}</td>
-                                           <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings }}</td>
+                                           <td>{{ $user->payment_modes->currency_symbol ?? 'NGN' }}{{ number_format($user->earnings) }}</td>
+                                           @endif
                                         </tr>
                                         
                                     </table>
@@ -76,15 +82,17 @@
                                         <option value="inactive" {{ $user->status == 'inactive' ? 'selected':'' }}>Inactive</option>
                                     </select>
                                 </div>
+                                @if($user->role_id == 'Facilitator')  
                                 <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
-                                    <label for="payment_mode ">Payment Mode</label>
-                                    <select name="payment_mode" id="payment_mode" class="form-control">
+                                    <label for="payment_mode">Payment Mode</label>
+                                    <select name="payment_mode" id="payment_mode" class="form-control" required>
                                         <option value="">...Select</option>
                                         @foreach($payment_modes as $mode)
                                         <option value="{{ $mode->id }}" {{ $user->payment_mode == $mode->id ? 'selected':'' }}>{{ ucFirst($mode->name) }}</option> 
                                         @endforeach
                                     </select>
                                 </div>
+                                @endif
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus >
@@ -185,43 +193,7 @@
                                 Submit
                             </button>
                         </div>
-                        {{-- @if($students->count() > 0)
-                        <div class="row" style="padding-top:20px">
-                            <div class="col-md-12">
-                                <h3>Assigned Students</h3>
-                                <div class="">
-                                    <table id="zero_config" class="table table-striped table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>S/N</th>
-                                                <th>Avatar</th>
-                                                <th>Joined</th>
-                                                <th>Name</th>
-                                                <th>Phone</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                           
-                                            @foreach($students as $student)
-                                                <tr>
-                                                    <td>{{ $i++ }}</td>
-                                                    <td><img src="{{ asset('profiles/'. $student->profile_picture  )}}" alt="{{ $student->profile_picture }}" class="rounded-circle" width="50"
-                                                        height="50"></td>
-                                                    <td>{{ $student->created_at->format('d/m/Y') }}</td>
-                                                    <td>
-                                                        <strong>{{ $student->name }}</strong><br>
-                                                    </td>
-                                                    <td>{{ $student->t_phone }}</td>
-                                                    
-                                                </tr>
-                                            @endforeach
-                                           
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        @endif --}}
+                      
                 </div>
             </div>
         </div>

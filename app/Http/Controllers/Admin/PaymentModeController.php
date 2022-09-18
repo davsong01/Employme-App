@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Settings;
 use App\PaymentMode;
-use App\PaymentMethod;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -94,9 +93,9 @@ class PaymentModeController extends Controller
     public function edit(PaymentMode $paymentMode)
     {
         $currency = Settings::value('CURR_ABBREVIATION');
-        $currency_symbol = Settings::value('DEFAULT_CURRENCY');
+        // $currency_symbol = Settings::value('DEFAULT_CURRENCY');
        
-        return view('dashboard.admin.payment_modes.edit', compact('currency', 'paymentMode', 'currency_symbol'));
+        return view('dashboard.admin.payment_modes.edit', compact('currency', 'paymentMode'));
     }
 
     /**
@@ -110,7 +109,7 @@ class PaymentModeController extends Controller
     {
        
         $data =$this->validate($request, [
-            'name' => 'required|string|max:30|unique:payment_methods,name,' . $paymentMode->id,
+            'name' => 'required|string|max:30|unique:payment_modes,name,' . $paymentMode->id,
             'merchant_email' => 'required|email',
             'currency' => 'required',
             'currency_symbol' => 'required',

@@ -48,7 +48,7 @@ class TeacherController extends Controller
            
             $user->p_names =  $names ;
         }
-
+       
         if(Auth::user()->role_id == "Admin"){
           return view('dashboard.admin.teachers.index', compact('users', 'i') );
         }
@@ -84,13 +84,14 @@ class TeacherController extends Controller
         $earnings = DB::table('program_user')->where('facilitator_id', $id)->where('facilitator_earning','>',0)
             ->join('users', 'users.id', '=', 'program_user.user_id')
             ->join('programs', 'programs.id', '=', 'program_user.program_id')
-            ->select('p_name','name','program_user.id', 'program_user.facilitator_id', 'currency','paymenttype','t_amount','invoice_id','p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code','facilitator_earning', 'profile_picture','program_user.created_at')
+            ->select('p_name','name','program_user.id', 'program_user.facilitator_id', 'currency','paymenttype','t_amount','invoice_id','p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code','facilitator_earning', 'profile_picture','program_user.created_at', 'currency_symbol')
             ->orderBy('program_user.created_at')
             ->get();
 
         $i = 1;
-        // dd($earnings);
-        return view('dashboard.admin.teachers.my_student_earnings', compact('earnings', 'i', 'id'));
+        $currency = User::whereId($id)->first()->payment_modes->currency_symbol;
+       
+        return view('dashboard.admin.teachers.my_student_earnings', compact('earnings', 'i', 'id', 'currency'));
     }
 
     public function create()
@@ -103,21 +104,23 @@ class TeacherController extends Controller
     }
     public function store(Request $request)
     {       
+       
         $data = request()->validate([
-            'payment_method' => 'required',
+            'payment_mode' => 'required',
             'license' => 'nullable',
             'picture' => 'nullable',
             'name' => 'required | min:5',
-            'profile' => 'nullable',
+            'profile' => 'sometimes',
+            'phone' => 'sometimes',
             'file' => 'nullable',
-            'email' =>'required | email',
+            'email' =>'required|unique:users,email',
             'password' => 'sometimes',
             'role'=>'required',
             'training' => 'nullable',
             'off_season_availability' => 'nullable',
             'status' => 'required',
         ]);
-    
+
         if(request()->has('file')){ 
         
             $imgName = $request->file->getClientOriginalName();
@@ -133,7 +136,7 @@ class TeacherController extends Controller
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'profile' => $data['profile'],
-                    'phone' => $data['phone'],
+                    't_phone' => $data['phone'],
                     'off_season_availability' => $data['off_season_availability'],
                     'profile_picture' => $data['picture'] ?? $imgName,
                     'license' => $data['license'],
@@ -141,6 +144,7 @@ class TeacherController extends Controller
                     'role_id' => $data['role'],
                     'status' => $data['status'],
                     'payment_mode' => $data['payment_mode'],
+                    'waacsp_url' => $data['waacsp_url'] ?? null,
                 ]);
 
                 if ($request->has('training')) {
@@ -190,7 +194,9 @@ class TeacherController extends Controller
         $other_details = DB::table('program_user')->where('facilitator_id', $user->id);
         $user->students_count = $other_details->count();
         $user->earnings = $other_details->sum('facilitator_earning');
-        $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . $user->profile_picture;
+       
+        $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/'. $user->profile_picture;
+       
         $payment_modes = PaymentMode::whereStatus('active')->get();
        
         if(Auth::user()->role_id == "Admin"){
@@ -200,6 +206,7 @@ class TeacherController extends Controller
 
     public function update(Request $request, $id)
     {
+       
         $user = User::findorFail($id);
         if($request['password']){
             $user-> password = bcrypt($request['password']);
@@ -222,7 +229,8 @@ class TeacherController extends Controller
         $user->status = $request['status'];
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
-       
+        $user->waacsp_url = $request['waacsp_url'];
+        
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
 
