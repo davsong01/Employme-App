@@ -159,7 +159,7 @@
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'htts://thewaacsp.com/api/verifyinstructor' }}";
+    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
     token = "{{ \App\Settings::value('token') }}";
 
     function myFunction() {
@@ -187,7 +187,7 @@
                 $("#picture").val(res.data.avatar); 
                 $("#verify-button").css("bakground:green");
                 $("#verify-button").html("<span class='btn btn-success' style='float:left' id='verify'>Verified!</span>"); 
-
+                
             },
 
             error: function(xhr, status, error) {
