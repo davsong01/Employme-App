@@ -17,12 +17,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    protected $guarded = [];
-    use Notifiable;
+        protected $guarded = [];
+        use Notifiable;
 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+        protected $hidden = [
+            'password', 'remember_token',
+        ];
+
+       
         public function startRedoStatus($pid){
             $this->redotest = $pid;
             return $this->save(); 

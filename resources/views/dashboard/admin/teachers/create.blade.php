@@ -159,7 +159,7 @@
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'http://thewaacsp.com/api/verifyinstructor' }}";
+    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'htts://thewaacsp.com/api/verifyinstructor' }}";
     token = "{{ \App\Settings::value('token') }}";
 
     function myFunction() {
