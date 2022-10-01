@@ -48,7 +48,7 @@ class PaymentModeController extends Controller
     {
         $data = $this->validate($request, [
             'type' => 'required',
-            'public_key' => 'required',
+            'public_key' => 'nullable',
             'secret_key' => 'required',
             'merchant_email' => 'required|email',
             'currency' => 'required',

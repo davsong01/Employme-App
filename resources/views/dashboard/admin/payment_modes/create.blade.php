@@ -40,7 +40,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="public_key">Api Public key</label>
-                                    <input type="text" class="form-control" name="public_key" value="{{ old('public_key') }}" required>
+                                    <input type="text" class="form-control" name="public_key" value="{{ old('public_key') }}">
                                 </div>
                                
                                 <div class="form-group">
