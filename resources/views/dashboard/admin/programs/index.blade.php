@@ -39,6 +39,7 @@
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td>{{ $program->p_name }}<br>
                                 Type: @if($program->off_season)Off Season @else Normal @endif <br>
+                                @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif <br>
                                 {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
                                     <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
                                     
@@ -53,7 +54,14 @@
                             </td>
                             <td>{{ $program->part_paid }}</td>
                             <td>{{ $program->fully_paid }}</td>
-                            <td>{{ $program->status == 1 ? 'Published' : 'Draft'}}</td>
+                            <td>
+                                @if( $program->status == 1 )
+                                <button class="btn btn-success btn-xs">Published</button> 
+                                @else
+                                <button class="btn btn-danger btn-xs">Draft</button> 
+                                @endif
+                              
+                            </td>
                             <td>
                                 <div class="btn-group" style="max-height: 35px;margin-bottom: 5px;">
 
