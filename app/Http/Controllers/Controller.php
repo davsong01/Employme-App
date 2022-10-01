@@ -19,6 +19,8 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 
 class Controller extends BaseController
 {
@@ -403,11 +405,34 @@ class Controller extends BaseController
         return $imageName;
     }
 
+    public function uploadFileToUploads($image, $type, $folder, $width = null, $height = null){
+        $file = uniqid(9) . '.' . $image->getClientOriginalExtension();
+        
+        if($type == 'image'){
+            $image = Image::make($image)->resize($width, $height);
+            Storage::disk('uploads')->put($folder.'/'. $file, (string) $image->encode());
+        }
+        if($type == 'booking_form'){
+            $filePath = $image->storeAs('bookingforms', $file, 'uploads');
+        }
+       
+        return $file;
+    }
     public function deleteImage($image)
     {
 
         if (file_exists(public_path($image))) {
             unlink(public_path($image));
+        }
+
+        return;
+    }
+
+    public function deleteUploadsFile($imagePath)
+    {
+
+        if (file_exists(base_path().$imagePath)) {
+            unlink(base_path().$imagePath);
         }
 
         return;

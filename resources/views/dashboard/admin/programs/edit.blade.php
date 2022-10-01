@@ -86,15 +86,15 @@
                             
                             
                             <div class="form-group">
-                                <label>Change Program Banner</label> <br>
+                                <label>Replace Program Banner</label> <br>
                             <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
-
                                 <input type="file" name="image" value="{{ old('image') ??  $program->image }}" class="form-control">
                             </div>
                             <div><small style="color:red">{{ $errors->first('image')}}</small></div>
                             <div class="form-group">
                                 @if($program->booking_form)
-                                <label>Change Booking form</label>
+                                <label>Replace Booking form</label>
+                                <i data-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
                                 @else
                                 <label>Upload Booking form</label>
                                 @endif
