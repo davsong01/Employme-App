@@ -1,5 +1,13 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @extends('dashboard.admin.index')
+@extends('dashboard.admin.index')
 @section('title', $user->name )
+@section('css')
+<style>
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    height: 200px !important;
+}
+</style>
+   
+@endsection
 @section('content')
 <div class="container-fluid">
     <div class="row">
@@ -82,11 +90,13 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
+                            </div>
+                            <div class="col-md-12">
                                 <div class="form-group row">
                                     <label class="training">Select Training(s)</label>
                                     <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
                                     @foreach($programs as $program)
-                                         <option value="{{ $program->id }}" {{ $program->is_associated == $program->id ? 'selected' : ''}} >{{ $program->p_name }}</option>
+                                         <option value="{{ $program->id }}" {{ in_array($program->id, $associated) ? 'selected' : ''}} >{{ $program->p_name }}</option>
                                     @endforeach
                                     </select>
                                 <div>
@@ -101,7 +111,7 @@
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">
-                                Submit
+                                Update
                             </button>
                         </div>
                       

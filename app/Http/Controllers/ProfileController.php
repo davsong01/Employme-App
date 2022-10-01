@@ -67,7 +67,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {   
       
-        $user = User::findorFail(Auth::user()->id);
+        $user = auth()->user();
         
         $user->name = $request->name;
         $user->t_phone = $request->phone;
@@ -81,21 +81,14 @@ class ProfileController extends Controller
         if($request['password']){
             $user->password = bcrypt($request['password']);
         };
-        if(request()->has('file')){ 
-           
-            $imgName = $request->file->getClientOriginalName();
-            
-            $picture = Image::make($request->file)->resize(100, 100);
-            
-            $picture->save('profiles/'.'/'.$imgName);
+        if(request()->has('profile_picture')){
+            $imgName = $this->uploadImage($request->profile_picture, 'profiles', 100,100);
 
-            $user->update([
-                'profile_picture' => $imgName,
-            ]);
+            $user->profile_picture = $imgName;
         }
         
         $user->save();
-        
+       
         return back()->with('message', 'Profile update successful');
     
     }

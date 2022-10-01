@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        <h4>Edit details for: {{$user->name}}</h4>
+                        <h4>Edit Profile</h4>
                     </div>
                     <form action="{{route('profiles.update', $user->id)}}" method="POST" enctype="multipart/form-data"
                         class="pb-2">
@@ -70,8 +70,20 @@
 
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
+                                </div>  
+                                <div class="form-group">
+                                    @if(isset($user->profile_picture) && $user->profile_picture == "avatar.jpg")
+                                    <label>Upload Profile Picture</label> <br>
+                                    <img src="{{ url('/').'/profiles/avatar.jpg'}}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
+                                    <input type="file" name="image" value="{{ old('profile_picture') ??  $user->profile_picture }}" class="form-control">
+                                    @else
+                                    <label>Replace Profile Picture</label> <br>
+                                    <img src="{{ url('/').'/profiles/'.$user->profile_picture }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
+                                        <input type="file" name="profile_picture" value="{{ old('profile_picture') ??  $user->profile_picture }}" class="form-control">
+                                    @endif
+                                   
                                 </div>
-                                
+                            </div>
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">

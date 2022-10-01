@@ -392,16 +392,20 @@ class Controller extends BaseController
         return $user;
     }
 
-    public function uploadImage($file, $folder)
+    public function uploadImage($file, $folder, $width=null, $height=null)
     {
-
         $imageName = uniqid(9) . '.' . $file->getClientOriginalExtension();
-
+       
         if (!is_dir($folder)) {
             mkdir($folder);
         }
+        
+        if(isset($width) && isset($height)){
+            Image::make($file)->resize(100, 100);
+        }
 
         $file->move(public_path($folder), $imageName);
+
         return $imageName;
     }
 
