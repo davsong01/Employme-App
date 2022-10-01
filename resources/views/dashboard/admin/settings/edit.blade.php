@@ -26,7 +26,7 @@
                                 
                                  <div class="form-group">
                                     <label>Terms and conditions link</label>
-                                    <input type="text" name="tac_link" value="{{ old('tac_link') ?? $setting->tac_link}}" class="form-control" required>
+                                    <input type="text" name="tac_link" value="{{ old('tac_link') ?? $setting->tac_link}}" class="form-control">
                                 </div>
                                 
                                 <!--Gives the first error for input name-->
@@ -107,7 +107,7 @@
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;padding-left: 0;padding-right: 0;">
                                         <label>Replace site favicon</label>
-                                        <input type="file" name="favicon"  class="form-control" accept="image/x-png">
+                                        <input type="file" name="favicon"  class="form-control" accept="image">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12" style="display: flex;">
@@ -116,7 +116,7 @@
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;">
                                         <label>Replace site logo (152px by 60px preferred)</label>
-                                        <input type="file" name="logo"  class="form-control" accept="image/x-png">
+                                        <input type="file" name="logo"  class="form-control" accept="image">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-12" style="display: flex;">
@@ -125,7 +125,7 @@
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;">
                                         <label>Replace site banner (1280px by 853px preferred)</label>
-                                        <input type="file" name="banner"  class="form-control" accept="image/x-png">
+                                        <input type="file" name="banner"  class="form-control" accept="image">
                                     </div>
                                 </div>
                             </div>
