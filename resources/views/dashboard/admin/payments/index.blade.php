@@ -109,12 +109,12 @@
                             <td>
                                 <small class="training-details">
                                     <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
-                                    <strong>Paid:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}<br>  
+                                    <strong>Paid:</strong> {{ $transaction->currency. $transaction->t_amount }}<br>  
                                     <strong>Balance:</strong>
                                          @if($transaction->paymentStatus == 0 )
-                                            <span style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </span>
+                                            <span style="color:red">{{  $transaction->currency. $transaction->balance }} </span>
                                         @else
-                                            <span style="color:green">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').  $transaction->balance }}</span>
+                                            <span style="color:green">{{ $transaction->currency.  $transaction->balance }}</span>
                                         @endif
                                     <br>      
                                     <strong>Bank: </strong>{{ $transaction->t_type }} <br>

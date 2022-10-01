@@ -31,7 +31,7 @@ class PaymentController extends Controller
             $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
                 ->join("programs", "program_user.program_id", "=", "programs.id")
                 ->join("users", "users.id", "=", "program_user.user_id")
-                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "t_type")
+                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type")
                 ->get();
             $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
