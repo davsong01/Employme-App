@@ -45,7 +45,7 @@ class FrontendController extends Controller
             $discounts = Program::where('e_amount', '!=', 0)->where('close_earlybird', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
 
         }else{
-            $trainings = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('p_end', 'DECS')->ORDERBY('created_at', 'DESC')->paginate(12);
+            $trainings = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_end', 'DECS')->paginate(12);
             $discounts = Program::where('e_amount', '!=', 0)->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }
         
