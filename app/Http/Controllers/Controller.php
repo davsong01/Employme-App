@@ -101,7 +101,7 @@ class Controller extends BaseController
                 'amount' => $coupon_amount,
                 'id' => $coupon_id,
                 'code' => $coupon_code,
-                'grand_total' => $price -$coupon_amount,
+                'grand_total' => $price - $coupon_amount,
             ];
         }
 
@@ -109,8 +109,8 @@ class Controller extends BaseController
         
     }
 
-    public function getCouponValue($code){
-        $coupon = Coupon::where('code', $code)->first();
+    public function getCouponValue($code, $pid=null){
+        $coupon = Coupon::where('code', $code)->where('program_id', $pid)->first();
         if(isset($coupon) && !empty($coupon)){
             $coupon_amount = $coupon->amount;
             $coupon_id = $coupon->id;
@@ -133,10 +133,10 @@ class Controller extends BaseController
 
     public function verifyCoupon($request, $pid){
         $type['pid'] = $pid;
-        
+       
         if($request->coupon && !empty($request->coupon)){
-            $verifyCoupon = $this->getCouponValue($request->coupon);
-
+            $verifyCoupon = $this->getCouponValue($request->coupon, $pid);
+            
             if(!is_null($verifyCoupon)){
                 $response = $this->getCouponUsage($request->coupon, $request->email, $pid, 2);
             }else{

@@ -122,7 +122,7 @@ class PaymentController extends Controller
     }
 
     public function printReceipt($id){
-        $transaction = DB::table('program_user')->where('id', $id)->first();
+        $transaction = Transaction::with('coupon')->where('id', $id)->first();
         
         if(Auth::user()->role_id == "Student"){
             if(!$transaction){
@@ -153,7 +153,10 @@ class PaymentController extends Controller
             'message' => $message,
             'currency' => $transaction->currency,
             'transid' =>  $transaction->transid,
-            't_type' =>  $transaction->t_type
+            't_type' =>  $transaction->t_type,
+            'coupon_id' =>  $transaction->coupon->id,
+            'coupon_code' =>  $transaction->coupon->code,
+            'coupon_amount' =>  $transaction->coupon->amount,
         ];
         
         $data = [

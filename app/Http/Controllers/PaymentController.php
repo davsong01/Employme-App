@@ -68,7 +68,8 @@ class PaymentController extends Controller
     }
 
     public function validateCoupon(Request $request){
-        $verifyCoupon = $this->getCouponValue($request->code);
+       
+        $verifyCoupon = $this->getCouponValue($request->code, $request->pid);
         $response = null;
         if(!is_null($verifyCoupon)){
             $response = $this->getCouponUsage($request->code, $request->email, $request->pid, $request->price);
@@ -176,8 +177,6 @@ class PaymentController extends Controller
                 }else return Redirect::back()->with('error', 'Invalid Transaction');
             }
 
-            
-            
             try{
                 return Paystack::getAuthorizationUrl()->redirectNow();
             }catch(\Exception $e) {
@@ -387,7 +386,7 @@ class PaymentController extends Controller
         }
        
     }
-
+    
     //set balance and determine user receipt values
     private function dosubscript1($balance){
 

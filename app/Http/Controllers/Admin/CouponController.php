@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\User;
 use App\Coupon;
 use App\Program;
+use App\CouponUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -22,8 +23,8 @@ class CouponController extends Controller
         $i = 1;
         if (Auth::user()->role_id == "Admin") {
 
-            $coupons = Coupon::orderBy('created_at', 'desc')->get();
-        //    dd($coupons);
+            $coupons = Coupon::withCount('coupon_users')->orderBy('created_at', 'desc')->get();
+            
             return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
         } else if (Auth::user()->role_id == "Facilitator") {
             $coupons = Coupon::where('facilitator_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
@@ -97,7 +98,6 @@ class CouponController extends Controller
             $data['facilitator_id'] = 0;
         }
 
-
         Coupon::create($data);
 
         return redirect(route('coupon.index'))->with('message', 'Coupon created successfully');
@@ -111,7 +111,10 @@ class CouponController extends Controller
      */
     public function show(Coupon $coupon)
     {
-        //
+        $usages = CouponUser::with('program')->where('coupon_id', $coupon->id)->get();
+        $i = 1;
+        
+        return view('dashboard.admin.coupons.usage', compact('i', 'usages','coupon'));
     }
 
     /**

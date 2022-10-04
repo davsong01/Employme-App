@@ -43,7 +43,6 @@ class FrontendController extends Controller
             $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
             $trainings = Program::where('id', '<>', 1)->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
             $discounts = Program::where('e_amount', '!=', 0)->where('close_earlybird', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
-
         }else{
             $trainings = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
             $discounts = Program::where('e_amount', '!=', 0)->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
