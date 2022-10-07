@@ -260,9 +260,15 @@
         });
 
         $('#transTable').DataTable({
+            " scrollX": true,
              "ordering": false,
-              "pageLength": 100,
+              "pageLength": 5,
         });
+        // $('#myTable').DataTable({
+        //      "pageLength": 50,
+        // });
+        
+       
         
         // For select 2
         //***********************************//
@@ -270,8 +276,10 @@
 
 
         $(document).ready( function () {
-        $('#myTable').DataTable();
-        } );
+        $('#myTable').DataTable({
+            " scrollX": true,
+              "pageLength": 5,
+        });
         
 
         $(".delete").on("submit", function () {
