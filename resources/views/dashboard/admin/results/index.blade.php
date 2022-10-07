@@ -11,7 +11,7 @@
                     <div>
                         <h5 class="card-title"> All Results for: {{ $program_name }} </h5><br>
                         <button class="btn btn-success" id="csv">Export Results</button>
-                        <form id="waacsp" action="{{ route('send.waacsp')}}" class="btn btn-success" method="POST">
+                        {{-- <form id="waacsp" action="{{ route('send.waacsp')}}" class="btn btn-success" method="POST">
                             {{ csrf_field() }}
                         <input type="hidden" id="participants" name="participants" value="{{ $users }}">
                         <input type="hidden" name="passmark" id="passmark" value="{{  $passmark }}">
@@ -19,7 +19,7 @@
                         <input type="hidden" name="email" id="email" value="{{ \App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL')}}">
                         <input type="hidden" name="token" id="token" value="{{ \App\Settings::select('token')->first()->value('token')}}">
                         <button type="submit" class="btn btn-primary">Send to WAACSP</button>
-                        </form>
+                        </form> --}}
                         
                     </div>
                 </div>
@@ -29,19 +29,19 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Date</th>
-                            <th>Name</th>
-                            @if(auth()->user()->role_id == 'Admin' )
-                            <th>Email</th>
-                            @endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
+                            <th>Details</th>
+                            {{-- @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin')<th>C.T. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>R. Play Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Email Score</th>@endif
                             <th>Passmark</th>
                             @if(auth()->user()->role_id == 'Admin')<th>T. Score</th>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>Facilitator</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Grader</th>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Grader</th>@endif --}}
+                            <th>Scores</th>
+                            <th>Passmark</th>
+                            @if(auth()->user()->role_id == 'Admin')<th>Total</th>@endif
+                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -50,19 +50,40 @@
                         @if($user->passmark)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{isset($user->updated_at) ? $user->updated_at->format('d/m/Y') : ''}}</td>
-                            <td>{{ $user->name }}</td>
-                             @if(auth()->user()->role_id == 'Admin' )
-                            <td>{{ $user->email }}</td>
+                            <td>
+                                <strong class="tit">Name: </strong>{{ $user->name }} 
+                                 @if(auth()->user()->role_id == 'Admin' ) <br>
+                                <strong class="tit">Email: </strong>{{ $user->email }} <br>
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader') <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
+                                <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>
                             @endif
-                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%</td>@endif
+                            </td>
+                            
+                            <td>
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader') <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%@endif
+                            @if(auth()->user()->role_id == 'Admin')<br><strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% @endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<br> <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}% @endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<br> <strong>Email: </strong> {{ $user->total_email_test_score }}% @endif
+                            
+                            <?php
+                                $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
+                            ?>
+                           
+                            </td>
+                            <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
+                            <td>
+                                 @if(auth()->user()->role_id == 'Admin')<strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> @endif
+                            </td>
+                           
+                            {{-- @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<br>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%@endif
                             @if(auth()->user()->role_id == 'Admin')<td>{{ $user->final_ct_score }}%</td>@endif
                              @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_role_play_score }}%</td>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ $user->total_email_test_score }}%</td>@endif
                             <td>{{ $user->passmark }}%</td>
                             @if(auth()->user()->role_id == 'Admin')<td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>@endif
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>{{ $user->marked_by }}</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif
+                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif --}}
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                             
                             

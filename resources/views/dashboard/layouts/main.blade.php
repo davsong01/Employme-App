@@ -256,19 +256,20 @@
 
     <script>
         $('#zero_config').DataTable({
-             "pageLength": 50,
+             "ordering": false,
+              "pageLength": 50,
+               "scrollY": true,
+                // "scrollX": true,
+                "scroller": true
         });
 
         $('#transTable').DataTable({
-            " scrollX": true,
              "ordering": false,
-              "pageLength": 5,
+              "pageLength": 100,
+               "scrollY": true,
+                "scrollX": true,
+                "scroller": true
         });
-        // $('#myTable').DataTable({
-        //      "pageLength": 50,
-        // });
-        
-       
         
         // For select 2
         //***********************************//
@@ -276,10 +277,15 @@
 
 
         $(document).ready( function () {
-        $('#myTable').DataTable({
-            " scrollX": true,
-              "pageLength": 5,
-        });
+         $('#myTable').DataTable( {
+             "ordering": false,
+              "pageLength": 50,
+               "scrollY": true,
+                "scrollX": true,
+                "scroller": true
+        } );   
+        // $('#myTable').DataTable();
+        } );
         
 
         $(".delete").on("submit", function () {
