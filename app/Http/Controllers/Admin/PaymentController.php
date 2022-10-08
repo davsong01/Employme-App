@@ -106,15 +106,15 @@ class PaymentController extends Controller
             'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
             'amount' =>$transaction->t_amount,
         ];
-        // return view('emails.receipt', compact('data', 'details'));
-
+       
         //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
        
         //send user mails
         // return view('emails.receipt', compact('data', 'details'));
         $data = array_merge($data, $details);
-       
+        $pdf = PDF::loadView('emails.receipt', compact('data'));
+        // return view('emails.receipt', compact('data', 'details'));
+    //    
         Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         
         return back()->with('message', 'Receipt sent succesfully'); 
@@ -142,7 +142,12 @@ class PaymentController extends Controller
         }
 
         //determine the program details
-        $details = [
+       
+        $data = [
+            'name' =>$user->name,
+            'email' =>$user->email,
+            'bank' =>$user->t_type,
+            'amount' =>$transaction->t_amount,
             'programFee' => $user->programs[0]['p_amount'],
             'programName' => $user->programs[0]['p_name'],
             'programAbbr' => $user->programs[0]['p_abbr'],
@@ -152,24 +157,19 @@ class PaymentController extends Controller
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
             'currency' => $transaction->currency,
-            'transid' =>  $transaction->transid,
+            'transid' =>  $transaction->transid ?? null,
+            'invoice_id' =>  $transaction->invoice_id ?? null,
             't_type' =>  $transaction->t_type,
-            'coupon_id' =>  $transaction->coupon->id,
-            'coupon_code' =>  $transaction->coupon->code,
-            'coupon_amount' =>  $transaction->coupon->amount,
-        ];
-        
-        $data = [
-            'name' =>$user->name,
-            'email' =>$user->email,
-            'bank' =>$user->t_type,
-            'amount' =>$transaction->t_amount,
+            'coupon_id' =>  $transaction->coupon->id ?? null,
+            'coupon_code' =>  $transaction->coupon->code ?? null,
+            'coupon_amount' =>  $transaction->coupon->amount ?? null,
+            'created_at' =>  $transaction->created_at ?? null,
         ];
         
         //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        $pdf = PDF::loadView('emails.receipt', compact('data'));
         
-        return view('emails.printreceipt', compact('data', 'details'));
+        return view('emails.printreceipt', compact('data'));
 
     }
 

@@ -335,9 +335,8 @@ class PaymentController extends Controller
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
                 
-       
                 $this->sendWelcomeMail($data);
-
+                
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
 

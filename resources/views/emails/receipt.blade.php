@@ -16,9 +16,13 @@
 		<h4><strong><span style="font-size:36px;">E - RECEIPT</span></strong></h4>
 
 		<p></p>
-		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $details['transid']}}</span>  </b></p>
-		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $details['invoice_id']}}</span> </b></p>
-		<p><em>Date: {{ date('Y:m:d') }}</em></p>
+		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['transid']}}</span>  </b></p>
+		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['invoice_id']}}</span> </b></p>
+		<?php 
+		$date =  $data['created_at'] ?? now()
+		?>
+		<p><em>{{ \Carbon\Carbon::parse($date)->format('jS F, Y, h:iA')  }}</em></p>
+		
 	</div>
 
 	<div class="row">
@@ -48,8 +52,8 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $details['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $details['t_type']}}</td>
+					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
+					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? null}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -67,10 +71,10 @@
 			<tbody>
 				<tr>
 					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $details['programName']}}<br />
-					<small><i>({{ $details['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ $details['currency'] }}{{ $details['programFee']}}</td>
-					<td class="col-md-2 text-center">{{ $details['currency'] }}{{ $data['amount'] }}</td>
+					<td class="col-md-8">{{ $data['programName']}}<br />
+					<small><i>({{ $data['message']}})</i></small></td>
+					<td class="col-md-1 text-center">{{ $data['currency'] ?? null}}{{ number_format($data['programFee']) }}</td>
+					<td class="col-md-2 text-center">{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }}</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -79,7 +83,7 @@
 					<p><strong>Total:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-					<p><strong>{{ $details['currency'] }}{{ $data['amount'] }}</strong></p>
+					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['amount']) }}</strong></p>
 					</td>
 				</tr>
 				<tr>
@@ -89,7 +93,7 @@
 					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
 					</td>
 					<td class="text-center">
-					<h4><strong style="color:red !important">{{ $details['currency'] }}{{ $details['balance'] }}</strong></h4>
+					<h4><strong style="color:red !important">{{ $data['currency'] ?? null}}{{ number_format($data['balance']) }}</strong></h4>
 					</td>
 				</tr>
 			</tbody>

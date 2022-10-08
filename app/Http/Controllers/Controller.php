@@ -35,18 +35,21 @@ class Controller extends BaseController
 
     protected function sendWelcomeMail($data){
         set_time_limit(360);
+        // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        // return view('emails.receipt', compact('data'));
         try {
             if(isset($data['invoice_id'])){
                 $pdf = PDF::loadView('emails.receipt', compact('data'));
             }else $pdf = null;
+           
             Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         } catch(\Exception $e){
             // Get error here
+            // dd($e->getMessage());
             Log::error($e);
             return false;
         }
         return;
-        // return view('emails.receipt', compact('data'));
     }
 
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){

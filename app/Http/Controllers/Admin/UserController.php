@@ -77,8 +77,8 @@ class UserController extends Controller
             $locations = Location::select('title')->orderBy('created_at', 'DESC')->get();
             $user = User::all();
 
-            $programs =  Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
-
+            $programs =  Program::select('id', 'p_end', 'p_name', 'p_amount','close_registration')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs', 'locations'));
     }return back();
 }
@@ -98,12 +98,13 @@ class UserController extends Controller
         }
 
         //determine the program details
-        $programFee = Program::findorFail($request['training'])->p_amount;
-        $programName = Program::findorFail($request['training'])->p_name;
-        $programAbbr = Program::findorFail($request['training'])->p_abbr;
-        $bookingForm = Program::findorFail($request['training'])->booking_form;
-        $programEarlyBird = Program::findorFail($request['training'])->e_amount;
-        $invoice_id = 'Invoice'.rand(10, 100);
+        $details = Program::findorFail($request['training']);
+        $programFee = $details->p_amount;
+        $programName = $details->p_name;
+        $programAbbr = $details->p_abbr;
+        $bookingForm = $details->booking_form;
+        $programEarlyBird = $details->e_amount;
+        $invoice_id = $this->getReference('SYS-ADMIN');
         
         if($request['amount'] > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
@@ -122,8 +123,6 @@ class UserController extends Controller
             $payment_type = 'Full';
              }
             $paymentStatus =  $this->paymentStatus($balance);
-            
-           
         }else {
            //check amount against payment
             $balance = $programFee - $request['amount'];
@@ -162,7 +161,7 @@ class UserController extends Controller
                 'gender' => $data['gender'],
             ]);  
         }
-
+        
         $user->programs()->attach($request->training, [
             'created_at' =>  date("Y-m-d H:i:s"),
             't_amount' => $data['amount'],

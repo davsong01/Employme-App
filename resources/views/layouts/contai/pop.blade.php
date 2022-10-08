@@ -72,7 +72,7 @@
                                     <select name="training" id="training" class="form-control" required>
                                         <option value="">-- Select --</option>
                                         @foreach($trainings as $training)
-                                        <option value="{{ $training->id }}">{{ $training->p_name }}</option>
+                                        <option value="{{ $training->id }}">{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }})</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -114,7 +114,8 @@
                                 </div>
                             </div>
                         </div>
-                        
+                        <input type="hidden" name="currency" value="{{ $currency }}">
+                        <input type="hidden" name="currency_symbol" value="{{ $currency_symbol }}">
                         <div class="row">
                             <div class="col-lg-12">
                                 <button type="submit" class="site-btn checkout-button">UPLOAD</button>

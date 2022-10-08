@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use Carbon;
 use App\Pop;
 use App\User;
 use App\Program;
@@ -30,7 +31,7 @@ class PopController extends Controller
     }
 
     public function create(){
-        $trainings = Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
+        $trainings = Program::select('id', 'p_end', 'p_name','p_amount','close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
         // $locations = Location::select('title')->distinct()->get();
         
         return view('pop')
@@ -39,24 +40,50 @@ class PopController extends Controller
     }
 
     public function store(Request $request){
-       
         $data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required',
             'phone' => 'required | numeric',
-            'bank' => 'required',
+            'bank' => 'sometimes',
             'amount' => 'required | numeric',
             'training' => 'required | numeric',
+            'currency' => 'sometimes',
+            'currency_symbol' => 'sometimes',
             // 'location' => 'nullable',
             'date' => 'date',
             'file' => 'required|max:2048|image',
         ]);
-
+        
         //handle file
         $file = $data['name'].'-'.date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();
         $filePath = $request->file('file')->storeAs('pop', $file.'.'.$extension  ,'uploads');
+        $date = \Carbon\Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
+        // Check if already uploaded same pop
+        $popCheck = Pop::whereEmail($data['email'])->whereAmount($data['amount'])->whereProgramId($data['training'])->count();
+        if ($popCheck > 0) {
+            return back()->with('error', 'You have already uploaded proof of payment for this training and with the same amount, kindly wait while an administrator approves your request');
+        }
+
+        if (isset($user) && !empty($user)) {
+            $check = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
+
+            if ($check > 0) {
+                return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
+            }
+        }
+
+        // Check if user already paid for same program
+        $user = User::whereEmail($data['email'])->value('id');
+        if(isset($user) && !empty($user)){
+            $check = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
+            
+            if ($check > 0) {
+                return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
+            }
+        }
+       
         try{
             //Store new pop
             $pop = Pop::create([
@@ -66,6 +93,8 @@ class PopController extends Controller
                 'bank' =>  $data['bank'],
                 'amount' =>  $data['amount'],
                 'program_id' =>  $data['training'],
+                'currency' =>  $data['currency'],
+                'currency_symbol' =>  $data['currency_symbol'],
                 // 'location' =>  $data['location'],
                 'date' => $data['date'],
                 'file' => $filePath,
@@ -75,6 +104,7 @@ class PopController extends Controller
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
             $data['location'] = null;
+
             Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
         }catch(\Exception $e) {
@@ -103,24 +133,31 @@ class PopController extends Controller
             }
         }
         //determine the program details
-        $programFee = $pop->program->p_amount;
-        $programName = $pop->program->p_name;
-        $programAbbr = $pop->program->p_abbr;
-        $bookingForm = $pop->program->booking_form;
-        $programEarlyBird = $pop->program->e_amount;
-        $invoice_id = 'Invoice'.rand(10, 100);
+        $allDetails = [
+            'programFee' => $pop->program->p_amount,
+            'programName' => $pop->program->p_name,
+            'programAbbr' => $pop->program->p_abbr,
+            'location' => $pop->location,
+            'bookingForm' => $pop->program->booking_form,
+            'programEarlyBird' => $pop->program->e_amount,
+            'invoice_id' => $this->getReference('SYS_ADMIN'),
+            'trans_id' => $this->getReference('SYS_ADMIN'),
 
-        //Get User details
-        $name = $pop->name;
-        $email = $pop->email;
-        $phone = $pop->phone;
-        $password = bcrypt('12345');
-        $program_id = $pop->prpgram_id;
-        $amount = $pop->amount;
-        $t_type = $pop->bank;
+            //Get User details
+            'name' => $pop->name,
+            'email' => $pop->email,
+            'phone' => $pop->phone,
+            'password' => bcrypt('12345'),
+            'program_id' => $pop->prpgram_id,
+            'amount' => $pop->amount,
+            't_type' => $pop->bank,
+            'currency' => $pop->currency,
+            'currency_symbol' => $pop->currency_symbol,
+            'date' => $pop->date,
+        ];
         
 
-        if($pop->amount > $programFee){
+        if($pop->amount > $allDetails['programFee']){
             return back()->with('warning', 'Student cannot pay more than program fee');
         }else
         {
@@ -130,64 +167,77 @@ class PopController extends Controller
             $role_id = "Student";
 
             //check amount against payment
-            if($amount == $programEarlyBird){
-                $balance = $programEarlyBird - $amount;
-                $message = $this->dosubscript2($balance);
+            if($allDetails['amount'] == $allDetails['programEarlyBird']){
+                $balance = $allDetails['programEarlyBird'] - $allDetails['amount'];
+                $message = $this->dosubscript2($allDetails['balance']);
                 // $payment_type = 'EB';
             }else{
-            $balance = $programFee - $amount;
+            $balance = $allDetails['programFee'] - $allDetails['amount'];
             
             $message = $this->dosubscript1($balance);
             // $payment_type = 'Full';
             }
             
             $paymentStatus =  $this->paymentStatus($balance);
-
+            
             //Check if email exists in the system and attach it to the new pregram to that email
-            $user = User::where('email', $email)->first();
+            $user = User::where('email', $allDetails['email'])->first();
             if(!$user){
                 //save to database
                 $user = User::updateOrCreate([
-                    'name' => $name,
-                    'email' => $email,
-                    't_phone' => $phone,
-                    'password' => $password,
-                    'role_id' => $role_id,
+                    'name' => $allDetails['name'],
+                    'email' => $allDetails['email'],
+                    't_phone' => $allDetails['phone'],
+                    'password' => $allDetails['password'],
+                    'role_id' => $allDetails['role_id'],
+       
                 ]); 
             }
 
+            // Check if pop has been approved initially
+            // $check = DB::table('program_user')->where(['user_id'=>$user->id, 'program_id'=>$pop->program_id])->count();
+            // if($check > 1){
+            //     return back()->with('error', 'Payment details already exists in the system!');
+            // }
+
             $user->programs()->attach($pop->program_id, [
                     'created_at' =>  date("Y-m-d H:i:s"),
-                    't_amount' => $amount,
-                    't_type' => $t_type,
-                    't_location' => $location,
+                    't_amount' => $allDetails['amount'],
+                    't_type' => $allDetails['t_type'],
+                    't_location' => $allDetails['location'],
                     'paymentStatus' => $paymentStatus,
                     'balance' => $balance,
-                    'invoice_id' =>  $invoice_id,
+                    'transid' =>  $allDetails['invoice_id'],
+                    'invoice_id' =>  $allDetails['invoice_id'],
+                    'currency' => $allDetails['currency'],
+                    'currency_symbol' => $allDetails['currency_symbol'],
+                    'created_at' => $pop->date,
                 ] );
 
-            //send email
-            $details = [
-                'programFee' => $programFee,
-                'programName' => $programName,
-                'programAbbr' => $programAbbr,
+            //send email 
+            $data = [
+                'name' => $allDetails['name'],
+                'email' => $allDetails['email'],
+                'bank' => $allDetails['t_type'],
+                'amount' => $allDetails['amount'],
+                'invoice_id' =>  $allDetails['invoice_id'],
+                'transid' => $allDetails['invoice_id'],
+                'programFee' => $allDetails['programFee'],
+                'programName' => $allDetails['programName'],
+                'programAbbr' => $allDetails['programAbbr'],
                 'balance' => $balance,
                 'message' => $message,
-                'booking_form' => base_path() . '/uploads'.'/'.$bookingForm,
-                'invoice_id' =>  $invoice_id,
+                'currency' => $allDetails['currency'],
+                'currency_symbol' => $allDetails['currency_symbol'],
+                'created_at' => $pop->date,
+                'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads'.'/'. $allDetails['bookingForm'] : null,
             ];
-      
-            $data = [
-                'name' =>$name,
-                'email' =>$email,
-                'bank' =>$t_type,
-                'amount' =>$amount,
-            ];
-
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            // return view('emails.receipt', compact('data', 'details'));
-            Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-              
+           
+            // $pdf = PDF::loadView('emails.receipt', compact('data'));
+            // return view('emails.receipt', compact('data'));
+            $this->sendWelcomeMail($data);
+            // dd($data);
+           
             $pop->delete();
         return redirect(route('payments.index'))->with('message', 'Student added succesfully'); 
       
