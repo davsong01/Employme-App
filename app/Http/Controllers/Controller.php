@@ -31,8 +31,15 @@ class Controller extends BaseController
     protected function getReference($prefix){
         date_default_timezone_set("Africa/Lagos");
         return $prefix.'-'.date('YmdHi') . '-' . rand(11111111, 99999999);
-    } 
+    }
 
+    protected function getInvoiceId($id)
+    {
+        date_default_timezone_set("Africa/Lagos");
+        $invoice_id = date("YmdHi") . '-' . $id . '-' . rand(10000, 99999);
+        return $invoice_id;
+    }
+    
     protected function sendWelcomeMail($data){
         set_time_limit(360);
         // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
@@ -241,12 +248,6 @@ class Controller extends BaseController
             'faculty' =>  $data['faculty_percent'] ?? 0,
             'other' => $data['other_percent'] ?? 0,
         ];
-    }
-
-    protected function getInvoiceId($id){
-        date_default_timezone_set("Africa/Lagos");
-        $invoice_id = date("YmdHi"). '-' .$id. '-'.rand(10000, 99999);
-        return $invoice_id;
     }
 
     protected function prepareTrainingDetails($program, $paymentDetails, $amount){

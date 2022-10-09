@@ -140,7 +140,6 @@ class PopController extends Controller
             'location' => $pop->location,
             'bookingForm' => $pop->program->booking_form,
             'programEarlyBird' => $pop->program->e_amount,
-            'invoice_id' => $this->getReference('SYS_ADMIN'),
             'trans_id' => $this->getReference('SYS_ADMIN'),
 
             //Get User details
@@ -199,7 +198,7 @@ class PopController extends Controller
             // if($check > 1){
             //     return back()->with('error', 'Payment details already exists in the system!');
             // }
-
+            $allDetails['invoice_id'] = $this->getInvoiceId($user->id);
             $user->programs()->attach($pop->program_id, [
                     'created_at' =>  date("Y-m-d H:i:s"),
                     't_amount' => $allDetails['amount'],
