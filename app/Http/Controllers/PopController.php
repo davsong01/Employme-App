@@ -67,7 +67,7 @@ class PopController extends Controller
         }
 
         if (isset($user) && !empty($user)) {
-            $check = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
+            $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
 
             if ($check > 0) {
                 return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');

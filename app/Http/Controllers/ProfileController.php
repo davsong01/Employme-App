@@ -81,8 +81,10 @@ class ProfileController extends Controller
         if($request['password']){
             $user->password = bcrypt($request['password']);
         };
-        if(request()->has('profile_picture')){
-            $imgName = $this->uploadImage($request->profile_picture, 'profiles', 100,100);
+       
+        if(request()->has('image')){
+           
+            $imgName = $this->uploadImage($request->image, 'profiles', 100,100);
 
             $user->profile_picture = $imgName;
         }
