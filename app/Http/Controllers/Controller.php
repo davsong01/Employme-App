@@ -404,10 +404,11 @@ class Controller extends BaseController
         }
       
         if(isset($width) && isset($height)){
-            Image::make($file)->resize(100, 100);
+            $imageFile = Image::make($file)->resize(100, 100);
         }
-
-        $file->move(public_path($folder), $imageName);
+        $imageFile->save($folder.'/' . $imageName);
+        // $file->move(public_path($folder), $imageName);
+        // $imageFile = Image::make($request->image)->resize(200, 150);
 
         return $imageName;
     }

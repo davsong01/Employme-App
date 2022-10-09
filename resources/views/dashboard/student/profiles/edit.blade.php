@@ -78,7 +78,7 @@
                                     <input type="file" name="image" value="{{ old('profile_picture') ??  $user->profile_picture }}" class="form-control">
                                     @else
                                     <label>Replace Profile Picture</label> <br>
-                                    <img src="{{ url('/').'/profiles/'.$user->profile_picture }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
+                                    <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
                                         <input type="file" name="profile_picture" value="{{ old('profile_picture') ??  $user->profile_picture }}" class="form-control">
                                     @endif
                                    

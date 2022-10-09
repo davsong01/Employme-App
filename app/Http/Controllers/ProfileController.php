@@ -36,7 +36,6 @@ class ProfileController extends Controller
     public function edit($id)
     {
         $user = User::with('trainings')->whereId($id)->first();
-
         if(Auth::user()->role_id == "Admin" && $id == Auth::user()->id){
             return view('dashboard.admin.profiles.edit', compact('user'));
         }
@@ -58,7 +57,9 @@ class ProfileController extends Controller
            
             return view('dashboard.admin.profiles.edit_facilitator', compact('programs', 'user'));
         }
+     
         elseif(Auth::user()->role_id == "Student" && $id == Auth::user()->id){
+           
             return view('dashboard.student.profiles.edit', compact('user'));
         }
         return back();
@@ -66,7 +67,6 @@ class ProfileController extends Controller
    
     public function update(Request $request, $id)
     {   
-      
         $user = auth()->user();
         
         $user->name = $request->name;
@@ -101,9 +101,9 @@ class ProfileController extends Controller
         't_phone' =>'required | numeric | min:9',
         'gender' => 'required',
         ]), function (){
-            if (request()->hasFile('file')){
+            if (request()->hasFile('profile_picture')){
                 request()->validate([
-                    'file' =>'mimes:jpeg,png,jpg|max:1000',
+                    'profile_picture' =>'mimes:jpeg,png,jpg|max:1000',
                 ]);
             }
         });
@@ -149,7 +149,5 @@ class ProfileController extends Controller
         $this->sendWelcomeMail($details, $data);
 
         return redirect(route('trainings.show', $program->id))->with('message', 'Facilitator selected succesfully');
-
     }
-    
 }

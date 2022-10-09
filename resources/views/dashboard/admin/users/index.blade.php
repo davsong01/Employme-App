@@ -36,7 +36,7 @@
                             
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                            <td> <img src="{{ url('/').'/profiles/'.$user->profile_picture }}" alt="picture" style="width: 80px;border-radius: 50%; height: 80px;"> </td> 
+                            <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td> 
 
                             <b style="display:none">{{ $count = 1 }}</b>
                             <td>
