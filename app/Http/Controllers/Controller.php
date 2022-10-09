@@ -402,7 +402,7 @@ class Controller extends BaseController
         if (!is_dir($folder)) {
             mkdir($folder);
         }
-        
+      
         if(isset($width) && isset($height)){
             Image::make($file)->resize(100, 100);
         }

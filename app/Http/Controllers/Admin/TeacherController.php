@@ -31,7 +31,7 @@ class TeacherController extends Controller
             $transactions = DB::table('program_user')->where('facilitator_id', $users->id);
             $users->students_count = $transactions->count();
             $users->earnings = $transactions->sum('facilitator_earning');
-            $users->image = (filter_var($users->profile_picture, FILTER_VALIDATE_URL) !== false) ? $users->profile_picture : url('/'). '/profiles'.'/'.$users->profile_picture;
+            $users->image = (filter_var($users->profile_picture, FILTER_VALIDATE_URL) !== false) ? $users->profile_picture : url('/'). '/avatars'.'/'.$users->profile_picture;
                 
             return $users;
         });

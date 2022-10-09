@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <img src="{{ (filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) ? Auth::user()->profile_picture : url('/'). '/profiles'.'/'.Auth::user()->profile_picture }}" class="rounded-circle" width="100"
+                                    <img src="{{ (filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) ? Auth::user()->profile_picture : url('/'). '/avatars'.'/'.Auth::user()->profile_picture }}" class="rounded-circle" width="100"
                                     height="100">
                                 </div>
                             </div>
