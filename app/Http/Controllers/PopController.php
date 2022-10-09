@@ -206,7 +206,7 @@ class PopController extends Controller
                     't_location' => $allDetails['location'],
                     'paymentStatus' => $paymentStatus,
                     'balance' => $balance,
-                    'transid' =>  $allDetails['invoice_id'],
+                    'transid' =>  $allDetails['trans_id'],
                     'invoice_id' =>  $allDetails['invoice_id'],
                     'currency' => $allDetails['currency'],
                     'currency_symbol' => $allDetails['currency_symbol'],
