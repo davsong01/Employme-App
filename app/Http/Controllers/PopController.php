@@ -154,6 +154,7 @@ class PopController extends Controller
             'currency' => $pop->currency,
             'currency_symbol' => $pop->currency_symbol,
             'date' => $pop->date,
+            'role_id' => 'Student'
         ];
         
 
@@ -190,7 +191,6 @@ class PopController extends Controller
                     't_phone' => $allDetails['phone'],
                     'password' => $allDetails['password'],
                     'role_id' => $allDetails['role_id'],
-       
                 ]); 
             }
 
