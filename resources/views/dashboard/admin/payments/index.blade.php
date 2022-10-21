@@ -29,7 +29,7 @@
                             <td>{{ $pop->program->p_name }}</td>
                             <td>{{ $pop->name }}</td>
                             <td>{{ $pop->email }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $pop->amount }}</td>
+                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($pop->amount) }}</td>
                             <td>{{ $pop->bank }}</td>
                             <td>{{ $pop->location }}</td>
                            
@@ -107,10 +107,10 @@
                             <td>
                                 <small class="training-details">
                                     <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
-                                    <strong>Paid:</strong> {{ $transaction->currency. $transaction->t_amount }}<br>  
+                                    <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}<br>  
                                     <strong>Balance:</strong>
                                          @if($transaction->paymentStatus == 0 )
-                                            <span style="color:red">{{  $transaction->currency. $transaction->balance }} </span>
+                                            <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
                                         @else
                                             <span style="color:green">{{ $transaction->currency.  $transaction->balance }}</span>
                                         @endif
