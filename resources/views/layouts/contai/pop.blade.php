@@ -110,7 +110,8 @@
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Date of payment<span>*</span></p>
-                                    <input type="date" class="form-control" name="date" id="date" value="{{ old('date') }}" required>
+                                    
+                                    <input type="date" class="form-control" name="date" id="date" value="{{ date('Y/m/d') ?? old('date')}}" required>
                                 </div>
                             </div>
                         </div>
