@@ -31,6 +31,8 @@ class CreateResultsTable extends Migration
             
             $table->integer('role_play_score')->nullable();
             $table->integer('email_test_score')->nullable();
+            $table->text('facilitator_comment')->nullable();
+            $table->text('grader_comment')->nullable();
 
             $table->timestamps();
         });

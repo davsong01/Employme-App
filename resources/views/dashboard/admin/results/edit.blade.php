@@ -39,11 +39,12 @@
                             <div class="col-md-6">
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                <h6 style="color:red">Add Email score here</h6>
-                               <div class="form-group">
+                                <div class="form-group">
                                     <label>Email Score* <span style="color:green">(Max score = {{$program->scoresettings->email }})</span></label>
                                     <input type="number" name="emailscore" value="{{ old('emailscore') ?? $details['email_test_score'] }}" class="form-control"
                                         min="0" max="{{$program->scoresettings->email }}">
                                 </div>
+                               
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                                 @endif
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
@@ -91,6 +92,20 @@
                                 </div>
                                 @else
                                 <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
+                                @endif
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                                <div class="form-group">
+                                    <label>Grader Comment(Optional) </label>
+                                    <textarea name="grader_comment" class="form-control" id="" cols="30" rows="10" value="{{ old('grader_comment') ?? $details['grader_comment'] }}">{{ old('grader_comment') ?? $details['grader_comment'] }}</textarea>
+                                   
+                                </div>
+                                @endif
+                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                                <div class="form-group">
+                                    <label>Facilitator Comment(Optional) </label>
+                                    <textarea name="facilitator_comment" class="form-control" id="" cols="30" rows="10" value="{{ old('facilitator_comment') ?? $details['facilitator_comment'] }}">{{ old('facilitator_comment') ?? $details['facilitator_comment'] }}</textarea>
+                                   
+                                </div>
                                 @endif
                             </div>
                         </div>

@@ -75,8 +75,16 @@
                             <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                 @if($result->module->type == 'Certification Test')
                                     {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                    @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
+                                        <br>
+                                        <a style="width: auto;" href="{{ route('tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
+                                            class="btn m-t-20 btn-info btn-block waves-effect waves-light">
+                                            <i class="fa fa-eye"></i>View Comments
+                                        </a>
+                                    @else
+                                    <p class="text-white" style="font-style:italic;padding-bottom: 40px;">&nbsp </p>
+                                    @endif
                                 @endif
-                                 <p class="text-white" style="font-style:italic">&nbsp </p>
                         </div>
                     </div>
                 </div>
@@ -113,4 +121,27 @@
         </div>
         @endif
     @endif
+
+    <!-- BEGIN MODAL -->
+    <div class="modal" id="comments">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><strong>Result Comments</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    @if(isset($result->grader_comment) && !empty($result->grader_comment))
+                    {!! $result->grader_comment !!}
+                    @endif
+                    @if(isset($result->facilitator_comment) && !empty($result->facilitator_comment))
+                    {!! $result->facilitator_comment !!}
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     @endsection

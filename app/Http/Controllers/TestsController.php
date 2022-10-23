@@ -179,7 +179,6 @@ class TestsController extends Controller
 
                 //Check if user has taken pre tests and return back if otherwise
                 if($program->hasmock == 1){
- 
                     $expected_pre_class_tests = Module::ClassTests($program->id)->count();
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
                     
@@ -197,11 +196,11 @@ class TestsController extends Controller
             foreach($results as $result){
                 $result['certification_test_score'] =  $cert_score;
             }
-            
+           
             $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();    
        
             return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results', 'hasmock') );
-          }
+        }
     }
 
 
@@ -232,7 +231,12 @@ class TestsController extends Controller
         }
     }
 
-    
+    public function userResultComments(Request $request, $id){
+        $comments = Result::where('id',$id)->first();
+        $program = Program::find($request->p_id);
+        return view('dashboard.student.tests.result_comments',compact('comments','id','program'));
+    }
+
     public function edit($id)
     {
         //

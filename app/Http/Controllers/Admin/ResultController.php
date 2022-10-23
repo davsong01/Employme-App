@@ -255,7 +255,7 @@ class ResultController extends Controller
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
 
         $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-
+       
         $i = 1;
         $details['certification_score'] = 0;
         $details['email_test_score'] = 0;
@@ -269,6 +269,8 @@ class ResultController extends Controller
             $details['role_play_score'] = $results->role_play_score +  $details['role_play_score'];
             $results['module_title'] = $results->module->title;
             $details['user_name'] = $results->user->name;
+            $details['grader_comment'] = $results->grader_comment;
+            $details['facilitator_comment'] = $results->facilitator_comment;
             $details['allow_editing'] = 1;
 
             $questions = json_decode($results->certification_test_details, true);
@@ -410,7 +412,6 @@ class ResultController extends Controller
     
     public function update(Result $result, Request $request)
     { 
-        
         try{
             if(Auth::user()->role_id == 'Facilitator'){
                 $result->marked_by = Auth::user()->name;
@@ -421,14 +422,20 @@ class ResultController extends Controller
                 $result->certification_test_score = $request->certification_score;
                 $result->grader = Auth::user()->name;
                 $result->email_test_score = $request->emailscore;
-                
+                $result->grader_comment = $request->grader_comment;
+                $result->grader_comment = $request->grader_comment;
             }
             
             if(Auth::user()->role_id == 'Admin'){
                 $result->role_play_score = $request->roleplayscore;
                 $result->email_test_score = $request->emailscore;
                 $result->certification_test_score = $request->certification_score;
+                $result->grader_comment = $request->grader_comment;
+                $result->facilitator_comment = $request->facilitator_comment;
+
+
             }
+
 
             $result->save();
 

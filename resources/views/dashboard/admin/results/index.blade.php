@@ -11,16 +11,7 @@
                     <div>
                         <h5 class="card-title"> All Results for: {{ $program_name }} </h5><br>
                         <button class="btn btn-success" id="csv">Export Results</button>
-                        {{-- <form id="waacsp" action="{{ route('send.waacsp')}}" class="btn btn-success" method="POST">
-                            {{ csrf_field() }}
-                        <input type="hidden" id="participants" name="participants" value="{{ $users }}">
-                        <input type="hidden" name="passmark" id="passmark" value="{{  $passmark }}">
-                        <input type="hidden" name="training" id="training" value="{{ $program_name }}">
-                        <input type="hidden" name="email" id="email" value="{{ \App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL')}}">
-                        <input type="hidden" name="token" id="token" value="{{ \App\Settings::select('token')->first()->value('token')}}">
-                        <button type="submit" class="btn btn-primary">Send to WAACSP</button>
-                        </form> --}}
-                        
+                      
                     </div>
                 </div>
             </div>
@@ -30,14 +21,6 @@
                         <tr>
                             <th>S/N</th>
                             <th>Details</th>
-                            {{-- @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Cert. Score</th>@endif
-                            @if(auth()->user()->role_id == 'Admin')<th>C.T. Score</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>R. Play Score</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Email Score</th>@endif
-                            <th>Passmark</th>
-                            @if(auth()->user()->role_id == 'Admin')<th>T. Score</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>Facilitator</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>Grader</th>@endif --}}
                             <th>Scores</th>
                             <th>Passmark</th>
                             @if(auth()->user()->role_id == 'Admin')<th>Total</th>@endif
