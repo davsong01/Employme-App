@@ -12,13 +12,12 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Training</th>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>Customer details</th>
+                            <th>Training details</th>
                             <th>Amount Paid</th>
                             <th>Bank</th> 
                             <th>Location</th>
-                            <th>Manage</th>       
+                            <th>Actions</th>       
                         </tr>
                     </thead>
                     
@@ -26,9 +25,11 @@
                         @foreach($pops as $pop)
                         <tr>
                             <td>{{ $pop->date }}</td>
+                            <td>{{ $pop->name }} <br>
+                                {{ $pop->email }} <br>
+                                {{ $pop->phone }} 
+                            </td>
                             <td>{{ $pop->program->p_name }}</td>
-                            <td>{{ $pop->name }}</td>
-                            <td>{{ $pop->email }}</td>
                             <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($pop->amount) }}</td>
                             <td>{{ $pop->bank }}</td>
                             <td>{{ $pop->location }}</td>
@@ -95,7 +96,7 @@
                             <th>Customer details</th>
                             <th>Training details</th>
                             <th>Payment details</th>
-                            <th>Manage</th>       
+                            <th>Actions</th>       
                         </tr>
                     </thead>
                     
@@ -109,7 +110,7 @@
                                     <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
                                     <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}<br>  
                                     <strong>Balance:</strong>
-                                         @if($transaction->paymentStatus == 0 )
+                                         @if($transaction->balance > 0 )
                                             <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
                                         @else
                                             <span style="color:green">{{ $transaction->currency.  $transaction->balance }}</span>

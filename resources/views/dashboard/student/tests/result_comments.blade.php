@@ -14,7 +14,6 @@
                        
                         <p>
                         {!! $comments->facilitator_comment !!}
-
                         </p>
                         <hr>
                         @endif

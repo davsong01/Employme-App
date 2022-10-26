@@ -172,6 +172,7 @@ class Controller extends BaseController
                     'amount' =>  $request['amount'],
                     'transid' =>  $request->transid,
                     'payment_mode' => $payment_mode,
+                    'phone' => $request->phone,
                     'location' => $request->location ?? NULL
                 ]);
             } else {
@@ -186,6 +187,7 @@ class Controller extends BaseController
                         'transid' =>  $request->transid,
                         'payment_mode' => $payment_mode,
                         'name' => $request->name,
+                        'phone' => $request->phone,
                         'location' => $request->location ?? NULL
                     ]);
                 } catch (\Throwable $th) {
@@ -264,6 +266,7 @@ class Controller extends BaseController
         $data['name'] = $paymentDetails->name;
         $data['email'] = $paymentDetails->email;
         $data['phone'] = $paymentDetails->phone;
+        $data['t_phone'] = $paymentDetails->phone;
 
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
@@ -298,8 +301,14 @@ class Controller extends BaseController
 
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
-        $user = User::where('email', $data['email'])->first();
-        
+        // $user = User::where('email', $data['email'])->first();
+        $user = User::updateOrCreate(['email' => $data['email']], [
+            'name' => $data['name'],
+            't_phone' => $data['t_phone'],
+            'password' => $data['password'],
+            'role_id' => $data['role_id'],
+        ]); 
+       
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
         $data['coupon_code'] = NULL;
@@ -317,24 +326,23 @@ class Controller extends BaseController
         $data['tech_earning'] = $earnings['tech'];
         $data['faculty_earning'] = $earnings['faculty'];
         $data['other_earning'] = $earnings['other'];
-       
-        // if user doesnt exist, create new user and attach program
-        if (!isset($user)) {
-            //save to database
-            $user = User::updateOrCreate([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                't_phone' => $data['phone'],
-                'password' => $data['password'],
-                'role_id' => $data['role_id'],
-            ]); 
-        }
 
+        // if user doesnt exist, create new user and attach program
+        // if (!isset($user)) {
+        //     //save to database
+        //     $user = User::updateOrCreate(['email' => $data['email']],[
+        //         'name' => $data['name'],
+        //         't_phone' => $data['t_phone'],
+        //         'password' => $data['password'],
+        //         'role_id' => $data['role_id'],
+        //     ]); 
+        // }
+       
         $data['invoice_id'] = $this->getInvoiceId($user->id);
      
         //If program id is not in array of user program, attach program
         $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
-        
+       
         if( $userPrograms < 1){
             // Attach program
             $user->programs()->attach( $data['program_id'], [
@@ -362,6 +370,7 @@ class Controller extends BaseController
                 
             ] );
         } 
+       
         else{
             $data['user_id'] = $user->id;
             
