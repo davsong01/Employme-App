@@ -130,7 +130,7 @@
                             <input type="hidden" name="currency" value="{{  $currency }}">
                             <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}"> 
                                                         
-                            <div class="d-lg-flex justify-content-center align-items-start flex-column d-none">
+                            <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             <h4 class="">Choose payment method</h4>
                             <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                                 @foreach($payment_modes as $mode)
