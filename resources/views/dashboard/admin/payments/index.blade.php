@@ -23,14 +23,19 @@
                     
                     <tbody>
                         @foreach($pops as $pop)
+                     
                         <tr>
                             <td>{{ $pop->date }}</td>
                             <td>{{ $pop->name }} <br>
                                 {{ $pop->email }} <br>
                                 {{ $pop->phone }} 
                             </td>
-                            <td>{{ $pop->program->p_name }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($pop->amount) }}</td>
+                            <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
+                            @if(isset($pop->is_fresh)) <br>
+                            <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
+                            @endif
+                            </td>
+                            <td>{{ number_format($pop->amount) }}</td>
                             <td>{{ $pop->bank }}</td>
                             <td>{{ $pop->location }}</td>
                            
@@ -102,7 +107,7 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
-                        
+                      
                         <tr>
                             <td>{{ $transaction->name ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }}  </td>
                             <td>
@@ -113,7 +118,7 @@
                                          @if($transaction->balance > 0 )
                                             <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
                                         @else
-                                            <span style="color:green">{{ $transaction->currency.  $transaction->balance }}</span>
+                                            <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
                                         @endif
                                     <br>      
                                     <strong>Bank: </strong>{{ $transaction->t_type }} <br>
@@ -125,7 +130,13 @@
                             <td>
                                 <small class="id-details">
                                     <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
-                                    <strong>Transaction ID:</strong> {{ $transaction->transid }} <br>
+                                    <strong>Transaction ID:</strong> {{ $transaction->transid }} 
+                                    @if(isset($transaction->balance_amount_paid))
+                                    <br>
+                                    <strong>Last Balance Paid:</strong> {{ $transaction->currency_symbol.number_format($transaction->balance_amount_paid) }} <br>
+                                    <strong>Paid At:</strong> {{ $transaction->balance_paid }} 
+                                    @endif
+                                    <br>
                                     <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
                                      <strong>Type: </strong>{{ $transaction->t_type }} <br>
                                     <strong>Currency: </strong>{{ $transaction->currency }}

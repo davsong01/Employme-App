@@ -64,8 +64,6 @@ Route::get('view/pop/{filename}', 'PopController@getfile');
 Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::resource('settings', 'SettingsController');
 
-
-
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 

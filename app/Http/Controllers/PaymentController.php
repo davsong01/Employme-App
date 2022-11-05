@@ -216,7 +216,7 @@ class PaymentController extends Controller
                 $status = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->verify($reference, $mode, $temp);
             }
         }
-       
+        
         if (isset($status) && $status == 'success') {
             return $status;
         }else{
@@ -242,7 +242,7 @@ class PaymentController extends Controller
         if($status == 'success'){
             if ($balance_payment) {
                 $data['type'] = 'balance';
-                
+               
                 $data['currency_symbol'] = $balance_payment->currency_symbol;
                 $data['amount'] = $balance_payment->balance;
                 $data['email'] = User::whereId($balance_payment->user_id)->value('email');
@@ -253,7 +253,8 @@ class PaymentController extends Controller
                     'paymentStatus' => 1,
                     'paymentType' => 'Full',
                     't_amount' => $balance_payment->t_amount + $balance_payment->balance,
-                    'balance_paid' => now(),
+                    'balance_paid' => $balance_payment->balance,
+                    'balance_amount_paid' => now(),
                 ]);
                
                 $this->sendWelcomeMail($data);

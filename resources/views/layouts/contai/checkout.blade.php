@@ -144,7 +144,7 @@
                                 {{-- <input class="mr-1 mb-1 pay-option" style="width:160px;border:0px;border-radius:10px;height:65px;background-image:url('paymentmodes/walletcard.jpeg');background-position: center;background-repeat: no-repeat;background-size: cover;" type="submit" name="submit" value="" id="payment_mode" alt="Submit"> --}}
                             </div>
                             <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                                
+                            
                             </div>
                         </div>
                     </div>

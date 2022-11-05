@@ -200,7 +200,7 @@ class PaymentController extends Controller
      
         //check amount against payment
         $programFee = $request->program_amount;
-
+        
         $newamount = $transaction->t_amount + $request->amount;
         if($newamount > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
@@ -212,7 +212,6 @@ class PaymentController extends Controller
         
         //update the program table here @ column fully paid or partly paid
         
-
         DB::table('program_user')->whereId($transaction->id)->update([
             't_amount' => $newamount,
            'balance' => $balance,
