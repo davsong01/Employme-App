@@ -99,7 +99,7 @@ class PopController extends Controller
                 'program_id' =>  $data['training'],
                 'currency' =>  $data['currency'],
                 'currency_symbol' =>  $data['currency_symbol'],
-                'is_fresh' =>  $type,
+                'is_fresh' =>  $type??null,
                 'date' =>  $date,
                 'file' => $filePath,
             ]);
@@ -112,7 +112,8 @@ class PopController extends Controller
             Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
         }catch(\Exception $e) {
-            return back()->with('error', $e->getMessage());
+            // dd($e->getMessage());
+            // return back()->with('error', $e->getMessage());
         }
         
         //Send mail to admin
@@ -255,7 +256,7 @@ class PopController extends Controller
     }
 
     public function updateOrCreateTransaction($user, $allDetails){
-        
+       
         if(isset($allDetails['existingTransaction'])){
             $existingTransaction = DB::table('program_user')->where('id',$allDetails['existingTransaction']->id)
                 ->update([
@@ -313,7 +314,16 @@ class PopController extends Controller
     }
 
     public function getExistingTransactionAndBalance($pop){
-        $existingTransactions = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->first();
+        if(isset($pop->user->id)){
+            $existingTransactions = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->first();
+        }else{
+            return [
+                'balance' => 0,
+                'transaction' => null,
+            ];
+
+        }
+
         $programAmount = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;      
       
         if(isset($existingTransactions) && !empty($existingTransactions)){
