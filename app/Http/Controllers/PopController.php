@@ -80,11 +80,11 @@ class PopController extends Controller
         if(isset($user) && !empty($user)){
             $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']]);
             $check = $validate->where('balance', '<', 1)->count();
-            $type = $validate->count() > 0 ? 'Fresh Payment' : null;
-
             if ($check > 0) {
                 return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
             }
+        }else{
+            $type = 'Fresh Payment' ?? null;
         }
        
         try{
