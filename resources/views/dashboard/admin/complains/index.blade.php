@@ -72,7 +72,9 @@
                     <tbody>
                         @foreach($complains as $complain)
                         <tr>
-                            <td>EMPL000{{ $complain->id}}</td>
+                            <td>EMPL000{{ $complain->id}} <br>
+                                <small>{{ $complain->program->name ?? '' }}</small>
+                            </td>
                             <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span></td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
