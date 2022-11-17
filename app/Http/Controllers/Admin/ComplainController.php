@@ -33,15 +33,15 @@ class ComplainController extends Controller
             }else{
                 $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
 
-                foreach($complains as $c){
-                    $check = \DB::table('program_user')->where('user_id', $c->user_id)->first();
-                    if($check){
-                        $c->update([
-                            'program_id'=> $check->program_id,
-                        ]);
-                    }
+                // foreach($complains as $c){
+                //     $check = \DB::table('program_user')->where('user_id', $c->user_id)->first();
+                //     if($check){
+                //         $c->update([
+                //             'program_id'=> $check->program_id,
+                //         ]);
+                //     }
                   
-                }
+                // }
                 $resolvedComplains =  Complain::where('status', '=', 'Resolved')->count();
                 $pendingComplains =  Complain::where('status', '=', 'Pending')->count();
                 $InProgressComplains =  Complain::where('status', '=', 'In Progress')->count();  

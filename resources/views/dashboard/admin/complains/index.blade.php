@@ -73,9 +73,13 @@
                         @foreach($complains as $complain)
                         <tr>
                             <td>EMPL000{{ $complain->id}} <br>
-                                <small>{{ $complain->program->name ?? '' }}</small>
+                               
                             </td>
-                            <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span></td>
+                            <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span> <br>
+                                @if(isset($complain->program))
+                                 <small style="color:green"><strong>Training:</strong> {{ $complain->program->p_name ?? '' }}</small>
+                                 @endif
+                            </td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
