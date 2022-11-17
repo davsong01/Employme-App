@@ -121,15 +121,14 @@ class TeacherController extends Controller
             'status' => 'required',
         ]);
 
-        if(request()->has('file')){ 
-        
+        if($request->has('file')){ 
             $imgName = $request->file->getClientOriginalName();
-            
             $picture = Image::make($request->file)->resize(400, 400);
-            
             $picture->save('profiles/'.'/'.$imgName);
+        }else{
+            $imgName = null;
         }
-        
+      
         try {
             if ($data['role'] == "Facilitator" || $data['role'] == "Grader") {
                 $facilitator = User::create([
@@ -156,6 +155,7 @@ class TeacherController extends Controller
                         ]);
                     }
                 }
+                
                 return redirect(route('teachers.index'))->with('message', 'Facilitator added succesfully');
             }
 

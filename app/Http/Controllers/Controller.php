@@ -36,7 +36,11 @@ class Controller extends BaseController
     protected function getInvoiceId($id)
     {
         date_default_timezone_set("Africa/Lagos");
-        $invoice_id = date("YmdHi") . '-' . $id . '-' . rand(10000, 99999);
+        if(isset($id) && !empty($id)){
+            $invoice_id = date("YmdHi") . '-' . $id . '-' . rand(10000, 99999);
+        }else{
+            $invoice_id = date("YmdHi") . '-' . rand(10000, 99999);
+        }
         return $invoice_id;
     }
     

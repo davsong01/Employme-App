@@ -208,7 +208,7 @@ class PopController extends Controller
             $allDetails['location'] = $pop->location;
             $allDetails['bookingForm'] = $pop->program->booking_form;
             $allDetails['programEarlyBird'] = $pop->program->e_amount;
-            $allDetails['invoice_id'] =  $this->getInvoiceId($pop->user_id);
+            $allDetails['invoice_id'] =  $this->getInvoiceId($pop->user->id ?? null);
             $allDetails['location'] = $pop->location;
             $allDetails['name'] = $pop->name;
             $allDetails['email'] = $pop->email;

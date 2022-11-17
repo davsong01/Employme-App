@@ -159,9 +159,9 @@
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://127.0.0.1:8000/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
+    src = "{{ env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
     token = "{{ \App\Settings::value('token') }}";
-
+    
     function myFunction() {
         $.ajax({
             url: src,

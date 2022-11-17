@@ -211,10 +211,9 @@ class PaymentController extends Controller
         $paymentStatus =  $this->paymentStatus($balance);
         
         //update the program table here @ column fully paid or partly paid
-        
         DB::table('program_user')->whereId($transaction->id)->update([
             't_amount' => $newamount,
-           'balance' => $balance,
+            'balance' => $balance,
             't_type' => $request['bank'],
             't_location' => $request['location'],
             'transid' => $request['transaction_id'],
