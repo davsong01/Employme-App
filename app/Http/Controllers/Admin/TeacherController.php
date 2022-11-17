@@ -120,6 +120,11 @@ class TeacherController extends Controller
             'off_season_availability' => 'nullable',
             'status' => 'required',
         ]);
+        if (isset($request->password) && !empty($request->password)) { 
+            $password = $data['password'];
+        }else{
+            $password = 12345;
+        }
 
         if($request->has('file')){ 
             $imgName = $request->file->getClientOriginalName();
@@ -139,7 +144,7 @@ class TeacherController extends Controller
                     'off_season_availability' => $data['off_season_availability'],
                     'profile_picture' => $data['picture'] ?? $imgName,
                     'license' => $data['license'],
-                    'password' => bcrypt($data['password']),
+                    'password' => bcrypt($password),
                     'role_id' => $data['role'],
                     'status' => $data['status'],
                     'payment_mode' => $data['payment_mode'],

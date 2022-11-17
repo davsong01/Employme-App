@@ -15,15 +15,29 @@ class ComplainController extends Controller
     public function index(Request $request)
     {
         $i = 1;
+        
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             $i = 1;  
+            if(Auth::user()->role_id == "Facilitator"){
+                $trainings = auth()->user()->trainings;
+                if(isset($trainings) && !empty($trainings)){
+                    $trainings = array_column($trainings->toArray(),'program_id');
+                }else{
+                    $trainings = [];
+                }
 
-            $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
-            
-            $resolvedComplains =  Complain::where('status', '=', 'Resolved' )->count();
-            $pendingComplains =  Complain::where('status', '=', 'Pending' )->count(); 
-            $InProgressComplains =  Complain::where('status', '=', 'In Progress' )->count();  
-            //   dd( $complains);
+                $complains = Complain::with('user')->whereIn('program_id',$trainings)->orderBy('user_id', 'DESC')->get();
+                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->whereIn('program_id', $trainings)->count();
+                $pendingComplains =  Complain::where('status', '=', 'Pending')->whereIn('program_id', $trainings)->count();
+                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->whereIn('program_id', $trainings)->count();  
+            }else{
+                $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
+                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->count();
+                $pendingComplains =  Complain::where('status', '=', 'Pending')->count();
+                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->count();  
+
+            }
+           
             return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
         }elseif(Auth::user()->role_id == "Student"){  
 

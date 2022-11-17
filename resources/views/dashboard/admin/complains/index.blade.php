@@ -73,7 +73,7 @@
                         @foreach($complains as $complain)
                         <tr>
                             <td>EMPL000{{ $complain->id}}</td>
-                            <td>{{ $complain->user->name }} <span style="color:blue">({{ $complain->user->responseStatus }}% Response Rate)</span></td>
+                            <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span></td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
@@ -89,6 +89,7 @@
                                             class="btn btn-success" href="{{route('crm.resolved', $complain->id)}}"><i
                                                 class="fa fa-check"></i></a>
                                     @endif
+                                    @if(Auth::user()->role_id == "Admin")
                                         <form action="{{ route('complains.destroy', $complain->id)}}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
@@ -98,6 +99,7 @@
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr> @endforeach
