@@ -90,7 +90,7 @@ class ComplainController extends Controller
             'priority' => 'required',
             'status' => 'required',
             'gender' => 'required',
-            'teamlead' => 'required',
+            'teamlead' => 'nullable',
             'complain' => 'required',
             'other' => 'nullable',
             'response' => 'nullable',
