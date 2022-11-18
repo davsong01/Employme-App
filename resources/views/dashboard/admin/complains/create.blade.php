@@ -10,6 +10,7 @@
                             @include('layouts.partials.alerts')
                         </div>
                         <form action="{{route('complains.store')}}" method="POST" class="pb-2">
+                            {{ csrf_field() }}
                             <div class="row">
                                 <div class="col-md-12 mb-2">
                                     <h4 style="text-align: center; color: blue">Customer Personal Details</h4>
@@ -166,7 +167,7 @@
                                     <div class="form-group{{ $errors->has('other') ? ' has-error' : '' }}">
                                         <label for="other">Other Details</label>
                                         <input id="other" type="text" class="form-control" name="other"
-                                            value="{{ old('other')}}" autofocus required>
+                                            value="{{ old('other')}}" autofocus>
                                         @if ($errors->has('other'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('name') }}</strong>
@@ -266,6 +267,7 @@
                                     </div>
                                 </div> 
                             </div>
+                            <input type="hidden" name="program_id" value="{{ $program->id }}">
                             {{-- @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
                             <div class="row">
                                 <div class="col-md-12">
@@ -289,7 +291,7 @@
                                 </button>
                             </div>
                         </form>
-                        {{ csrf_field() }}
+                       
                     </div>
                 </div>
             </div>

@@ -77,7 +77,6 @@ class ComplainController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $data = request()->validate([
             'name' => 'required|min:5|max:50',
             'email' => 'required',
@@ -93,11 +92,12 @@ class ComplainController extends Controller
             'gender' => 'required',
             'teamlead' => 'required',
             'complain' => 'required',
-            'other' => 'sometimes',
-            'response' => 'sometimes',
-            'notes' => 'sometimes',
+            'other' => 'nullable',
+            'response' => 'nullable',
+            'notes' => 'nullable',
+            'program_id' => 'nullable',
         ]);
-           
+      
         if(!empty($data['notes'])){
             $data['notes'] =  $data['notes'];
         }else{
@@ -107,8 +107,9 @@ class ComplainController extends Controller
         if($data['type'] == "Enquiry"){
             $sla = 0;
         }else $sla = rand(4, 6);
-
-        Complain::create([
+        // dd($request->all(), $request->program_id);
+       
+        $query = Complain::create([
             'user_id' => Auth::user()->id,
             'name' => $data['name'],
             'address' => $data['address'],
@@ -127,9 +128,11 @@ class ComplainController extends Controller
             'notes' => $data['notes'],
             'content' => $data['complain'],
             'response' => $data['response'],
+            'program_id' => $data['response'],
             'sla' => $sla,
-        ]);
+            'program_id' =>  $data['program_id'],
 
+        ]);
         return back()->with('message', 'CRM has been created succesfully');
     }
 
