@@ -231,7 +231,7 @@
                                     <div class="form-group{{ $errors->has('teamlead') ? ' has-error' : '' }}">
                                         <label for="teamlead">Team Lead</label>
                                         <input id="teamlead" type="text" class="form-control" name="teamlead"
-                                            value="{{ old('teamlead') }}" autofocus required>
+                                            value="{{ old('teamlead') }}" autofocus>
                                         @if ($errors->has('teamlead'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('teamlead') }}</strong>
