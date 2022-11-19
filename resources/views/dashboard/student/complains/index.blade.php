@@ -94,7 +94,7 @@
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                             <td>
                                 <div class="btn-group">
-                                <a data-toggle="tooltip" data-placement="top" title="View Complain" class="btn btn-info" href="{{route('complains.edit', ['id' =>$complain->id, 'p_id'=>$program])}}"><i class="fa fa-eye"  ></i></a>             
+                                <a class="btn btn-info" href="{{route('complains.edit', ['id' =>$complain->id, 'p_id'=>$program])}}"><i class="fa fa-eye"> View</i></a>             
                                 </div>
                             </td>
                         </tr>

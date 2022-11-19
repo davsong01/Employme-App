@@ -86,14 +86,12 @@
                             <td>
                                 <div class="btn-group">
 
-                                    <a data-toggle="tooltip" data-placement="top" title="View Query"
-                                        class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
-                                            class="fa fa-eye"></i></a>
-
+                                    <a class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
+                                            class="fa fa-eye"></i> View</a>
                                     @if($complain->status <> 'Resolved')
-                                        <a data-toggle="tooltip" data-placement="top" title="Mark as Resolved"
+                                        <a 
                                             class="btn btn-success" href="{{route('crm.resolved', $complain->id)}}"><i
-                                                class="fa fa-check"></i></a>
+                                                class="fa fa-check"></i> Resolve</a>
                                     @endif
                                     @if(Auth::user()->role_id == "Admin")
                                         <form action="{{ route('complains.destroy', $complain->id)}}" method="POST" onsubmit="return confirm('Are you really sure?');">

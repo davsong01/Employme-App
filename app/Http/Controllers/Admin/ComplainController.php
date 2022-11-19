@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\User;
 use App\Program;
 use App\Complain;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
@@ -65,11 +66,24 @@ class ComplainController extends Controller
 
     public function create(Request $request)
     {
-          if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
-            return view('dashboard.admin.complains.create')->with('extend', 'dashboard.admin.index');
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+            if (Auth::user()->role_id == "Facilitator") {
+                $programs = Auth::user()->trainings;
+                $programs = $programs->map(function($q){
+                    $q->p_name = Program::where('id', $q->program_id)->value('p_name');
+                    return $q;
+                });
+            } else {
+                $programs = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
+            }
+            $program = '';
+            
+            return view('dashboard.admin.complains.create')
+                ->with('extend', 'dashboard.admin.index')
+                ->with('programs', $programs);
 
-    }elseif(Auth::user()->role_id == "Student"){
-        $program = Program::find($request->p_id); 
+        }elseif(Auth::user()->role_id == "Student"){
+            $program = Program::find($request->p_id); 
 
         return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
 } return back();
@@ -97,7 +111,7 @@ class ComplainController extends Controller
             'notes' => 'nullable',
             'program_id' => 'nullable',
         ]);
-      
+        // dd($data);
         if(!empty($data['notes'])){
             $data['notes'] =  $data['notes'];
         }else{
