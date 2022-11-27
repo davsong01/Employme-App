@@ -174,7 +174,7 @@
                                         <label class="training">Select Training(s)</label>
                                         <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
                                         @foreach($allprograms as $allprogram)
-                                             <option value="{{ $allprogram->id }}" {{ in_array($allprogram->id, $user->trainings->pluck('program_id')->toArray()) ? 'selected' : ''}} >{{ $allprogram->p_name . $allprogram->id }}</option>
+                                             <option value="{{ $allprogram->id }}" {{ in_array($allprogram->id, $user->trainings->pluck('program_id')->toArray()) ? 'selected' : ''}} >{{ $allprogram->p_name }}</option>
                                         @endforeach
                                         </select>
                                     <div>
