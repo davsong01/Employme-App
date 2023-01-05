@@ -4,8 +4,8 @@ namespace App\Http\Controllers\PaymentProcessor;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
 
 class PaystackController extends Controller
 {
@@ -14,12 +14,15 @@ class PaystackController extends Controller
             $request['transid'] = $this->getReference('PYSTK');
             $request['invoice_id'] = $data->invoice_id;
             DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
-        }else{ 
+        }else{
             $request['transid'] = $this->getReference('PYSTK');
-            $this->createTempDetails($request, $mode->id);
+            app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
         }
         
         $url = "https://api.paystack.co/transaction/initialize";
+        // Convert amount using payment mode exchange rate
+        
+        $request['amount'] = $request->amount * $mode->exchange_rate;
        
         $fields = [
             'email' => $request->email,
@@ -28,7 +31,7 @@ class PaystackController extends Controller
             'callback_url' => url('/'). '/payment/callback',
             'currency'=>$mode->currency,
         ];
-       
+        
         $fields_string = http_build_query($fields);
         //open connection
         $ch = curl_init();
@@ -47,14 +50,14 @@ class PaystackController extends Controller
 
         $result = curl_exec($ch);
         $result = json_decode($result);
-       
-        if(isset($result) && !empty($result)){
-            // Create temp details
+        
+        try {
             return $result->data->authorization_url;
-        }else{
-            return NULL;
+        } catch (\Exception $th) {
+            \Log::error('Processor Error: '. $th->getMessage());
+            return;
         }
-       
+        
     }
 
     public function verify($reference, $mode){

@@ -362,7 +362,7 @@ class UserController extends Controller
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
                 $name = $name ?? 'Participant';
-               
+                
                 Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }

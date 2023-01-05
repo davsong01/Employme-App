@@ -85,7 +85,7 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $template = Settings::first()->templateName->name;
-
+        
         if ($request->user_program && $request->type == 'balance') {
             $data = DB::table('program_user')->find($request->user_program);
 
@@ -96,7 +96,11 @@ class PaymentController extends Controller
 
             try {
                 $url = $this->queryProcessor($request, $data);
-                return redirect()->away($url);
+                if($url){
+                    return redirect()->away($url);
+                }else{
+                    return back()->with('error', 'Something went wrong, Kindly try a different payment method!');
+                }
             } catch (\Exception $e) {
                 \Log::info($e->getMessage());
                 return abort(500);
@@ -127,7 +131,7 @@ class PaymentController extends Controller
             $type['phone'] = $request['phone'];
             
             $response = $this->verifyCoupon($request, $type['pid']);
-           
+            
             if(is_null($response)){
                 // Modify amount to suit program
                 if ($type['type'] == 'full') {
@@ -149,14 +153,14 @@ class PaymentController extends Controller
             }
 
             $request['metadata'] = $type;
-            
+           
             try{
                 $url = $this->queryProcessor($request);
                 return redirect()->away($url);
-
             }catch(\Exception $e) {
                 \Log::info($e->getMessage());
-                return abort(500);
+                
+                return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try a different payment method!');
             } 
 
         }
@@ -190,6 +194,7 @@ class PaymentController extends Controller
 
     public function queryProcessor($request,$data=null){
         $mode = PaymentMode::find($request->payment_mode);
+       
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
                 $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode, $data);
@@ -200,9 +205,8 @@ class PaymentController extends Controller
             }
         }
         // redirect away
-        if($url){
-            return $url;
-        }
+        return $url;
+        
     }
 
     public function verifyProcessor($reference, $temp){
