@@ -93,7 +93,7 @@ class PaymentController extends Controller
             $request['payment_mode'] = $data->payment_mode;
             $request['currency'] = $data->currency;
             $type['type'] = 'balance';
-
+           
             try {
                 $url = $this->queryProcessor($request, $data);
                 if($url){
@@ -122,7 +122,7 @@ class PaymentController extends Controller
         if($template == 'contai'){
             $request['amount'] = \Session::get('exchange_rate') * $request['amount'];
             $type = json_decode($request['metadata'], true);
-            
+          
             $pid = $type['pid'];
             $coupon_id = $type['coupon_id'];
             $facilitator_id = $type['facilitator'];
@@ -150,10 +150,32 @@ class PaymentController extends Controller
                 // Modify coupon_id in metadata
                 $type['coupon_id'] = $response['id'];
                 $coupon_id = $response['id'];
+
+                if($response['grand_total'] <= 0){
+                    $request->request->add(['reference' => $request->reference]);
+                    $request['transid'] = $this->getReference('PYSTK');
+                    // $request['pid'] = $this->getReference('PYSTK');
+                    // $mode = PaymentMode::find($request['payment_mode']);
+                    $metadata = json_decode($request->metadata, true);
+                    $metadata['coupon_id'] = $response['id'];
+                    $request['reference'] = $request['transid'];
+                    $request['metadata'] = $metadata;
+                    // Create temp user
+                    $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
+                    
+                    // handle gateway call back normally
+                    $req = new \App\Http\Controllers\PaymentController();
+                    $response = $req->handleGatewayCallback($request, 'zero-amount');
+                    
+                    if(Auth::user()){
+                        return redirect(url('/dashboard'));
+                    }
+                }
+
             }
 
             $request['metadata'] = $type;
-           
+          
             try{
                 $url = $this->queryProcessor($request);
                 return redirect()->away($url);
@@ -208,7 +230,7 @@ class PaymentController extends Controller
         return $url;
         
     }
-
+    
     public function verifyProcessor($reference, $temp){
         $mode = PaymentMode::find($temp->payment_mode);
        
@@ -228,21 +250,27 @@ class PaymentController extends Controller
         }
     }
 
-    public function handleGatewayCallback(Request $request)
+    public function handleGatewayCallback(Request $request, $is_zero_coupon=null)
     {
-        $balance_payment = DB::table('program_user')->where('balance_transaction_id', $request->reference)->first();
+        
+        $balance_payment = DB::table('program_user')->whereNotNull('balance_transaction_id')->where('balance_transaction_id', $request->reference)->first();
+
         if($balance_payment){
             //process as balance
             $status = $this->verifyProcessor($request->reference, $balance_payment);
         }else{
             $temp = TempTransaction::where('transid', $request->reference)->first();
+            
             if (!$temp) {
                 return redirect(route('home'));
             } else {
-                $status = $this->verifyProcessor($request->reference, $temp);
+                if(is_null($is_zero_coupon)){
+                    $status = $this->verifyProcessor($request->reference, $temp);
+                }else{
+                    $status = 'success';
+                }
             }
         }
-        
         if($status == 'success'){
             if ($balance_payment) {
                 $data['type'] = 'balance';
@@ -269,14 +297,13 @@ class PaymentController extends Controller
                 $paymentDetails = $temp;
             }
         }
-       
+        
         $template = Settings::first()->templateName->name;
         $program = Program::where('id', $paymentDetails->program_id)->first();
         
         if($template == 'contai'){
             // $temp = TempTransaction::where('email', $paymentDetails->email)->where('program_id', $paymentDetails->program_id)->first();
             if(isset($temp) && !empty($temp)){
-              
                 // Compare
                 if($temp->type == 'full'){
                     // Sort coupon
@@ -385,7 +412,6 @@ class PaymentController extends Controller
             }
             
             return redirect(route('welcome'));
-            // dd($paymentDetails, 'as');
             // Compare details with details in temp table
         }
        

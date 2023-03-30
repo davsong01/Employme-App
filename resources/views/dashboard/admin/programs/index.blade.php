@@ -42,7 +42,7 @@
                                 @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif <br>
                                 {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
                                 <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
-                                @if($program->status == 1) <br> <a href="{{ url('/trainings').'/'.$program->id }}">{{ url('/trainings').'/'.$program->id }}</a> @endif
+                                @if($program->status == 1) <br><br> <a href="{{ url('/trainings').'/'.$program->id }}">{{ url('/trainings').'/'.$program->id }}</a> @endif
 
                                     
                             </td>

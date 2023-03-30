@@ -52,7 +52,6 @@ class Controller extends BaseController
             if(isset($data['invoice_id'])){
                 $pdf = PDF::loadView('emails.receipt', compact('data'));
             }else $pdf = null;
-           
             Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         } catch(\Exception $e){
             // Get error here
@@ -87,7 +86,7 @@ class Controller extends BaseController
     }
 
     public function getCouponUsage($code, $email, $pid, $price){
-        
+       
         $coupon = Coupon::where('code', $code)->first();
         
         if(isset($coupon) && !empty($coupon)){
@@ -110,7 +109,7 @@ class Controller extends BaseController
             $coupon_amount = $coupon->amount;
             $coupon_id = $coupon->id;
             $coupon_code = $coupon->code;
-
+            
             return [
                 'amount' => $coupon_amount,
                 'id' => $coupon_id,
@@ -152,7 +151,7 @@ class Controller extends BaseController
             $verifyCoupon = $this->getCouponValue($request->coupon, $pid);
             
             if(!is_null($verifyCoupon)){
-                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, 2);
+                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $request['amount']);
             }else{
                 $response = null;
             }
@@ -160,6 +159,7 @@ class Controller extends BaseController
         }else{
             $response = null;
         }
+       
         return $response;
     }
 

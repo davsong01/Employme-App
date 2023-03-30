@@ -87,5 +87,4 @@ class PaystackController extends Controller
             return $response->data->status;
         }
     }
-
 }
