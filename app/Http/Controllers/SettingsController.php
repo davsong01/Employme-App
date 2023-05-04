@@ -73,6 +73,8 @@ class SettingsController extends Controller
             'twitter_link' => 'sometimes',
             'instagram_link' => 'sometimes',
             'phone' => 'sometimes',
+            'allow_whatsapp_chat' => 'required',
+            'allow_transfer_button' => 'required',
         ]);
 
         if($request->has('logo') && $request->file('logo')){

@@ -52,6 +52,22 @@
                                         class="form-control" required>{{ old('ADDRESS_ON_RECEIPT') ?? $setting->ADDRESS_ON_RECEIPT}}</textarea>
                                 </div>
                                 <div class="form-group">
+                                    <label>Allow Whatsapp Chat</label>
+                                    <select name="allow_whatsapp_chat" class="form-control" id="allow_whatsapp_chat" required>
+                                        <option value="" selected>Select</option>
+                                        <option value="yes" {{ $setting->allow_whatsapp_chat == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $setting->allow_whatsapp_chat == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Allow Transfer button on checkout</label>
+                                    <select name="allow_transfer_button" class="form-control" id="allow_transfer_button" required>
+                                        <option value="" selected>Select</option>
+                                        <option value="yes" {{ $setting->allow_transfer_button == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $setting->allow_transfer_button == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Facebook Link</label>
                                     <input type="text" name="facebook_link" class="form-control" value="{{ old('facebook_link') ??  $setting->facebook_link }}">
                                 </div>

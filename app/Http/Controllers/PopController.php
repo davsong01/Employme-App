@@ -53,6 +53,9 @@ class PopController extends Controller
             'file' => 'required|max:2048|image',
         ]);
         
+        // Remove data from session
+        \Session::forget(['data']);
+
         //handle file
         $file = $data['name'].'-'.date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();

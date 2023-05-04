@@ -129,7 +129,7 @@ class PaymentController extends Controller
             $request['payment_type'] = $type['type'];
             $type['name'] = $request['name'];
             $type['phone'] = $request['phone'];
-            
+           
             $response = $this->verifyCoupon($request, $type['pid']);
             
             if(is_null($response)){
@@ -174,6 +174,21 @@ class PaymentController extends Controller
 
             }
 
+            // Pay with Transfer
+            if($request->has('payment_mode') && $request->payment_mode == 0){
+                $request->request->add(['reference' => $request->reference]);
+                $request['transid'] = 'BT-'.rand(11111111,9999999);
+                $metadata = json_decode($request->metadata, true);
+                $metadata['coupon_id'] = $response['id'] ?? null;
+                $request['metadata'] = $metadata;
+                $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
+                $data = $request->all();
+                \Session::put('data', $data);
+                return redirect('pop/create');
+                
+            }
+
+            // Create temp user and redirect
             $request['metadata'] = $type;
           
             try{

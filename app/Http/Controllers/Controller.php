@@ -164,7 +164,7 @@ class Controller extends BaseController
     }
 
     public function createTempDetails($request, $payment_mode){
-       
+        
         $temp = TempTransaction::where('email', $request->email)->first();
             if (isset($temp) && !empty($temp)) {
                 $temp->update([
@@ -195,7 +195,7 @@ class Controller extends BaseController
                         'location' => $request->location ?? NULL
                     ]);
                 } catch (\Throwable $th) {
-                    return $th->getMessage();
+                    return $th->getMessage().'Line: ' .$th->getLine();
                 }
             }
         
