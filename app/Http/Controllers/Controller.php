@@ -411,6 +411,7 @@ class Controller extends BaseController
 
     public function uploadImage($file, $folder, $width=null, $height=null)
     {
+
         $imageName = uniqid(9) . '.' . $file->getClientOriginalExtension();
        
         if (!is_dir($folder)) {
@@ -421,9 +422,7 @@ class Controller extends BaseController
             $imageFile = Image::make($file)->resize(100, 100);
         }
         $imageFile->save($folder.'/' . $imageName);
-        // $file->move(public_path($folder), $imageName);
-        // $imageFile = Image::make($request->image)->resize(200, 150);
-
+    
         return $imageName;
     }
 
