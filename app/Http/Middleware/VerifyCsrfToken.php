@@ -9,11 +9,9 @@ class VerifyCsrfToken extends Middleware
     /**
      * The URIs that should be excluded from CSRF verification.
      *
-     * @var array
+     * @var array<int, string>
      */
     protected $except = [
-        'api/*',
-        'http://127.0.0.1:8000/api/verify',
-        '/validate-coupon'
+        //
     ];
 }

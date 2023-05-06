@@ -24,7 +24,7 @@ class ModuleController extends Controller
 
         if(Auth::user()->role_id == "Admin"){
              
-            $modules = Module::with( ['program', 'questions'] )->orderBy('created_at', 'DECS')->get();          
+            $modules = Module::with( ['program', 'questions'] )->orderBy('created_at', 'desc')->get();          
             $questions_count = Question::all()->count();
             
             $programs_with_modules = Program::whereHas('modules', function ($query) {
@@ -54,7 +54,7 @@ class ModuleController extends Controller
         $i = 1;  
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Grader"){
             $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'DECS')->get();          
+            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
             $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
             
             return view('dashboard.admin.modules.show', compact('program_name', 'p_id', 'modules', 'i', 'questions_count'));
@@ -63,7 +63,7 @@ class ModuleController extends Controller
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){ 
 
            $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'DECS')->get();          
+            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
             $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
           
             return view('dashboard.teacher.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));

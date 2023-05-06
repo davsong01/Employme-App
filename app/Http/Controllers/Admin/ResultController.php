@@ -60,7 +60,7 @@ class ResultController extends Controller
     public function getgrades(Request $request, $id)
     {
         
-        $request->pid = $id;
+        $request['pid'] = $id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
             
@@ -85,7 +85,6 @@ class ResultController extends Controller
                     $score_settings = ScoreSetting::select(['class_test', 'passmark'])->whereProgramId($request->pid)->first();
                     $user->program_ct_score_settings = $score_settings->class_test;
                     $user->passmark = $score_settings->passmark;
-                    $user->result_id = 0;
 
                     $userdetails = User::find($user->user_id);
                     $user->name = $userdetails->name ?? NULL;
@@ -129,7 +128,7 @@ class ResultController extends Controller
                             $user->marked_by = $result->marked_by;
                             $user->grader = $result->grader;
                             $user->result_id = $result->id;
-                          
+                            $user->redo_test = $result->redo_test;
                         }
                           
                     }
@@ -137,10 +136,12 @@ class ResultController extends Controller
                         $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
                     }     
             }
-            $program_name = Program::whereId($request->pid)->value('p_name');
-            $passmark = $score_settings->passmark;
+            $program = Program::whereId($request->pid)->first();
+            $program_name = $program->p_name;
+            $pid = $program->id;
+            $passmark = '';
             
-            return view('dashboard.admin.results.index', compact('passmark', 'users', 'i', 'program_name') );
+            return view('dashboard.admin.results.index', compact('passmark', 'users', 'i', 'program_name','pid') );
         }
             
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
@@ -252,10 +253,12 @@ class ResultController extends Controller
 
     public function add(Request $request, $uid, $modid){
         $result_id = $modid;
+     
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
 
-        $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-       
+        // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
+        $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
+      
         $i = 1;
         $details['certification_score'] = 0;
         $details['email_test_score'] = 0;
@@ -274,23 +277,23 @@ class ResultController extends Controller
             $details['allow_editing'] = 1;
 
             $questions = json_decode($results->certification_test_details, true);
+            
                 if(!$questions){
                     $results['title'] = 'User is re-writing test';
                     $results['answer'] = 'User is re-writing test';
-                   
+                }else{
+                    foreach($questions as $key=>$value){
+                        $results['title'] = Question::whereId($key)->value('title');
+                        $results['answer'] = $value;
+                    }
                 }
-                foreach($questions as $key=>$value){
-                    $results['title'] = Question::whereId($key)->value('title');
-                    $results['answer'] = $value;
-                   
-                }
+
 
                 unset($results['certification_test_details']);
                 unset($results['certification_test_score']);
                 unset($results['role_play_score']);
                 unset($results['email_test_score']);
         }
-
         return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details'));
     }
     

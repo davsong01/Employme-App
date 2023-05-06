@@ -38,18 +38,19 @@ class HomeController extends Controller
             
             $events = [];
             $data = Program::all();
-            if($data->count()){
-                foreach ($data as $key => $value) {
-                    $events[] = Calendar::event(
-                        $value->p_name,
-                        true,
-                        new \DateTime($value->p_start),
-                        new \DateTime($value->p_end.' +1 day')
-                    );
-                }
-            }
+            // if($data->count()){
+            //     foreach ($data as $key => $value) {
+            //         $events[] = Calendar::event(
+            //             $value->p_name,
+            //             true,
+            //             new \DateTime($value->p_start),
+            //             new \DateTime($value->p_end.' +1 day')
+            //         );
+            //     }
+            // }
 
-            $calendar = Calendar::addEvents($events);
+            // $calendar = Calendar::addEvents($events);
+            $calendar = [];
 
             //Get all Programs
             $programCount = Program::where('id', '<>', 1)->count();
@@ -83,18 +84,18 @@ class HomeController extends Controller
 
             $events = [];
             $data = Program::all();
-            if($data->count()){
-            foreach ($data as $key => $value) {
-                $events[] = Calendar::event(
-                    $value->p_name,
-                    true,
-                    new \DateTime($value->p_start),
-                    new \DateTime($value->p_end.' +1 day')
-                );
-            }
-            }
+            // if($data->count()){
+            // foreach ($data as $key => $value) {
+            //     $events[] = Calendar::event(
+            //         $value->p_name,
+            //         true,
+            //         new \DateTime($value->p_start),
+            //         new \DateTime($value->p_end.' +1 day')
+            //     );
+            // }
+            // }
 
-            $calendar = Calendar::addEvents($events);
+            $calendar = [];
 
             //get number of users and materials for this faciliator/grader
             $user = Auth::user();
@@ -156,18 +157,18 @@ class HomeController extends Controller
         //Get calendar details
         $events = [];
         $data = Program::all();
-        if($data->count()){
-        foreach ($data as $key => $value) {
-            $events[] = Calendar::event(
-                $value->p_name,
-                true,
-                new \DateTime($value->p_start),
-                new \DateTime($value->p_end.' +1 day')
-            );
-        }
-        }
+        // if($data->count()){
+        // foreach ($data as $key => $value) {
+        //     $events[] = Calendar::event(
+        //         $value->p_name,
+        //         true,
+        //         new \DateTime($value->p_start),
+        //         new \DateTime($value->p_end.' +1 day')
+        //     );
+        // }
+        // }
 
-        $calendar = Calendar::addEvents($events);
+        $calendar = [];
 
         if(Auth::user()->role_id == "Student"){
             //Get Length of training

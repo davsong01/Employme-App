@@ -10,7 +10,7 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
                
-                @if(Auth::user()->isImpersonating() )
+                @if((Auth::user()->isImpersonating()) )
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     style="color:yellow !important; font-weight:bolder" href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i class="fa fa-arrow-left"></i><span
                         class="hide-menu">BACK TO ADMIN</span></a></li>

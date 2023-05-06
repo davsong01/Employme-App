@@ -27,4 +27,14 @@ class Result extends Model
         return $p_name;       
     }
 
+    public function endRedoTest(){
+        $this->redo_test = 0;
+        return $this->save();
+    }
+
+    public function startRedoStatus(){
+        $this->redotest = 1;
+        return $this->save(); 
+    }
+
 }

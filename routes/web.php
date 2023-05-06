@@ -109,8 +109,7 @@ Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function()
     Route::resource('paymentmethod', 'PaymentMethodController');
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
-    Route::get('users/stopredotest/{id}', 'UserController@stopredotest')->name('stopredotest');
- 
+    Route::get('users/stopredotest/{user_id}', 'UserController@stopredotest')->name('stopredotest');
 });
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
@@ -125,10 +124,11 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
     Route::resource('results', 'ResultController');
 
     Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
-    Route::get('postclassresults/{id}', 'ResultController@getgrades')->name('results.getgrades');
+    Route::get('postclassresults/{id?}', 'ResultController@getgrades')->name('results.getgrades');
     Route::post('waacsp', 'ResultController@verify')->name('send.waacsp');
     
-    Route::get('user/{uid}/module/{modid}/{pid}', 'ResultController@add')->name('results.add');
+    // Route::get('user/{uid?}/module/{modid?}/{pid?}', 'ResultController@add')->name('results.add');
+    Route::get('user/{uid?}/{pid?}', 'ResultController@add')->name('results.add');
     Route::get('certifications', 'ResultController@certifications')->name('certifications.index');
     Route::get('resultenable/{id}', 'ResultController@enable')->name('results.enable');
     Route::get('resultdisable/{id}', 'ResultController@disable')->name('results.disable');

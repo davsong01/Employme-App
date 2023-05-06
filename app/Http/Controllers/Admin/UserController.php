@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use DB;
 use PDF;
 use App\User;
+use App\Result;
 use App\Program;
 use App\Location;
 use App\Settings;
@@ -55,16 +56,16 @@ class UserController extends Controller
     }
 
     public function saveredotest(Request $request){
-        $user = User::find($request->user_id);
-        $user->startRedoStatus($request->program);
+        // $user = User::find($request->user_id);
+        $result = Result::whereUserId($request->user_id)->first();
+        $result->startRedoStatus();
 
         return redirect(route('users.index'))->with('message', 'Update Successful');
     }
 
-     public function stopredotest($id){
-        $user = User::find($id);
-       
-        $user->endRedoTest();
+    public function stopredotest($user_id){
+        $result = Result::whereUserId($user_id)->first();
+        $result->endRedoTest();
        
         return back()->with('message', 'Update Successful');
     }

@@ -54,7 +54,7 @@
                         <p class="text-blue">Time: {{ $module->time }}minutes </p>
                          
                         @if($module->completed == 0)
-                            <a href="{{route('tests.show', ['id' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                            <a href="{{route('tests.show', ['test' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
                        
                         @if($module->completed == 1 && auth()->user()->redotest == 0)

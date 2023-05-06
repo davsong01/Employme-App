@@ -30,7 +30,7 @@ class User extends Authenticatable
             return $this->save(); 
         }
         
-        public function endRedoTest(){
+        public function endRedoTest($result_id){
             $this->redotest = 0;
             return $this->save();
         }

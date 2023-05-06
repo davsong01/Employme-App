@@ -71,14 +71,13 @@
                             
                             <td>
                                
-                                @if( $user->result_id) 
+                                @if( isset($user->result_id)) 
                                     <div class="btn-group">
-                                        @if($user->redotest == 0)
+                                        @if($user->redo_test == 0)
                                         <a class="btn btn-info" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id, 'pid'=>$user->program_id]) }}"><i
                                                 class="fa fa-eye"> View</i>
                                         </a>
-                                        @endif
-                                        @if($user->redotest == 0)
+                                       
                                         @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                         <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
                                             {{ csrf_field() }}
@@ -90,8 +89,8 @@
                                             </button>
                                         </form>
                                         @endif
-                                         @endif
-                                        @if($user->redotest != 0)
+                                        @endif
+                                        @if($user->redo_test != 0)
                                         <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
                                             class="btn btn-warning" href="{{ route('stopredotest',$user->user_id) }}"><i
                                                 class="fa fa-stop"></i>

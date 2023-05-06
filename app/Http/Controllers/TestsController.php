@@ -18,7 +18,6 @@ class TestsController extends Controller
     {
         
        if(Auth::user()->role_id == "Student"){
-
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             if($user_balance->balance > 0){
                 return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
@@ -62,7 +61,7 @@ class TestsController extends Controller
                 $module['completed'] = 0;
                 }
             }
-
+           
                          
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program') );
          }
@@ -208,6 +207,7 @@ class TestsController extends Controller
     {
         $questions = Question::with('module')->where('module_id', $id)->get();      
         $i = 1;
+        
         //check if registered module
         $questionsarray = $questions->toArray();
         if($questionsarray[0]['module']['program_id'] <> $request->p_id ){
@@ -222,7 +222,7 @@ class TestsController extends Controller
             $time= $question->module->time;
             $module_title = $question->module->title;
         }
-        
+      
         if($module_type == 'Class Test'){
             return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program','program_name','module_title', 'time'));
         }
