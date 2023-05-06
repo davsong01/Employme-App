@@ -11,7 +11,8 @@
                         @include('layouts.partials.alerts')
                         <h4 style="color:green">Update Scores for: {{ $details['user_name'] }}</h4>
                     </div>
-                    <form action="{{route('results.update', $result_id)}}" method="POST"
+                    
+                    <form action="{{route('results.update', $results->id)}}" method="POST"
                         enctype="multipart/form-data" class="pb-2">
                         {{ csrf_field() }}
                         {{ method_field('PATCH') }}

@@ -77,16 +77,15 @@ class TestsController extends Controller
 
         $program = Program::find($request->p_id);
    
-        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
-      
+        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
+        
         if(sizeof($class_test_details) < 2){
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
-        
-        foreach($certification_test_details as $key => $value)
-        {
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
+       
+        foreach($certification_test_details as $key => $value){
              if((!isset($certification_test_details[$key]))){
                 return back()->with('error', 'You must answer at least 1 question');
             };
@@ -97,7 +96,7 @@ class TestsController extends Controller
         }
      
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
-       
+        
         if(auth()->user()->redotest == 0){
         if($check != NULL){
             return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
@@ -121,11 +120,11 @@ class TestsController extends Controller
         if($module->type == 'Certification Test'){
             try{
                 $results = Result::create([
-                   'program_id' => $module->program->id,
-                   'user_id' => Auth::user()->id,
-                   'module_id' => $module->id,
-                   'certification_test_details' => json_encode($certification_test_details),
-                    ]);
+                    'program_id' => $module->program->id,
+                    'user_id' => Auth::user()->id,
+                    'module_id' => $module->id,
+                    'certification_test_details' => json_encode($certification_test_details),
+                ]);
                
                 }catch (\Illuminate\Database\QueryException $ex) {
                     $error = $ex->getMessage();        

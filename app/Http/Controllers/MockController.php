@@ -404,13 +404,13 @@ class MockController extends Controller
     {
         $program = Program::find($request->p_id);
         
-        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
+        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
        
         if(sizeof($class_test_details) < 2){
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
       
         foreach($certification_test_details as $key => $value)
         {

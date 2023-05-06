@@ -58,6 +58,7 @@ class UserController extends Controller
     public function saveredotest(Request $request){
         // $user = User::find($request->user_id);
         $result = Result::whereUserId($request->user_id)->first();
+        
         $result->startRedoStatus();
 
         return redirect(route('users.index'))->with('message', 'Update Successful');
@@ -65,6 +66,10 @@ class UserController extends Controller
 
     public function stopredotest($user_id){
         $result = Result::whereUserId($user_id)->first();
+        if(is_null($result->certification_test_details)){
+            return back()->with('error', 'User has not written certification test');
+        }
+        User::whereId($user_id)->update(['redotest'=>0]);
         $result->endRedoTest();
        
         return back()->with('message', 'Update Successful');

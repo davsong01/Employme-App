@@ -23,7 +23,7 @@
                     {{ csrf_field() }}
                     @foreach($questions as $question)
                     <div class="form-group">
-                        <label for="name">{{ $i ++ .'. ' }}{{ $question->title }}
+                        <label for="name">{{ $i ++ .'. ' }}{!! $question->title !!}
 
                         </label><br>
                         <input type="radio" id="{{ $question->id}}{{ $question->optionA}}" name="{{ $question->id}}"
