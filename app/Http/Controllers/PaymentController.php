@@ -78,6 +78,7 @@ class PaymentController extends Controller
         return response()->json($response);
     }
 
+
     /**
      * Redirect the User to Paystack Payment Page
      * @return Url
@@ -154,8 +155,7 @@ class PaymentController extends Controller
                 if($response['grand_total'] <= 0){
                     $request->request->add(['reference' => $request->reference]);
                     $request['transid'] = $this->getReference('PYSTK');
-                    // $request['pid'] = $this->getReference('PYSTK');
-                    // $mode = PaymentMode::find($request['payment_mode']);
+
                     $metadata = json_decode($request->metadata, true);
                     $metadata['coupon_id'] = $response['id'];
                     $request['reference'] = $request['transid'];
@@ -183,6 +183,7 @@ class PaymentController extends Controller
                 $request['metadata'] = $metadata;
                 $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
                 $data = $request->all();
+                
                 \Session::put('data', $data);
                 return redirect('pop/create');
                 

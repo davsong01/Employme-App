@@ -6,6 +6,7 @@ use PDF;
 use Carbon;
 use App\Pop;
 use App\User;
+use App\Coupon;
 use App\Program;
 use App\Location;
 use App\Settings;
@@ -48,11 +49,11 @@ class PopController extends Controller
             'training' => 'required | numeric',
             'currency' => 'sometimes',
             'currency_symbol' => 'sometimes',
-            // 'location' => 'nullable',
+            'coupon_id' => 'nullable',
             'date' => 'date',
             'file' => 'required|max:2048|image',
         ]);
-        
+       
         // Remove data from session
         \Session::forget(['data']);
 
@@ -92,12 +93,12 @@ class PopController extends Controller
        
         try{
             //Store new pop
-     
             $pop = Pop::create([
                 'name' => $data['name'],
                 'email' =>  $data['email'],
                 'phone' =>  $data['phone'],
                 'bank' =>  $data['bank'],
+                'coupon_id' =>  $data['coupon_id'],
                 'amount' =>  $data['amount'],
                 'program_id' =>  $data['training'],
                 'currency' =>  $data['currency'],
@@ -225,10 +226,32 @@ class PopController extends Controller
             $allDetails['role_id'] = 'Student';
             $allDetails['message'] = $pop->program->e_amount > 0 ?  $this->dosubscript2($balance) : $this->dosubscript1($balance);
             $allDetails['paymentStatus'] = $this->paymentStatus($balance);
+            $allDetails['paymenttype'] = $this->paymentStatus(0).'Full (Bank Transfer)';
             $allDetails['balance'] = $balance;
-            
+        
             $user = $this->updateUserDetails($allDetails);
+           
+            // request->coupon, $request->email, $pid, $request['amount']
+            // $temp = TempTransaction::where(['user'])
+            $coupon = Coupon::where('id',$pop->coupon_id)->first();
+            
+            if($coupon){
+                $user->coupon = $coupon;
+                $response = $this->verifyCoupon($user, $pop->program_id, 'admin');
+
+                if($response['grand_total'] <= 0){
+                    $allDetails['message'] = $this->dosubscript1(0);
+                    $allDetails['balance'] = 0;
+                    $allDetails['paymentStatus'] = $this->paymentStatus(0);
+                    $allDetails['paymenttype'] = $this->paymentStatus(0);
+                    $allDetails['coupon_amount'] = $response ['amount'];
+                    $allDetails['coupon_id'] = $response ['id'];
+                    $allDetails['coupon_code'] = $response ['code'];
+                }
+            }
+          
             $data = $this->updateOrCreateTransaction($user, $allDetails);
+            
         }
 
         //determine the program details
@@ -272,7 +295,10 @@ class PopController extends Controller
                     'currency_symbol' => $allDetails['currency_symbol'],
                     'balance_transaction_id' => $allDetails['balance_transaction_id'],
                     'balance_paid' => $allDetails['date'],
-                    'balance_amount_paid' => $allDetails['current_paid_amount']
+                    'balance_amount_paid' => $allDetails['current_paid_amount'],
+                    'coupon_id' => $allDetails['coupon_id'] ?? null,
+                    'coupon_amount' => $allDetails['coupon_amount'] ?? null,
+                    'coupon_code' => $allDetails['coupon_code'] ?? null,
                 ]);
         }else{
             
@@ -287,6 +313,9 @@ class PopController extends Controller
                 'currency' => $allDetails['currency'],
                 'currency_symbol' => $allDetails['currency_symbol'],
                 'created_at' => $allDetails['date'],
+                'coupon_id' => $allDetails['coupon_id'] ?? null,
+                'coupon_amount' => $allDetails['coupon_amount'] ?? null,
+                'coupon_code' => $allDetails['coupon_code'] ?? null,
             ]);
         }
         // Update existing payment if 
