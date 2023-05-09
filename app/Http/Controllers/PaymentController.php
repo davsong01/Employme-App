@@ -194,7 +194,11 @@ class PaymentController extends Controller
           
             try{
                 $url = $this->queryProcessor($request);
-                return redirect()->away($url);
+                if(!is_null($url)){
+                    return redirect()->away($url);
+                }else{
+                    return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try again!');
+                }
             }catch(\Exception $e) {
                 \Log::info($e->getMessage());
                 

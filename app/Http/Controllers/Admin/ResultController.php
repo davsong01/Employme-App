@@ -12,6 +12,7 @@ use App\Settings;
 use App\ScoreSetting;
 use GuzzleHttp\Client;
 use App\FacilitatorTraining;
+use App\Models\ResultThread;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -249,12 +250,14 @@ class ResultController extends Controller
 
     public function add(Request $request, $uid, $modid){
         $result_id = $modid;
-     
+        
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
-
+        
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-        $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
-      
+        $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
+
+        $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
+        
         $i = 1;
         $details['certification_score'] = 0;
         $details['email_test_score'] = 0;
@@ -292,8 +295,32 @@ class ResultController extends Controller
                 unset($results['role_play_score']);
                 unset($results['email_test_score']);
         }
-        
-        return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results'));
+
+        foreach($history as $results){
+            // if($results->module->type == 1){
+            //     $details['c_result'] = $results;
+            // }
+           
+            $results['module_title'] = $results->module->title;
+            $details['user_name'] = $results->user->name;
+            $details['grader_comment'] = $results->grader_comment;
+            $details['facilitator_comment'] = $results->facilitator_comment;
+            $details['allow_editing'] = 1;
+
+            $questions = json_decode($results->certification_test_details, true);
+           
+            foreach($questions as $key=>$value){
+                $results['title'] = Question::whereId($key)->first()->title;
+            }
+                
+            unset($results['certification_test_details']);
+            unset($results['certification_test_score']);
+            unset($results['role_play_score']);
+            unset($results['email_test_score']);
+        }
+        //// 
+  
+        return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results','history'));
     }
     
     public function enable($id){

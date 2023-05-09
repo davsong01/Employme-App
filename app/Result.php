@@ -1,8 +1,9 @@
 <?php
 
 namespace App;
-use App\Program;
 use App\User;
+use App\Program;
+use App\Models\ResultThread;
 use Illuminate\Database\Eloquent\Model;
 
 class Result extends Model
@@ -35,6 +36,10 @@ class Result extends Model
     public function startRedoStatus(){
         $this->redotest = 1;
         return $this->save(); 
+    }
+
+    public function threads(){
+        return $this->hasMany(ResultThread::class, 'result_id');
     }
 
 }

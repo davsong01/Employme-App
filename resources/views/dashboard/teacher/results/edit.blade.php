@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        <h4 style="color:green">Update Scores for: {{$user_results->user->name}}</h4>
+                        <h4 style="color:green">Update Scores for: {{$user_results->user->name}}</h4> 
                     </div>
                     <form action="{{route('results.update', $user_results->id)}}" method="POST"
                         enctype="multipart/form-data" class="pb-2">
