@@ -260,7 +260,7 @@
     <script>
         $('#zero_config').DataTable({
              "ordering": true,
-              "pageLength": 50,
+              "pageLength": 500,
                "scrollY": true,
                 // "scrollX": true,
                 "scroller": true
@@ -282,7 +282,7 @@
         $(document).ready( function () {
          $('#myTable').DataTable( {
              "ordering": false,
-              "pageLength": 50,
+              "pageLength": 100,
                "scrollY": true,
                 "scrollX": true,
                 "scroller": true

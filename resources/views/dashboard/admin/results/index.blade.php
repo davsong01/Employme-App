@@ -148,32 +148,6 @@
     </div>
 </div>
 <script>
-    
-// $(document).ready(function () {
-//   $("#waacsp").submit(function (event) {
 
-//     var formData = {
-//       participants: $("#participants").val(),
-//       passmark: $("#passmark").val(),
-//       training: $("#training").val(),
-//       token: $("#token").val(),
-//       email: $("#email").val(),
-//     };
-
-//      $.ajax({
-//       type: "POST",
-//       url: "https://127.0.0.1:8000/api/verify"+"/callback=?",
-//       data: formData,
-//       dataType: "json",
-//       encode: true,
-//       crossdomain:true
-      
-//     }).done(function (data) {
-//       console.log(data);
-//     });
-
-//     event.preventDefault();
-//   });
-// });
 </script>
 @endsection
