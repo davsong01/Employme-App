@@ -56,7 +56,7 @@ class CertificateController extends Controller
     public function selectUser(Request $request)
     {
         if(Auth::user()->role_id == "Admin"){
-      
+            
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
             foreach($users as $user){
                 $user->name = User::whereId($user->user_id)->value('name');

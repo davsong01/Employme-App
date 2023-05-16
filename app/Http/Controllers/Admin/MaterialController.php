@@ -71,8 +71,9 @@ class MaterialController extends Controller
                 }
                 
                 $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
-
-                return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
+                $show_catalogue = $this->showCatalogue($program);
+                
+                return view('dashboard.student.materials.index', compact('i', 'materials', 'program','show_catalogue'));
         }
         
     }

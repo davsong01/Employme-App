@@ -161,7 +161,7 @@
         
     </div>
  
-    <div class="row">
+    {{-- <div class="row">
         <div class="card">
             <div class="card-title"><h2 style="text-align: center;; color:green">All {{config('app.name')}} Training Schedules<hr></h2></div>
             <div class="card-body">
@@ -169,7 +169,7 @@
                     {!! $calendar->script() !!}
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
     <!-- BEGIN MODAL -->
 

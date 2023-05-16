@@ -44,6 +44,7 @@
             <h4>Upload Proof of Payment</h4>
             <form action="{{ route('pop.store') }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">
                 <div class="row">
                     
                     <div class="col-lg-12 col-md-12">
@@ -56,9 +57,8 @@
                                         value="{{ auth()->user()->name }}"  
                                         placeholder="Full Name"
                                         @endauth
-
                                         @guest 
-                                        value="{{ old('name') }}" placeholder="Full Name"  
+                                        value="{{ session()->get('data')['name'] ?? old('name') }}" placeholder="Full Name"  
                                         @endguest required>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
                                         value="{{ auth()->user()->email }}"  
                                         @endauth
                                         @guest 
-                                        value="{{ old('email') }}" placeholder="Enter email"  
+                                        value="{{ session()->get('data')['email'] ?? old('email') }}" placeholder="Enter email"  
                                         @endguest required>
                                 </div>
                             </div>
@@ -88,7 +88,7 @@
                                         @endauth
 
                                         @guest 
-                                        value="{{ old('phone') }}"  
+                                        value="{{ session()->get('data')['phone'] ?? old('phone') }}"  
                                         @endguest required>
                                 </div>
 
@@ -102,7 +102,8 @@
                                     <select name="training" id="training" class="form-control" required>
                                         <option value="">-- Select --</option>
                                         @foreach($trainings as $training)
-                                        <option value="{{ $training->id }}">{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }})</option>
+
+                                        <option value="{{ $training->id }}" {{ (isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''  }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }})</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -126,7 +127,8 @@
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Amount<span>*</span></p>
-                                    <input type="number" class="form-control" name="amount" id="amount" value="{{ old('amount') }}" min=1 required>
+                                   
+                                    <input type="number" class="form-control" name="amount" id="amount" value="{{ session()->get('data')['amount'] ??  old('amount') }}" min=1 required>
                                 </div>
                             </div>
                         </div>

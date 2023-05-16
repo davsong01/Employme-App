@@ -85,10 +85,17 @@ class Controller extends BaseController
         return;
     }
 
-    public function getCouponUsage($code, $email, $pid, $price){
-       
-        $coupon = Coupon::where('code', $code)->first();
-        
+    public function getCouponUsage($code, $email, $pid, $price, $admin=null){
+        if(!is_null($admin)){
+            $coupon = $code;
+        }else{
+            $coupon = Coupon::where('code', $code)->first();
+        }
+ 
+        if(!isset($coupon->id)){
+            $coupon = Coupon::where('code', $code)->first();
+        }
+      
         if(isset($coupon) && !empty($coupon)){
             $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
             
@@ -122,8 +129,13 @@ class Controller extends BaseController
         
     }
 
-    public function getCouponValue($code, $pid=null){
-        $coupon = Coupon::where('code', $code)->where('program_id', $pid)->first();
+    public function getCouponValue($code, $pid=null, $admin=null){
+        if(!is_null($admin)){
+            $coupon = $code;
+        }else{
+            $coupon = Coupon::where('code', $code)->where('program_id', $pid)->first();
+        }
+
         if(isset($coupon) && !empty($coupon)){
             $coupon_amount = $coupon->amount;
             $coupon_id = $coupon->id;
@@ -144,14 +156,14 @@ class Controller extends BaseController
         
     }
 
-    public function verifyCoupon($request, $pid){
+    public function verifyCoupon($request, $pid, $admin=null){
+        
         $type['pid'] = $pid;
-       
         if($request->coupon && !empty($request->coupon)){
-            $verifyCoupon = $this->getCouponValue($request->coupon, $pid);
+            $verifyCoupon = $this->getCouponValue($request->coupon, $pid, $admin);
             
             if(!is_null($verifyCoupon)){
-                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $request['amount']);
+                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $request['amount'],'admin');
             }else{
                 $response = null;
             }
@@ -259,7 +271,8 @@ class Controller extends BaseController
     protected function prepareTrainingDetails($program, $paymentDetails, $amount){
 
         $payment_mode = PaymentMode::find($paymentDetails->payment_mode);
-        $processor = $payment_mode->processor;
+        
+        $processor = $payment_mode->processor ?? null;
         $training = $program;
         $data['programFee'] = $training->p_amount;
         $data['programName'] = $training->p_name;
@@ -275,7 +288,7 @@ class Controller extends BaseController
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $amount;
-        $data['t_type'] = strtoupper($processor);
+        $data['t_type'] = strtoupper($processor) ?? 'bank_transfer';
         $data['payload'] = $paymentDetails->payload;
         
         // Create Facilitator details
@@ -289,12 +302,12 @@ class Controller extends BaseController
         }else $data['location'] = ' ' ;
         
         $data['paymentModeDetails'] = [
-            'id' => $payment_mode->id,
-            'type' => $payment_mode->type,
-            'processor' => $payment_mode->processor,
-            'currency' => $payment_mode->currency,
-            'currency_symbol' => $payment_mode->currency_symbol,
-            'exchange_rate' => $payment_mode->exchange_rate,
+            'id' => $payment_mode->id ?? 0,
+            'type' => $payment_mode->type ?? 'bank_transfer',
+            'processor' => $payment_mode->processor ?? 'bank_transfer',
+            'currency' => $payment_mode->currency ?? '&#x20A6;',
+            'currency_symbol' => $payment_mode->currency_symbol ?? '&#x20A6;',
+            'exchange_rate' => $payment_mode->exchange_rate ?? 1,
         ];
 
         $data['role_id'] = "Student";
@@ -411,6 +424,7 @@ class Controller extends BaseController
 
     public function uploadImage($file, $folder, $width=null, $height=null)
     {
+
         $imageName = uniqid(9) . '.' . $file->getClientOriginalExtension();
        
         if (!is_dir($folder)) {
@@ -421,9 +435,7 @@ class Controller extends BaseController
             $imageFile = Image::make($file)->resize(100, 100);
         }
         $imageFile->save($folder.'/' . $imageName);
-        // $file->move(public_path($folder), $imageName);
-        // $imageFile = Image::make($request->image)->resize(200, 150);
-
+    
         return $imageName;
     }
 
@@ -458,6 +470,16 @@ class Controller extends BaseController
         }
 
         return;
+    }
+
+    public function showCatalogue($program){
+        // Check program
+        $status = false;
+        if($program->show_catalogue_popup =='yes' && auth()->user()->downloaded_catalogue == 'no'){
+            $status = true;
+        }
+
+        return $status;
     }
 
 }

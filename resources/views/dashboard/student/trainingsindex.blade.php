@@ -45,8 +45,7 @@
                 </li>
                
                 @if($program->hasresult == 1 )
-                <li class="sidebar-item"><a href="{{ route('results.show', ['id' => Auth::user()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i
-                            class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
+                <li class="sidebar-item"><a href="{{ route('results.show', ['result' => Auth::user()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
                 @endif

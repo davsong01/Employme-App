@@ -21,7 +21,7 @@ class Program extends Model
     protected $guarded = [];
   
     public function scoresettings(){
-        return $this->hasOne(ScoreSetting::class);
+        return $this->hasOne(ScoreSetting::class, 'program_id');
     }
 
     public function locations(){

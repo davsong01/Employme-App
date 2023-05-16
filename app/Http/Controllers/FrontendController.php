@@ -27,6 +27,7 @@ class FrontendController extends Controller
 
     public function index(Request $request)
     {
+
         if($request->has('search')){
             if (Session::get('facilitator')) {
                 $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
@@ -47,7 +48,7 @@ class FrontendController extends Controller
             $trainings = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
             $discounts = Program::where('e_amount', '!=', 0)->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }
-        
+      
         return view('welcome', compact('trainings', 'discounts'));
     }
 
@@ -68,6 +69,7 @@ class FrontendController extends Controller
 
     public function getfile($filename){
         $realpath = base_path() . '/uploads/trainings'. '/' .$filename;
+
         return response()->download($realpath);
     }  
 

@@ -113,7 +113,13 @@
                             <td>
                                 <small class="training-details">
                                     <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
-                                    <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}<br>  
+                                    <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
+                                    @if(!is_null($transaction->coupon_code))
+                                    <span style="color:blue">
+                                       <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
+                                    </span>
+                                    @endif
+                                    <br>
                                     <strong>Balance:</strong>
                                          @if($transaction->balance > 0 )
                                             <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>

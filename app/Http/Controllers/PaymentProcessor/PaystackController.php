@@ -18,12 +18,10 @@ class PaystackController extends Controller
             $request['transid'] = $this->getReference('PYSTK');
             app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
         }
-        
         $url = "https://api.paystack.co/transaction/initialize";
         // Convert amount using payment mode exchange rate
-        
         $request['amount'] = $request->amount * $mode->exchange_rate;
-       
+        
         $fields = [
             'email' => $request->email,
             'amount' => $request->amount * 100,

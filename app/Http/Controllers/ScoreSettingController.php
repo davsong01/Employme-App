@@ -57,29 +57,26 @@ class ScoreSettingController extends Controller
 
     public function create()
     {
-
         if(auth()->user()->role_id == "Admin"){
             $programs = Program::withCount(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('created_at', 'DESC')->get();
-        
+            
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
-
         if(auth()->user()->role_id == "Facilitator"){
             $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
-        foreach($programs as $program){
-            
-            $program['counter'] = 0;
-            if(isset($program->scoresettings)){ $program['settings_count'] = 1; }else $program['settings_count'] = 0;
+            foreach($programs as $program){
+                $program['counter'] = 0;
+                if(isset($program->scoresettings)){ $program['settings_count'] = 1; }else $program['settings_count'] = 0;
 
-            //check if any of program's module is enabled
-            foreach($program->modules as $module){
-                
-                if($module->status == 1){
-                    $program['counter'] +=1;
-                };
-            }  
-        }
+                //check if any of program's module is enabled
+                foreach($program->modules as $module){
+                    
+                    if($module->status == 1){
+                        $program['counter'] +=1;
+                    };
+                }  
+            }
         
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         } return redirect('/dashboard');
@@ -87,16 +84,18 @@ class ScoreSettingController extends Controller
 
     public function store(Request $request)
     {
+
         $data = $this->validate($request, [
             'program' => 'required|numeric',
-            'classtests' => 'required|numeric|min:1|max:100',
-            'rolepalyscore' => 'required|numeric|min:1|max:100',
-            'emailscore' => 'required|numeric|min:1|max:100',
-            'certificationscore' => 'required|numeric|min:1|max:100',
+            'classtests' => 'nullable|numeric|min:1|max:100',
+            'roleplayscore' => 'nullable|numeric|min:1|max:100',
+            'emailscore' => 'nullable|numeric|min:1|max:100',
+            'certificationscore' => 'nullable|numeric|min:1|max:100',
             'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
-        $total = array_sum(array_except($data, ['passmark', 'program']));
+        $total = array_sum($request->except(['passmark', 'program','_token']));
+
 
         if($total > 100 || $total < 100){
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100%, please try again');
@@ -104,10 +103,10 @@ class ScoreSettingController extends Controller
 
         ScoreSetting::create([
             'program_id' => $data['program'],
-            'certification' => $data['certificationscore'],
-            'class_test' => $data['classtests'],
-            'role_play' => $data['rolepalyscore'],
-            'email' => $data['emailscore'],
+            'certification' => $data['certificationscore'] ?? 0,
+            'class_test' => $data['classtests'] ?? 0,
+            'role_play' => $data['rolepalyscore'] ?? 0,
+            'email' => $data['emailscore'] ?? 0,
             'passmark' => $data['passmark'],
             'total' => $total,
         ]);
@@ -138,25 +137,25 @@ class ScoreSettingController extends Controller
         // dd($request->all());
         $data = $this->validate($request, [
             'program' => 'required|numeric',
-            'classtests' => 'required|numeric|min:1|max:100',
-            'rolepalyscore' => 'required|numeric|min:1|max:100',
-            'emailscore' => 'required|numeric|min:1|max:100',
-            'certificationscore' => 'required|numeric|min:1|max:100',
+            // 'classtests' => 'sometimes|numeric|min:1|max:100',
+            // 'rolepalyscore' => 'sometimes|numeric|min:1|max:100',
+            // 'emailscore' => 'sometimes|numeric|min:1|max:100',
+            // 'certificationscore' => 'sometimes|numeric|min:1|max:100',
             'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
         
-        $total = array_sum(array_except($data, ['passmark', 'program']));
+        $total = array_sum($request->except(['passmark', 'program','_token']));
         
         if($total > 100 || $total < 100){
-            return back()->with('error', 'Sorry, sum of parameters cannot be more thanor less than 100, please try again');
+            return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100, please try again');
         }
        
         $scoreSetting->program_id = $request['program'];
-        $scoreSetting->certification = $request['certificationscore'];
-        $scoreSetting->class_test = $request['classtests'];
-        $scoreSetting->role_play = $request['rolepalyscore'];
-        $scoreSetting->email = $request['emailscore'];
+        $scoreSetting->certification = $request['certificationscore'] ?? 0;
+        $scoreSetting->class_test = $request['classtests'] ?? 0;
+        $scoreSetting->role_play = $request['rolepalyscore'] ?? 0;
+        $scoreSetting->email = $request['emailscore'] ?? 0;
         $scoreSetting->passmark = $request['passmark'];
         $scoreSetting->total = $total;
         

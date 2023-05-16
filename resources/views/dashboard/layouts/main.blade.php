@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> --}}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -144,30 +145,30 @@
         }
 
         .top-container {
-  background-color: #f1f1f1;
-  padding: 30px;
-  text-align: center;
-}
+            background-color: #f1f1f1;
+            padding: 30px;
+            text-align: center;
+            }
 
-.header {
-  padding: 10px 16px;
-  background: red;
-  color: #f1f1f1;
-}
+            .header {
+            padding: 10px 16px;
+            background: red;
+            color: #f1f1f1;
+            }
 
-.content {
-  padding: 16px;
-}
+            .content {
+            padding: 16px;
+            }
 
-.sticky {
-  position: fixed;
-  top: 0;
-  width: 100%;
-}
+            .sticky {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            }
 
-.sticky + .content {
-  padding-top: 102px;
-}
+            .sticky + .content {
+            padding-top: 102px;
+            }
 
 </style>
 </head>
@@ -218,12 +219,6 @@
 
     </div>
 
-
-    <!--Scripts-->
-    <!--problmatic script-->
-    {{-- <script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script> --}}
-    <!--End of problmatic script-->
-
     <script src="{{ asset('dist/js/jquery.ui.touch-punch-improved.js') }}"></script>
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
 
@@ -257,12 +252,13 @@
     <script>
         $('#zero_config').DataTable({
              "ordering": true,
-              "pageLength": 50,
+              "pageLength": 100,
+              "lengthMenu": [ 100, 250, 500, 1000, 2000, "All" ],
                "scrollY": true,
                 // "scrollX": true,
                 "scroller": true
         });
-
+        
         $('#transTable').DataTable({
              "ordering": false,
             //   "pageLength": 100,
@@ -293,4 +289,5 @@
         });
     </script>
     @yield('extra-scripts')
+    
 </body>

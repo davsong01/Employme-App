@@ -54,7 +54,7 @@ class QuestionController extends Controller
 
         if(Auth::user()->role_id == "Admin"){
            
-            $programs_with_questions = Program::withCount('questions')->orderBy('id', 'DECS')->get();
+            $programs_with_questions = Program::withCount('questions')->orderBy('id', 'desc')->get();
             
             return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
         }

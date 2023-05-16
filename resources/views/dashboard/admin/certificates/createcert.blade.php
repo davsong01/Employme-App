@@ -1,4 +1,5 @@
 @extends('dashboard.admin.index')
+
 @section('title', 'Add Certificate')
 @section('content')
 <div class="container-fluid">
@@ -22,8 +23,8 @@
 
                             <select name="user_id" id="user_id" class="form-control" required>
                                 <option value=""></option>
-                                @foreach ($users as $user)
-                                    @if($user->certificates_count <= 0))
+                                @foreach ($users->sortBy('name') as $user)
+                                    @if($user->certificates_count <= 0)
                                         <option value="{{ $user->user_id }}">{{$user->name}}</option>
                                     @endif
                                 @endforeach
@@ -44,4 +45,9 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            $('#user_id').select2();
+        });
+    </script>
     @endsection
