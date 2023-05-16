@@ -80,21 +80,15 @@ class ProgramController extends Controller
 
         //Save booking form
         if($request->file('booking_form')){
-            $file = $request->file('booking_form')->getClientOriginalName();
-            $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
+            $filePath = $this->uploadFileToUploads($request->file('booking_form'), 'booking_form', 'bookingforms');
+            $filePath = 'bookingforms/'.$filePath;
         }
-        
 
-        //Resize and save program banner
-        $file = $request->file('image')->getClientOriginalName();
-            
-        $image = Image::make($request->image)->resize(533, 533);
- 
-        Storage::disk('uploads')->put('trainings/'.$file, (string) $image->encode());
-
-        $data['image'] = $file;
-
-        Program::Create([
+        // uploads file to the desired folder in uploads directory
+        $file = $this->uploadFileToUploads($request->file('image'), 'image', 'trainings', 533, 533);
+        $data['image'] = 'trainingimage/' . $file;
+       
+        $program = Program::Create([
             'p_name' => $data['p_name'],
             'p_abbr' => $data['p_abbr'],
             'p_amount' => $data['p_amount'],
@@ -108,7 +102,7 @@ class ProgramController extends Controller
             'booking_form' => $filePath ?? null,
             'image' => 'trainingimage/'.$file,
         ]); 
-        
+       
         return redirect('programs')->with('message', 'Program added succesfully');
     }
 
@@ -128,32 +122,19 @@ class ProgramController extends Controller
         //check if new featured image
         if($request->hasFile('image')){
 
-            //delete old one
-            if($program->image != 'trainingimage/default.jpg'){
-                unlink( base_path() . '/uploads/trainings/'. substr($program->image, 14));
-            }
-           
-            //Resize and save program banner
-            $file = $request->file('image')->getClientOriginalName();
-                
-            $image = Image::make($request->image)->resize(533, 533);
-    
-            Storage::disk('uploads')->put('trainings/'.$file, (string) $image->encode());
-           
-            $data['image'] = 'trainingimage/'.$file;
+            // Dont delete old files, another progeam may be using it
+            // uploads file to the desired folder in uploads directory
+            $file = $this->uploadFileToUploads($request->file('image'),'image','trainings', 533, 533);
+            
+            $data['image'] = 'trainingimage/' . $file;
 
         }
-
+       
         if($request->hasFile('booking_form')){
             //Save booking form
-            $file = $request->file('booking_form')->getClientOriginalName();
-            $filePath = $request->file('booking_form')->storeAs('bookingforms', $file,'uploads');
-
-            //delete old one
-            unlink( base_path() . '/uploads/'.$program->booking_form);
-
-            //update attribute
-            $data['booking_form'] = $filePath;
+            $filePath = $this->uploadFileToUploads($request->file('booking_form'), 'booking_form', 'bookingforms');
+            
+            $data['booking_form'] = 'bookingforms/' . $filePath;
         }
 
         $program->update($data);

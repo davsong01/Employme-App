@@ -57,7 +57,7 @@
                 </div>
             </div>
             
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
@@ -72,23 +72,28 @@
                     <tbody>
                         @foreach($complains as $complain)
                         <tr>
-                            <td>EMPL000{{ $complain->id}}</td>
-                            <td>{{ $complain->user->name }} <span style="color:blue">({{ $complain->user->responseStatus }}% Response Rate)</span></td>
+                            <td>EMPL000{{ $complain->id}} <br>
+                               
+                            </td>
+                            <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span> <br>
+                                @if(isset($complain->program))
+                                 <small style="color:green"><strong>Training:</strong> {{ $complain->program->p_name ?? '' }}</small>
+                                 @endif
+                            </td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                             <td>
                                 <div class="btn-group">
 
-                                    <a data-toggle="tooltip" data-placement="top" title="View Query"
-                                        class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
-                                            class="fa fa-eye"></i></a>
-
+                                    <a class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
+                                            class="fa fa-eye"></i> View</a>
                                     @if($complain->status <> 'Resolved')
-                                        <a data-toggle="tooltip" data-placement="top" title="Mark as Resolved"
+                                        <a 
                                             class="btn btn-success" href="{{route('crm.resolved', $complain->id)}}"><i
-                                                class="fa fa-check"></i></a>
+                                                class="fa fa-check"></i> Resolve</a>
                                     @endif
+                                    @if(Auth::user()->role_id == "Admin")
                                         <form action="{{ route('complains.destroy', $complain->id)}}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
@@ -98,6 +103,7 @@
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr> @endforeach

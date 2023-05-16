@@ -51,9 +51,8 @@ class MaterialController extends Controller
             $i = 1;   
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            
             if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to materials');
+                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to materials');
             }
 
             $program = Program::find($request->p_id);  
@@ -72,8 +71,9 @@ class MaterialController extends Controller
                 }
                 
                 $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
-
-                return view('dashboard.student.materials.index', compact('i', 'materials', 'program'));
+                $show_catalogue = $this->showCatalogue($program);
+                
+                return view('dashboard.student.materials.index', compact('i', 'materials', 'program','show_catalogue'));
         }
         
     }

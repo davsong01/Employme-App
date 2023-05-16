@@ -9,6 +9,7 @@ use App\Program;
 use App\Complain;
 use App\Material;
 use App\Certificate;
+use App\PaymentMode;
 use App\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -16,18 +17,20 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    protected $guarded = [];
-    use Notifiable;
+        protected $guarded = [];
+        use Notifiable;
 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+        protected $hidden = [
+            'password', 'remember_token',
+        ];
+
+       
         public function startRedoStatus($pid){
             $this->redotest = $pid;
             return $this->save(); 
         }
         
-        public function endRedoTest(){
+        public function endRedoTest($result_id){
             $this->redotest = 0;
             return $this->save();
         }
@@ -66,6 +69,20 @@ class User extends Authenticatable
         public function trainings()
         {
             return $this->hasMany(FacilitatorTraining::class);
+        }
+
+        // public function students()
+        // {
+        //     return $this->hasMany(User::class, 'facilitator_id');
+        // }
+            
+        // public function facilitator()
+        // {
+        //     return $this->belongsTo(User::class, 'facilitator_id');
+        // }
+
+        public function payment_modes(){
+            return $this->belongsTo(PaymentMode::class, 'payment_mode');
         }
 
         public function setImpersonating($id)

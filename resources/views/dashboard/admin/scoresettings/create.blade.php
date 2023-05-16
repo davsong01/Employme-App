@@ -24,13 +24,10 @@
                                     <label for="class">Select Training</label>
                                     <select name="program" id="program" class="form-control" required>
                                         <option value="">Select an option</option>
-                                      
                                         @foreach ($programs as $program)
-                                        
-                                            @if($program->counter == 0 && $program->settings_count == 0)
+                                            @if($program->scoresettings_count <= 0)
                                                 <option value="{{ $program->id }}">{{$program->p_name}}</option>
                                             @endif
-                
                                         @endforeach
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('program_id')}}</small></div>
@@ -39,7 +36,7 @@
                                 <div class="form-group">
                                     <label>Set Maximum score for Class Tests<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="classtests" value="{{ old('classtests')}}"
-                                        class=" form-control" min="0" max="100" required>
+                                        class=" form-control" min="0" max="100">
                                     <div><small style="color:red">{{ $errors->first('classtests')}}</small></div>
                                 </div>
                                 <div class="form-group">
@@ -54,7 +51,7 @@
                                 <div class="form-group">
                                     <label>Set Maximum score for Email<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="emailscore" value="{{ old('emailscore')}}"
-                                        class="form-control" min="0" max="100" required>
+                                        class="form-control" min="0" max="100">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
 

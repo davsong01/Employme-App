@@ -16,4 +16,8 @@ class Pop extends Model
     public function program(){
         return $this->belongsTo(Program::class);
     }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'email','email');
+    }
 }

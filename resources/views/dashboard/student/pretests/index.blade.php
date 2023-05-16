@@ -49,7 +49,7 @@
                         <p class="text-blue">No of Questions: {{ $module->questions->count() }} </p>
                         <p class="text-blue">Time: {{ $module->time }}minutes </p>
                         @if($module->completed == 0)
-                            <a href="{{route('mocks.show', ['id' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-info" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
+                            <a href="{{route('mocks.show', ['mock' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-info" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
                         @if($module->completed == 1)
                             <a><button style="width:100%" type="button" class="btn btn-outline-success disabled"><b>Pre Test Completed!</b></button></a>

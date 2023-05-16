@@ -17,7 +17,7 @@
                 </div>
             </div>
             
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
@@ -52,14 +52,14 @@
                                         
                                         @if($score->module_status_count <= 0)
                                         <a data-toggle="tooltip" data-placement="top" title="Edit"
-                                            class="btn btn-info" href="{{ route('scoreSettings.edit', $score->id)}}"><i
+                                            class="btn btn-info btn-sm" href="{{ route('scoreSettings.edit', $score->id)}}"><i
                                                 class="fa fa-edit"></i>
                                         </a>
                                         @endif
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
                                         @if($score->module_status_count <= 0)
-                                        <button type="submit" class="btn btn-warning" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-warning btn-sm" data-toggle="tooltip"
                                             data-placement="top" title="Delete scores"> <i class="fa fa-trash"></i>
                                         </button>
                                         @else N/A

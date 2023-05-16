@@ -26,14 +26,17 @@ class PaymentController extends Controller
         $i = 1;
 
         if(Auth::user()->role_id == "Admin"){
-            $transactions = Transaction::with('user', 'program')->orderBy('created_at', 'DESC')->get();
+            // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
-            // dd($transactions);
-            
+            $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
+                ->join("programs", "program_user.program_id", "=", "programs.id")
+                ->join("users", "users.id", "=", "program_user.user_id")
+                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type")
+                ->get();
+            $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             
-            $i = 1;
-            
+        
           return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 
         }
@@ -57,6 +60,7 @@ class PaymentController extends Controller
     public function edit($id){
    
             $transaction = DB::table('program_user')->whereId($id)->first();
+           
             $transaction->name = User::whereId($transaction->user_id)->value('name');
             $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->first();
             $transaction->p_name = $program_details->p_name;
@@ -69,7 +73,7 @@ class PaymentController extends Controller
 
     public function show(Request $request, $id){
         $transaction = DB::table('program_user')->where('id', $id)->first();
-
+       
         if(Auth::user()->role_id == "Admin"){
         //get user details
         $user = User::findorFail($transaction->user_id);
@@ -79,7 +83,7 @@ class PaymentController extends Controller
          }else{
         $message = $this->dosubscript1($user->balance);
          }
-
+         
         //determine the program details
         $details = [
             'programFee' => $user->programs[0]['p_amount'],
@@ -87,31 +91,39 @@ class PaymentController extends Controller
             'programAbbr' => $user->programs[0]['p_abbr'],
             'balance' => $transaction->balance,
             'message' => $message,
-            'booking_form' => base_path() . '/uploads'.'/'. $user->programs[0]['booking_form'],
+            'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads'.'/'. $user->programs[0]['booking_form'] : NULL,
             'invoice_id' =>  $transaction->invoice_id,
             'message' => $message,
+            'currency' => $transaction->currency,
+            'transid' =>  $transaction->transid,
+            't_type' =>  $transaction->t_type
         ];
-  
+          
         $data = [
             'name' =>$user->name,
             'email' =>$user->email,
             'bank' =>$user->t_type,
+            'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
             'amount' =>$transaction->t_amount,
         ];
+       
         //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-        
+       
         //send user mails
         // return view('emails.receipt', compact('data', 'details'));
-        Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+        $data = array_merge($data, $details);
+        $pdf = PDF::loadView('emails.receipt', compact('data'));
+        // return view('emails.receipt', compact('data', 'details'));
+    //    
+        Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         
         return back()->with('message', 'Receipt sent succesfully'); 
     }else return back();
     }
 
     public function printReceipt($id){
-        $transaction = DB::table('program_user')->where('id', $id)->first();
-      
+        $transaction = Transaction::with('coupon')->where('id', $id)->first();
+        
         if(Auth::user()->role_id == "Student"){
             if(!$transaction){
                 return back()->with('warning', 'Unauthorized Action'); 
@@ -120,37 +132,44 @@ class PaymentController extends Controller
                 return back()->with('warning', 'Unauthorized Action');
             }
         }
-            //get user details
-            $user = User::findorFail($transaction->user_id);
+        //get user details
+        $user = User::findorFail($transaction->user_id);
 
-            if($transaction->t_amount == $user->programs[0]['e_amount']){
-                $message = $this->dosubscript2($transaction->balance);
-            }else{
-            $message = $this->dosubscript1($user->balance);
-            }
+        if($transaction->t_amount == $user->programs[0]['e_amount']){
+            $message = $this->dosubscript2($transaction->balance);
+        }else{
+        $message = $this->dosubscript1($user->balance);
+        }
 
-            //determine the program details
-            $details = [
-                'programFee' => $user->programs[0]['p_amount'],
-                'programName' => $user->programs[0]['p_name'],
-                'programAbbr' => $user->programs[0]['p_abbr'],
-                'balance' => $transaction->balance,
-                'message' => $message,
-                'booking_form' => $user->programs[0]['booking_form'],
-                'invoice_id' =>  $transaction->invoice_id,
-                'message' => $message,
-            ];
-    
-            $data = [
-                'name' =>$user->name,
-                'email' =>$user->email,
-                'bank' =>$user->t_type,
-                'amount' =>$transaction->t_amount,
-            ];
-            //generate pdf from receipt view
-            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-            
-            return view('emails.printreceipt', compact('data', 'details'));
+        //determine the program details
+       
+        $data = [
+            'name' =>$user->name,
+            'email' =>$user->email,
+            'bank' =>$user->t_type,
+            'amount' =>$transaction->t_amount,
+            'programFee' => $user->programs[0]['p_amount'],
+            'programName' => $user->programs[0]['p_name'],
+            'programAbbr' => $user->programs[0]['p_abbr'],
+            'balance' => $transaction->balance,
+            'message' => $message,
+            'booking_form' => $user->programs[0]['booking_form'],
+            'invoice_id' =>  $transaction->invoice_id,
+            'message' => $message,
+            'currency' => $transaction->currency,
+            'transid' =>  $transaction->transid ?? null,
+            'invoice_id' =>  $transaction->invoice_id ?? null,
+            't_type' =>  $transaction->t_type,
+            'coupon_id' =>  $transaction->coupon->id ?? null,
+            'coupon_code' =>  $transaction->coupon->code ?? null,
+            'coupon_amount' =>  $transaction->coupon->amount ?? null,
+            'created_at' =>  $transaction->created_at ?? null,
+        ];
+        
+        //generate pdf from receipt view
+        $pdf = PDF::loadView('emails.receipt', compact('data'));
+        
+        return view('emails.printreceipt', compact('data'));
 
     }
 
@@ -181,7 +200,7 @@ class PaymentController extends Controller
      
         //check amount against payment
         $programFee = $request->program_amount;
-
+        
         $newamount = $transaction->t_amount + $request->amount;
         if($newamount > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
@@ -192,11 +211,9 @@ class PaymentController extends Controller
         $paymentStatus =  $this->paymentStatus($balance);
         
         //update the program table here @ column fully paid or partly paid
-        
-
         DB::table('program_user')->whereId($transaction->id)->update([
             't_amount' => $newamount,
-           'balance' => $balance,
+            'balance' => $balance,
             't_type' => $request['bank'],
             't_location' => $request['location'],
             'transid' => $request['transaction_id'],

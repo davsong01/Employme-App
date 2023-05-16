@@ -24,7 +24,7 @@
 
                 @foreach($questions as $question)
                 <div class="form-group">
-                    <label for="title">{{ $i ++ .'. ' }}{{ $question->title }}</label><br>
+                    <label for="title">{{ $i ++ .'. ' }}{!! $question->title !!}</label><br>
 
                     <label for="{{ $question->id}}">Your answer <strong style="color:green">( Maximum words: 500 )</strong></label><br>
                     Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span>

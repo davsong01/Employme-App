@@ -26,7 +26,7 @@
         </div>
         <!-- Column -->
         <div class="col-md-4 col-lg-4">
-        <a href="{{ route('questions.index')}}">
+        <a href="{{ route('questions.show', $p_id)}}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>
@@ -59,7 +59,7 @@
                     <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin")<a href="{{route('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>

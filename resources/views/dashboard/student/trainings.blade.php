@@ -12,9 +12,21 @@
             </div>
         </div>
     </div>
-
     <div class="row">
-        <div class="col-md-6 col-lg-6">
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('payments.index') }}">
+                <div class="card card-hover">
+                    <div
+                        class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
+                        <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
+                        <h6 class="text-white">Payment Status {{ $currency_symbol }}{{ number_format($balance)  }} </h6>
+                        <p class="text-white">Paid: {{ $paid }} ; Balance:
+                            {{ $balance }} </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-lg-3">
             <a href="{{ route('materials.index', ['p_id'=> $program->id]) }}">
                 <div class="card card-hover">
                     <div class="box bg-info text-center">
@@ -25,22 +37,34 @@
                 </div>
             </a>
         </div>
-                
-        <div class="col-md-6 col-lg-6">
-            <a href="{{ route('payments.index') }}">
+        @if($program->hasmock == 1)
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('mocks.index', ['p_id' => $program->id])}}">
                 <div class="card card-hover">
-                    <div
-                        class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
-                        <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
-                        <h6 class="text-white">Payment Status </h6>
-                        <p class="text-white">Paid: {{ config('custom.default_currency') . $paid}} ; Balance:
-                            {{ config('custom.default_currency') . $balance }} </p>
+                    <div class="box bg-warning text-center">
+                        <h1 class="font-light text-white"><i class="fa fa-chalkboard"></i></h1>
+                        <h6 class="text-white">&nbsp;</h6>
+                        <p class="text-white">Pre Class Tests</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        @endif
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('tests.index', ['p_id'=>$program->id])}}">
+                <div class="card card-hover">
+                    <div class="box bg-success text-center">
+                        <h1 class="font-light text-white"><i class="fas fa-question"></i></h1>
+                        <h6 class="text-white">&nbsp;</h6>
+                        <p class="text-white">Post class Tests</p>
                     </div>
                 </div>
             </a>
         </div>
     </div>
-
+    
+  
+    @if(!$program->off_season)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -63,21 +87,39 @@
             </div>
         </div>
     </div>
+    @endif
+    @if(auth()->user()->facilitator_id)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-title">
-                    <h2 style="text-align: center;; color:green">All {{ config('app.name') }} Training
-                        Schedules
-                        <hr>
-                    </h2>
-                </div>
                 <div class="card-body">
-                    {!! $calendar->calendar() !!}
-                    {!! $calendar->script() !!}
+                    <h1 class="card-title m-b-0">Your Facilitator</h1> <br><br>
+                    <div class="row pt-2">
+                        <div class="col-md-2">
+                            <div class="d-flex no-block align-items-center">
+                                <img src="{{ asset('profiles/'. auth()->user()->facilitator->profile_picture )}}" alt="{{ auth()->user()->facilitator->profile_picture }}" class="rounded-circle" width="150"
+                                height="150" style="margin: auto;">
+                               
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div>
+                               
+                                    <b>Name: </b>{{ auth()->user()->facilitator->name }} <br>
+                                    <b>Email: </b>{{ auth()->user()->facilitator->email }} <br>
+                                    <b>Phone: </b>{{ auth()->user()->facilitator->t_phone }} <br>
+                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! auth()->user()->facilitator->profile !!}</span> 
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                   
                 </div>
             </div>
         </div>
     </div>
+    @endif
+    
 </div>
 @endsection

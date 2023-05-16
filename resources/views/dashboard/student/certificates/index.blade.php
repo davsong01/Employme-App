@@ -5,7 +5,7 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="">
                 <table id="" class="table table-striped table-bordered">
                     <thead>
                         <tr>

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use DB;
 use PDF;
 use App\User;
+use App\Result;
 use App\Program;
 use App\Location;
 use App\Settings;
 use App\Mail\Email;
+use App\Transaction;
 use App\UpdateMails;
 use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
@@ -54,16 +56,21 @@ class UserController extends Controller
     }
 
     public function saveredotest(Request $request){
-        $user = User::find($request->user_id);
-        $user->startRedoStatus($request->program);
+        // $user = User::find($request->user_id);
+        $result = Result::whereUserId($request->user_id)->first();
+        
+        $result->startRedoStatus();
 
         return redirect(route('users.index'))->with('message', 'Update Successful');
     }
 
-     public function stopredotest($id){
-        $user = User::find($id);
-       
-        $user->endRedoTest();
+    public function stopredotest($user_id){
+        $result = Result::whereUserId($user_id)->first();
+        if(is_null($result->certification_test_details)){
+            return back()->with('error', 'User has not written certification test');
+        }
+        User::whereId($user_id)->update(['redotest'=>0]);
+        $result->endRedoTest();
        
         return back()->with('message', 'Update Successful');
     }
@@ -76,15 +83,14 @@ class UserController extends Controller
             $locations = Location::select('title')->orderBy('created_at', 'DESC')->get();
             $user = User::all();
 
-            $programs =  Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->ORDERBY('created_at', 'DESC')->get();
-
+            $programs =  Program::select('id', 'p_end', 'p_name', 'p_amount','close_registration')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs', 'locations'));
     }return back();
 }
 
     public function store(Request $request)
     {
-
          //Check if program exist for the incoming training
         $user = User::where('email', $request->email)->first();
 
@@ -98,12 +104,13 @@ class UserController extends Controller
         }
 
         //determine the program details
-        $programFee = Program::findorFail($request['training'])->p_amount;
-        $programName = Program::findorFail($request['training'])->p_name;
-        $programAbbr = Program::findorFail($request['training'])->p_abbr;
-        $bookingForm = Program::findorFail($request['training'])->booking_form;
-        $programEarlyBird = Program::findorFail($request['training'])->e_amount;
-        $invoice_id = 'Invoice'.rand(10, 100);
+        $details = Program::findorFail($request['training']);
+        $programFee = $details->p_amount;
+        $programName = $details->p_name;
+        $programAbbr = $details->p_abbr;
+        $bookingForm = $details->booking_form;
+        $programEarlyBird = $details->e_amount;
+        $invoice_id = $this->getReference('SYS-ADMIN');
         
         if($request['amount'] > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
@@ -122,8 +129,6 @@ class UserController extends Controller
             $payment_type = 'Full';
              }
             $paymentStatus =  $this->paymentStatus($balance);
-            
-           
         }else {
            //check amount against payment
             $balance = $programFee - $request['amount'];
@@ -150,30 +155,30 @@ class UserController extends Controller
             'invoice_id' => '',
         ]);
 
-          //Check if email exists in the system and attach it to the new pregram to that email
-            if(!$user){
-                //save to database
-                $user = User::Create([
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    't_phone' => $data['phone'],
-                    'password' => bcrypt($data['password']),
-                    'role_id' => $data['role'],
-                    'gender' => $data['gender'],
-                ]);  
-            }
-
-            $user->programs()->attach($request->training, [
-                    'created_at' =>  date("Y-m-d H:i:s"),
-                    't_amount' => $data['amount'],
-                    't_type' => $data['bank'],
-                    't_location' => $data['location'],
-                    'transid' => $data['transaction_id'],
-                    'paymenttype' => $payment_type,
-                    'paymentStatus' => $paymentStatus,
-                    'balance' => $balance,
-                    'invoice_id' =>  $invoice_id,
-            ] );
+        //Check if email exists in the system and attach it to the new pregram to that email
+        if(!$user){
+            //save to database
+            $user = User::Create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                't_phone' => $data['phone'],
+                'password' => bcrypt($data['password']),
+                'role_id' => $data['role'],
+                'gender' => $data['gender'],
+            ]);  
+        }
+        
+        $user->programs()->attach($request->training, [
+            'created_at' =>  date("Y-m-d H:i:s"),
+            't_amount' => $data['amount'],
+            't_type' => $data['bank'],
+            't_location' => $data['location'],
+            'transid' => $data['transaction_id'],
+            'paymenttype' => $payment_type,
+            'paymentStatus' => $paymentStatus,
+            'balance' => $balance,
+            'invoice_id' =>  $invoice_id,
+        ] );
 
         //send mail here
         $details = [
@@ -240,33 +245,63 @@ class UserController extends Controller
             $user = User::findorFail($id);
             $programs = Program::where('id', '<>', 1)->get();
         if(Auth::user()->role_id == "Admin"){
-        return view('dashboard.admin.users.edit', compact('programs','user'));
+            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
+           
+        return view('dashboard.admin.users.edit', compact('programs','user', 'associated'));
     }return back();
 }
 
     public function update(Request $request, $id)
     {
-
+        date_default_timezone_set("Africa/Lagos");
         $user = User::findorFail($id);
         if($request['password']){
             $password = bcrypt($request['password']);
         }else $password = $user->password;
 
         try{
-
             $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            't_phone' => $request->phone,
-            'password' => $password,
-            'role_id' => $request->role,
-            'gender' =>$request->gender,
-        ]); 
+                'name' => $request->name,
+                'email' => $request->email,
+                't_phone' => $request->phone,
+                'password' => $password,
+                'role_id' => $request->role,
+                'gender' =>$request->gender,
+            ]); 
 
-        }catch (\Illuminate\Database\QueryException $e) {
-
+        // Get User programs and pop out of array
+        $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
+        $newTrainings = $request['training'];
+        $trainings = array_unique(array_merge($user_programs, $newTrainings));
+        $toBeDeleted = array_diff($user_programs, $newTrainings);
+        // dd($user_programs, $toBeDeleted, $trainings, $newTrainings);
+        foreach( $trainings as $value){
+            if(!in_array($value, $user_programs)){
+                $training = Program::find($value);
+                if ($training) {
+                    $user->programs()->attach($training->id, [
+                        'created_at' =>  date("Y-m-d H:i:s"),
+                        'invoice_id' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
+                        'transid' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
+                        't_amount' => $training->p_amount,
+                        't_amount' => $training->p_amount,
+                        't_type' => 'System Admin',
+                        't_location' => null,
+                        'paymentStatus' => 1,
+                        'balance' => 0,
+                        'invoice_id' =>  'Invoice' . $user->id,
+                    ]);
+                }
+            }
+            
+            if(in_array($value, $toBeDeleted)){
+                DB::table('program_user')->where('user_id', $user->id)->where('program_id', $value)->delete();
+            }
+        }
+   
+        }catch (\Exception $e) {
             $error = $e->getMessage();
-
             return back()->with('error', $error);
         }
           
@@ -276,6 +311,7 @@ class UserController extends Controller
         } return back();
     
     }
+
     public function destroy(User $user)
     {  
         
@@ -309,7 +345,7 @@ class UserController extends Controller
         return view('dashboard.admin.users.emailhistory', compact('email') );
     }
     public function sendmail(Request $request){
-
+       
         ini_set('max_execution_time', 300); //5 minutes
         
         $data = $this->validate($request, [
@@ -329,12 +365,10 @@ class UserController extends Controller
             $recipients = explode (",", $recipients); 
             $program = 'Selected Recipients';
 
-           
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
-                if(!$name){
-                    $name = 'Participant';
-                }
+                $name = $name ?? 'Participant';
+                
                 Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }

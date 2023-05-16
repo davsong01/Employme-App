@@ -13,14 +13,18 @@
                     <h5 class="card-title">Facilitators $ Graders <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>
+                            <th>Avatar</th>
                             <th>Name</th>
                             <th>Role</th>
-                            <th>Email</th>
+                            <th>Trainings</th>
+                            <th>Direct Students</th>
+                            <th>Earnings</th>
+                            <th>Off Season</th>
                             <th>Manage</th>
                         </tr>
                     </thead>
@@ -28,23 +32,48 @@
                         @foreach($users as $user)
                         <tr>
                             <td>{{  $i++ }}</td>
-                            {{-- <td>{{ $user->created_at->format('d/m/Y') }}</td> --}}
                             <td>
-                                <strong>{{ $user->name }}</strong><br>
-                                
-                                @foreach($user->p_names as $names)
-                                    {{ $names }} <strong style="color:red">||</strong>
-                                @endforeach
+                                <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="50" height="50">
                             </td>
-                            <td>{{ $user->role_id}}</td>
-                            <td>{{ $user->email }}</td>
+                            <td>
+                                <small>
+                                <strong>Name: </strong> {{ $user->name }}<br>
+                                <strong>Email: </strong> {{ $user->email }}<br>
+                                <strong>Phone: </strong> {{ $user->t_phone }}<br>
+                                
+                                <strong>Assigned trainings: </strong>{{ $user->trainings->count() }} <br>
+                                @if($user->license)
+                                <strong style="color:green">WTN License: </strong> <span style="color:green">{{ $user->license }}</span> <br>
+                                @endif
+                                </small>
+                            </td>
+                           
+                            <td style="margin: auto;display: flex;border-bottom: none;"><button class="disabled btn btn-{{ $user->role_id == 'Facilitator' ? 'primary' : 'info'}} btn-sm">{{ $user->role_id}}</button> <br>
+                            @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
+                            </td>
+                            <td>
+                                <small>
+                                    @foreach($user->p_names as $index=>$names)
+                                    <strong style="color:red">@if($index < count($user->p_names))|| @endif</strong>{{ $names }} @if($index < count($user->p_names)-1)<br>@endif
+                                    @endforeach
+                                </small>
+                            </td>
+                            <td>{{ $user->students_count }} <br>
+                                <a target="_blank" href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                            </td>
+                            
+                            <td>{{ $user->payment_modes->currency_symbol ?? 'NGN' }}{{ $user->earnings ? number_format($user->earnings) : 0 }} <br>
+                                <a target="_blank" href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                            </td>
+                          
+                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
                                           
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit facilitator"
                                         class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
-                                    </a>
+                                    </a>                                   
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>
@@ -69,4 +98,5 @@
         </div>
     </div>
 </div>
+
 @endsection

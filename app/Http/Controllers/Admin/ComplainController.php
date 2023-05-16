@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\User;
 use App\Program;
 use App\Complain;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;
@@ -15,15 +16,39 @@ class ComplainController extends Controller
     public function index(Request $request)
     {
         $i = 1;
+        
         if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
             $i = 1;  
+            if(Auth::user()->role_id == "Facilitator"){
+                $trainings = auth()->user()->trainings;
+                if(isset($trainings) && !empty($trainings)){
+                    $trainings = array_column($trainings->toArray(),'program_id');
+                }else{
+                    $trainings = [];
+                }
 
-            $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
-            
-            $resolvedComplains =  Complain::where('status', '=', 'Resolved' )->count();
-            $pendingComplains =  Complain::where('status', '=', 'Pending' )->count(); 
-            $InProgressComplains =  Complain::where('status', '=', 'In Progress' )->count();  
-            //   dd( $complains);
+                $complains = Complain::with('user')->whereIn('program_id',$trainings)->orderBy('user_id', 'DESC')->get();
+                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->whereIn('program_id', $trainings)->count();
+                $pendingComplains =  Complain::where('status', '=', 'Pending')->whereIn('program_id', $trainings)->count();
+                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->whereIn('program_id', $trainings)->count();  
+            }else{
+                $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
+
+                // foreach($complains as $c){
+                //     $check = \DB::table('program_user')->where('user_id', $c->user_id)->first();
+                //     if($check){
+                //         $c->update([
+                //             'program_id'=> $check->program_id,
+                //         ]);
+                //     }
+                  
+                // }
+                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->count();
+                $pendingComplains =  Complain::where('status', '=', 'Pending')->count();
+                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->count();  
+
+            }
+           
             return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
         }elseif(Auth::user()->role_id == "Student"){  
 
@@ -41,11 +66,24 @@ class ComplainController extends Controller
 
     public function create(Request $request)
     {
-          if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
-            return view('dashboard.admin.complains.create')->with('extend', 'dashboard.admin.index');
+        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator"){
+            if (Auth::user()->role_id == "Facilitator") {
+                $programs = Auth::user()->trainings;
+                $programs = $programs->map(function($q){
+                    $q->p_name = Program::where('id', $q->program_id)->value('p_name');
+                    return $q;
+                });
+            } else {
+                $programs = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
+            }
+            $program = '';
+            
+            return view('dashboard.admin.complains.create')
+                ->with('extend', 'dashboard.admin.index')
+                ->with('programs', $programs);
 
-    }elseif(Auth::user()->role_id == "Student"){
-        $program = Program::find($request->p_id); 
+        }elseif(Auth::user()->role_id == "Student"){
+            $program = Program::find($request->p_id); 
 
         return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
 } return back();
@@ -53,7 +91,6 @@ class ComplainController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $data = request()->validate([
             'name' => 'required|min:5|max:50',
             'email' => 'required',
@@ -67,13 +104,14 @@ class ComplainController extends Controller
             'priority' => 'required',
             'status' => 'required',
             'gender' => 'required',
-            'teamlead' => 'required',
+            'teamlead' => 'nullable',
             'complain' => 'required',
-            'other' => 'sometimes',
-            'response' => 'sometimes',
-            'notes' => 'sometimes',
+            'other' => 'nullable',
+            'response' => 'nullable',
+            'notes' => 'nullable',
+            'program_id' => 'nullable',
         ]);
-           
+        // dd($data);
         if(!empty($data['notes'])){
             $data['notes'] =  $data['notes'];
         }else{
@@ -83,8 +121,9 @@ class ComplainController extends Controller
         if($data['type'] == "Enquiry"){
             $sla = 0;
         }else $sla = rand(4, 6);
-
-        Complain::create([
+        // dd($request->all(), $request->program_id);
+       
+        $query = Complain::create([
             'user_id' => Auth::user()->id,
             'name' => $data['name'],
             'address' => $data['address'],
@@ -103,9 +142,11 @@ class ComplainController extends Controller
             'notes' => $data['notes'],
             'content' => $data['complain'],
             'response' => $data['response'],
+            'program_id' => $data['response'],
             'sla' => $sla,
-        ]);
+            'program_id' =>  $data['program_id'],
 
+        ]);
         return back()->with('message', 'CRM has been created succesfully');
     }
 

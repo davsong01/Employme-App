@@ -10,7 +10,7 @@
                 @include('layouts.partials.alerts')
              </div>
            
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -27,8 +27,7 @@
                             <td>{{ $program->p_name }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="View Grades"
-                                        class="btn btn-info" href="{{ route('results.getgrades', $program->program_id)}}"><i class="fa fa-eye"></i>
+                                    <a class="btn btn-info" href="{{ route('results.getgrades', $program->program_id)}}"><i class="fa fa-eye"></i>
                                     </a>
                                 </div>
                             </td>

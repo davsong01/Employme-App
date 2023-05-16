@@ -117,14 +117,5 @@ class ApiController extends Controller
             }
            
            return $rating;
-
-    
-
-        // 86 - 94 Marks - 3 Stars
-
-        // 95 - 99 Marks - 4 Stars
-
-        // 100 - 5 Stars
-        // if $score = 
     }
 }

@@ -18,10 +18,9 @@ class TestsController extends Controller
     {
         
        if(Auth::user()->role_id == "Student"){
-
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to take tests');
+                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
             }  
 
             $i = 1;
@@ -62,7 +61,7 @@ class TestsController extends Controller
                 $module['completed'] = 0;
                 }
             }
-
+           
                          
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program') );
          }
@@ -78,16 +77,15 @@ class TestsController extends Controller
 
         $program = Program::find($request->p_id);
    
-        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
-      
+        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
+        
         if(sizeof($class_test_details) < 2){
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
-        
-        foreach($certification_test_details as $key => $value)
-        {
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
+       
+        foreach($certification_test_details as $key => $value){
              if((!isset($certification_test_details[$key]))){
                 return back()->with('error', 'You must answer at least 1 question');
             };
@@ -98,7 +96,7 @@ class TestsController extends Controller
         }
      
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
-       
+        
         if(auth()->user()->redotest == 0){
         if($check != NULL){
             return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
@@ -122,11 +120,11 @@ class TestsController extends Controller
         if($module->type == 'Certification Test'){
             try{
                 $results = Result::create([
-                   'program_id' => $module->program->id,
-                   'user_id' => Auth::user()->id,
-                   'module_id' => $module->id,
-                   'certification_test_details' => json_encode($certification_test_details),
-                    ]);
+                    'program_id' => $module->program->id,
+                    'user_id' => Auth::user()->id,
+                    'module_id' => $module->id,
+                    'certification_test_details' => json_encode($certification_test_details),
+                ]);
                
                 }catch (\Illuminate\Database\QueryException $ex) {
                     $error = $ex->getMessage();        
@@ -173,14 +171,12 @@ class TestsController extends Controller
             $program = Program::find($request->p_id);
             $hasmock = $program->hasmock;
             $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
-
                 if($user_balance->balance > 0){
-                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get access to training materials');
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to access tests');
                 }   
 
                 //Check if user has taken pre tests and return back if otherwise
                 if($program->hasmock == 1){
- 
                     $expected_pre_class_tests = Module::ClassTests($program->id)->count();
                     $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
                     
@@ -198,11 +194,11 @@ class TestsController extends Controller
             foreach($results as $result){
                 $result['certification_test_score'] =  $cert_score;
             }
-            
+           
             $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();    
        
             return view('dashboard.student.tests.result', compact('results','i', 'program', 'mock_results', 'hasmock') );
-          }
+        }
     }
 
 
@@ -210,6 +206,7 @@ class TestsController extends Controller
     {
         $questions = Question::with('module')->where('module_id', $id)->get();      
         $i = 1;
+        
         //check if registered module
         $questionsarray = $questions->toArray();
         if($questionsarray[0]['module']['program_id'] <> $request->p_id ){
@@ -224,7 +221,7 @@ class TestsController extends Controller
             $time= $question->module->time;
             $module_title = $question->module->title;
         }
-        
+      
         if($module_type == 'Class Test'){
             return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program','program_name','module_title', 'time'));
         }
@@ -233,7 +230,12 @@ class TestsController extends Controller
         }
     }
 
-    
+    public function userResultComments(Request $request, $id){
+        $comments = Result::where('id',$id)->first();
+        $program = Program::find($request->p_id);
+        return view('dashboard.student.tests.result_comments',compact('comments','id','program'));
+    }
+
     public function edit($id)
     {
         //

@@ -11,15 +11,8 @@
                         <h4 class="card-title">Add new location</h4>
                     </div>
                     <form action="{{ route('locations.store') }}" method="POST" class="pb-2">
-                        <div class="form-group">
-
-                            <label for="class">Title (e.g: Lagos)</label>
-
-                            <input type="text" class="form-control" name="title" required value={{ old('value') }}>
-
-                            <div><small style="color:red">{{ $errors->first('title')}}</small></div>
-
-                        </div>
+                        
+                        
 
 
                         <div class="form-group">

@@ -16,6 +16,8 @@ Amount: {{ $data['amount'] }}
 
 Training: {{ $data['training'] }}
 
+Date of Payment: {{ $data['date'] }}
+
 Location: {{ $data['location'] }}
 
 @component('mail::button', ['url' => config('app.url').'/login'])

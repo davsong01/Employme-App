@@ -15,12 +15,13 @@
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>
                             <th>Date</th>
+                            <th>Avatar</th>
                             <th>Name</th>
                             <th>Phone</th>
                             <th>Email</th>
@@ -35,6 +36,8 @@
                             
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td> 
+
                             <b style="display:none">{{ $count = 1 }}</b>
                             <td>
                                 {{ $user->name }} <br>
@@ -59,7 +62,7 @@
                                         class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
-                                    @if($user->redotest === 0)
+                                    {{-- @if($user->redotest === 0)
                                     <a  onclick="return confirm('Are you really sure?');" data-toggle="tooltip" data-placement="top" title="Allow to retake Test"
                                         class="btn btn-success" href="{{ route('redotest', $user->id) }}"><i class="fa fa-redo" aria-hidden="true"></i>
                                     </a>
@@ -67,7 +70,7 @@
                                     <a onclick="return confirm('Are you really sure?');" data-toggle="tooltip" data-placement="top" title="Stop from retaking Test"
                                         class="btn btn-primary" href="{{ route('stopredotest', $user->id) }}"><i class="fa fa-stop" aria-hidden="true"></i>
                                     </a>
-                                    @endif
+                                    @endif --}}
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}

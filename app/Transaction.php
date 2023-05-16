@@ -3,6 +3,7 @@
 namespace App;
 
 use App\User;
+use App\Coupon;
 use App\Program;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +17,11 @@ class Transaction extends Model
 
     public function program(){
         return $this->belongsTo(Program::class);
+    }
+
+    public function coupon()
+    {
+        return $this->belongsTo(Coupon::class);
     }
 }
 

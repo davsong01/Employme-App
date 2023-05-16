@@ -159,11 +159,13 @@ class UserController extends Controller
     { 
             $user = User::findorFail($id);
             $programs = Program::where('id', '<>', 1)->get();
-        if(Auth::user()->role_id == "Admin"){
-        return view('dashboard.admin.users.edit', compact('programs','user'));
-    }return back();
-}
+            if(Auth::user()->role_id == "Admin"){
+                            
+                return view('dashboard.admin.users.edit', compact('programs','user'));
+        }return back();
+    }
 
+ 
     public function update(Request $request, $id)
     {
         

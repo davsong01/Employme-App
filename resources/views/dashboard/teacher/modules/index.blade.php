@@ -15,7 +15,7 @@
                     <h5 class="card-title"> Select a Training to manage its modules. Trainings which have no modules will not appear here </h5> 
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="">
                     <thead>
                         <tr>

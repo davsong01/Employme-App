@@ -85,7 +85,7 @@
                                 <div class="form-group">
                                     <label for="class" style="color:red">Which option above is the correct one?</label>
                                     <select name="correct" id="correct" class="form-control">
-                                        <option value="">Slect Option</option>
+                                        <option value="">Select Option</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>
                                         <option value="C">C</option>
@@ -105,4 +105,7 @@
             </div>
         </div>
     </div>
+     <script>
+            CKEDITOR.replace('title');
+        </script>
     @endsection

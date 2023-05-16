@@ -7,39 +7,43 @@
         <div class="card-body">
             @include('layouts.partials.alerts')
             <h5 class="card-title">Proof of Payment History</h5>
-            <div class="table-responsive">
+            <div class="">
                 <table id="myTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Training</th>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>Customer details</th>
+                            <th>Training details</th>
                             <th>Amount Paid</th>
                             <th>Bank</th> 
                             <th>Location</th>
-                            <th>Manage</th>       
+                            <th>Actions</th>       
                         </tr>
                     </thead>
                     
                     <tbody>
                         @foreach($pops as $pop)
+                     
                         <tr>
                             <td>{{ $pop->date }}</td>
-                            <td>{{ $pop->program->p_name }}</td>
-                            <td>{{ $pop->name }}</td>
-                            <td>{{ $pop->email }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $pop->amount }}</td>
+                            <td>{{ $pop->name }} <br>
+                                {{ $pop->email }} <br>
+                                {{ $pop->phone }} 
+                            </td>
+                            <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
+                            @if(isset($pop->is_fresh)) <br>
+                            <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
+                            @endif
+                            </td>
+                            <td>{{ number_format($pop->amount) }}</td>
                             <td>{{ $pop->bank }}</td>
                             <td>{{ $pop->location }}</td>
                            
                              <td>
                                 <div class="btn-group">
-                                    <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $pop->file }}" src="view/{{ $pop->file }}" alt="{{ $pop->name }}" style="width:40px;max-width:300px"></a>
+                                    <a href="#"><img title="View Proof of payment" id="myImg{{ $pop->file }}" src="view/{{ $pop->file }}" alt="{{ $pop->name }}" style="width:40px;max-width:300px"></a>
                                     
-                                    <a data-toggle="tooltip" data-placement="top" title="Approve Payment"  onclick="return confirm('Are you really sure?');"
-                                        class="btn btn-success" href="{{ route('pop.show', $pop->id) }}"><i
-                                            class="fa fa-check"></i>
+                                    <a  title="Approve Payment" class="btn btn-success" href="{{ route('pop.show', $pop->id) }}"><i class="fa fa-check"></i>
                                     </a>
                                     <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
@@ -90,40 +94,61 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Payment History</h5>
-            <div class="table-responsive">
-                <table id="zero_config" class="table table-striped table-bordered" style="width:100%">
+            <div class="">
+                <table id="transTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Training</th>
-                            <th>Amount Paid</th>
-                            <th>Balance</th> 
-                            <th>Bank</th> 
-                            <th>Invoice ID</th>
-                            <th>Transaction ID</th> 
-                            <th>Manage</th>       
+                            <th>Customer details</th>
+                            <th>Training details</th>
+                            <th>Payment details</th>
+                            <th>Actions</th>       
                         </tr>
                     </thead>
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                      
                         <tr>
-                            
-                            <td>{{ $transaction->created_at }} </td>
-                            <td>{{isset($transaction->user ) ? $transaction->user->name : 'N/A' }}</td>
-                            <td>{{isset($transaction->user ) ? $transaction->user->email : 'N/A' }}</td>
-                            <td>{{ isset($transaction->program) ? $transaction->program->p_name : 'N/A' }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->t_amount }}</td>
-                            @if($transaction->paymentStatus == 0 )
-                                <td><b style="color:red">{{  \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->balance }} </b></td> 
-                            @else
-                                <td><b style="color:green">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').  $transaction->balance }}</b></td> 
-                            @endif
-                            <td>{{ $transaction->t_type }}</td>
-                            <td>{{ $transaction->invoice_id }}</td>
-                            <td>{{ $transaction->transid }}</td>
+                            <td>{{ $transaction->name ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }}  </td>
+                            <td>
+                                <small class="training-details">
+                                    <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
+                                    <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
+                                    @if(!is_null($transaction->coupon_code))
+                                    <span style="color:blue">
+                                       <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
+                                    </span>
+                                    @endif
+                                    <br>
+                                    <strong>Balance:</strong>
+                                         @if($transaction->balance > 0 )
+                                            <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
+                                        @else
+                                            <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
+                                        @endif
+                                    <br>      
+                                    <strong>Bank: </strong>{{ $transaction->t_type }} <br>
+                                    <strong>Date: </strong>{{ $transaction->created_at }}
+                                   
+                                </small>
+                                
+                            </td>   
+                            <td>
+                                <small class="id-details">
+                                    <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
+                                    <strong>Transaction ID:</strong> {{ $transaction->transid }} 
+                                    @if(isset($transaction->balance_amount_paid))
+                                    <br>
+                                    <strong>Last Balance Paid:</strong> {{ $transaction->currency_symbol.number_format($transaction->balance_amount_paid) }} <br>
+                                    <strong>Paid At:</strong> {{ $transaction->balance_paid }} 
+                                    @endif
+                                    <br>
+                                    <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
+                                     <strong>Type: </strong>{{ $transaction->t_type }} <br>
+                                    <strong>Currency: </strong>{{ $transaction->currency }}
+                                     
+                                </small>
+                            </td>
                              <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"

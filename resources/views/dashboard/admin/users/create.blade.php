@@ -126,7 +126,7 @@
 
                                         <option value="{{ $program->id }}" {{ old('training') == $program->id ? 'selected' : '' }} required>
 
-                                            {{$program->p_name}}</option>
+                                            {{$program->p_name}}| <strong>({{ \App\Settings::value('DEFAULT_CURRENCY').number_format($program->p_amount) }})</strong></option>
 
                                         @endforeach
 

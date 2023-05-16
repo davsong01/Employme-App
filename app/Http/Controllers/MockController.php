@@ -53,9 +53,9 @@ class MockController extends Controller
        if(Auth::user()->role_id == "Student"){
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            
             if($user_balance->balance > 0){
-                
-                return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to access pre-tests');
+                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol.number_format($user_balance->balance). ' in order to access pre class tests');
             }
 
             $i = 1;
@@ -171,13 +171,12 @@ class MockController extends Controller
                         } 
                         $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
 
-                        
-                $program_name = Program::whereId($request->pid)->value('p_name');
+                        $program_name = Program::whereId($request->pid)->value('p_name');
             
                     }
                
             }
-
+        
             return view('dashboard.admin.mocks.index', compact('users', 'i', 'program_name') );
         }
             
@@ -405,13 +404,13 @@ class MockController extends Controller
     {
         $program = Program::find($request->p_id);
         
-        $class_test_details = array_except($request->all(), ['_token', 'mod_id', 'id']);
+        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
        
         if(sizeof($class_test_details) < 2){
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = array_except($request->all(), ['_token', 'mod_id', 'id', 'p_id']);
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
       
         foreach($certification_test_details as $key => $value)
         {

@@ -11,16 +11,18 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
-                </div> <div>
+                </div> 
+                {{-- <div>
                     <h5 class="card-title"> Actions Legend:</h5>
                     <p style="color:green">1. Edit Training | 2. Close/Extend Registration | 3. Enable/Disable CRM | 4. Enable/Disable Result Availability| 5. Trash Training | 6. Close EarlyBird Payment(if applicable)  </p> 
-                </div>
+                </div> --}}
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>S/N</th>
+                            <th>Banner</th>
                             <th>Title</th>
                             <th>Fee</th>
                             <th>Dates</th>
@@ -34,15 +36,19 @@
                         @foreach($programs as $program)
                         <tr>
                             <td>{{  $i++ }}</td>
+                            <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td>{{ $program->p_name }}<br>
                                 Type: @if($program->off_season)Off Season @else Normal @endif <br>
+                                @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif <br>
                                 {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
-                                    <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
+                                <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
+                                @if($program->status == 1) <br><br> <a href="{{ url('/trainings').'/'.$program->id }}">{{ url('/trainings').'/'.$program->id }}</a> @endif
+
                                     
                             </td>
-                           
-                            <td><strong>Normal Fee:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->p_amount) }} <br>
-                               <strong>EarlyBird:</strong> {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($program->e_amount) }}
+                            
+                            <td><strong>Normal Fee:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
+                               <strong>EarlyBird:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
                             
                             </td>
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
@@ -50,12 +56,19 @@
                             </td>
                             <td>{{ $program->part_paid }}</td>
                             <td>{{ $program->fully_paid }}</td>
-                            <td>{{ $program->status == 1 ? 'Published' : 'Draft'}}</td>
                             <td>
-                                <div class="btn-group">
+                                @if( $program->status == 1 )
+                                <button class="btn btn-success btn-xs">Published</button> 
+                                @else
+                                <button class="btn btn-danger btn-xs">Draft</button> 
+                                @endif
+                              
+                            </td>
+                            <td>
+                                <div class="btn-group" style="max-height: 35px;margin-bottom: 5px;">
 
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Training"
-                                        class="btn btn-info" href="{{ route('programs.edit', $program->id)}}" onclick="return confirm('Are you really sure?');"><i
+                                        class="btn btn-info" href="{{ route('programs.edit', $program->id)}}"><i
                                             class="fa fa-edit"></i>
                                     </a>
 
@@ -80,6 +93,8 @@
                                            onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     @endif
+                                </div>
+                                <div class="btn-group" style="max-height: 35px;margin-bottom: 5px;">
                                     @if($program->hasresult == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
                                         class="btn btn-success" href="{{ route('results.enable', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i>

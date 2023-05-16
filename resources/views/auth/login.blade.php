@@ -4,36 +4,41 @@
 <div class="col-md-7">
     <div class="card-body">
         <div class="brand-wrapper">
-            <img src="{{ asset('login_files/assets/images/logo.png') }}" alt="logo"
+            <a href="/">
+                <img src="{{ asset('login_files/assets/images/logo.png') }}" alt="logo"
                 style="width: 230px !important">
+            </a>
         </div>
         <p class="login-card-description">Login to Start learning</p>
         <form method="POST" action="{{ route('login') }}" method="post" >
             {{ csrf_field() }}
-            <div class="form-group mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
-                <label for="email" class="sr-only">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}"  id="email" class="form-control"
-                    placeholder="Email address">
-            </div>
-            @if ($errors->has('email'))
-                <span class="help-block" style="font-weight: 50 !important;">
-                    <strong>{{ $errors->first('email') }}</strong>
-                </span>
-            @endif
-            <div class="form-group mb-4{{ $errors->has('password') ? ' has-error' : '' }}">
-                <label for="password" class="sr-only">Password</label>
-                <input type="password" name="password" id="password" class="form-control"
-                   >
-            </div>
-            @if ($errors->has('password'))
-                <span class="help-block" style="font-weight: 50 !important;">
-                    <strong>{{ $errors->first('password') }}</strong>
-                </span>
-            @endif
+            <div class="form-row">
+                    <div class="form-group col-md-12 mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
+                        <label for="email" class="sr-only">Email</label>
+                        <input type="email" name="email" value="{{ old('email') }}"  id="email" class="form-control"
+                            placeholder="Email address">
+                    </div>
+                    @if ($errors->has('email'))
+                        <span class="help-block" style="font-weight: 50 !important;">
+                            <strong>{{ $errors->first('email') }}</strong>
+                        </span>
+                    @endif
+                    <div class="form-group col-md-12 mb-4{{ $errors->has('password') ? ' has-error' : '' }}">
+                        <label for="password" class="sr-only">Password</label>
+                        <input type="password" name="password" id="password" class="form-control"
+                        >
+                    </div>
+                    @if ($errors->has('password'))
+                        <span class="help-block" style="font-weight: 50 !important;">
+                            <strong>{{ $errors->first('password') }}</strong>
+                        </span>
+                    @endif
 
-                <button type="submit" class="btn btn-block login-btn mb-4">
-                    Login
-                </button>
+                    <button type="submit" class="btn btn-block login-btn mb-4">
+                        Login
+                    </button>
+               
+            </div>    
         </form>
         <a class="btn btn-link" href="{{ route('password.request') }}">
             Forgot Your Password?

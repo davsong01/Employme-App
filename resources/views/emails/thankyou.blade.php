@@ -1,3 +1,11 @@
+<?php
+    $logo = \App\Settings::first()->value('logo');
+    // $currency = \Session::get('currency');
+    // $currency_symbol = \Session::get('currency_symbol');
+    // $exchange_rate = \Session::get('exchange_rate');
+    $currency_symbol = $data['currency_symbol'];
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,6 +27,8 @@
 
   <!-- Plugin CSS -->
   <link href="{{ asset('assets/inc/vendor/magnific-popup/magnific-popup.css') }}" rel="stylesheet">
+  
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($logo)}}">
 
   <!-- Theme CSS - Includes Bootstrap -->
   <link href="{{ asset('assets/inc/css/creative.min.css') }}" rel="stylesheet">
@@ -37,8 +47,8 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
     <div class="container">
-        
-      <a class="navbar-brand js-scroll-trigger" href="#page-top"><img src="assets/inc/img/logo-text.png" alt="logo"></a>
+       
+      <a class="navbar-brand js-scroll-trigger" href="/"><img style="width: 25% !important;" src="{{ asset($logo)}}" alt="logo"></a>
     </div>
   </nav>
 
@@ -47,50 +57,50 @@
     <div class="container h-100">
       <div class="row h-100 align-items-center justify-content-center text-center">
         <div class="col-lg-10 align-self-end">
-          <h4 class="text-uppercase text-white font-weight-bold">THANK YOU</h4>
+          <h4 class="text-uppercase text-white font-weight-bold">THANK YOU {{ $data['name'] }}</h4>
         </div>
         <div class="col-lg-8 align-self-baseline">
-          <p class="text-white-75 font-weight-light mb-5">Thank you for making payment. Please save the details of your payment below. Please check your email for your booking form, E-receipt and portal details </p>
+          <p class="text-white-75 font-weight-light mb-5">Thank you for making payment. Please save the details of your payment below. Please check your email ({{ $data['email'] }}) for your E-receipt and login details </p>
           <div class="row">
-          		<div class="container">
+              <div class="container">
 
-  <table class="table table-dark table-hover">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th class="value">Value</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Training</td>
-        <td class="value"> {{ $details['programAbbr'] }}</td>
-      </tr>
-      <tr>
-        <td>Email</td>
-        <td class="value">{{ $data['email'] }}</td>
-    
-      </tr>
-      <tr>
-        <td>Invoice ID</td>
-        <td class="value">{{ $details['invoice_id']}}</td>
-      </tr>
-      <tr>
-        <td>Amount Paid</td>
-        <td class="value">{{ config('custom.default_currency').$data['amount'] }}</td>
-      </tr>
-      <tr>
-        <td>Balance</td>
-        <td class="value">{{ config('custom.default_currency'). $details['balance']}}</td>
-      </tr>
-      <tr>
-        <td>Payment Type</td>
-        <td class="value">{{ $details['message']}}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-</div>
+                <table class="table table-dark table-hover">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th class="value">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Training</td>
+                      <td class="value"> {{ $data['programAbbr'] }}</td>
+                    </tr>
+                    <tr>
+                      <td>Email</td>
+                      <td class="value">{{ $data['email'] }}</td>
+                  
+                    </tr>
+                    <tr>
+                      <td>Invoice ID</td>
+                      <td class="value">{{ $data['invoice_id']}}</td>
+                    </tr>
+                    <tr>
+                      <td>Amount Paid</td>
+                      <td class="value">{{  $currency_symbol.number_format($data['amount']) }}</td>
+                    </tr>
+                    <tr>
+                      <td>Balance</td>
+                      <td class="value">{{ $currency_symbol. number_format($data['balance'])}}</td>
+                    </tr>
+                    <tr>
+                      <td>Payment Type</td>
+                      <td class="value">{{ $data['message']}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+          </div>
           
         </div>
       </div>

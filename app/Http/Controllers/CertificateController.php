@@ -29,7 +29,7 @@ class CertificateController extends Controller
                 $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
                 $program = Program::find($request->p_id);  
                 if($user_balance->balance > 0){
-                    return back()->with('error', 'Please Pay your balance of '. config('custom.default_currency').$user_balance->balance. ' in order to get view/download certificate');
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get view/download certificate');
                 }
 
                 $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
@@ -56,7 +56,7 @@ class CertificateController extends Controller
     public function selectUser(Request $request)
     {
         if(Auth::user()->role_id == "Admin"){
-      
+            
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
             foreach($users as $user){
                 $user->name = User::whereId($user->user_id)->value('name');

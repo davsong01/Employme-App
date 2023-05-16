@@ -22,7 +22,7 @@
                 {{ csrf_field() }}
                 @foreach($questions as $question)
                     <div class="form-group">
-                        <label for="name">{{ $i ++ .'. ' }}{{ $question->title }}
+                        <label for="name">{{ $i ++ .'. ' }}{!! $question->title !!}
 
                         </label><br>
                         <input type="radio" id="{{ $question->id }}{{ $question->optionA }}"
@@ -75,11 +75,7 @@
             }
         }
 
-        var max_time = {
-            {
-                % 24 time
-            }
-        };
+        var max_time = {{$time}};
         var c_seconds = 0;
         var total_seconds = 60 * max_time;
         max_time = parseInt(total_seconds / 60);

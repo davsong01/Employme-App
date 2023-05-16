@@ -8,7 +8,7 @@
 <body>
 <div class="container">
 
-	<div style="float:left"><img src="{{ asset('assets/images/elearninglogo.jpg') }}" style="width:50%" /></div>
+	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width:100%" /></div>
 
 	<div style="float:right">
 		<h4></h4>
@@ -16,10 +16,13 @@
 		<h4><strong><span style="font-size:36px;">E - RECEIPT</span></strong></h4>
 
 		<p></p>
-
-		<p><b style="color:red !important">INVOICE ID: {{ $details['invoice_id']}} </b></p>
-
-		<p><em>Date: {{ date('Y:m:d') }}</em></p>
+		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['transid']}}</span>  </b></p>
+		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['invoice_id']}}</span> </b></p>
+		<?php 
+		$date =  $data['created_at'] ?? now()
+		?>
+		<p><em>{{ \Carbon\Carbon::parse($date)->format('jS F, Y, h:iA')  }}</em></p>
+		
 	</div>
 
 	<div class="row">
@@ -27,7 +30,7 @@
 	</div>
 
 	<div class="row">&nbsp;
-		<div class="col-8"><strong>School Address: </strong>{!! config('custom.address_on_receipt') !!}
+		<div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
 		</div>
 	</div>
 
@@ -49,8 +52,8 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $details['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $data['bank']}}</td>
+					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
+					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? null}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -68,10 +71,10 @@
 			<tbody>
 				<tr>
 					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $details['programName']}}<br />
-					<small><i>({{ $details['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ config('custom.default_currency') }}{{ $details['programFee']}}</td>
-					<td class="col-md-2 text-center">{{ config('custom.default_currency') }}{{ $data['amount'] }}</td>
+					<td class="col-md-8">{{ $data['programName']}}<br />
+					<small><i>({{ $data['message']}})</i></small></td>
+					<td class="col-md-1 text-center">{{ $data['currency'] ?? null}}{{ number_format($data['programFee']) }}</td>
+					<td class="col-md-2 text-center">{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }}</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -80,7 +83,7 @@
 					<p><strong>Total:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-					<p><strong>{{ config('custom.default_currency') }}{{ $data['amount'] }}</strong></p>
+					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['amount']) }}</strong></p>
 					</td>
 				</tr>
 				<tr>
@@ -90,7 +93,7 @@
 					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
 					</td>
 					<td class="text-center">
-					<h4><strong style="color:red !important">{{ config('custom.default_currency') }}{{ $details['balance'] }}</strong></h4>
+					<h4><strong style="color:red !important">{{ $data['currency'] ?? null}}{{ number_format($data['balance']) }}</strong></h4>
 					</td>
 				</tr>
 			</tbody>
@@ -99,16 +102,7 @@
 			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
 			</div>
 			<br />
-	{{-- <div style="float-left; padding-left: 20px;"><img alt="signature" src="{{ asset('assets/images/sign.png') }}" style="width:8%" /> --}}
-		<p><b><i>School Administrator</i></b></p>
-	</div>
-	<div>
-		<br /><br />
-		<br /><span>Printed: {{now()}}</span><br /><br /><br />
-		<a id="lnkclose" href="{{ route('payments.index', Auth::user()->id) }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<a onclick="javascript:window.print();" id="LinkButton1"
-			href="javascript:__doPostBack(&#39;LinkButton1&#39;,&#39;&#39;)">PRINT</a>
-
+			<p><b><i>School Administrator</i></b></p>
 	</div>
 </div>
 

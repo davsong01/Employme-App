@@ -10,14 +10,29 @@
                             @include('layouts.partials.alerts')
                         </div>
                         <form action="{{route('complains.store')}}" method="POST" class="pb-2">
+                            {{ csrf_field() }}
                             <div class="row">
                                 <div class="col-md-12 mb-2">
                                     <h4 style="text-align: center; color: blue">Customer Personal Details</h4>
                                 </div>
-                                
+                                @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                                <div class="col-md-12 mb-2">
+                                    <div class="form-group">
+                                        <label for="program_id">Select Training*</label>
+                                        <select name="program_id" id="" class="form-control">
+                                            @foreach ($programs as $program)
+                                            <option value="{{ $program->program_id }}" {{ old('program_id') == $program->program_id ? 'selected' : '' }} required>{{ $program->p_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                               
+                                @else
+                                <input type="hidden" name="program_id" value="{{ $program->id }}">
+                                @endif
                                 <div class="col-md-4">
                                     <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
-                                        <label for="name">Customer Name</label>
+                                        <label for="name">Customer Name*</label>
                                         <input id="name" type="text" class="form-control" name="name"
                                             value="{{ old('name') }}" autofocus>
                                         @if ($errors->has('name'))
@@ -30,7 +45,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
-                                        <label for="email">E-Mail Address</label>
+                                        <label for="email">E-Mail Address*</label>
                                         <input id="email" type="email" class="form-control" name="email"
                                             value="{{ old('email') }}" required>
                                         @if ($errors->has('email'))
@@ -42,7 +57,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-                                        <label for="phone">Phone</label>
+                                        <label for="phone">Phone*</label>
                                         <input id="phone" type="text" class="form-control" name="phone"
                                             value="{{ old('phone')}}" autofocus required>
                                         @if ($errors->has('phone'))
@@ -54,7 +69,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <label for="class">Gender</label>
+                                        <label for="class">Gender*</label>
                                         <select name="gender" id="class" class="form-control" required>
                                             <option value="" selected>Choose</option>
                                             <option value="Male">Male</option>
@@ -68,7 +83,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group{{ $errors->has('Address') ? ' has-error' : '' }}">
-                                        <label for="address">Customer Address</label>
+                                        <label for="address">Customer Address*</label>
                                         <input id="address" type="text" class="form-control" name="address"
                                             value="{{ old('address')}}" autofocus>
                                         @if ($errors->has('address'))
@@ -166,7 +181,7 @@
                                     <div class="form-group{{ $errors->has('other') ? ' has-error' : '' }}">
                                         <label for="other">Other Details</label>
                                         <input id="other" type="text" class="form-control" name="other"
-                                            value="{{ old('other')}}" autofocus required>
+                                            value="{{ old('other')}}" autofocus>
                                         @if ($errors->has('other'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('name') }}</strong>
@@ -185,7 +200,7 @@
 
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <label for="class">Type</label>
+                                        <label for="class">Type*</label>
                                         <select name="type" id="type" class="form-control" required>
                                             <option value="" selected="selected">- Select -</option>
                                             <option value="Complain">Complain</option>
@@ -197,7 +212,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label for="class">Issues</label>
+                                        <label for="class">Issues*</label>
                                         <select name="issues" id="issues" id="class" class="form-control">
                                             <option value="" selected="selected">- Select -</option>
                                                                                 
@@ -207,7 +222,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <label for="class">Priority</label>
+                                        <label for="class">Priority*</label>
                                         <select name="priority" id="class" class="form-control" required>
                                             <option value="" selected="selected">- Select -</option>
                                             <option value="Low">High</option>
@@ -219,7 +234,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <label for="class">Status</label>
+                                        <label for="class">Status*</label>
                                         <select name="status" id="status" class="form-control" required>
                                            
                                         </select>
@@ -230,7 +245,7 @@
                                     <div class="form-group{{ $errors->has('teamlead') ? ' has-error' : '' }}">
                                         <label for="teamlead">Team Lead</label>
                                         <input id="teamlead" type="text" class="form-control" name="teamlead"
-                                            value="{{ old('teamlead') }}" autofocus required>
+                                            value="{{ old('teamlead') }}" autofocus>
                                         @if ($errors->has('teamlead'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('teamlead') }}</strong>
@@ -243,7 +258,7 @@
                             <div class="row">            
                                 <div class="col-md-6">
                                     <div class="form-group{{ $errors->has('complain') ? ' has-error' : '' }}">
-                                        <label for="complain" style="color:red">Query Content</label>
+                                        <label for="complain" style="color:red">Query Content*</label>
                                         <textarea id="ckeditor" type="text" class="form-control" name="complain"
                                             value="{{ old('complain') }}" rows="8" autofocus required></textarea>
                                         @if ($errors->has('complain'))
@@ -255,7 +270,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group{{ $errors->has('response') ? ' has-error' : '' }}">
-                                        <label for="response" style="color:green">Your Response</label>
+                                        <label for="response" style="color:green">Your Response*</label>
                                         <textarea required id="summary-ckeditor" type="text" class="form-control" name="response"
                                             value="{{ old('response') }}" rows="8" autofocus></textarea>
                                         @if ($errors->has('response'))
@@ -266,7 +281,8 @@
                                     </div>
                                 </div> 
                             </div>
-                            @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                           
+                            {{-- @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
@@ -282,13 +298,14 @@
                                 </div>
                                
                             </div>
-                            @endif
+                            @endif --}}
                             <div class="row">
                                 <button type="submit" class="btn btn-primary" style="width:100%">
                                     Submit
                                 </button>
                             </div>
-                            {{ csrf_field() }}
+                        </form>
+                       
                     </div>
                 </div>
             </div>
