@@ -3,6 +3,8 @@
 /public
 /public/storage
 /storage/*.key
+/app/Providers
+/app/Policies
 /vendor
 /uploads
 /.idea

@@ -472,4 +472,14 @@ class Controller extends BaseController
         return;
     }
 
+    public function showCatalogue($program){
+        // Check program
+        $status = false;
+        if($program->show_catalogue_popup =='yes' && auth()->user()->downloaded_catalogue == 'no'){
+            $status = true;
+        }
+
+        return $status;
+    }
+
 }
