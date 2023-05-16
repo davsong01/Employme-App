@@ -1,6 +1,7 @@
 <?php
     $facilitator = \Session::get('facilitator_id');
     $price = $amount;
+    $settings = \App\Settings::first();
 ?>
 
 @extends('layouts.contai.app')
@@ -133,6 +134,10 @@
                             <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             <h4 class="">Choose payment method</h4>
                             <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
+                                @if($settings->allow_transfer_button == 'yes')
+                                
+                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
+                                @endif
                                 @foreach($payment_modes as $mode)
                                 @if($mode->type == 'card')
                                 <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
@@ -141,7 +146,7 @@
                                 <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                 @endif
                                 @endforeach
-                                {{-- <input class="mr-1 mb-1 pay-option" style="width:160px;border:0px;border-radius:10px;height:65px;background-image:url('paymentmodes/walletcard.jpeg');background-position: center;background-repeat: no-repeat;background-size: cover;" type="submit" name="submit" value="" id="payment_mode" alt="Submit"> --}}
+                              
                             </div>
                             <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                             
@@ -152,6 +157,28 @@
             </form>
         </div>
     </div>
+    <div class="modal fade" id="transferModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Modal Header</h4>
+        </div>
+        <div class="modal-body">
+          <p>Some text in the modal.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+    
 </section>
 <script>
     function showCoupon(){       

@@ -1,5 +1,6 @@
 <?php
     $logo = \App\Settings::first()->value('logo');
+    $settings = \App\Settings::first();
 ?>
 
 <!DOCTYPE html>
@@ -51,6 +52,44 @@
             margin-bottom: 10px;
             margin-top: 25px;
         }
+        .checkout__order button {
+            font-weight: normal;
+            padding: 12px;
+        }
+        .whatsapp_float {
+          position: fixed;
+          width: 60px;
+          height: 60px;
+          bottom: 40px;
+          right: 40px;
+          background-color: #25d366;
+          color: #FFF;
+          border-radius: 50px;
+          text-align: center;
+          font-size: 30px;
+          box-shadow: 2px 2px 3px #999;
+          z-index: 100;
+      }
+
+      .whatsapp-icon {
+          margin-top: 16px;
+      }
+
+      /* for mobile */
+      @media screen and (max-width: 767px) {
+          .whatsapp-icon {
+              margin-top: 10px;
+          }
+
+          .whatsapp_float {
+              width: 40px;
+              height: 40px;
+              bottom: 20px;
+              right: 10px;
+              font-size: 22px;
+          }
+      }
+
     </style>
 </head>
 
@@ -221,8 +260,13 @@
             </div>
         </div>
     </footer>
+    
     <!-- Footer Section End -->
-
+    @if($settings->allow_whatsapp_chat == 'yes')
+    <a href="https://wa.me/2348037067223" class="whatsapp_float" target="_blank" rel="noopener noreferrer">
+        <i class="fa fa-whatsapp whatsapp-icon"></i>
+    </a>
+    @endif
     <!-- Js Plugins -->
     <script src="{{ asset('contai/js/jquery-3.3.1.min.js')}}"></script>
     <script src="{{ asset('contai/js/bootstrap.min.js')}}"></script>

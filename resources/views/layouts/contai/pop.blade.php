@@ -1,3 +1,19 @@
+<?php 
+    $accounts = [
+        [
+            'bank' =>  'Access Bank',
+            'number' => '0106070151',
+            'name' => 'Employme E-learning',
+            'status' => 1
+        ],  
+        [
+            'bank' =>  'Mobile Money (MoMo)',
+            'number' => '0244627751',
+            'name' => '3Y Publicity',
+            'status' => 1
+        ],  
+];
+?>
 @extends('layouts.contai.app')
 @section('title')
     {{ config('app.name') }} - Upload POP
@@ -10,6 +26,20 @@
                 @include('layouts.partials.alerts')
             </div>
         </div>
+        @if(session()->get('data'))
+        <div class="checkout__form transfer">
+            <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">Please pay &#8358;{{ session()->get('data')['amount'] }} into any of the account details below: <br>
+                @foreach($accounts as $account)
+                    <div class="inner" style="margin-bottom: 15px;">
+                        <strong>Bank:</strong>{{$account['bank']}} <br>
+                        <strong>Account Number:</strong>{{$account['number']}} <br>
+                        <strong>Name:</strong>{{$account['name']}} <br>
+                    </div>
+                @endforeach
+                And then Upload your proof of payment using the form below
+            </div>
+        </div>
+        @endif
         <div class="checkout__form">
             <h4>Upload Proof of Payment</h4>
             <form action="{{ route('pop.store') }}" method="POST" enctype="multipart/form-data">
@@ -86,6 +116,8 @@
                                         <option value="">-- Select bank --</option>
                                         <option value="Access">Access</option>
                                         <option value="GTB">GTB</option>
+                                        <option value="Mobile Money (MoMo)">Mobile Money (MoMo)</option>
+                                        
                                     </select>
                                 </div>
                             </div>

@@ -38,9 +38,7 @@
                                 <div class="btn-group">
                                     <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $transaction->file }}" src="view/{{ $transaction->file }}" alt="{{ $transaction->name }}" style="width:40px;max-width:300px"></a>
                                     
-                                    <a data-toggle="tooltip" data-placement="top" title="Approve Payment"  onclick="return confirm('Are you really sure?');"
-                                        class="btn btn-success" href="{{ route('pop.show', $transaction->id) }}"><i
-                                            class="fa fa-check"></i>
+                                    <a onclick="return confirm('Are you really sure?');" class="btn btn-success" href="{{ route('pop.show', $transaction->id) }}"><i class="fa fa-check"></i>
                                     </a>
                                     <form action="{{ route('pop.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
