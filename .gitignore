@@ -1,6 +1,6 @@
 /node_modules
 /public/hot
-/public
+/public*
 /public/storage
 /storage/*.key
 /app/Providers
@@ -16,7 +16,7 @@ app/Http/Middleware/TrustHosts.php
 app/Http/Middleware/TrustProxies.php                             
 app/Http/Middleware/ValidateSignature.php                        
 app/Http/Middleware/VerifyCsrfToken.php 
-artisan                                                           
+artisan                                                          
 bash.exe.stackdump                                               
 bootstrap/app.php                                                 
 bootstrap/cache/packages.php                                      
