@@ -75,9 +75,13 @@ class ProgramController extends Controller
             'image' =>'required|image |max:10000',
             'haspartpayment' => 'required',
             'status' => 'required',
-            'off_season' => 'required'
+            'off_season' => 'required',
+            'show_catalogue_popup'=>'required',
+            'show_locations'=>'required',
+            'show_modes' => 'required'
         ]);
 
+        
         //Save booking form
         if($request->file('booking_form')){
             $filePath = $this->uploadFileToUploads($request->file('booking_form'), 'booking_form', 'bookingforms');
@@ -87,6 +91,35 @@ class ProgramController extends Controller
         // uploads file to the desired folder in uploads directory
         $file = $this->uploadFileToUploads($request->file('image'), 'image', 'trainings', 533, 533);
         $data['image'] = 'trainingimage/' . $file;
+      
+        if($request->has('show_locations') && $request->show_locations == 'yes'){
+            for ($i = 0; $i < count($request->location_name); $i++) {
+                $l[] = array_column($request->only(['location_name','location_address']), $i);
+            }
+            
+            foreach ($l as $test) {
+                $locations[] = [
+                    'location_name' => $test[0],
+                    'location_address' => $test[1],
+                ];
+            }
+            $locations = json_encode($locations);
+        }
+        if($request->has('show_modes') && $request->show_modes == 'yes'){
+            for ($i = 0; $i < count($request->mode_name); $i++) {
+                $m[] = array_column($request->only(['mode_name','mode_amount']), $i);
+            }
+            
+            foreach ($m as $test) {
+                $modes[] = [
+                    'mode_name' => $test[0],
+                    'mode_amount' => $test[1],
+                ];
+            }
+            $modes = json_encode($modes);
+
+        }
+        
        
         $program = Program::Create([
             'p_name' => $data['p_name'],
@@ -100,9 +133,14 @@ class ProgramController extends Controller
             'status' => $data['status'],
             'off_season' => $data['off_season'],
             'booking_form' => $filePath ?? null,
+            'show_locations' => $data['show_locations'],
+            'show_modes' => $data['show_modes'],
+            'modes' => $modes,
+            'show_catalogue_popup'=>$data['show_catalogue_popup'],
             'image' => 'trainingimage/'.$file,
-        ]); 
-       
+        ]);
+
+        dd($program);
         return redirect('programs')->with('message', 'Program added succesfully');
     }
 

@@ -146,7 +146,6 @@ class PaymentController extends Controller
                 if ($type['type'] == 'part') {
                     $request['amount'] = (Program::where('id', $type['pid'])->value('p_amount')) / 2;
                 }
-                
             }else{
                 // Modify coupon_id in metadata
                 $type['coupon_id'] = $response['id'];

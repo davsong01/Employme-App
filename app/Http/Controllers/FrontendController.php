@@ -55,16 +55,16 @@ class FrontendController extends Controller
 
     public function show($id)
     {
-       
         $training = Program::findOrFail($id);
 
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){
             return redirect(route('welcome'));
         }
-
-        $locations = Location::select('title')->distinct()->whereProgramId($training->id)->get();
-
-        return view('single_training', compact('training', 'locations'));
+        
+        $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
+        $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
+        
+        return view('single_training', compact('training', 'locations','modes'));
     }
 
     public function getfile($filename){

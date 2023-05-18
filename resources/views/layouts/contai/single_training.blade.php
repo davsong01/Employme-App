@@ -34,37 +34,68 @@
                         @endif
                     </div>
                     <p>{{ $training->description }}</p>
+                    
                     <div class="checkout__form">
                         <form action="{{ route('checkout') }}" method="POST">
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
-                                   
-                                    <div class="checkout__input">
-                                        <p>Select payment type<span>*</span></p>
-                                        <select name="type" id="" required>
-                                            <option value="">Select</option>
-                                            <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
-                                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
-                                            <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
-                                            @endif
-                                            @if($training->haspartpayment == 1)
-                                            <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
-                                            @endif
-                                        </select>
+                                    @if(!empty($locations) && count($locations) > 0)
+                                        <div class="checkout__input">
+                                            <p>Select location<span>*</span></p>
+                                            <select name="location" id="locations" required>
+                                                <option value="">Select Location</option>
+                                                @foreach($locations as $location)
+                                                    <option value="{{ $location['location_name'] }}" {{ old('location_name') == $location['location_name'] ? 'selected' : '' }}>
+                                                        {{ $location['location_name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div> 
                                         
-                                    </div>
-                                    @if($locations->count() > 0)
-                                    <div class="checkout__input">
-                                        <p>Select paymenet type<span>*</span></p>
-                                        <select name="location" id="location" required>
-                                            @foreach($locations as $location)
-                                                <option value="{{ $location->id }}" {{ old('location') == $location->id ? 'selected' : '' }}>
-                                                    {{ $location->title }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        
-                                    </div>  
+                                        <div class="checkout__input" id="payment_types" style="display: none">
+                                            <p>Select payment type<span>*</span></p>
+                                            <select name="type" id="" required>
+                                                <option value="">Select</option>
+                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
+                                                @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
+                                                <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
+                                                @endif
+                                                @if($training->haspartpayment == 1)
+                                                <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <script>
+                                            
+                                            $(document).ready(function(){
+                                                $('#locations').change(function(){
+                                                    alert(this.value);
+                                                });
+                                            });
+                                            // $("#locations").change(function () {
+                                                // console.log($('#locations').val());
+                                               
+                                                // if($("#locations").val()){
+                                                //     $("#payment_types").show();
+                                                // }else{
+                                                //     $("#payment_types").hide();
+                                                // }                                        
+                                            // });
+                                        </script>
+                                    @else 
+                                        <div class="checkout__input">
+                                            <p>Select payment type<span>*</span></p>
+                                            <select name="type" id="" required>
+                                                <option value="">Select</option>
+                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
+                                                @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
+                                                <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
+                                                @endif
+                                                @if($training->haspartpayment == 1)
+                                                <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
+                                                @endif
+                                            </select>
+                                        </div>
                                     @endif
 
                                 </div>
