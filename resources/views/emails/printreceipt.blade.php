@@ -8,7 +8,7 @@
 <body>
 <div class="container">
 
-	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width:100%" /></div>
+	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width: 150px;" /></div>
 
 	<div style="float:right">
 		<h4></h4>
@@ -30,8 +30,8 @@
 	</div>
 
 	<div class="row">&nbsp;
-		<div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
-		</div>
+		{{-- <div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
+		</div> --}}
 	</div>
 
 	<div class="row">
@@ -52,8 +52,20 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
+					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em>
+					@if(isset($data['training_mode']) && !empty($data['training_mode']))
+						<small><strong style="color:blue">({{ $data['training_mode'] }} Mode)</strong></small>
+					@endif
+					</td>
 					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? null}}</td>
+				</tr>
+				<tr>
+					<td>
+						@if(isset($data['location']) && !empty($data['location']))
+						<small><strong style="color:green">Training Location: </strong>{{ $data['location'] ?? $data['location_address'] }})</small>
+						@endif
+					</td>
+					<td></td>
 				</tr>
 			</tbody>
 		</table>
@@ -64,7 +76,7 @@
 				<tr>
 					<th>S/N</th>
 					<th>DESCRIPTION</th>
-					<th>FEE</th>
+					<th>MAIN FEE</th>
 					<th>AMOUNT PAID</th>
 				</tr>
 			</thead>
@@ -74,7 +86,13 @@
 					<td class="col-md-8">{{ $data['programName']}}<br />
 					<small><i>({{ $data['message']}})</i></small></td>
 					<td class="col-md-1 text-center">{{ $data['currency'] ?? null}}{{ number_format($data['programFee']) }}</td>
-					<td class="col-md-2 text-center">{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }}</td>
+					<td class="col-md-2 text-center">
+						{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }} <br>
+						@if(isset($data['training_mode']) && !empty($data['training_mode']))
+							<small><strong style="color:blue">({{ $data['training_mode'] }} Mode)</strong></small>
+						 
+						@endif
+					</td>
 				</tr>
 				<tr>
 					<td></td>

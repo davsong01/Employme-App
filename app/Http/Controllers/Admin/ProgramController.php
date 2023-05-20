@@ -77,7 +77,8 @@ class ProgramController extends Controller
             'status' => 'required',
             'off_season' => 'required',
             'show_catalogue_popup'=>'required',
-            'show_locations'=>'required',
+            'show_locations' => 'required',
+            'locations'=>'nullable',
             'show_modes' => 'required'
         ]);
 
@@ -98,12 +99,10 @@ class ProgramController extends Controller
             }
             
             foreach ($l as $test) {
-                $locations[] = [
-                    'location_name' => $test[0],
-                    'location_address' => $test[1],
-                ];
+                $locations[$test[0]] = $test[1];
             }
             $locations = json_encode($locations);
+          
         }
         if($request->has('show_modes') && $request->show_modes == 'yes'){
             for ($i = 0; $i < count($request->mode_name); $i++) {
@@ -111,16 +110,12 @@ class ProgramController extends Controller
             }
             
             foreach ($m as $test) {
-                $modes[] = [
-                    'mode_name' => $test[0],
-                    'mode_amount' => $test[1],
-                ];
+                $modes[$test[0]] = $test[1];
             }
             $modes = json_encode($modes);
 
         }
-        
-       
+     
         $program = Program::Create([
             'p_name' => $data['p_name'],
             'p_abbr' => $data['p_abbr'],
@@ -136,11 +131,12 @@ class ProgramController extends Controller
             'show_locations' => $data['show_locations'],
             'show_modes' => $data['show_modes'],
             'modes' => $modes,
+            'locations' => $locations,
             'show_catalogue_popup'=>$data['show_catalogue_popup'],
             'image' => 'trainingimage/'.$file,
         ]);
 
-        dd($program);
+        
         return redirect('programs')->with('message', 'Program added succesfully');
     }
 
@@ -155,8 +151,8 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
 
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment']);
-   
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations']);
+       
         //check if new featured image
         if($request->hasFile('image')){
 
@@ -175,6 +171,29 @@ class ProgramController extends Controller
             $data['booking_form'] = 'bookingforms/' . $filePath;
         }
 
+        if ($request->has('show_locations') && $request->show_locations == 'yes') {
+            for ($i = 0; $i < count($request->location_name); $i++) {
+                $l[] = array_column($request->only(['location_name', 'location_address']), $i);
+            }
+
+            foreach ($l as $test) {
+                $locations[$test[0]] = $test[1];
+            }
+            $data['locations'] = json_encode($locations);
+
+        }
+        if ($request->has('show_modes') && $request->show_modes == 'yes') {
+            for ($i = 0; $i < count($request->mode_name); $i++) {
+                $m[] = array_column($request->only(['mode_name', 'mode_amount']), $i);
+            }
+
+            foreach ($m as $test) {
+                $modes[$test[0]] = $test[1];
+            }
+            $data['modes'] = json_encode($modes);
+
+        }
+        
         $program->update($data);
 
         return back()->with('message', 'Training updated successfully');

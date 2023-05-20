@@ -31,7 +31,7 @@ class PaymentController extends Controller
             $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
                 ->join("programs", "program_user.program_id", "=", "programs.id")
                 ->join("users", "users.id", "=", "program_user.user_id")
-                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type")
+                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name","programs.modes","programs.locations","coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type")
                 ->get();
             $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
@@ -105,16 +105,18 @@ class PaymentController extends Controller
             'bank' =>$user->t_type,
             'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
             'amount' =>$transaction->t_amount,
+            'training_mode' => $transaction->training_mode ?? null,
+            'location' => $transaction->t_location ?? null,
         ];
-       
+        
         //generate pdf from receipt view
        
         //send user mails
         // return view('emails.receipt', compact('data', 'details'));
         $data = array_merge($data, $details);
-        $pdf = PDF::loadView('emails.receipt', compact('data'));
-        // return view('emails.receipt', compact('data', 'details'));
-    //    
+        $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+        // return view('emails.printreceipt', compact('data', 'details'));
+
         Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         
         return back()->with('message', 'Receipt sent succesfully'); 
@@ -122,7 +124,7 @@ class PaymentController extends Controller
     }
 
     public function printReceipt($id){
-        $transaction = Transaction::with('coupon')->where('id', $id)->first();
+        $transaction = Transaction::with(['coupon','program'])->where('id', $id)->first();
         
         if(Auth::user()->role_id == "Student"){
             if(!$transaction){
@@ -142,7 +144,14 @@ class PaymentController extends Controller
         }
 
         //determine the program details
-       
+        if(isset($transaction->t_location) && !empty($transaction->t_location)){
+            $locations = $transaction->program->locations;
+            
+            if(isset($locations) && !empty($locations)){
+                $locations = json_decode($locations, true);
+                $training_address = $locations[$transaction->t_location] ?? $transaction->t_location;
+            }
+        }
         $data = [
             'name' =>$user->name,
             'email' =>$user->email,
@@ -163,9 +172,13 @@ class PaymentController extends Controller
             'coupon_id' =>  $transaction->coupon->id ?? null,
             'coupon_code' =>  $transaction->coupon->code ?? null,
             'coupon_amount' =>  $transaction->coupon->amount ?? null,
+            'training_mode' => $transaction->training_mode ?? null,
+            'location' => $transaction->t_location ?? null,
+            'location_address' => $training_address ?? null,
             'created_at' =>  $transaction->created_at ?? null,
         ];
-        
+
+
         //generate pdf from receipt view
         $pdf = PDF::loadView('emails.receipt', compact('data'));
         

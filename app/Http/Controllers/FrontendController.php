@@ -63,8 +63,37 @@ class FrontendController extends Controller
         
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
-        
+      
         return view('single_training', compact('training', 'locations','modes'));
+    }
+
+    public function getModePaymentTypes(Request $request){
+        // Check if mode exist for that training, if not return
+        $options = "";
+        $program = Program::where('id', $request->training)->first();
+        if($program->show_modes == 'yes' && !empty($program->modes)){
+            $modes = json_decode($program->modes, true);
+            $mode_amount = $modes [$request->payment_mode];
+            $options .= "<option value='full'>Full Payment (". $request->currency_symbol.number_format($mode_amount) .")</option>";
+
+            if($program->haspartpayment == 1){
+                $options .= "<option value='part'>Part Payment (". $request->currency_symbol.number_format($mode_amount/2) .")</option>";
+            }
+        }else{
+            $options .= "<option value='full'>Full Payment (".$request->currency_symbol.number_format($program->p_amount).")</option>";
+
+            if(($program->e_amount > 0 ) && $program->close_earlybird == 0 || $program->e_amount > 0){
+                $options .= "<option value='earlybird'>Earlybird (".$request->currency_symbol.number_format($program->e_amount).")</option>";
+            }
+          
+            if($program->haspartpayment == 1){
+                $options .= "<option value='part'>Part Payment (". $request->currency_symbol.number_format($program->p_amount/2) .")</option>";
+            }
+                                            
+        }
+       
+        return response()->json(['status'=>'success', 'data'=>$options]);
+        
     }
 
     public function getfile($filename){

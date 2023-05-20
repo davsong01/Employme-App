@@ -113,12 +113,11 @@
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Bank paid into<span>*</span></p>
-                                    <select name="bank" id="bank" class="form-control">
+                                    <select name="bank" id="bank" class="form-control" required>
                                         <option value="">-- Select bank --</option>
                                         <option value="Access">Access</option>
                                         <option value="GTB">GTB</option>
                                         <option value="Mobile Money (MoMo)">Mobile Money (MoMo)</option>
-                                        
                                     </select>
                                 </div>
                             </div>
@@ -127,7 +126,6 @@
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Amount<span>*</span></p>
-                                   
                                     <input type="number" class="form-control" name="amount" id="amount" value="{{ session()->get('data')['amount'] ??  old('amount') }}" min=1 required>
                                 </div>
                             </div>

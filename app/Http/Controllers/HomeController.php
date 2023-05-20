@@ -33,7 +33,6 @@ class HomeController extends Controller
     {
         //Get calendar details
        $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
-
         if(Auth::user()->role_id == "Admin" ){
             
             $events = [];
@@ -75,7 +74,7 @@ class HomeController extends Controller
             $i = 0;
 
             $requests = $request;
-
+           
             return view('dashboard.admin.dashboard', compact('programCount', 'calendar','requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
 
         }
@@ -120,9 +119,8 @@ class HomeController extends Controller
 
             return view('dashboard.admin.dashboard', compact( 'calendar','requests',  'i', 'user','materialCount'));
          }
-
+        
         if(Auth::user()->role_id == "Student"){
-
             //get enabled module Tests for this user
             $thisusertransactions = DB::table('program_user')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
@@ -132,7 +130,7 @@ class HomeController extends Controller
                 $transactions->p_name =  Program::where('id', $transactions->program_id)->value('p_name');
                 $transactions->p_id =  Program::where('id', $transactions->program_id)->value('id');
             }
-
+            
             return view('dashboard.student.dashboard', compact('thisusertransactions' ));
         }
 
@@ -169,7 +167,7 @@ class HomeController extends Controller
         // }
 
         $calendar = [];
-
+        
         if(Auth::user()->role_id == "Student"){
             //Get Length of training
             $program = Program::findOrFail($id);
@@ -226,7 +224,16 @@ class HomeController extends Controller
         }else return abort(404);
     }
 
-   
+   public function downloadProgramBrochure(){
+        auth()->user()->update([
+            'downloaded_catalogue' => 1
+        ]);
+
+        $realpath = public_path() . '/catalogue.pdf';
+
+        return response()->download($realpath);
+       
+   }
     public function demo(){
         return view('dashboard.admin.demo');
     }

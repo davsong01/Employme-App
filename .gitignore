@@ -21,6 +21,7 @@ public/.htaccess
 config*
 /vendor
 /uploads*
+resources/views/vendor/*
 /.idea
 /.vagrant
 Homestead.json

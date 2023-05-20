@@ -24,20 +24,30 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
-
     public function checkout(Request $request){
         $training = json_decode($request->training, true);
-       
-        if($request->type == 'full'){
-            $amount = $training['p_amount'];
-        }elseif($request->type == 'part'){
-            $amount = $training['p_amount'] /2;
-        }elseif($request->type == 'earlybird'){
-            $amount = $training['e_amount'];
+        $modes = null;
+        $location = $request->location ?? null;
+        
+        if($request->has('modes')){
+            // Get mode amount 
+            $modes = $request->modes;
+            $amount = $this->getModeAmount($request->modes,$request->type,$request->training);
+            if(!$amount){
+                return back()->with('error', 'Invalid Amount');
+            }
         }else{
-            return back()->with('error', 'Invalid Payment Type selection');
+            if($request->type == 'full'){
+                $amount = $training['p_amount'];
+            }elseif($request->type == 'part'){
+                $amount = $training['p_amount'] /2;
+            }elseif($request->type == 'earlybird'){
+                $amount = $training['e_amount'];
+            }else{
+                return back()->with('error', 'Invalid Payment Type selection');
+            }
         }
-
+        
         $type = $request->type;
         // inject facilitator details
         if($request->has('facilitator')){
@@ -49,8 +59,30 @@ class PaymentController extends Controller
 
         $payment_modes = $this->getPaymentModes();
  
-        return view('checkout', compact('amount', 'training', 'type', 'payment_modes'));
+        return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location'));
     }
+
+    public function getModeAmount($mode,$type,$program){
+        $amount = null;
+        $program = json_decode($program);
+        if(isset($program->show_modes) && $program->show_modes == 'yes'){
+            $modes = json_decode($program->modes);
+        }
+        
+        if(!empty($modes)){
+            // check type
+            if($type == 'full'){
+                $amount = $modes->$mode;
+            }
+            if($type == 'part'){
+                $amount = $modes->$mode/2;
+            }
+        }
+
+        return $amount;
+       
+    }
+
 
     public function getPaymentModes(){
         $payment_modes = PaymentMode::where('status', 'active')->get();
@@ -86,7 +118,7 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $template = Settings::first()->templateName->name;
-        
+       
         if ($request->user_program && $request->type == 'balance') {
             $data = DB::table('program_user')->find($request->user_program);
 
@@ -94,7 +126,7 @@ class PaymentController extends Controller
             $request['payment_mode'] = $data->payment_mode;
             $request['currency'] = $data->currency;
             $type['type'] = 'balance';
-           
+            
             try {
                 $url = $this->queryProcessor($request, $data);
                 if($url){
@@ -122,6 +154,7 @@ class PaymentController extends Controller
         
         if($template == 'contai'){
             $request['amount'] = \Session::get('exchange_rate') * $request['amount'];
+            
             $type = json_decode($request['metadata'], true);
           
             $pid = $type['pid'];
@@ -130,21 +163,27 @@ class PaymentController extends Controller
             $request['payment_type'] = $type['type'];
             $type['name'] = $request['name'];
             $type['phone'] = $request['phone'];
-           
+            $training = Program::where('id', $type['pid'])->first();
             $response = $this->verifyCoupon($request, $type['pid']);
-            
+           
             if(is_null($response)){
                 // Modify amount to suit program
-                if ($type['type'] == 'full') {
-                    $request['amount'] = Program::where('id', $type['pid'])->value('p_amount');
-                }
+                if($request->has('modes')){
+                    // Get mode amount 
+                    $modes = $request->modes;
+                    $amount = $this->getModeAmount($request->modes,$request->payment_type,$training);
+                }else{
+                    if ($type['type'] == 'full') {
+                        $request['amount'] = $training->p_amount;
+                    }
 
-                if($type['type'] == 'earlybird'){
-                    $request['amount'] = Program::where('id', $type['pid'])->value('e_amount');
-                }
+                    if($type['type'] == 'earlybird'){
+                        $request['amount'] = $training->e_amount;
+                    }
 
-                if ($type['type'] == 'part') {
-                    $request['amount'] = (Program::where('id', $type['pid'])->value('p_amount')) / 2;
+                    if ($type['type'] == 'part') {
+                        $request['amount'] = ($training->p_amount) / 2;
+                    }
                 }
             }else{
                 // Modify coupon_id in metadata
@@ -271,7 +310,6 @@ class PaymentController extends Controller
 
     public function handleGatewayCallback(Request $request, $is_zero_coupon=null)
     {
-        
         $balance_payment = DB::table('program_user')->whereNotNull('balance_transaction_id')->where('balance_transaction_id', $request->reference)->first();
 
         if($balance_payment){
@@ -334,8 +372,14 @@ class PaymentController extends Controller
                         $coupon = 0;
                         $createdBy = 0;
                     }
+                   
+                    if(isset($temp->training_mode) && !empty($temp->training_mode)){
+                        $mode_amount = $this->getModeAmount($temp->training_mode,$temp->type,$program);
 
-                    $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
+                        if($mode_amount) $expectedAmount = $mode_amount - $coupon;
+                    }else{
+                        $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
+                    }
                   
                     if($expectedAmount == $paymentDetails->amount){
                         $earnings = $this->getEarnings(($temp->amount), $coupon, $createdBy, $program, $paymentDetails->facilitator_id ?? NULL);
@@ -347,8 +391,26 @@ class PaymentController extends Controller
                         $paymentStatus =  1;                        
                     }
                 }elseif($temp->type == 'part'){
-                    $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2);
-                    $balance = $program->p_amount -  $expectedAmount;
+                    if(isset($temp->training_mode) && !empty($temp->training_mode)){
+                        $mode_amount = $this->getModeAmount($temp->training_mode,$temp->type,$program);
+
+                        if($mode_amount){
+                            $expectedAmount = $mode_amount;
+                            
+                            $modes = $program->modes;
+                            $modes = json_decode($modes, true);
+                            // dd($temp->training_mode);
+                            $amt = $modes[$temp->training_mode];
+                            
+                            $balance = $amt - $expectedAmount;
+
+                        }
+                    }else{
+                        $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2);
+
+                        $balance = $program->p_amount - $expectedAmount;
+                    }
+
                     $payment_type = 'Part';
                     $message = 'Part payment';
                     $coupon_applied = $c ?? NULL;
@@ -365,7 +427,6 @@ class PaymentController extends Controller
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
                 }
-               
                 // process data
                 // Get training details
                 $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);

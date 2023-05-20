@@ -12,6 +12,7 @@ use App\Location;
 use App\Settings;
 use App\Mail\POPemail;
 use App\Mail\Welcomemail;
+use App\TempTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -24,9 +25,9 @@ class PopController extends Controller
             return abort(404);
         }
 
-        $transactions = Pop::with('program','user')->Ordered('date', 'DESC')->get();
+        $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
-
+        dd($transactions);
         return view('dashboard.admin.payments.pop', compact('transactions', 'i') );
     }
 
@@ -91,6 +92,11 @@ class PopController extends Controller
             $type = 'Fresh Payment' ?? null;
         }
        
+        // Get temp transaction 
+        $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training'])->first();
+        $data['location'] = $temp->location ?? null;
+        $data['training_mode'] = $temp->training_mode ?? null;
+
         try{
             //Store new pop
             $pop = Pop::create([
@@ -103,17 +109,18 @@ class PopController extends Controller
                 'program_id' =>  $data['training'],
                 'currency' =>  $data['currency'],
                 'currency_symbol' =>  $data['currency_symbol'],
-                'is_fresh' =>  $type??null,
+                'is_fresh' => $type ?? null,
+                'temp_transaction_id' => $temp->id ?? null,
+                'location' =>  $data['location'] ?? null,
                 'date' =>  $date,
                 'file' => $filePath,
             ]);
-            
+
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
-            $data['location'] = null;
 
-            Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
+            Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
         }catch(\Exception $e) {
             // dd($e->getMessage());
@@ -126,13 +133,11 @@ class PopController extends Controller
     }
 
     public function show(Pop $pop){
-       
         if(auth()->user()->role_id != 'Admin'){
             return abort(404);
         }
 
         //Check if program exist for the incoming training
-
         // $user = User::whereEmail($data['email'])->value('id');
         if (isset($pop->user) && !empty($pop->user)) {
             $check = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->where('balance', '<', 1)->count();
@@ -145,6 +150,7 @@ class PopController extends Controller
         // If balance
         // Try to see if this is balance payment
         $existingTransaction = $this->getExistingTransactionAndBalance($pop);
+        
         // dd($existingTransaction);
         $allDetails = [];
         if(isset($existingTransaction) && $existingTransaction['balance'] > 0){
@@ -162,7 +168,7 @@ class PopController extends Controller
             }else{
                 $balance = $existingTransaction['balance'] - $pop->amount;
             }
-
+            
             $allDetails['programFee'] = $pop->program->t_amount;
             $allDetails['program_id'] = $pop->program_id;
             $allDetails['programName'] = $pop->program->p_name;
@@ -186,10 +192,12 @@ class PopController extends Controller
             $allDetails['current_paid_amount'] = $pop->amount;
             $allDetails['invoice_id'] = $existingTransaction['transaction']->invoice_id;
             $allDetails['transaction_id'] = $existingTransaction['transaction']->transid;
+
             $user = $this->updateUserDetails($allDetails);
             $data = $this->updateOrCreateTransaction($user, $allDetails);
            
         }else{
+           
             if($pop->program->e_amount > 0){ 
                 if($pop->program->e_amount > $pop->amount ){
                     $allDetails['programFee'] = $pop->program->p_amount;
@@ -203,8 +211,25 @@ class PopController extends Controller
             if ($pop->amount > $allDetails['programFee']) {
                 return back()->with('error', 'User cannot pay more than program fee, you may need to check early bird payment');
             }
+            
             // dd($allDetails['programFee'], 'fd', $pop->program);
-            $balance = $allDetails['programFee'] - $pop->amount;
+            if(isset($pop->temp->training_mode) && !empty($pop->temp->training_mode)){
+                $mode = $pop->temp->training_mode;
+                $amount = app('App\Http\Controllers\PaymentController')->getModeAmount($mode,$pop->temp->type,$pop->program);
+                if ($amount) {
+                    $expectedAmount = $amount;
+
+                    $modes = $pop->program->modes;
+                    $modes = json_decode($modes, true);
+                    // dd($temp->training_mode);
+                    $amt = $modes[$pop->temp->training_mode];
+
+                    $balance = $amt - $expectedAmount;
+                }
+            } else {
+                $balance = $allDetails['programFee'] - $pop->amount;
+            }
+
             $allDetails['transaction_id'] = $this->getReference('SYS_ADMIN');
             $allDetails['program_id'] = $pop->program_id;
             $allDetails['programName'] = $pop->program->p_name;
@@ -226,9 +251,11 @@ class PopController extends Controller
             $allDetails['role_id'] = 'Student';
             $allDetails['message'] = $pop->program->e_amount > 0 ?  $this->dosubscript2($balance) : $this->dosubscript1($balance);
             $allDetails['paymentStatus'] = $this->paymentStatus($balance);
-            $allDetails['paymenttype'] = $this->paymentStatus(0).'Full (Bank Transfer)';
+            $allDetails['paymenttype'] = $this->paymentStatus(0);
             $allDetails['balance'] = $balance;
-        
+            $allDetails['training_mode'] = $pop->temp->training_mode;
+            $allDetails['t_type'] = $pop->temp->type;
+            
             $user = $this->updateUserDetails($allDetails);
            
             // request->coupon, $request->email, $pid, $request['amount']
@@ -251,29 +278,32 @@ class PopController extends Controller
             }
           
             $data = $this->updateOrCreateTransaction($user, $allDetails);
-            
         }
 
         //determine the program details
         $data = [
-                'name' => $allDetails['name'],
-                'email' => $allDetails['email'],
-                'bank' => $allDetails['t_type'],
-                'amount' => $allDetails['amount'],
-                'invoice_id' =>  $allDetails['invoice_id'],
-                'transid' => $allDetails['transaction_id'],
-                'programFee' => $allDetails['programFee'],
-                'programName' => $allDetails['programName'],
-                'programAbbr' => $allDetails['programAbbr'],
-                'balance' => $balance,
-                'message' => $allDetails['message'],
-                'currency' => $allDetails['currency'],
-                'currency_symbol' => $allDetails['currency_symbol'],
-                'created_at' => $allDetails['date'],
-                'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
-            ];
+            'name' => $allDetails['name'],
+            'email' => $allDetails['email'],
+            'bank' => $allDetails['t_type'],
+            'amount' => $allDetails['amount'],
+            'invoice_id' =>  $allDetails['invoice_id'],
+            'transid' => $allDetails['transaction_id'],
+            'programFee' => $allDetails['programFee'],
+            'programName' => $allDetails['programName'],
+            'programAbbr' => $allDetails['programAbbr'],
+            'balance' => $balance,
+            'message' => $allDetails['message'],
+            't_type' => $allDetails['t_type'],
+            'currency' => $allDetails['currency'],
+            'currency_symbol' => $allDetails['currency_symbol'],
+            'created_at' => $allDetails['date'],
+            'training_mode' => $allDetails['training_mode'],
+            'location' => $allDetails['location'],
 
-        $pdf = PDF::loadView('emails.receipt', compact('data'));
+            'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
+        ];
+
+        $pdf = PDF::loadView('emails.printreceipt', compact('data'));
         // return view('emails.receipt', compact('data'));
         $this->sendWelcomeMail($data);
         $pop->delete();
@@ -290,6 +320,7 @@ class PopController extends Controller
                     't_type' => $allDetails['t_type'],
                     't_location' => $allDetails['location'],
                     'paymentStatus' => $allDetails['paymentStatus'],
+                    'training_mode' => $allDetails['training_mode'],
                     'balance' => $allDetails['balance'],
                     'currency' => $allDetails['currency'],
                     'currency_symbol' => $allDetails['currency_symbol'],
@@ -299,6 +330,7 @@ class PopController extends Controller
                     'coupon_id' => $allDetails['coupon_id'] ?? null,
                     'coupon_amount' => $allDetails['coupon_amount'] ?? null,
                     'coupon_code' => $allDetails['coupon_code'] ?? null,
+                    'training_mode' => $allDetails['training_mode'] ?? null,
                 ]);
         }else{
             
@@ -316,6 +348,7 @@ class PopController extends Controller
                 'coupon_id' => $allDetails['coupon_id'] ?? null,
                 'coupon_amount' => $allDetails['coupon_amount'] ?? null,
                 'coupon_code' => $allDetails['coupon_code'] ?? null,
+                'training_mode' => $allDetails['training_mode'] ?? null,
             ]);
         }
         // Update existing payment if 

@@ -39,49 +39,38 @@
                         <form action="{{ route('checkout') }}" method="POST">
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
-                                    @if(!empty($locations) && count($locations) > 0)
+                                    @if(isset($locations) && count($locations) > 0 )
                                         <div class="checkout__input">
                                             <p>Select location<span>*</span></p>
                                             <select name="location" id="locations" required>
                                                 <option value="">Select Location</option>
                                                 @foreach($locations as $location)
-                                                    <option value="{{ $location['location_name'] }}" {{ old('location_name') == $location['location_name'] ? 'selected' : '' }}>
-                                                        {{ $location['location_name'] }}
+                                                    <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
+                                                        {{ $location }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div> 
-                                        
-                                        <div class="checkout__input" id="payment_types" style="display: none">
-                                            <p>Select payment type<span>*</span></p>
-                                            <select name="type" id="" required>
+                                    @endif
+                                    
+                                    @if(isset($modes) && count($modes) > 0)
+                                        <div class="checkout__input">
+                                            <p>Select Mode<span>*</span></p>
+                                            <select name="modes" id="payment_modes" required>
                                                 <option value="">Select</option>
-                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
-                                                @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
-                                                <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
-                                                @endif
-                                                @if($training->haspartpayment == 1)
-                                                <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
-                                                @endif
+                                                @foreach($modes as $mode=>$value)
+                                                <option value="{{ $mode }}">{{ $mode }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
-                                        <script>
-                                            
-                                            $(document).ready(function(){
-                                                $('#locations').change(function(){
-                                                    alert(this.value);
-                                                });
-                                            });
-                                            // $("#locations").change(function () {
-                                                // console.log($('#locations').val());
-                                               
-                                                // if($("#locations").val()){
-                                                //     $("#payment_types").show();
-                                                // }else{
-                                                //     $("#payment_types").hide();
-                                                // }                                        
-                                            // });
-                                        </script>
+                                        <div class="checkout__input" id="payment_types" style="display:none">
+                                            <p>Select payment type<span>*</span></p>
+                                            <div class="select-block">
+                                                <select name="type" id="payments" required>
+                                                    <option value="">Select</option>
+                                                </select>
+                                            </div>
+                                        </div> 
                                     @else 
                                         <div class="checkout__input">
                                             <p>Select payment type<span>*</span></p>
@@ -200,5 +189,39 @@
     </div>
 </section> --}}
 <!-- Related Product Section End -->
-
 @endsection
+@section('scripts')
+<script>
+    $(document).ready(function() {
+        $('payments').niceSelect();
+        $("#payment_modes").on('change', function () {
+            if(this.value){
+                getPayment(this.value, {{ $training->id }});
+                $("#payment_types").show();
+            }else{
+                $("#payment_types").hide();
+            }
+        });
+
+        function getPayment(payment_mode, training){
+            // $("#payments").prepend(data.data);
+            $('#payments').empty();
+            
+            $.post("/get-mode-payment-types", {
+                payment_mode: payment_mode,
+                training: training,
+                currency_symbol : "{{ $currency_symbol }}",
+            },function(data, status){
+                if(status == 'success'){
+                    $("#payments").append(data.data);
+                    $('#payments').niceSelect('update'); //destroy the plugin 
+                    $('#payments').niceSelect(); //apply again
+                }
+            });
+        }
+    });
+
+    
+</script>
+@endsection
+

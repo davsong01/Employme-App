@@ -126,6 +126,8 @@
                             </table>
                             
                             <input type="hidden" name="orderID" value="{{ $training['id'] }}">
+                            <input type="hidden" name="modes" value="{{ $modes }}">
+                            <input type="hidden" name="location" value="{{ $location }}">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
                             <input type="hidden" name="currency" value="{{  $currency }}">

@@ -107,7 +107,7 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
-                      
+                        
                         <tr>
                             <td>{{ $transaction->name ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }}  </td>
                             <td>
@@ -127,7 +127,18 @@
                                             <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
                                         @endif
                                     <br>      
-                                    <strong>Bank: </strong>{{ $transaction->t_type }} <br>
+                                   
+                                    <strong>Bank: </strong>{{ $transaction->t_type ?? null }} <br>
+                                    <?php
+                                        if(isset($transaction->t_location) && isset($transaction->t_location)){
+                                            $locations = json_decode($transaction->locations, true);
+                                            $location_address = $locations[$transaction->t_location] ?? null;
+                                        }
+                                    ?>
+                                 
+                                    @if(isset($transaction->t_location) && !empty($transaction->t_location) && !empty( $location_address))
+                                    <strong>Location:</strong> {{ $transaction->t_location}}({{ $location_address}}) <br>
+                                    @endif
                                     <strong>Date: </strong>{{ $transaction->created_at }}
                                    
                                 </small>
@@ -144,6 +155,9 @@
                                     @endif
                                     <br>
                                     <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
+                                    @if(isset($transaction->training_mode))
+                                    <strong>Training Mode:</strong> {{ $transaction->training_mode }} <br>
+                                    @endif
                                      <strong>Type: </strong>{{ $transaction->t_type }} <br>
                                     <strong>Currency: </strong>{{ $transaction->currency }}
                                      

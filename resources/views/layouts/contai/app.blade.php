@@ -276,6 +276,8 @@
     <script src="{{ asset('contai/js/mixitup.min.js')}}"></script>
     <script src="{{ asset('contai/js/owl.carousel.min.js')}}"></script>
     <script src="{{ asset('contai/js/main.js')}}"></script>
+    @yield('scripts')
+    
 </body>
 
 </html>

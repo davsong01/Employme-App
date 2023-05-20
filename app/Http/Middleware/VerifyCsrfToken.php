@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'validate-coupon'
+        'validate-coupon',
+        'get-mode-payment-types'
     ];
 }

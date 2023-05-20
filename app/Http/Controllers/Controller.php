@@ -55,7 +55,7 @@ class Controller extends BaseController
             Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         } catch(\Exception $e){
             // Get error here
-            // dd($e->getMessage());
+            // dd($e->getMessage(), $data);
             Log::error($e);
             return false;
         }
@@ -176,7 +176,7 @@ class Controller extends BaseController
     }
 
     public function createTempDetails($request, $payment_mode){
-        
+       
         $temp = TempTransaction::where('email', $request->email)->first();
             if (isset($temp) && !empty($temp)) {
                 $temp->update([
@@ -189,7 +189,8 @@ class Controller extends BaseController
                     'transid' =>  $request->transid,
                     'payment_mode' => $payment_mode,
                     'phone' => $request->phone,
-                    'location' => $request->location ?? NULL
+                    'location' => $request->location ?? NULL,
+                    'training_mode' => $request->modes ?? NULL,
                 ]);
             } else {
                 try {
@@ -204,7 +205,9 @@ class Controller extends BaseController
                         'payment_mode' => $payment_mode,
                         'name' => $request->name,
                         'phone' => $request->phone,
-                        'location' => $request->location ?? NULL
+                        'location' => $request->location ?? NULL,
+                        'training_mode' => $request->modes ?? NULL,
+
                     ]);
                 } catch (\Throwable $th) {
                     return $th->getMessage().'Line: ' .$th->getLine();
@@ -312,13 +315,16 @@ class Controller extends BaseController
 
         $data['role_id'] = "Student";
         $data['transid'] = $paymentDetails->transid;
-        
+        $data['t_location'] = $paymentDetails->location;
+        $data['training_mode'] = $paymentDetails->training_mode;
+       
         return $data;
     }
 
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
+        
         $user = User::updateOrCreate(['email' => $data['email']], [
             'name' => $data['name'],
             't_phone' => $data['t_phone'],
@@ -367,6 +373,7 @@ class Controller extends BaseController
                 't_amount' => $data['amount'], 
                 't_type' => $data['t_type'], 
                 't_location' => $data['location'], 
+                'training_mode' => $data['training_mode'],
                 'transid' => $data['transid'], 
                 'paymenttype' => $data['payment_type'], 
                 'paymentStatus' => $data['paymentStatus'], 

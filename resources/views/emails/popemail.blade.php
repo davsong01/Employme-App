@@ -18,7 +18,13 @@ Training: {{ $data['training'] }}
 
 Date of Payment: {{ $data['date'] }}
 
+@if(isset($data['location']))
 Location: {{ $data['location'] }}
+@endif
+
+@if(isset($data['training_mode']))
+Training Mode: {{ $data['training_mode'] }}
+@endif
 
 @component('mail::button', ['url' => config('app.url').'/login'])
 Login to confirm Participant<br>

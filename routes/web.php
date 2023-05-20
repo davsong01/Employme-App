@@ -26,6 +26,8 @@ Route::middleware(['template'])->group(function(){
     Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
     Route::post('/checkout', 'PaymentController@checkout')->name('checkout'); 
     Route::post('/validate-coupon', 'PaymentController@validateCoupon');
+    Route::post('/get-mode-payment-types', 'FrontendController@getModePaymentTypes');
+    
     //upload proof of payment 
     Route::resource('pop', 'PopController');
     Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');
@@ -68,6 +70,8 @@ Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', '
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
+Route::get('/download-program-brochure/{p_id}', 'HomeController@downloadProgramBrochure')->name('download.program.brochure')->middleware(['impersonate', 'auth', 'programCheck']);
+
 Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
 Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
 Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
