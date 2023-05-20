@@ -4,11 +4,11 @@ public*
 public/*
 /public/storage
 /storage/*.key
-/app/Providers*
+# /app/Providers*
 /app/Policies*
 app/Console/Kernel.php 
 app/Exceptions/Handler.php
-app/Http/Middleware/*           
+# app/Http/Middleware/*           
 artisan                                                          
 bash.exe.stackdump                                               
 bootstrap/*
@@ -22,7 +22,7 @@ public/.htaccess
 config*
 /vendor
 /uploads*
-resources/views/vendor/*
+# resources/views/vendor/*
 /.idea
 /.vagrant
 Homestead.json
