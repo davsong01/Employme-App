@@ -12,7 +12,13 @@ return [
     | and used as needed; however, this mailer will be used by default.
     |
     */
-
+    'stream' => [
+        'ssl' => [
+            'allow_self_signed' => true,
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+        ],
+    ],
     'default' => env('MAIL_MAILER', 'smtp'),
 
     /*
