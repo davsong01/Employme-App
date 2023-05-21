@@ -28,7 +28,6 @@ class PaymentController extends Controller
         $training = json_decode($request->training, true);
         $modes = null;
         $location = $request->location ?? null;
-        
         if($request->has('modes')){
             // Get mode amount 
             $modes = $request->modes;
@@ -58,7 +57,7 @@ class PaymentController extends Controller
         }
 
         $payment_modes = $this->getPaymentModes();
- 
+        
         return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location'));
     }
 
@@ -118,7 +117,7 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $template = Settings::first()->templateName->name;
-       
+        
         if ($request->user_program && $request->type == 'balance') {
             $data = DB::table('program_user')->find($request->user_program);
 

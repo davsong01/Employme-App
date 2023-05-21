@@ -113,7 +113,7 @@ class ProgramController extends Controller
                 $modes[$test[0]] = $test[1];
             }
             $modes = json_encode($modes);
-
+            
         }
      
         $program = Program::Create([
@@ -144,15 +144,18 @@ class ProgramController extends Controller
     {
         $i = 1;
         $program = Program::find($id);
-        
-        return view('dashboard.admin.programs.edit', compact('program'));
+        $modes = [
+            'Online',
+            'Offline'
+        ];
+        return view('dashboard.admin.programs.edit', compact('program','modes'));
     }
 
     public function update(Request $request, Program $program)
     {
 
         $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations']);
-       
+        // dd($request->all());
         //check if new featured image
         if($request->hasFile('image')){
 

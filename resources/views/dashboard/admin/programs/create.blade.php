@@ -90,6 +90,25 @@
                                 </div>
                             </div>
                         </div>
+                         <section>
+                            <div class="row">                                   
+                                <div class="col-md-6" style="margin-bottom:5px">
+                                    <label>Show Mode (Two payment modes only)</label>
+                                     <select name="show_modes" class="form-control" id="show_modes" required>
+                                        <option value="no" {{ old('show_modes') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" {{ old('show_modes') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="add_mode" style="display:none">
+                                    <label style="color:white">S</label>
+                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
+                            <div class="row" id="mode-0">
+                            </div>
+                        </section>
                         <section>
                             <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px;">
@@ -110,26 +129,7 @@
                             </div>
                         </section>
 
-                        <section>
-                            <div class="row">                                   
-                                <div class="col-md-6" style="margin-bottom:5px">
-                                    <label>Show Mode</label>
-                                     <select name="show_modes" class="form-control" id="show_modes" required>
-                                        <option value="no" {{ old('show_modes') == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ old('show_modes') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2" id="add_mode" style="display:none">
-                                    <label style="color:white">S</label>
-                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
-                                </div>
-                            </div>
-                        </section>
-                        <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
-                            <div class="row" id="mode-0">
-                            </div>
-                        </section>
-                     
+                      
                     <div class="col-md-12">
                         <button name="submit" class="btn btn-primary" style="width:100%">Submit</button>
                     </div>
@@ -203,6 +203,12 @@
     $("#add-mode").on('click', function () {
         //get last ID
         var lastChild = $("#mode-holder").children().last();
+        var countChildren = $("#mode-holder").children().length;
+        
+        if(countChildren > 2){
+            return alert('You can only add 2 payment modes!');
+        }
+
         var lastId = $(lastChild).attr('id').split('-');
 
         var id = lastId[1] + 1;
@@ -211,8 +217,11 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="mode_name">Mode Name</label>
-                        <input type="text" class="form-control" value="{{ old('mode_name') }}"
-                            name="mode_name[]" required>
+                        <select name="mode_name[]" class="form-control" id="mode_name" required>
+                            <option value="" selected>Select mode</option>
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                        </select>
                     </div>
                 </div>
                 <div class="col-md-5">

@@ -41,7 +41,7 @@
 		<p><b style="color:red">CONTACT EMAIL</b><br />
 		{{ $data['email']}}</p>
 	</div>
-
+			
 	<div class="row">
 		<table class="table table-hover">
 			<thead>
@@ -62,7 +62,7 @@
 				<tr>
 					<td>
 						@if(isset($data['location']) && !empty($data['location']))
-						<small><strong style="color:green">Training Location: </strong>{{ $data['location'] ?? $data['location_address'] }})</small>
+						<small><strong style="color:green">Training Location: </strong>{{ $data['location'] ?? null }} ({{ $data['location_address'] ?? null }})</small>
 						@endif
 					</td>
 					<td></td>

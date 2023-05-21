@@ -110,7 +110,7 @@ class PaymentController extends Controller
         ];
         
         //generate pdf from receipt view
-       
+  
         //send user mails
         // return view('emails.receipt', compact('data', 'details'));
         $data = array_merge($data, $details);

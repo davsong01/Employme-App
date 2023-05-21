@@ -26,12 +26,18 @@
                     <h3>{{ $training->p_name }}</h3>
                     
                     <div class="product__details__price">
-                        @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
-                            {{ $currency_symbol }}{{ number_format($training->e_amount) }}
-                            <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
+                        @if(isset($modes) && count($modes) > 0)
+                            {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
+                            {{-- {{ number_format($modes['Online'] > $modes['Offline'] ? ) }} / {{ $currency_symbol }} {{ number_format($modes['Offline']) }} --}}
                         @else
-                            {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                {{ $currency_symbol }}{{ number_format($training->e_amount) }}
+                                <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
+                            @else
+                                {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                            @endif
                         @endif
+                        
                     </div>
                     <p>{{ $training->description }}</p>
                     
@@ -39,20 +45,6 @@
                         <form action="{{ route('checkout') }}" method="POST">
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
-                                    @if(isset($locations) && count($locations) > 0 )
-                                        <div class="checkout__input">
-                                            <p>Select location<span>*</span></p>
-                                            <select name="location" id="locations" required>
-                                                <option value="">Select Location</option>
-                                                @foreach($locations as $location=>$value)
-                                                    <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
-                                                        {{ $location }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div> 
-                                    @endif
-                                    
                                     @if(isset($modes) && count($modes) > 0)
                                         <div class="checkout__input">
                                             <p>Select Mode<span>*</span></p>
@@ -63,6 +55,19 @@
                                                 @endforeach
                                             </select>
                                         </div>
+                                        @if(isset($locations) && count($locations) > 0 )
+                                            <div class="checkout__input" id="locations_div" style="display:none">
+                                                <p>Select location<span>*</span></p>
+                                                <select name="location" id="locations" required>
+                                                    <option value="">Select Location</option>
+                                                    @foreach($locations as $location=>$value)
+                                                        <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
+                                                            {{ $location }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div> 
+                                        @endif
                                         <div class="checkout__input" id="payment_types" style="display:none">
                                             <p>Select payment type<span>*</span></p>
                                             <div class="select-block">
@@ -71,7 +76,21 @@
                                                 </select>
                                             </div>
                                         </div> 
+                                       
                                     @else 
+                                        @if(isset($locations) && count($locations) > 0 )
+                                            <div class="checkout__input">
+                                                <p>Select location<span>*</span></p>
+                                                <select name="location" id="locations" required>
+                                                    <option value="">Select Location</option>
+                                                    @foreach($locations as $location=>$value)
+                                                        <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
+                                                            {{ $location }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div> 
+                                        @endif
                                         <div class="checkout__input">
                                             <p>Select payment type<span>*</span></p>
                                             <select name="type" id="" required>
@@ -86,7 +105,7 @@
                                             </select>
                                         </div>
                                     @endif
-
+                                    
                                 </div>
                                 <input type="hidden" name="training" value="{{ $training }}"> 
                                 <input type="hidden" name="facilitator" value="{{ \Session::get('facilitator') }}"> 
@@ -196,10 +215,20 @@
         $('payments').niceSelect();
         $("#payment_modes").on('change', function () {
             if(this.value){
-                getPayment(this.value, {{ $training->id }});
-                $("#payment_types").show();
+                if(this.value == 'Offline'){
+                    getPayment(this.value, {{ $training->id }});
+                    $("#locations_div").show();
+                    $("#locations").attr('required',true);
+                    $("#payment_types").show();
+                }else{
+                    getPayment(this.value, {{ $training->id }});
+                    $("#locations").attr('required',false);
+                    $("#locations_div").hide();
+                    $("#payment_types").show();
+                }
             }else{
                 $("#payment_types").hide();
+                $("#locations_div").hide();
             }
         });
 

@@ -106,6 +106,57 @@
                             </div>
                         </div>
                          <section>
+                            <div class="row" style="margin-top: 20px;">                                   
+                                <div class="col-md-6" style="margin-bottom:5px">
+                                    <label>Show Mode (2 payment modes only)</label>
+                                     <select name="show_modes" class="form-control" id="show_modes" required>
+                                        <option value="no" {{ $program->show_modes == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" {{ $program->show_modes == 'yes' ? 'selected' : '' }}>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="add_mode" style="display:{{ $program->show_modes == 'yes' ? 'block':'none' }}">
+                                    <label style="color:white">S</label>
+                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
+                            <div class="row" id="mode-0">
+                            </div>
+                            <?php $mode_counter = 1?>
+                            @if($program->show_modes == 'yes' && isset($program->modes) && !empty($program->modes))
+                                @foreach(json_decode($program->modes, true) as $key=>$value)
+                                    <?php $counter = $mode_counter++ ?>
+                                    <div class="row" id="oldmode-{{ $counter }}">
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="mode_name">Mode Name</label>
+                                                {{-- <select name="mode_name[]" class="form-control" id="mode_name" required>
+                                                    <option value="Online" {{ $key == 'Online' ? 'selected' : '' }}>{{ $key }}</option>
+                                                    <option value="Physical" {{ $key == 'Physical' ? 'selected' : '' }}>{{ $key }}</option>
+                                                </select> --}}
+                                                <input type="select" class="form-control" value="{{ $key }}"
+                                                    name="mode_name[]" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="mode_amount">Mode Amount</label>
+                                                <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                                                <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </section>
+                        
+                         <section>
                             <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px;">
                                     <label>Show Location</label>
@@ -120,7 +171,7 @@
                                 </div>
                             </div>
                         </section>
-                        <section id="course-holder" style="background: #80c4ff;padding: 0 10px;">
+                        <section id="course-holder" style="background: #80c4ff;padding: 0 10px; margin-bottom: 10px;">
                             <div class="row" id="course-0">
                             </div>
                             <?php $location_counter = 1 ?>
@@ -153,53 +204,7 @@
                             @endif
                         </section>
 
-                        <section>
-                            <div class="row" style="margin-top: 20px;">                                   
-                                <div class="col-md-6" style="margin-bottom:5px">
-                                    <label>Show Mode</label>
-                                     <select name="show_modes" class="form-control" id="show_modes" required>
-                                        <option value="no" {{ $program->show_modes == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ $program->show_modes == 'yes' ? 'selected' : '' }}>Yes</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2" id="add_mode" style="display:{{ $program->show_modes == 'yes' ? 'block':'none' }}">
-                                    <label style="color:white">S</label>
-                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
-                                </div>
-                            </div>
-                        </section>
-                        <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
-                            <div class="row" id="mode-0">
-                            </div>
-                            <?php $mode_counter = 1?>
-                            @if($program->show_modes == 'yes' && isset($program->modes) && !empty($program->modes))
-                                @foreach(json_decode($program->modes, true) as $key=>$value)
-                                    <?php $counter = $mode_counter++ ?>
-                                    <div class="row" id="oldmode-{{ $counter }}">
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label for="mode_name">Mode Name</label>
-                                                <input type="text" class="form-control" value="{{ $key }}"
-                                                    name="mode_name[]" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label for="location_address">Mode Amount</label>
-                                                <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
-                                                <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </section>
-                        
+                       
                         <div class="col-12">
                             <input type="submit" name="submit" value="Update" class="btn btn-primary" style="width:100%">
                         </div>
@@ -284,16 +289,23 @@
     $("#add-mode").on('click', function () {
         //get last ID
         var lastChild = $("#mode-holder").children().last();
+        var countChildren = $("#mode-holder").children().length;
         var lastId = $(lastChild).attr('id').split('-');
 
         var id = lastId[1] + 1;
-       
+        if(countChildren > 2){
+            return alert('You can only add 2 payment modes!');
+        }
+
         var child = `<div class="row" id="mode-`+id+`">
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="mode_name">Mode Name</label>
-                        <input type="text" class="form-control" value="{{ old('mode_name') }}"
-                            name="mode_name[]" required>
+                            <select name="mode_name[]" class="form-control" id="mode_name" required>
+                            <option value="" selected>Select mode</option>
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                            </select>
                     </div>
                 </div>
                 <div class="col-md-5">
