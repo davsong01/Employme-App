@@ -130,8 +130,8 @@ class ProgramController extends Controller
             'booking_form' => $filePath ?? null,
             'show_locations' => $data['show_locations'],
             'show_modes' => $data['show_modes'],
-            'modes' => $modes,
-            'locations' => $locations,
+            'modes' => $modes ?? null,
+            'locations' => $locations ?? null,
             'show_catalogue_popup'=>$data['show_catalogue_popup'],
             'image' => 'trainingimage/'.$file,
         ]);
