@@ -44,7 +44,7 @@
                                             <p>Select location<span>*</span></p>
                                             <select name="location" id="locations" required>
                                                 <option value="">Select Location</option>
-                                                @foreach($locations as $location)
+                                                @foreach($locations as $location=>$value)
                                                     <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
                                                         {{ $location }}
                                                     </option>
