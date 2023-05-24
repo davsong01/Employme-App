@@ -68,7 +68,8 @@ class PaymentController extends Controller
 
             $modes =  (isset($program_details->modes) && !empty( $program_details->modes)) ? json_decode($program_details->modes) : [];
             $locations =  (isset($program_details->locations) && !empty( $program_details->locations)) ? json_decode($program_details->locations) : [];
-            
+            // determine balance
+
             if(Auth::user()->role_id == "Admin"){
             return view('dashboard.admin.transactions.edit', compact('transaction','locations','modes'));
     }return back();
@@ -210,19 +211,26 @@ class PaymentController extends Controller
 
       public function update(Request $request, $id){
 
-        $transaction = DB::table('program_user')->whereId($id)->first();
-       
-        $user = User::findorFail($transaction->user_id);
-     
-        //check amount against payment
+        $transaction = Transaction::with('user','program')->whereId($id)->first();
+        
+        $user = $transaction->user;
         $programFee = $request->program_amount;
         
+        //check amount against payment
+        if($request->has('training_mode') && !empty($request->training_mode)){
+            $modes =  (isset($transaction->program->modes) && !empty( $transaction->program->modes)) ? json_decode($transaction->program->modes, true) : [];
+            if(!empty($modes)){
+                $programFee = $modes[$transaction->training_mode];
+            }
+        }
+       
         $newamount = $transaction->t_amount + $request->amount;
         if($newamount > $programFee){
             return back()->with('warning', 'Student cannot pay more than program fee');
         }else 
 
         $balance = $programFee - $newamount;
+        
         $message = $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
         

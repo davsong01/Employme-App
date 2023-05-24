@@ -34,11 +34,11 @@
                                 </div>
                                 <!--Gives the first error for input name-->
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
-                                
+                               
+                                <input type="hidden" name="training_mode" value="{{ $transaction->training_mode }}">
                                 @if(isset($locations) && !empty($locations))
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                     <label for="location">Location </label>
-                                    
                                      <select  id="location" name="location" class="form-control">
                                         <option value=""></option>
                                         @foreach ($locations as $location => $value)
