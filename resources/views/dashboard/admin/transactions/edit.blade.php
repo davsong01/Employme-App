@@ -11,7 +11,7 @@
                         <h4>Invoice Id: {{$transaction->invoice_id}}</h4>
                         <h6>Transaction Id: {{ $transaction->transid }}</h6>
                     </div>
-                    <form action="{{route('payments.update', ['id' => $transaction->id, 'program_amount' => $transaction->p_amount])}}" method="POST" enctype="multipart/form-data"
+                    <form action="{{route('payments.update', ['payment' => $transaction->id, 'program_amount' => $transaction->p_amount])}}" method="POST" enctype="multipart/form-data"
                         class="pb-2">
                         {{ method_field('PATCH') }}
                         <div class="row">
@@ -34,16 +34,26 @@
                                 </div>
                                 <!--Gives the first error for input name-->
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
+                                
+                                @if(isset($locations) && !empty($locations))
                                 <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
                                     <label for="location">Location </label>
-                                    <input id="location" type="text" class="form-control" name="location"
-                                        value="{{ old('location') ?? $transaction->t_location }}" autofocus>
+                                    
+                                     <select  id="location" name="location" class="form-control">
+                                        <option value=""></option>
+                                        @foreach ($locations as $location => $value)
+                                            <option value="{{ $location }}" {{ $location == $transaction->t_location ? 'selected' :''}}>{{$location}}</option>
+                                        @endforeach
+                                    </select>
+
                                     @if ($errors->has('location'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('location') }}</strong>
                                     </span>
                                     @endif
                                 </div>
+                                @endif
+                                
                             <div class="row">
                                 <button type="submit" class="btn btn-primary" style="width:100%">
                                     Submit

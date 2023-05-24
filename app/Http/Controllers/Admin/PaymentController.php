@@ -62,12 +62,15 @@ class PaymentController extends Controller
             $transaction = DB::table('program_user')->whereId($id)->first();
            
             $transaction->name = User::whereId($transaction->user_id)->value('name');
-            $program_details = Program::select('p_name', 'p_amount')->whereId($transaction->program_id)->first();
+            $program_details = Program::select('p_name', 'p_amount','modes','locations')->whereId($transaction->program_id)->first();
             $transaction->p_name = $program_details->p_name;
             $transaction->p_amount = $program_details->p_amount;
 
+            $modes =  (isset($program_details->modes) && !empty( $program_details->modes)) ? json_decode($program_details->modes) : [];
+            $locations =  (isset($program_details->locations) && !empty( $program_details->locations)) ? json_decode($program_details->locations) : [];
+            
             if(Auth::user()->role_id == "Admin"){
-            return view('dashboard.admin.transactions.edit', compact('transaction'));
+            return view('dashboard.admin.transactions.edit', compact('transaction','locations','modes'));
     }return back();
     }
 
