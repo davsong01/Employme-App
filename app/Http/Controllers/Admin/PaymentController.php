@@ -35,8 +35,7 @@ class PaymentController extends Controller
                 ->get();
             $i = 1;
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
-            
-        
+
           return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops') );
 
         }
@@ -121,7 +120,11 @@ class PaymentController extends Controller
         $pdf = PDF::loadView('emails.printreceipt', compact('data'));
         // return view('emails.printreceipt', compact('data', 'details'));
 
-        Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+        try{
+            Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+        }catch(\Exception $e){
+            return back()->with('error', $e->getMessage()); 
+        }
         
         return back()->with('message', 'Receipt sent succesfully'); 
     }else return back();
