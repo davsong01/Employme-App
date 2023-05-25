@@ -33,7 +33,7 @@
                             <td>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($coupon->amount) }}</td>                          
                             <td>{{$coupon->program->p_name  ?? 'NULL'}}</td>                          
                             <td>{{ isset($coupon->facilitator->name) ? $coupon->facilitator->name : 'Administrator' }}</td>                          
-                            <td>{{ $coupon->coupon_users_count }}</td>                          
+                            <td>{{ $coupon->coupon_users->count() }}</td>                          
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="edit coupon details"
