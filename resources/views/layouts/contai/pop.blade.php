@@ -133,8 +133,8 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
-                                    <p>Upload proof of payment<span>*</span></p>
-                                    <input type="file" class="form-control" name="file" id="file" value="{{ old('file') }}" required>
+                                    <p>Upload proof of payment<span>*</span> (Image files only)</p>
+                                    <input type="file" class="form-control" name="file" id="file" value="{{ old('file') }}" required accept="image/png,image/jpeg">
                                 </div>
                             </div>
                         </div>

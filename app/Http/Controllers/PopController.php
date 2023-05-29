@@ -253,8 +253,8 @@ class PopController extends Controller
             $allDetails['paymentStatus'] = $this->paymentStatus($balance);
             $allDetails['paymenttype'] = $this->paymentStatus(0);
             $allDetails['balance'] = $balance;
-            $allDetails['training_mode'] = $pop->temp->training_mode;
-            $allDetails['t_type'] = $pop->temp->type;
+            $allDetails['training_mode'] = $pop->temp->training_mode ?? null;
+            $allDetails['t_type'] = $pop->temp->type ?? null;
             
             $user = $this->updateUserDetails($allDetails);
            
