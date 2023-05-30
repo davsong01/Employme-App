@@ -320,7 +320,7 @@ class PopController extends Controller
                     't_type' => $allDetails['t_type'],
                     't_location' => $allDetails['location'],
                     'paymentStatus' => $allDetails['paymentStatus'],
-                    'training_mode' => $allDetails['training_mode'],
+                    // 'training_mode' => $allDetails['training_mode'] ?? null,
                     'balance' => $allDetails['balance'],
                     'currency' => $allDetails['currency'],
                     'currency_symbol' => $allDetails['currency_symbol'],
