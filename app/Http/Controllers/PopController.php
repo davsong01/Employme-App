@@ -297,7 +297,7 @@ class PopController extends Controller
             'currency' => $allDetails['currency'],
             'currency_symbol' => $allDetails['currency_symbol'],
             'created_at' => $allDetails['date'],
-            'training_mode' => $allDetails['training_mode'],
+            'training_mode' => $allDetails['training_mode'] ?? null,
             'location' => $allDetails['location'],
 
             'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
