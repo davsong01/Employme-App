@@ -75,8 +75,10 @@ class SettingsController extends Controller
             'phone' => 'sometimes',
             'allow_whatsapp_chat' => 'required',
             'allow_transfer_button' => 'required',
+            'email_provider' => 'required',
         ]);
 
+    
         if($request->has('logo') && $request->file('logo')){
             Image::make($request->logo)->resize(152, 60)->save('assets/images/logo.png', 80, 'png');
             $data['logo'] = 'assets/images/logo.png';
@@ -92,6 +94,7 @@ class SettingsController extends Controller
             Image::make($request->favicon)->resize(16, 16)->save('assets/images/favicon.png', 80, 'png');
             $data['favicon'] = 'assets/images/favicon.png';
         }
+       
         $setting->update($data);
 
         return back()->with('message', 'Update successful');

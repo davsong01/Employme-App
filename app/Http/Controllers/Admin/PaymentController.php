@@ -121,7 +121,9 @@ class PaymentController extends Controller
         // return view('emails.printreceipt', compact('data', 'details'));
 
         try{
-            Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+            $this->sendWelcomeMail($data, $pdf);
+
+            // Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
         }catch(\Exception $e){
             return back()->with('error', $e->getMessage()); 
         }

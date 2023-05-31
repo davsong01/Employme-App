@@ -8,19 +8,20 @@ use App\Coupon;
 use App\Program;
 use App\Settings;
 use App\CouponUser;
+use App\PaymentMode;
 use App\TempTransaction;
 use App\Mail\Welcomemail;
-use App\PaymentMode;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Storage;
 
 class Controller extends BaseController
 {
@@ -44,22 +45,73 @@ class Controller extends BaseController
         return $invoice_id;
     }
     
-    protected function sendWelcomeMail($data){
+    protected function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
-        // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+        if (isset($data['invoice_id'])) {
+            $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+        } else $pdf = null;
+
         // return view('emails.receipt', compact('data'));
-        try {
-            if(isset($data['invoice_id'])){
-                $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-            }else $pdf = null;
-            Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
-        } catch(\Exception $e){
-            // Get error here
-            // dd($e->getMessage(), $data);
-            Log::error($e);
-            return false;
+        $provider = $this->emailProvider();
+        
+        if($provider == 'default'){
+            try {
+                Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+            } catch(\Exception $e){
+                // Get error here
+                // dd($e->getMessage(), $data);
+                Log::error($e);
+                return false;
+            }
+
+        }else{
+            $this->sendEmailWithElastic($data, $pdf);
         }
         return;
+    }
+
+    public function sendEmailWithElastic($data, $pdf=null){
+       
+        $url = 'https://api.elasticemail.com/v2/email/send';
+        
+        // try{
+            $post = [
+                'from' => 'davsong16@gmail.com',
+                'fromName' => env('APP_NAME'),
+                'apikey' => env('ELASTIC_KEY'),
+                'subject' => 'E - Receipt',
+                'to' => $data['email'],
+                'bodyHtml' => 'Hello<br>sdds',
+                'isTransactional' => false,
+                'attachments' => ''
+            ];
+           
+                $ch = curl_init();
+                curl_setopt_array($ch, array(
+                    CURLOPT_URL => $url,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $post,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HEADER => false,
+                    CURLOPT_SSL_VERIFYPEER => false
+                ));
+                
+                $result=curl_exec ($ch);
+                curl_close ($ch);
+                
+                dd($result);
+        
+        // catch(Exception $ex){
+        //     echo $ex->getMessage();
+        // }
+  
+    }
+
+    public function emailProvider(){
+        $email_provider = Settings::first()->email_provider;
+
+        return $email_provider;
+
     }
 
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){

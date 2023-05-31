@@ -79,6 +79,15 @@
                                     <label>Instagram Link</label>
                                     <input type="text" name="instagram_link" class="form-control" value="{{ old('instagram_link') ??  $setting->instagram_link }}">
                                 </div>
+                              
+                                <div class="form-group">
+                                    <label>Email Provider</label>
+                                    <select name="email_provider" class="form-control" id="email_provider" required>
+                                        <option value="" selected>Select...</option>
+                                        <option value="default" {{ $setting->email_provider == 'default' ? 'selected' : '' }}>Default</option>
+                                        <option value="elastic" {{ $setting->email_provider == 'elastic' ? 'selected' : '' }}>Elastic</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-sm-12">
                                 <div class="form-group">
