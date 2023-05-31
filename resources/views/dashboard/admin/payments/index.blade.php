@@ -27,8 +27,8 @@
                         <tr>
                             <td>{{ $pop->date }}</td>
                             <td>{{ $pop->name }} <br>
-                                {{ $pop->email }} <br>
                                 {{ $pop->phone }} 
+                                {{ $pop->email }} <br>
                             </td>
                             <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
                             @if(isset($pop->is_fresh)) <br>
@@ -109,7 +109,7 @@
                         @foreach($transactions as $transaction)
                         
                         <tr>
-                            <td>{{ $transaction->name ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }}  </td>
+                            <td>{{ $transaction->name ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} </td>
                             <td>
                                 <small class="training-details">
                                     <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
