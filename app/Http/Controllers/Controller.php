@@ -47,14 +47,14 @@ class Controller extends BaseController
     
     protected function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
-        if (isset($data['invoice_id'])) {
-            $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-        } else $pdf = null;
-
+        
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
         
         if($provider == 'default'){
+            if (isset($data['invoice_id'])) {
+                $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+            } else $pdf = null;
             try {
                 Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
             } catch(\Exception $e){
@@ -65,42 +65,54 @@ class Controller extends BaseController
             }
 
         }else{
-            $this->sendEmailWithElastic($data, $pdf);
+            if (isset($data['invoice_id'])) {
+                $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+                $filename = 'receipts/'.$data['invoice_id'].".pdf";
+                file_put_contents($filename, $pdf->output());
+                $data['attachments'] = url('/') . '/'.$filename;
+            }
+            if($data['type'] == 'pop'){
+                $data['attachments'] = $data['pop'];
+            }
+
+            $this->sendEmailWithElastic($data);
         }
         return;
     }
 
-    public function sendEmailWithElastic($data, $pdf=null){
+    public function sendEmailWithElastic($data){
        
         $url = 'https://api.elasticemail.com/v2/email/send';
-        
+       
         // try{
             $post = [
-                'from' => 'davsong16@gmail.com',
+                'from' => 'training.employme@gmail.com',
                 'fromName' => env('APP_NAME'),
                 'apikey' => env('ELASTIC_KEY'),
-                'subject' => 'E - Receipt',
+                'subject' => $this->emailContent($data)['subject'],
                 'to' => $data['email'],
-                'bodyHtml' => 'Hello<br>sdds',
+                'bodyHtml' => $this->emailContent($data)['content'],
                 'isTransactional' => false,
-                'attachments' => ''
+                'attachments' => $data['attachments'],
             ];
-           
-                $ch = curl_init();
-                curl_setopt_array($ch, array(
-                    CURLOPT_URL => $url,
-                    CURLOPT_POST => true,
-                    CURLOPT_POSTFIELDS => $post,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_HEADER => false,
-                    CURLOPT_SSL_VERIFYPEER => false
-                ));
-                
-                $result=curl_exec ($ch);
-                curl_close ($ch);
-                
-                dd($result);
-        
+       
+            // get the file name and send in attachment
+            
+            $ch = curl_init();
+            curl_setopt_array($ch, array(
+                CURLOPT_URL => $url,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $post,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => false,
+                CURLOPT_SSL_VERIFYPEER => false
+            ));
+            
+            $result=curl_exec ($ch);
+            curl_close ($ch);
+            dd($post, $result);
+            return;
+    
         // catch(Exception $ex){
         //     echo $ex->getMessage();
         // }
@@ -541,4 +553,50 @@ class Controller extends BaseController
         return $status;
     }
 
+    public function emailContent($data)
+    {
+        $content = "";
+        if ($data['type'] == 'balance') {
+            $content .= "<strong>Dear " . $data['name'] . "</strong><br><br>";
+
+            $subject = 'E - Receipt';
+            $content .= '<div>
+            <p style="text-align:justify !important">Your balance payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br>You can now access all sections of your portal!</p>
+            </div>';
+        } else if ($data['type'] == 'initial') {
+            $content .= "<strong>Dear " . $data['name'] . "</strong><br><br>";
+
+            $subject = 'E - Receipt';
+            $content .= '<span style="text-align:justify !important">Your ' . $data['message'] . ' of ' . $data['currency_symbol'] . $data['amount'] . ' for the ' . $data['programName'] . $data['programAbbr'] . ' via ' . $data['t_type'] . ' has been received. <br><br></span>
+            <span><strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form (if available) and feedback form (if available) which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br></span>
+            <span>Your customized portal is where you can view/download study materials for this training, view your payment history and do much more. <br><br></span>
+            <span><strong>Your customized portal login details are:</strong> <br><br>
+            Username: ' . $data['email'] . ' <br>
+            Password: 12345 <small> <strong>(Use existing password if you are a returning participant)</strong> </small>
+            </span><br><br><a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to your Portal here</button></a><br></br><br>';
+        }else if ($data['type'] == 'pop'){
+            $subject = 'Proof of Payment Uploaded';
+            $content .= "<strong>Dear Admin</strong>,<br>
+                <p>Please find below proof of payment details with file attached </p>
+                Name: ".$data['name']."<br>
+                Email: ".$data['email']. "<br>
+                Phone: ".$data['phone']. "<br>
+                Bank: ".$data['bank']. "<br>
+                Amount: ".$data['amount']. "<br>
+                Training: ".$data['training']. "<br>
+                Date of Payment: ".$data['date']."<br>";
+
+            if(isset($data['location'])){
+                $content.= "Location: ".$data['location'];
+            }
+
+            if(isset($data['training_mode'])){
+                $content .= "Training Mode: ".$data['training_mode'];
+            }
+
+            $content .= '<a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to confirm Participant</button></a><br><br>Regards';
+        }
+
+        return ['content'=>$content,'subject'=>$subject];
+    }
 }

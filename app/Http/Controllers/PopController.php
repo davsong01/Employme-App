@@ -119,8 +119,10 @@ class PopController extends Controller
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
-
-            Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
+            $data['type'] = 'pop';
+            $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+            $this->sendWelcomeMail($data);
+            // Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
         }catch(\Exception $e) {
             // dd($e->getMessage());
