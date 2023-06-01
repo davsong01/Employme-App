@@ -159,10 +159,10 @@ class Controller extends BaseController
         if(!isset($coupon->id)){
             $coupon = Coupon::where('code', $code)->first();
         }
-      
+       
         if(isset($coupon) && !empty($coupon)){
             $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
-            
+           
             if(isset($usage)){
                 if($usage->status == 1){
                     return NULL;
@@ -221,13 +221,15 @@ class Controller extends BaseController
     }
 
     public function verifyCoupon($request, $pid, $admin=null){
-        
+       
         $type['pid'] = $pid;
         if($request->coupon && !empty($request->coupon)){
             $verifyCoupon = $this->getCouponValue($request->coupon, $pid, $admin);
-            
+           
             if(!is_null($verifyCoupon)){
-                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $request['amount'],'admin');
+                $amount = $request->amount ?? $request['amount'];
+                $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $amount,'admin');
+               
             }else{
                 $response = null;
             }

@@ -6,6 +6,7 @@ use PDF;
 use App\Pop;
 use App\Role;
 use App\User;
+use App\Coupon;
 use App\Program;
 use App\Transaction;
 use App\Mail\Welcomemail;
@@ -57,20 +58,23 @@ class PaymentController extends Controller
     }
 
     public function edit($id){
-   
-            $transaction = DB::table('program_user')->whereId($id)->first();
-           
+
+            // $transaction = DB::table('program_user')->whereId($id)->first();
+            $transaction = Transaction::with(['coupon','program','user'])->whereId($id)->first();
+            
             $transaction->name = User::whereId($transaction->user_id)->value('name');
-            $program_details = Program::select('p_name', 'p_amount','modes','locations')->whereId($transaction->program_id)->first();
+            $program_details = Program::select('p_name', 'p_amount', 'modes', 'locations')->whereId($transaction->program_id)->first();
+            $coupons = Coupon::whereProgramId($transaction->program_id)->get();
+           
             $transaction->p_name = $program_details->p_name;
             $transaction->p_amount = $program_details->p_amount;
 
             $modes =  (isset($program_details->modes) && !empty( $program_details->modes)) ? json_decode($program_details->modes) : [];
             $locations =  (isset($program_details->locations) && !empty( $program_details->locations)) ? json_decode($program_details->locations) : [];
             // determine balance
-
+       
             if(Auth::user()->role_id == "Admin"){
-            return view('dashboard.admin.transactions.edit', compact('transaction','locations','modes'));
+            return view('dashboard.admin.transactions.edit', compact('transaction','locations','modes', 'coupons'));
     }return back();
     }
 
@@ -218,7 +222,7 @@ class PaymentController extends Controller
         }return 'Part payment';
     }
 
-      public function update(Request $request, $id){
+    public function update(Request $request, $id){
 
         $transaction = Transaction::with('user','program')->whereId($id)->first();
         
@@ -232,22 +236,45 @@ class PaymentController extends Controller
                 $programFee = $modes[$transaction->training_mode];
             }
         }
-       
+
         $newamount = $transaction->t_amount + $request->amount;
-        if($newamount > $programFee){
-            return back()->with('warning', 'Student cannot pay more than program fee');
-        }else 
+        // Checks for coupon code
+       
+        if($request->has('coupon_id') && !empty($request->coupon_id) && $request->coupon_id != $transaction->coupon_id){
+            $request['email'] = $transaction->user->email;
+            $coupon = Coupon::whereId($request->coupon_id)->first();
+            $request['coupon'] = $coupon->code;
+            $request['amount'] = $newamount;
+            $request2 = (object) $request->all();
+            
+            $response = $this->verifyCoupon($request2, $transaction->program_id);
+           
+            if($response['amount']){
+                // make this amount already paid for the student
+                $newamount = $newamount + $request->amount + $response['amount'];
+            }
+            
+            DB::table('program_user')->whereId($transaction->id)->update([
+                'coupon_id' => $response['id'],
+                'coupon_amount' => $response['amount'],
+                'coupon_code' => $response['code'],
+            ]);
+        }
 
         $balance = $programFee - $newamount;
-        
+        // dd($balance, 'balance', $newamount);
         $message = $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
-        
+       
+        if($newamount > $programFee){
+            return back()->with('warning', 'Student cannot pay more than program fee');
+        }
+
         //update the program table here @ column fully paid or partly paid
         DB::table('program_user')->whereId($transaction->id)->update([
             't_amount' => $newamount,
             'balance' => $balance,
-            't_type' => $request['bank'],
+            't_type' => $request['bank'] ?? null,
             't_location' => $request['location'],
             'transid' => $request['transaction_id'],
             'paymentStatus' =>  $paymentStatus,

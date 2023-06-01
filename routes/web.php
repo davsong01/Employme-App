@@ -30,6 +30,8 @@ Route::middleware(['template'])->group(function(){
     
     //upload proof of payment 
     Route::resource('pop', 'PopController');
+    Route::get('/temp-destroy/{id}', 'PopController@tempDestroy')->name('temp.destroy');
+
     Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');
     Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 });

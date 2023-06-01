@@ -54,10 +54,7 @@
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
                             class="hide-menu">Student Management</span></a></li>
 
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('pop.index')}}" aria-expanded="false"><i class="fa fa-check-circle"></i><span
-                            class="hide-menu">Approve Payment</span></a></li>
-
+               
                 <!---end of student management links-->
                 <!---teacher management links-->
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
@@ -93,6 +90,10 @@
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
                         class="hide-menu">Transactions</span></a></li>
+            <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                    href="{{route('pop.index')}}" aria-expanded="false"><i class="fa fa-try"></i><span
+                    class="hide-menu">Attempted Payments</span></a></li>
+
             @endif
             <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     href="{{route('complains.index')}}" aria-expanded="false"><i class="far fa-comments"></i><span

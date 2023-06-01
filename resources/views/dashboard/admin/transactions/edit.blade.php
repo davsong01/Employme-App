@@ -53,6 +53,24 @@
                                     @endif
                                 </div>
                                 @endif
+                               
+                                @if(isset($coupons) && $coupons->count()>0)
+                                <div class="form-group{{ $errors->has('coupon_id') ? ' has-error' : '' }}">
+                                    <label for="location">Coupon Used </label>
+                                     <select  id="coupon_id" name="coupon_id" class="form-control">
+                                        <option value="">Select..</option>
+                                        @foreach ($coupons as $coupon)
+                                            <option value="{{ $coupon->id }}" {{ $coupon->id == $transaction->coupon_id ? 'selected' :''}}>{{$coupon->code}}({{ number_format($coupon->amount) }})</option>
+                                        @endforeach
+                                    </select>
+
+                                    @if ($errors->has('coupon_id'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('coupon_id') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
+                                @endif
                                 
                             <div class="row">
                                 <button type="submit" class="btn btn-primary" style="width:100%">

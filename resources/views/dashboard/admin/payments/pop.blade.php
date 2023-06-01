@@ -12,43 +12,56 @@
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
+                            <th>S/N</th>
                             <th>Date</th>
-                            <th>Training</th>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>Customer details</th>
                             <th>Amount Paid</th>
+                            <th>Training details</th>
                             <th>Bank</th> 
                             <th>Location</th>
-                            <th>Manage</th>       
+                            <th>Actions</th>      
                         </tr>
                     </thead>
                     
                     <tbody>
                         @foreach($transactions->sortBy('date') as $transaction)
                         <tr>
-                            <td>{{ $transaction->date }}</td>
-                            <td>{{ $transaction->program->p_name }}</td>
-                            <td>{{ $transaction->name }}</td>
-                            <td>{{ $transaction->email }}</td>
-                            <td>{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). $transaction->amount }}</td>
+                            <td>{{ $i++ }}</td>
+                            <td>{{ $transaction->created_at }}</td>
+                            <td>
+                                {{ $transaction->name }} <br>
+                                {{ $transaction->phone }} <br>
+                                {{ $transaction->email }} <br>
+                            </td>
+                            <td>
+                                {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
+                            </td>
+                            <td>{{ $transaction->program->p_name }} <br>({{  $transaction->program->e_amount <= 0 ? 'Amount: '.\App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->p_amount : 'E/Amount '. \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->e_amount  }}) <br>
+                            @if(!is_null($transaction->coupon_code))
+                                <span style="color:blue">
+                                    <strong>Coupon ({{ $transaction->coupon }}) Applied | {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->coupon->coupon_amount) }}  </strong>
+                                </span>
+                                @endif
+                            </td>
                             <td>{{ $transaction->bank }}</td>
                             <td>{{ $transaction->location }}</td>
                            
                              <td>
                                 <div class="btn-group">
-                                    <a href="#"><img data-toggle="tooltip" data-placement="top" title="View Proof of payment" id="myImg{{ $transaction->file }}" src="view/{{ $transaction->file }}" alt="{{ $transaction->name }}" style="width:40px;max-width:300px"></a>
-                                    
-                                    <a onclick="return confirm('Are you really sure?');" class="btn btn-success" href="{{ route('pop.show', $transaction->id) }}"><i class="fa fa-check"></i>
+                                    <a data-toggle="tooltip" data-placement="top" title="Delete" onclick="return confirm('Are you really sure?');"
+                                        class="btn btn-danger" href="{{ route('temp.destroy', $transaction->id) }}"><i
+                                            class="fa fa-trash"></i>
                                     </a>
-                                    <form action="{{ route('pop.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+
+                                    {{-- <form action="{{ route('temp.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
                                         <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                            data-placement="top" title="Delete proof of payment"> <i
+                                            data-placement="top" title="Delete Temp Transaction"> <i
                                                 class="fa fa-trash"></i>
                                         </button>
-                                    </form>
+                                    </form> --}}
                                 </div>
                             </td>
                         </tr>

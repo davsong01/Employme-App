@@ -21,13 +21,15 @@ use Intervention\Image\Facades\Image;
 class PopController extends Controller
 {
     public function index(){
+        // Get attempted payments
         if(auth()->user()->role_id != 'Admin'){
             return abort(404);
         }
 
-        $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
+        $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
+        // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
-        dd($transactions);
+   
         return view('dashboard.admin.payments.pop', compact('transactions', 'i') );
     }
 
@@ -407,6 +409,12 @@ class PopController extends Controller
             'balance'=> $balance,
             'transaction' => $existingTransactions,
         ];
+    }
+
+    public function tempDestroy($id){
+        $trans = TempTransaction::find($id);
+        $trans->delete();
+        return back()->with('message', 'Delete successful');
     }
 
     public function reconcile(){
