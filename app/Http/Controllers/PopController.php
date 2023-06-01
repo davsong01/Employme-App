@@ -121,6 +121,7 @@ class PopController extends Controller
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
             $data['type'] = 'pop';
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+
             $this->sendWelcomeMail($data);
             // Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
@@ -304,8 +305,9 @@ class PopController extends Controller
 
             'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
         ];
+        $data['type'] = 'initial';
 
-        $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+        // $pdf = PDF::loadView('emails.printreceipt', compact('data'));
         // return view('emails.receipt', compact('data'));
         $this->sendWelcomeMail($data);
         $pop->delete();

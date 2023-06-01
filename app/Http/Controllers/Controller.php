@@ -93,7 +93,7 @@ class Controller extends BaseController
                 'to' => $data['email'],
                 'bodyHtml' => $this->emailContent($data)['content'],
                 'isTransactional' => false,
-                'attachments' => $data['attachments'],
+                // 'attachments' => $data['attachments'],
             ];
        
             // get the file name and send in attachment
@@ -110,7 +110,7 @@ class Controller extends BaseController
             
             $result=curl_exec ($ch);
             curl_close ($ch);
-            dd($post, $result);
+            // dd($post, $result);
             return;
     
         // catch(Exception $ex){
