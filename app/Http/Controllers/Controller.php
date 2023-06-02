@@ -67,9 +67,16 @@ class Controller extends BaseController
         }else{
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-                $filename = 'receipts/'.$data['invoice_id'].".pdf";
-                file_put_contents($filename, $pdf->output());
-                $data['attachments'] = url('/') . '/'.$filename;
+                $file = 'receipts/' . $data['invoice_id'] . ".pdf";
+                $filepath = public_path().'/'. $file;
+                $filename = $data['invoice_id'].".pdf";
+
+                file_put_contents($file, $pdf->output());
+                $data['attachments'] = [
+                    'filename' => $filename,
+                    'filepath' => $filepath,
+                    'file' => $file,
+                ];
             }
             if($data['type'] == 'pop'){
                 $data['attachments'] = $data['pop'];
@@ -83,7 +90,12 @@ class Controller extends BaseController
     public function sendEmailWithElastic($data){
        
         $url = 'https://api.elasticemail.com/v2/email/send';
-       
+        
+        if(isset($data['attachments']) && !empty($data['attachments'])){
+            $filename = $data['attachments']['filename'];
+            $file_name_with_full_path = $data['attachments']['filepath'];
+            $filetype = "application/pdf"; // Change correspondingly to the file type
+        }
         // try{
             $post = [
                 'from' => 'training.employme@gmail.com',
@@ -93,6 +105,7 @@ class Controller extends BaseController
                 'to' => $data['email'],
                 'bodyHtml' => $this->emailContent($data)['content'],
                 'isTransactional' => false,
+                'file_1' => new \CurlFile($file_name_with_full_path, $filetype, $filename),
                 // 'attachments' => $data['attachments'],
             ];
        
@@ -110,7 +123,10 @@ class Controller extends BaseController
             
             $result=curl_exec ($ch);
             curl_close ($ch);
-            // dd($post, $result);
+           
+            // Delete the attachment
+            $this->deleteImage($data['attachments']['file']);
+
             return;
     
         // catch(Exception $ex){
@@ -216,6 +232,21 @@ class Controller extends BaseController
         return;
     }
 
+    public function updateCouponStatus($email, $coupon_id, $program_id){
+        // Check if user has used coupon for this program and delete
+        $old = CouponUser::where(['email' => $email, 'program_id' => $program_id])->first();
+        
+        if(isset($old) && !empty($old)){
+            $old->delete();
+        }
+        $c = CouponUser::where(['email' => $email, 'coupon_id' => $coupon_id, 'program_id' => $program_id])->
+        update([
+            'status' => 1,
+            'coupon_id' => $coupon_id
+        ]);
+        
+        return;
+    }
     public function getEligibleEarners(){
         
     }
@@ -581,7 +612,7 @@ class Controller extends BaseController
             $content .= "<strong>Dear Admin</strong>,<br>
                 <p>Please find below proof of payment details with file attached </p>
                 Name: ".$data['name']."<br>
-                Email: ".$data['email']. "<br>
+                Email: ".$data['participant_email']. "<br>
                 Phone: ".$data['phone']. "<br>
                 Bank: ".$data['bank']. "<br>
                 Amount: ".$data['amount']. "<br>

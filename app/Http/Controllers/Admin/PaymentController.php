@@ -134,7 +134,6 @@ class PaymentController extends Controller
                 // to user
                 $this->sendWelcomeMail($data, $pdf);
 
-                // Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
             }
@@ -261,17 +260,19 @@ class PaymentController extends Controller
 
             $response = $this->verifyCoupon($request2, $transaction->program_id);
 
-            if ($response['amount']) {
+            if (isset($response['amount'])) {
                 // make this amount already paid for the student
                 $amount = $transaction->t_amount + $response['amount'];
                 $balance = $programFee - $amount;
+
+                DB::table('program_user')->whereId($transaction->id)->update([
+                    'coupon_id' => $response['id'],
+                    'coupon_amount' => $response['amount'],
+                    'coupon_code' => $response['code'],
+                ]);
+                $this->updateCouponStatus($transaction->user->email, $response['id'], $transaction->program_id);
             }
 
-            DB::table('program_user')->whereId($transaction->id)->update([
-                'coupon_id' => $response['id'],
-                'coupon_amount' => $response['amount'],
-                'coupon_code' => $response['code'],
-            ]);
         }
 
 
@@ -298,7 +299,7 @@ class PaymentController extends Controller
 
     public function destroy($id)
     {
-        $transaction = DB::table('program_user')->whereId($id)->delete();
+        DB::table('program_user')->whereId($id)->delete();
 
         return back()->with('message', 'Transaction has been deleted forever');
     }

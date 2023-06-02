@@ -52,7 +52,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-              
         //determine the program details
         $programFee = Program::findorFail($request['training'])->p_amount;
         $programName = Program::findorFail($request['training'])->p_name;

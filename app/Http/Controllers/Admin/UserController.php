@@ -193,7 +193,6 @@ class UserController extends Controller
 
         // $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
         // return view('emails.receipt', compact('data', 'details'));
-        // Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
         
         return back()->with('message', 'Student added succesfully'); 
       
@@ -234,7 +233,6 @@ class UserController extends Controller
         //generate pdf from receipt view
         $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
         return view('emails.receipt', compact('data', 'details'));
-        // Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
         
         return back()->with('message', 'Receipt sent succesfully'); 
     }return back();

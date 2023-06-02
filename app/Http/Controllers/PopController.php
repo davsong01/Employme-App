@@ -123,9 +123,9 @@ class PopController extends Controller
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
             $data['type'] = 'pop';
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+            $data['participant_email'] = $pop->email;
 
             $this->sendWelcomeMail($data);
-            // Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new POPemail($data));
 
         }catch(\Exception $e) {
             // dd($e->getMessage());

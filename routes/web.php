@@ -41,11 +41,9 @@ Route::middleware(['template'])->group(function(){
 
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
-        $realpath = base_path() . '/uploads'. '/' .$filename;
-        return $realpath;    
-    });
-
-// Route::get('paystack', 'PayController@process');
+    $realpath = base_path() . '/uploads'. '/' .$filename;
+    return $realpath;    
+});
 
 Route::get('/thanks', function() {
     return view('emails.thankyou');
