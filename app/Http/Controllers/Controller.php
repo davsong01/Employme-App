@@ -7,6 +7,7 @@ use App\User;
 use App\Coupon;
 use App\Program;
 use App\Settings;
+use Carbon\Carbon;
 use App\CouponUser;
 use App\PaymentMode;
 use App\TempTransaction;
@@ -68,7 +69,7 @@ class Controller extends BaseController
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
                 $file = 'receipts/' . $data['invoice_id'] . ".pdf";
-                $filepath = public_path().'/'. $file;
+                $filepath = realpath('./' . $file);
                 $filename = $data['invoice_id'].".pdf";
 
                 file_put_contents($file, $pdf->output());
@@ -88,7 +89,28 @@ class Controller extends BaseController
     }
 
     public function sendEmailWithElastic($data){
-       
+        // $setting = Settings::first();
+        // $last_sent_elastic_email = '';
+        // $elastic_email_count = '';
+
+        // // check if last sent - now is up to 24 hours
+        // $sent = Carbon::now() - $lastsent;
+        // $lastsent = $setting->last_sent_elastic_email;
+        // // \Log::info('Emails sending start at: ' .now());
+        // if (  $sent >= 24) {
+        //     dd('greater');
+        // }else{
+        //     dd('sddsd');
+        // }
+        // if ($now >= $hourlyRate) {
+
+        // }
+
+        // if($setting->elastic_email_count == 100){
+        //     return back()->with('error', '100 emails have been sent with Elastic today');
+        // }
+        
+        
         $url = 'https://api.elasticemail.com/v2/email/send';
         
         if(isset($data['attachments']) && !empty($data['attachments'])){
@@ -105,10 +127,10 @@ class Controller extends BaseController
                 'to' => $data['email'],
                 'bodyHtml' => $this->emailContent($data)['content'],
                 'isTransactional' => false,
-                'file_1' => new \CurlFile($file_name_with_full_path, $filetype, $filename),
+                'file_1' =>  (isset($data['attachments']) && !empty($data['attachments'])) ? new \CurlFile($file_name_with_full_path, $filetype, $filename) : '',
                 // 'attachments' => $data['attachments'],
             ];
-       
+           
             // get the file name and send in attachment
             
             $ch = curl_init();
@@ -125,8 +147,15 @@ class Controller extends BaseController
             curl_close ($ch);
            
             // Delete the attachment
-            $this->deleteImage($data['attachments']['file']);
+            (isset($data['attachments']['file']) && !empty($data['attachments']['file'])) ? $this->deleteImage($data['attachments']['file']) : '';
+            
+            // if(isset($result) && $result->success == true){
+            //     $setting->update[
+            //         '' => $setting + 1
+            //     ];
+            // }
 
+           
             return;
     
         // catch(Exception $ex){
@@ -137,9 +166,7 @@ class Controller extends BaseController
 
     public function emailProvider(){
         $email_provider = Settings::first()->email_provider;
-
         return $email_provider;
-
     }
 
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){
@@ -628,6 +655,9 @@ class Controller extends BaseController
             }
 
             $content .= '<a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to confirm Participant</button></a><br><br>Regards';
+        }elseif($data['type'] == 'bulk'){
+            $subject = $data['subject'];
+            $content = $data['content'];
         }
 
         return ['content'=>$content,'subject'=>$subject];

@@ -362,12 +362,16 @@ class UserController extends Controller
             $recipients = preg_replace('#\s+#',',',trim($request->bulkrecipients));
             $recipients = explode (",", $recipients); 
             $program = 'Selected Recipients';
-
+           
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
                 $name = $name ?? 'Participant';
-                
-                Mail::to($recipient)->send(new Email($data, $name, $subject));       
+                $details['subject'] = $subject;
+                $details['content'] = $data;
+                $details['type'] = 'bulk';
+                $details['email'] = $recipient;
+                $this->sendWelcomeMail($details);
+                // Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }
 
