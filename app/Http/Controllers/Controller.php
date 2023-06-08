@@ -127,10 +127,14 @@ class Controller extends BaseController
                 'to' => $data['email'],
                 'bodyHtml' => $this->emailContent($data)['content'],
                 'isTransactional' => false,
-                'file_1' =>  (isset($data['attachments']) && !empty($data['attachments'])) ? new \CurlFile($file_name_with_full_path, $filetype, $filename) : '',
+               
                 // 'attachments' => $data['attachments'],
             ];
-          
+
+            if (isset($data['attachments']) && !empty($data['attachments'])) {
+                $post['file_1'] = new \CurlFile($file_name_with_full_path, $filetype, $filename);
+            }
+           
             // get the file name and send in attachment
             
             $ch = curl_init();
