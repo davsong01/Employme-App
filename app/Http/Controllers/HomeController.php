@@ -229,8 +229,9 @@ class HomeController extends Controller
             'downloaded_catalogue' => 1
         ]);
 
-        $realpath = public_path() . '/catalogue.pdf';
-
+        // $realpath = public_path() . '/catalogue.pdf';
+        $realpath = realpath('./catalogue.pdf');
+        // dd($realpath);
         return response()->download($realpath);
        
    }
