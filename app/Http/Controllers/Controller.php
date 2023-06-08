@@ -112,7 +112,7 @@ class Controller extends BaseController
         
         
         $url = 'https://api.elasticemail.com/v2/email/send';
-        
+        // dd($data);
         if(isset($data['attachments']) && !empty($data['attachments'])){
             $filename = $data['attachments']['filename'];
             $file_name_with_full_path = $data['attachments']['filepath'];
@@ -130,7 +130,7 @@ class Controller extends BaseController
                 'file_1' =>  (isset($data['attachments']) && !empty($data['attachments'])) ? new \CurlFile($file_name_with_full_path, $filetype, $filename) : '',
                 // 'attachments' => $data['attachments'],
             ];
-           
+          
             // get the file name and send in attachment
             
             $ch = curl_init();
@@ -145,9 +145,11 @@ class Controller extends BaseController
             
             $result=curl_exec ($ch);
             curl_close ($ch);
-           
+
             // Delete the attachment
-            (isset($data['attachments']['file']) && !empty($data['attachments']['file'])) ? $this->deleteImage($data['attachments']['file']) : '';
+            if (isset($data['attachments']) && !empty($data['attachments'])) {
+                $this->deleteImage($data['attachments']['file']);
+            }
             
             // if(isset($result) && $result->success == true){
             //     $setting->update[
