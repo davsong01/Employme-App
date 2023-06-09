@@ -86,9 +86,9 @@
                             <td>
                                 @if( isset($user->result_id)) 
                                     <div class="btn-group">
-                                        @if($user->redo_test == 0)
-                                            <a class="btn btn-info" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id, 'pid'=>$user->program_id]) }}"><i
-                                                    class="fa fa-eye"> View</i>
+                                        @if($user->redotest == 0)
+                                            <a class="btn btn-info btn-sm" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id, 'pid'=>$user->program_id]) }}"><i
+                                                    class="fa fa-eye"> View/Update</i>
                                             </a>
                                        
                                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
@@ -103,7 +103,7 @@
                                             </form>
                                             @endif
                                             @endif
-                                            @if($user->redo_test != 0)
+                                            @if($user->redotest != 0)
                                             <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
                                                 class="btn btn-warning" href="{{ route('stopredotest',$user->user_id) }}"><i
                                                     class="fa fa-stop"></i>

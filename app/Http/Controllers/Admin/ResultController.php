@@ -45,7 +45,7 @@ class ResultController extends Controller
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
   
             $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
-            
+          
             if($programs->count() > 0){
                 foreach($programs as $program){
                     $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
@@ -255,7 +255,7 @@ class ResultController extends Controller
         
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
-
+        
         $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         
         $i = 1;

@@ -63,11 +63,13 @@
             <h4 style="color:green">Update Scores for: {{ $details['user_name'] }}</h4>
             <div>
               @if(isset($history) && !empty($history))
-              <span class="retake">RESITS </span><span style="background: aqua;padding: 5px;border-radius: 50px;"
+                <span class="retake">RESITS </span><span style="background: aqua;padding: 5px;border-radius: 50px;"
                 class="thread-count">{{ $history->count() }}</span>
-              <a style="border-radius: 6px;" class="btn btn-info btn-sm" href="#resit" id="myBtn">
-                View Resit History
-              </a>
+                @if($history->count() > 0)
+                <a style="border-radius: 6px;" class="btn btn-info btn-sm" href="#resit" id="myBtn">
+                  View Resit History
+                </a>
+                @endif
               @endif
             </div>
           </div>

@@ -98,43 +98,43 @@
                                         <label for="state">State *</label>
                                         <select name="state" id="state" class="form-control" required>
                                             <option value="" selected="selected">- Select -</option>
-                                            <option value='Abia'>Abia</option>
-                                            <option value='Adamawa'>Adamawa</option>
-                                            <option value='AkwaIbom'>AkwaIbom</option>
-                                            <option value='Anambra'>Anambra</option>
-                                            <option value='Bauchi'>Bauchi</option>
-                                            <option value='Bayelsa'>Bayelsa</option>
-                                            <option value='Benue'>Benue</option>
-                                            <option value='Borno'>Borno</option>
-                                            <option value='Cross River'>Cross River</option>
-                                            <option value='Delta'>Delta</option>
-                                            <option value='Ebonyi'>Ebonyi</option>
-                                            <option value='Edo'>Edo</option>
-                                            <option value='Ekiti'>Ekiti</option>
-                                            <option value='Enugu'>Enugu</option>
-                                            <option value='FCT'>FCT</option>
-                                            <option value='Gombe'>Gombe</option>
-                                            <option value='Imo'>Imo</option>
-                                            <option value='Jigawa'>Jigawa</option>
-                                            <option value='Kaduna'>Kaduna</option>
-                                            <option value='Kano'>Kano</option>
-                                            <option value='Katsina'>Katsina</option>
-                                            <option value='Kebbi'>Kebbi</option>
-                                            <option value='Kogi'>Kogi</option>
-                                            <option value='Kwara'>Kwara</option>
-                                            <option value='Lagos'>Lagos</option>
-                                            <option value='Nasarawa'>Nasarawa</option>
-                                            <option value='Niger'>Niger</option>
-                                            <option value='Ogun'>Ogun</option>
-                                            <option value='Ondo'>Ondo</option>
-                                            <option value='Osun'>Osun</option>
-                                            <option value='Oyo'>Oyo</option>
-                                            <option value='Plateau'>Plateau</option>
-                                            <option value='Rivers'>Rivers</option>
-                                            <option value='Sokoto'>Sokoto</option>
-                                            <option value='Taraba'>Taraba</option>
-                                            <option value='Yobe'>Yobe</option>
-                                            <option value='Zamfara'>Zamafara</option>
+                                            <option value='Abia' {{ old('state') == 'Abia' ? 'selected' :'' }}>Abia</option>
+                                            <option value='Adamawa'  {{ old('state') == 'Adamawa' ? 'selected' :'' }}>Adamawa</option>
+                                            <option value='AkwaIbom'  {{ old('state') == 'AkwaIbom' ? 'selected' :'' }}>AkwaIbom</option>
+                                            <option value='Anambra'  {{ old('state') == 'Anambra' ? 'selected' :'' }}>Anambra</option>
+                                            <option value='Bauchi' {{ old('state') == 'Bauchi' ? 'selected' :'' }}>Bauchi</option>
+                                            <option value='Bayelsa {{ old('state') == 'Bayelsa' ? 'selected' :'' }}'>Bayelsa</option>
+                                            <option value='Benue' {{ old('state') == 'Benue' ? 'selected' :'' }}>Benue</option>
+                                            <option value='Borno' {{ old('state') == 'Borno' ? 'selected' :'' }}>Borno</option>
+                                            <option value='Cross River' {{ old('Cross River') == 'Abia' ? 'selected' :'' }}>Cross River</option>
+                                            <option value='Delta' {{ old('state') == 'Delta' ? 'selected' :'' }}>Delta</option>
+                                            <option value='Ebonyi' {{ old('state') == 'Ebonyi' ? 'selected' :'' }}>Ebonyi</option>
+                                            <option value='Edo' {{ old('state') == 'Edo' ? 'selected' :'' }}>Edo</option>
+                                            <option value='Ekiti {{ old('state') == 'Ekiti' ? 'selected' :'' }}'>Ekiti</option>
+                                            <option value='Enugu' {{ old('state') == 'Enugu' ? 'selected' :'' }}>Enugu</option>
+                                            <option value='FCT' {{ old('state') == 'FCT' ? 'selected' :'' }}>FCT</option>
+                                            <option value='Gombe' {{ old('state') == 'Gombe' ? 'selected' :'' }}>Gombe</option>
+                                            <option value='Imo' {{ old('state') == 'Imo' ? 'selected' :'' }}>Imo</option>
+                                            <option value='Jigawa' {{ old('state') == 'Jigawa' ? 'selected' :'' }}>Jigawa</option>
+                                            <option value='Kaduna' {{ old('state') == 'Kaduna' ? 'selected' :'' }}>Kaduna</option>
+                                            <option value='Kano' {{ old('state') == 'Kano' ? 'selected' :'' }}>Kano</option>
+                                            <option value='Katsina' {{ old('state') == 'Katsina' ? 'selected' :'' }}>Katsina</option>
+                                            <option value='Kebbi' {{ old('state') == 'Kebbi' ? 'selected' :'' }}>Kebbi</option>
+                                            <option value='Kogi' {{ old('state') == 'Kogi' ? 'selected' :'' }}>Kogi</option>
+                                            <option value='Kwara' {{ old('state') == 'Kwara' ? 'selected' :'' }}>Kwara</option>
+                                            <option value='Lagos' {{ old('state') == 'Lagos' ? 'selected' :'' }}>Lagos</option>
+                                            <option value='Nasarawa' {{ old('state') == 'Nasarawa' ? 'selected' :'' }}>Nasarawa</option>
+                                            <option value='Niger' {{ old('state') == 'Niger' ? 'selected' :'' }}>Niger</option>
+                                            <option value='Ogun' {{ old('state') == 'Ogun' ? 'selected' :'' }}>Ogun</option>
+                                            <option value='Ondo' {{ old('state') == 'Ondo' ? 'selected' :'' }}>Ondo</option>
+                                            <option value='Osun' {{ old('state') == 'Osun' ? 'selected' :'' }}>Osun</option>
+                                            <option value='Oyo' {{ old('state') == 'Oyo' ? 'selected' :'' }}>Oyo</option>
+                                            <option value='Plateau {{ old('state') == 'Plateau' ? 'selected' :'' }}'>Plateau</option>
+                                            <option value='Rivers' {{ old('state') == 'Rivers' ? 'selected' :'' }}>Rivers</option>
+                                            <option value='Sokoto' {{ old('state') == 'Sokoto' ? 'selected' :'' }}>Sokoto</option>
+                                            <option value='Taraba' {{ old('state') == 'Taraba' ? 'selected' :'' }}>Taraba</option>
+                                            <option value='Yobe' {{ old('state') == 'Yobe' ? 'selected' :'' }}>Yobe</option>
+                                            <option value='Zamfara' {{ old('state') == 'Zamfara' ? 'selected' :'' }}>Zamafara</option>
                                         </select>
 
                                         @if ($errors->has('state'))

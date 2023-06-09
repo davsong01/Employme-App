@@ -21,6 +21,7 @@ class ComplainController extends Controller
             $i = 1;  
             if(Auth::user()->role_id == "Facilitator"){
                 $trainings = auth()->user()->trainings;
+               
                 if(isset($trainings) && !empty($trainings)){
                     $trainings = array_column($trainings->toArray(),'program_id');
                 }else{
@@ -54,11 +55,11 @@ class ComplainController extends Controller
 
                 $program = Program::find($request->p_id); 
                   
-                $resolvedComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'Resolved' )->count();
-                $pendingComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'Pending' )->count(); 
-                $InProgressComplains =  Complain::where('user_id', '=', Auth::user()->id )->where('status', '=', 'In Progress' )->count();          
-                $complains = Complain::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
-
+                $resolvedComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Resolved', 'program_id'=> $request->p_id ])->count();
+                $pendingComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Pending', 'program_id' => $request->p_id])->count(); 
+                $InProgressComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'In Progress', 'program_id' => $request->p_id])->count();          
+                $complains = Complain::where(['user_id' => Auth::user()->id, 'program_id' => $request->p_id])->orderBy('created_at', 'DESC')->get();
+               
                 return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains', 'program'));
         } 
     else return back();
