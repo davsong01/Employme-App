@@ -47,7 +47,7 @@
                         style="color:blue !important; border: blue 1px solid;  border-radius: 5px;">
                         <h1 class="font-light text-blue"><i class=" fa fa-list-alt"></i></h1>
                         <div class="card-title">
-                            {{ $module->title }} {{ $module->type }}
+                            {{ $module->title }}
                             @if(auth()->user()->redotest == 1 && $module->type == 'Certification Test')
                                 <span class="redo" style="background: red;color: white;padding: 4px;">RETAKE</span>
                             @endif
