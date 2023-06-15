@@ -50,12 +50,12 @@
                                     <form action="{{ route('scoreSettings.destroy', $score->id) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete forever?');">
                                         
-                                        @if($score->module_status_count <= 0)
+                                        {{-- @if($score->module_status_count <= 0) --}}
                                         <a data-toggle="tooltip" data-placement="top" title="Edit"
                                             class="btn btn-info btn-sm" href="{{ route('scoreSettings.edit', $score->id)}}"><i
                                                 class="fa fa-edit"></i>
                                         </a>
-                                        @endif
+                                        {{-- @endif --}}
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
                                         @if($score->module_status_count <= 0)

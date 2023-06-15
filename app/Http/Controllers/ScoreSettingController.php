@@ -150,11 +150,11 @@ class ScoreSettingController extends Controller
         if($total > 100 || $total < 100){
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100, please try again');
         }
-       
+        
         $scoreSetting->program_id = $request['program'];
         $scoreSetting->certification = $request['certificationscore'] ?? 0;
         $scoreSetting->class_test = $request['classtests'] ?? 0;
-        $scoreSetting->role_play = $request['rolepalyscore'] ?? 0;
+        $scoreSetting->role_play = $request['roleplayscore'] ?? 0;
         $scoreSetting->email = $request['emailscore'] ?? 0;
         $scoreSetting->passmark = $request['passmark'];
         $scoreSetting->total = $total;
