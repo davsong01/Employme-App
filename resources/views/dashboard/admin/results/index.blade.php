@@ -82,7 +82,6 @@
                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif --}}
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                             
-                            
                             <td>
                                 @if( isset($user->result_id)) 
                                     <div class="btn-group">
@@ -90,12 +89,12 @@
                                             <a class="btn btn-info btn-sm" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id, 'pid'=>$user->program_id]) }}"><i
                                                     class="fa fa-eye"> View/Update</i>
                                             </a>
-                                       
                                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                             <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
                                                 {{ csrf_field() }}
                                                 {{method_field('DELETE')}}
                                                 <input type="hidden" name="uid" value="{{ $user->user_id }}">
+                                                <input type="hidden" name="rid" value="{{ $user->result_id }}">
                                                 <input type="hidden" name="pid" value="{{ $user->program_id }}">
                                                 <button type="submit" class="btn btn-danger btn-xsm"> <i
                                                         class="fa fa-redo"> Enable Resit</i>
@@ -105,7 +104,7 @@
                                             @endif
                                             @if($user->redotest != 0)
                                             <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
-                                                class="btn btn-warning" href="{{ route('stopredotest',$user->user_id) }}"><i
+                                                class="btn btn-warning" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
                                                     class="fa fa-stop"></i>
                                             </a>
                                             @endif

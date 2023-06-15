@@ -113,7 +113,7 @@ Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function()
     Route::resource('paymentmethod', 'PaymentMethodController');
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
-    Route::get('users/stopredotest/{user_id}', 'UserController@stopredotest')->name('stopredotest');
+    Route::get('users/stopredotest/{user_id}/{result_id}', 'UserController@stopredotest')->name('stopredotest');
 });
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){

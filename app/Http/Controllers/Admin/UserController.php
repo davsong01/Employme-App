@@ -64,11 +64,13 @@ class UserController extends Controller
         return redirect(route('users.index'))->with('message', 'Update Successful');
     }
 
-    public function stopredotest($user_id){
-        $result = Result::whereUserId($user_id)->first();
-        if(is_null($result->certification_test_details)){
-            return back()->with('error', 'User has not written certification test');
-        }
+    public function stopredotest($user_id, $result_id){
+        $result = Result::whereId($result_id)->first();
+        
+        // if(is_null($result->certification_test_details)){
+        //     return back()->with('error', 'User has not written certification test');
+        // }
+
         User::whereId($user_id)->update(['redotest'=>0]);
         $result->endRedoTest();
        

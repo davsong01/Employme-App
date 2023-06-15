@@ -90,6 +90,8 @@ class ResultController extends Controller
                     $user->name = $userdetails->name ?? NULL;
                     $user->email = $userdetails->email ?? NULL;
 
+                    $user->redotest = $userdetails->redotest;
+
                     $user->final_ct_score = 0;
                     $user->total_class_test_score = 0;
                     $user->obtainable = 0;
@@ -169,6 +171,7 @@ class ResultController extends Controller
 
                     // $user->name =  User::where('id', $user->user_id)->value('name');
                     $userdetails = User::find($user->user_id);
+                  
                     $user->name = $userdetails->name;
                     $user->email = $userdetails->email;
                     $user->redotest = $userdetails->redotest;
@@ -182,8 +185,7 @@ class ResultController extends Controller
                         $user->updated_at = $result->updated_at; 
                         
                         $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
-                        
-                        
+                    
                         if($result->module->type == 'Class Test'){
                             
                             $u =  Module::where('type', 0)->where('program_id', $request->pid)->get();
@@ -221,7 +223,7 @@ class ResultController extends Controller
 
             $program_name = Program::whereId($request->pid)->value('p_name');
             $passmark = $score_settings->passmark;
-           
+            
             return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark') );
         }
        
@@ -252,10 +254,10 @@ class ResultController extends Controller
         $result_id = $modid;
         
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
-        
+       
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
-        
+        $results = [];
         $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         
         $i = 1;
@@ -264,7 +266,7 @@ class ResultController extends Controller
         $details['role_play_score'] = 0;
         $details['user_name'] = "";
         $details['allow_editing'] = 0;
-
+       
         foreach($user_results as $results){
             if($results->module->type == 1){
                 $details['c_result'] = $results;
@@ -471,39 +473,69 @@ class ResultController extends Controller
     public function destroy(Request $request, $result)
     {
         if(Auth::user()->role_id == "Admin"){
-            $users_results = Result::whereProgramId($request->pid)->where('user_id', $request->uid)->get();
-            
-            foreach($users_results as $results){
-                if(is_null($results->certification_test_details)){
-                    return back()->with('error', 'User has not written this test');
-                }
-                
-                // Save result thread
-                $thread = \DB::table('result_threads')->insert([
-                    'result_id' => $results->id,
-                    'submitted_on' => $results->created_at,
-                    "program_id" => $results->program_id,
-                    "module_id" => $results->module_id,
-                    "user_id" => $results->user_id,
-                    "marked_by" => $results->marked_by,
-                    "grader" => $results->grader,
-                    "class_test_score" => $results->class_test_score,
-                    "class_test_details" => $results->class_test_details,
-                    "certification_test_score" => $results->certification_test_score,
-                    "certification_test_details" => $results->certification_test_details,
-                    "role_play_score" => $results->role_play_score,
-                    "email_test_score" => $results->email_test_score,
-                    "facilitator_comment" => $results->facilitator_comment,
-                    "grader_comment" => $results->grader_comment
-                ]);
-                
-                $results->certification_test_details = NULL;
-                $results->certification_test_score = NULL;
-                $results->grader = NULL;
-                $results->redo_test = 1;
+            $results = Result::where('id',$request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
 
-                $results->save();
-            };
+            if (is_null($results->certification_test_details)) {
+                return back()->with('error', 'User has not written this test');
+            }
+            
+            // Save result thread
+            $thread = \DB::table('result_threads')->insert([
+                'result_id' => $results->id,
+                'submitted_on' => $results->created_at,
+                "program_id" => $results->program_id,
+                "module_id" => $results->module_id,
+                "user_id" => $results->user_id,
+                "marked_by" => $results->marked_by,
+                "grader" => $results->grader,
+                "class_test_score" => $results->class_test_score,
+                "class_test_details" => $results->class_test_details,
+                "certification_test_score" => $results->certification_test_score,
+                "certification_test_details" => $results->certification_test_details,
+                "role_play_score" => $results->role_play_score,
+                "email_test_score" => $results->email_test_score,
+                "facilitator_comment" => $results->facilitator_comment,
+                "grader_comment" => $results->grader_comment
+            ]);
+
+            $results->certification_test_details = NULL;
+            $results->certification_test_score = NULL;
+            $results->grader = NULL;
+            $results->redo_test = 1;
+
+            $results->save();
+            // foreach($users_results as $results){
+              
+            //     if(is_null($results->certification_test_details)){
+            //         return back()->with('error', 'User has not written this test');
+            //     }
+                
+            //     // Save result thread
+            //     $thread = \DB::table('result_threads')->insert([
+            //         'result_id' => $results->id,
+            //         'submitted_on' => $results->created_at,
+            //         "program_id" => $results->program_id,
+            //         "module_id" => $results->module_id,
+            //         "user_id" => $results->user_id,
+            //         "marked_by" => $results->marked_by,
+            //         "grader" => $results->grader,
+            //         "class_test_score" => $results->class_test_score,
+            //         "class_test_details" => $results->class_test_details,
+            //         "certification_test_score" => $results->certification_test_score,
+            //         "certification_test_details" => $results->certification_test_details,
+            //         "role_play_score" => $results->role_play_score,
+            //         "email_test_score" => $results->email_test_score,
+            //         "facilitator_comment" => $results->facilitator_comment,
+            //         "grader_comment" => $results->grader_comment
+            //     ]);
+                
+            //     $results->certification_test_details = NULL;
+            //     $results->certification_test_score = NULL;
+            //     $results->grader = NULL;
+            //     $results->redo_test = 1;
+
+            //     $results->save();
+            // };
 
             $user = User::find($request->uid);
             $user->redotest = 1;
