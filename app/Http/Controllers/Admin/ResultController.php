@@ -123,6 +123,8 @@ class ResultController extends Controller
                         
                         if($result->module->type == 'Certification Test'){
                             $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
+                            $user->certification_test_details = $result->certification_test_details;
+
                             $user->marked_by = $result->marked_by;
                             $user->grader = $result->grader;
                             $user->result_id = $result->id;
@@ -164,14 +166,15 @@ class ResultController extends Controller
                     $user->marked_by = '';
                     $user->grader = '';
 
-                    $score_settings = ScoreSetting::select(['class_test', 'passmark'])->whereProgramId($request->pid)->first();
+                    // $score_settings = ScoreSetting::select(['class_test', 'passmark'])->whereProgramId($request->pid)->first();
+                    $score_settings = ScoreSetting::whereProgramId($request->pid)->first();
+
                     $user->program_ct_score_settings = $score_settings->class_test;
                     $user->passmark = $score_settings->passmark;
                     $user->result_id = 0;
 
                     // $user->name =  User::where('id', $user->user_id)->value('name');
                     $userdetails = User::find($user->user_id);
-                  
                     $user->name = $userdetails->name;
                     $user->email = $userdetails->email;
                     $user->redotest = $userdetails->redotest;
@@ -182,8 +185,9 @@ class ResultController extends Controller
                 
                     foreach($results as $result){                      
                         $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score; 
-                        $user->updated_at = $result->updated_at; 
-                        
+                        $user->updated_at = $result->updated_at;
+                        $user->module_id = $result->module_id;
+                    
                         $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
                     
                         if($result->module->type == 'Class Test'){
@@ -207,8 +211,9 @@ class ResultController extends Controller
                         }     
 
                         if($result->module->type == 'Certification Test'){
-                            
                             $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
+                            $user->certification_test_details = $result->certification_test_details;
+
                             $user->marked_by = $result->marked_by;
                             $user->grader = $result->grader;
                             $user->result_id = $result->id;
@@ -221,10 +226,15 @@ class ResultController extends Controller
                     }     
             }
 
-            $program_name = Program::whereId($request->pid)->value('p_name');
-            $passmark = $score_settings->passmark;
+            // $program_name = Program::whereId($request->pid)->value('p_name');
+            // $passmark = $score_settings->passmark;
+            $program = Program::whereId($request->pid)->first();
+            $program_name = $program->p_name;
+            $pid = $program->id;
+            $passmark = '';
+
             
-            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark') );
+            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark', 'score_settings') );
         }
        
         return redirect('/dashboard');
@@ -252,12 +262,17 @@ class ResultController extends Controller
 
     public function add(Request $request, $uid, $modid){
         $result_id = $modid;
-        
+       
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
        
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-        $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
+        $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($modid)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
+        
+        if(!$user_results){
+            return back()->with('error', 'Participant has not taken certification test');
+        }
         $results = [];
+        
         $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         
         $i = 1;

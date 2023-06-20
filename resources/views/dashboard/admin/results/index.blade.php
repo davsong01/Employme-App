@@ -54,6 +54,7 @@
                                 @endif
 
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                                {{-- {{ dd($user->total_role_play_score, $score_settings) }} --}}
                                     @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
                                     <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
                                     @endif
@@ -85,9 +86,9 @@
                             <td>
                                 @if( isset($user->result_id)) 
                                     <div class="btn-group">
-                                        @if($user->redotest == 0)
-                                            <a class="btn btn-info btn-sm" href="{{ route('results.add', ['uid' => $user->user_id, 'result' => $user->result_id, 'pid'=>$user->program_id]) }}"><i
-                                                    class="fa fa-eye"> View/Update</i>
+                                        @if($user->redotest == 0 && !empty($user->certification_test_details))
+                                            <a class="btn btn-info btn-sm" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i
+                                                    class="fa fa-eye"> View/Update </i>
                                             </a>
                                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
                                             <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
