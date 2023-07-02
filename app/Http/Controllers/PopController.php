@@ -124,7 +124,7 @@ class PopController extends Controller
             $data['type'] = 'pop';
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
             $data['participant_email'] = $pop->email;
-
+            $data['realfilename'] = $file . '.' . $extension;
             $this->sendWelcomeMail($data);
 
         }catch(\Exception $e) {
@@ -308,10 +308,11 @@ class PopController extends Controller
             'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
         ];
         $data['type'] = 'initial';
-
+        
         // $pdf = PDF::loadView('emails.printreceipt', compact('data'));
         // return view('emails.receipt', compact('data'));
         $this->sendWelcomeMail($data);
+        
         $pop->delete();
         return redirect(route('payments.index'))->with('message', 'Student added succesfully'); 
 
@@ -445,7 +446,9 @@ class PopController extends Controller
     }
 
     public function destroy(Pop $pop){
-        unlink( base_path() . '/uploads'.'/'. $pop->file);
+        if (file_exists(base_path() . '/uploads' . '/' . $pop->file)) {
+            unlink( base_path() . '/uploads'.'/'. $pop->file);
+        }
         $pop->delete();
         return back()->with('message', 'Pop succesfully deleted');
     }

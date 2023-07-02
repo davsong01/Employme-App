@@ -125,7 +125,7 @@
                          <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
-                                    <p>Amount<span>*</span></p>
+                                    <p>Amount (Enter integers only)<span>*</span></p>
                                     <input type="number" class="form-control" name="amount" id="amount" value="{{ session()->get('data')['amount'] ??  old('amount') }}" min=1 required>
                                 </div>
                             </div>

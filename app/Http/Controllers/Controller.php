@@ -48,10 +48,10 @@ class Controller extends BaseController
     
     protected function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
-        
+       
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
-        
+       
         if($provider == 'default'){
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
@@ -60,16 +60,18 @@ class Controller extends BaseController
                 Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
             } catch(\Exception $e){
                 // Get error here
-                // dd($e->getMessage(), $data);
-                Log::error($e);
                 return false;
             }
 
         }else{
+           
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
                 $file = 'receipts/' . $data['invoice_id'] . ".pdf";
-                $filepath = realpath('./' . $file);
+                // $file = 'receipts/' . $data['invoice_id'] . ".pdf";
+                
+                // $filepath = realpath('./' . $file);
+                $filepath = public_path(). '/'.$file;
                 $filename = $data['invoice_id'].".pdf";
 
                 file_put_contents($file, $pdf->output());
@@ -78,13 +80,22 @@ class Controller extends BaseController
                     'filepath' => $filepath,
                     'file' => $file,
                 ];
+               
             }
+           
             if($data['type'] == 'pop'){
-                $data['attachments'] = $data['pop'];
-            }
+                // $data['attachments'] = $data['pop'];
+                $data['attachments'] = [
+                    'filename' => $data['realfilename'],
+                    'filepath' => $data['pop'],
+                    'file' => 'uploads/pop/'.$data['realfilename'],
+                ];
 
+            }
+            
             $this->sendEmailWithElastic($data);
         }
+
         return;
     }
 
@@ -113,10 +124,11 @@ class Controller extends BaseController
         
         $url = 'https://api.elasticemail.com/v2/email/send';
         // dd($data);
+       
         if(isset($data['attachments']) && !empty($data['attachments'])){
-            $filename = $data['attachments']['filename'];
-            $file_name_with_full_path = $data['attachments']['filepath'];
-            $filetype = "application/pdf"; // Change correspondingly to the file type
+            $filename = $data['attachments']['filename'] ?? null;
+            $file_name_with_full_path = $data['attachments']['filepath'] ?? null;
+            $filetype = "application/pdf"; // Change correspondingly to the file type  
         }
         // try{
             $post = [
@@ -136,7 +148,6 @@ class Controller extends BaseController
             }
            
             // get the file name and send in attachment
-            
             $ch = curl_init();
             curl_setopt_array($ch, array(
                 CURLOPT_URL => $url,
