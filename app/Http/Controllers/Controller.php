@@ -67,12 +67,14 @@ class Controller extends BaseController
            
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-                $file = 'receipts/' . $data['invoice_id'] . ".pdf";
-                // $file = 'receipts/' . $data['invoice_id'] . ".pdf";
-                
-                // $filepath = realpath('./' . $file);
-                $filepath = public_path(). '/'.$file;
-                $filename = $data['invoice_id'].".pdf";
+                if(env('ENT') == 'local'){
+                    $file = 'receipts/' . $data['invoice_id'] . ".pdf";
+                    $filepath = public_path() . '/' . $file;
+                }else{
+                    $file = base_path() . '/receipts/' . $data['invoice_id'] . ".pdf";
+                    $filepath = $file;
+                }
+                $filename = $data['invoice_id'] . ".pdf";
 
                 file_put_contents($file, $pdf->output());
                 $data['attachments'] = [
