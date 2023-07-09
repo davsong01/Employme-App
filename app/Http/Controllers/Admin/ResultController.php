@@ -373,14 +373,16 @@ class ResultController extends Controller
         if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){ 
             
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            
-            if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
+            $program = Program::find($request->p_id);
+
+            if ($program->allow_payment_restrictions_for_results == 'yes') {
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
+                }
             }
 
             $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->get();    
             
-            $program = Program::find($request->p_id);
             if($program->hasresult == 0){
                 return back()->with('error', 'Results for this program have not been enabled, Please check back!');
             }

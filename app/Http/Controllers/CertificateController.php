@@ -27,8 +27,8 @@ class CertificateController extends Controller
         if(Auth::user()->role_id == "Student"){    
             
             $program = Program::find($request->p_id);
-            
-            if ($program->allow_payment_restrictions == 'yes') {
+
+            if ($program->allow_payment_restrictions_for_certificates == 'yes') {
                 $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get view/download certificate');

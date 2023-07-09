@@ -27,6 +27,11 @@
                                     <input type="number" name="p_amount" value="{{ old('p_amount') }}" min="0"
                                         class="form-control" required>
                                 </div>
+                                 <div class="form-group">
+                                    <label>Early Bird Fee *</label>
+                                    <input type="number" name="e_amount" value="{{ old('e_amount') ?? 0}}" min="0"
+                                        class="form-control" required>
+                                </div>
                                 <div class="form-group">
                                     <label>Off Season Program?</label>
                                     <select name="off_season" class="form-control" id="off_season" required>
@@ -51,6 +56,14 @@
                                         <option value="no" {{ old('show_catalogue_popup') == 'no' ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label>Upload Program Banner</label>
+                                    <input type="file" name="image" value="{{ old('image') }}" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Upload Booking form</label>
+                                    <input type="file" name="booking_form" value="{{ old('booking_form') }}" class="form-control">
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -69,16 +82,48 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Enable Part Payment Restrictions?</label>
-                                    <select name="allow_payment_restrictions" class="form-control" id="hasmock" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions') == 'no' ? 'selected' : '' }}>No</option>
+                                    <label>Enable Part Payment Restrictions for materials?</label>
+                                    <select name="allow_payment_restrictions_for_materials" class="form-control" id="allow_payment_restrictions_for_materials" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_materials') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_materials') == 'no' ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Early Bird Fee *</label>
-                                    <input type="number" name="e_amount" value="{{ old('e_amount') ?? 0}}" min="0"
-                                        class="form-control" required>
+                                    <label>Enable Part Payment Restrictions for Pre class tests?</label>
+                                    <select name="allow_payment_restrictions_for_pre_class_tests" class="form-control" id="allow_payment_restrictions_for_pre_class_tests" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_pre_class_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_pre_class_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Post class tests?</label>
+                                    <select name="allow_payment_restrictions_for_post_class_tests" class="form-control" id="allow_payment_restrictions_for_post_class_tests" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_post_class_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_post_class_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                            
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Completed Tests?</label>
+                                    <select name="allow_payment_restrictions_for_completed_tests" class="form-control" id="allow_payment_restrictions_for_completed_tests" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_completed_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_completed_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Results?</label>
+                                    <select name="allow_payment_restrictions_for_results" class="form-control" id="allow_payment_restrictions_for_results" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_results') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_results') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Certificates?</label>
+                                    <select name="allow_payment_restrictions_for_certificates" class="form-control" id="allow_payment_restrictions_for_certificates" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions_for_certificates') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions_for_certificates') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
                                 </div>
                                 
                                 <div class="form-group">
@@ -88,14 +133,7 @@
                                         <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Draft</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label>Upload Program Banner</label>
-                                    <input type="file" name="image" value="{{ old('image') }}" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Upload Booking form</label>
-                                    <input type="file" name="booking_form" value="{{ old('booking_form') }}" class="form-control">
-                                </div>
+                                
                             </div>
                         </div>
                          <section>

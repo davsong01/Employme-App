@@ -32,6 +32,11 @@
                                         class="form-control" required>
                                 </div>
                                 <div class="form-group">
+                                    <label>Early Bird Fee *</label>
+                                    <input type="number" name="e_amount" value="{{ old('e_amount') ??  $program->e_amount}}" min="0"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group">
                                     <label>Start Date *</label>
                                     <input type="date" name="p_start" value="{{ old('p_start') ?? $program->p_start }}" class="form-control"
                                         required>
@@ -55,6 +60,21 @@
                                         <option value="no" {{ $program->show_catalogue_popup == 'no' ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label>Replace Program Banner</label> <br>
+                                    <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
+                                    <input type="file" name="image" value="{{ old('image') ??  $program->image }}" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    @if($program->booking_form)
+                                    <label>Replace Booking form</label>
+                                    <i data-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
+                                    @else
+                                    <label>Upload Booking form</label>
+                                    @endif
+                                    <input type="file" name="booking_form" value="{{ old('booking_form') }}" placeholder="{{ $program->booking_form }}" class="form-control">
+                                </div>
+                                <div><small style="color:red">{{ $errors->first('booking_form')}}</small></div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -74,34 +94,52 @@
                                 </select>
                                 <small style="color:red">{{ $errors->first('haspartpayment')}}</small>
                             </div>
-                             <div class="form-group">
-                                    <label>Enable Part Payment Restrictions?</label>
-                                    <select name="allow_payment_restrictions" class="form-control" id="hasmock" required>
-                                        <option value="yes" {{ $program->allow_payment_restrictions == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ $program->allow_payment_restrictions == 'no' ? 'selected' : '' }}>No</option>
+                            <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for materials?</label>
+                                    <select name="allow_payment_restrictions_for_materials" class="form-control" id="allow_payment_restrictions_for_materials" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_materials == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_materials == 'no' ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
-                            <div class="form-group">
-                                <label>Early Bird Fee *</label>
-                                <input type="number" name="e_amount" value="{{ old('e_amount') ??  $program->e_amount}}" min="0"
-                                    class="form-control" required>
-                            </div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Pre class tests?</label>
+                                    <select name="allow_payment_restrictions_for_pre_class_tests" class="form-control" id="allow_payment_restrictions_for_pre_class_tests" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_pre_class_tests == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_pre_class_tests == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Post class tests?</label>
+                                    <select name="allow_payment_restrictions_for_post_class_tests" class="form-control" id="allow_payment_restrictions_for_post_class_tests" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_post_class_tests == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_post_class_tests == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
                             
-                            <div class="form-group">
-                                <label>Replace Program Banner</label> <br>
-                                <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
-                                <input type="file" name="image" value="{{ old('image') ??  $program->image }}" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                @if($program->booking_form)
-                                <label>Replace Booking form</label>
-                                <i data-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
-                                @else
-                                <label>Upload Booking form</label>
-                                @endif
-                                <input type="file" name="booking_form" value="{{ old('booking_form') }}" placeholder="{{ $program->booking_form }}" class="form-control">
-                            </div>
-                            <div><small style="color:red">{{ $errors->first('booking_form')}}</small></div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Completed Tests?</label>
+                                    <select name="allow_payment_restrictions_for_completed_tests" class="form-control" id="allow_payment_restrictions_for_completed_tests" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_completed_tests == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_completed_tests == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Results?</label>
+                                    <select name="allow_payment_restrictions_for_results" class="form-control" id="allow_payment_restrictions_for_results" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_results == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_results == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enable Part Payment Restrictions for Certificates?</label>
+                                    <select name="allow_payment_restrictions_for_certificates" class="form-control" id="allow_payment_restrictions_for_certificates" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions_for_certificates == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions_for_certificates == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                           
+                            
                             <div class="form-group">
                                 <label>Status</label>
                                 <select name="status" class="form-control" id="hasmock" required>

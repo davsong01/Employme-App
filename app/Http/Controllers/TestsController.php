@@ -21,7 +21,7 @@ class TestsController extends Controller
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
             
-            if ($program->allow_payment_restrictions == 'yes') {
+            if ($program->allow_payment_restrictions_for_post_class_tests == 'yes') {
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
                 }  
@@ -174,7 +174,7 @@ class TestsController extends Controller
             $program = Program::find($request->p_id);
             $hasmock = $program->hasmock;
 
-            if ($program->allow_payment_restrictions == 'yes') {
+            if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {
                 $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to access tests');

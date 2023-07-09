@@ -80,7 +80,13 @@ class ProgramController extends Controller
             'show_catalogue_popup'=>'required',
             'show_locations' => 'required',
             'locations'=>'nullable',
-            'show_modes' => 'required'
+            'show_modes' => 'required',
+            'allow_payment_restrictions_for_materials' => 'required',
+            'allow_payment_restrictions_for_pre_class_tests' => 'required',
+            'allow_payment_restrictions_for_post_class_tests' => 'required',
+            'allow_payment_restrictions_for_results' => 'required',
+            'allow_payment_restrictions_for_certificates' => 'required',
+            'allow_payment_restrictions_for_completed_tests' => 'required'
         ]);
 
         
@@ -155,7 +161,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations', 'allow_payment_restrictions']);
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations', 'allow_payment_restrictions','allow_payment_restrictions_for_materials','allow_payment_restrictions_for_pre_class_tests','allow_payment_restrictions_for_post_class_tests' ,'allow_payment_restrictions_for_results','allow_payment_restrictions_for_certificates' ,'allow_payment_restrictions_for_completed_tests']);
         // dd($request->all());
         //check if new featured image
        
