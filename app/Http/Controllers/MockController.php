@@ -53,14 +53,16 @@ class MockController extends Controller
        if(Auth::user()->role_id == "Student"){
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            $program = Program::find($request->p_id);
             
-            if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol.number_format($user_balance->balance). ' in order to access pre class tests');
+            if ($program->allow_payment_restrictions == 'yes') {
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol.number_format($user_balance->balance). ' in order to access pre class tests');
+                }
             }
 
             $i = 1;
 
-            $program = Program::find($request->p_id);
             $modules = Module::with('questions')->where('program_id', $request->p_id)->whereType(0)->get();
             
             foreach($modules as $module){

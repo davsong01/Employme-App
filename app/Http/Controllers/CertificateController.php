@@ -26,19 +26,22 @@ class CertificateController extends Controller
         
         if(Auth::user()->role_id == "Student"){    
             
+            $program = Program::find($request->p_id);
+            
+            if ($program->allow_payment_restrictions == 'yes') {
                 $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-                $program = Program::find($request->p_id);  
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get view/download certificate');
                 }
+            }
 
-                $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
-                
-                if(!isset($certificate)){
-                    return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
-                }
+            $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
+            
+            if(!isset($certificate)){
+                return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
+            }
 
-                return view('dashboard.student.certificates.index', compact('certificate', 'program'));
+            return view('dashboard.student.certificates.index', compact('certificate', 'program'));
 
         }return back();
     }

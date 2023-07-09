@@ -69,10 +69,18 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label>Enable Part Payment Restrictions?</label>
+                                    <select name="allow_payment_restrictions" class="form-control" id="hasmock" required>
+                                        <option value="yes" {{ old('allow_payment_restrictions') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('allow_payment_restrictions') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Early Bird Fee *</label>
                                     <input type="number" name="e_amount" value="{{ old('e_amount') ?? 0}}" min="0"
                                         class="form-control" required>
                                 </div>
+                                
                                 <div class="form-group">
                                     <label>Status</label>
                                     <select name="status" class="form-control" id="hasmock" required>

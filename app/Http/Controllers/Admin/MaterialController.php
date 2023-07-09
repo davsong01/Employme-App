@@ -48,32 +48,33 @@ class MaterialController extends Controller
         }
 
         if(Auth::user()->role_id == "Student"){       
-            $i = 1;   
+            $i = 1;
+            $program = Program::find($request->p_id);  
 
-            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to materials');
+            if($program->allow_payment_restrictions == 'yes'){
+                $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to materials');
+                }
             }
 
-            $program = Program::find($request->p_id);  
-            
-                if($program->hasmock == 1){
-                    
-                    //Check if user has taken pre tests and return back if otherwise
-                    $expected_pre_class_tests = Module::ClassTests($program->id)->count();
-                    
-                    $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
- 
-                    if($completed_pre_class_tests < $expected_pre_class_tests ){
-                        return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
-                    }
-                                        
+            if($program->hasmock == 1){
+                
+                //Check if user has taken pre tests and return back if otherwise
+                $expected_pre_class_tests = Module::ClassTests($program->id)->count();
+                
+                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+
+                if($completed_pre_class_tests < $expected_pre_class_tests ){
+                    return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
                 }
-                
-                $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
-                $show_catalogue = $this->showCatalogue($program);
-                
-                return view('dashboard.student.materials.index', compact('i', 'materials', 'program','show_catalogue'));
+                                    
+            }
+            
+            $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
+            $show_catalogue = $this->showCatalogue($program);
+            
+            return view('dashboard.student.materials.index', compact('i', 'materials', 'program','show_catalogue'));
         }
         
     }

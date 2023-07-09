@@ -74,6 +74,7 @@ class ProgramController extends Controller
             'booking_form' =>'file|mimes:pdf|max:10000',
             'image' =>'required|image |max:10000',
             'haspartpayment' => 'required',
+            'allow_payment_restrictions' => 'required',
             'status' => 'required',
             'off_season' => 'required',
             'show_catalogue_popup'=>'required',
@@ -134,6 +135,7 @@ class ProgramController extends Controller
             'locations' => $locations ?? null,
             'show_catalogue_popup'=>$data['show_catalogue_popup'],
             'image' => 'trainingimage/'.$file,
+            'allow_payment_restrictions' => $data['allow_payment_restrictions']
         ]);
 
         
@@ -153,10 +155,10 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations']);
+        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations', 'allow_payment_restrictions']);
         // dd($request->all());
         //check if new featured image
+       
         if($request->hasFile('image')){
 
             // Dont delete old files, another progeam may be using it

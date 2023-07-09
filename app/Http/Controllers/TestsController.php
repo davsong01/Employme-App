@@ -19,13 +19,16 @@ class TestsController extends Controller
         
        if(Auth::user()->role_id == "Student"){
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            if($user_balance->balance > 0){
-                return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
-            }  
+            $program = Program::find($request->p_id);
+            
+            if ($program->allow_payment_restrictions == 'yes') {
+                if($user_balance->balance > 0){
+                    return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance). ' in order to get access to tests');
+                }  
+            }
 
             $i = 1;
 
-            $program = Program::find($request->p_id);
             $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
             
             if(Auth::user()->redotest == $program->id){
@@ -170,20 +173,23 @@ class TestsController extends Controller
             $i = 1;
             $program = Program::find($request->p_id);
             $hasmock = $program->hasmock;
-            $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
+
+            if ($program->allow_payment_restrictions == 'yes') {
+                $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to access tests');
-                }   
+                } 
+            }  
 
-                //Check if user has taken pre tests and return back if otherwise
-                if($program->hasmock == 1){
-                    $expected_pre_class_tests = Module::ClassTests($program->id)->count();
-                    $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
-                    
-                    if($completed_pre_class_tests < $expected_pre_class_tests ){
-                            return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
-                    }                     
-                }
+            //Check if user has taken pre tests and return back if otherwise
+            if($program->hasmock == 1){
+                $expected_pre_class_tests = Module::ClassTests($program->id)->count();
+                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+                
+                if($completed_pre_class_tests < $expected_pre_class_tests ){
+                        return Redirect::to('mocks?p_id='.$program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
+                }                     
+            }
 
             $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get(); 
              

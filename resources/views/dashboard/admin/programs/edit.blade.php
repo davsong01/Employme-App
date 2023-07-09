@@ -74,6 +74,13 @@
                                 </select>
                                 <small style="color:red">{{ $errors->first('haspartpayment')}}</small>
                             </div>
+                             <div class="form-group">
+                                    <label>Enable Part Payment Restrictions?</label>
+                                    <select name="allow_payment_restrictions" class="form-control" id="hasmock" required>
+                                        <option value="yes" {{ $program->allow_payment_restrictions == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ $program->allow_payment_restrictions == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
                             <div class="form-group">
                                 <label>Early Bird Fee *</label>
                                 <input type="number" name="e_amount" value="{{ old('e_amount') ??  $program->e_amount}}" min="0"

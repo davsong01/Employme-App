@@ -388,8 +388,10 @@ class ResultController extends Controller
             $balance = DB::table('program_user')->whereUserId(Auth::user()->id)->whereProgramId($program->id)->value('balance');
 
             if($result->count() > 0){
-                if($balance > 0){
-                    return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. $balance.' in order to view/print your result');
+                if($program->allow_payment_restrictions == 'yes') {
+                    if($balance > 0){
+                        return back()->with('error', 'Dear '.Auth::user()->name.', Please pay your balance of '. $balance.' in order to view/print your result');
+                    }
                 }
                 
                 $details = array();
