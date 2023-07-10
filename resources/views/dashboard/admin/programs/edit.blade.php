@@ -403,7 +403,7 @@
         $.get("/admin-remove-sub-program/"+program_id,function(data, status){
             if(data.status == 'success'){
                 $("#oldsub-"+id).remove();
-                alert(data.message);
+               
             }else{
                 alert(data.message);
             }

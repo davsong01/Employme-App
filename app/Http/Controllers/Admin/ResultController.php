@@ -262,9 +262,9 @@ class ResultController extends Controller
 
     public function add(Request $request, $uid, $modid){
         $result_id = $modid;
-       
+        
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
-       
+        
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($modid)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
         
@@ -281,7 +281,7 @@ class ResultController extends Controller
         $details['role_play_score'] = 0;
         $details['user_name'] = "";
         $details['allow_editing'] = 0;
-       
+      
         foreach($user_results as $results){
             if($results->module->type == 1){
                 $details['c_result'] = $results;
@@ -313,30 +313,63 @@ class ResultController extends Controller
                 unset($results['email_test_score']);
         }
 
-        foreach($history as $results){
-            // if($results->module->type == 1){
-            //     $details['c_result'] = $results;
-            // }
-           
-            $results['module_title'] = $results->module->title;
-            $details['user_name'] = $results->user->name;
-            $details['grader_comment'] = $results->grader_comment;
-            $details['facilitator_comment'] = $results->facilitator_comment;
-            $details['allow_editing'] = 1;
 
-            $questions = json_decode($results->certification_test_details, true);
-           
-            foreach($questions as $key=>$value){
-                $results['title'] = Question::whereId($key)->first()->title;
-            }
+        // if(isset($history) && !empty($history)){
+        //     $results['certification_score'] = 0;
+        //     $results['email_test_score'] = 0;
+        //     $results['role_play_score'] = 0;
+        //     $results['user_name'] = "";
+        //     $results['allow_editing'] = 0;
+
+        //     foreach ($history as $results) {
+        //         if ($results->module->type == 1) {
+        //             $details['c_result'] = $results;
+        //         }
+        //         $results['certification_score'] = $results->certification_test_score + $results['certification_score'];
+        //         $results['email_test_score'] = $results->email_test_score +  $results['email_test_score'];
+        //         $results['role_play_score'] = $results->role_play_score +  $results['role_play_score'];
+        //         $results['module_title'] = $results->module->title;
+        //         $results['user_name'] = $results->user->name;
+        //         $results['grader_comment'] = $results->grader_comment;
+        //         $results['facilitator_comment'] = $results->facilitator_comment;
+        //         $results['allow_editing'] = 1;
+
+        //         $questions = json_decode($results->certification_test_details, true);
                 
-            unset($results['certification_test_details']);
-            unset($results['certification_test_score']);
-            unset($results['role_play_score']);
-            unset($results['email_test_score']);
-        }
-        //// 
-  
+        //         foreach ($questions as $key => $value) {
+        //             $results['title'] = Question::whereId($key)->value('title');
+        //             $results['answer'] = $value;
+        //         }
+        
+        //         // unset($results['certification_test_details']);
+        //         // unset($results['certification_test_score']);
+        //         // unset($results['role_play_score']);
+        //         // unset($results['email_test_score']);
+        //     }
+
+        // }
+
+        
+        // foreach($history as $results){
+        //     $thread['module_title'] = $results->module->title;
+        //     $thread['user_name'] = $results->user->name;
+        //     $thread['grader_comment'] = $results->grader_comment;
+        //     $thread['facilitator_comment'] = $results->facilitator_comment;
+        //     $thread['allow_editing'] = 1;
+
+        //     $questions = json_decode($results->certification_test_details, true);
+           
+        //     foreach($questions as $key=>$value){
+        //         $thread['title'] = Question::whereId($key)->first()->title;
+        //     }
+                
+        //     // unset($thread['certification_test_details']);
+        //     // unset($thread['certification_test_score']);
+        //     // unset($thread['role_play_score']);
+        //     // unset($thread['email_test_score']);
+        // }
+        
+      
         return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results','history'));
     }
     
@@ -369,12 +402,10 @@ class ResultController extends Controller
 
     public function show($id, Request $request)
     {    
-
         if(Auth::user()->role_id == "Student" || Auth::user()->id == $id){ 
-            
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
-
+            
             if ($program->allow_payment_restrictions_for_results == 'yes') {
                 if($user_balance->balance > 0){
                     return back()->with('error', 'Please Pay your balance of '. $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
