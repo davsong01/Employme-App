@@ -25,7 +25,7 @@ class ProgramController extends Controller
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
             //Get all programs
-            $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+            $programs = Program::with('users')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
            
             //Get all students
             $users = User::where('role_id', 'Student')->get();
@@ -74,7 +74,6 @@ class ProgramController extends Controller
             'booking_form' =>'file|mimes:pdf|max:10000',
             'image' =>'required|image |max:10000',
             'haspartpayment' => 'required',
-            'allow_payment_restrictions' => 'required',
             'status' => 'required',
             'off_season' => 'required',
             'show_catalogue_popup'=>'required',
@@ -111,6 +110,7 @@ class ProgramController extends Controller
             $locations = json_encode($locations);
           
         }
+        
         if($request->has('show_modes') && $request->show_modes == 'yes'){
             for ($i = 0; $i < count($request->mode_name); $i++) {
                 $m[] = array_column($request->only(['mode_name','mode_amount']), $i);
@@ -141,10 +141,33 @@ class ProgramController extends Controller
             'locations' => $locations ?? null,
             'show_catalogue_popup'=>$data['show_catalogue_popup'],
             'image' => 'trainingimage/'.$file,
-            'allow_payment_restrictions' => $data['allow_payment_restrictions']
+            'allow_payment_restrictions_for_materials' => $data['allow_payment_restrictions_for_materials'],
+            'allow_payment_restrictions_for_pre_class_tests' => $data['allow_payment_restrictions_for_pre_class_tests'],
+            'allow_payment_restrictions_for_post_class_tests' => $data['allow_payment_restrictions_for_post_class_tests'],
+            'allow_payment_restrictions_for_results' => $data['allow_payment_restrictions_for_results'],
+            'allow_payment_restrictions_for_certificates' => $data['allow_payment_restrictions_for_certificates'],
+            'allow_payment_restrictions_for_completed_tests' => $data['allow_payment_restrictions_for_completed_tests']
         ]);
 
-        
+        if ($request->has('sub_name') && $request->show_sub == 'yes') {
+            for ($i = 0; $i < count($request->sub_name); $i++) {
+                $l[] = array_column($request->only(['sub_name', 'sub_amount']), $i);
+            }
+
+            foreach ($l as $test) {
+                $subs[$test[0]] = $test[1];
+            }
+        }
+
+        foreach($subs as $name => $amount){
+            $sub_data = $program->toArray();
+            $sub_data['p_name'] = $name;
+            $sub_data['parent_id'] = $sub_data['id'];
+            $sub_data['p_amount'] = $amount;
+            unset($sub_data['id']);
+            Program::Create($sub_data);
+        }
+       
         return redirect('programs')->with('message', 'Program added succesfully');
     }
 
@@ -206,10 +229,56 @@ class ProgramController extends Controller
         }
         
         $program->update($data);
+       
+        if ($request->has('sub_name') && $request->show_sub == 'yes') {
+            for ($i = 0; $i < count($request->sub_name); $i++) {
+                $l[] = array_column($request->only(['sub_name', 'sub_amount','sub_status','sub_program_id']), $i);
+            }
+            
+            foreach ($l as $test) {
+                $subs[] = [
+                    'p_name' => $test[0],
+                    'p_amount' => $test[1],
+                    'status' => $test[2],
+                    'id' => $test[3] ?? null,
+                ];
+               
+            }
+            
+            if (isset($subs) && !empty($subs)) {
+                $sub_programs = $subs;
+                $new_sub_data = $program->toArray();
+                $new_sub_data = array_diff_key($new_sub_data, array_flip(["status","id","created_at", "updated_at", "sub_programs", "deleted_at","p_name","p_amount"]));
+              
+                foreach ($sub_programs as $key => $sub) {
+                    $new_sub_data['p_name'] = $sub['p_name'];
+                    $new_sub_data['p_amount'] = $sub['p_amount'];
+                    $new_sub_data['status'] = $sub['status'];
+                    $new_sub_data['parent_id'] = $program->id;
 
-        return back()->with('message', 'Training updated successfully');
+                    if (isset($sub['id'])) {
+                        $subProgram = Program::where('id', $sub['id'])->first();
+                        $subProgram->update($new_sub_data);
+                    }else{
+                        $new = Program::Create($new_sub_data);
+                    }
+                }
+            }
+        }
+        
+        return redirect()->back()->with('message', 'Training updated successfully');
     }
 
+    public function removeSubProgram($id){
+        $check = DB::table('program_user')->where('program_id', $id)->count();
+        if ($check <= 0) {
+            Program::find($id)->forceDelete();
+            return response()->json(['status'=> 'success','message' => 'Removed successfully!'], 200);
+
+        }else{
+            return response()->json(['status' => 'error', 'message'=>'Cannot remove program with one or more participants!'], 200);
+        }
+    }
 
     public function destroy($id)
     {
@@ -251,7 +320,7 @@ class ProgramController extends Controller
 
     public function restore($id)
     {
-        $program = program::withTrashed()->where('id', $id)->firstOrFail();
+        $program = program::withTrashed()->where('id', $id)->whereNULL('parent_id')->firstOrFail();
 
         $program->restore();
 

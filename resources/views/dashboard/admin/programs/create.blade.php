@@ -136,7 +136,26 @@
                                 
                             </div>
                         </div>
-                         <section>
+                        <section>
+                            <div class="row">                                   
+                                <div class="col-md-6" style="margin-bottom:5px">
+                                    <label>Sub Trainings?</label>
+                                     <select name="show_sub" class="form-control" id="show_sub" required>
+                                        <option value="no" {{ old('show_sub') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" {{ old('show_sub') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="add_sub" style="display:none">
+                                    <label style="color:white">S</label>
+                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-sub"><i class="fa fa-plus"></i> Add Sub Program</button>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="sub-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
+                            <div class="row" id="sub-0">
+                            </div>
+                        </section>
+                        <section>
                             <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Show Mode (Two payment modes only)</label>
@@ -291,6 +310,60 @@
         var removeId = $(e.target).attr('id').split('-');
         var id = removeId[2];
         $("#mode-"+id).remove();
+    });
+
+
+    $("#sub-holder").on('click','.remove-sub', function(e) {
+        var removeId = $(e.target).attr('id').split('-');
+        var id = removeId[2];
+        $("#sub-"+id).remove();
+    });
+
+    $("#show_sub").on('change', function () {
+        if($("#show_sub").val() == 'yes'){
+            $("#add_sub").show();
+        }else{
+            $("#add_sub").hide();
+        }
+    });
+
+    $("#add-sub").on('click', function () {
+        //get last ID
+        var lastChild = $("#sub-holder").children().last();
+        var countChildren = $("#sub-holder").children().length;
+        
+        var lastId = $(lastChild).attr('id').split('-');
+
+        var id = lastId[1] + 1;
+       
+        var child = `<div class="row" id="sub-`+id+`" style="padding-top:10px">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="sub_name">Training Name</label>
+                        <input type="text" class="form-control" id="sub_training" value="{{ old('sub_name')}}"name="sub_name[]" required>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="location_address">Training Amount</label>
+                        <input type="number" class="form-control" id="sub_amount" value="{{ old('sub_amount')}}"name="sub_amount[]" required>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                        <button class="btn btn-danger remove-sub" id="remove-sub-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                    </div>
+                </div>
+            </div>`
+        $("#sub-holder").append(child);      
+        });
+
+    $("#sub-holder").on('click','.remove-sub', function(e) {
+        var removeId = $(e.target).attr('id').split('-');
+        var id = removeId[2];
+        $("#sub-"+id).remove();
     });
 
 </script>

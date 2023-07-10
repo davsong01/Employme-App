@@ -32,7 +32,7 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         //Get calendar details
-       $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
+        $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
         if(Auth::user()->role_id == "Admin" ){
             
             $events = [];

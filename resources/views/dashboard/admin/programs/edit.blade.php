@@ -142,7 +142,7 @@
                             
                             <div class="form-group">
                                 <label>Status</label>
-                                <select name="status" class="form-control" id="hasmock" required>
+                                <select name="status" class="form-control" id="status" required>
                                     <option value="1" {{ $program->status == 1 ? 'selected' : '' }}>Published</option>
                                     <option value="0" {{ $program->status == 0 ? 'selected' : '' }}>Draft</option>
                                 </select>
@@ -151,6 +151,62 @@
                             </div>
                         </div>
                          <section>
+                            <div class="row" style="margin-top: 20px;">                                   
+                                <div class="col-md-6" style="margin-bottom:5px">
+                                    <label>Sub Trainings?</label>
+                                     <select name="show_sub" class="form-control" id="show_sub" required>
+                                         <option value="yes" {{ (isset($program->subPrograms) && !empty($program->subPrograms)) ? 'selected' : '' }}>Yes</option>
+                                         <option value="no" {{ $program->show_sub == 'no' ? '' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2" id="add_sub" style="display:{{ (isset($program->subPrograms) && !empty($program->subPrograms)) ? 'block':'none' }}">
+                                    <label style="color:white">S</label>
+                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-sub"><i class="fa fa-plus"></i> Add Sub Training</button>
+                                </div>
+                            </div>
+                        </section>
+                        <section id="sub-holder" style="background: antiquewhite; padding-top:15px !important; padding: 0px 10px;margin-bottom:20px">
+                            <div class="row" id="sub-0">
+                            </div>
+                            <?php $sub_counter = 1?>
+                            @if(isset($program->subPrograms) && !empty($program->subPrograms))
+                            @foreach($program->subPrograms as $sub)
+                            <?php $counter = $sub_counter++ ?>
+                                    <input type="hidden" name="sub_program_id[]" value="{{ $sub->id }}">
+                                    <div class="row" id="oldsub-{{ $counter }}">
+                                        <div class="col-md-5">
+                                            <div class="form-group">
+                                                <label for="sub_name">Sub Program Name</label>
+                                                <input type="text" class="form-control" value="{{ $sub->p_name }}"
+                                                    name="sub_name[]" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <label for="sub_amount">Sub Program Amount</label>
+                                                <input type="text" class="form-control" id="amount" value="{{ $sub->p_amount }}" name="sub_amount[]" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="mode_name">Status</label>
+                                                <select name="sub_status[]" class="form-control" id="sub_status" required>
+                                                    <option value="1" {{  $sub->status == 1 ? 'selected' : '' }}>Published</option>
+                                                    <option value="0" {{  $sub->status == 0 ? 'selected' : '' }}>Draft</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group">
+                                                <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                                                <button class="btn btn-danger removeold-sub" data-program-id="{{ $sub->id }}" id="removeold-sub-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </section>
+                        <section>
                             <div class="row" style="margin-top: 20px;">                                   
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Show Mode (2 payment modes only)</label>
@@ -176,10 +232,7 @@
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label for="mode_name">Mode Name</label>
-                                                {{-- <select name="mode_name[]" class="form-control" id="mode_name" required>
-                                                    <option value="Online" {{ $key == 'Online' ? 'selected' : '' }}>{{ $key }}</option>
-                                                    <option value="Physical" {{ $key == 'Physical' ? 'selected' : '' }}>{{ $key }}</option>
-                                                </select> --}}
+                                               
                                                 <input type="select" class="form-control" value="{{ $key }}"
                                                     name="mode_name[]" required>
                                             </div>
@@ -283,6 +336,17 @@
         }
     });
 
+    $("#show_sub").on('change', function () {
+    if($("#show_sub").val() == 'yes'){
+        $("#add_sub").show();
+        $("#sub-holder").show();
+        
+    }else{
+        $("#add_sub").hide();
+        $("#sub-holder").hide();
+    }
+    });
+
     $("#add-course").on('click', function () {
         //get last ID
         var lastChild = $("#course-holder").children().last();
@@ -331,6 +395,21 @@
         $("#oldmode-"+id).remove();
     });
 
+    $("#sub-holder").on('click','.removeold-sub', function(e) {
+        var removeId = $(e.target).attr('id').split('-');
+        var program_id =  $(e.target).attr('data-program-id');
+        var id = removeId[2];
+        // validate and remove program from database
+        $.get("/admin-remove-sub-program/"+program_id,function(data, status){
+            if(data.status == 'success'){
+                $("#oldsub-"+id).remove();
+                alert(data.message);
+            }else{
+                alert(data.message);
+            }
+        });
+    });
+
     $("#add-mode").on('click', function () {
         //get last ID
         var lastChild = $("#mode-holder").children().last();
@@ -346,11 +425,11 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="mode_name">Mode Name</label>
-                            <select name="mode_name[]" class="form-control" id="mode_name" required>
+                        <select name="mode_name[]" class="form-control" id="mode_name" required>
                             <option value="" selected>Select mode</option>
                             <option value="Online">Online</option>
                             <option value="Offline">Offline</option>
-                            </select>
+                        </select>
                     </div>
                 </div>
                 <div class="col-md-5">
@@ -374,6 +453,54 @@
         var removeId = $(e.target).attr('id').split('-');
         var id = removeId[2];
         $("#mode-"+id).remove();
+    });
+
+    $("#add-sub").on('click', function () {
+        //get last ID
+        var lastChild = $("#sub-holder").children().last();
+        var countChildren = $("#sub-holder").children().length;
+        var lastId = $(lastChild).attr('id').split('-');
+
+        var id = lastId[1] + 1;
+        
+        var child = `<div class="row" id="sub-`+id+`">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="sub_name">Sub Program Name</label>
+                        <input type="text" class="form-control" id="sub_name" value="{{ old('sub_name')}}"name="sub_name[]" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="sub_amount">Sub Program Amount</label>
+                        <input type="text" class="form-control" id="sub_amount" value="{{ old('sub_amount')}}"name="sub_amount[]" required>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="mode_name">Status</label>
+                        <select name="sub_status[]" class="form-control" id="sub_status" required>
+                            <option value="1" selected>Published</option>
+                            <option value="0">Draft</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                        <button class="btn btn-danger remove-sub" id="remove-sub-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                    </div>
+                </div>
+            </div>`
+        $("#sub-holder").append(child);      
+        });
+
+    $("#sub-holder").on('click','.remove-sub', function(e) {
+        var removeId = $(e.target).attr('id').split('-');
+        var id = removeId[2];
+       
+        $("#sub-"+id).remove();
     });
 
 </script>

@@ -66,4 +66,8 @@ class Program extends Model
         return $balance;
     }
     
+    public function subPrograms(){
+        return $this->hasMany(Program::class, 'parent_id');
+    }
+    
 }

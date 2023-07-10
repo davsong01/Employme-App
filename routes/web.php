@@ -36,9 +36,6 @@ Route::middleware(['template'])->group(function(){
     Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
 });
 
-
-
-
 //Get Booking form Link
 Route::get('bookingforms/{filename}', function($filename){
     $realpath = base_path() . '/uploads'. '/' .$filename;
@@ -197,6 +194,11 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 Route::namespace('Admin')->middleware(['auth'])->group(function(){
     Route::resource('details', 'DetailsController');
 });
+
+Route::get('admin-remove-sub-program/{id}', 'Admin\ProgramController@removeSubProgram');
+
+
+
 
 
 
