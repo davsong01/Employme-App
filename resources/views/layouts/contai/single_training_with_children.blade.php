@@ -39,84 +39,35 @@
                         @endif
                         
                     </div>
+                    @if(isset($training->description) && !empty($training->description))
                     <p>{{ $training->description }}</p>
-                    
+                    @endif
                     <div class="checkout__form">
-                        <form action="{{ route('checkout') }}" method="POST">
+                        <form action="{{ route('trainings') }}" method="GET">
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
-                                    @if(isset($modes) && count($modes) > 0)
+                                    @if(isset($training->subPrograms) && $training->subPrograms->count() > 0)
                                         <div class="checkout__input">
-                                            <p>Select Mode<span>*</span></p>
-                                            <select name="modes" id="payment_modes" required>
+                                            <p>Select Variation<span>*</span></p>
+                                            <select name="training" id="training" required>
                                                 <option value="">Select</option>
-                                                @foreach($modes as $mode=>$value)
-                                                <option value="{{ $mode }}">{{ $mode }}</option>
+                                                @foreach($training->subPrograms as $training)
+                                                <option value="{{ $training->id }}">{{ $training->p_name }} ({{$currency_symbol.number_format($training->p_amount)}})</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        @if(isset($locations) && count($locations) > 0 )
-                                            <div class="checkout__input" id="locations_div" style="display:none">
-                                                <p>Select location<span>*</span></p>
-                                                <select name="location" id="locations" required>
-                                                    <option value="">Select Location</option>
-                                                    @foreach($locations as $location=>$value)
-                                                        <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
-                                                            {{ $location }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div> 
-                                        @endif
-                                        
-                                        <div class="checkout__input" id="payment_types" style="display:none">
-                                            <p>Select payment type<span>*</span></p>
-                                            <div class="select-block">
-                                                <select name="type" id="payments" required>
-                                                    <option value="">Select</option>
-                                                </select>
-                                            </div>
-                                        </div> 
-                                       
-                                    @else 
-                                        @if(isset($locations) && count($locations) > 0 )
-                                            <div class="checkout__input">
-                                                <p>Select location<span>*</span></p>
-                                                <select name="location" id="locations" required>
-                                                    <option value="">Select Location</option>
-                                                    @foreach($locations as $location=>$value)
-                                                        <option value="{{ $location }}" {{ old('location_name') == $location ? 'selected' : '' }}>
-                                                            {{ $location }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div> 
-                                        @endif
-                                        <div class="checkout__input">
-                                            <p>Select payment type<span>*</span></p>
-                                            <select name="type" id="" required>
-                                                <option value="">Select</option>
-                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
-                                                @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
-                                                <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
-                                                @endif
-                                                @if($training->haspartpayment == 1)
-                                                <option value="part" {{ old('amount') == ($training->p_amount/2) ? 'selected' : '' }}>Part Payment ({{ $currency_symbol.number_format($training->p_amount/2) }})</option>
-                                                @endif
-                                            </select>
-                                        </div>
                                     @endif
-                                    
                                 </div>
-                                <input type="hidden" name="training" value="{{ $training }}"> 
+                                {{-- <input type="hidden" name="training" value="{{ $training }}">  --}}
+                                {{-- <input type="hidden" name="bypassChildren" value="1"> 
                                 <input type="hidden" name="facilitator" value="{{ \Session::get('facilitator') }}"> 
                                 <input type="hidden" name="facilitator_id" value="{{ \Session::get('facilitator_id') }}"> 
                                 <input type="hidden" name="facilitator_name" value="{{ \Session::get('facilitator_name') }}"> 
-                                <input type="hidden" name="facilitator_license" value="{{ \Session::get('facilitator_license') }}">
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}"> 
+                                <input type="hidden" name="facilitator_license" value="{{ \Session::get('facilitator_license') }}"> --}}
+                                
+                                {{-- <input type="hidden" name="_token" value="{{ csrf_token() }}">  --}}
                             </div>
-                            <input class="primary-btn" type="submit" value="PROCEED TO CHECKOUT">
+                            <input class="primary-btn" style="background: #dfa802; !important" type="submit" value="PROCEED">
                         </form>
                     </div>                        
                 </div>
@@ -126,89 +77,6 @@
     </div>
 </section>
 
-<!-- Product Details Section End -->
-
-<!-- Related Product Section Begin -->
-{{-- <section class="related-product">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title related__product__title">
-                    <h2>Related Courses</h2>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product__discount__item">
-                    <a href="https://www.thewaacsp.com/english" target="_blank">
-                        <div class="product__discount__item__pic set-bg"
-                            data-setbg="img/product/discount/pd-2.jpg">
-                            <div class="product__discount__percent single-course-discount-percentage">-20%</div>
-                        </div>
-                    </a>
-                    <div class="product__discount__item__text">
-                        <a href="#">
-                            <h5 style="color: #c2c2c2">1st diet 2022 ECOWAS-WAACSP Certified customer service
-                                professionals [CCSP] Program</h5>
-                        </a>
-                        <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product__item">
-                    <div class="product__discount__item">
-                        <a href="https://www.thewaacsp.com/english" target="_blank">
-                            <div class="product__discount__item__pic set-bg"
-                                data-setbg="img/product/discount/pd-2.jpg">
-                                <div class="product__discount__percent">-20%</div>
-                            </div>
-                        </a>
-                        <div class="product__discount__item__text">
-                            <a href="#">
-                                <h5 style="color: #c2c2c2">1st diet 2022 ECOWAS-WAACSP Certified customer service
-                                    professionals [CCSP] Program</h5>
-                            </a>
-                            <div class="product__item__price">$30.00 <span>$36.00</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="img/product/product-3.jpg">
-                        <ul class="product__item__pic__hover">
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6><a href="#">Crab Pool Security</a></h6>
-                        <h5>$30.00</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="product__item">
-                    <div class="product__item__pic set-bg" data-setbg="img/product/product-7.jpg">
-                        <ul class="product__item__pic__hover">
-                            <li><a href="#"><i class="fa fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fa fa-retweet"></i></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-cart"></i></a></li>
-                        </ul>
-                    </div>
-                    <div class="product__item__text">
-                        <h6><a href="#">Crab Pool Security</a></h6>
-                        <h5>$30.00</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section> --}}
-<!-- Related Product Section End -->
 @endsection
 @section('scripts')
 <script>

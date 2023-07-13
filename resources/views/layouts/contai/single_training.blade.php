@@ -39,7 +39,9 @@
                         @endif
                         
                     </div>
+                     @if(isset($training->description) && !empty($training->description))
                     <p>{{ $training->description }}</p>
+                    @endif
                     
                     <div class="checkout__form">
                         <form action="{{ route('checkout') }}" method="POST">

@@ -23,7 +23,7 @@ Route::middleware(['template'])->group(function(){
     Route::get('/thankyou', 'FrontendController@thankyou')->name('thankyou');    
 
     Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
-    Route::get('/trainings/{id}', 'FrontendController@show')->name('trainings');
+    Route::get('/trainings/{id?}', 'FrontendController@show')->name('trainings');
     Route::post('/checkout', 'PaymentController@checkout')->name('checkout'); 
     Route::post('/validate-coupon', 'PaymentController@validateCoupon');
     Route::post('/get-mode-payment-types', 'FrontendController@getModePaymentTypes');

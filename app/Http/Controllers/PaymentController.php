@@ -128,6 +128,7 @@ class PaymentController extends Controller
             
             try {
                 $url = $this->queryProcessor($request, $data);
+                
                 if($url){
                     return redirect()->away($url);
                 }else{
@@ -150,7 +151,7 @@ class PaymentController extends Controller
             "metadata"=>'sometimes',
             "payment_mode"=>'required',
         ]);
-        
+       
         if($template == 'contai'){
             $request['amount'] = \Session::get('exchange_rate') * $request['amount'];
             
@@ -203,7 +204,6 @@ class PaymentController extends Controller
                     // handle gateway call back normally
                     $req = new \App\Http\Controllers\PaymentController();
                     $response = $req->handleGatewayCallback($request, 'zero-amount');
-                    
                     if(Auth::user()){
                         return redirect(url('/dashboard'));
                     }
@@ -228,7 +228,7 @@ class PaymentController extends Controller
 
             // Create temp user and redirect
             $request['metadata'] = $type;
-          
+           
             try{
                 $url = $this->queryProcessor($request);
                 if(!is_null($url)){

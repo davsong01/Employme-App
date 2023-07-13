@@ -53,18 +53,19 @@ class FrontendController extends Controller
     }
 
 
-    public function show($id)
+    public function show($id = null)
     {
+        $id = \Request::get('training') ?? $id ;
+       
         $training = Program::with('subPrograms')->where('id', $id)->first();
-
+        
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){
             return redirect(route('welcome'));
         }
-        
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
         
-        if(isset($training->subPrograms) && !empty($training->subPrograms)){
+        if(isset($training->subPrograms) && $training->subPrograms->count() > 0){
             return view('single_training_with_children', compact('training', 'locations', 'modes'));
         }
         

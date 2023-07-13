@@ -38,6 +38,7 @@ class CreateProgramsTable extends Migration
             $table->text('modes')->nullable();
             $table->text('locations')->nullable();
             $table->string('show_catalogue_popup')->nullable();
+            $table->string('show_sub')->nullable();
 
             $table->boolean('hasmock')->nullable()->default(0);
             $table->boolean('haspartpayment')->default(0);

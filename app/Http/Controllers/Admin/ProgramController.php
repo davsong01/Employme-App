@@ -17,7 +17,6 @@ use App\Exports\ProgramDetailsExport;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
-
 class ProgramController extends Controller
 {
     public function index(Program $program)
@@ -184,7 +183,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations', 'allow_payment_restrictions','allow_payment_restrictions_for_materials','allow_payment_restrictions_for_pre_class_tests','allow_payment_restrictions_for_post_class_tests' ,'allow_payment_restrictions_for_results','allow_payment_restrictions_for_certificates' ,'allow_payment_restrictions_for_completed_tests']);
+        $data = $request->only(['show_sub','p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment','show_modes','show_locations', 'allow_payment_restrictions','allow_payment_restrictions_for_materials','allow_payment_restrictions_for_pre_class_tests','allow_payment_restrictions_for_post_class_tests' ,'allow_payment_restrictions_for_results','allow_payment_restrictions_for_certificates' ,'allow_payment_restrictions_for_completed_tests']);
         // dd($request->all());
         //check if new featured image
        
@@ -230,7 +229,8 @@ class ProgramController extends Controller
         
         $program->update($data);
        
-        if ($request->has('sub_name') && $request->show_sub == 'yes') {
+        if ($request->sub_name && $request->show_sub == 'yes') {
+          
             for ($i = 0; $i < count($request->sub_name); $i++) {
                 $l[] = array_column($request->only(['sub_name', 'sub_amount','sub_status','sub_program_id']), $i);
             }
@@ -244,12 +244,11 @@ class ProgramController extends Controller
                 ];
                
             }
-            
             if (isset($subs) && !empty($subs)) {
                 $sub_programs = $subs;
                 $new_sub_data = $program->toArray();
                 $new_sub_data = array_diff_key($new_sub_data, array_flip(["status","id","created_at", "updated_at", "sub_programs", "deleted_at","p_name","p_amount"]));
-              
+               
                 foreach ($sub_programs as $key => $sub) {
                     $new_sub_data['p_name'] = $sub['p_name'];
                     $new_sub_data['p_amount'] = $sub['p_amount'];

@@ -154,18 +154,19 @@
                             <div class="row" style="margin-top: 20px;">                                   
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Sub Trainings?</label>
-                                     <select name="show_sub" class="form-control" id="show_sub" required>
-                                         <option value="yes" {{ (isset($program->subPrograms) && !empty($program->subPrograms)) ? 'selected' : '' }}>Yes</option>
-                                         <option value="no" {{ $program->show_sub == 'no' ? '' : '' }}>No</option>
+                                  
+                                    <select name="show_sub" class="form-control" id="show_sub" required>
+                                         <option value="yes" {{ $program->show_sub == 'yes' ? 'selected' : '' }}>Yes</option>
+                                         <option value="no" {{ is_null($program->show_sub) || $program->show_sub == 'no' ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2" id="add_sub" style="display:{{ (isset($program->subPrograms) && !empty($program->subPrograms)) ? 'block':'none' }}">
+                                <div class="col-md-2" id="add_sub" style="display:{{ isset($program->subPrograms) && $program->subPrograms->count() > 0 ? 'block':'none' }}">
                                     <label style="color:white">S</label>
                                     <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-sub"><i class="fa fa-plus"></i> Add Sub Training</button>
                                 </div>
                             </div>
                         </section>
-                        <section id="sub-holder" style="background: antiquewhite; padding-top:15px !important; padding: 0px 10px;margin-bottom:20px">
+                        <section id="sub-holder" style="background: antiquewhite; margin-top:15px !important; padding: 0px 10px;margin-bottom:20px">
                             <div class="row" id="sub-0">
                             </div>
                             <?php $sub_counter = 1?>
@@ -176,20 +177,20 @@
                                     <div class="row" id="oldsub-{{ $counter }}">
                                         <div class="col-md-5">
                                             <div class="form-group">
-                                                <label for="sub_name">Sub Program Name</label>
+                                                <label for="sub_name" style="padding-top:10px">Sub Program Name</label>
                                                 <input type="text" class="form-control" value="{{ $sub->p_name }}"
                                                     name="sub_name[]" required>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="sub_amount">Sub Program Amount</label>
+                                                <label for="sub_amount" style="padding-top:10px">Sub Program Amount</label>
                                                 <input type="text" class="form-control" id="amount" value="{{ $sub->p_amount }}" name="sub_amount[]" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
-                                                <label for="mode_name">Status</label>
+                                                <label for="mode_name" style="padding-top:10px">Status</label>
                                                 <select name="sub_status[]" class="form-control" id="sub_status" required>
                                                     <option value="1" {{  $sub->status == 1 ? 'selected' : '' }}>Published</option>
                                                     <option value="0" {{  $sub->status == 0 ? 'selected' : '' }}>Draft</option>
@@ -198,7 +199,7 @@
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group">
-                                                <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                                                <label for="mark" style="color:antiquewhite; padding-top:10px">sdsdsddsdssd</label>
                                                 <button class="btn btn-danger removeold-sub" data-program-id="{{ $sub->id }}" id="removeold-sub-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                             </div>
                                         </div>
@@ -466,19 +467,19 @@
         var child = `<div class="row" id="sub-`+id+`">
                 <div class="col-md-5">
                     <div class="form-group">
-                        <label for="sub_name">Sub Program Name</label>
+                        <label for="sub_name" style="padding-top:10px">Sub Program Name</label>
                         <input type="text" class="form-control" id="sub_name" value="{{ old('sub_name')}}"name="sub_name[]" required>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label for="sub_amount">Sub Program Amount</label>
+                        <label for="sub_amount" style="padding-top:10px" >Sub Program Amount</label>
                         <input type="text" class="form-control" id="sub_amount" value="{{ old('sub_amount')}}"name="sub_amount[]" required>
                     </div>
                 </div>
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label for="mode_name">Status</label>
+                        <label for="mode_name" style="padding-top:10px">Status</label>
                         <select name="sub_status[]" class="form-control" id="sub_status" required>
                             <option value="1" selected>Published</option>
                             <option value="0">Draft</option>
@@ -488,7 +489,7 @@
                 
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                        <label for="mark" style="color:antiquewhite;padding-top:10px">sdsdsddsdssd</label>
                         <button class="btn btn-danger remove-sub" id="remove-sub-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                     </div>
                 </div>
