@@ -201,6 +201,7 @@
                                             <div class="form-group">
                                                 <label for="mark" style="color:antiquewhite; padding-top:10px">sdsdsddsdssd</label>
                                                 <button class="btn btn-danger removeold-sub" data-program-id="{{ $sub->id }}" id="removeold-sub-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                                                <a target="_blank" class="btn btn-info" id="" type="button" style="min-width: unset;" href="{{route('programs.edit', $sub->id)}}"> <i class="fa fa-edit"></i></a>
                                             </div>
                                         </div>
                                     </div>
