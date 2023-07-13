@@ -247,7 +247,7 @@ class ProgramController extends Controller
             if (isset($subs) && !empty($subs)) {
                 $sub_programs = $subs;
                 $new_sub_data = $program->toArray();
-                $new_sub_data = array_diff_key($new_sub_data, array_flip(["status","id","created_at", "updated_at", "sub_programs", "deleted_at","p_name","p_amount"]));
+                $new_sub_data = array_diff_key($new_sub_data, array_flip(["status","id","created_at", "updated_at", "sub_programs", "deleted_at","p_name","p_amount","show_sub"]));
                
                 foreach ($sub_programs as $key => $sub) {
                     $new_sub_data['p_name'] = $sub['p_name'];
