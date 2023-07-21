@@ -103,6 +103,30 @@ class Controller extends BaseController
         return;
     }
 
+    public function sendGenericEmail($data)
+    {
+        set_time_limit(360);
+
+        // return view('emails.receipt', compact('data'));
+        $provider = $this->emailProvider();
+
+        if ($provider == 'default') {
+           
+            try {
+                Mail::to($data['email'])->send(new Welcomemail($data, $data));
+            } catch (\Exception $e) {
+                // Get error here
+                return false;
+            }
+        } else {
+           
+            $this->sendEmailWithElastic($data);
+        }
+        // \Log::info(['email'=> $data]);
+
+        return;
+    }
+
     public function sendEmailWithElastic($data){
         // $setting = Settings::first();
         // $last_sent_elastic_email = '';
@@ -146,7 +170,7 @@ class Controller extends BaseController
                
                 // 'attachments' => $data['attachments'],
             ];
-
+           
             if (isset($data['attachments']) && !empty($data['attachments'])) {
                 $post['file_1'] = new \CurlFile($file_name_with_full_path, $filetype, $filename);
             }

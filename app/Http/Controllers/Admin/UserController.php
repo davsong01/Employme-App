@@ -346,7 +346,6 @@ class UserController extends Controller
     }
     public function sendmail(Request $request){
         ini_set('max_execution_time', 300); //5 minutes
-        
         $data = $this->validate($request, [
             'type' => 'required | alpha',
             'subject' => 'required | min: 5',
@@ -367,11 +366,15 @@ class UserController extends Controller
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
                 $name = $name ?? 'Participant';
+                $details['name'] = $name;
                 $details['subject'] = $subject;
                 $details['content'] = $data;
                 $details['type'] = 'bulk';
                 $details['email'] = $recipient;
-                $this->sendWelcomeMail($details);
+
+                $this->sendGenericEmail($details);
+
+                // $this->sendWelcomeMail($details);
                 // Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }
@@ -380,10 +383,22 @@ class UserController extends Controller
             $recipients = $request->selectedemail;
             $program = 'Selected Recipients';
 
-            Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new Email($data, $name, $subject));
+            try {
+                //code...
+                Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new Email($data, $name, $subject));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
+            $details['subject'] = $request->subject;
+            $details['content'] = $request->content;
+            $details['type'] = 'bulk';
+
             foreach($recipients as $recipient){
                 $name = User::whereEmail($recipient)->value('name');
-                Mail::to($recipient)->send(new Email($data, $name, $subject));       
+                
+                $this->sendGenericEmail($details);
+                // Mail::to($recipient)->send(new Email($data, $name, $subject));       
             }
         }
 
@@ -396,17 +411,22 @@ class UserController extends Controller
             $email = Settings::first()->value('OFFICIAL_EMAIL');
            
             try {
-                Mail::to($email)->send(new Email($data, $name, $subject));
+                // Mail::to($email)->send(new Email($data, $name, $subject));
                 //code...
             } catch (\Throwable $th) {
                 //throw $th;
             }
-         
+            $details['subject'] = $request->subject;
+            $details['content'] = $request->content;
+            $details['type'] = 'bulk';
+           
             foreach($recipients as $recipient){
                 $name = User::whereId($recipient->user_id)->value('name');
                 $recipient->email = User::whereId($recipient->user_id)->value('email');
-                
-                Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
+                $details['name'] = $name;
+                $details['email'] = $recipient->email;
+                $this->sendGenericEmail($details);
+                // Mail::to($recipient->email)->send(new Email($data, $name, $subject));       
             }
 
         }
