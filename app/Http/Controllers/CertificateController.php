@@ -113,6 +113,9 @@ class CertificateController extends Controller
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
             ]);
+
+            Transaction::where(['user_id'=>$request->user_id, 'program_id'=>$request->p_id])->update(['show_certificate' => 0]);
+            
             return back()->with('message', ' certificate succesfully added');
             // return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
         } return abort(404);
