@@ -25,7 +25,7 @@
                             <td>{{ $certificate->program->p_name }}</td>
                             <td>
                                 <a data-toggle="tooltip" data-placement="top" title="Download certificate"
-                                class="btn btn-info" href="certificate/{{ $certificate->file }}"><i
+                                class="btn btn-info" href="/certificate/{{ $certificate->file }}"><i
                                     class="fa fa-download"> Download Certificate</i></a>
                             </td>
                         </tr>

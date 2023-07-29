@@ -175,9 +175,14 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 Route::GET('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
 Route::GET('certificates/create', 'CertificateController@create')->middleware(['impersonate','auth'])->name('certificates.create');
 Route::GET('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
-Route::POST('suser', 'CertificateController@selectUser')->name('user.select');
+Route::get('suser/{program_id}', 'CertificateController@selectUser')->name('program.select');
 Route::POST('certificate/save', 'CertificateController@save')->middleware(['impersonate','auth'])->name('certificates.save');
 Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->name('certificates.destroy');
+Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'CertificateController@certificateStatus')->name('certificate.status');
+
+
+
+
    
 
 //route for payments history

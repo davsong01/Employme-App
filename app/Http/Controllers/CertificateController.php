@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\User;
 use App\Program;
 use App\Certificate;
+use App\Transaction;
 use Illuminate\Http\Request;
-use DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,15 +18,17 @@ class CertificateController extends Controller
         $userid = Auth::user()->id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
+            // $certificates = Certificate::with(['user', 'program'])->orderBy('created_at', 'desc')->get();
 
-            $certificates = Certificate::with(['user', 'program'])->orderBy('created_at', 'desc')->get();
+            $programs = Program::whereHas('certificates', function ($query) {
+                return $query;
+            })->withCount('certificates')->orderby('created_at', 'DESC')->get();
             
-            return view('dashboard.admin.certificates.index', compact('i', 'certificates'));
+            return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
 
         }
         
         if(Auth::user()->role_id == "Student"){    
-            
             $program = Program::find($request->p_id);
 
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
@@ -36,14 +39,21 @@ class CertificateController extends Controller
             }
 
             $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
-            
             if(!isset($certificate)){
                 return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
+            }
+
+            if($certificate->show_certificate() == 'Disabled'){
+                return back()->with('error', 'Certificated Unavailable at the moment, please check back');
             }
 
             return view('dashboard.student.certificates.index', compact('certificate', 'program'));
 
         }return back();
+    }
+
+    public function adminCertificates($program_id){
+        
     }
 
     public function create()
@@ -56,19 +66,30 @@ class CertificateController extends Controller
         }
     }
 
-    public function selectUser(Request $request)
+    public function certificateStatus($user_id, $program_id, $status, $certificate_id){
+        $transaction = Transaction::where(['user_id'=>$user_id, 'program_id'=>$program_id])->first();
+        $transaction->update(['show_certificate' => $status]);
+        
+        return back()->with('message', 'Status updated successfully');
+    }
+    public function selectUser(Request $request, $program_id)
     {
         if(Auth::user()->role_id == "Admin"){
-            
+            $i = 1;
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
+            $certificates = Certificate::with(['user', 'program'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
+            
             foreach($users as $user){
                 $user->name = User::whereId($user->user_id)->value('name');
                 $user->certificates_count = Certificate::whereUserId($user->user_id)->whereProgramId($request->program_id)->count();
             }
+            
+            $program = Program::find($program_id);
+            
+            $p_id = $program->id;
+            $p_name = $program->p_name;
 
-            $p_id = $request->program_id;
-
-            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id'));
+            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id', 'p_name','certificates','i'));
 
             }return back();
     }
@@ -92,7 +113,8 @@ class CertificateController extends Controller
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
             ]);
-            return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
+            return back()->with('message', ' certificate succesfully added');
+            // return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
         } return abort(404);
 
         

@@ -7,6 +7,7 @@ use App\Module;
 use App\Result;
 use App\Location;
 use App\Material;
+use App\Certificate;
 use App\ScoreSetting;
 use App\FacilitatorTraining;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,10 @@ class Program extends Model
     
     public function modules(){
         return $this->hasMany(Module::class);
+    }
+
+    public function certificates(){
+        return $this->hasMany(Certificate::class, 'program_id');
     }
     
     public function questions()
