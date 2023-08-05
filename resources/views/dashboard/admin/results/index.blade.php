@@ -54,7 +54,6 @@
                                 @endif
 
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
-                                {{-- {{ dd($user->total_role_play_score, $score_settings) }} --}}
                                     @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
                                     <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
                                     @endif

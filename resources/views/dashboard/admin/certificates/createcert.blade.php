@@ -55,6 +55,7 @@
                         <tr>
                             <th>S/N</th>
                             <th>Name</th>
+                            <th style="width: 115px;">Program Details</th>
                             <th>Access</th>
                             <th>Date</th>
                             <th>Program</th>
@@ -63,9 +64,33 @@
                     </thead>
                     <tbody>
                         @foreach($certificates as $certificate)
+                        <?php 
+                            $results = $certificate->scores();
+                        ?>
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }}</td>
+                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
+                                <span style="font-style: italic">{{ $certificate->user->email }}</span>
+                            </td>
+                            <td style="width: 115px;">
+                                @if(isset($score_settings->certification) && $score_settings->certification > 0)
+                                    <strong>Certification: </strong> {{ isset($results['certification_test_score'] ) ? $results['certification_test_score'] : '' }}% 
+                                @endif
+                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                    <br><strong class="tit">Class Tests:</strong> {{ isset($results['class_test_score'] ) ? $results['class_test_score'] : '' }}% <br>
+                                @endif
+                                @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
+                                    <strong class="tit">Role Play: </strong>{{ isset($results['role_play_score'] ) ? $results['role_play_score'] : '' }}% <br> 
+                                @endif
+                                @if(isset($score_settings->email) && $score_settings->email > 0)
+                                    <strong>Email: </strong>{{ isset($results['email_test_score'] ) ? $results['email_test_score'] : '' }}%
+                                @endif
+                               
+                                {{-- <strong class="tit" style="color:blue">Passmark</strong>{{ $score_settings->passmark }}% <br> --}}
+                                <br>
+                                <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
+
+                            </td>
                             <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">{{ $certificate->show_certificate() }}</td>
                             <td>{{ $certificate->created_at->format('d/m/Y') }}</td>
                             <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>

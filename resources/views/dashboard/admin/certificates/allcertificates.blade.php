@@ -35,9 +35,7 @@
                             <td>
                                 <div class="btn-group">
                                     @if($certificate->show_certificate() == 'Disabled')
-                                    <a data-toggle="tooltip" data-placement="top" title="Enable certificate"
-                                        class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i
-                                            class="fa fa-toggle-on"></i>
+                                    <a data-toggle="tooltip" class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i class="fa fa-toggle-on"></i>
                                     </a>
                                     @else
                                     <a data-toggle="tooltip" data-placement="top" title="Disable certificate"

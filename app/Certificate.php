@@ -3,8 +3,9 @@
 namespace App;
 
 use App\User;
-use App\Program;
+use App\Result;
 
+use App\Program;
 use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
@@ -29,5 +30,20 @@ class Certificate extends Model
         }
       
         return $access;
+    }
+
+    public function scores(){
+        $results = Result::where('user_id', $this->user_id)->where('program_id', $this->program_id)->get();
+        
+        $data['total'] = 0;
+        $data['certification_test_score'] = $results->sum('certification_test_score') ?? 0;
+        $data['class_test_score'] = $results->sum('class_test_score') ?? 0;
+        $data['role_play_score'] = $results->sum('role_play_score') ?? 0;
+        $data['email_test_score'] = $results->sum('email_test_score') ?? 0;
+
+        $data['total'] = $results->sum('certification_test_score') + $results->sum('class_test_score') + $results->sum('role_play_score') + $results->sum('email_test_score');
+       
+        return $data;
+      
     }
 }

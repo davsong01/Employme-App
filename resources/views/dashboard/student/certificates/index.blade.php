@@ -21,7 +21,8 @@
                             <h5 class="card-title">Please Download your certificate below</h5>
                         </div>
                         <tr>
-                            <td>{{ $certificate->user->name }}</td>
+                            <td>{{ $certificate->user->name }} <br>
+                            </td>
                             <td>{{ $certificate->program->p_name }}</td>
                             <td>
                                 <a data-toggle="tooltip" data-placement="top" title="Download certificate"

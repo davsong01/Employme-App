@@ -7,6 +7,7 @@ use App\User;
 use App\Program;
 use App\Certificate;
 use App\Transaction;
+use App\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,7 @@ class CertificateController extends Controller
             }
 
             $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
+            
             if(!isset($certificate)){
                 return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
             }
@@ -85,11 +87,12 @@ class CertificateController extends Controller
             }
             
             $program = Program::find($program_id);
+            $score_settings = ScoreSetting::whereProgramId($request->program_id)->first();
             
             $p_id = $program->id;
             $p_name = $program->p_name;
 
-            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id', 'p_name','certificates','i'));
+            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id', 'p_name','certificates','i', 'score_settings'));
 
             }return back();
     }
