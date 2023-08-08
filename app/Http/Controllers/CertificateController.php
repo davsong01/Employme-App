@@ -22,7 +22,7 @@ class CertificateController extends Controller
             // $programs = Program::whereHas('certificates', function ($query) {
             //     return $query;
             // })->withCount('certificates')->orderby('created_at', 'DESC')->get();
-            $programs = Program::withCount('certificates')->orderby('created_at', 'DESC')->get();
+            $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
             return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
 
         }
