@@ -19,11 +19,11 @@ class CertificateController extends Controller
         $userid = Auth::user()->id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
-            // $certificates = Certificate::with(['user', 'program'])->orderBy('created_at', 'desc')->get();
+            // $programs = Program::whereHas('certificates', function ($query) {
+            //     return $query;
+            // })->withCount('certificates')->orderby('created_at', 'DESC')->get();
 
-            $programs = Program::whereHas('certificates', function ($query) {
-                return $query;
-            })->withCount('certificates')->orderby('created_at', 'DESC')->get();
+            $programs = Program::withCount('certificates')->orderby('created_at', 'DESC')->get();
             
             return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
 
