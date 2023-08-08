@@ -50,9 +50,9 @@ class Program extends Model
         return $this->hasMany(Module::class);
     }
 
-    // public function certificates(){
-    //     return $this->hasMany(Certificate::class, 'program_id');
-    // }
+    public function certificates(){
+        return $this->hasMany(Certificate::class, 'program_id');
+    }
     
     public function questions()
     {
