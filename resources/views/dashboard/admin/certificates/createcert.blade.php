@@ -55,7 +55,9 @@
                         <tr>
                             <th>S/N</th>
                             <th>Name</th>
+                            @if(!empty($score_settings))
                             <th style="width: 115px;">Program Details</th>
+                            @endif
                             <th>Access</th>
                             <th>Date</th>
                             <th>Program</th>
@@ -72,6 +74,7 @@
                             <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
                                 <span style="font-style: italic">{{ $certificate->user->email }}</span>
                             </td>
+                            @if(!empty($score_settings))
                             <td style="width: 115px;">
                                 @if(isset($score_settings->certification) && $score_settings->certification > 0)
                                     <strong>Certification: </strong> {{ isset($results['certification_test_score'] ) ? $results['certification_test_score'] : '' }}% 
@@ -91,6 +94,7 @@
                                 <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
 
                             </td>
+                            @endif
                             <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">{{ $certificate->show_certificate() }}</td>
                             <td>{{ $certificate->created_at->format('d/m/Y') }}</td>
                             <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>
