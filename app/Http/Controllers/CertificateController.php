@@ -85,7 +85,7 @@ class CertificateController extends Controller
             }
             
             $program = Program::find($program_id);
-            $score_settings = ScoreSetting::whereProgramId($request->program_id)->first() ?? (object) [];
+            $score_settings = ScoreSetting::whereProgramId($request->program_id)->first();
             
             $p_id = $program->id;
             $p_name = $program->p_name;
