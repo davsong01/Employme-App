@@ -42,8 +42,9 @@ class CouponController extends Controller
     public function create()
     {
         if (Auth::user()->role_id == "Admin") {
-
-            $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
+            // $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
+            $programs = Program::mainActivePrograms()
+            ->get();
         } else if (Auth::user()->role_id == "Facilitator") {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
@@ -72,36 +73,54 @@ class CouponController extends Controller
         ]);
 
         // run checks
-        $program = Program::find($data['program_id']);
-
-        if ($request->amount > $program->p_amount) {
-            return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
-        }
-
-        if (Auth::user()->role_id == "Facilitator") {
-            // Check that this facilitator can create the coupon
-            $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
-            
-            if ($maxAmt > 0) {
-                $maxAmt = ($program->facilitator_percent / 100) * $program->p_amount;
-            }
-
-            if ($maxAmt == 0) {
-                return back()->with('error', 'You are not eligible to create a coupon for the selected training at the moment');
-            }
-           
-            if ($request->amount > $maxAmt) {
-                return back()->with('error', 'You cannot add coupon of more than ' . $maxAmt . ' for the selected training');
-            }
-
-            $data['facilitator_id'] = Auth::user()->id;
-
+        if(in_array('all', $data['program_id'])){
+            $programs = Program::with('coupon')->mainActivePrograms()->get();
         }else{
-            $data['facilitator_id'] = 0;
+            $programs = Program::with('coupon')->mainActivePrograms()->whereIn('id', $data['program_id'])
+            ->get();
         }
+        
+        // $program = Program::find($data['program_id']);
+        foreach($programs as $program){
+            $exists = $program->coupon->where('code', $data['code'])->first();
+            
+            if(!$exists){
+                if ($request->amount > $program->p_amount) {
+                    return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
+                }
 
-        Coupon::create($data);
+                if (Auth::user()->role_id == "Facilitator") {
+                    // Check that this facilitator can create the coupon
+                    $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
 
+                    if ($maxAmt > 0) {
+                        $maxAmt = ($program->facilitator_percent / 100) * $program->p_amount;
+                    }
+
+                    if ($maxAmt == 0) {
+                        return back()->with('error', 'You are not eligible to create a coupon for the selected training at the moment');
+                    }
+
+                    if ($request->amount > $maxAmt) {
+                        return back()->with('error', 'You cannot add coupon of more than ' . $maxAmt . ' for the selected training');
+                    }
+
+                    $data['facilitator_id'] = Auth::user()->id;
+                } else {
+                    $data['facilitator_id'] = 0;
+                }
+           
+                $in = [
+                    "code" => $data['code'],
+                    "amount" => $data['amount'],
+                    "facilitator_id" => $data['facilitator_id'],
+                    "program_id" => $program->id
+                ];
+            
+                Coupon::create($in);
+            }
+        }
+       
         return redirect(route('coupon.index'))->with('message', 'Coupon created successfully');
     }
 

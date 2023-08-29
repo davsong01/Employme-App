@@ -17,8 +17,9 @@
 
                             <label for="class">Select Training *</label>
 
-                            <select name="program_id" id="program_id" class="form-control" required>
+                            <select name="program_id[]" id="program_id" class="select2 form-control" multiple="multiple" style="height: 30px;width: 100%;" required>
                                 <option value="">-- Select Training --</option>
+                                <option value="all">All</option>
                                 @foreach ($programs as $program)
                                 <option value="{{ $program->id }}">{{$program->p_name}} | <strong>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($program->p_amount) }}</strong></option>
                                 @endforeach
@@ -35,13 +36,10 @@
                             <input id="amount" type="number" class="form-control" name="amount"
                                 value="{{ old('amount') }}" required>
                         </div>
-
                         <input type="submit" name="submit" value="Submit" class="btn btn-primary" style="width:100%">
-
-                       
                     </form>
                 </div>
             </div>
         </div>
     </div>
-    @endsection
+@endsection
