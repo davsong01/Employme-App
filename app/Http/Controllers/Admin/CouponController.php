@@ -77,9 +77,9 @@ class CouponController extends Controller
 
         // run checks
         if(in_array('all', $data['program_id'])){
-            $programs = Program::with('coupon')->mainActivePrograms()->get();
+            $programs = Program::with('coupon')->ActivePrograms()->get();
         }else{
-            $programs = Program::with('coupon')->mainActivePrograms()->whereIn('id', $data['program_id'])
+            $programs = Program::with('coupon')->ActivePrograms()->whereIn('id', $data['program_id'])
             ->get();
         }
         
