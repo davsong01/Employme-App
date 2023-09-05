@@ -7,11 +7,19 @@
             'status' => 1
         ],  
         [
+            'bank' =>  'GTB',
+            'number' => '0434442453',
+            'name' => 'EmployMe E-Learning',
+            'status' => 1
+        ],  
+
+        [
             'bank' =>  'Mobile Money (MoMo)',
             'number' => '0244627751',
             'name' => '3Y Publicity',
             'status' => 1
         ],  
+
 ];
 ?>
 @extends('layouts.contai.app')

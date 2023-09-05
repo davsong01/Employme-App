@@ -42,9 +42,12 @@ class CouponController extends Controller
     public function create()
     {
         if (Auth::user()->role_id == "Admin") {
-            // $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
-            $programs = Program::mainActivePrograms()
-            ->get();
+            $programs =  Program::whereStatus(1)
+                ->where('p_end', '>=', date('Y-m-d'))
+                    ->where('close_registration', 0)
+                        ->orderBy('created_at', 'DESC')
+                            // $programs = Program::mainActivePrograms()
+                                ->get();
         } else if (Auth::user()->role_id == "Facilitator") {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
