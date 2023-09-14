@@ -76,6 +76,11 @@ class Program extends Model
         return $this->hasMany(Program::class, 'parent_id');
     }
 
+    public function parent()
+    {
+        return $this->belongsTo(Program::class, 'parent_id');
+    }
+
     public function scopeToday($query)
     {
         return $query->whereDate('created_at', \Carbon\Carbon::today());

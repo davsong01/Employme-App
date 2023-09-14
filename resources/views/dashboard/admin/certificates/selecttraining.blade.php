@@ -28,8 +28,7 @@
                             <td>{{ $program->certificates_count }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="View Grades"
-                                        class="btn btn-info" href="{{ route('program.select', $program->id)}}"><i class="fa fa-eye"></i>
+                                    <a class="btn btn-info" href="{{ route('program.select', $program->id)}}"><i class="fa fa-eye"></i> View
                                     </a>
                                 </div>
                             </td>

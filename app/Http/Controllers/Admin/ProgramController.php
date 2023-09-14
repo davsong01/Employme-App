@@ -24,7 +24,7 @@ class ProgramController extends Controller
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
             //Get all programs
-            $programs = Program::with('users')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+            $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
            
             //Get all students
             $users = User::where('role_id', 'Student')->get();
@@ -39,7 +39,7 @@ class ProgramController extends Controller
         } else  return redirect('/');
     }
 
-     public function exportdetails($id) 
+    public function exportdetails($id) 
     {   
         $programname = Program::whereId($id)->value('p_name');
         $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);

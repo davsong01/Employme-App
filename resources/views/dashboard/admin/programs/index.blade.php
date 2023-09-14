@@ -26,8 +26,7 @@
                             <th>Title</th>
                             <th>Fee</th>
                             <th>Dates</th>
-                            <th>Partly Paid</th>
-                            <th>Fully Paid</th>
+                            <th>Payment Stats</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -38,13 +37,13 @@
                             <td>{{  $i++ }}</td>
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td>{{ $program->p_name }}<br>
-                                Type: @if($program->off_season)Off Season @else Normal @endif <br>
-                                @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif <br>
-                                {{-- <span style="color:red">{{ config('app.url') }}/paystack?id={{ $program->id }}&t=</span><br> --}}
+                                <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif <br>
+                                @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif
+                                @if($program->parent)
+                                <strong>Parent:</strong> <span style="color:red"> {{ $program->parent->p_name }}</span><br>
+                                @endif
                                 <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:blue"><i class="fa fa-download"></i>Export Participant's details</span></a>
                                 @if($program->status == 1) <br><br> <a href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> @endif
-
-                                    
                             </td>
                             
                             <td><strong>Normal Fee:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
@@ -54,8 +53,10 @@
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
                                 <strong>End: </strong>{{ $program->p_end }}
                             </td>
-                            <td>{{ $program->part_paid }}</td>
-                            <td>{{ $program->fully_paid }}</td>
+                            <td>Part: {{ $program->part_paid }} <br>
+                                Full: {{ $program->fully_paid }}
+                            </td>
+                           
                             <td>
                                 @if( $program->status == 1 )
                                 <button class="btn btn-success btn-xs">Published</button> 
