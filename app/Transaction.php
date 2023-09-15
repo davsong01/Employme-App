@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $table = 'program_user';
+
     protected $guarded = [];
     
     public function user(){
@@ -24,6 +25,7 @@ class Transaction extends Model
     {
         return $this->belongsTo(Coupon::class);
     }
+
 }
 
 

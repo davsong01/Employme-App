@@ -82,7 +82,6 @@ Route::get('mockresults', 'MockController@mockresults')->middleware(['auth'])->n
 Route::resource('profiles', 'ProfileController')->middleware(['impersonate', 'auth']);
 Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth']);
 
-
 Route::get('selectfacilitator/{id}', 'ProfileController@showFacilitator')->middleware(['impersonate', 'auth']);
 Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savefacilitator')->middleware(['impersonate', 'auth']);
 Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate', 'auth']);
@@ -164,7 +163,6 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
 });
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
     Route::resource('materials', 'MaterialController');
-
     
     Route::get('materialscreate/{p_id}', 'MaterialController@add')->name('creatematerials');
     Route::get('facilitatormaterials/{p_id}', 'MaterialController@all')->name('facilitatormaterials');

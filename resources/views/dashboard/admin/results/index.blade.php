@@ -40,6 +40,16 @@
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader') <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
                                 <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>
                                 @endif
+                                <br>
+                                Certificate Access : @if(isset($user->cert))
+                                    @if($user->cert->show_certificate == 1)
+                                    <strong style="color:green">Enabled</strong>
+                                    @else
+                                    <strong style="color:red">Disabled</strong>
+                                    @endif
+                                @else
+                                Not Uploaded
+                                @endif 
                             </td>
                             <td>
                                 @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')

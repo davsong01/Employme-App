@@ -204,19 +204,19 @@
                   <div class="card-content">
                     @if(isset($history) && !empty($history))
                       @foreach($history as $result)
-                            <strong style="background: #f71193;padding: 11px;border-radius: 20px;color: white;;"> Submitted on: {{ $result['submitted_on'] }} </strong> <br> <br>
-
+                      
+                            <strong style="background: #f71193;padding: 11px;border-radius: 20px;color: white;;"> Submitted on: {{ $result->submitted_on }} </strong> <br> <br>
 
                             <label for="title"> <strong style="color:green">QUESTION {{ $i ++  }}</strong></label><br>
-                            <strong style="color:green">Module:</strong> {!! $results->module->title.'<br><br>' !!}</span>
+                            <strong style="color:green">Module:</strong> {!! $result->module->title.'<br><br>' !!}</span>
 
-                            <strong style=:color:green>Question:</strong> {!! $results['title'] .'<br><br>' !!}</span>
+                            <strong style=:color:green>Question:</strong> {!! $result->title .'<br><br>' !!}</span>
 
-                            <strong>Answer:</strong> {!! $results['answer'] .'<br><br>' !!} <br>
+                            <strong>Answer:</strong> {!! $result->answer .'<br><br>' !!} <br>
                              <br>
-                            <strong style="color:green">Facilitator's comment</strong>({{ $result['marked_by']  }}): {!! $details['facilitator_comment']  !!}</span> <br>
-                            <strong style="color:green">Grader's comment:</strong>({{ $result['grader_comment']  }}): {!! $details['grader_comment']  !!}</span> <br>
-                            <strong style="color:green">Score:</strong>{{ $result['certification_test_score']  }}</span>
+                            <strong style="color:green">Facilitator's comment</strong>({{ $result->marked_by  }}): {!! $result->facilitator_comment !!}</span> <br>
+                            <strong style="color:green">Grader's comment:</strong>({{ $result->grader_comment  }}): {!! $result->grader_comment !!}</span> <br>
+                            <strong style="color:green">Score:</strong>{{ $result->certification_test_score  }}</span>
                             
                           {{-- </div> --}}
                         {{-- </div> --}}

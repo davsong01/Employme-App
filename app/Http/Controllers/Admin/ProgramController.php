@@ -28,7 +28,7 @@ class ProgramController extends Controller
            
             //Get all students
             $users = User::where('role_id', 'Student')->get();
-
+            
             //Get Users payment status
             foreach($programs as $program){
                 $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();

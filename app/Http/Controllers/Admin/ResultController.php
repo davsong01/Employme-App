@@ -37,7 +37,7 @@ class ResultController extends Controller
             foreach($programs as $program){
                 $program['result_count'] = Result::whereProgramId($program->id)->count();
             }
-
+            
             return view('dashboard.admin.results.selecttraining', compact('programs', 'i'));
   
         }
@@ -60,7 +60,6 @@ class ResultController extends Controller
 
     public function getgrades(Request $request, $id)
     {
-        
         $request['pid'] = $id;
         $i = 1;
         if(Auth::user()->role_id == "Admin"){
@@ -100,6 +99,7 @@ class ResultController extends Controller
                         $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score; 
                         $user->updated_at = $result->updated_at; 
                         $user->module_id = $result->module_id;
+                        $user->cert = $result->cert();
                         
                         $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
                         
@@ -114,7 +114,7 @@ class ResultController extends Controller
                             }
 
                             $user->obtainable = array_sum($obtainable);
-                            
+                       
                             if($u->count() > 0){
                                 $user->total_class_test_score = $result->class_test_score + $user->total_class_test_score;
                             }
@@ -128,7 +128,7 @@ class ResultController extends Controller
                             $user->marked_by = $result->marked_by;
                             $user->grader = $result->grader;
                             $user->result_id = $result->id;
-                            $user->redo_test = $result->redo_test ?? NULL;
+                            $user->redo_test = $result->redo_test ?? NULL;                           
                         }
                           
                     }
@@ -267,21 +267,58 @@ class ResultController extends Controller
         
         // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         $user_results = Result::with(['user', 'module','threads'])->where('user_id', $uid)->whereProgramId($modid)->where('certification_test_details', '<>', NULL)->where('redo_test',0)->get();
-        
-        if(!$user_results){
-            return back()->with('error', 'Participant has not taken certification test');
-        }
-        $results = [];
-        
-        $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-        
         $i = 1;
         $details['certification_score'] = 0;
         $details['email_test_score'] = 0;
         $details['role_play_score'] = 0;
         $details['user_name'] = "";
         $details['allow_editing'] = 0;
-      
+
+        if(!$user_results){
+            return back()->with('error', 'Participant has not taken certification test');
+        }
+        $results = [];
+        
+        $history = ResultThread::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
+        if($history){
+            $h_details['certification_score'] = 0;
+            $h_details['email_test_score'] = 0;
+            $h_details['role_play_score'] = 0;
+            $h_details['user_name'] = "";
+            $h_details['allow_editing'] = 0;
+            foreach ($history as $results) {
+                
+                if ($results->module->type == 1) {
+                    $h_details['c_result'] = $results;
+                }
+                $h_details['certification_score'] = $results->certification_test_score + $h_details['certification_score'];
+                $h_details['email_test_score'] = $results->email_test_score +  $h_details['email_test_score'];
+                $h_details['role_play_score'] = $results->role_play_score +  $h_details['role_play_score'];
+                $results['module_title'] = $results->module->title;
+                $h_details['user_name'] = $results->user->name;
+                $h_details['grader_comment'] = $results->grader_comment;
+                $h_details['facilitator_comment'] = $results->facilitator_comment;
+                $h_details['allow_editing'] = 1;
+
+                $questions = json_decode($results->certification_test_details, true);
+
+                if (!$questions) {
+                    $results['title'] = 'User is re-writing test';
+                    $results['answer'] = 'User is re-writing test';
+                } else {
+                    foreach ($questions as $key => $value) {
+                        $results['title'] = Question::whereId($key)->value('title');
+                        $results['answer'] = $value;
+                    }
+                }
+
+                unset($results['certification_test_details']);
+                // unset($results['certification_test_score']);
+                unset($results['role_play_score']);
+                unset($results['email_test_score']);
+            }
+        }
+        
         foreach($user_results as $results){
             if($results->module->type == 1){
                 $details['c_result'] = $results;
@@ -312,64 +349,7 @@ class ResultController extends Controller
                 unset($results['role_play_score']);
                 unset($results['email_test_score']);
         }
-
-
-        // if(isset($history) && !empty($history)){
-        //     $results['certification_score'] = 0;
-        //     $results['email_test_score'] = 0;
-        //     $results['role_play_score'] = 0;
-        //     $results['user_name'] = "";
-        //     $results['allow_editing'] = 0;
-
-        //     foreach ($history as $results) {
-        //         if ($results->module->type == 1) {
-        //             $details['c_result'] = $results;
-        //         }
-        //         $results['certification_score'] = $results->certification_test_score + $results['certification_score'];
-        //         $results['email_test_score'] = $results->email_test_score +  $results['email_test_score'];
-        //         $results['role_play_score'] = $results->role_play_score +  $results['role_play_score'];
-        //         $results['module_title'] = $results->module->title;
-        //         $results['user_name'] = $results->user->name;
-        //         $results['grader_comment'] = $results->grader_comment;
-        //         $results['facilitator_comment'] = $results->facilitator_comment;
-        //         $results['allow_editing'] = 1;
-
-        //         $questions = json_decode($results->certification_test_details, true);
-                
-        //         foreach ($questions as $key => $value) {
-        //             $results['title'] = Question::whereId($key)->value('title');
-        //             $results['answer'] = $value;
-        //         }
-        
-        //         // unset($results['certification_test_details']);
-        //         // unset($results['certification_test_score']);
-        //         // unset($results['role_play_score']);
-        //         // unset($results['email_test_score']);
-        //     }
-
-        // }
-
-        
-        // foreach($history as $results){
-        //     $thread['module_title'] = $results->module->title;
-        //     $thread['user_name'] = $results->user->name;
-        //     $thread['grader_comment'] = $results->grader_comment;
-        //     $thread['facilitator_comment'] = $results->facilitator_comment;
-        //     $thread['allow_editing'] = 1;
-
-        //     $questions = json_decode($results->certification_test_details, true);
-           
-        //     foreach($questions as $key=>$value){
-        //         $thread['title'] = Question::whereId($key)->first()->title;
-        //     }
-                
-        //     // unset($thread['certification_test_details']);
-        //     // unset($thread['certification_test_score']);
-        //     // unset($thread['role_play_score']);
-        //     // unset($thread['email_test_score']);
-        // }
-        
-      
+       
         return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results','history'));
     }
     
@@ -586,7 +566,7 @@ class ResultController extends Controller
 
             //     $results->save();
             // };
-
+            
             $user = User::find($request->uid);
             $user->redotest = 1;
             $user->save();

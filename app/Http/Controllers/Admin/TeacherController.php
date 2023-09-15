@@ -21,9 +21,8 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-        //$users = User::all();
-       
-        $users = User::select('id', 'off_season_availability','name', 'earnings', 'email','profile_picture', 'role_id', 'created_at','t_phone','license','status')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orderBy('created_at', 'DESC')->get();
+        
+        $users = User::select('id', 'off_season_availability','name', 'earnings', 'email','profile_picture', 'role_id', 'created_at','t_phone','license','status')->distinct()->with('trainings')->where('role_id', "Facilitator")->orWhere('role_id', 'Grader')->orWhere('role_id', 'Admin')->orderBy('created_at', 'DESC')->get();
         
         $users->map(function($users){
             $details = DB::table('facilitator_trainings')->where('user_id',$users->id);
@@ -165,18 +164,26 @@ class TeacherController extends Controller
             }
 
             if ($data['role'] == "Admin") {
+                $datax = request()->validate([
+                    'menu_permissions' => 'required',
+                ]);
+                
+                $data['menu_permissions'] = implode(',', $request->menu_permissions);
+                
                 User::create([
                     'name' => $data['name'],
                     'profile' => $data['profile'],
                     'email' => $data['email'],
-                    'phone' => $data['phone'],
+                    't_phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
                     'role_id' => $data['role'],
+                    'menu_permissions' => $data['menu_permissions'],
                 ]);
 
                 return redirect(route('teachers.index'))->with('message', 'Admin added succesfully');
             }
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return back()->with('error', $th->getMessage());
         }
             
@@ -211,7 +218,6 @@ class TeacherController extends Controller
 
     public function update(Request $request, $id)
     {
-       
         $user = User::findorFail($id);
         if($request['password']){
             $user-> password = bcrypt($request['password']);
@@ -235,22 +241,26 @@ class TeacherController extends Controller
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
+        $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
         
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
-
-        if(!isset($facilitator) && !isset($request['training'])){
-            return back()->with('error', 'Facilitator is not attached to any training, please add a training to facilitator');
-        }
+       
+        // if(!isset($facilitator) && !isset($request['training'])){
+        //     return back()->with('error', 'Facilitator is not attached to any training, please add a training to facilitator');
+        // }
        
         $facilitator->delete();
-
-        foreach($request['training'] as $training){
-            FacilitatorTraining::UpdateorCreate([
-                'user_id' => $user->id,
-                'program_id' =>$training
-            ]);
+        
+        if(!empty($request['training'])){
+            foreach($request['training'] as $training){
+                FacilitatorTraining::UpdateorCreate([
+                    'user_id' => $user->id,
+                    'program_id' =>$training
+                ]);
+            }
         }
+        
         $user->save();
        
         if(Auth::user()->role_id == "Admin"){

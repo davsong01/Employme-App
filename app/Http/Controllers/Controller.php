@@ -707,4 +707,106 @@ class Controller extends BaseController
 
         return ['content'=>$content,'subject'=>$subject];
     }
+
+    public function adminMenus(){
+        $menus = [
+            [
+                'id' => 1,
+                'name' => 'Admin Dashboard',
+                'route' => 'dashboard',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Student Management',
+                'route' => 'users.index',
+            ],
+            [
+                'id' => 3,
+                'name' => 'View All Facilitators',
+                'route' => 'teachers.index',
+            ],
+            [
+                'id' => 4,
+                'name' => 'View all Trainings',
+                'route' => 'programs.index',
+            ],
+            [
+                'id' => 5,
+                'name' => 'Trashed Trainings',
+                'route' => 'programs.trashed',
+            ],
+            [
+                'id' => 6,
+                'name' => 'View All study Materials',
+                'route' => 'materials.index',
+            ],
+            [
+                'id' => 7,
+                'name' => 'Coupons',
+                'route' => 'coupon.index',
+            ],
+            [
+                'id' => 8,
+                'name' => 'Transactions',
+                'route' => 'payments.index',
+            ],
+            [
+                'id' => 9,
+                'name' => 'Attempted Payments',
+                'route' => 'pop.index',
+            ],
+            [
+                'id' => 10,
+                'name' => 'CRM Tool',
+                'route' => 'complains.index',
+            ],
+            [
+                'id' => 11,
+                'name' => 'Modules',
+                'route' => 'modules.index',
+            ],
+            [
+                'id' => 12,
+                'name' => 'Questions',
+                'route' => 'questions.index',
+            ],
+            [
+                'id' => 13,
+                'name' => 'Pre Test Grades',
+                'route' => 'pretest.select',
+            ],
+            [
+                'id' => 14,
+                'name' => 'Grades',
+                'route' => 'posttest.results',
+            ],
+            [
+                'id' => 15,
+                'name' => 'Certificates',
+                'route' => 'certificates.index',
+            ],
+            [
+                'id' => 16,
+                'name' => 'Score Settings',
+                'route' => 'scoreSettings.index',
+            ],
+            [
+                'id' => 17,
+                'name' => 'Email Participants',
+                'route' => 'users.mail',
+            ],
+            [
+                'id' => 18,
+                'name' => 'Payment modes',
+                'route' => 'payment-modes.index',
+            ],
+            [
+                'id' => 19,
+                'name' => 'Settings',
+                'route' => 'settings.edit',
+            ],
+        ];
+
+        return $menus;
+    } 
 }

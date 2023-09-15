@@ -60,6 +60,8 @@ class Kernel extends HttpKernel
         'impersonate' => \App\Http\Middleware\Impersonate::class,
         'programCheck' => \App\Http\Middleware\ProgramCheck::class,
         'template' => \App\Http\Middleware\TemplateCheck::class,
+        'permission' => \App\Http\Middleware\MenuPermissions::class,
+        
         //register custom middleware
        
     ];

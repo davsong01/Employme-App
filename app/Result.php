@@ -42,4 +42,10 @@ class Result extends Model
         return $this->hasMany(ResultThread::class, 'result_id');
     }
 
+    public function scopeCert()
+    {
+        $cert = Transaction::select(['id','show_certificate'])->where('user_id',$this->user_id)->where('program_id', $this->program_id)->first();
+        return $cert;
+    }
+
 }

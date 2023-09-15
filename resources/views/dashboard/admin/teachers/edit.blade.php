@@ -152,7 +152,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+                       
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group{{ $errors->has('profile') ? ' has-error' : '' }}">
@@ -172,7 +172,7 @@
                             <div class="col-12">
                                 <div class="form-group">
                                         <label class="training">Select Training(s)</label>
-                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
+                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
                                         @foreach($allprograms as $allprogram)
                                              <option value="{{ $allprogram->id }}" {{ in_array($allprogram->id, $user->trainings->pluck('program_id')->toArray()) ? 'selected' : ''}}>{{ $allprogram->p_name }}</option>
                                         @endforeach
@@ -186,6 +186,25 @@
                                     </div>
                                 <div>
                             </div>
+                        </div>
+                         <div class="row" style="margin-bottom: 10px">
+                            <div class="col-md-12">
+                               <span><h6>Admin Menu Permissions</h6></span>
+                            </div>
+                            <?php
+                                $a_menu = auth()->user()->menu_permissions ?? [];
+                                $a_menu = explode(',', $a_menu);
+                            ?>
+                            @foreach(app('app\Http\Controllers\Controller')->adminMenus() as $menu)
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="{{$menu['id']}}" id="{{$menu['id']}}" {{ in_array($menu['id'], $a_menu) ? 'checked' : ''}}>
+                                    <label class="form-check-label" for="{{$menu['id']}}">
+                                        {{$menu['name']}}
+                                    </label>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                        {{ csrf_field() }}
                         <div class="row">
