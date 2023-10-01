@@ -18,36 +18,40 @@ class MenuPermissions
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next)
-    {
-        // Check if user is active
-        $i_menus = [];
-        $all_menus = app('App\Http\Controllers\Controller')->adminMenus();
-        
-        if (auth()->user()) {
-            $i_menus  = Auth::user()->menu_permissions ?? [];
-            if ($i_menus ) {
-                $i_menus  = explode(',', $i_menus );
-            }
-        }
+    {   
+        // dd(Auth::user()->role_id);
+        if(Auth::user()->role_id != 'Admin' && Auth::user()->role_id != 'Student' ){
+            $i_menus = [];
+            $all_menus = app('App\Http\Controllers\Controller')->adminMenus();
 
-        $allowed = [];
-        
-        foreach($all_menus as $menu){
-            if(in_array($menu['id'], $i_menus)){
-                $allowed[] = $menu['route'];
+            if (auth()->user()) {
+                $i_menus  = Auth::user()->menu_permissions ?? [];
+                if ($i_menus) {
+                    $i_menus  = explode(',', $i_menus);
+                }
+            }
+
+            $allowed = [];
+
+            foreach ($all_menus as $menu) {
+                if (in_array($menu['id'], $i_menus)) {
+                    $allowed[] = $menu['route'];
+                }
+            }
+
+            // Check if user has access to page
+            $name = Route::currentRouteName();
+            if (in_array($name, array_column($all_menus, 'route'))) {
+                if (in_array($name, $allowed)) {
+                    return $next($request);
+                } else {
+                    return back()->with('error', 'Unauthorised');
+                }
+            } else {
+                return $next($request);
             }
         }
-   
-        // Check if user has access to page
-        $name = Route::currentRouteName();
         
-        // if(in_array($name, $allowed)){
-        //     dd('yes');
-        //     return $next($request);
-        // }else{
-        //     dd('no');
-        //     return back();
-        // }
         return $next($request);
 
     }

@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="row">
-		<p><b style="color:red">CLIENT</b><br />
+		<p><b style="color:red">PARTICIPANT</b><br />
 		{{ $data['name']}}</p>
 
 		<p><b style="color:red">CONTACT EMAIL</b><br />

@@ -103,7 +103,7 @@ Route::get('/impersonate/{id}', 'Admin\ImpersonateController@index')->name('impe
 Route::get('/stopimpersonating', 'Admin\ImpersonateController@stopImpersonate')->name('stop.impersonate');
 Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImpersonateFacilitator')->name('stop.impersonate.facilitator');
 
-Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
+Route::namespace('Admin')->middleware(['auth', 'impersonate', 'permission'])->group(function(){
     Route::resource('users', 'UserController');
     Route::resource('payment-modes', 'PaymentModeController');
     Route::resource('paymentmethod', 'PaymentMethodController');

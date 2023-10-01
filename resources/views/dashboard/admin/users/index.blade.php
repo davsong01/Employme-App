@@ -34,7 +34,7 @@
                         
                         <tr>
                             
-                            <td>{{  $i++ }}</td>
+                            <td>{{ $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
                             <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td> 
 
@@ -42,9 +42,8 @@
                             <td>
                                 {{ $user->name }} <br>
                                 @foreach($user->programs as $programs)
-                               
-                            <small style="color:green">{{ $count ++ }}.
-                            {{ $programs->p_name }} <br></small>
+                                    <small style="color:green">{{ $count ++ }}.
+                                    {{ $programs->p_name }} <br></small>
                                     <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
                                 @endforeach
                             </td> 

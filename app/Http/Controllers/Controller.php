@@ -35,7 +35,7 @@ class Controller extends BaseController
         return $prefix.'-'.date('YmdHi') . '-' . rand(11111111, 99999999);
     }
 
-    protected function getInvoiceId($id)
+    protected function getInvoiceId($id = null)
     {
         date_default_timezone_set("Africa/Lagos");
         if(isset($id) && !empty($id)){
@@ -490,6 +490,52 @@ class Controller extends BaseController
         return $data;
     }
 
+    protected function prepareFreeTrainingDetails($training, $request)
+    {
+        $data['programFee'] = $training->p_amount;
+        $data['programName'] = $training->p_name;
+        $data['programAbbr'] = $training->p_abbr;
+        $data['bookingForm'] = $training->booking_form;
+
+        //Create User details
+        $data['name'] = $request->name;
+        $data['email'] = $request->email;
+        $data['phone'] = $request->phone;
+        $data['t_phone'] = $request->phone;
+
+        $data['password'] = bcrypt('12345');
+        $data['program_id'] = $training->id;
+        $data['amount'] = $training->p_amount;
+        $data['t_type'] = 'Free Training';
+        $data['payload'] = '';
+
+        // Create Facilitator details
+        if (!empty(\Session::get('facilitator_id'))) {
+            $data['facilitator_id'] = \Session::get('facilitator_id');
+            $data['facilitator_name'] = User::where('id', \Session::get('facilitator_id'))->value('name');
+        }
+
+        if ($request->location) {
+            $data['location'] = $request->location;
+        } else $data['location'] = NULL;
+
+        $data['paymentModeDetails'] = [
+            'id' => 0,
+            'type' => 'FREE TRAINING',
+            'processor' => 'FREE TRAINING',
+            'currency' => '',
+            'currency_symbol' => '&#x20A6;',
+            'exchange_rate' => 1,
+        ];
+
+        $data['role_id'] = "Student";
+        $data['transid'] = $this->getInvoiceId();
+        $data['t_location'] = $request->location ?? '';
+        $data['training_mode'] = $request->training_mode ?? '';
+        
+        return $data;
+    }
+
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
@@ -513,11 +559,11 @@ class Controller extends BaseController
         }
         
         $data['booking_form'] = !is_null($data['bookingForm']) ? base_path() . '/uploads'.'/'. $data['bookingForm'] : null;
-        $data['admin_earning'] = $earnings['admin'];
-        $data['facilitator_earning'] = $earnings['facilitator'];
-        $data['tech_earning'] = $earnings['tech'];
-        $data['faculty_earning'] = $earnings['faculty'];
-        $data['other_earning'] = $earnings['other'];
+        $data['admin_earning'] = $earnings['admin'] ?? NULL;
+        $data['facilitator_earning'] = $earnings['facilitator'] ?? NULL;
+        $data['tech_earning'] = $earnings['tech'] ?? NULL;
+        $data['faculty_earning'] = $earnings['faculty'] ?? NULL;
+        $data['other_earning'] = $earnings['other'] ?? NULL;
 
         // if user doesnt exist, create new user and attach program
         // if (!isset($user)) {
@@ -628,6 +674,7 @@ class Controller extends BaseController
        
         return $file;
     }
+    
     public function deleteImage($image)
     {
 
@@ -804,6 +851,12 @@ class Controller extends BaseController
                 'id' => 19,
                 'name' => 'Settings',
                 'route' => 'settings.edit',
+            ],
+
+            [
+                'id' => 20,
+                'name' => 'Update User',
+                'route' => 'users.update',
             ],
         ];
 

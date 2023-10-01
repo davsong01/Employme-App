@@ -241,8 +241,10 @@ class TeacherController extends Controller
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
-        $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
-        
+
+        if (Auth::user()->role_id == "Admin") {
+            $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
+        }
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
        

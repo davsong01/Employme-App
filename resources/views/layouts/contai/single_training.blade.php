@@ -34,7 +34,11 @@
                                 {{ $currency_symbol }}{{ number_format($training->e_amount) }}
                                 <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                             @else
+                                @if($training->p_amount > 0)
                                 {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                                @else
+                                <span style="color:green">FREE TRAINING</span>
+                                @endif
                             @endif
                         @endif
                         
@@ -70,7 +74,7 @@
                                                 </select>
                                             </div> 
                                         @endif
-                                        
+                                       
                                         <div class="checkout__input" id="payment_types" style="display:none">
                                             <p>Select payment type<span>*</span></p>
                                             <div class="select-block">
@@ -79,7 +83,7 @@
                                                 </select>
                                             </div>
                                         </div> 
-                                       
+                                   
                                     @else 
                                         @if(isset($locations) && count($locations) > 0 )
                                             <div class="checkout__input">
@@ -94,6 +98,7 @@
                                                 </select>
                                             </div> 
                                         @endif
+                                        @if($training->p_amount > 0)
                                         <div class="checkout__input">
                                             <p>Select payment type<span>*</span></p>
                                             <select name="type" id="" required>
@@ -107,6 +112,9 @@
                                                 @endif
                                             </select>
                                         </div>
+                                        @else
+                                        <input type="hidden" value="full" name="type">
+                                        @endif
                                     @endif
                                     
                                 </div>
@@ -118,7 +126,11 @@
 
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}"> 
                             </div>
+                            @if($training->p_amount > 0)
                             <input class="primary-btn" type="submit" value="PROCEED TO CHECKOUT">
+                            @else 
+                            <input class="primary-btn" type="submit" value="PROCEED TO REGISTER">
+                            @endif
                         </form>
                     </div>                        
                 </div>

@@ -74,8 +74,10 @@
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Student" {{ $user->role_id == 'Student' ? 'selected' : ''}}>Student</option>
+                                        @if(Auth::user()->role_id == 'Admin')
                                         <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
                                         <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
+                                        @endif
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
@@ -91,23 +93,26 @@
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
                             </div>
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="training">Select Training(s)</label>
-                                    <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
-                                    @foreach($programs as $program)
-                                         <option value="{{ $program->id }}" {{ in_array($program->id, $associated) ? 'selected' : ''}} >{{ $program->p_name }}</option>
-                                    @endforeach
-                                    </select>
-                                <div>
-                                    @if ($errors->has('training'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('training') }}</strong>
-                                    </span>
-                                    @endif
+                            @if(isset($associated))
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label class="training">Select Training(s)</label>
+                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;" required>
+                                        @foreach($programs as $program)
+                                            <option value="{{ $program->id }}" {{ in_array($program->id, $associated) ? 'selected' : ''}} >{{ $program->p_name }}</option>
+                                        @endforeach
+                                        </select>
+
+                                        <div>
+                                        @if ($errors->has('training'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('training') }}</strong>
+                                        </span>
+                                        @endif
+                                        </div>
+                                    <div>
                                 </div>
-                            <div>
-                            </div>
+                            @endif
                         </div>
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">

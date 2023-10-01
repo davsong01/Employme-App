@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="row">
-		<p><b style="color:red">CLIENT</b><br />
+		<p><b style="color:red">PARTICIPANT</b><br />
 		{{ $data['name']}}</p>
 
 		<p><b style="color:red">CONTACT EMAIL</b><br />
@@ -61,7 +61,7 @@
 				</tr>
 				<tr>
 					<td>
-						@if(isset($data['location']) && !empty($data['location']))
+						@if(!empty($data['location']))
 						<small><strong style="color:green">Training Location: </strong>{{ $data['location'] ?? null }} ({{ $data['location_address'] ?? null }})</small>
 						@endif
 					</td>

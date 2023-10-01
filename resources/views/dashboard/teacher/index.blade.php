@@ -1,12 +1,20 @@
+
 @extends('dashboard.layouts.main')
 
 @section('dashboard')
+
 <aside class="left-sidebar" data-sidebarbg="skin5">
     <!-- Sidebar scroll-->
     <div class="scroll-sidebar">
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
+                @if((Auth::user()->isImpersonating()) )
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        style="color:yellow !important; font-weight:bolder"
+                        href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i
+                            class="fa fa-arrow-left"></i><span class="hide-menu">BACK TO ADMIN</span></a></li>
+                @endif
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">Teacher Dashboard</span></a></li>

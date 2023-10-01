@@ -14,6 +14,7 @@ use App\Transaction;
 use App\UpdateMails;
 use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
+use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -22,24 +23,17 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
-   
     public function index()
     {
-
        $i = 1;
        $users = User::withCount('programs')->where('role_id', 'Student')->orderBy('created_at', 'DESC')->get();
 
        if(Auth::user()->role_id == "Admin"){
-         
           return view('dashboard.admin.users.index', compact('users', 'i') );
-
         }elseif(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-           $users = User::where([
-            'role_id' => "Student",
-            'program_id' => Auth::user()->program_id,
-           ])->orderBy('created_at', 'DESC')
-           ->get();
-
+            $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
+            $users = Transaction::with('user')->whereIn('program_id', $programs)->orderBy('created_at', 'DESC')
+            ->get();
             return view('dashboard.teacher.users.index', compact('users', 'i', 'programs') );
         }
     }
@@ -242,15 +236,29 @@ class UserController extends Controller
 
     public function edit($id)
     { 
-            $user = User::findorFail($id);
-            $programs = Program::where('id', '<>', 1)->get();
+        $user = User::findorFail($id);
+        $programs = Program::where('id', '<>', 1)->get();
         if(Auth::user()->role_id == "Admin"){
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
             $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
-           
-        return view('dashboard.admin.users.edit', compact('programs','user', 'associated'));
-    }return back();
-}
+        
+            return view('dashboard.admin.users.edit', compact('programs','user', 'associated'));
+        }
+
+        if (Auth::user()->role_id == "Grader" || Auth::user()->role_id == "Facilitator") {
+            $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
+            $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
+            
+            if($count < 1){
+                return back();
+            }
+
+            return view('dashboard.admin.users.edit', compact('programs', 'user'));
+
+        }
+
+        return back();
+    }
 
     public function update(Request $request, $id)
     {
@@ -261,6 +269,14 @@ class UserController extends Controller
         }else $password = $user->password;
 
         try{
+            if(Auth::user()->role_id != 'Admin'){
+                $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
+                $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
+    
+                if ($count < 1) {
+                    return back();
+                }
+            }
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -268,37 +284,39 @@ class UserController extends Controller
                 'password' => $password,
                 'role_id' => $request->role,
                 'gender' =>$request->gender,
-            ]); 
+            ]);
 
-        // Get User programs and pop out of array
-        $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
-        $newTrainings = $request['training'];
-        $trainings = array_unique(array_merge($user_programs, $newTrainings));
-        $toBeDeleted = array_diff($user_programs, $newTrainings);
-        // dd($user_programs, $toBeDeleted, $trainings, $newTrainings);
-        foreach( $trainings as $value){
-            if(!in_array($value, $user_programs)){
-                $training = Program::find($value);
-                if ($training) {
-                    $user->programs()->attach($training->id, [
-                        'created_at' =>  date("Y-m-d H:i:s"),
-                        'invoice_id' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
-                        'transid' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
-                        't_amount' => $training->p_amount,
-                        't_amount' => $training->p_amount,
-                        't_type' => 'System Admin',
-                        't_location' => null,
-                        'paymentStatus' => 1,
-                        'balance' => 0,
-                        'invoice_id' =>  'Invoice' . $user->id,
-                    ]);
+            if (Auth::user()->role_id == 'Admin') {
+                // Get User programs and pop out of array
+                $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
+                $newTrainings = $request['training'];
+                $trainings = array_unique(array_merge($user_programs, $newTrainings));
+                $toBeDeleted = array_diff($user_programs, $newTrainings);
+                // dd($user_programs, $toBeDeleted, $trainings, $newTrainings);
+                foreach( $trainings as $value){
+                    if(!in_array($value, $user_programs)){
+                        $training = Program::find($value);
+                        if ($training) {
+                            $user->programs()->attach($training->id, [
+                                'created_at' =>  date("Y-m-d H:i:s"),
+                                'invoice_id' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
+                                'transid' => date('YmdH') . '-' . rand(1111, 9999).'-'.'SYS_ADMIN',
+                                't_amount' => $training->p_amount,
+                                't_amount' => $training->p_amount,
+                                't_type' => 'System Admin',
+                                't_location' => null,
+                                'paymentStatus' => 1,
+                                'balance' => 0,
+                                'invoice_id' =>  'Invoice' . $user->id,
+                            ]);
+                        }
+                    }
+                    
+                    if(in_array($value, $toBeDeleted)){
+                        DB::table('program_user')->where('user_id', $user->id)->where('program_id', $value)->delete();
+                    }
                 }
             }
-            
-            if(in_array($value, $toBeDeleted)){
-                DB::table('program_user')->where('user_id', $user->id)->where('program_id', $value)->delete();
-            }
-        }
    
         }catch (\Exception $e) {
             $error = $e->getMessage();
