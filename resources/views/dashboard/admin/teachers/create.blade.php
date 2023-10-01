@@ -136,7 +136,7 @@
                             @foreach(app('app\Http\Controllers\Controller')->adminMenus() as $menu)
                             <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="{{$menu['id']}}" id="menu_permissions">
+                                    <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="{{$menu['id']}}" id="{{$menu['id']}}">
                                     <label class="form-check-label" for="{{$menu['id']}}">
                                         {{$menu['name']}}
                                     </label>
