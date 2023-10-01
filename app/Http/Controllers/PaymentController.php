@@ -166,7 +166,29 @@ class PaymentController extends Controller
             $type['phone'] = $request['phone'];
             $training = Program::where('id', $type['pid'])->first();
             $response = $this->verifyCoupon($request, $type['pid']);
-           
+
+            // Free training
+            if ($request->payment_type == 'full' && $training->p_amount == 0) {
+                $data = $this->prepareFreeTrainingDetails($training, $request);
+                // $data['balance'] = $balance;
+                // $data['payment_type'] = $payment_type;
+                $data['payment_type'] = 'Full';
+                $data['message'] = 'Full payment';
+                $data['paymentStatus'] = 1;
+                $data['currency_symbol'] = '&#x20A6;';
+                $data['balance'] = 0;
+
+                // $c = $c ?? NULL; // Coupon
+                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
+                // $this->deleteFromTemp($temp);
+
+                $this->sendWelcomeMail($data);
+
+                // Login User in
+                Auth::loginUsingId($data['user_id']);
+                return view('thankyou', compact('data'));
+            }
+            
             if(is_null($response)){
                 // Modify amount to suit program
                 if($request->has('modes')){
@@ -227,29 +249,7 @@ class PaymentController extends Controller
                 
             }
 
-            // Free training
-            if($request->payment_type == 'full' && $training->p_amount == 0){
-                $data = $this->prepareFreeTrainingDetails($training, $request);
-                // $data['balance'] = $balance;
-                // $data['payment_type'] = $payment_type;
-                $data['payment_type'] = 'Full';
-                $data['message'] = 'Full payment';
-                $data['paymentStatus'] = 1;
-                $data['currency_symbol'] = '&#x20A6;';
-                $data['balance'] = 0;
-
-                // $c = $c ?? NULL; // Coupon
-                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
-                // $this->deleteFromTemp($temp);
-               
-                $this->sendWelcomeMail($data);
-                
-                // Login User in
-                Auth::loginUsingId($data['user_id']);
-                return view('thankyou', compact('data'));
-
-            }
-           
+            
             // Create temp user and redirect
             $request['metadata'] = $type;
            
