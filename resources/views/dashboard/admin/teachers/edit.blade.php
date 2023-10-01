@@ -192,7 +192,7 @@
                                <span><h6>Admin Menu Permissions</h6></span>
                             </div>
                             <?php
-                                $a_menu = auth()->user()->menu_permissions ?? [];
+                                $a_menu = $user->menu_permissions ?? '';
                                 $a_menu = explode(',', $a_menu);
                             ?>
                             @foreach(app('app\Http\Controllers\Controller')->adminMenus() as $menu)
