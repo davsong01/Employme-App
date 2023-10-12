@@ -87,11 +87,13 @@ class ScoreSettingController extends Controller
 
         $data = $this->validate($request, [
             'program' => 'required|numeric',
-            'classtests' => 'nullable|numeric|min:1|max:100',
-            'roleplayscore' => 'nullable|numeric|min:1|max:100',
-            'emailscore' => 'nullable|numeric|min:1|max:100',
-            'certificationscore' => 'nullable|numeric|min:1|max:100',
             'passmark' => 'required|numeric|min:1|max:100',
+            // 'program' => 'required|numeric',
+            // 'classtests' => 'nullable|numeric|min:1|max:100',
+            // 'roleplayscore' => 'nullable|numeric|min:1|max:100',
+            // 'emailscore' => 'nullable|numeric|min:1|max:100',
+            // 'certificationscore' => 'nullable|numeric|min:1|max:100',
+            // 'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
         $total = array_sum($request->except(['passmark', 'program','_token']));
@@ -137,11 +139,11 @@ class ScoreSettingController extends Controller
         // dd($request->all());
         $data = $this->validate($request, [
             'program' => 'required|numeric',
+            'passmark' => 'required|numeric|min:1|max:100',
             // 'classtests' => 'sometimes|numeric|min:1|max:100',
             // 'rolepalyscore' => 'sometimes|numeric|min:1|max:100',
             // 'emailscore' => 'sometimes|numeric|min:1|max:100',
             // 'certificationscore' => 'sometimes|numeric|min:1|max:100',
-            'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
         
