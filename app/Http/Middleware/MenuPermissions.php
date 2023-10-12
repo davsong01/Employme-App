@@ -28,6 +28,8 @@ class MenuPermissions
                 $i_menus  = Auth::user()->menu_permissions ?? [];
                 if ($i_menus) {
                     $i_menus  = explode(',', $i_menus);
+                }else{
+                    $i_menus = [];
                 }
             }
 
