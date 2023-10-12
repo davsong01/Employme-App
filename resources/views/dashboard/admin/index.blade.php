@@ -1,9 +1,12 @@
 <?php 
     $menus = Auth::user()->menu_permissions ?? [];
+    
     if($menus){
         $menus = explode(',',$menus);
+    }else{
+        $menus = [];
     }
-  
+
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
@@ -55,6 +58,7 @@
                             class="hide-menu">Admin Dashboard</span></a></li>
                 @endif
                 @endif
+               
                 @if(in_array(2, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span

@@ -156,17 +156,19 @@ class ProgramController extends Controller
             foreach ($l as $test) {
                 $subs[$test[0]] = $test[1];
             }
+
+            foreach ($subs as $name => $amount) {
+                $sub_data = $program->toArray();
+                $sub_data['p_name'] = $name;
+                $sub_data['parent_id'] = $sub_data['id'];
+                $sub_data['p_amount'] = $amount;
+                unset($sub_data['id']);
+                Program::Create($sub_data);
+            }
+       
         }
 
-        foreach($subs as $name => $amount){
-            $sub_data = $program->toArray();
-            $sub_data['p_name'] = $name;
-            $sub_data['parent_id'] = $sub_data['id'];
-            $sub_data['p_amount'] = $amount;
-            unset($sub_data['id']);
-            Program::Create($sub_data);
-        }
-       
+        
         return redirect('programs')->with('message', 'Program added succesfully');
     }
 
