@@ -21,15 +21,16 @@ class ModuleController extends Controller
     public function index()
     {
         $i = 1; 
-
+       
         if(Auth::user()->role_id == "Admin"){
              
             $modules = Module::with( ['program', 'questions'] )->orderBy('created_at', 'desc')->get();          
             $questions_count = Question::all()->count();
             
-            $programs_with_modules = Program::whereHas('modules', function ($query) {
-                return $query;
-            })->orderby('created_at', 'DESC')->get();
+            // $programs_with_modules = Program::whereHas('modules', function ($query) {
+            //     return $query;
+            // })->orderby('created_at', 'DESC')->get();
+            $programs_with_modules = Program::orderby('created_at', 'DESC')->get();
             
             return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
         }
@@ -37,7 +38,6 @@ class ModuleController extends Controller
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
             
             $programs_with_modules = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-
             if($programs_with_modules->count() > 0){
                 foreach($programs_with_modules as $modules){
                     $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
@@ -52,7 +52,8 @@ class ModuleController extends Controller
 
     public function all($p_id){
         $i = 1;  
-        if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Grader"){
+       
+        if(Auth::user()->role_id == "Admin"){
             $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
             $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
             $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
@@ -62,7 +63,7 @@ class ModuleController extends Controller
 
         if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){ 
 
-           $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
+            $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
             $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
             $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
           
@@ -71,17 +72,17 @@ class ModuleController extends Controller
     }
     public function create(Request $request)
     {
+        $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
+        
+        return view('dashboard.admin.modules.create', compact('program'));
         if(Auth::user()->role_id == "Admin"){
-            $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
-
-            return view('dashboard.admin.modules.create', compact('program'));
         }
 
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+        // if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
            
-            return view('dashboard.admin.modules.create', compact('programs'));
-        }
-        return back();
+        //     return view('dashboard.admin.modules.create', compact('programs'));
+        // }
+        // return back();
     }
 
     public function store(Request $request)
@@ -174,7 +175,7 @@ class ModuleController extends Controller
         }
         $module->status = 1;
         $module->save();
-
+       
         return back()->with('message', 'This Module and its questions have been enabled Successfully ');
     }
 

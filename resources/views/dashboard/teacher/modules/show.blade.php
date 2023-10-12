@@ -1,3 +1,13 @@
+<?php 
+    $menus = Auth::user()->menu_permissions ?? [];
+    
+    if($menus){
+        $menus = explode(',',$menus);
+    }else{
+        $menus = [];
+    }
+   
+?>
 @extends('dashboard.admin.index')
 @section('title')
     {{ config('app.name') .' Test Management' }}
@@ -54,9 +64,10 @@
             <div class="card-title">
                 @include('layouts.partials.alerts')
              </div>
+             
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin")<a href="{{route('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
+                    <h5 class="card-title"> All Modules @if(auth()->user()->role_id == "Admin" || in_array(21, $menus))<a href="{{route('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a>@endif </h5> 
                 </div>
             </div>
             <div class="">
@@ -76,6 +87,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                       
                         @foreach($modules as $module)
                         <tr>
                             <td>{{ $i++ }}</td>
@@ -89,20 +101,16 @@
                             <td>{{$module->status == 0 ? 'Disabled' : 'Enabled' }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit Module"
-                                        class="btn btn-info" href="{{ route('modules.edit', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
-                                            class="fa fa-edit"></i>
+                                    <a class="btn btn-info btn-sm" href="{{ route('modules.edit', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
+                                            class="fa fa-edit"></i> Edit
                                     </a>
-
                                     @if($module->status == 0)
-                                    <a data-toggle="tooltip" data-placement="top" title="Enable Module Questions"
-                                        class="btn btn-primary" href="{{ route('modules.enable', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
-                                            class="fa fa-check"></i>
+                                    <a class="btn btn-primary btn-sm" href="{{ route('modules.enable', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
+                                            class="fa fa-check"></i> Enable
                                     </a>
                                     @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Disable Module Questions"
-                                        class="btn btn-info" href="{{ route('modules.disable', $module->id)}}" ><i
-                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
+                                    <a class="btn btn-info btn-sm" href="{{ route('modules.disable', $module->id)}}" ><i
+                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable
                                     </a>
                                     @endif
                                     <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
@@ -110,10 +118,6 @@
                                         
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
-
-                                        {{-- <button type="submit" class="btn btn-warning" data-toggle="tooltip"
-                                            data-placement="top" title="Trash Training"> <i class="fa fa-trash"></i>
-                                        </button> --}}
                                     </form>
                                 </div>
 

@@ -27,7 +27,7 @@
                     </thead>
                     <tbody>
                          @foreach($programs_with_modules as $programs)
-                         @if($programs->modules_count >0)
+                         {{-- @if($programs->modules_count >0) --}}
                             <tr>
                                 <td>{{  $i++ }}</td>
                                 
@@ -39,7 +39,7 @@
                                 <td>{{ $programs->modules_count}}</td>
                                 <td>{{ $programs->questions_count}}</td>
                             </tr>
-                            @endif
+                            {{-- @endif --}}
                         @endforeach
                     </tbody>
                 </table>

@@ -858,6 +858,11 @@ class Controller extends BaseController
                 'name' => 'Update User',
                 'route' => 'users.update',
             ],
+            [
+                'id' => 21,
+                'name' => 'Add Modules',
+                'route' => 'modules.create',
+            ],
         ];
 
         return $menus;
