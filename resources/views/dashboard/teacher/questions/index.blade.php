@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                          @foreach($programs_with_questions as $programs)
-                         @if($programs->questions_count >0)
+                         {{-- @if($programs->questions_count >0) --}}
                             <tr>
                                 <td>{{  $i++ }}</td>
                                 <td><a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training"
@@ -36,7 +36,7 @@
                                 </td>
                                 <td>{{ $programs->questions_count}}</td>
                             </tr>
-                            @endif
+                            {{-- @endif --}}
                         @endforeach
                     </tbody>
                 </table>
