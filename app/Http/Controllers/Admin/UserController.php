@@ -17,12 +17,53 @@ use App\Exports\UsersExport;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Imports\UsersImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
+
+    public function importExport($p_id)
+    {
+        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+
+            return view('dashboard.admin.users.import', compact('p_id'));
+        }
+        return abort(404);
+    }
+
+    public function downloadBulkSample($filename)
+    {
+        $realpath = base_path() . '/uploads/' . $filename;
+        return response()->download($realpath);
+    }
+
+    public function import(Request $request)
+    {
+        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+
+            $this->validate(request(), [
+                'file' => 'required|
+				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+				application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv'
+            ], [
+                'file.mimetypes' => 'The file must be a file of type: xlsx'
+            ]);
+
+            try {
+                Excel::import(new UsersImport($request->p_id), request()->file('file'));
+            } catch (\Illuminate\Database\QueryException $ex) {
+                $error = $ex->getMessage();
+                return back()->with('error', $error);
+            }
+            return back()->with('message', 'Data has been imported succesfully');
+
+        }
+        return abort(404);
+    }
+
     public function index()
     {
        $i = 1;

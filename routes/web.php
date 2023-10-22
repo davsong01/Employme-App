@@ -137,7 +137,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('programs', 'ProgramController');
     Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
-
+    
     Route::resource('locations', 'LocationController');
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
@@ -151,6 +151,13 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('questions', 'QuestionController');
     Route::get('questions/all/{p_id}', 'QuestionController@add')->middleware(['impersonate','auth', 'programCheck'])->name('questions.add');
     Route::get('questionsimport-export/{p_id}', 'QuestionController@importExport')->middleware(['impersonate','auth', 'programCheck'])->name('questions.import');
+    Route::get('participantsimport/{p_id}', 'UserController@importExport')->middleware(['impersonate','auth', 'programCheck'])->name('training.import');
+  
+    Route::post('import-training-participant', 'UserController@import')->middleware(['impersonate', 'auth', 'programCheck'])->name('users.import');
+    Route::get('download-bulk-user-sample/{filename}', 'UserController@downloadBulkSample')->middleware(['impersonate', 'auth', 'programCheck'])->name('user-bulk-sample');
+    Route::get('questions/all/{p_id}', 'QuestionController@add')->middleware(['impersonate', 'auth', 'programCheck'])->name('questions.add');
+    
+    
     Route::post('import', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck']);
     Route::post('importquestions', 'QuestionController@import')->middleware(['impersonate','auth', 'programCheck'])->name('questions.import');
 

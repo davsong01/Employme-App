@@ -35,7 +35,7 @@ class Controller extends BaseController
         return $prefix.'-'.date('YmdHi') . '-' . rand(11111111, 99999999);
     }
 
-    protected function getInvoiceId($id = null)
+    public function getInvoiceId($id = null)
     {
         date_default_timezone_set("Africa/Lagos");
         if(isset($id) && !empty($id)){
@@ -46,7 +46,7 @@ class Controller extends BaseController
         return $invoice_id;
     }
     
-    protected function sendWelcomeMail($data,$pdf=null){
+    public function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
        
         // return view('emails.receipt', compact('data'));
@@ -450,7 +450,7 @@ class Controller extends BaseController
         $data['programName'] = $training->p_name;
         $data['programAbbr'] = $training->p_abbr;
         $data['bookingForm'] = $training->booking_form;
-        
+
         //Create User details
         $data['name'] = $paymentDetails->name;
         $data['email'] = $paymentDetails->email;
@@ -490,39 +490,36 @@ class Controller extends BaseController
         return $data;
     }
 
-    protected function prepareFreeTrainingDetails($training, $request)
+    public function prepareFreeTrainingDetails($training, $request, $bulk = false)
     {
         $data['programFee'] = $training->p_amount;
         $data['programName'] = $training->p_name;
         $data['programAbbr'] = $training->p_abbr;
         $data['bookingForm'] = $training->booking_form;
-
         //Create User details
-        $data['name'] = $request->name;
-        $data['email'] = $request->email;
-        $data['phone'] = $request->phone;
-        $data['t_phone'] = $request->phone;
+        $data['name'] = isset($request->name) ? $request->name : $request['name'];
+        $data['email'] = isset($request->email) ? $request->email : $request['email'];
+        $data['phone'] = isset($request->phone) ? $request->phone : $request['phone'];
+        $data['t_phone'] = isset($request->phone) ? $request->phone : $request['phone'];
 
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $training->p_amount;
-        $data['t_type'] = 'Free Training';
+        $data['t_type'] = ($bulk == false) ? 'Free Training' : 'Bulk Import';
         $data['payload'] = '';
-
+       
         // Create Facilitator details
         if (!empty(\Session::get('facilitator_id'))) {
             $data['facilitator_id'] = \Session::get('facilitator_id');
             $data['facilitator_name'] = User::where('id', \Session::get('facilitator_id'))->value('name');
         }
 
-        if ($request->location) {
-            $data['location'] = $request->location;
-        } else $data['location'] = NULL;
-
+        $data['location'] = isset($request->location) ? $request->location : $request['location'] ?? '';
+    
         $data['paymentModeDetails'] = [
             'id' => 0,
-            'type' => 'FREE TRAINING',
-            'processor' => 'FREE TRAINING',
+            'type' => ($bulk == false) ? 'FREE TRAINING' : 'Bulk Import',
+            'processor' => 'Bulk Import',
             'currency' => '',
             'currency_symbol' => '&#x20A6;',
             'exchange_rate' => 1,
@@ -530,9 +527,8 @@ class Controller extends BaseController
 
         $data['role_id'] = "Student";
         $data['transid'] = $this->getInvoiceId();
-        $data['t_location'] = $request->location ?? '';
-        $data['training_mode'] = $request->training_mode ?? '';
-        
+        $data['t_location'] = $data['location'] ?? '';
+        $data['training_mode'] = isset($request->training_mode) ? $request->training_mode : $request['training_mode'] ?? '';
         return $data;
     }
 
