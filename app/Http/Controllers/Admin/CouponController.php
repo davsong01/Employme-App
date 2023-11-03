@@ -23,12 +23,12 @@ class CouponController extends Controller
         $i = 1;
         if (Auth::user()->role_id == "Admin") {
 
-            $coupons = Coupon::with(['coupon_users'=>function($query){
-                return $query->where('status',1)->get();
+            $coupons = Coupon::with(['coupon_users' => function ($query) {
+                return $query->where('status', 1)->get();
             }])->orderBy('created_at', 'desc')->get();
-            
+
             return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
-        } else if (Auth::user()->role_id == "Facilitator") {
+        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $coupons = Coupon::where('facilitator_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
             return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
         }
@@ -44,11 +44,11 @@ class CouponController extends Controller
         if (Auth::user()->role_id == "Admin") {
             $programs =  Program::whereStatus(1)
                 ->where('p_end', '>=', date('Y-m-d'))
-                    ->where('close_registration', 0)
-                        ->orderBy('created_at', 'DESC')
-                            // $programs = Program::mainActivePrograms()
-                                ->get();
-        } else if (Auth::user()->role_id == "Facilitator") {
+                ->where('close_registration', 0)
+                ->orderBy('created_at', 'DESC')
+                // $programs = Program::mainActivePrograms()
+                ->get();
+        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
@@ -76,23 +76,23 @@ class CouponController extends Controller
         ]);
 
         // run checks
-        if(in_array('all', $data['program_id'])){
+        if (in_array('all', $data['program_id'])) {
             $programs = Program::with('coupon')->ActivePrograms()->get();
-        }else{
+        } else {
             $programs = Program::with('coupon')->ActivePrograms()->whereIn('id', $data['program_id'])
-            ->get();
+                ->get();
         }
-        
+
         // $program = Program::find($data['program_id']);
-        foreach($programs as $program){
+        foreach ($programs as $program) {
             $exists = $program->coupon->where('code', $data['code'])->first();
-            
-            if(!$exists){
+
+            if (!$exists) {
                 if ($request->amount > $program->p_amount) {
                     return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
                 }
 
-                if (Auth::user()->role_id == "Facilitator") {
+                if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
                     // Check that this facilitator can create the coupon
                     $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
 
@@ -112,18 +112,18 @@ class CouponController extends Controller
                 } else {
                     $data['facilitator_id'] = 0;
                 }
-           
+
                 $in = [
                     "code" => $data['code'],
                     "amount" => $data['amount'],
                     "facilitator_id" => $data['facilitator_id'],
                     "program_id" => $program->id
                 ];
-            
+
                 Coupon::create($in);
             }
         }
-       
+
         return redirect(route('coupon.index'))->with('message', 'Coupon created successfully');
     }
 
@@ -137,8 +137,8 @@ class CouponController extends Controller
     {
         $usages = CouponUser::with('program')->where('coupon_id', $coupon->id)->get();
         $i = 1;
-        
-        return view('dashboard.admin.coupons.usage', compact('i', 'usages','coupon'));
+
+        return view('dashboard.admin.coupons.usage', compact('i', 'usages', 'coupon'));
     }
 
     /**
@@ -152,7 +152,7 @@ class CouponController extends Controller
         if (Auth::user()->role_id == "Admin") {
 
             $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
-        } else if (Auth::user()->role_id == "Facilitator") {
+        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
@@ -187,7 +187,7 @@ class CouponController extends Controller
             return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
         }
 
-        if (Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             // Check that this facilitator can create the coupon
             $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
 
@@ -202,9 +202,8 @@ class CouponController extends Controller
             if ($request->amount > $maxAmt) {
                 return back()->with('error', 'You cannot add copon of more than ' . $maxAmt . ' for the selected training');
             }
-            
-            $data['facilitator_id'] = Auth::user()->id;
 
+            $data['facilitator_id'] = Auth::user()->id;
         } else {
             $data['facilitator_id'] = 0;
         }
@@ -228,16 +227,15 @@ class CouponController extends Controller
         return back()->with('message', 'Delete successful');
     }
 
-    public function getCreatedBy($id){
+    public function getCreatedBy($id)
+    {
         $coupon = Coupon::find($id);
-        
-        if($coupon->facilitator_id == 0){
+
+        if ($coupon->facilitator_id == 0) {
             $createdBy = 'Administrator';
-        }else{
+        } else {
             $createdBy = User::where('id', $coupon->facilitator_id)->value('name');
         }
-        return $createdBy
-        ;
-
+        return $createdBy;
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Picture;
+
 class PictureController extends Controller
 {
     /**
@@ -26,12 +27,11 @@ class PictureController extends Controller
      */
     public function create()
     {
-        if(Auth::user()->role_id == "Admin"){
-                return view('dashboard.admin.pictures.create');
-                }
-            else{
-                return redirect('/pictures');
-            }
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            return view('dashboard.admin.pictures.create');
+        } else {
+            return redirect('/pictures');
+        }
     }
 
     /**
@@ -41,13 +41,12 @@ class PictureController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        {
+    { {
             $data = request()->validate([
                 'title' => 'required | min:5',
-                'file' =>'required|file|image|mimes:jpg,png,jpeg',
+                'file' => 'required|file|image|mimes:jpg,png,jpeg',
             ]);
-            
+
             //$imagePath = request('booking_form')->store('/uploads', 'public');
             $imagePath = $request->file->storeAs('uploads/slides', $request->file->getClientOriginalName());
             //$this->storeImage($program);
@@ -55,7 +54,7 @@ class PictureController extends Controller
                 'title' => $data['title'],
                 'file' => $imagePath,
             ]);
-          
+
             return back()->with('message', 'Image succesfully added');
         }
     }
@@ -101,11 +100,9 @@ class PictureController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        {
+    { {
             $picture->delete();
-            return redirect('pictures')->with('message','Picture succesfully deleted');
+            return redirect('pictures')->with('message', 'Picture succesfully deleted');
         }
-        
     }
 }

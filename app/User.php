@@ -13,6 +13,7 @@ use App\PaymentMode;
 use App\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -73,16 +74,6 @@ class User extends Authenticatable
         return $this->hasMany(FacilitatorTraining::class);
     }
 
-    // public function students()
-    // {
-    //     return $this->hasMany(User::class, 'facilitator_id');
-    // }
-        
-    // public function facilitator()
-    // {
-    //     return $this->belongsTo(User::class, 'facilitator_id');
-    // }
-
     public function payment_modes(){
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
     }
@@ -108,6 +99,12 @@ class User extends Authenticatable
             return "0" . $this->attributes['t_phone'];
         }
         return $this->attributes['t_phone'];
+    }
+
+    protected function scopeRole()
+    {
+        $role_id = explode(',',$this->role_id);
+        return $role_id;
     }
         
 }

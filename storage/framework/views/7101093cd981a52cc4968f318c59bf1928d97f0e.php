@@ -1,31 +1,30 @@
-@extends('dashboard.admin.index')
-@section('title', 'Add Facilitator')
-@section('content')
+<?php $__env->startSection('title', 'Add Facilitator'); ?>
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    @include('layouts.partials.alerts')
+                    <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                     <div class="card-title">
                         <h4 class="card-title">Add new Facilitator/Grader</h4>
                     </div>
-                    <form action="{{route('teachers.store')}}" method="POST" enctype="multipart/form-data" class="pb-2">
+                    <form action="<?php echo e(route('teachers.store')); ?>" method="POST" enctype="multipart/form-data" class="pb-2">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="class">Role*</label>
                                     <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" >
                                         <option value="" disabled>Assign Role</option>
-                                        <option value="Facilitator" {{ old('role') == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Grader" {{ old('role') == 'Grader' ? 'selected' : ''}}>Grader</option>
-                                        <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : ''}}>Admin</option>
+                                        <option value="Facilitator" <?php echo e(old('role') == 'Facilitator' ? 'selected' : ''); ?>>Facilitator</option>
+                                        <option value="Grader" <?php echo e(old('role') == 'Grader' ? 'selected' : ''); ?>>Grader</option>
+                                        <option value="Admin" <?php echo e(old('role') == 'Admin' ? 'selected' : ''); ?>>Admin</option>
                                     </select>
-                                    <div><small style="color:red">{{ $errors->first('role')}}</small></div>
+                                    <div><small style="color:red"><?php echo e($errors->first('role')); ?></small></div>
                                 </div>
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('name') ? ' has-error' : ''); ?>">
                                     <label for="license">WAACSP license</label> <br>
-                                    <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
+                                    <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="<?php echo e(old('license')); ?>" autofocus >
                                     <span id="verify-button"><span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span></span>
                                     <span class="help-block">
                                         <strong id="result"></strong>
@@ -33,28 +32,28 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="waacsp_url" style="margin-top: 15px;">WAACSP url</label> <br>
-                                    <input id="waacsp_url" type="text"  class="form-control" name="waacsp_url" value="{{ old('waacsp_url') }}" autofocus >
+                                    <input id="waacsp_url" type="text"  class="form-control" name="waacsp_url" value="<?php echo e(old('waacsp_url')); ?>" autofocus >
                                     
                                 </div>
                               
-                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('status') ? ' has-error' : ''); ?>">
                                     <label for="payment_mode">Payment Mode</label>
                                     <select name="payment_mode" id="payment_mode " class="form-control" required>
-                                        @foreach($payment_modes as $mode)
-                                        <option value="{{ $mode->id }}" selected alt="">{{ ucFirst($mode->name) }}</option> 
-                                        @endforeach
+                                        <?php $__currentLoopData = $payment_modes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($mode->id); ?>" selected alt=""><?php echo e(ucFirst($mode->name)); ?></option> 
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('name') ? ' has-error' : ''); ?>">
                                     <label for="name">Name</label>
-                                    <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" autofocus >
-                                    @if ($errors->has('name'))
+                                    <input id="name" type="text" class="form-control" name="name" value="<?php echo e(old('name')); ?>" autofocus >
+                                    <?php if($errors->has('name')): ?>
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
+                                        <strong><?php echo e($errors->first('name')); ?></strong>
                                     </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
-                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('status') ? ' has-error' : ''); ?>">
                                     <label for="status">Status</label>
                                     <select name="status" id="type" class="form-control" required>
                                         <option value="active" selected>Active</option> 
@@ -68,42 +67,42 @@
                                 <div class="form-group">
                                     <label>Upload Profile Picture</label>
                                     <img style="display:none; width: 80px;border-radius: 50%;height: 80px;padding: 10px;" id="profile_picture" src="" alt="">
-                                    <input type="file" name="file" value="{{ old('avatar') }}" class="form-control">
+                                    <input type="file" name="file" value="<?php echo e(old('avatar')); ?>" class="form-control">
                                 </div>
                                 <input type="hidden" id="picture" name="picture" value="">
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('email') ? ' has-error' : ''); ?>">
                                     <label for="email">E-Mail Address</label>
-                                    <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}">
-                                    @if ($errors->has('email'))
+                                    <input id="email" type="email" class="form-control" name="email" value="<?php echo e(old('email')); ?>">
+                                    <?php if($errors->has('email')): ?>
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
+                                        <strong><?php echo e($errors->first('email')); ?></strong>
                                     </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
 
                                 <div style="margin-top: 5px;" class="form-group">
                                     <label for="email">Phone</label>
-                                    <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') }}">
+                                    <input id="phone" type="phone" class="form-control" name="phone" value="<?php echo e(old('phone')); ?>">
                                 </div>
                                 <div class="form-group">
                                     <label for="class">Available off season?</label>
                                     <select name="off_season_availability" id="class" class="form-control">
-                                        <option value="" {{ old('off_season_availability') == '' ? 'selected' : ''}}>No</option>
-                                        <option value="1" {{ old('off_season_availability') == '1' ? 'selected' : ''}}>Yes</option>
+                                        <option value="" <?php echo e(old('off_season_availability') == '' ? 'selected' : ''); ?>>No</option>
+                                        <option value="1" <?php echo e(old('off_season_availability') == '1' ? 'selected' : ''); ?>>Yes</option>
                                     </select>
                                 </div>
                                 
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('password') ? ' has-error' : ''); ?>">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
                                     </span>
-                                    <input id="password" type="text" class="form-control" name="password" value="{{ old('password') ?? '' }}"
+                                    <input id="password" type="text" class="form-control" name="password" value="<?php echo e(old('password') ?? ''); ?>"
                                         autofocus>
-                                    @if ($errors->has('password'))
+                                    <?php if($errors->has('password')): ?>
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
+                                        <strong><?php echo e($errors->first('password')); ?></strong>
                                     </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                                  
                             </div>
@@ -113,16 +112,16 @@
                                 <div class="form-group">
                                         <label class="training">Select Training(s)</label>
                                         <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
-                                        @foreach($programs as $program)
-                                             <option value="{{ $program->id }}">{{ $program->p_name }}</option>
-                                        @endforeach
+                                        <?php $__currentLoopData = $programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                             <option value="<?php echo e($program->id); ?>"><?php echo e($program->p_name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     <div>
-                                        @if ($errors->has('training'))
+                                        <?php if($errors->has('training')): ?>
                                         <span class="help-block">
-                                            <strong>{{ $errors->first('training') }}</strong>
+                                            <strong><?php echo e($errors->first('training')); ?></strong>
                                         </span>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 <div>
                             </div>
@@ -133,33 +132,35 @@
                                <span><h6>Admin Menu Permissions</h6></span>
                                
                             </div>
-                            @foreach(app('app\Http\Controllers\Controller')->adminMenus() as $menu)
+                            <?php $__currentLoopData = app('app\Http\Controllers\Controller')->adminMenus(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $menu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="{{$menu['id']}}" id="{{$menu['id']}}">
-                                    <label class="form-check-label" for="{{$menu['id']}}">
-                                        {{$menu['name']}}
+                                    <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="<?php echo e($menu['id']); ?>" id="<?php echo e($menu['id']); ?>">
+                                    <label class="form-check-label" for="<?php echo e($menu['id']); ?>">
+                                        <?php echo e($menu['name']); ?>
+
                                     </label>
                                 </div>
                             </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group{{ $errors->has('profile') ? ' has-error' : '' }}">
+                                <div class="form-group<?php echo e($errors->has('profile') ? ' has-error' : ''); ?>">
                                     
                                     <label for="profile" style="color:red">Profile overview</label>
-                                    <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') }}" rows="8" autofocus>{{ old('profile')  }}</textarea>
+                                    <textarea id="ckeditor" type="text" class="form-control" name="profile" value="<?php echo e(old('profile')); ?>" rows="8" autofocus><?php echo e(old('profile')); ?></textarea>
 
-                                    @if ($errors->has('profile'))
+                                    <?php if($errors->has('profile')): ?>
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('profile') }}</strong>
+                                        <strong><?php echo e($errors->first('profile')); ?></strong>
                                     </span>
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
-                       {{ csrf_field() }}
+                       <?php echo e(csrf_field()); ?>
+
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">
                                 Submit
@@ -171,13 +172,13 @@
         </div>
     </div>
 </div>
-@section('extra-scripts')
+<?php $__env->startSection('extra-scripts'); ?>
 <script src="https://cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
-    token = "{{ \App\Settings::value('token') }}";
+    src = "<?php echo e(env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor'); ?>";
+    token = "<?php echo e(\App\Settings::value('token')); ?>";
     
     function myFunction() {
         $.ajax({
@@ -235,5 +236,6 @@
 
     
 </script>
-@endsection
-@endsection
+<?php $__env->stopSection(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/teachers/create.blade.php ENDPATH**/ ?>

@@ -20,29 +20,32 @@ use Intervention\Image\Facades\Image;
 
 class PopController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         // Get attempted payments
-        if(auth()->user()->role_id != 'Admin'){
+        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return abort(404);
         }
 
         $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
         // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
-   
-        return view('dashboard.admin.payments.pop', compact('transactions', 'i') );
+
+        return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
     }
 
-    public function create(){
-        $trainings = Program::select('id', 'p_end', 'p_name','p_amount','close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
+    public function create()
+    {
+        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
         // $locations = Location::select('title')->distinct()->get();
-        
+
         return view('pop')
             ->with('trainings', $trainings);
-            // ->with('locations', $locations);
+        // ->with('locations', $locations);
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
         $data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required',
@@ -56,20 +59,20 @@ class PopController extends Controller
             'date' => 'date',
             'file' => 'required|max:2048|image',
         ]);
-       
+
         // Remove data from session
         \Session::forget(['data']);
 
         //handle file
-        $file = $data['name'].'-'.date('D-s');
+        $file = $data['name'] . '-' . date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();
-        $filePath = $request->file('file')->storeAs('pop', $file.'.'.$extension  ,'uploads');
+        $filePath = $request->file('file')->storeAs('pop', $file . '.' . $extension, 'uploads');
         $date = \Carbon\Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
         // Check if already uploaded same pop
         // $popCheck = Pop::whereEmail($data['email'])->whereAmount($data['amount'])->whereProgramId($data['training'])->count();
         $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training'])->count();
-      
+
         if ($popCheck > 0) {
             return back()->with('error', 'You have already uploaded proof of payment for this training and with the same amount, kindly wait while an administrator approves your request');
         }
@@ -84,22 +87,22 @@ class PopController extends Controller
 
         // Check if user already paid for same program
         $user = User::whereEmail($data['email'])->value('id');
-        if(isset($user) && !empty($user)){
+        if (isset($user) && !empty($user)) {
             $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']]);
             $check = $validate->where('balance', '<', 1)->count();
             if ($check > 0) {
                 return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
             }
-        }else{
+        } else {
             $type = 'Fresh Payment' ?? null;
         }
-       
+
         // Get temp transaction 
         $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training'])->first();
         $data['location'] = $temp->location ?? null;
         $data['training_mode'] = $temp->training_mode ?? null;
 
-        try{
+        try {
             //Store new pop
             $pop = Pop::create([
                 'name' => $data['name'],
@@ -126,19 +129,18 @@ class PopController extends Controller
             $data['participant_email'] = $pop->email;
             $data['realfilename'] = $file . '.' . $extension;
             $this->sendWelcomeMail($data);
-
-        }catch(\Exception $e) {
+        } catch (\Exception $e) {
             // dd($e->getMessage());
             // return back()->with('error', $e->getMessage());
         }
-        
+
         //Send mail to admin
         return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
-           
     }
 
-    public function show(Pop $pop){
-        if(auth()->user()->role_id != 'Admin'){
+    public function show(Pop $pop)
+    {
+        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return abort(404);
         }
 
@@ -146,7 +148,7 @@ class PopController extends Controller
         // $user = User::whereEmail($data['email'])->value('id');
         if (isset($pop->user) && !empty($pop->user)) {
             $check = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->where('balance', '<', 1)->count();
-           
+
             if ($check > 0) {
                 return back()->with('error', 'Participant already registered for this training!');
             }
@@ -155,25 +157,25 @@ class PopController extends Controller
         // If balance
         // Try to see if this is balance payment
         $existingTransaction = $this->getExistingTransactionAndBalance($pop);
-        
+
         // dd($existingTransaction);
         $allDetails = [];
-        if(isset($existingTransaction) && $existingTransaction['balance'] > 0){
+        if (isset($existingTransaction) && $existingTransaction['balance'] > 0) {
             $allDetails['balance_transaction_id'] = $this->getReference('SYS_ADMIN_BAL');
             $allDetails['existingTransaction'] =  $existingTransaction['transaction'];
             $allDetails['programFee'] = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;
-            
-            if($pop->amount > $existingTransaction['balance']){
-                return back()->with('error','User has already paid: '. $existingTransaction['transaction']->t_amount.'; Balance payment should be '. $existingTransaction['balance']); 
+
+            if ($pop->amount > $existingTransaction['balance']) {
+                return back()->with('error', 'User has already paid: ' . $existingTransaction['transaction']->t_amount . '; Balance payment should be ' . $existingTransaction['balance']);
             }
             $allDetails['amount'] = $existingTransaction['transaction']->t_amount + $pop->amount;
-            
-            if($pop->amount >= $existingTransaction['balance']){
+
+            if ($pop->amount >= $existingTransaction['balance']) {
                 $balance = 0;
-            }else{
+            } else {
                 $balance = $existingTransaction['balance'] - $pop->amount;
             }
-            
+
             $allDetails['programFee'] = $pop->program->t_amount;
             $allDetails['program_id'] = $pop->program_id;
             $allDetails['programName'] = $pop->program->p_name;
@@ -200,27 +202,26 @@ class PopController extends Controller
 
             $user = $this->updateUserDetails($allDetails);
             $data = $this->updateOrCreateTransaction($user, $allDetails);
-           
-        }else{
-           
-            if($pop->program->e_amount > 0){ 
-                if($pop->program->e_amount > $pop->amount ){
+        } else {
+
+            if ($pop->program->e_amount > 0) {
+                if ($pop->program->e_amount > $pop->amount) {
                     $allDetails['programFee'] = $pop->program->p_amount;
                 } else {
                     $allDetails['programFee'] = $pop->program->e_amount;
                 }
-            }else{
+            } else {
                 $allDetails['programFee'] = $pop->program->p_amount;
             }
 
             if ($pop->amount > $allDetails['programFee']) {
                 return back()->with('error', 'User cannot pay more than program fee, you may need to check early bird payment');
             }
-            
+
             // dd($allDetails['programFee'], 'fd', $pop->program);
-            if(isset($pop->temp->training_mode) && !empty($pop->temp->training_mode)){
+            if (isset($pop->temp->training_mode) && !empty($pop->temp->training_mode)) {
                 $mode = $pop->temp->training_mode;
-                $amount = app('App\Http\Controllers\PaymentController')->getModeAmount($mode,$pop->temp->type,$pop->program);
+                $amount = app('App\Http\Controllers\PaymentController')->getModeAmount($mode, $pop->temp->type, $pop->program);
                 if ($amount) {
                     $expectedAmount = $amount;
 
@@ -260,28 +261,28 @@ class PopController extends Controller
             $allDetails['balance'] = $balance;
             $allDetails['training_mode'] = $pop->temp->training_mode ?? null;
             $allDetails['t_type'] = $pop->temp->type ?? null;
-            
+
             $user = $this->updateUserDetails($allDetails);
-           
+
             // request->coupon, $request->email, $pid, $request['amount']
             // $temp = TempTransaction::where(['user'])
-            $coupon = Coupon::where('id',$pop->coupon_id)->first();
-            
-            if($coupon){
+            $coupon = Coupon::where('id', $pop->coupon_id)->first();
+
+            if ($coupon) {
                 $user->coupon = $coupon;
                 $response = $this->verifyCoupon($user, $pop->program_id, 'admin');
 
-                if($response['grand_total'] <= 0){
+                if ($response['grand_total'] <= 0) {
                     $allDetails['message'] = $this->dosubscript1(0);
                     $allDetails['balance'] = 0;
                     $allDetails['paymentStatus'] = $this->paymentStatus(0);
                     $allDetails['paymenttype'] = $this->paymentStatus(0);
-                    $allDetails['coupon_amount'] = $response ['amount'];
-                    $allDetails['coupon_id'] = $response ['id'];
-                    $allDetails['coupon_code'] = $response ['code'];
+                    $allDetails['coupon_amount'] = $response['amount'];
+                    $allDetails['coupon_id'] = $response['id'];
+                    $allDetails['coupon_code'] = $response['code'];
                 }
             }
-          
+
             $data = $this->updateOrCreateTransaction($user, $allDetails);
         }
 
@@ -308,20 +309,20 @@ class PopController extends Controller
             'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
         ];
         $data['type'] = 'initial';
-        
+
         // $pdf = PDF::loadView('emails.printreceipt', compact('data'));
         // return view('emails.receipt', compact('data'));
         $this->sendWelcomeMail($data);
-        
-        $pop->delete();
-        return redirect(route('payments.index'))->with('message', 'Student added succesfully'); 
 
+        $pop->delete();
+        return redirect(route('payments.index'))->with('message', 'Student added succesfully');
     }
 
-    public function updateOrCreateTransaction($user, $allDetails){
-       
-        if(isset($allDetails['existingTransaction'])){
-            $existingTransaction = DB::table('program_user')->where('id',$allDetails['existingTransaction']->id)
+    public function updateOrCreateTransaction($user, $allDetails)
+    {
+
+        if (isset($allDetails['existingTransaction'])) {
+            $existingTransaction = DB::table('program_user')->where('id', $allDetails['existingTransaction']->id)
                 ->update([
                     't_amount' => $allDetails['amount'],
                     't_type' => $allDetails['t_type'],
@@ -339,8 +340,8 @@ class PopController extends Controller
                     'coupon_code' => $allDetails['coupon_code'] ?? null,
                     'training_mode' => $allDetails['training_mode'] ?? null,
                 ]);
-        }else{
-            
+        } else {
+
             $programUser = $user->programs()->attach($allDetails['program_id'], [
                 't_amount' => $allDetails['amount'],
                 't_type' => $allDetails['t_type'],
@@ -359,12 +360,12 @@ class PopController extends Controller
             ]);
         }
         // Update existing payment if 
-        
-        return $allDetails;
 
+        return $allDetails;
     }
 
-    public function updateUserDetails($allDetails){
+    public function updateUserDetails($allDetails)
+    {
         $user = User::where('email', $allDetails['email'])->first();
         if (!$user) {
             //save to database
@@ -375,104 +376,109 @@ class PopController extends Controller
                 'password' => bcrypt('12345'),
                 'role_id' => $allDetails['role_id'],
             ]);
-        }else{
+        } else {
             $user->update([
                 'name' => $allDetails['name'],
                 't_phone' => $allDetails['phone'],
             ]);
         }
-       
+
         return $user;
     }
 
-    public function getExistingTransactionAndBalance($pop){
-        if(isset($pop->user->id)){
+    public function getExistingTransactionAndBalance($pop)
+    {
+        if (isset($pop->user->id)) {
             $existingTransactions = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->first();
-        }else{
+        } else {
             return [
                 'balance' => 0,
                 'transaction' => null,
             ];
-
         }
 
-        $programAmount = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;      
-      
-        if(isset($existingTransactions) && !empty($existingTransactions)){
+        $programAmount = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;
+
+        if (isset($existingTransactions) && !empty($existingTransactions)) {
             // $balance = $programAmount - $existingTransactions->t_amount;
             $balance = $existingTransactions->balance;
-            
-        }else{
+        } else {
             $balance = 0;
         }
-              
+
         return [
-            'balance'=> $balance,
+            'balance' => $balance,
             'transaction' => $existingTransactions,
         ];
     }
 
-    public function tempDestroy($id){
+    public function tempDestroy($id)
+    {
         $trans = TempTransaction::find($id);
         $trans->delete();
         return back()->with('message', 'Delete successful');
     }
 
-    public function reconcile(){
+    public function reconcile()
+    {
         $users = User::where('role_id', 'Student')->get();
-        foreach($users as $user){
+        foreach ($users as $user) {
             //get user extra details
             $user->programs()->attach($user->program_id, [
-                    'created_at' =>  $user->created_at,
-                    't_amount' => $user->t_amount,
-                    't_type' => $user->t_type,
-                    't_location' => $user->location,
-                    'paymentStatus' => $user->paymentStatus,
-                    'balance' => $user->balance,
-                    'invoice_id' =>  $user->invoice_id,
-                ] );
-            
+                'created_at' =>  $user->created_at,
+                't_amount' => $user->t_amount,
+                't_type' => $user->t_type,
+                't_location' => $user->location,
+                'paymentStatus' => $user->paymentStatus,
+                'balance' => $user->balance,
+                'invoice_id' =>  $user->invoice_id,
+            ]);
         }
         return back()->with('message', 'All user details have been moved succesfully');
     }
 
-    public function getfile($filename){
-        if(auth()->user()->role_id != 'Admin'){
+    public function getfile($filename)
+    {
+        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return abort(404);
         }
 
-        $realpath = base_path() . '/uploads/pop'. '/' .$filename;
+        $realpath = base_path() . '/uploads/pop' . '/' . $filename;
         return response()->download($realpath);
     }
 
-    public function destroy(Pop $pop){
+    public function destroy(Pop $pop)
+    {
         if (file_exists(base_path() . '/uploads' . '/' . $pop->file)) {
-            unlink( base_path() . '/uploads'.'/'. $pop->file);
+            unlink(base_path() . '/uploads' . '/' . $pop->file);
         }
         $pop->delete();
         return back()->with('message', 'Pop succesfully deleted');
     }
 
     //set balance and determine user receipt values
-    private function dosubscript1($balance){
-        if($balance <= 0){
+    private function dosubscript1($balance)
+    {
+        if ($balance <= 0) {
             return 'Full payment';
-        }else return 'Part payment';
+        } else return 'Part payment';
     }
 
     //return payment status
-    private function paymentStatus($balance){
-        if($balance <= 0){
+    private function paymentStatus($balance)
+    {
+        if ($balance <= 0) {
             return 1;
-        }elseif ($balance > 0){
-        } return 0;
+        } elseif ($balance > 0) {
+        }
+        return 0;
     }
 
     //return message for if earlybird is not checked
-    private function dosubscript2($balance){
-        if($balance <= 0){
+    private function dosubscript2($balance)
+    {
+        if ($balance <= 0) {
             return 'Earlybird payment';
-        }else return 'Part payment';
+        } else return 'Part payment';
     }
-
 }

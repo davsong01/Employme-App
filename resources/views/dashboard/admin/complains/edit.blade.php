@@ -228,7 +228,7 @@
                                 </div>
                             </div> 
                         </div>
-                        @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                        @if(Auth::user()->role_id == "Admin" || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
@@ -245,7 +245,7 @@
                         </div>
                         @endif
 
-                        @if(Auth::user()->role_id == "Student")
+                        @if(!empty(array_intersect(studentRoles(), Auth::user()->role())))
                         @if($complain->notes)
                         <div class="row">
                             <div class="col-md-12">

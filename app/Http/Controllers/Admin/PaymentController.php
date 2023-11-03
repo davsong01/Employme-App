@@ -40,10 +40,10 @@ class PaymentController extends Controller
 
             return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops'));
         }
-        if (Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader") {
+        if (Auth::user()->role_id == "Teacher" || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             return back();
         }
-        if (Auth::user()->role_id == "Student") {
+        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
 
             $transactiondetails = DB::table('program_user')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
@@ -133,7 +133,6 @@ class PaymentController extends Controller
                 // $this->sendWelcomeMail($data, $pdf);
                 // to user
                 $this->sendWelcomeMail($data, $pdf);
-
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
             }
@@ -146,7 +145,7 @@ class PaymentController extends Controller
     {
         $transaction = Transaction::with(['coupon', 'program'])->where('id', $id)->first();
 
-        if (Auth::user()->role_id == "Student") {
+        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
             }
@@ -272,7 +271,6 @@ class PaymentController extends Controller
                 ]);
                 $this->updateCouponStatus($transaction->user->email, $response['id'], $transaction->program_id);
             }
-
         }
 
 

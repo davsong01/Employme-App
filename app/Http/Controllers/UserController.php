@@ -23,31 +23,31 @@ class UserController extends Controller
 
         $i = 1;
         //$users = User::all();
-       $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
-       //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
+        $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
+        //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
         $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
-       if(Auth::user()->role_id == "Admin"){
-         
-          return view('dashboard.admin.users.index', compact('users', 'i', 'programs') );
-        }elseif(Auth::user()->role_id == "Facilitator"){
-           $users = User::where([
-            'role_id' => "Student",
-            'program_id' => Auth::user()->program_id,
-           ])->orderBy('created_at', 'DESC')
-           
-           ->get();
-            return view('dashboard.teacher.users.index', compact('users', 'i', 'programs') );
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            return view('dashboard.admin.users.index', compact('users', 'i', 'programs'));
+        } else if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+            $users = User::where([
+                'role_id' => "Student",
+                'program_id' => Auth::user()->program_id,
+            ])->orderBy('created_at', 'DESC')
+
+                ->get();
+            return view('dashboard.teacher.users.index', compact('users', 'i', 'programs'));
         }
     }
 
     public function create()
     {
-        if(Auth::user()->role_id == "Admin"){
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $users = User::orderBy('created_at', 'DESC');
             $user = User::all();
-            $programs= Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
+            $programs = Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs'));
-        }return back();
+        }
+        return back();
     }
 
     public function store(Request $request)
@@ -58,88 +58,84 @@ class UserController extends Controller
         $programAbbr = Program::findorFail($request['training'])->p_abbr;
         $bookingForm = Program::findorFail($request['training'])->booking_form;
         $programEarlyBird = Program::findorFail($request['training'])->e_amount;
-        $invoice_id = 'Invoice'.rand(10, 100);
-        
-        if($request['amount'] > $programFee){
-            return back()->with('warning', 'Student cannot pay more than program fee');
-        }else
-       {
-        //check if earlybird bypass was checked
-        if(!$request['earlybird']){
-             //go ahead and do normal balance
-             if($request['amount'] == $programEarlyBird){
-                $balance = $programEarlyBird - $request['amount'];
-                $message = $this->dosubscript2($balance);
-                $payment_type = 'EB';
-             }else{
-            $balance = $programFee - $request['amount'];
-            $message = $this->dosubscript1($balance);
-            $payment_type = 'Full';
-             }
-            $paymentStatus =  $this->paymentStatus($balance);
-            
-           
-        }else {
-           //check amount against payment
-            $balance = $programFee - $request['amount'];
-            $message = $this->dosubscript2($balance);
-            $paymentStatus =  $this->paymentStatus($balance); 
-            $payment_type = 'Full';
-        }
-        
-        $data = request()->validate([
-            'name' => 'required | min:5',
-            'email' =>'required | email',
-            'phone' =>'required',
-            'training' =>'required',
-            'amount' => 'required',
-            'bank' =>'required',
-            'location'=> 'nullable',
-            'password' => 'required',
-            'role'=>'required',
-            'gender' => '',
-            'transaction_id' => '',
-            'invoice_id' => '',
-    
-        ]);
-        
-        User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            't_phone' => $data['phone'],
-            'password' => bcrypt($data['password']),
-            'program_id' => $data['training'],
-            't_amount' => $data['amount'],
-            't_type' => $data['bank'],
-            't_location' => $data['location'],
-            'role_id' => $data['role'],
-            'gender' => $data['gender'],
-            'transid' => $data['transaction_id'],
-            'paymenttype' => $payment_type,
-            'paymentStatus' => $paymentStatus,
-            // 'bank' => $data['bank'],
-            'balance' => $balance,
-            'invoice_id' =>  $invoice_id,
-            'profile_picture' => 'avatar.jpg',
-        ]);
+        $invoice_id = 'Invoice' . rand(10, 100);
 
-        //send mail here
-        $details = [
-            'programFee' => $programFee,
-            'programName' => $programName,
-            'programAbbr' => $programAbbr,
-            'balance' => $balance,
-            'message' => $message,
-            'booking_form' => base_path() . '/uploads'.'/'. $bookingForm,
-            'invoice_id' =>  $invoice_id,
-  
-        ];
-     
-        $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
-        Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
-        
-        return back()->with('message', 'Student added succesfully'); 
-      
+        if ($request['amount'] > $programFee) {
+            return back()->with('warning', 'Student cannot pay more than program fee');
+        } else {
+            //check if earlybird bypass was checked
+            if (!$request['earlybird']) {
+                //go ahead and do normal balance
+                if ($request['amount'] == $programEarlyBird) {
+                    $balance = $programEarlyBird - $request['amount'];
+                    $message = $this->dosubscript2($balance);
+                    $payment_type = 'EB';
+                } else {
+                    $balance = $programFee - $request['amount'];
+                    $message = $this->dosubscript1($balance);
+                    $payment_type = 'Full';
+                }
+                $paymentStatus =  $this->paymentStatus($balance);
+            } else {
+                //check amount against payment
+                $balance = $programFee - $request['amount'];
+                $message = $this->dosubscript2($balance);
+                $paymentStatus =  $this->paymentStatus($balance);
+                $payment_type = 'Full';
+            }
+
+            $data = request()->validate([
+                'name' => 'required | min:5',
+                'email' => 'required | email',
+                'phone' => 'required',
+                'training' => 'required',
+                'amount' => 'required',
+                'bank' => 'required',
+                'location' => 'nullable',
+                'password' => 'required',
+                'role' => 'required',
+                'gender' => '',
+                'transaction_id' => '',
+                'invoice_id' => '',
+
+            ]);
+
+            User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                't_phone' => $data['phone'],
+                'password' => bcrypt($data['password']),
+                'program_id' => $data['training'],
+                't_amount' => $data['amount'],
+                't_type' => $data['bank'],
+                't_location' => $data['location'],
+                'role_id' => $data['role'],
+                'gender' => $data['gender'],
+                'transid' => $data['transaction_id'],
+                'paymenttype' => $payment_type,
+                'paymentStatus' => $paymentStatus,
+                // 'bank' => $data['bank'],
+                'balance' => $balance,
+                'invoice_id' =>  $invoice_id,
+                'profile_picture' => 'avatar.jpg',
+            ]);
+
+            //send mail here
+            $details = [
+                'programFee' => $programFee,
+                'programName' => $programName,
+                'programAbbr' => $programAbbr,
+                'balance' => $balance,
+                'message' => $message,
+                'booking_form' => base_path() . '/uploads' . '/' . $bookingForm,
+                'invoice_id' =>  $invoice_id,
+
+            ];
+
+            $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
+            Mail::to($data['email'])->send(new Welcomemail($data, $details, $pdf));
+
+            return back()->with('message', 'Student added succesfully');
         }
     }
     /**
@@ -149,40 +145,41 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-   
+
     {
         //This has been move to Admin/PaymentController     
     }
 
     public function edit($id)
-    { 
-            $user = User::findorFail($id);
-            $programs = Program::where('id', '<>', 1)->get();
-            if(Auth::user()->role_id == "Admin"){
-                            
-                return view('dashboard.admin.users.edit', compact('programs','user'));
-        }return back();
+    {
+        $user = User::findorFail($id);
+        $programs = Program::where('id', '<>', 1)->get();
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+            return view('dashboard.admin.users.edit', compact('programs', 'user'));
+        }
+        return back();
     }
 
- 
+
     public function update(Request $request, $id)
     {
-        
+
         $user = User::findorFail($id);
-        if($request['password']){
+        if ($request['password']) {
             $user->password = bcrypt($request['password']);
         };
         //check amount against payment
         $programFee = Program::findorFail($request['training'])->p_amount;
 
         $newamount = $user->t_amount + $request['amount'];
-        if($newamount > $programFee){
+        if ($newamount > $programFee) {
             return back()->with('warning', 'Student cannot pay more than program fee');
-        }else 
-        $balance = $programFee - $newamount;
+        } else
+            $balance = $programFee - $newamount;
         $message = $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
-       
+
         //update the program table here @ column fully paid or partly paid
         // $this->programStat2($request['training'], $paymentStatus);
 
@@ -202,10 +199,10 @@ class UserController extends Controller
 
         $user->save();
         //I used return redirect so as to avoid creating new instances of the user and program class
-        if(Auth::user()->role_id == "Admin"){
-        return redirect('users')->with('message', 'user updated successfully');
-        } return back();
-    
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            return redirect('users')->with('message', 'user updated successfully');
+        }
+        return back();
     }
 
 
@@ -215,41 +212,49 @@ class UserController extends Controller
         return redirect('users')->with('message', 'user deleted successfully');
     }
 
-    public function mails(){
+    public function mails()
+    {
         $i = 1;
-        $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get(); 
+        $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
         $updateemails = UpdateMails::orderby('created_at', 'DESC')->get();
-        return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i') );
+        return view('dashboard.admin.users.email', compact('programs', 'updateemails', 'i'));
     }
 
-    public function emailHistory($id){
+    public function emailHistory($id)
+    {
         $email = UpdateMails::findOrFail($id);
 
-        return view('dashboard.admin.users.emailhistory', compact('email') );
+        return view('dashboard.admin.users.emailhistory', compact('email'));
     }
-   
-    public function export() 
+
+    public function export()
     {
         return Excel::download(new UsersExport, 'users.xlsx');
     }
-    
+
     //set balance and determine user receipt values
-    private function dosubscript1($balance){
-        if($balance <= 0){
+    private function dosubscript1($balance)
+    {
+        if ($balance <= 0) {
             return 'Full payment';
-        }return 'Part payment';
+        }
+        return 'Part payment';
     }
     //return payment status
-    private function paymentStatus($balance){
-        if($balance <= 0){
+    private function paymentStatus($balance)
+    {
+        if ($balance <= 0) {
             return 1;
-        }return 0;
+        }
+        return 0;
     }
     //return message for if earlybird is not checked
-    private function dosubscript2($balance){
-        if($balance <= 0){
+    private function dosubscript2($balance)
+    {
+        if ($balance <= 0) {
             return 'Earlybird payment';
-        }return 'Part payment';
+        }
+        return 'Part payment';
     }
 
     //update program payment statistics when adding new user

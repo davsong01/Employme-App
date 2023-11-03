@@ -12,74 +12,79 @@ class ScoreSettingController extends Controller
     public function index()
     {
         $i = 1;
-       
-        if(Auth()->user()->role_id == "Admin"){
+
+        if (Auth()->user()->role_id == "Admin") {
             $scores = ScoreSetting::orderBy('program_id', 'DESC')->get();
-            
-            foreach($scores as $score){
+
+            foreach ($scores as $score) {
                 $score['module_count'] = 0;
                 $score['module_status_count'] = 0;
 
-                if(!isset($score->program->module)){ $score['module_count'] = 0; };
+                if (!isset($score->program->module)) {
+                    $score['module_count'] = 0;
+                };
 
-                foreach($score->program->modules as $modules){
-                    if($modules->status == 1){
+                foreach ($score->program->modules as $modules) {
+                    if ($modules->status == 1) {
                         $score['module_status_count'] += 1;
                     }
                 }
-                
-            }       
-            
-            return view('dashboard.admin.scoresettings.index', compact('scores', 'i') );
+            }
+
+            return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
         }
-          
-        if(Auth()->user()->role_id == "Facilitator"){
+
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $scores = ScoreSetting::where('program_id', auth()->user()->program->id)->orderBy('program_id', 'DESC')->get();
-            
-            foreach($scores as $score){
+
+            foreach ($scores as $score) {
                 $score['module_count'] = 0;
                 $score['module_status_count'] = 0;
 
-                if(!isset($score->program->module)){ $score['module_count'] = 0; };
+                if (!isset($score->program->module)) {
+                    $score['module_count'] = 0;
+                };
 
-                foreach($score->program->modules as $modules){
-                    if($modules->status == 1){
+                foreach ($score->program->modules as $modules) {
+                    if ($modules->status == 1) {
                         $score['module_status_count'] += 1;
                     }
                 }
-                
-            }       
-            
-            return view('dashboard.admin.scoresettings.index', compact('scores', 'i') );
+            }
+
+            return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
         }
-            return redirect('/dashboard');
+        return redirect('/dashboard');
     }
 
     public function create()
     {
-        if(auth()->user()->role_id == "Admin"){
+        if (auth()->user()->role_id == "Admin") {
             $programs = Program::withCount(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('created_at', 'DESC')->get();
-            
+
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
-        if(auth()->user()->role_id == "Facilitator"){
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
-            foreach($programs as $program){
+            foreach ($programs as $program) {
                 $program['counter'] = 0;
-                if(isset($program->scoresettings)){ $program['settings_count'] = 1; }else $program['settings_count'] = 0;
+                if (isset($program->scoresettings)) {
+                    $program['settings_count'] = 1;
+                } else $program['settings_count'] = 0;
 
                 //check if any of program's module is enabled
-                foreach($program->modules as $module){
-                    
-                    if($module->status == 1){
-                        $program['counter'] +=1;
+                foreach ($program->modules as $module) {
+
+                    if ($module->status == 1) {
+                        $program['counter'] += 1;
                     };
-                }  
+                }
             }
-        
+
             return view('dashboard.admin.scoresettings.create', compact('programs'));
-        } return redirect('/dashboard');
+        }
+        return redirect('/dashboard');
     }
 
     public function store(Request $request)
@@ -96,10 +101,10 @@ class ScoreSettingController extends Controller
             // 'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
-        $total = array_sum($request->except(['passmark', 'program','_token']));
+        $total = array_sum($request->except(['passmark', 'program', '_token']));
 
 
-        if($total > 100 || $total < 100){
+        if ($total > 100 || $total < 100) {
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100%, please try again');
         }
 
@@ -146,13 +151,13 @@ class ScoreSettingController extends Controller
             // 'certificationscore' => 'sometimes|numeric|min:1|max:100',
         ]);
 
-        
-        $total = array_sum($request->except(['passmark', 'program','_token']));
-        
-        if($total > 100 || $total < 100){
+
+        $total = array_sum($request->except(['passmark', 'program', '_token']));
+
+        if ($total > 100 || $total < 100) {
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100, please try again');
         }
-        
+
         $scoreSetting->program_id = $request['program'];
         $scoreSetting->certification = $request['certificationscore'] ?? 0;
         $scoreSetting->class_test = $request['classtests'] ?? 0;
@@ -160,7 +165,7 @@ class ScoreSettingController extends Controller
         $scoreSetting->email = $request['emailscore'] ?? 0;
         $scoreSetting->passmark = $request['passmark'];
         $scoreSetting->total = $total;
-        
+
         $scoreSetting->save();
 
         return redirect(route('scoreSettings.index'))->with('message', 'setting updated successfully');
@@ -178,6 +183,4 @@ class ScoreSettingController extends Controller
 
         return back()->with('message', 'delete successful!');
     }
-
-   
 }

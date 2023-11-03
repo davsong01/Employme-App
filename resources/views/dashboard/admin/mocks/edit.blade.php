@@ -44,7 +44,7 @@
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                                 <div class="form-group">
                                     <label>Role Play Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->role_play }})</span></label>
-                                    <input type="number" {{ (Auth::user()->role_id == "Grader") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
+                                    <input type="number" {{ (!empty(array_intersect(graderRoles(), Auth::user()->role()))) && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
                                         class="form-control" min="0" max="{{$user_results->program->scoresettings->role_play }}" required>
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>

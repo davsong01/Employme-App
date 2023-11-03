@@ -10,17 +10,16 @@ use Illuminate\Support\Facades\Auth;
 
 class LocationController extends Controller
 {
-    
+
     public function index()
     {
-        if(Auth::user()->role_id == "Admin"){
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $i = 1;
 
             $locations = Location::orderBy('created_at', 'desc')->get();
 
             return view('dashboard.admin.locations.index', compact('i', 'locations'));
         }
-
     }
 
     public function create()
@@ -42,14 +41,13 @@ class LocationController extends Controller
             'program_id' => $request->program_id,
         ]);
 
-        
+
         return redirect(route('locations.index'))->with('message', 'Location has been added successfully');
     }
 
-   
+
     public function show(Location $location)
     {
-       
     }
 
     public function edit(Location $location)

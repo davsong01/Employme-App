@@ -20,66 +20,68 @@ class ModuleController extends Controller
 
     public function index()
     {
-        $i = 1; 
-       
-        if(Auth::user()->role_id == "Admin"){
-             
-            $modules = Module::with( ['program', 'questions'] )->orderBy('created_at', 'desc')->get();          
+        $i = 1;
+
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+            $modules = Module::with(['program', 'questions'])->orderBy('created_at', 'desc')->get();
             $questions_count = Question::all()->count();
-            
+
             // $programs_with_modules = Program::whereHas('modules', function ($query) {
             //     return $query;
             // })->orderby('created_at', 'DESC')->get();
             $programs_with_modules = Program::orderby('created_at', 'DESC')->get();
-            
+
             return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
         }
-        
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-            
+
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
             $programs_with_modules = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-            if($programs_with_modules->count() > 0){
-                foreach($programs_with_modules as $modules){
+            if ($programs_with_modules->count() > 0) {
+                foreach ($programs_with_modules as $modules) {
                     $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
                     $modules['modules_count'] = Program::withCount('modules')->whereId($modules->program_id)->get()->sum('modules_count');
                     $modules['questions_count'] = Module::withCount('questions')->whereProgramId($modules->program_id)->get()->sum('questions_count');
                 }
             }
-            
-            return view('dashboard.teacher.modules.index', compact( 'i', 'programs_with_modules'));
-        } return back();
+
+            return view('dashboard.teacher.modules.index', compact('i', 'programs_with_modules'));
+        }
+        return back();
     }
 
-    public function all($p_id){
-        $i = 1;  
-       
-        if(Auth::user()->role_id == "Admin"){
+    public function all($p_id)
+    {
+        $i = 1;
+
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
-            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
-            
+            $modules = Module::with(['program', 'questions'])->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();
+            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count');
+
             return view('dashboard.admin.modules.show', compact('program_name', 'p_id', 'modules', 'i', 'questions_count'));
         }
 
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){ 
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
 
             $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with( ['program', 'questions'] )->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();          
-            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count'); 
-          
+            $modules = Module::with(['program', 'questions'])->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();
+            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count');
+
             return view('dashboard.teacher.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));
         }
     }
     public function create(Request $request)
     {
         $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
-        
+
         return view('dashboard.admin.modules.create', compact('program'));
-        if(Auth::user()->role_id == "Admin"){
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
         }
 
-        // if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
-           
+        // if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))|| !empty(array_intersect(graderRoles(), Auth::user()->role()))){
+
         //     return view('dashboard.admin.modules.create', compact('programs'));
         // }
         // return back();
@@ -96,16 +98,16 @@ class ModuleController extends Controller
             'noofquestions' => 'required|numeric'
         ]);
 
-        if($data['type'] == 1 && $data['noofquestions'] > 1){
+        if ($data['type'] == 1 && $data['noofquestions'] > 1) {
             return back()->with('error', 'Module of type certification can only accomodate 1 question per module');
         }
         //check if scoresettings exist for this program
         $score_settings_check = ScoreSetting::where('program_id', $data['program'])->get();
 
-        if($score_settings_check->count() < 1){
+        if ($score_settings_check->count() < 1) {
             return redirect('scoreSettings')->with('error', 'No score settings defined! Please define Score settings for this program below');
         }
-       
+
         $module = Module::create([
             'title' => $request->title,
             'program_id' => $request->program,
@@ -122,13 +124,13 @@ class ModuleController extends Controller
     {
         //find module
         $module = Module::findOrFail($request->id);
-        
+
         //convert module type to integer
-        if($module->type == 'Class Test'){
+        if ($module->type == 'Class Test') {
             $type = 0;
         }
 
-        if($module->type == 'Certification Test'){
+        if ($module->type == 'Certification Test') {
             $type = 1;
         }
 
@@ -144,9 +146,9 @@ class ModuleController extends Controller
             'time' => $module->time,
             'type' => $type,
         ]);
-        
-       //Duplicate module questions for newly created module       
-        foreach($module_questions as $question){
+
+        //Duplicate module questions for newly created module       
+        foreach ($module_questions as $question) {
             $new = Question::create([
                 'title' => $question->title,
                 'optionA' => $question->optionA,
@@ -156,11 +158,10 @@ class ModuleController extends Controller
                 'correct' => $question->correct,
                 'module_id' => $new_module->id,
             ]);
-            
-        }       
+        }
 
-        return redirect(route('facilitatormodules', $request->program_id))->with('message','Module and associated questions succesfully cloned');
-    } 
+        return redirect(route('facilitatormodules', $request->program_id))->with('message', 'Module and associated questions succesfully cloned');
+    }
 
     public function show(Module $module)
     {
@@ -168,18 +169,20 @@ class ModuleController extends Controller
         return view('dashboard.teacher.modules.showclone', compact('module', 'programs'));
     }
 
-    public function enablemodule($id){
+    public function enablemodule($id)
+    {
         $module = Module::findOrFail($id);
-        if($module->questions->count() <= 0 || $module->questions->count() < $module->noofquestions){
+        if ($module->questions->count() <= 0 || $module->questions->count() < $module->noofquestions) {
             return back()->with('error', 'You cannot enable a module with empty questions or less than expected questions, Please add questions to this module');
         }
         $module->status = 1;
         $module->save();
-       
+
         return back()->with('message', 'This Module and its questions have been enabled Successfully ');
     }
 
-    public function disablemodule($id){
+    public function disablemodule($id)
+    {
         $module = Module::findOrFail($id);
         $module->status = 0;
         $module->save();
@@ -188,20 +191,18 @@ class ModuleController extends Controller
 
     public function edit(Module $module)
     {
-        if(Auth::user()->role_id == "Admin"){
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
 
             $program = Program::whereId($module->program_id)->first();
 
             return view('dashboard.admin.modules.edit', compact('module', 'program'));
-
         }
 
-        if(Auth::user()->role_id == "Facilitator" || Auth::user()->role_id == "Grader"){
+        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
 
             $program = Program::whereId($module->program_id)->first();
 
             return view('dashboard.teacher.modules.edit', compact('module', 'program'));
-
         }
         return back();
     }
@@ -209,7 +210,7 @@ class ModuleController extends Controller
     public function update(Request $request, Module $module)
     {
 
-        if($request->type == 0){
+        if ($request->type == 0) {
             $type = 0;
         }
         $module->update([
@@ -221,7 +222,6 @@ class ModuleController extends Controller
             'type' => $request->type,
         ]);
         return redirect(route('facilitatormodules', $module->program))->with('message', 'Module succesfully updated');
-   
     }
 
     public function destroy(Module $module)

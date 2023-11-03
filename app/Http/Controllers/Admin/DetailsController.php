@@ -18,11 +18,12 @@ class DetailsController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->role_id == "Admin"){
-        $programs = Program::where('id', '<>', 1)->get();
-        return view('dashboard.admin.details.index', compact('programs'));
-    }return back();
-}
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            $programs = Program::where('id', '<>', 1)->get();
+            return view('dashboard.admin.details.index', compact('programs'));
+        }
+        return back();
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -42,16 +43,17 @@ class DetailsController extends Controller
      */
     public function store(Request $request)
     {
-        if(Auth::user()->role_id == "Admin"){
-        $type = $request->type;
-        $training = $request->program_id;
-        $programs = Program::where('id', '<>', 1)->get();
-        $count = 0;
-        $results = DB::table('users')->where('program_id', '=', $training)->where('role_id', '<>', "Admin")->get();
-        $count = count($results);
-        return view('dashboard.admin.details.show', compact('programs', 'results', 'count', 'type'));
-    }return back();
-}
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            $type = $request->type;
+            $training = $request->program_id;
+            $programs = Program::where('id', '<>', 1)->get();
+            $count = 0;
+            $results = DB::table('users')->where('program_id', '=', $training)->where('role_id', '<>', "Admin")->get();
+            $count = count($results);
+            return view('dashboard.admin.details.show', compact('programs', 'results', 'count', 'type'));
+        }
+        return back();
+    }
 
     /**
      * Display the specified resource.
@@ -82,7 +84,7 @@ class DetailsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    
+
     /**
      * Remove the specified resource from storage.
      *

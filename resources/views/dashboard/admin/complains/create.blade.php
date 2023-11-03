@@ -15,7 +15,7 @@
                                 <div class="col-md-12 mb-2">
                                     <h4 style="text-align: center; color: blue">Customer Personal Details</h4>
                                 </div>
-                                @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                                @if(Auth::user()->role_id == "Admin" || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
                                 <div class="col-md-12 mb-2">
                                     <div class="form-group">
                                         <label for="program_id">Select Training*</label>
@@ -282,7 +282,7 @@
                                 </div> 
                             </div>
                            
-                            {{-- @if(Auth::user()->role_id == "Admin" || auth()->user()->role_id == "Facilitator" )
+                            {{-- @if(Auth::user()->role_id == "Admin" || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">

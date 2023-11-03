@@ -37,7 +37,7 @@
                             <td>{{ $question->title }}</td>
                             <td>{{$question->module->title}}</td>
                             <td>{{ $question->correct }}</td>
-                            @if(Auth::user()->role_id == "Admin")
+                             @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit question"
@@ -59,7 +59,7 @@
 
                             </td>
                             @endif
-                            @if(Auth::user()->role_id == "Facilitator")
+                             @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
                             <td>
                                 N/A
                             </td>

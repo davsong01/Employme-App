@@ -93,7 +93,7 @@
                                             class="btn btn-success" href="{{route('crm.resolved', $complain->id)}}"><i
                                                 class="fa fa-check"></i> Resolve</a>
                                     @endif
-                                    @if(Auth::user()->role_id == "Admin")
+                                     @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                         <form action="{{ route('complains.destroy', $complain->id)}}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
