@@ -50,6 +50,7 @@
                                 Not Uploaded
                                 <?php endif; ?> 
                             </td>
+                            
                             <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
                                     <?php if(isset($score_settings->certification) && $score_settings->certification > 0): ?>
@@ -83,40 +84,45 @@
                             <?php endif; ?>
                             
                             
-                            
                             <td>
                                 <?php if( isset($user->result_id)): ?> 
-                                    <div class="btn-group">
-                                        <?php if($user->redotest == 0 && !empty($user->certification_test_details)): ?>
+                                    <?php if($user->redotest == 0): ?>
+                                        <?php if(!empty($user->certification_test_details)): ?>
                                             <a class="btn btn-info btn-sm" href="<?php echo e(route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id])); ?>"><i
-                                                    class="fa fa-eye"> View/Update </i>
-                                            </a>
-                                            <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
-                                            <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="<?php echo e(route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ])); ?>" method="POST">
-                                                <?php echo e(csrf_field()); ?>
+                                                        class="fa fa-eye"> View/Update </i>
+                                                </a>
+                                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
+                                                <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="<?php echo e(route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ])); ?>" method="POST">
+                                                    <?php echo e(csrf_field()); ?>
 
-                                                <?php echo e(method_field('DELETE')); ?>
+                                                    <?php echo e(method_field('DELETE')); ?>
 
-                                                <input type="hidden" name="uid" value="<?php echo e($user->user_id); ?>">
-                                                <input type="hidden" name="rid" value="<?php echo e($user->result_id); ?>">
-                                                <input type="hidden" name="pid" value="<?php echo e($user->program_id); ?>">
-                                                <button type="submit" class="btn btn-danger btn-xsm"> <i
-                                                        class="fa fa-redo"> Enable Resit</i>
-                                                </button>
-                                            </form>
+                                                    <input type="hidden" name="uid" value="<?php echo e($user->user_id); ?>">
+                                                    <input type="hidden" name="rid" value="<?php echo e($user->result_id); ?>">
+                                                    <input type="hidden" name="pid" value="<?php echo e($user->program_id); ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm"> <i
+                                                            class="fa fa-redo"> Enable Resit</i>
+                                                    </button>
+                                                </form>
                                             <?php endif; ?>
-                                            <?php endif; ?>
-                                            <?php if($user->redotest != 0): ?>
-                                            <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
-                                                class="btn btn-warning" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
+                                                class="btn btn-info" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i
                                                     class="fa fa-stop"></i>
-                                            </a>
-                                            <?php endif; ?>
-                                    
-                                    </div>
+                                        </a>
+                                    <?php endif; ?>
                                 <?php else: ?>
-                                    N/A
+                                 <div class="btn-group">
+                                   <button class="btn btn-button btn-danger" disabled>Participant has not taken any test!</button>
+                                 </div>
                                 <?php endif; ?>
+                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
+                                <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    class="btn btn-warning" href="<?php echo e(route('impersonate', $user->user_id)); ?>"><i
+                                        class="fa fa-unlock"></i>
+                                </a>
+                                <?php endif; ?> 
                             </td>
                            
                         <?php endif; ?>
