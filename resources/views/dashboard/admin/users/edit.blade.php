@@ -73,10 +73,10 @@
                                     <label for="class">Role *</label>
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
-                                        <option value="Student" {{ $user->role_id == 'Student' ? 'selected' : ''}}>Student</option>
-                                        @if(Auth::user()->role_id == 'Admin')
+                                        <option value="Student" {{ !empty(array_intersect(studentRoles(), $user->role())) ? 'selected' : ''}}>Student</option>
+                                        @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                         <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
+                                        <option value="Grader" {{ !empty(array_intersect(graderRoles(), $user->role())) ? 'selected' : ''}}>Grader</option>
                                         @endif
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>

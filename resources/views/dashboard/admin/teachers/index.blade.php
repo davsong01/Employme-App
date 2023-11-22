@@ -47,8 +47,20 @@
                                 @endif
                                 </small>
                             </td>
-                           
-                            <td style="margin: auto;display: flex;border-bottom: none;"><button class="disabled btn btn-{{ $user->role_id == 'Facilitator' ? 'primary' : 'info'}} btn-sm">{{ $user->role_id}}</button> <br>
+                            
+                            <td style="margin: auto;display: flex;border-bottom: none;display: grid;">
+                                @if(!empty(array_intersect(facilitatorRoles(), $user->role())))
+                                <button class="disabled btn btn-primary btn-sm">Facilitator</button> <br>
+                                @endif
+
+                                @if(!empty(array_intersect(graderRoles(), $user->role())))
+                                <button class="disabled btn btn-info btn-sm">Grader</button> <br>
+                                @endif
+
+                                @if(!empty(array_intersect(adminRoles(), $user->role())))
+                                <button class="disabled btn btn-success btn-sm" style="background-color: darkblue;border-color: darkblue;">Admin</button> <br>
+                                @endif
+                              
                             @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
                             </td>
                             <td>

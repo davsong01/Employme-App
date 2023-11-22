@@ -27,7 +27,7 @@ class PaymentController extends Controller
     {
         $i = 1;
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
             $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
@@ -40,10 +40,10 @@ class PaymentController extends Controller
 
             return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops'));
         }
-        if (Auth::user()->role_id == "Teacher" || Auth::user()->role_id == "Grader") {
+        if (!empty(array_intersect(teacherRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             return back();
         }
-        if (Auth::user()->role_id == "Student") {
+        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
 
             $transactiondetails = DB::table('program_user')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
@@ -74,7 +74,7 @@ class PaymentController extends Controller
         $locations =  (isset($program_details->locations) && !empty($program_details->locations)) ? json_decode($program_details->locations) : [];
         // determine balance
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return view('dashboard.admin.transactions.edit', compact('transaction', 'locations', 'modes', 'coupons'));
         }
         return back();
@@ -84,7 +84,7 @@ class PaymentController extends Controller
     {
         $transaction = DB::table('program_user')->where('id', $id)->first();
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             //get user details
             $user = User::findorFail($transaction->user_id);
 
@@ -133,7 +133,6 @@ class PaymentController extends Controller
                 // $this->sendWelcomeMail($data, $pdf);
                 // to user
                 $this->sendWelcomeMail($data, $pdf);
-
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
             }
@@ -146,7 +145,7 @@ class PaymentController extends Controller
     {
         $transaction = Transaction::with(['coupon', 'program'])->where('id', $id)->first();
 
-        if (Auth::user()->role_id == "Student") {
+        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
             }
@@ -272,7 +271,6 @@ class PaymentController extends Controller
                 ]);
                 $this->updateCouponStatus($transaction->user->email, $response['id'], $transaction->program_id);
             }
-
         }
 
 

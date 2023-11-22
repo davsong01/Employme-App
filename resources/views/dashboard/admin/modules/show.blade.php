@@ -107,7 +107,7 @@
                                            onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     @endif
-                                    @if(auth()->user()->role_id == 'Admin')
+                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                                     @if($module->questions->count() > 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Module"
                                         class="btn btn-primary" href="{{ route('modules.show', $module->id) }}"><i

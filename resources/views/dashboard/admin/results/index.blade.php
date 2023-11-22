@@ -23,7 +23,7 @@
                             <th>Details</th>
                             <th>Scores</th>
                             <th>Passmark</th>
-                            @if(auth()->user()->role_id == 'Admin')<th>Total</th>@endif
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<th>Total</th>@endif
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -34,10 +34,10 @@
                             <td>{{ $i++ }}</td>
                             <td>
                                 <strong class="tit">Name: </strong>{{ $user->name }} 
-                                @if(auth()->user()->role_id == 'Admin' ) <br>
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ) <br>
                                 <strong class="tit">Email: </strong>{{ $user->email }} <br>
-                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif
-                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader') <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
                                 <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>
                                 @endif
                                 <br>
@@ -52,23 +52,23 @@
                                 @endif 
                             </td>
                             <td>
-                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                     @if(isset($score_settings->certification) && $score_settings->certification > 0)
                                     <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% 
                                     @endif
                                 @endif
-                                @if(auth()->user()->role_id == 'Admin')
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
 
                                 @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
                                     <br><strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
                                 @endif
 
-                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
                                     @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
                                     <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
                                     @endif
                                 @endif
-                                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                     @if(isset($score_settings->email) && $score_settings->email > 0)
                                         <strong>Email: </strong> {{ $user->total_email_test_score }}% @endif
                                     @endif
@@ -77,19 +77,19 @@
                                 ?>
                             </td>
                             <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
-                            @if(auth()->user()->role_id == 'Admin')
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                             <td>
                                  <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
                             </td>
                             @endif
-                            {{-- @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<br>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%@endif
-                            @if(auth()->user()->role_id == 'Admin')<td>{{ $user->final_ct_score }}%</td>@endif
-                             @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<td>{{ $user->total_role_play_score }}%</td>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<td>{{ $user->total_email_test_score }}%</td>@endif
+                            {{-- @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))<br>{{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}%@endif
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<td>{{ $user->final_ct_score }}%</td>@endif
+                             @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<td>{{ $user->total_role_play_score }}%</td>@endif
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))<td>{{ $user->total_email_test_score }}%</td>@endif
                             <td>{{ $user->passmark }}%</td>
-                            @if(auth()->user()->role_id == 'Admin')<td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')<th>{{ $user->marked_by }}</th>@endif
-                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')<th>{{ $user->grader }}</th>@endif --}}
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<td>{{ $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score }}%</td>@endif
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<th>{{ $user->marked_by }}</th>@endif
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))<th>{{ $user->grader }}</th>@endif --}}
                             {{-- <th> {{ $user->cl_module_count}}</th> --}}
                             
                             <td>
@@ -99,7 +99,7 @@
                                             <a class="btn btn-info btn-sm" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i
                                                     class="fa fa-eye"> View/Update </i>
                                             </a>
-                                            @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                             <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
                                                 {{ csrf_field() }}
                                                 {{method_field('DELETE')}}

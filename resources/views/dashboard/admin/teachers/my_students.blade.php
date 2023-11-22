@@ -21,7 +21,7 @@
                             <th>Date Joined</th>
                             <th>Avatar</th>
                             <th>Name</th>
-                            @if(auth()->user()->role_id == 'Admin')
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                             <th>Email</th>
                             @endif
                             <th>Phone</th>
@@ -36,7 +36,7 @@
                             <td><img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="50"
                                 height="50"></td>
                             <td>{{ $user->name ?? NULL }}</td>
-                            @if(auth()->user()->role_id == 'Admin')
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                             <td>{{ $user->email ?? NULL }}</td>
                             @endif
                             <td>{{ $user->t_phone ?? NULL}}</td>

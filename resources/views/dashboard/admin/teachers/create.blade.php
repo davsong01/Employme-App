@@ -15,7 +15,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="class">Role*</label>
-                                    <select name="role" id="class" class="form-control">
+                                    <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" >
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Facilitator" {{ old('role') == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
                                         <option value="Grader" {{ old('role') == 'Grader' ? 'selected' : ''}}>Grader</option>

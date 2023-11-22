@@ -105,7 +105,7 @@
     <div class="row">     
         <!-- Column -->
        
-        @if(Auth()->user()->role_id == "Facilitator" || Auth()->user()->role_id == "Grader")
+        @if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('teachers.students', Auth()->user()->id) }}">
                 <div class="card card-hover">

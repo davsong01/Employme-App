@@ -27,11 +27,14 @@
                         href="<?php echo e(route('stop.impersonate.facilitator')); ?>" aria-expanded="false"><i
                             class="fa fa-arrow-left"></i><span class="hide-menu">BACK TO ADMIN</span></a></li>
                 <?php endif; ?>
-                <?php if(Auth::user()->role_id == "Facilitator"): ?>
+                <?php if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
+                    <?php if(in_array(1, $menus)): ?>
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="<?php echo e(url('dashboard')); ?>" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                                class="hide-menu">Facilitator Dashboard</span></a></li>
-
+                                class="hide-menu">Staff Dashboard</span></a></li>
+                    <?php endif; ?>
+                <?php endif; ?>
+                <?php if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))): ?>
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="<?php echo e(route('teachers.students', auth()->user()->id)); ?>" aria-expanded="false"><i
                                 class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>
@@ -44,14 +47,8 @@
                             href="<?php echo e(route('teachers.earnings', auth()->user()->id)); ?>" aria-expanded="false"><i
                                 class="fas fa-wallet"></i><span class="hide-menu">My Earnings</span></a></li>
                 <?php endif; ?>
-                <?php if(Auth::user()->role_id == "Grader"): ?>
-                <?php if(in_array(1, $menus)): ?>
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="<?php echo e(url('dashboard')); ?>" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                            class="hide-menu">Grader Dashboard</span></a></li>
-                <?php endif; ?>
-                <?php endif; ?>
-                <?php if(Auth::user()->role_id == "Admin"): ?>
+               
+                <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role())) ): ?>
                 <?php if(in_array(1, $menus)): ?>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="<?php echo e(url('dashboard')); ?>" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
@@ -96,7 +93,7 @@
                     href="<?php echo e(route('coupon.index')); ?>" aria-expanded="false"><i class="fa fa-gift"></i><span
                         class="hide-menu">Coupons</span></a></li>
             <?php endif; ?>
-            <?php if(Auth::user()->role_id == "Admin"): ?>
+             <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                 <?php if(in_array(8, $menus)): ?>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="<?php echo e(route('payments.index')); ?>" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
@@ -144,7 +141,7 @@
                         <?php endif; ?>
                     <?php endif; ?>
                 </ul>
-                <?php if(Auth::user()->role_id == "Admin"): ?>
+                 <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                 <?php if(in_array(17, $menus)): ?>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="<?php echo e(route('users.mail')); ?>" aria-expanded="false"><i class="fa fa-envelope"></i><span

@@ -16,7 +16,7 @@ class ImpersonateController extends Controller
 {
     public function index(Request $request, $id)
     {
-        if(Auth::user()->role_id <> 'Admin')
+        if(empty(array_intersect(adminRoles(), Auth::user()->role())))
         {
             return redirect('/dashboard');
         }

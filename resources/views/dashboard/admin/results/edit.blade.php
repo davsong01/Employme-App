@@ -97,9 +97,8 @@
                 <small><small style="color:red">{{ $errors->first('passmark')}}</small></small>
               </div>
 
-
               <div class="col-md-6">
-                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                 <h6 style="color:red">Add Email score here</h6>
                 <div class="form-group">
                   <label>Email Score* <span style="color:green">(Max score =
@@ -110,7 +109,7 @@
 
                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                 @endif
-                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
                 <h6 style="color:red">Add Role play score here</h6>
                 <div class="form-group">
                   <label>Role Play Score* <span style="color:green">(Max score =
@@ -127,7 +126,7 @@
 
             <div class="row">
               <div class="col-md-12">
-                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                 <h6 style="color:red">Certificate Test Submision</h6>
                 <p>Please go through this user's attempt and grade user with the grade box below</p>
 
@@ -155,14 +154,14 @@
                   <label><span style="color:green">(Max score =
                       {{ $program->scoresettings->certification}})</span></label>
                   <input type="number" name="certification_score"
-                    {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }}
+                    {{ (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : '' }}
                     value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"
                     min="0" max="{{ $program->scoresettings->certification }}">
                 </div>
                 @else
                 <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
                 @endif
-                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Grader')
+                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                 <div class="form-group">
                   <label>Grader Comment(Optional) </label>
                   <textarea name="grader_comment" class="form-control" id="" cols="30" rows="10"
@@ -170,7 +169,7 @@
 
                 </div>
                 @endif
-                @if(auth()->user()->role_id == 'Admin' || auth()->user()->role_id == 'Facilitator')
+                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
                 <div class="form-group">
                   <label>Facilitator Comment(Optional) </label>
                   <textarea name="facilitator_comment" class="form-control" id="" cols="30" rows="10"

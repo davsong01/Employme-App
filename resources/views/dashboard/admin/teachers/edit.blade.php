@@ -23,7 +23,7 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">{{$user->name}}</h4>
-                         @if($user->role_id == 'Facilitator')  
+                         @if(!empty(array_intersect(facilitatorRoles(), $user->role())))  
                         <p>Referal link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b> <br>
                             WAACSP Profile link: <b>{{ $user->waaccsp_link }}</b>
                         </p>
@@ -42,7 +42,7 @@
                                 <div class="form-group">
                                     <table class="table table-bordered">
                                         <th><strong>Trainings</strong><a href="{{ route('teachers.programs', $user->id) }}" target="_blank" class="btn btn-info btn-sm view"> View</a></th>
-                                        @if($user->role_id == 'Facilitator')
+                                        @if(!empty(array_intersect(facilitatorRoles(), $user->role())))
                                         <th><strong>Students</strong><a href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
                                         <th><strong>WTN License</strong></th>
                                         <th><strong>Off season</strong></th>
@@ -50,7 +50,7 @@
                                         @endif
                                         <tr>
                                            <td>{{ $programs->count() }}</td>
-                                           @if($user->role_id == 'Facilitator')    
+                                           @if(!empty(array_intersect(facilitatorRoles(), $user->role())))    
                                            <td>{{  $user->students_count }} </td>
                                            <td>{{ $user->license }}</td>
                                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No'}}</td>
@@ -66,12 +66,12 @@
                          <div class="row" style="margin-top:20px">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="class">Role*</label>
-                                    <select name="role" id="class" class="form-control">
+                                    <label for="role">Role*</label>
+                                    <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" style="height: 30px;width: 100%;">
                                         <option value="" disabled>Assign Role</option>
-                                        <option value="Facilitator" {{ $user->role_id == 'Facilitator' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Grader" {{ $user->role_id == 'Grader' ? 'selected' : ''}}>Grader</option>
-                                        <option value="Admin" {{ $user->role_id == 'Admin' ? 'selected' : ''}}>Admin</option>
+                                        <option value="Facilitator" {{ !empty(array_intersect(facilitatorRoles(), $user->role()))  ? 'selected' : ''}}>Facilitator</option>
+                                        <option value="Grader" {{ !empty(array_intersect(graderRoles(), $user->role())) ? 'selected' : ''}}>Grader</option>
+                                        <option value="Admin" {{ !empty(array_intersect(adminRoles(), $user->role())) ? 'selected' : ''}}>Admin</option>
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
@@ -82,7 +82,7 @@
                                         <option value="inactive" {{ $user->status == 'inactive' ? 'selected':'' }}>Inactive</option>
                                     </select>
                                 </div>
-                                @if($user->role_id == 'Facilitator')  
+                                @if(!empty(array_intersect(facilitatorRoles(), $user->role())))  
                                 <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
                                     <label for="payment_mode">Payment Mode</label>
                                     <select name="payment_mode" id="payment_mode" class="form-control" required>

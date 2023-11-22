@@ -18,9 +18,8 @@ class MenuPermissions
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next)
-    {   
-        // dd(Auth::user()->role_id);
-        if(Auth::user()->role_id != 'Admin' && Auth::user()->role_id != 'Student' ){
+    {
+        if (empty(array_intersect(adminRoles(), Auth::user()->role())) && empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $i_menus = [];
             $all_menus = app('App\Http\Controllers\Controller')->adminMenus();
 
@@ -28,7 +27,7 @@ class MenuPermissions
                 $i_menus  = Auth::user()->menu_permissions ?? [];
                 if ($i_menus) {
                     $i_menus  = explode(',', $i_menus);
-                }else{
+                } else {
                     $i_menus = [];
                 }
             }
@@ -53,8 +52,7 @@ class MenuPermissions
                 return $next($request);
             }
         }
-        
-        return $next($request);
 
+        return $next($request);
     }
 }
