@@ -38,13 +38,13 @@
                                <h6 style="color:red">Add Email and Role play scores here</h6>
                                 <div class="form-group">
                                     <label>Email Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->email }})</span></label>
-                                    <input type="number" name="emailscore" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('emailscore') ?? $user_results->email_test_score }}" class="form-control"
+                                    <input type="number" name="emailscore" {{ (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : '' }} value="{{ old('emailscore') ?? $user_results->email_test_score }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->email }}">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                                 <div class="form-group">
                                     <label>Role Play Score* <span style="color:green">(Max score = {{$user_results->program->scoresettings->role_play }})</span></label>
-                                    <input type="number" {{ (!empty(array_intersect(graderRoles(), Auth::user()->role()))) && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
+                                    <input type="number" {{ (!empty(array_intersect(graderRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : '' }} name="roleplayscore" value="{{ old('roleplayscore') ?? $user_results->role_play_score }}"
                                         class="form-control" min="0" max="{{$user_results->program->scoresettings->role_play }}" required>
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
@@ -66,7 +66,7 @@
                                 <h6 style="color:red">Now, score this candidate's certification test: </h6>
                                 <div class="form-group">
                                     <label><span style="color:green">(Max score = {{$user_results->program->scoresettings->certification}})</span></label>
-                                    <input type="number" name="certification_score" {{ (Auth::user()->role_id == "Facilitator") && Auth::user()->role_id != "Admin" ? "Readonly" : '' }} value="{{ old('certification_score') ?? $user_results->certification_test_score }}" class="form-control"
+                                    <input type="number" name="certification_score" {{ (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : '' }} value="{{ old('certification_score') ?? $user_results->certification_test_score }}" class="form-control"
                                         min="0" max="{{$user_results->program->scoresettings->certification}}">
                                 </div>
                             </div>

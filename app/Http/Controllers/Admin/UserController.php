@@ -27,7 +27,7 @@ class UserController extends Controller
 
     public function importExport($p_id)
     {
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
 
             return view('dashboard.admin.users.import', compact('p_id'));
         }
@@ -42,7 +42,7 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
 
             $this->validate(request(), [
                 'file' => 'required|
@@ -287,7 +287,7 @@ class UserController extends Controller
             return view('dashboard.admin.users.edit', compact('programs', 'user', 'associated'));
         }
 
-        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
             $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
 
@@ -310,7 +310,7 @@ class UserController extends Controller
         } else $password = $user->password;
 
         try {
-            if (Auth::user()->role_id != 'Admin') {
+            if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
                 $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
                 $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
 

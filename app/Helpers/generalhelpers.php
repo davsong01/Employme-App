@@ -31,6 +31,30 @@
         }
     }
 
+    if (!function_exists("teacherRoles")) {
+        function teacherRoles(){
+            return [
+                'Teacher',
+            ];
+        }
+    }
+
+    if (!function_exists("getPackageAccess")) {
+        function getPackageAccess()
+        {
+            $packages = Package::where('id', Session::get('company_package_id'))->get();
+            dd($packages);
+            return [
+                'Teacher',
+            ];
+        }
+    }
+
+
+
+
+
+
     // if (!function_exists("getOptions")) {
     //     function getOptions($options)
     //     {

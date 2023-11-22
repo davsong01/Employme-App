@@ -240,7 +240,7 @@ class ResultController extends Controller
             $programs = Program::where('id', '<>', 1)->get();
             $users = User::where('role_id', '<>', "Admin")->where('role_id', '<>', "Teacher")->where('role_id', '<>', "Grader")->where('hasResult', '<>', 1)->orderBy('created_at', 'DESC')->get();
             return view('dashboard.admin.results.create', compact('users', 'programs'));
-        } elseif (Auth::user()->role_id == "Teacher") {
+        } elseif (!empty(array_intersect(teacherRoles(), Auth::user()->role()))) {
             $programs = Program::where('id', '=', Auth::user()->program_id)->get();
             $users = User::where('role_id', '=', "Student")->where('hasResult', '<>', 1)->where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
             //return view('dashboard.admin.results.create', compact('users', 'programs'));
@@ -454,7 +454,7 @@ class ResultController extends Controller
             }
 
             return redirect('/dashboard')->with('error', 'Result not found! Looks like you did not take the tests, please contact program coordinator');
-        } elseif (Auth::user()->role_id == "Teacher") {
+        } elseif (!empty(array_intersect(teacherRoles(), Auth::user()->role()))) {
             $result = Result::where('user_id', $id)->first();
             $resultcount = (count($result));
             return view('dashboard.admin.results.show', compact('result'));
@@ -470,7 +470,7 @@ class ResultController extends Controller
                 $result->role_play_score = $request->roleplayscore;
             }
 
-            if (Auth::user()->role_id == 'Grader') {
+            if (!empty(array_intersect(graderRoles(), Auth::user()->role()))) {
                 $result->certification_test_score = $request->certification_score;
                 $result->grader = Auth::user()->name;
                 $result->email_test_score = $request->emailscore;

@@ -81,7 +81,7 @@ class MaterialController extends Controller
 
     public function all($p_id)
     {
-        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $i = 1;
 
             $materials = Material::with('program')->where('program_id', $p_id)->orderBy('created_at', 'DESC')->get();

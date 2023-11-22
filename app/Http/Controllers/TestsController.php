@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Mocks;
 use App\Module;
 use App\Result;
 use App\Program;
 use App\Question;
+use App\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -77,7 +79,6 @@ class TestsController extends Controller
 
     public function store(Request $request)
     {
-
         $program = Program::find($request->p_id);
 
         $class_test_details = $request->except(['_token', 'mod_id', 'id']);
@@ -99,20 +100,26 @@ class TestsController extends Controller
         }
 
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
-
         if (auth()->user()->redotest == 0) {
             if ($check != NULL) {
                 return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
             };
         }
-
+        
         if ($check != NULL && auth()->user()->redotest != 0) {
             $check->certification_test_details = json_encode($certification_test_details);
-
+            auth()->user()->update(['redotest' => 0]);
             $check->save();
+            $check->endRedoTest();
+
+            // Send email to Admin of succesful test re completion
+            $details['subject'] = 'Test Re-write successful';
+            $details['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+            $details['content'] = 'Dear Admin, <br><br>'.auth()->user()->name.'('.auth()->user()->email.') has completed a rewrite of certification test for <strong>'.$program->p_name.'</strong> training. <br><br>Please proceed to grade accordingly. <br><br>Thanks' ;
+            $details['type'] = 'bulk';
+            
+            $this->sendGenericEmail($details);
         } else {
-
-
             $module = Module::findOrFail($request->mod_id);
 
             $questions = $module->questions->toarray();
@@ -143,13 +150,14 @@ class TestsController extends Controller
 
                 try {
                     if ($module->type == 'Class Test') {
-                        $results = Result::create([
+                        $result = Result::create([
                             'program_id' => $module->program->id,
                             'user_id' => Auth::user()->id,
                             'module_id' => $module->id,
                             'class_test_score' => $score,
                             'class_test_details' => json_encode($class_test_details),
                         ]);
+
                     }
                 } catch (\Illuminate\Database\QueryException $ex) {
                     $error = $ex->getMessage();

@@ -21,7 +21,7 @@ class CouponController extends Controller
     public function index()
     {
         $i = 1;
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
 
             $coupons = Coupon::with(['coupon_users' => function ($query) {
                 return $query->where('status', 1)->get();
@@ -41,7 +41,7 @@ class CouponController extends Controller
      */
     public function create()
     {
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $programs =  Program::whereStatus(1)
                 ->where('p_end', '>=', date('Y-m-d'))
                 ->where('close_registration', 0)
@@ -149,7 +149,7 @@ class CouponController extends Controller
      */
     public function edit(Coupon $coupon)
     {
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
 
             $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
         } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {

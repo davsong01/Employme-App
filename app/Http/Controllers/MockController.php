@@ -395,7 +395,7 @@ class MockController extends Controller
                 $certification_score = $request->certification_score;
             }
 
-            if (Auth::user()->role_id == 'Grader') {
+            if (!empty(array_intersect(graderRoles(), Auth::user()->role()))) {
                 $marked_by = $mock->marked_by;
                 $roleplayscore = $mock->role_play_score;
                 $grader = Auth::user()->name;

@@ -22,12 +22,12 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-        
+
         $users = User::select('id', 'off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
-        ->distinct()->with('trainings')
-        ->where('role_id','!=', 'Student')
-        ->orderBy('created_at', 'DESC')->get();
-       
+            ->distinct()->with('trainings')
+            ->where('role_id', '!=', 'Student')
+            ->orderBy('created_at', 'DESC')->get();
+
 
         $users->map(function ($users) {
             $details = DB::table('facilitator_trainings')->where('user_id', $users->id);
@@ -234,9 +234,9 @@ class TeacherController extends Controller
             $picture->save('profiles/' . '/' . $imgName);
         }
 
-        
-        $request['role'] = implode(',',$request['role']);
-       
+
+        $request['role'] = implode(',', $request['role']);
+
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->t_phone = $request['phone'];
@@ -251,7 +251,7 @@ class TeacherController extends Controller
         $user->waacsp_url = $request['waacsp_url'];
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-        // if (Auth::user()->role_id == "Admin") {
+            // if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
         }
         //Delete corresponding Facilitator Program details
@@ -272,7 +272,7 @@ class TeacherController extends Controller
             }
         }
         $user->save();
-        
+
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return redirect('teachers')->with('message', 'Facilitator updated successfully');
         }

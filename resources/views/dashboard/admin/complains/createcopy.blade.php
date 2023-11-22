@@ -244,7 +244,7 @@
                                     </div>
                                 </div> 
                             </div>
-                            @if(Auth::user()->role_id == "Admin" || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
+                            @if(!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
@@ -288,7 +288,7 @@
                    
                     $('#status').append('<option value="Pending">Pending</option>');
                     $('#status').append('<option value="In Progress">In Progress</option>');
-                    @if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator")
+                    @if(!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
                         $('#status').append('<option value="Resolved">Resolved</option>');
                     @endif
                 }if($('#type').val()=='Enquiry'){
@@ -309,7 +309,7 @@
                     $("#status").html("");
                     $('#status').append('<option value="Pending" selected>Pending</option>');
                     $('#status').append('<option value="In Progress">In Progress</option>');
-                    @if(Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator")
+                    @if(!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
                         $('#status').append('<option value="Resolved">Resolved</option>');
                     @endif
                 }

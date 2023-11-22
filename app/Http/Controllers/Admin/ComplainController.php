@@ -17,9 +17,9 @@ class ComplainController extends Controller
     {
         $i = 1;
 
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             $i = 1;
-            if (Auth::user()->role_id == "Facilitator") {
+            if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
                 $trainings = auth()->user()->trainings;
 
                 if (isset($trainings) && !empty($trainings)) {
@@ -65,7 +65,7 @@ class ComplainController extends Controller
 
     public function create(Request $request)
     {
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
                 $programs = Auth::user()->trainings;
                 $programs = $programs->map(function ($q) {
@@ -156,7 +156,7 @@ class ComplainController extends Controller
     public function edit(Complain $complain, Request $request)
     {
 
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.admin.index');
         } elseif (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $program = Program::find($request->p_id);

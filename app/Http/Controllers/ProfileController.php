@@ -36,7 +36,7 @@ class ProfileController extends Controller
     public function edit($id)
     {
         $user = User::with('trainings')->whereId($id)->first();
-        if (Auth::user()->role_id == "Admin" && $id == Auth::user()->id) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) && $id == Auth::user()->id) {
             return view('dashboard.admin.profiles.edit', compact('user'));
         } elseif (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
 

@@ -27,7 +27,7 @@ class PaymentController extends Controller
     {
         $i = 1;
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
             $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
@@ -40,7 +40,7 @@ class PaymentController extends Controller
 
             return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops'));
         }
-        if (Auth::user()->role_id == "Teacher" || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(teacherRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             return back();
         }
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
@@ -74,7 +74,7 @@ class PaymentController extends Controller
         $locations =  (isset($program_details->locations) && !empty($program_details->locations)) ? json_decode($program_details->locations) : [];
         // determine balance
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return view('dashboard.admin.transactions.edit', compact('transaction', 'locations', 'modes', 'coupons'));
         }
         return back();
@@ -84,7 +84,7 @@ class PaymentController extends Controller
     {
         $transaction = DB::table('program_user')->where('id', $id)->first();
 
-        if (Auth::user()->role_id == "Admin") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             //get user details
             $user = User::findorFail($transaction->user_id);
 

@@ -19,7 +19,7 @@ class QuestionController extends Controller
 
     public function importExport($p_id)
     {
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
 
             return view('dashboard.admin.questions.import', compact('p_id'));
         }
@@ -29,7 +29,7 @@ class QuestionController extends Controller
     public function import(Request $request)
     {
 
-        if (Auth::user()->role_id == "Admin" || Auth::user()->role_id == "Facilitator") {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
 
             $this->validate(request(), [
                 'file' => 'required|
@@ -145,7 +145,7 @@ class QuestionController extends Controller
     public function show($p_id)
     {
 
-        if (Auth::user()->role_id == "Admin" || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $i = 1;
 
             $questions = Question::whereHas('module', function ($query) use ($p_id) {
