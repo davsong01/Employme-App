@@ -58,19 +58,19 @@
                                     <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
-
-                                <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
-                                    <br><strong class="tit">Class Tests:</strong> <?php echo e($user->final_ct_score); ?>% <br> <?php endif; ?>
-                                <?php endif; ?>
-
-                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))): ?>
-                                    <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
-                                    <strong class="tit">Role Play: </strong> <?php echo e($user->total_role_play_score); ?>%  <br> 
+                                    <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
+                                        <br><strong class="tit">Class Tests:</strong> <?php echo e($user->final_ct_score); ?>% <br> <?php endif; ?>
                                     <?php endif; ?>
-                                <?php endif; ?>
-                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
-                                    <?php if(isset($score_settings->email) && $score_settings->email > 0): ?>
-                                        <strong>Email: </strong> <?php echo e($user->total_email_test_score); ?>% <?php endif; ?>
+
+                                    <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))): ?>
+                                        <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
+                                        <strong class="tit">Role Play: </strong> <?php echo e($user->total_role_play_score); ?>%  <br> 
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
+                                        <?php if(isset($score_settings->email) && $score_settings->email > 0): ?>
+                                            <strong>Email: </strong> <?php echo e($user->total_email_test_score); ?>% 
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 <?php
                                     $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
@@ -108,14 +108,13 @@
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
-                                                class="btn btn-info" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i
-                                                    class="fa fa-stop"></i>
+                                                class="btn btn-info" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i class="fa fa-stop"></i>
                                         </a>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                 <div class="btn-group">
+                                <div class="btn-group">
                                    <button class="btn btn-button btn-danger" disabled>Participant has not taken any test!</button>
-                                 </div>
+                                </div>
                                 <?php endif; ?>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
                                 <a data-toggle="tooltip" data-placement="top" title="Impersonate User"

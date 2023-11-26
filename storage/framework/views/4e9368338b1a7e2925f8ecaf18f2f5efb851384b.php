@@ -156,7 +156,7 @@
                   <label><span style="color:green">(Max score =
                       <?php echo e($program->scoresettings->certification); ?>)</span></label>
                   <input type="number" name="certification_score"
-                    <?php echo e((!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : ''); ?>
+                    <?php echo e((!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) ? "" : 'Readonly'); ?>
 
                     value="<?php echo e(old('certification_score') ?? $details['certification_score']); ?>" class="form-control"
                     min="0" max="<?php echo e($program->scoresettings->certification); ?>">
@@ -180,13 +180,12 @@
 
                 </div>
                 <?php endif; ?>
+                <div class="row">
+                  <button type="submit" class="btn btn-primary form-group" style="width:100%">Submit</button>
+                </div>
               </div>
             </div>
 
-            <div class="row">
-
-              <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
-            </div>
           </form>
           <?php else: ?>
           <h2>Expecting user to re-take certification tests hence scores cannot be modified </h2>
