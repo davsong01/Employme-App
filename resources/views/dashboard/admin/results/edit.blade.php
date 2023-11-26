@@ -154,7 +154,7 @@
                   <label><span style="color:green">(Max score =
                       {{ $program->scoresettings->certification}})</span></label>
                   <input type="number" name="certification_score"
-                    {{ (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) && empty(array_intersect(adminRoles(), Auth::user()->role()))? "Readonly" : '' }}
+                    {{ (!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) ? "" : 'Readonly' }}
                     value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"
                     min="0" max="{{ $program->scoresettings->certification }}">
                 </div>
@@ -177,13 +177,12 @@
 
                 </div>
                 @endif
+                <div class="row">
+                  <button type="submit" class="btn btn-primary form-group" style="width:100%">Submit</button>
+                </div>
               </div>
             </div>
 
-            <div class="row">
-
-              <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
-            </div>
           </form>
           @else
           <h2>Expecting user to re-take certification tests hence scores cannot be modified </h2>

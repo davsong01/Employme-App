@@ -59,19 +59,19 @@
                                     @endif
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-
-                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                    <br><strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
-                                @endif
-
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
-                                    @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                    <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
+                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                        <br><strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
                                     @endif
-                                @endif
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                    @if(isset($score_settings->email) && $score_settings->email > 0)
-                                        <strong>Email: </strong> {{ $user->total_email_test_score }}% @endif
+
+                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
+                                        @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
+                                        <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
+                                        @endif
+                                    @endif
+                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
+                                        @if(isset($score_settings->email) && $score_settings->email > 0)
+                                            <strong>Email: </strong> {{ $user->total_email_test_score }}% 
+                                        @endif
                                     @endif
                                 <?php
                                     $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
@@ -107,14 +107,13 @@
                                         @endif
                                     @else
                                         <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
-                                                class="btn btn-info" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
-                                                    class="fa fa-stop"></i>
+                                                class="btn btn-info" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i class="fa fa-stop"></i>
                                         </a>
                                     @endif
                                 @else
-                                 <div class="btn-group">
+                                <div class="btn-group">
                                    <button class="btn btn-button btn-danger" disabled>Participant has not taken any test!</button>
-                                 </div>
+                                </div>
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                                 <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
