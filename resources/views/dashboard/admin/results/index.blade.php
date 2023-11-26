@@ -106,9 +106,9 @@
                                             @endif
                                         @endif
                                     @else
-                                        <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" data-toggle="tooltip" data-placement="top" title="Stop user from retaking certification test"
-                                                class="btn btn-info" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i class="fa fa-stop"></i>
-                                        </a>
+                                       <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
+                                                    class="fa fa-stop"></i> End resit
+                                            </a>
                                     @endif
                                 @else
                                 <div class="btn-group">
