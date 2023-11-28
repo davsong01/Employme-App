@@ -11,10 +11,11 @@ use App\Program;
 use App\Location;
 use App\Settings;
 use App\Mail\POPemail;
-use App\Mail\Welcomemail;
 use App\TempTransaction;
+use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Facades\Image;
 
