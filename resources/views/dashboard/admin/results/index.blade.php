@@ -83,8 +83,6 @@
                                  <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
                             </td>
                             @endif
-                            
-                            
                             <td>
                                 @if( isset($user->result_id)) 
                                     @if($user->redotest == 0)
@@ -103,7 +101,7 @@
                                                             class="fa fa-redo"> Enable Resit</i>
                                                     </button>
                                                 </form>
-                                            @endif
+                                                @endif
                                         @endif
                                     @else
                                        <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
