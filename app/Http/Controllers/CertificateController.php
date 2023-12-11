@@ -148,4 +148,13 @@ class CertificateController extends Controller
         $realpath = base_path() . '/uploads/certificates' . '/' . $filename;
         return response()->download($realpath);
     }
+
+    public function modify(Request $request){
+        $action = $request->action == 'disable' ? 0 : 1;
+
+        $transaction = Transaction::whereIn('user_id',$request->data)->where('program_id', $request->program_id)->update(['show_certificate' => $action]);
+
+        return response()->json(['message' => 'success'], 200);
+        
+    }
 }

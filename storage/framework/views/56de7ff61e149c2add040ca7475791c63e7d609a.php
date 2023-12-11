@@ -1,5 +1,4 @@
-@extends('dashboard.admin.index')
-@section('css')
+<?php $__env->startSection('css'); ?>
 <style>
   /* The Modal (background) */
   .modal {
@@ -72,45 +71,46 @@ a.pre-order-btn:hover {
 }
 
 </style>
-@endsection
-@section('title', 'Add Certificate')
-@section('content')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('title', 'Add Certificate'); ?>
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
-                        @include('layouts.partials.alerts')
-                        <h4 class="card-title">Add new Certificate in {{$p_name}}</h4>
+                        <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                        <h4 class="card-title">Add new Certificate in <?php echo e($p_name); ?></h4>
                     </div>
-                    <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data"
+                    <form action="<?php echo e(route('certificates.save')); ?>" method="POST" enctype="multipart/form-data"
                         class="pb-2">
-                        {{ csrf_field() }}
+                        <?php echo e(csrf_field()); ?>
+
                         <!--Gives the first error for input name-->
 
-                        <div><small>{{ $errors->first('title')}}</small></div>
+                        <div><small><?php echo e($errors->first('title')); ?></small></div>
                         <div class="form-group">
 
                             <label for="class">Select User *</label>
 
                             <select name="user_id" id="user_id" class="form-control" required>
                                 <option value=""></option>
-                                @foreach ($users->sortBy('name') as $user)
-                                    @if($user->certificates_count <= 0)
-                                        <option value="{{ $user->user_id }}">{{$user->name}}</option>
-                                    @endif
-                                @endforeach
+                                <?php $__currentLoopData = $users->sortBy('name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php if($user->certificates_count <= 0): ?>
+                                        <option value="<?php echo e($user->user_id); ?>"><?php echo e($user->name); ?></option>
+                                    <?php endif; ?>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
-                            <div><small style="color:red">{{ $errors->first('user_id')}}</small></div>
+                            <div><small style="color:red"><?php echo e($errors->first('user_id')); ?></small></div>
 
                             <div class="form-group">
                                 <label>Choose Certificate</label>
                                 <input type="file" id="certificate" name="certificate" class="form-control" required>
                             </div>
-                            <div><small style="color:red">{{ $errors->first('certificate')}}</small></div>
+                            <div><small style="color:red"><?php echo e($errors->first('certificate')); ?></small></div>
                         </div>
-                        <input type="hidden" value="{{ $p_id }}" name="p_id">
+                        <input type="hidden" value="<?php echo e($p_id); ?>" name="p_id">
                        
                         <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
                     </form>
@@ -134,9 +134,9 @@ a.pre-order-btn:hover {
                             </th>
                             <th>S/N</th>
                             <th>Name</th>
-                            @if(!empty($score_settings))
+                            <?php if(!empty($score_settings)): ?>
                             <th style="width: 115px;">Program Details</th>
-                            @endif
+                            <?php endif; ?>
                             <th>Access</th>
                             <th>Date</th>
                             <th>Program</th>
@@ -144,62 +144,64 @@ a.pre-order-btn:hover {
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($certificates as $certificate)
+                        <?php $__currentLoopData = $certificates; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $certificate): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <?php 
                             $results = $certificate->scores();
                         ?>
                         <tr>
                             <td style="width:2px;text-align:center;">
-                                <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="{{$certificate->user_id}}">
+                                <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="<?php echo e($certificate->user_id); ?>">
                             </td>
-                            <td>{{ $i++ }}</td>
-                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
-                                <span style="font-style: italic">{{ $certificate->user->email }}</span>
+                            <td><?php echo e($i++); ?></td>
+                            <td><?php echo e(isset($certificate->user->name) ? $certificate->user->name : 'N/A'); ?> <br>
+                                <span style="font-style: italic"><?php echo e($certificate->user->email); ?></span>
                             </td>
-                            @if(isset($score_settings) && !empty($score_settings))
+                            <?php if(isset($score_settings) && !empty($score_settings)): ?>
                             <td style="width: 115px;">
-                                @if(isset($score_settings->certification) && $score_settings->certification > 0)
-                                    <strong>Certification: </strong> {{ isset($results['certification_test_score'] ) ? $results['certification_test_score'] : '' }}% 
-                                @endif
-                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                    <br><strong class="tit">Class Tests:</strong> {{ isset($results['class_test_score'] ) ? $results['class_test_score'] : '' }}% <br>
-                                @endif
-                                @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                    <strong class="tit">Role Play: </strong>{{ isset($results['role_play_score'] ) ? $results['role_play_score'] : '' }}% <br> 
-                                @endif
-                                @if(isset($score_settings->email) && $score_settings->email > 0)
-                                    <strong>Email: </strong>{{ isset($results['email_test_score'] ) ? $results['email_test_score'] : '' }}%
-                                @endif
+                                <?php if(isset($score_settings->certification) && $score_settings->certification > 0): ?>
+                                    <strong>Certification: </strong> <?php echo e(isset($results['certification_test_score'] ) ? $results['certification_test_score'] : ''); ?>% 
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
+                                    <br><strong class="tit">Class Tests:</strong> <?php echo e(isset($results['class_test_score'] ) ? $results['class_test_score'] : ''); ?>% <br>
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
+                                    <strong class="tit">Role Play: </strong><?php echo e(isset($results['role_play_score'] ) ? $results['role_play_score'] : ''); ?>% <br> 
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->email) && $score_settings->email > 0): ?>
+                                    <strong>Email: </strong><?php echo e(isset($results['email_test_score'] ) ? $results['email_test_score'] : ''); ?>%
+                                <?php endif; ?>
                                
-                                {{-- <strong class="tit" style="color:blue">Passmark</strong>{{ $score_settings->passmark }}% <br> --}}
+                                
                                 <br>
-                                <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
+                                <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
                             </td>
-                            @endif
-                            <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">{{ $certificate->show_certificate() }}</td>
-                            <td>{{ $certificate->created_at->format('d/m/Y') }}</td>
-                            <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>
+                            <?php endif; ?>
+                            <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>"><?php echo e($certificate->show_certificate()); ?></td>
+                            <td><?php echo e($certificate->created_at->format('d/m/Y')); ?></td>
+                            <td><?php echo e(isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed"); ?></td>
                             <td>
                                 <div class="btn-group">
-                                    @if($certificate->show_certificate() == 'Disabled')
+                                    <?php if($certificate->show_certificate() == 'Disabled'): ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Enable certificate"
-                                        class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i
+                                        class="btn btn-light" href="<?php echo e(route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id])); ?>"><i
                                             class="fa fa-toggle-on"></i>
                                     </a>
-                                    @else
+                                    <?php else: ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Disable certificate"
-                                        class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>0, 'certificate_id' => $certificate->id ]) }}"><i
+                                        class="btn btn-light" href="<?php echo e(route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>0, 'certificate_id' => $certificate->id ])); ?>"><i
                                             class="fa fa-toggle-off"></i>
                                     </a>
-                                    @endif
+                                    <?php endif; ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Download certificate"
-                                        class="btn btn-info" href="/certificate/{{ $certificate->file }}"><i
+                                        class="btn btn-info" href="/certificate/<?php echo e($certificate->file); ?>"><i
                                             class="fa fa-download"></i>
                                     </a>
                                     
-                                    <form action="{{ route('certificates.destroy', $certificate->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
+                                    <form action="<?php echo e(route('certificates.destroy', $certificate->id)); ?>" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                        <?php echo e(csrf_field()); ?>
+
+                                        <?php echo e(method_field('DELETE')); ?>
+
 
                                         <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
                                             data-placement="top" title="Delete certificate"> <i
@@ -208,7 +210,7 @@ a.pre-order-btn:hover {
                                     </form>
                                 </div>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                     
                 </table>
@@ -233,7 +235,7 @@ a.pre-order-btn:hover {
                     </select>
                 </div>
                 
-                <input type="hidden" name="program_id" id="program_id" value="{{ $p_id }}">
+                <input type="hidden" name="program_id" id="program_id" value="<?php echo e($p_id); ?>">
                 <div class="col-md-12" style="padding: 0px;">
                     <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner" style="display:none"></i></span></button>
                 </div>
@@ -290,7 +292,7 @@ a.pre-order-btn:hover {
 
         function callAjax(program_id,valuex,action){
             $.ajax({
-            url: "{{ route('certificates.modify') }}",
+            url: "<?php echo e(route('certificates.modify')); ?>",
             type: "POST",
             data: {
                 program_id: program_id,
@@ -315,4 +317,5 @@ a.pre-order-btn:hover {
         }
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/certificates/createcert.blade.php ENDPATH**/ ?>
