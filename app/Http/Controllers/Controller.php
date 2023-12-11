@@ -345,7 +345,6 @@ class Controller extends BaseController
     }
 
     public function createTempDetails($request, $payment_mode){
-       
         $temp = TempTransaction::where('email', $request->email)->first();
             if (isset($temp) && !empty($temp)) {
                 $temp->update([
@@ -705,14 +704,14 @@ class Controller extends BaseController
     {
         $content = "";
         if ($data['type'] == 'balance') {
-            $content .= "<strong>Dear " . $data['name'] . "</strong><br><br>";
+            $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
             $content .= '<div>
             <p style="text-align:justify !important">Your balance payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br>You can now access all sections of your portal!</p>
             </div>';
         } else if ($data['type'] == 'initial') {
-            $content .= "<strong>Dear " . $data['name'] . "</strong><br><br>";
+            $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
             $content .= '<span style="text-align:justify !important">Your ' . $data['message'] . ' of ' . $data['currency_symbol'] . $data['amount'] . ' for the ' . $data['programName'] .' ('. $data['programAbbr'] . ')'.' via ' . $data['t_type'] . ' has been received. <br><br></span>
@@ -864,5 +863,34 @@ class Controller extends BaseController
         return $menus;
     } 
 
-    
+    public function printNameOnCertificate(){
+        // Import the Intervention Image class
+
+        // Specify the path to your input image
+        $inputImagePath = base_path('uploads/certificates/b.jpg');
+        
+        //  = public_path('images/input.jpg');
+
+        // Open an image file
+        $image = Image::make($inputImagePath);
+        $size = 150;
+        // if number of letters in 
+        // Add text to the image
+        $image->text('Uchechukwu Emmanuel', 300, 1070, function($font) {
+            $font->file(public_path('Pesaro-Bold.ttf'));
+            $font->size(150);
+            $font->color('#e10000');
+            // $font->weight(700);
+            // $font->align('left');
+            // $font->valign('top');
+        });
+
+        // Save or display the modified image
+        $outputImagePath = base_path('uploads/certificates/image.jpg');
+        $image->save($outputImagePath);
+        dd('finished');
+        // ...
+
+
+    }
 }

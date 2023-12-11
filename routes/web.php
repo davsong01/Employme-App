@@ -14,7 +14,27 @@ Route::get('/clear', function () {
 });
 Auth::routes();
 
+// Route::get('test', function(){
+//     http://127.0.0.1:8000/certificate/lliya%20mbachun%20yammu.jpg
+//     $path = base_path('uploads/certificates/b.jpg');
 
+//     $image = imagecreatefromjpeg($path);
+
+//     $color = imagecolorallocate($image, 255, 255, 255);
+//     $string = 'The string you want to write horizontally on the image';
+//     $fontSize = 5;
+//     $x = 300;
+//     $y = 1000;
+
+//     // write on the image
+//     imagestring($image, $fontSize, $x, $y, $string, $color);
+//     $fileName = base_path('uploads/certificates/image.jpg');
+//     // save the image
+//     imagepng($image,  $fileName, $quality = 100);
+//     dd('done');
+
+// });
+Route::get('test', 'Controller@printTextOnImage');
 //route for the home
 Route::get('/reset', 'FrontendController@reset')->name('reset');
 
@@ -178,7 +198,8 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 });
 
 Route::GET('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
-Route::GET('certificates/create', 'CertificateController@create')->middleware(['impersonate','auth'])->name('certificates.create');
+Route::GET( 'certificates/create', 'CertificateController@create')->middleware(['impersonate', 'auth'])->name('certificates.create');
+Route::post('certificates-modify', 'CertificateController@modify')->middleware(['impersonate','auth'])->name('certificates.modify');
 Route::GET('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
 Route::get('suser/{program_id}', 'CertificateController@selectUser')->name('program.select');
 Route::POST('certificate/save', 'CertificateController@save')->middleware(['impersonate','auth'])->name('certificates.save');

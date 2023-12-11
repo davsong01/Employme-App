@@ -15,6 +15,7 @@
                         <tr>
                             <th>S/N</th>
                             <th>Program Title</th>
+                            <th>Certificate Count</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -23,10 +24,10 @@
                         <tr>
                             <td><?php echo e($i++); ?></td>
                             <td><?php echo e($program->p_name); ?></td>
+                            <td><?php echo e($program->certificates_count); ?></td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="View Grades"
-                                        class="btn btn-info" href="<?php echo e(route('results.getgrades', $program->id)); ?>"><i class="fa fa-eye"></i>
+                                    <a class="btn btn-info" href="<?php echo e(route('program.select', $program->id)); ?>"><i class="fa fa-eye"></i> View
                                     </a>
                                 </div>
                             </td>
@@ -39,4 +40,4 @@
     </div>
 </div>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/results/selecttraining.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/certificates/selecttraining.blade.php ENDPATH**/ ?>
