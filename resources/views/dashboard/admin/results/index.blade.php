@@ -55,7 +55,7 @@
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                     @if(isset($score_settings->certification) && $score_settings->certification > 0)
-                                    <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% 
+                                    <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% <br>
                                     @endif
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))

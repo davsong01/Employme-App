@@ -182,8 +182,31 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests']);
+
+        $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
+
         // dd($request->all());
         //check if new featured image
+
+        if($request->has('auto_certificate_template')){
+            $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+            $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+            $path = 'certificate_templates/'.$name;
+        }else{
+            $path = $certificate_settings['auto_certificate_template'] ?? '';
+        }
+
+        $cetificate_settings = [
+            "auto_certificate_status" => $request->auto_certificate_status ?? '',
+            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size ?? '',
+            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight ?? '',
+            "auto_certificate_color" => $request->auto_certificate_color ?? '',
+            "auto_certificate_top_offset" => $request->auto_certificate_top_offset ?? '',
+            "auto_certificate_left_offset" => $request->auto_certificate_left_offset ?? '',
+            "auto_certificate_template" => $path,
+        ];
+        
+        $data['auto_certificate_settings'] = json_encode($cetificate_settings);
 
         if ($request->hasFile('image')) {
 

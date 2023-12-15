@@ -1,48 +1,48 @@
-@extends('dashboard.admin.index')
-@section('title', 'Trainings')
-@section('content')
+<?php $__env->startSection('title', 'Trainings'); ?>
+<?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12 col-lg-12 col-sm-12">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
-                        @include('layouts.partials.alerts')
+                        <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <h4 class="card-title">Add new Program</h4>
                     </div> 
-                    <form action="{{route('programs.store')}}" method="POST" enctype="multipart/form-data" class="pb-2">
-                        {{ csrf_field() }}
+                    <form action="<?php echo e(route('programs.store')); ?>" method="POST" enctype="multipart/form-data" class="pb-2">
+                        <?php echo e(csrf_field()); ?>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Training Title *</label>
-                                    <input type="text" name="p_name" value="{{ old('p_name')}}" class="form-control" required>
+                                    <input type="text" name="p_name" value="<?php echo e(old('p_name')); ?>" class="form-control" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Training Hashtag *</label>
-                                    <input type="text" name="p_abbr" value="{{ old('p_abbr')}}" class="form-control" required>
+                                    <input type="text" name="p_abbr" value="<?php echo e(old('p_abbr')); ?>" class="form-control" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Training Fee *</label>
-                                    <input type="number" name="p_amount" value="{{ old('p_amount') }}" min="0"
+                                    <input type="number" name="p_amount" value="<?php echo e(old('p_amount')); ?>" min="0"
                                         class="form-control" required>
                                 </div>
                                  <div class="form-group">
                                     <label>Early Bird Fee *</label>
-                                    <input type="number" name="e_amount" value="{{ old('e_amount') ?? 0}}" min="0"
+                                    <input type="number" name="e_amount" value="<?php echo e(old('e_amount') ?? 0); ?>" min="0"
                                         class="form-control" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Off Season Program?</label>
                                     <select name="off_season" class="form-control" id="off_season" required>
-                                        <option value="1" {{ old('off_season') == 1 ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('off_season') == 0 ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('off_season') == 1 ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('off_season') == 0 ? 'selected' : ''); ?>>No</option>
                                     </select>
-                                    <small style="color:red">{{ $errors->first('off_season')}}</small>
+                                    <small style="color:red"><?php echo e($errors->first('off_season')); ?></small>
                                 </div>
                                 <div class="form-group">
                                     <label>Start Date *</label>
-                                    <input type="date" name="p_start" value="{{ old('p_start') }}" class="form-control"
+                                    <input type="date" name="p_start" value="<?php echo e(old('p_start')); ?>" class="form-control"
                                         required>
                                 </div>
                                 <div class="form-group">
@@ -52,17 +52,17 @@
                                 <div class="form-group">
                                     <label>Show Catalogue Popup</label>
                                     <select name="show_catalogue_popup" class="form-control" id="show_catalogue_popup" required>
-                                        <option value="yes" {{ old('show_catalogue_popup') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('show_catalogue_popup') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('show_catalogue_popup') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('show_catalogue_popup') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Upload Program Banner</label>
-                                    <input type="file" name="image" value="{{ old('image') }}" class="form-control" required>
+                                    <input type="file" name="image" value="<?php echo e(old('image')); ?>" class="form-control" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Upload Booking form</label>
-                                    <input type="file" name="booking_form" value="{{ old('booking_form') }}" class="form-control">
+                                    <input type="file" name="booking_form" value="<?php echo e(old('booking_form')); ?>" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -70,67 +70,67 @@
                                     <label>Does Program have pre class tests?</label>
                                     <select name="hasmock" class="form-control" id="hasmock" required>
                                         <option value="">--Select Option --</option>
-                                        <option value="1" {{ old('hasmock') == 1 ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ old('hasmock') == 0 ? 'selected' : '' }}>No</option>
+                                        <option value="1" <?php echo e(old('hasmock') == 1 ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="0" <?php echo e(old('hasmock') == 0 ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Enable Part Payment?</label>
                                     <select name="haspartpayment" class="form-control" id="hasmock" required>
-                                        <option value="0" {{ old('haspartpayment') == 0 ? 'selected' : '' }}>No</option>
-                                        <option value="1" {{ old('haspartpayment') == 1 ? 'selected' : '' }}>Yes</option>
+                                        <option value="0" <?php echo e(old('haspartpayment') == 0 ? 'selected' : ''); ?>>No</option>
+                                        <option value="1" <?php echo e(old('haspartpayment') == 1 ? 'selected' : ''); ?>>Yes</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for materials?</label>
                                     <select name="allow_payment_restrictions_for_materials" class="form-control" id="allow_payment_restrictions_for_materials" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_materials') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_materials') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_materials') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_materials') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for Pre class tests?</label>
                                     <select name="allow_payment_restrictions_for_pre_class_tests" class="form-control" id="allow_payment_restrictions_for_pre_class_tests" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_pre_class_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_pre_class_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_pre_class_tests') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_pre_class_tests') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for Post class tests?</label>
                                     <select name="allow_payment_restrictions_for_post_class_tests" class="form-control" id="allow_payment_restrictions_for_post_class_tests" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_post_class_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_post_class_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_post_class_tests') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_post_class_tests') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                             
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for Completed Tests?</label>
                                     <select name="allow_payment_restrictions_for_completed_tests" class="form-control" id="allow_payment_restrictions_for_completed_tests" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_completed_tests') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_completed_tests') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_completed_tests') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_completed_tests') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for Results?</label>
                                     <select name="allow_payment_restrictions_for_results" class="form-control" id="allow_payment_restrictions_for_results" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_results') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_results') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_results') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_results') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label>Enable Part Payment Restrictions for Certificates?</label>
                                     <select name="allow_payment_restrictions_for_certificates" class="form-control" id="allow_payment_restrictions_for_certificates" required>
-                                        <option value="yes" {{ old('allow_payment_restrictions_for_certificates') == 'yes' ? 'selected' : '' }}>Yes</option>
-                                        <option value="no" {{ old('allow_payment_restrictions_for_certificates') == 'no' ? 'selected' : '' }}>No</option>
+                                        <option value="yes" <?php echo e(old('allow_payment_restrictions_for_certificates') == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        <option value="no" <?php echo e(old('allow_payment_restrictions_for_certificates') == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label>Status</label>
                                     <select name="status" class="form-control" id="hasmock" required>
-                                        <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>Published</option>
-                                        <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Draft</option>
+                                        <option value="1" <?php echo e(old('status') == 1 ? 'selected' : ''); ?>>Published</option>
+                                        <option value="0" <?php echo e(old('status') == 0 ? 'selected' : ''); ?>>Draft</option>
                                     </select>
                                 </div>
 
@@ -142,8 +142,8 @@
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Sub Trainings?</label>
                                      <select name="show_sub" class="form-control" id="show_sub" required>
-                                        <option value="no" {{ old('show_sub') == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ old('show_sub') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" <?php echo e(old('show_sub') == 'no' ? 'selected' : ''); ?>>No</option>
+                                        <option value="yes" <?php echo e(old('show_sub') == 'yes' ? 'selected' : ''); ?>>Yes</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2" id="add_sub" style="display:none">
@@ -161,8 +161,8 @@
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Show Mode (Two payment modes only)</label>
                                      <select name="show_modes" class="form-control" id="show_modes" required>
-                                        <option value="no" {{ old('show_modes') == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ old('show_modes') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" <?php echo e(old('show_modes') == 'no' ? 'selected' : ''); ?>>No</option>
+                                        <option value="yes" <?php echo e(old('show_modes') == 'yes' ? 'selected' : ''); ?>>Yes</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2" id="add_mode" style="display:none">
@@ -180,8 +180,8 @@
                                 <div class="col-md-6" style="margin-bottom:5px;">
                                     <label>Show Location</label>
                                      <select name="show_locations" class="form-control" id="show_locations" required>
-                                        <option value="no" {{ old('show_locations') == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ old('show_locations') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" <?php echo e(old('show_locations') == 'no' ? 'selected' : ''); ?>>No</option>
+                                        <option value="yes" <?php echo e(old('show_locations') == 'yes' ? 'selected' : ''); ?>>Yes</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2" id="add_location" style="display:none">
@@ -202,13 +202,22 @@
                                         <label>Enable Auto generate certificate</label>
                                         <select name="auto_certificate_status" class="form-control" id="" required>
                                             <option value="">Select...</option>
-                                            <option value="yes" {{ old('auto_certificate_status') == 1 ? 'selected' : '' }}>Yes</option>
-                                            <option value="no" {{ old('auto_certificate_status') == 0 ? 'selected' : '' }}>No</option>
+                                            <option value="yes" <?php echo e(old('auto_certificate_status') == 1 ? 'selected' : ''); ?>>Yes</option>
+                                            <option value="no" <?php echo e(old('auto_certificate_status') == 0 ? 'selected' : ''); ?>>No</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label>Upload Certificate Template</label>
-                                        <input type="file" name="certificate_template" value="{{ old('certificate_template') }}" class="form-control" required>
+                                        <input type="file" name="certificate_template" value="<?php echo e(old('certificate_template')); ?>" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="margin-bottom:5px">
+                                    <div class="form-group">
+                                        <label>Certificate name font size</label>
+                                        <select name="auto_certificate_status" class="form-control" id="hasmock" required>
+                                            <option value="yes" <?php echo e(old('auto_certificate_status') == 1 ? 'selected' : ''); ?>>Yes</option>
+                                            <option value="no" <?php echo e(old('auto_certificate_status') == 0 ? 'selected' : ''); ?>>No</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label>Certificate name color</label>
@@ -217,24 +226,13 @@
                                 </div>
                                 <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
-                                        <label>Certificate name font size</label>
-                                        <input type="number" min="0" class="form-control" required name="auto_certificate_name_font_size">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Certificate name font weight</label>
-                                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight" value="{{ old('auto_certificate_name_font_weight')}}">
-                                    </div>
-                                    
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
                                         <label>Certificate Top offset</label>
-                                        <input type="number" min="0" class="form-control" required name="auto_certificate_top_offset">
+                                        <input type="number" min="0" class="form-control" required name="certificate_top_offset">
                                        
                                     </div>
                                     <div class="form-group">
-                                        <label>Certificate Left offset</label>
-                                        <input type="number" min="0" required class="form-control" name="auto_certificate_left_offset">
+                                        <label>Certificate Top offset</label>
+                                        <input type="number" min="0" required class="form-control" name="certificate_top_offset">
                                        
                                     </div>
                                 </div>
@@ -278,14 +276,14 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="location_name">Location Name</label>
-                        <input type="text" class="form-control" value="{{ old('location_name') }}"
+                        <input type="text" class="form-control" value="<?php echo e(old('location_name')); ?>"
                             name="location_name[]" required>
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="location_address">Location Address</label>
-                        <input type="text" class="form-control" id="unit" value="{{ old('location_address')}}"name="location_address[]" required>
+                        <input type="text" class="form-control" id="unit" value="<?php echo e(old('location_address')); ?>"name="location_address[]" required>
                     </div>
                 </div>
                 
@@ -337,7 +335,7 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="location_address">Mode Amount</label>
-                        <input type="text" class="form-control" id="unit" value="{{ old('mode_amount')}}"name="mode_amount[]" required>
+                        <input type="text" class="form-control" id="unit" value="<?php echo e(old('mode_amount')); ?>"name="mode_amount[]" required>
                     </div>
                 </div>
                 
@@ -385,13 +383,13 @@
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="sub_name">Training Name</label>
-                        <input type="text" class="form-control" id="sub_training" value="{{ old('sub_name')}}"name="sub_name[]" required>
+                        <input type="text" class="form-control" id="sub_training" value="<?php echo e(old('sub_name')); ?>"name="sub_name[]" required>
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="form-group">
                         <label for="location_address">Training Amount</label>
-                        <input type="number" class="form-control" id="sub_amount" value="{{ old('sub_amount')}}"name="sub_amount[]" required>
+                        <input type="number" class="form-control" id="sub_amount" value="<?php echo e(old('sub_amount')); ?>"name="sub_amount[]" required>
                     </div>
                 </div>
                 
@@ -412,4 +410,5 @@
     });
 
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/programs/create.blade.php ENDPATH**/ ?>

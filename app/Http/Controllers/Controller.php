@@ -868,9 +868,9 @@ class Controller extends BaseController
 
         // Specify the path to your input image
         $inputImagePath = base_path('uploads/certificates/b.jpg');
-        
+        //status,size, top_offset, left_offset, color
         //  = public_path('images/input.jpg');
-
+        
         // Open an image file
         $image = Image::make($inputImagePath);
         $size = 150;

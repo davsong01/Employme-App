@@ -82,6 +82,7 @@ a.pre-order-btn:hover {
                     <div class="card-title">
                         <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <h4 class="card-title">Add new Certificate in <?php echo e($p_name); ?></h4>
+                        <a href="<?php echo e(route('certificates.generate', $p_id )); ?>" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates</a>
                     </div>
                     <form action="<?php echo e(route('certificates.save')); ?>" method="POST" enctype="multipart/form-data"
                         class="pb-2">
