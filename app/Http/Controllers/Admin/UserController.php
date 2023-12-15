@@ -109,7 +109,7 @@ class UserController extends Controller
             // if(is_null($result->certification_test_details)){
             //     return back()->with('error', 'User has not written certification test');
             // }
-
+                
             User::whereId($user_id)->update(['redotest' => 0]);
             $result->endRedoTest();
 
