@@ -106,6 +106,15 @@ class User extends Authenticatable
         $role_id = explode(',',$this->role_id);
         return $role_id;
     }
+
+    public function scopePermissions(){
+        $a_menu = $this->menu_permissions ?? '';
+        $a_menu = explode(',', $a_menu);
+
+        $a_menu = !empty($a_menu) ? $a_menu : [];
+       
+        return $a_menu; 
+    }
         
 }
    
