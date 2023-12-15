@@ -102,16 +102,23 @@ class UserController extends Controller
 
     public function stopredotest($user_id, $result_id)
     {
-        $result = Result::whereId($result_id)->first();
+        if (!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())) {
 
-        // if(is_null($result->certification_test_details)){
-        //     return back()->with('error', 'User has not written certification test');
-        // }
+            $result = Result::whereId($result_id)->first();
+        
+            // if(is_null($result->certification_test_details)){
+            //     return back()->with('error', 'User has not written certification test');
+            // }
 
-        User::whereId($user_id)->update(['redotest' => 0]);
-        $result->endRedoTest();
+            User::whereId($user_id)->update(['redotest' => 0]);
+            $result->endRedoTest();
 
-        return back()->with('message', 'Update Successful');
+            return back()->with('message', 'Update Successful');
+
+        }else{
+            return back()->with('error', 'You are not allowed to access this resource');
+
+        }
     }
 
     public function create()

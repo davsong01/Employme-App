@@ -858,6 +858,12 @@ class Controller extends BaseController
                 'name' => 'Add Modules',
                 'route' => 'modules.create',
             ],
+
+            [
+                'id' => 22,
+                'name' => 'Enable Resit for participants',
+                'route' => 'modules.create',
+            ],
         ];
 
         return $menus;
