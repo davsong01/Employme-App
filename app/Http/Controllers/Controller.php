@@ -651,6 +651,7 @@ class Controller extends BaseController
         if(isset($width) && isset($height)){
             $imageFile->resize($width, $height);
         }
+        
         $imageFile->save($folder.'/' . $imageName);
     
         return $imageName;

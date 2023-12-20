@@ -22,6 +22,7 @@
                             <th>S/N</th>
                             <th>Details</th>
                             <th>Scores</th>
+                            <th>Grader Details</th>
                             <th>Passmark</th>
                             @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<th>Total</th>@endif
                             <th>Actions</th>
@@ -36,6 +37,8 @@
                                 <strong class="tit">Name: </strong>{{ $user->name }} 
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ) <br>
                                 <strong class="tit">Email: </strong>{{ $user->email }} <br>
+                            </td>
+                            <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
                                 <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>

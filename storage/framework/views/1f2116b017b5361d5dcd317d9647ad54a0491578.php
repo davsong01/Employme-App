@@ -21,6 +21,7 @@
                             <th>S/N</th>
                             <th>Details</th>
                             <th>Scores</th>
+                            <th>Grader Details</th>
                             <th>Passmark</th>
                             <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?><th>Total</th><?php endif; ?>
                             <th>Actions</th>
@@ -35,6 +36,8 @@
                                 <strong class="tit">Name: </strong><?php echo e($user->name); ?> 
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ): ?> <br>
                                 <strong class="tit">Email: </strong><?php echo e($user->email); ?> <br>
+                            </td>
+                            <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))): ?><br> <strong class="tit">Marked by: </strong> <?php echo e($user->marked_by); ?><?php endif; ?>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?> <br> <strong class="tit">Graded by: </strong> <?php echo e($user->grader); ?><?php endif; ?> <br>
                                 <small> Last updated on: <?php echo e(isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''); ?></small>
