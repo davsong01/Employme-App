@@ -20,6 +20,7 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
+                            <th>Name</th>
                             <th>Details</th>
                             <th>Scores</th>
                             <th>Grader Details</th>
@@ -33,8 +34,8 @@
                         @if($user->passmark)
                         <tr>
                             <td>{{ $i++ }}</td>
+                            <td><strong class="tit">Name: </strong>{{ $user->name }} </td>
                             <td>
-                                <strong class="tit">Name: </strong>{{ $user->name }} 
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ) <br>
                                 <strong class="tit">Email: </strong>{{ $user->email }} <br>
                             </td>
