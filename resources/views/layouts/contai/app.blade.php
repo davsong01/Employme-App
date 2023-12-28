@@ -199,16 +199,16 @@
                     <div class="footer__widget">
                         <h6>Useful Links</h6>
                         <ul>
-                            @if(isset($setting->about_link))
+                            @if(isset($setting->about_link) && !empty($setting->about_link))
                             <li><a href="{{ $setting->about_link }}">About Us</a></li>
                             @endif
-                            @if(isset($setting->contact_link))
+                            @if(isset($setting->contact_link) && !empty($setting->contact_link))
                             <li><a href="{{ $setting->contact_link }}">Contact Us</a></li>
                             @endif
-                            @if(isset($setting->privacy_link))
+                            @if(isset($setting->privacy_link) && !empty($setting->privacy_link))
                             <li><a href="{{ $setting->privacy_link }}">Privacy Policy</a></li>
                             @endif
-                            @if(isset($setting->tac_link))
+                            @if(isset($setting->tac_link) && !empty($setting->tac_link))
                             <li><a href="{{ $setting->tac_link }}">Terms and Conditions</a></li>
                             @endif
                         </ul>
@@ -219,8 +219,12 @@
                     <div class="footer__widget">
                         <h6>Contact us</h6>
                         <div class="footer__widget__social">
-                             <li>Phone: {{ $setting->phone }}</li>
+                            @if(isset($setting->phone) && !empty($setting->phone))
+                            <li>Phone: {{ $setting->phone }}</li>
+                            @endif
+                            @if(isset($setting->OFFICIAL_EMAIL) && !empty($setting->OFFICIAL_EMAIL))
                             <li>Email: {{ $setting->OFFICIAL_EMAIL }}</li>
+                            @endif
                         </div>
                     </div>
                     <div class="footer__widget">

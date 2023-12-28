@@ -199,16 +199,16 @@
                     <div class="footer__widget">
                         <h6>Useful Links</h6>
                         <ul>
-                            <?php if(isset($setting->about_link)): ?>
+                            <?php if(isset($setting->about_link) && !empty($setting->about_link)): ?>
                             <li><a href="<?php echo e($setting->about_link); ?>">About Us</a></li>
                             <?php endif; ?>
-                            <?php if(isset($setting->contact_link)): ?>
+                            <?php if(isset($setting->contact_link) && !empty($setting->contact_link)): ?>
                             <li><a href="<?php echo e($setting->contact_link); ?>">Contact Us</a></li>
                             <?php endif; ?>
-                            <?php if(isset($setting->privacy_link)): ?>
+                            <?php if(isset($setting->privacy_link) && !empty($setting->privacy_link)): ?>
                             <li><a href="<?php echo e($setting->privacy_link); ?>">Privacy Policy</a></li>
                             <?php endif; ?>
-                            <?php if(isset($setting->tac_link)): ?>
+                            <?php if(isset($setting->tac_link) && !empty($setting->tac_link)): ?>
                             <li><a href="<?php echo e($setting->tac_link); ?>">Terms and Conditions</a></li>
                             <?php endif; ?>
                         </ul>
@@ -219,8 +219,12 @@
                     <div class="footer__widget">
                         <h6>Contact us</h6>
                         <div class="footer__widget__social">
-                             <li>Phone: <?php echo e($setting->phone); ?></li>
+                            <?php if(isset($setting->phone) && !empty($setting->phone)): ?>
+                            <li>Phone: <?php echo e($setting->phone); ?></li>
+                            <?php endif; ?>
+                            <?php if(isset($setting->OFFICIAL_EMAIL) && !empty($setting->OFFICIAL_EMAIL)): ?>
                             <li>Email: <?php echo e($setting->OFFICIAL_EMAIL); ?></li>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="footer__widget">
