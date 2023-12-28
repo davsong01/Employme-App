@@ -74,7 +74,7 @@
                         </a>
                         
                         <div class="featured__item__text">
-                            <h6>
+                            <h6 style="min-height:60px">
                                 @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
                                 <a href="#" class="disabled-link">
                                 <span class="mobile_closed" style="display:none">Registration closed!</span>
