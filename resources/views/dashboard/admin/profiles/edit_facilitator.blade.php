@@ -91,18 +91,18 @@
                             </div>
                             <div class="col-md-6">
                                
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
-                                    <label for="phone">Phone</label>
-                                    <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone}}">
-                                    @if ($errors->has('phone'))
+                                <div class="form-group{{ $errors->has('t_phone') ? ' has-error' : '' }}">
+                                    <label for="t_phone">t_Phone</label>
+                                    <input id="t_phone" type="t_phone" class="form-control" name="t_phone" value="{{ old('t_phone') ?? $user->t_phone}}">
+                                    @if ($errors->has('t_phone'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('phone') }}</strong>
+                                        <strong>{{ $errors->first('t_phone') }}</strong>
                                     </span>
                                     @endif
                                 </div>
                                 <div class="form-group">
                                     <label>Change Profile Picture</label>
-                                    <input type="file" name="file" value="" class="form-control">
+                                    <input type="file" name="image" value="" class="form-control">
                                 </div>
                                
                                 

@@ -92,9 +92,9 @@
 
                                 <div class="form-group">
                                     <label>Profile Picture</label>
-                                    <input type="file" name="profile_picture" value="" class="form-control">
+                                    <input type="file" name="image" value="" class="form-control">
                                 </div>
-                                <div><small style="color:red">{{ $errors->first('profile_picture')}}</small></div>
+                                <div><small style="color:red">{{ $errors->first('image')}}</small></div>
                             </div>
                         </div>
                         <div class="row">

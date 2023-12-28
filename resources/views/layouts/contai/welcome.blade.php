@@ -27,10 +27,15 @@
                             </div>
                         </a>
                         <div class="product__discount__item__text">
+                           
                             <a href="{{ route('trainings', $discount->id ) }}" target="_blank">
                                 <h5 style="color: #c2c2c2">{{ $discount->p_name }}</h5>
                             </a>
+                            @if ($discount->is_closed == 'no')
                             <div class="product__item__price">{{ $currency_symbol. number_format($exchange_rate * $discount->e_amount ) }}<span>{{ $currency_symbol. number_format($exchange_rate * $discount->p_amount) }}</span></div>
+                            @else 
+                            <div class="product__item__price" style="color:red">Closed Group Training</span></div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -80,13 +85,16 @@
                                 {{ $training->p_name }}</a>
                             </h6>
                             <h5>
-                                 @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
-                                    {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
-                                    <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
+                                @if ($training->is_closed == 'no')
+                                    @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                        {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
+                                        <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
+                                    @else
+                                        {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                    @endif
                                 @else
-                                    {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                <span style="color:red">Closed Group Training</span>
                                 @endif
-                                
                             </h5> 
                         </div>
                     </div>

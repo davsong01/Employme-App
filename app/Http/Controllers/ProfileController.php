@@ -67,8 +67,9 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         $user->name = $request->name;
-        $user->t_phone = $request->phone;
+        $user->t_phone = $request->t_phone;
         $user->gender = $request->gender;
+        $user->job_title = $request->job_title;
 
         if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $user->off_season_availability = $request->off_season;
@@ -79,10 +80,8 @@ class ProfileController extends Controller
             $user->password = bcrypt($request['password']);
         };
 
-        if (request()->has('profile_picture')) {
-
-            $imgName = $this->uploadImage($request->profile_picture, 'avatars', 100, 100);
-
+        if (!empty($request->image)) {
+            $imgName = $this->uploadImage($request->image, 'avatars', 100, 100);
             $user->profile_picture = $imgName;
         }
 

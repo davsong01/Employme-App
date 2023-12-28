@@ -41,6 +41,13 @@
                                     <small style="color:red">{{ $errors->first('off_season')}}</small>
                                 </div>
                                 <div class="form-group">
+                                    <label>Closed Group Training?</label>
+                                    <select name="is_closed" class="form-control" id="is_closed" required>
+                                        <option value="yes" {{ old('is_closed') == 'yes' ? 'selected' : '' }}>Yes</option>
+                                        <option value="no" {{ old('is_closed') == 'no' ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label>Start Date *</label>
                                     <input type="date" name="p_start" value="{{ old('p_start') }}" class="form-control"
                                         required>
