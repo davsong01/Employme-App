@@ -69,6 +69,7 @@ class ProgramController extends Controller
             'p_start' => 'required',
             'p_end' => 'required',
             'hasmock' => 'required',
+            'is_closed' => 'nullable',
             'booking_form' => 'file|mimes:pdf|max:10000',
             'image' => 'required|image |max:10000',
             'haspartpayment' => 'required',
@@ -83,9 +84,8 @@ class ProgramController extends Controller
             'allow_payment_restrictions_for_post_class_tests' => 'required',
             'allow_payment_restrictions_for_results' => 'required',
             'allow_payment_restrictions_for_certificates' => 'required',
-            'allow_payment_restrictions_for_completed_tests' => 'required'
+            'allow_payment_restrictions_for_completed_tests' => 'required',
         ]);
-
 
         //Save booking form
         if ($request->file('booking_form')) {
@@ -130,6 +130,7 @@ class ProgramController extends Controller
             'haspartpayment' => $data['haspartpayment'],
             'status' => $data['status'],
             'off_season' => $data['off_season'],
+            'is_closed' => $data['is_closed'],
             'booking_form' => $filePath ?? null,
             'show_locations' => $data['show_locations'],
             'show_modes' => $data['show_modes'],
@@ -181,7 +182,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests']);
 
         $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
 

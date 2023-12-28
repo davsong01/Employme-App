@@ -48,7 +48,16 @@
                                     </span>
                                     @endif
                                 </div>
-                                
+                                <div class="form-group{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                    <label for="job_title">Job Title</label>
+                                    <input id="job_title" type="text" class="form-control" name="job_title"
+                                        value="{{ old('job_title') ?? $user->job_title }}" autofocus>
+                                    @if ($errors->has('job_title'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('job_title') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
@@ -79,7 +88,7 @@
                                     @else
                                     <label>Replace Profile Picture</label> <br>
                                     <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
-                                        <input type="file" name="profile_picture" value="{{ old('profile_picture') ??  $user->profile_picture }}" class="form-control">
+                                        <input type="file" name="image" value="{{ old('image') ??  $user->profile_picture }}" class="form-control">
                                     @endif
                                    
                                 </div>

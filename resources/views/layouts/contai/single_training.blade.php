@@ -26,20 +26,25 @@
                     <h3>{{ $training->p_name }}</h3>
                     
                     <div class="product__details__price">
-                        @if(isset($modes) && count($modes) > 0)
-                            {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
-                            {{-- {{ number_format($modes['Online'] > $modes['Offline'] ? ) }} / {{ $currency_symbol }} {{ number_format($modes['Offline']) }} --}}
-                        @else
-                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
-                                {{ $currency_symbol }}{{ number_format($training->e_amount) }}
-                                <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
+                        @if($training->is_closed == 'no')
+                            @if(isset($modes) && count($modes) > 0)
+                                {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
+                                {{-- {{ number_format($modes['Online'] > $modes['Offline'] ? ) }} / {{ $currency_symbol }} {{ number_format($modes['Offline']) }} --}}
                             @else
-                                @if($training->p_amount > 0)
-                                {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                                @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                    {{ $currency_symbol }}{{ number_format($training->e_amount) }}
+                                    <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                                 @else
-                                <span style="color:green">FREE TRAINING</span>
+                                    @if($training->p_amount > 0)
+                                    {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                                    @else
+                                    <span style="color:green">FREE TRAINING</span>
+                                    @endif
                                 @endif
                             @endif
+                        @else
+                        <span style="color:red">Closed Group Training</span>
+
                         @endif
                         
                     </div>
@@ -126,10 +131,12 @@
 
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}"> 
                             </div>
+                            @if($training->is_closed == 'no')
                             @if($training->p_amount > 0)
                             <input class="primary-btn" type="submit" value="PROCEED TO CHECKOUT">
                             @else 
                             <input class="primary-btn" type="submit" value="PROCEED TO REGISTER">
+                            @endif
                             @endif
                         </form>
                     </div>                        

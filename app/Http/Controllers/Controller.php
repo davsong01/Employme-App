@@ -651,6 +651,7 @@ class Controller extends BaseController
         if(isset($width) && isset($height)){
             $imageFile->resize($width, $height);
         }
+        
         $imageFile->save($folder.'/' . $imageName);
     
         return $imageName;
@@ -856,6 +857,12 @@ class Controller extends BaseController
             [
                 'id' => 21,
                 'name' => 'Add Modules',
+                'route' => 'modules.create',
+            ],
+
+            [
+                'id' => 22,
+                'name' => 'Enable Resit for participants',
                 'route' => 'modules.create',
             ],
         ];

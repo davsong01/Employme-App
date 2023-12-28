@@ -496,11 +496,11 @@ class ResultController extends Controller
 
     public function destroy(Request $request, $result)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())){
             $results = Result::where('id', $request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
-
-            if (is_null($results->certification_test_details)) {
-                return back()->with('error', 'User has not written this test');
+           
+            if (empty($results->certification_test_details)) {
+                return back()->with('error', 'User has not written this test or has a previous pending resit');
             }
 
             // Save result thread
@@ -567,7 +567,7 @@ class ResultController extends Controller
 
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
-        return back();
+        return back()->with('error', 'You are not allowed to perform this action');
     }
 
     public function verify(Request $request)
