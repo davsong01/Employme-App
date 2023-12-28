@@ -36,19 +36,19 @@ class UsersImport implements ToCollection, WithHeadingRow
                     'email'=> 'required',
                     // 'email'=> 'required|unique:users,email',
                     'name' => 'required',
-                    'phone' => 'required',
-                    'gender' => 'required',
+                    'phone' => 'nullable',
+                    'gender' => 'nullable',
                     'location' => 'nullable',
                 ],
                 [
                     'email.required' => 'One or more users do not have an email, please check and try again',
                     'email.unique' => 'One or more email already exists in database, please check and try again',
                     'name.required' => 'One or more rows require name, Please check and try again',
-                    'phone.required' => 'One or more rows require phone number, Please check and try again',
-                    'gender.required' => 'One or more rows require gender, Please check and try again',
+                    // 'phone.required' => 'One or more rows require phone number, Please check and try again',
+                    // 'gender.required' => 'One or more rows require gender, Please check and try again',
                 ]
                 )->validate();
-
+                $row['phone'] = $row['phone'] ?? null;
                 $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
 
                 $data['payment_type'] = 'Full';
