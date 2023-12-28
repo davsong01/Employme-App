@@ -140,6 +140,7 @@
                                         <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>Draft</option>
                                     </select>
                                 </div>
+
                                 
                             </div>
                         </div>
@@ -201,7 +202,51 @@
                             </div>
                         </section>
 
-                      
+                        <section style="padding: 20px 20px;border: solid 1px blue;margin: 20px 0;">
+                            <div class="row">  
+                                <div class="col-md-4" style="margin-bottom:5px">
+                                    <div class="form-group">
+                                        <label>Enable Auto generate certificate</label>
+                                        <select name="auto_certificate_status" class="form-control" id="" required>
+                                            <option value="">Select...</option>
+                                            <option value="yes" {{ old('auto_certificate_status') == 1 ? 'selected' : '' }}>Yes</option>
+                                            <option value="no" {{ old('auto_certificate_status') == 0 ? 'selected' : '' }}>No</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Upload Certificate Template</label>
+                                        <input type="file" name="certificate_template" value="{{ old('certificate_template') }}" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Certificate name color</label>
+                                        <input type="color" class="form-control" required name="auto_certificate_color">
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="margin-bottom:5px">
+                                    <div class="form-group">
+                                        <label>Certificate name font size</label>
+                                        <input type="number" min="0" class="form-control" required name="auto_certificate_name_font_size">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Certificate name font weight</label>
+                                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight" value="{{ old('auto_certificate_name_font_weight')}}">
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-md-4" style="margin-bottom:5px">
+                                    <div class="form-group">
+                                        <label>Certificate Top offset</label>
+                                        <input type="number" min="0" class="form-control" required name="auto_certificate_top_offset">
+                                       
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Certificate Left offset</label>
+                                        <input type="number" min="0" required class="form-control" name="auto_certificate_left_offset">
+                                       
+                                    </div>
+                                </div>
+        
+                        </section>
                     <div class="col-md-12">
                         <button name="submit" class="btn btn-primary" style="width:100%">Submit</button>
                     </div>

@@ -11,6 +11,7 @@ use App\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
 
 class CertificateController extends Controller
 {
@@ -89,8 +90,9 @@ class CertificateController extends Controller
 
             $p_id = $program->id;
             $p_name = $program->p_name;
+            $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
 
-            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id', 'p_name', 'certificates', 'i', 'score_settings'));
+            return view('dashboard.admin.certificates.createcert', compact('users', 'p_id', 'p_name', 'certificates', 'i', 'score_settings','certificate_settings'));
         }
         return back();
     }
@@ -120,6 +122,7 @@ class CertificateController extends Controller
             return back()->with('message', ' certificate succesfully added');
             // return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
         }
+
         return abort(404);
     }
 
@@ -157,4 +160,52 @@ class CertificateController extends Controller
         return response()->json(['message' => 'success'], 200);
         
     }
+
+    public function generateCertificates($program_id){
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+            $program = Program::find($program_id);
+            $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
+            
+            if(!empty($certificate_settings) && $certificate_settings['auto_certificate_status'] == 'yes'){
+                $transactions = Transaction::with('user')->where('program_id', $program_id)->where('show_certificate',0)->get();
+                
+                foreach($transactions as $transaction){
+                    $inputImagePath = base_path('uploads/'.$certificate_settings['auto_certificate_template']);
+                    // $inputImagePath = base_path('uploads/certificates/b.jpg');
+                    $image = Image::make($inputImagePath);
+                    $size = $certificate_settings['auto_certificate_name_font_size'] ?? 150;
+                    $color = $certificate_settings['auto_certificate_color'] ?? "#000000";
+                    $auto_certificate_top_offset = $certificate_settings['auto_certificate_top_offset'] ?? 300;
+                    $auto_certificate_left_offset = $certificate_settings['auto_certificate_left_offset'] ?? 300;
+                    $auto_certificate_font_weight = $certificate_settings['auto_certificate_font_weight'] ?? 300;
+                    
+                    $image->text($transaction->user->name, $auto_certificate_top_offset, $auto_certificate_left_offset, function ($font) use ($size, $color, $auto_certificate_font_weight) {
+                        $font->file(public_path('Pesaro-Bold.ttf'));
+                        $font->size($size);
+                        $font->color($color);
+                        // $font->weight($auto_certificate_font_weight);
+                    });
+
+                    $name = uniqid(9) . '.jpg';
+                    $outputImagePath = base_path('uploads/certificates/'. $name);
+                    $image->save($outputImagePath);
+
+                    Certificate::create([
+                        'user_id' =>  $transaction->user_id,
+                        'file' => $name,
+                        'program_id' => $program_id,
+                    ]);
+
+                    $transaction->update(['show_certificate' => 0]);
+                }
+            }else{
+                return back()->with('Certificate settings not fully configured for this training');
+            }
+
+            return back()->with('Certificate successfully autugenerated');
+        }
+    }
+
+
 }

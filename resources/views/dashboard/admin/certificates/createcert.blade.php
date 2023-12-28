@@ -83,6 +83,7 @@ a.pre-order-btn:hover {
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">Add new Certificate in {{$p_name}}</h4>
+                        <a href="{{route('certificates.generate', $p_id )}}" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates</a>
                     </div>
                     <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data"
                         class="pb-2">

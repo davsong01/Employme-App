@@ -197,10 +197,11 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
     Route::get('/studymaterials/{filename}/{p_id}', 'MaterialController@getfile')->name('getmaterial');
 });
 
-Route::GET('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
-Route::GET( 'certificates/create', 'CertificateController@create')->middleware(['impersonate', 'auth'])->name('certificates.create');
+Route::get('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
+Route::get('generate-auto-certificates/{program_id}', 'CertificateController@generateCertificates')->middleware(['impersonate', 'auth'])->name('certificates.generate');
+Route::get('certificates/create', 'CertificateController@create')->middleware(['impersonate', 'auth'])->name('certificates.create');
 Route::post('certificates-modify', 'CertificateController@modify')->middleware(['impersonate','auth'])->name('certificates.modify');
-Route::GET('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
+Route::get('certificate/{filename}', 'CertificateController@getfile')->middleware(['impersonate','auth']);
 Route::get('suser/{program_id}', 'CertificateController@selectUser')->name('program.select');
 Route::POST('certificate/save', 'CertificateController@save')->middleware(['impersonate','auth'])->name('certificates.save');
 Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->name('certificates.destroy');
