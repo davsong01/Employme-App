@@ -53,6 +53,14 @@
                     <div><small style="color:red">{{ $errors->first('certificationscore')}}</small></div>
 
                     <div class="form-group">
+                        <label>Set Maximum score for CRM<span style="color:green">(Max score =
+                                100)</span></label>
+                        <input type="number" value="{{ old('crm_test') ?? $scoreSetting->crm_test }}" name="crm_test" class="form-control" min="0" max="100">
+                    </div>
+                    <div><small style="color:red">{{ $errors->first('crm_test')}}</small></div>
+
+
+                    <div class="form-group">
                         <label>Set Pass Mark <span style="color:green">(Max score = 100)</span></label>
                         <input type="number" name="passmark" value="{{ old('passmark') ?? $scoreSetting->passmark }}" class="form-control" min="0"
                             max="100" required>

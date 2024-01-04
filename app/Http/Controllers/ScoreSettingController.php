@@ -113,6 +113,7 @@ class ScoreSettingController extends Controller
             'certification' => $data['certificationscore'] ?? 0,
             'class_test' => $data['classtests'] ?? 0,
             'role_play' => $data['rolepalyscore'] ?? 0,
+            'crm_test' => $data['crm_test'] ?? 0,
             'email' => $data['emailscore'] ?? 0,
             'passmark' => $data['passmark'],
             'total' => $total,
@@ -163,6 +164,7 @@ class ScoreSettingController extends Controller
         $scoreSetting->class_test = $request['classtests'] ?? 0;
         $scoreSetting->role_play = $request['roleplayscore'] ?? 0;
         $scoreSetting->email = $request['emailscore'] ?? 0;
+        $scoreSetting->crm_test = $request['crm_test'] ?? 0;
         $scoreSetting->passmark = $request['passmark'];
         $scoreSetting->total = $total;
 

@@ -98,6 +98,7 @@
               </div>
 
               <div class="col-md-6">
+                @if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0) 
                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                 <h6 style="color:red">Add Email score here</h6>
                 <div class="form-group">
@@ -106,9 +107,10 @@
                   <input type="number" name="emailscore" value="{{ old('emailscore') ?? $details['email_test_score'] }}"
                     class="form-control" min="0" max="{{$program->scoresettings->email }}">
                 </div>
-
+                @endif
                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
                 @endif
+                @if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0) 
                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
                 <h6 style="color:red">Add Role play score here</h6>
                 <div class="form-group">
@@ -119,7 +121,20 @@
                     max="{{$program->scoresettings->role_play }}" required>
                 </div>
                 <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
-              </div>
+                @endif
+
+                @if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0) 
+                <h6 style="color:red">Add CRM test score here</h6>
+                <div class="form-group">
+                  <label>CRM Test Score* <span style="color:green">(Max score =
+                      {{$program->scoresettings->crm_test }})</span></label>
+                  <input type="number" name="crm_score"
+                    value="{{ old('crm_score') ?? $details['crm_test_score'] }}" class="form-control" min="0"
+                    max="{{$program->scoresettings->crm_test }}" required>
+                </div>
+                <div><small style="color:red">{{ $errors->first('crm_score')}}</small></div>
+                </div>
+                @endif
               @endif
 
             </div>
@@ -129,7 +144,6 @@
                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                 <h6 style="color:red">Certificate Test Submision</h6>
                 <p>Please go through this user's attempt and grade user with the grade box below</p>
-
 
                 <div class="form-group">
                   @foreach($user_results as $results)

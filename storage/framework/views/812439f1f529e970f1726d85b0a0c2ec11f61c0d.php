@@ -77,17 +77,17 @@
         <div class="card">
             <div class="card-body">
                     <div align="center">
-                            <div><img src="{{ asset('assets/images/logo-text.png') }}" />
+                            <div><img src="<?php echo e(asset('assets/images/logo-text.png')); ?>" />
                                 <h2 style="color:green">STATEMENT OF RESULT</h2>
                             </div>
                             <div style="text-align:left; height:auto; width:900px">
                                 <div style="text-align:center; font-weight:bold; width:100%; font-size: large;"></div><br />
-                                <span id="LblName" style="font-size:Small;font-weight:bold;">{{strtoupper($details['name'])}}</span>
+                                <span id="LblName" style="font-size:Small;font-weight:bold;"><?php echo e(strtoupper($details['name'])); ?></span>
                                 <br />
                                 <span id="LblMatricno2"
-                                    {{-- style="font-size:Small;font-weight:bold;">R/{{strtoupper($details->program->p_abbr)}}/{{strtoupper($details->program_id)}}/{{strtoupper($details->user->id)}}</span> --}}
+                                    
                                 <br />
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details['program'] )}}</span>
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;"><?php echo e(strtoupper($details['program'] )); ?></span>
                                 <br />
                                 <hr />
                     
@@ -100,36 +100,36 @@
                                             <td>ACTIVITY</td>
                                             <td>POINT</td>
                                         </tr>
-                                        @if(!empty($program->scoresettings->class_test) && $program->scoresettings->class_test > 0)
+                                        <?php if(!empty($program->scoresettings->class_test) && $program->scoresettings->class_test > 0): ?>
                                         <tr>
                                             <td class="datacellone">Class Test</td>
-                                            <td class="datacellone">{{ $details['class_test_score'] }}</td>
+                                            <td class="datacellone"><?php echo e($details['class_test_score']); ?></td>
                                         </tr>
-                                        @endif
-                                        @if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0)
+                                        <?php endif; ?>
+                                        <?php if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0): ?>
                                         <tr>
                                             <td class="datacelltwo">Email Test</td>
-                                            <td class="datacelltwo">{{ $details['email_test_score'] }}</td>
+                                            <td class="datacelltwo"><?php echo e($details['email_test_score']); ?></td>
                                         </tr>
-                                        @endif
-                                        @if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0)
+                                        <?php endif; ?>
+                                        <?php if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0): ?>
                                         <tr>
                                             <td class="datacellone">Role Play</td>
-                                            <td class="datacellone">{{ $details['role_play_score'] }}</td>
+                                            <td class="datacellone"><?php echo e($details['role_play_score']); ?></td>
                                         </tr>
-                                        @endif
-                                        @if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0)
+                                        <?php endif; ?>
+                                        <?php if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0): ?>
                                         <tr>
                                             <td class="datacelltwo">CRM Test</td>
-                                            <td class="datacelltwo">{{ $details['crm_test_score'] }}</td>
+                                            <td class="datacelltwo"><?php echo e($details['crm_test_score']); ?></td>
                                         </tr>
-                                        @endif
-                                        @if(!empty($program->scoresettings->certification) && $program->scoresettings->certification > 0)
+                                        <?php endif; ?>
+                                        <?php if(!empty($program->scoresettings->certification) && $program->scoresettings->certification > 0): ?>
                                         <tr>
                                             <td class="datacelltwo">Certification Test</td>
-                                            <td class="datacelltwo">{{ $details['certification_test_score'] }}</td>
+                                            <td class="datacelltwo"><?php echo e($details['certification_test_score']); ?></td>
                                         </tr>
-                                        @endif
+                                        <?php endif; ?>
                                     </table>
                                 </span>
                             </div>
@@ -151,7 +151,7 @@
                                                     <td class="fil">
                                                         Pass Mark</td>
                                                     <td>
-                                                        <span id="LblPoint1">{{ $details['passmark'] }}</span>
+                                                        <span id="LblPoint1"><?php echo e($details['passmark']); ?></span>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -167,26 +167,26 @@
 
                                                         ?>
 
-                                                        <span id="Lblgpa1">{{$total}} </span>
+                                                        <span id="Lblgpa1"><?php echo e($total); ?> </span>
                                                     </td>
                                                 </tr>
                                             </table>
                                        </td>
                                     </tr>
                                 </table>
-                                {{-- {{dd($program->scoresettings)}} --}}
+                                
                                 <div style="text-align:left">
                                     <span style="">CERTIFICATION STATUS : </span>
-                                    <span id="lblRemark" style="color:{{ $total >= $program->scoresettings->passmark ? 'green' : 'red' }}"><b>{{ $total >= $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED' }}</b></span>
+                                    <span id="lblRemark" style="color:<?php echo e($total >= $program->scoresettings->passmark ? 'green' : 'red'); ?>"><b><?php echo e($total >= $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED'); ?></b></span>
                                     <br />
                                     <br />
                                     <div style="width:100%; text-align:center"><br /><br />
-                                        <img src="{{ asset('assets/inc/sign.png') }}" style="width:8%" /><br />
+                                        <img src="<?php echo e(asset('assets/inc/sign.png')); ?>" style="width:8%" /><br />
                                         .................................................................<br />
                                         School Administrator
                                         <br /><br /><br />ANY ALTERATION WHATSOVER RENDERS THIS RESULT INVALID<br />
-                                        <br /><span>Printed: {{now()}}</span><br /><br /><br />
-                                        <a id="lnkclose" href="/training/{{ $program->id }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <br /><span>Printed: <?php echo e(now()); ?></span><br /><br /><br />
+                                        <a id="lnkclose" href="/training/<?php echo e($program->id); ?>">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <a onclick="javascript:window.print();" id="LinkButton1"
                                             href="javascript:__doPostBack(&#39;LinkButton1&#39;,&#39;&#39;)">PRINT</a>
                                     </div>
@@ -199,4 +199,4 @@
     </div>
 </body>
 
-</html>
+</html><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/results/show.blade.php ENDPATH**/ ?>

@@ -1,8 +1,7 @@
-@extends('dashboard.admin.index')
-@section('title')
-{{ config('app.name') }} Test Management
-@endsection
-@section('content')
+<?php $__env->startSection('title'); ?>
+<?php echo e(config('app.name')); ?> Test Management
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="container-fluid">
      <div class="card">
@@ -10,10 +9,10 @@
            
             <div class="card-header">
                 <div>
-                    @include('layouts.partials.alerts')
+                    <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                     <p style="color:red"><strong>Here you can set score parameters for individual training assesment. Please use the default values except you know what you are doing.</strong> <br><br>
                     NOTE: You cannot edit assessment parameters for a program whose Modules have been enabled. <br>Total Scores for all assessment parameter for an individual training cannot be more than 100%</p>
-                    <h5 class="card-title"> All Questions <a href="{{route('scoreSettings.create')}}"><button type="button" class="btn btn-outline-primary">Add New Assessment Parameter</button></a></h5> 
+                    <h5 class="card-title"> All Questions <a href="<?php echo e(route('scoreSettings.create')); ?>"><button type="button" class="btn btn-outline-primary">Add New Assessment Parameter</button></a></h5> 
                 </div>
             </div>
             
@@ -34,38 +33,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($scores as $score)
+                        <?php $__currentLoopData = $scores; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $score): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $i++ }}</td>
-                            <td>{{ $score->program->p_name}}</td>
-                            <td>{{$score->module_status_count}}</td>
-                            <td>{{ $score->class_test ?? 0}}%</td>
-                            <td>{{ $score->role_play ?? 0}}%</td>
-                            <td>{{ $score->email ?? 0}}%</td>
-                            <td>{{ $score->certification ?? 0}}%</td>
-                            <td>{{ $score->crm_test ?? 0 }}%</td>
-                            <td>{{ $score->total}}</td>
+                            <td><?php echo e($i++); ?></td>
+                            <td><?php echo e($score->program->p_name); ?></td>
+                            <td><?php echo e($score->module_status_count); ?></td>
+                            <td><?php echo e($score->class_test ?? 0); ?>%</td>
+                            <td><?php echo e($score->role_play ?? 0); ?>%</td>
+                            <td><?php echo e($score->email ?? 0); ?>%</td>
+                            <td><?php echo e($score->certification ?? 0); ?>%</td>
+                            <td><?php echo e($score->crm_test ?? 0); ?>%</td>
+                            <td><?php echo e($score->total); ?></td>
                             <td>
                                 <div class="btn-group">
                                   
 
-                                    <form action="{{ route('scoreSettings.destroy', $score->id) }}" method="POST"
+                                    <form action="<?php echo e(route('scoreSettings.destroy', $score->id)); ?>" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete forever?');">
                                         
-                                        {{-- @if($score->module_status_count <= 0) --}}
+                                        
                                         <a data-toggle="tooltip" data-placement="top" title="Edit"
-                                            class="btn btn-info btn-sm" href="{{ route('scoreSettings.edit', $score->id)}}"><i
+                                            class="btn btn-info btn-sm" href="<?php echo e(route('scoreSettings.edit', $score->id)); ?>"><i
                                                 class="fa fa-edit"></i>
                                         </a>
-                                        {{-- @endif --}}
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-                                        @if($score->module_status_count <= 0)
+                                        
+                                        <?php echo e(csrf_field()); ?>
+
+                                        <?php echo e(method_field('DELETE')); ?>
+
+                                        <?php if($score->module_status_count <= 0): ?>
                                         <button type="submit" class="btn btn-warning btn-sm" data-toggle="tooltip"
                                             data-placement="top" title="Delete scores"> <i class="fa fa-trash"></i>
                                         </button>
-                                        @else N/A
-                                        @endif
+                                        <?php else: ?> N/A
+                                        <?php endif; ?>
             
                                         
                                     </form>
@@ -73,7 +74,7 @@
 
                             </td>
                         </tr> 
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
@@ -87,4 +88,5 @@
         return confirm("Are you sure?");
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/scoresettings/index.blade.php ENDPATH**/ ?>

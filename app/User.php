@@ -41,8 +41,7 @@ class User extends Authenticatable
     public function getRedoStatus(){
         return $this->redotest;
     }
-
-
+    
     public function getName(){
         return $this->name;
     }

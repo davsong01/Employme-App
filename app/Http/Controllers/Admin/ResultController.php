@@ -72,6 +72,7 @@ class ResultController extends Controller
                 $user->total_class_test_score = 0;
                 $user->total_email_test_score = 0;
                 $user->total_role_play_score = 0;
+                $user->total_crm_test_score = 0;
                 $user->program_id = $request->pid;
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
@@ -97,6 +98,8 @@ class ResultController extends Controller
 
                 foreach ($results as $result) {
                     $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score;
+                    $user->total_crm_test_score = $result->crm_test_score + $user->total_crm_test_score;
+                    
                     $user->updated_at = $result->updated_at;
                     $user->module_id = $result->module_id;
                     $user->cert = $result->cert();
@@ -264,6 +267,7 @@ class ResultController extends Controller
         $details['certification_score'] = 0;
         $details['email_test_score'] = 0;
         $details['role_play_score'] = 0;
+        $details['crm_test_score'] = 0;
         $details['user_name'] = "";
         $details['allow_editing'] = 0;
 
@@ -277,6 +281,7 @@ class ResultController extends Controller
             $h_details['certification_score'] = 0;
             $h_details['email_test_score'] = 0;
             $h_details['role_play_score'] = 0;
+            $h_details['crm_test_score'] = 0;
             $h_details['user_name'] = "";
             $h_details['allow_editing'] = 0;
             foreach ($history as $results) {
@@ -287,6 +292,7 @@ class ResultController extends Controller
                 $h_details['certification_score'] = $results->certification_test_score + $h_details['certification_score'];
                 $h_details['email_test_score'] = $results->email_test_score +  $h_details['email_test_score'];
                 $h_details['role_play_score'] = $results->role_play_score +  $h_details['role_play_score'];
+                $h_details['crm_test_score'] = $results->crm_test_score +  $h_details['crm_test_score'];
                 $results['module_title'] = $results->module->title;
                 $h_details['user_name'] = $results->user->name;
                 $h_details['grader_comment'] = $results->grader_comment;
@@ -308,6 +314,7 @@ class ResultController extends Controller
                 unset($results['certification_test_details']);
                 // unset($results['certification_test_score']);
                 unset($results['role_play_score']);
+                unset($results['crm_test_score']);
                 unset($results['email_test_score']);
             }
         }
@@ -319,6 +326,7 @@ class ResultController extends Controller
             $details['certification_score'] = $results->certification_test_score + $details['certification_score'];
             $details['email_test_score'] = $results->email_test_score +  $details['email_test_score'];
             $details['role_play_score'] = $results->role_play_score +  $details['role_play_score'];
+            $details['crm_test_score'] = $results->crm_test_score +  $details['crm_test_score'];
             $results['module_title'] = $results->module->title;
             $details['user_name'] = $results->user->name;
             $details['grader_comment'] = $results->grader_comment;
@@ -340,6 +348,7 @@ class ResultController extends Controller
             unset($results['certification_test_details']);
             unset($results['certification_test_score']);
             unset($results['role_play_score']);
+            unset($results['crm_test_score']);
             unset($results['email_test_score']);
         }
 
@@ -382,7 +391,7 @@ class ResultController extends Controller
         if (!empty(array_intersect(studentRoles(), Auth::user()->role())) || Auth::user()->id == $id) {
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
-
+            
             if ($program->allow_payment_restrictions_for_results == 'yes') {
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
@@ -409,6 +418,7 @@ class ResultController extends Controller
                 $class = 0;
                 $email = 0;
                 $roleplay = 0;
+                $crm = 0;
                 $certification = 0;
                 $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id', $program->id)->get();
 
@@ -424,6 +434,7 @@ class ResultController extends Controller
                     $class = $t['class_test_score'] + $class;
                     $email =  $t['email_test_score'] + $email;
                     $roleplay =  $t['role_play_score'] + $roleplay;
+                    $crm =  $t['crm_test_score'] + $crm;
                     $certification =  $t['certification_test_score'] + $certification;
 
                     $t['program'] = $t->program->p_name;
@@ -437,6 +448,7 @@ class ResultController extends Controller
 
                 $details['email_test_score'] = $email;
                 $details['role_play_score'] = $roleplay;
+                $details['crm_test_score'] = $crm;
                 $details['certification_test_score'] = $certification;
 
                 $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
@@ -449,7 +461,7 @@ class ResultController extends Controller
                 if ($details['total_score'] >= $details['passmark']) {
                     $details['status'] = 'CERTIFIED';
                 } else $details['status'] = 'NOT CERTIFIED';
-
+                
                 return view('dashboard.admin.results.show', compact('details', 'program'));
             }
 
@@ -457,6 +469,7 @@ class ResultController extends Controller
         } elseif (!empty(array_intersect(teacherRoles(), Auth::user()->role()))) {
             $result = Result::where('user_id', $id)->first();
             $resultcount = (count($result));
+           
             return view('dashboard.admin.results.show', compact('result'));
         }
         return redirect('/');
@@ -480,6 +493,7 @@ class ResultController extends Controller
 
             if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
                 $result->role_play_score = $request->roleplayscore;
+                $result->crm_test_score = $request->crm_score;
                 $result->email_test_score = $request->emailscore;
                 $result->certification_test_score = $request->certification_score;
                 $result->grader_comment = $request->grader_comment;
@@ -517,6 +531,7 @@ class ResultController extends Controller
                 "certification_test_score" => $results->certification_test_score,
                 "certification_test_details" => $results->certification_test_details,
                 "role_play_score" => $results->role_play_score,
+                "crm_test_score" => $results->crm_test_score,
                 "email_test_score" => $results->email_test_score,
                 "facilitator_comment" => $results->facilitator_comment,
                 "grader_comment" => $results->grader_comment

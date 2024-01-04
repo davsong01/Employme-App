@@ -439,6 +439,7 @@ class ProgramController extends Controller
                 'certification' => $training->scoresettings->certification,
                 'class_test' => $training->scoresettings->class_test,
                 'role_play' => $training->scoresettings->role_play,
+                'crm_test' => $training->scoresettings->crm_test,
                 'email' => $training->scoresettings->email,
                 'passmark' => $training->scoresettings->passmark,
                 'total' => $training->scoresettings->total,

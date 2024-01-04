@@ -39,8 +39,11 @@ class ImpersonateController extends Controller
 
     public function stopImpersonate()
     {
-        
-        Auth::user()->stopImpersonating();
+        if(Auth::check()){
+            Auth::user()->stopImpersonating();
+        }else{
+            return redirect(route('login'));
+        }
 
         return redirect(route('users.index'))->with('message', 'Welcome back!');   
 
@@ -48,9 +51,12 @@ class ImpersonateController extends Controller
 
     public function stopImpersonateFacilitator()
     {
+        if (Auth::check()) {
+            Auth::user()->stopImpersonating();
+        }else{
+            return redirect(route('login'));
+        }
         
-        Auth::user()->stopImpersonating();
-
         return redirect(route('teachers.index'))->with('message', 'Welcome back!');   
 
     }

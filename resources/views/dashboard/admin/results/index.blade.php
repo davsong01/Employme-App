@@ -57,19 +57,26 @@
                             </td>
                             
                             <td>
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
+                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                        <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
+                                    @endif
+                                @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                     @if(isset($score_settings->certification) && $score_settings->certification > 0)
                                     <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% <br>
                                     @endif
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                        <br><strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
-                                    @endif
-
+                                    
                                     @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
                                         @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
                                         <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
+                                        @endif
+                                    @endif
+                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
+                                        @if(isset($score_settings->crm_test) && $score_settings->crm_test > 0)
+                                        <strong class="tit">CRM Test: </strong> {{ $user->total_crm_test_score }}%  <br> 
                                         @endif
                                     @endif
                                     @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
@@ -78,7 +85,16 @@
                                         @endif
                                     @endif
                                 <?php
-                                    $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
+                                
+                                    $total = ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->total_cert_score : 0 )
+                                    + ((!empty($score_settings->certification) && $score_settings->certification > 0 ) ? $user->final_ct_score : 0)
+                                    + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
+                                    + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
+                                    + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
+
+                                                   
+
+                                    // $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
                                 ?>
                             </td>
                             <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
