@@ -85,6 +85,8 @@ class ProgramController extends Controller
             'allow_payment_restrictions_for_results' => 'required',
             'allow_payment_restrictions_for_certificates' => 'required',
             'allow_payment_restrictions_for_completed_tests' => 'required',
+            'allow_preferred_timing' => 'required',
+            'allow_flexible_payment' => 'required',
         ]);
 
         //Save booking form
@@ -143,7 +145,9 @@ class ProgramController extends Controller
             'allow_payment_restrictions_for_post_class_tests' => $data['allow_payment_restrictions_for_post_class_tests'],
             'allow_payment_restrictions_for_results' => $data['allow_payment_restrictions_for_results'],
             'allow_payment_restrictions_for_certificates' => $data['allow_payment_restrictions_for_certificates'],
-            'allow_payment_restrictions_for_completed_tests' => $data['allow_payment_restrictions_for_completed_tests']
+            'allow_payment_restrictions_for_completed_tests' => $data['allow_payment_restrictions_for_completed_tests'],
+            'allow_preferred_timing' => $data['allow_preferred_timing'],
+            'allow_flexible_payment' => $data['allow_flexible_payment'],
         ]);
 
         if ($request->has('sub_name') && $request->show_sub == 'yes') {
@@ -266,7 +270,7 @@ class ProgramController extends Controller
                 $sub_programs = $subs;
                 $new_sub_data = $program->toArray();
                 $new_sub_data = array_diff_key($new_sub_data, array_flip(["status", "id", "created_at", "updated_at", "sub_programs", "deleted_at", "p_name", "p_amount", "show_sub"]));
-
+                
                 foreach ($sub_programs as $key => $sub) {
                     $new_sub_data['p_name'] = $sub['p_name'];
                     $new_sub_data['p_amount'] = $sub['p_amount'];
