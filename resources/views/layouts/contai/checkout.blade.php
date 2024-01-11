@@ -21,7 +21,6 @@
             <form action="{{ route('pay') }}" method="POST">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="row">
-                    
                     <div class="col-lg-6 col-md-6">
                         <div class="row">
                             <div class="col-lg-12">
@@ -125,14 +124,15 @@
                                 </tr>
                             </table>
                             
-                            <input type="hidden" name="orderID" value="{{ $training['id'] }}">
                             <input type="hidden" name="modes" value="{{ $modes }}">
                             <input type="hidden" name="location" value="{{ $location }}">
+                            <input type="hidden" name="preferred_timing" value="{{ $preferred_timing }}">
+                            <input type="hidden" name="orderID" value="{{ $training['id'] }}">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
                             <input type="hidden" name="currency" value="{{  $currency }}">
                             <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}"> 
-                                                           
+                                                 
                             <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             @if($amount > 0)
                                 <h4 class="">Choose payment method</h4>

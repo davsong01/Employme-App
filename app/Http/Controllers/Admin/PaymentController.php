@@ -10,6 +10,7 @@ use App\User;
 use App\Coupon;
 use App\Program;
 use App\Transaction;
+use App\Models\Wallet;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -33,9 +34,10 @@ class PaymentController extends Controller
             $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
                 ->join("programs", "program_user.program_id", "=", "programs.id")
                 ->join("users", "users.id", "=", "program_user.user_id")
-                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name", "programs.modes", "programs.locations", "coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type")
+                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name", "programs.modes", "programs.locations", "coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type", "program_user.preferred_timing", "programs.allow_preferred_timing")
                 ->get();
             $i = 1;
+            // dd($transactions);
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
 
             return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops'));
@@ -55,6 +57,35 @@ class PaymentController extends Controller
             // dd($transactiondetails->balance);
             return view('dashboard.student.payments.index', compact('transactiondetails'));
         }
+    }
+
+    public function paymentHistory()
+    {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            $wallets = app('App\Http\Controllers\WalletController')->getWalletHistory();
+            $balance = app('App\Http\Controllers\WalletController')->getGlobalWalletBalance();
+        }else{
+            abort(404);
+        }
+
+        return view('dashboard.admin.payments.wallets', compact('wallets', 'balance'));
+    }
+
+    public function approveWalletTransaction($wallet_id){
+        $wallet = Wallet::where('id', $wallet_id)->update([
+            'status' => 'approved',
+            'admin_id' => auth()->user()->id
+        ]);
+
+        return back()->with('message', 'TopUp successfully Approved');
+    }
+
+    public function deleteWalletTransaction(Wallet $wallet_id)
+    {
+        $this->deleteImage('pop/'. $wallet_id->proof_of_payment);
+       
+        $wallet_id->delete();
+        return back()->with('message', 'Pop succesfully deleted');
     }
 
     public function edit($id)

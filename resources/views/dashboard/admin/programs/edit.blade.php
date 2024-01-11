@@ -155,6 +155,7 @@
                                         <option value="yes" {{ $program->allow_flexible_payment == 'yes' ? 'selected' : '' }}>Yes</option>
                                     </select>
                                 </div>
+                               
                                 <div class="form-group">
                                     <label>Enable Flexible timing?</label>
                                     <select name="allow_preferred_timing" class="form-control" id="allow_preferred_timing" required>

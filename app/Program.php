@@ -2,14 +2,19 @@
 
 namespace App;
 use App\User;
+use DateTime;
 use App\Mocks;
 use App\Coupon;
 use App\Module;
 use App\Result;
+use DatePeriod;
 use App\Location;
 use App\Material;
+use DateInterval;
+use Carbon\Carbon;
 use App\Certificate;
 use App\ScoreSetting;
+use Carbon\CarbonPeriod;
 use App\FacilitatorTraining;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
@@ -108,4 +113,20 @@ class Program extends Model
     {
         return $this->hasMany(Coupon::class);
     } 
+
+    public function programRange(){
+        $start    = (new DateTime($this->p_start))->modify('first day of this month');
+        $end      = (new DateTime($this->p_end))->modify('first day of this month');
+        $interval = DateInterval::createFromDateString('1 month');
+        $period   = new DatePeriod($start, $interval, $end);
+
+        $months = array();
+
+        foreach ($period as $dt) {
+            if(!in_array($dt->format("F"), ['May','June','October','November'])){
+                $months[] = $dt->format("F Y");
+            }
+        }
+        return $months;
+    }
 }

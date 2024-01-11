@@ -4,7 +4,6 @@
 @endsection
 @section('content')
  <!-- Product Details Section Begin -->
- 
 <section class="product-details spad">
     <div class="container">
         <div class="row">
@@ -48,7 +47,7 @@
                         @endif
                         
                     </div>
-                     @if(isset($training->description) && !empty($training->description))
+                    @if(isset($training->description) && !empty($training->description))
                     <p>{{ $training->description }}</p>
                     @endif
                     
@@ -79,7 +78,7 @@
                                                 </select>
                                             </div> 
                                         @endif
-                                       
+                                        
                                         <div class="checkout__input" id="payment_types" style="display:none">
                                             <p>Select payment type<span>*</span></p>
                                             <div class="select-block">
@@ -88,7 +87,19 @@
                                                 </select>
                                             </div>
                                         </div> 
-                                   
+                                        @if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' )
+                                            <div class="checkout__input">
+                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <select name="preferred_timing" id="preferred_timing" required>
+                                                    <option value="">Select...</option>
+                                                    @foreach($training->programRange() as $preferred_timing)
+                                                        <option value="{{ $preferred_timing }}" {{ old('preferred_timing') == $preferred_timing ? 'selected' : '' }}>
+                                                         {{ $preferred_timing }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div> 
+                                        @endif
                                     @else 
                                         @if(isset($locations) && count($locations) > 0 )
                                             <div class="checkout__input">
@@ -103,6 +114,7 @@
                                                 </select>
                                             </div> 
                                         @endif
+                                        
                                         @if($training->p_amount > 0)
                                         <div class="checkout__input">
                                             <p>Select payment type<span>*</span></p>
@@ -119,6 +131,20 @@
                                         </div>
                                         @else
                                         <input type="hidden" value="full" name="type">
+                                        @endif
+                                        
+                                        @if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' )
+                                            <div class="checkout__input">
+                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <select name="preferred_timing" id="preferred_timing" required>
+                                                    <option value="">Select...</option>
+                                                    @foreach($training->programRange() as $preferred_timing)
+                                                        <option value="{{ $preferred_timing }}" {{ old('preferred_timing') == $preferred_timing ? 'selected' : '' }}>
+                                                         {{ $preferred_timing }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div> 
                                         @endif
                                     @endif
                                     

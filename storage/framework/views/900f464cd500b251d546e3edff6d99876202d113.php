@@ -4,7 +4,6 @@
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
  <!-- Product Details Section Begin -->
- 
 <section class="product-details spad">
     <div class="container">
         <div class="row">
@@ -51,7 +50,7 @@
                         <?php endif; ?>
                         
                     </div>
-                     <?php if(isset($training->description) && !empty($training->description)): ?>
+                    <?php if(isset($training->description) && !empty($training->description)): ?>
                     <p><?php echo e($training->description); ?></p>
                     <?php endif; ?>
                     
@@ -83,7 +82,7 @@
                                                 </select>
                                             </div> 
                                         <?php endif; ?>
-                                       
+                                        
                                         <div class="checkout__input" id="payment_types" style="display:none">
                                             <p>Select payment type<span>*</span></p>
                                             <div class="select-block">
@@ -92,7 +91,20 @@
                                                 </select>
                                             </div>
                                         </div> 
-                                   
+                                        <?php if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' ): ?>
+                                            <div class="checkout__input">
+                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <select name="preferred_timing" id="preferred_timing" required>
+                                                    <option value="">Select...</option>
+                                                    <?php $__currentLoopData = $training->programRange(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $preferred_timing): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($preferred_timing); ?>" <?php echo e(old('preferred_timing') == $preferred_timing ? 'selected' : ''); ?>>
+                                                         <?php echo e($preferred_timing); ?>
+
+                                                        </option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </select>
+                                            </div> 
+                                        <?php endif; ?>
                                     <?php else: ?> 
                                         <?php if(isset($locations) && count($locations) > 0 ): ?>
                                             <div class="checkout__input">
@@ -108,6 +120,7 @@
                                                 </select>
                                             </div> 
                                         <?php endif; ?>
+                                        
                                         <?php if($training->p_amount > 0): ?>
                                         <div class="checkout__input">
                                             <p>Select payment type<span>*</span></p>
@@ -124,6 +137,21 @@
                                         </div>
                                         <?php else: ?>
                                         <input type="hidden" value="full" name="type">
+                                        <?php endif; ?>
+                                        
+                                        <?php if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' ): ?>
+                                            <div class="checkout__input">
+                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <select name="preferred_timing" id="preferred_timing" required>
+                                                    <option value="">Select...</option>
+                                                    <?php $__currentLoopData = $training->programRange(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $preferred_timing): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($preferred_timing); ?>" <?php echo e(old('preferred_timing') == $preferred_timing ? 'selected' : ''); ?>>
+                                                         <?php echo e($preferred_timing); ?>
+
+                                                        </option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </select>
+                                            </div> 
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     

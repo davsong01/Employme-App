@@ -128,11 +128,12 @@
                             <input type="hidden" name="orderID" value="<?php echo e($training['id']); ?>">
                             <input type="hidden" name="modes" value="<?php echo e($modes); ?>">
                             <input type="hidden" name="location" value="<?php echo e($location); ?>">
+                            <input type="hidden" name="preferred_timing" value="<?php echo e($preferred_timing); ?>">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="<?php echo e(($amount)); ?>">
                             <input type="hidden" name="currency" value="<?php echo e($currency); ?>">
                             <input type="hidden" name="metadata" value="<?php echo e(json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL])); ?>"> 
-                                                           
+                                                 
                             <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             <?php if($amount > 0): ?>
                                 <h4 class="">Choose payment method</h4>

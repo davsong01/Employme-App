@@ -12,7 +12,6 @@
                     </div>
                     <form action="{{route('users.store')}}" method="POST" enctype="multipart/form-data" class="pb-2">
                         <div class="row">
-
                             <div class="col-md-6">
 
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
@@ -243,20 +242,13 @@
                                 </div>
 
                             </div>
-
                         </div>
-
                         <div class="row">
-
-                            <button type="submit" class="btn btn-primary" style="width:100%">
-
-                                Submit
-
-                            </button>
-
+                            <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
                         </div>
 
                         {{ csrf_field() }}
+                    </form>
                 </div>
             </div>
         </div>

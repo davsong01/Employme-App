@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('program_user', 'preferred_timing')) {
-            Schema::table('program_user', function (Blueprint $table) {
+        if (!Schema::hasColumn('temp_transactions', 'preferred_timing')) {
+            Schema::table('temp_transactions', function (Blueprint $table) {
                 $table->string('preferred_timing')->nullable()->after('program_id');
             });
         }
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('program_user', function (Blueprint $table) {
+        Schema::table('temp_transactions', function (Blueprint $table) {
             $table->dropColumn(['preferred_timing']);
         });
     }

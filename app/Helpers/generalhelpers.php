@@ -39,6 +39,38 @@
         }
     }
 
+if (!function_exists("getAccounts")) {
+    function getAccounts()
+    {
+        $accounts = [
+            [
+                'bank' =>  'Access Bank',
+                'number' => '0106070151',
+                'name' => 'Employme E-learning',
+                'status' => 1,
+                'country' => 'Nigeria'
+            ],
+            [
+                'bank' =>  'GTB',
+                'number' => '0434442453',
+                'name' => 'EmployMe E-Learning',
+                'status' => 1,
+                'country' => 'Nigeria'
+            ],
+
+            [
+                'bank' =>  'Mobile Money (MoMo)',
+                'number' => '0557963331',
+                'name' => '3y publicity limited (Frank Asiedu)',
+                'status' => 1,
+                'country' => 'Ghana'
+            ],
+
+        ];
+        return $accounts;
+    }
+}
+
     if (!function_exists("getPackageAccess")) {
         function getPackageAccess()
         {

@@ -87,6 +87,8 @@ Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', '
 Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
+Route::get('/my-wallet/{user_id}', 'WalletController@participantWalletIndex')->name('my.wallet')->middleware(['impersonate', 'auth']);
+Route::post('/top-up-account/{type?}', 'PaymentController@accountTopUp')->name('account.topup')->middleware(['impersonate', 'auth']);
 Route::get('/download-program-brochure/{p_id}', 'HomeController@downloadProgramBrochure')->name('download.program.brochure')->middleware(['impersonate', 'auth', 'programCheck']);
 
 Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
@@ -208,13 +210,12 @@ Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->na
 Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'CertificateController@certificateStatus')->name('certificate.status');
 
 
-
-
-   
-
 //route for payments history
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('payments', 'PaymentController');
+    Route::get('payment-history', 'PaymentController@paymentHistory')->name('payments.history');
+    Route::get('approve-wallet-transaction\{wallet_id}', 'PaymentController@approveWalletTransaction')->name('approve.wallet.history');
+    Route::get('delete-wallet-transaction\{wallet_id}', 'PaymentController@deleteWalletTransaction')->name('delete.wallet.history');
     Route::get('printreceipt/{id}', 'PaymentController@printReceipt')->name('payments.print');
 });
 Route::namespace('Admin')->middleware(['auth'])->group(function(){

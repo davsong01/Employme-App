@@ -31,6 +31,7 @@
                                 {{ $pop->email }} <br>
                             </td>
                             <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
+                                 @if($pop->program->allow_preferred_timing == 'yes') <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$pop->preferred_timing}} </span> <br> @endif
                             @if(isset($pop->is_fresh)) <br>
                             <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                             @endif
@@ -107,12 +108,13 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
-                        
                         <tr>
-                            <td>{{ $transaction->name ?? 'N/A' }} <br>{{ $transaction->t_phone ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} </td>
+                            <td><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
+                                <br>{{ $transaction->t_phone ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} </td>
                             <td>
                                 <small class="training-details">
-                                    <strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }} <br>  
+                                    <a href="{{ route('programs.edit', $transaction->program_id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }}</a><br>  
+                                    @if($transaction->allow_preferred_timing == 'yes') <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
                                     <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
                                     @if(!is_null($transaction->coupon_code))
                                     <span style="color:blue">
@@ -160,29 +162,34 @@
                                     @endif
                                      <strong>Type: </strong>{{ $transaction->t_type }} <br>
                                     <strong>Currency: </strong>{{ $transaction->currency }}
-                                     
                                 </small>
                             </td>
                              <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"
-                                        class="btn btn-info" href="{{ route('payments.edit', $transaction->id) }}"><i
+                                        class="btn btn-info btn-sm" href="{{ route('payments.edit', $transaction->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
-                                        class="btn btn-warning" href="{{ route('payments.print', $transaction->id) }}"><i
+                                        class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
                                             class="fa fa-print"></i>
                                     </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
-                                        class="btn btn-primary" href="{{ route('payments.show', $transaction->id) }}"><i
+                                        class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
                                             class="far fa-envelope"></i>
                                     </a>
+                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
+                                        <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                            class="btn btn-dark btn-sm" href="{{ route('impersonate', $transaction->user_id) }}"><i
+                                                class="fa fa-unlock"></i>
+                                        </a>
+                                    @endif 
                                     <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
                                             data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>

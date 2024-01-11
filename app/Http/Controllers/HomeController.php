@@ -12,7 +12,9 @@ use App\Picture;
 
 use App\Program;
 use App\Material;
+use Carbon\Carbon;
 use App\PaymentMode;
+use App\Models\Wallet;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
 
@@ -130,7 +132,11 @@ class HomeController extends Controller
                 $transactions->p_id =  Program::where('id', $transactions->program_id)->value('id');
             }
 
-            return view('dashboard.student.dashboard', compact('thisusertransactions'));
+            $account_balance = app('App\Http\Controllers\WalletController')->getWalletBalance(auth()->user()->id);
+            
+            $topup_programs = Program::where('allow_preferred_timing', 'yes')->where('p_end', '>', Carbon::now())->get();
+            
+            return view('dashboard.student.dashboard', compact('thisusertransactions', 'account_balance', 'topup_programs'));
         }
     }
 
@@ -142,7 +148,7 @@ class HomeController extends Controller
             ->where('balance', '>', 0)
             ->first();
         // dd($data);
-        $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
+        $program = Program::whereId($request->p_id)->first();
 
         $payment_mode =  PaymentMode::where('id', $data->payment_mode)->first();
 

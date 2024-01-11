@@ -9,15 +9,20 @@ use App\Http\Controllers\Controller;
 
 class PaystackController extends Controller
 {
-    public function query($request, $mode, $data=null){
-        if(isset($request->user_program)){
-            $request['transid'] = $this->getReference('PYSTK');
-            $request['invoice_id'] = $data->invoice_id;
-            DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
+    public function query($request, $mode, $data=null, $query_only=null){
+        if(empty($query_only)){
+            if (isset($request->user_program)) {
+                $request['transid'] = $this->getReference('PYSTK');
+                $request['invoice_id'] = $data->invoice_id;
+                DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
+            } else {
+                $request['transid'] = $this->getReference('PYSTK');
+                app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
+            }
         }else{
             $request['transid'] = $this->getReference('PYSTK');
-            app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
         }
+        
         $url = "https://api.paystack.co/transaction/initialize";
         // Convert amount using payment mode exchange rate
         $request['amount'] = $request->amount * $mode->exchange_rate;
@@ -29,7 +34,6 @@ class PaystackController extends Controller
             'callback_url' => url('/'). '/payment/callback',
             'currency'=>$mode->currency,
         ];
-        
         $fields_string = http_build_query($fields);
         //open connection
         $ch = curl_init();
@@ -50,9 +54,14 @@ class PaystackController extends Controller
         $result = json_decode($result);
         
         try {
+            if (!empty($query_only)) {
+                return [
+                    'url' => $result->data->authorization_url,
+                    'transaction_id' => $request['transid']
+                ];
+            }
             return $result->data->authorization_url;
         } catch (\Exception $th) {
-            \Log::error('Processor Error: '. $th->getMessage());
             return;
         }
         
@@ -75,6 +84,7 @@ class PaystackController extends Controller
         ));
 
         $response = curl_exec($curl);
+        
         $err = curl_error($curl);
 
         curl_close($curl);

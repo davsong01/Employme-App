@@ -356,6 +356,7 @@ class Controller extends BaseController
                     'amount' =>  $request['amount'],
                     'transid' =>  $request->transid,
                     'payment_mode' => $payment_mode,
+                    'preferred_timing' => $request['preferred_timing'] ?? null,
                     'phone' => $request->phone,
                     'location' => $request->location ?? NULL,
                     'training_mode' => $request->modes ?? NULL,
@@ -371,6 +372,7 @@ class Controller extends BaseController
                         'amount' =>  $request['amount'],
                         'transid' =>  $request->transid,
                         'payment_mode' => $payment_mode,
+                        'preferred_timing' => $request['preferred_timing'] ?? null,
                         'name' => $request->name,
                         'phone' => $request->phone,
                         'location' => $request->location ?? NULL,
@@ -485,6 +487,7 @@ class Controller extends BaseController
         $data['transid'] = $paymentDetails->transid;
         $data['t_location'] = $paymentDetails->location;
         $data['training_mode'] = $paymentDetails->training_mode;
+        $data['preferred_timing'] = $paymentDetails->preferred_timing;
        
         return $data;
     }
@@ -528,6 +531,7 @@ class Controller extends BaseController
         $data['transid'] = $this->getInvoiceId();
         $data['t_location'] = $data['location'] ?? '';
         $data['training_mode'] = isset($request->training_mode) ? $request->training_mode : $request['training_mode'] ?? '';
+        $data['preferred_timing'] = isset($request->preferred_timing) ? $request->preferred_timing : $request['preferred_timing'] ?? '';
         return $data;
     }
 
@@ -601,13 +605,11 @@ class Controller extends BaseController
                 'currency' =>  \Session::get('currency'),
                 'payload' => $data['payload'],
                 'payment_mode' => $data['paymentModeDetails']['id'],
-                
+                'preferred_timing' => $data['preferred_timing'] ?? null,
             ] );
         } 
-       
         else{
             $data['user_id'] = $user->id;
-            
             return $data;
         }
    
@@ -746,8 +748,18 @@ class Controller extends BaseController
         }elseif($data['type'] == 'bulk'){
             $subject = $data['subject'];
             $content = $data['content'];
+        } else if ($data['type'] == 'manual.wallet.topup') {
+            $subject = 'Account top up Proof of Manual Payment Uploaded';
+            $content .= "<strong>Dear Admin</strong>,<br>
+                <p>Please find below proof of manual account top up details with file attached </p>
+                Name: " . $data['name'] . "<br>
+                Email: " . $data['participant_email'] . "<br>
+                Amount: " .Settings::value('DEFAULT_CURRENCY').number_format($data['amount']) . "<br>
+                Date Uploaded: " . now() . "<br>";
+            
+            $content .= '<a href="' . config('app.url') . '/payment-history' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to confirm Payment</button></a><br><br>Regards';
         }
-
+       
         return ['content'=>$content,'subject'=>$subject];
     }
 

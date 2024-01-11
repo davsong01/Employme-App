@@ -10,7 +10,8 @@
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+{{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"> --}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 @endsection
@@ -93,11 +94,16 @@
                     href="{{ route('coupon.index') }}" aria-expanded="false"><i class="fa fa-gift"></i><span
                         class="hide-menu">Coupons</span></a></li>
             @endif
-             @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
+            @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
                 @if(in_array(8, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
                             class="hide-menu">Transactions</span></a></li>
+                @endif
+                @if(in_array(8, $menus))
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('payments.history')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
+                            class="hide-menu">Wallet Transactions</span></a></li>
                 @endif
                 @if(in_array(9, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

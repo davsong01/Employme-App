@@ -11,11 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('program_user', 'preferred_timing')) {
-            Schema::table('program_user', function (Blueprint $table) {
-                $table->string('preferred_timing')->nullable()->after('program_id');
+        if(!Schema::hasColumn('programs', 'allow_flexible_payment')){
+            Schema::table('programs', function (Blueprint $table) {
+                $table->string('allow_flexible_payment')->default('no')->after('is_closed');
             });
         }
+
+        if (!Schema::hasColumn('programs', 'allow_preferred_timing')) {
+            Schema::table('programs', function (Blueprint $table) {
+                $table->string('allow_preferred_timing')->default('no')->after('is_closed');
+            });
+        }
+   
     }
     
     /**
@@ -23,8 +30,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('program_user', function (Blueprint $table) {
-            $table->dropColumn(['preferred_timing']);
+        Schema::table('programs', function (Blueprint $table) {
+            $table->dropColumn(['allow_flexible_payment', 'allow_preferred_timing']);
         });
     }
 };

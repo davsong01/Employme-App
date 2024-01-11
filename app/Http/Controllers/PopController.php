@@ -29,6 +29,7 @@ class PopController extends Controller
         }
 
         $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
+       
         // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
 
@@ -158,8 +159,7 @@ class PopController extends Controller
         // If balance
         // Try to see if this is balance payment
         $existingTransaction = $this->getExistingTransactionAndBalance($pop);
-
-        // dd($existingTransaction);
+        
         $allDetails = [];
         if (isset($existingTransaction) && $existingTransaction['balance'] > 0) {
             $allDetails['balance_transaction_id'] = $this->getReference('SYS_ADMIN_BAL');
@@ -200,7 +200,8 @@ class PopController extends Controller
             $allDetails['current_paid_amount'] = $pop->amount;
             $allDetails['invoice_id'] = $existingTransaction['transaction']->invoice_id;
             $allDetails['transaction_id'] = $existingTransaction['transaction']->transid;
-
+            $allDetails['preferred_timing'] = $pop->temp->preferred_timing;
+           
             $user = $this->updateUserDetails($allDetails);
             $data = $this->updateOrCreateTransaction($user, $allDetails);
         } else {
@@ -261,8 +262,9 @@ class PopController extends Controller
             $allDetails['paymenttype'] = $this->paymentStatus(0);
             $allDetails['balance'] = $balance;
             $allDetails['training_mode'] = $pop->temp->training_mode ?? null;
+            $allDetails['preferred_timing'] = $pop->temp->preferred_timing ?? null;
             $allDetails['t_type'] = $pop->temp->type ?? null;
-
+           
             $user = $this->updateUserDetails($allDetails);
 
             // request->coupon, $request->email, $pid, $request['amount']
@@ -283,7 +285,7 @@ class PopController extends Controller
                     $allDetails['coupon_code'] = $response['code'];
                 }
             }
-
+            
             $data = $this->updateOrCreateTransaction($user, $allDetails);
         }
 
@@ -305,6 +307,7 @@ class PopController extends Controller
             'currency_symbol' => $allDetails['currency_symbol'],
             'created_at' => $allDetails['date'],
             'training_mode' => $allDetails['training_mode'] ?? null,
+            'preferred_timing' => $allDetails['preferred_timing'] ?? null,
             'location' => $allDetails['location'],
 
             'booking_form' => !is_null($allDetails['bookingForm']) ? base_path() . '/uploads' . '/' . $allDetails['bookingForm'] : null,
@@ -340,6 +343,7 @@ class PopController extends Controller
                     'coupon_amount' => $allDetails['coupon_amount'] ?? null,
                     'coupon_code' => $allDetails['coupon_code'] ?? null,
                     'training_mode' => $allDetails['training_mode'] ?? null,
+                    'preferred_timing' => $allDetails['preferred_timing'] ?? null,
                 ]);
         } else {
 
@@ -358,6 +362,7 @@ class PopController extends Controller
                 'coupon_amount' => $allDetails['coupon_amount'] ?? null,
                 'coupon_code' => $allDetails['coupon_code'] ?? null,
                 'training_mode' => $allDetails['training_mode'] ?? null,
+                'preferred_timing' => $allDetails['preferred_timing'] ?? null,
             ]);
         }
         // Update existing payment if 

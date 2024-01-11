@@ -8,13 +8,14 @@ use App\Coupon;
 use App\Program;
 use App\Settings;
 use App\CouponUser;
+use App\PaymentMode;
 use App\Http\Requests;
+use App\Models\Wallet;
 use App\TempTransaction;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\PaymentMode;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
@@ -28,6 +29,7 @@ class PaymentController extends Controller
         $training = json_decode($request->training, true);
         $modes = null;
         $location = $request->location ?? null;
+        $preferred_timing = $request->preferred_timing ?? null;
         if($request->has('modes')){
             // Get mode amount 
             $modes = $request->modes;
@@ -58,8 +60,8 @@ class PaymentController extends Controller
         }
 
         $payment_modes = $this->getPaymentModes();
-        
-        return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location'));
+       
+        return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location', 'preferred_timing'));
     }
 
     public function getModeAmount($mode,$type,$program){
@@ -124,6 +126,7 @@ class PaymentController extends Controller
 
             $request['amount'] = $data->balance;
             $request['payment_mode'] = $data->payment_mode;
+            $request['preferred_timing'] = $data->preferred_timing;
             $request['currency'] = $data->currency;
             $type['type'] = 'balance';
             
@@ -151,8 +154,9 @@ class PaymentController extends Controller
             "coupon"=>'sometimes',
             "metadata"=>'sometimes',
             "payment_mode"=>'required',
+            "preferred_timing" => 'nullable',
         ]);
-       
+
         if($template == 'contai'){
             $request['amount'] = \Session::get('exchange_rate') * $request['amount'];
             
@@ -162,6 +166,7 @@ class PaymentController extends Controller
             $coupon_id = $type['coupon_id'];
             $facilitator_id = $type['facilitator'];
             $request['payment_type'] = $type['type'];
+
             $type['name'] = $request['name'];
             $type['phone'] = $request['phone'];
             $training = Program::where('id', $type['pid'])->first();
@@ -177,7 +182,7 @@ class PaymentController extends Controller
                 $data['paymentStatus'] = 1;
                 $data['currency_symbol'] = '&#x20A6;';
                 $data['balance'] = 0;
-
+               
                 // $c = $c ?? NULL; // Coupon
                 $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
                 // $this->deleteFromTemp($temp);
@@ -188,7 +193,7 @@ class PaymentController extends Controller
                 Auth::loginUsingId($data['user_id']);
                 return view('thankyou', compact('data'));
             }
-            
+
             if(is_null($response)){
                 // Modify amount to suit program
                 if($request->has('modes')){
@@ -212,7 +217,7 @@ class PaymentController extends Controller
                 // Modify coupon_id in metadata
                 $type['coupon_id'] = $response['id'];
                 $coupon_id = $response['id'];
-
+                
                 if($response['grand_total'] <= 0){
                     $request->request->add(['reference' => $request->reference]);
                     $request['transid'] = $this->getReference('PYSTK');
@@ -221,6 +226,7 @@ class PaymentController extends Controller
                     $metadata['coupon_id'] = $response['id'];
                     $request['reference'] = $request['transid'];
                     $request['metadata'] = $metadata;
+                   
                     // Create temp user
                     $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
                     
@@ -252,7 +258,7 @@ class PaymentController extends Controller
             
             // Create temp user and redirect
             $request['metadata'] = $type;
-           
+            
             try{
                 $url = $this->queryProcessor($request);
                 if(!is_null($url)){
@@ -295,16 +301,25 @@ class PaymentController extends Controller
         }
     }
 
-    public function queryProcessor($request,$data=null){
-        $mode = PaymentMode::find($request->payment_mode);
-       
+    public function queryProcessor($request,$data=null, $query_only = null){
+        $mode = PaymentMode::find($request->payment_mode ?? $request->provider);
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
-                $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode, $data);
+                if(!empty($query_only)){
+                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request, $mode, $data, $query_only);
+                }else{
+                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode, $data);
+                }
             }
 
             if ($mode->processor == 'coinbase') {
-                $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data);
+                if (!empty($query_only)) {
+                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data,$query_only);
+                } else {
+                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data);
+                }
+
+               
             }
         }
         // redirect away
@@ -312,9 +327,10 @@ class PaymentController extends Controller
         
     }
     
-    public function verifyProcessor($reference, $temp){
+    public function verifyProcessor($reference, $temp, $verify_only){
+        
         $mode = PaymentMode::find($temp->payment_mode);
-       
+            
         if (isset($mode) && !empty($mode)) {
             if ($mode->processor == 'paystack') {
                 $status = app('App\Http\Controllers\PaymentProcessor\PaystackController')->verify($reference, $mode);
@@ -327,6 +343,9 @@ class PaymentController extends Controller
         if (isset($status) && $status == 'success') {
             return $status;
         }else{
+            if(!empty($verify_only)){
+                return 'failed';
+            }
             return back()->with('error', 'Payment was not succusful');
         }
     }
@@ -334,13 +353,33 @@ class PaymentController extends Controller
     public function handleGatewayCallback(Request $request, $is_zero_coupon=null)
     {
         $balance_payment = DB::table('program_user')->whereNotNull('balance_transaction_id')->where('balance_transaction_id', $request->reference)->first();
-
+        
         if($balance_payment){
             //process as balance
             $status = $this->verifyProcessor($request->reference, $balance_payment);
         }else{
             $temp = TempTransaction::where('transid', $request->reference)->first();
-            
+            if(!$temp){
+                // Wallet payment
+                $temp = Wallet::where('transaction_id', $request->reference)->first();
+                
+                if($temp){
+                    $temp->payment_mode = $temp->provider;
+                    $status = $this->verifyProcessor($request->reference, $temp, $temp->gateway, 'verify-only');
+                    
+                    if(!empty($status) && $status == 'success'){
+                        $data = ['status' => 'approved'];
+
+                        $update = app('App\Http\Controllers\WalletController')->updateWallet($request->reference,$data);
+                        
+                        if(isset($update) && $update == 'success'){
+                            return redirect(route('home'))->with('message', number_format($temp->amount). ' Account TopUp successful');
+                        }
+                    }
+                }
+
+            }
+
             if (!$temp) {
                 return redirect(route('home'));
             } else {
@@ -519,6 +558,76 @@ class PaymentController extends Controller
         }
        
     }
+
+    public function accountTopUp(Request $request, $type){
+        if($request->type == 'virtual'){
+           
+            $mode = PaymentMode::find($request->payment_mode);
+
+            $data = $this->validate($request, [
+                'amount' => 'required',
+            ]);
+            $request['provider'] = $request->payment_mode;
+            $request['email'] = auth()->user()->email;
+            
+            $response = $this->queryProcessor($request, [],'query-only');
+
+            if ($response) {
+               
+                $data = [
+                    'amount' => abs($data['amount']),
+                    'transaction_id' => $response['transaction_id'],
+                    'type' => 'credit',
+                    'method' => 'virtual',
+                    'provider' => $request->payment_mode,
+                    'user_id' => auth()->user()->id,
+                ];
+
+                app('App\Http\Controllers\WalletController')->logWallet($data);
+               
+                return redirect()->away($response['url']);
+            } else {
+                return back()->with('error', 'Something went wrong, Kindly try a different payment method!');
+            }
+
+        }else{
+            $data = $this->validate($request, [
+                'amount' => 'required',
+                'pop' => 'required|max:2048|image',
+            ]);
+
+            $trans = $this->getInvoiceId();
+
+            if (!empty($request->pop)) {
+                $pop = $this->uploadImage($request->pop, 'pop');
+            }
+
+            $data = [
+                'amount' => abs($data['amount']),
+                'proof_of_payment' => $pop,
+                'transaction_id' => $trans,
+                'type' => 'credit',
+                'method' => 'manual',
+                'provider' => 'SYSTEM',
+                'user_id' => auth()->user()->id,
+            ];
+
+            app('App\Http\Controllers\WalletController')->logWallet($data);
+            // send email
+            $data['pop'] = public_path() .  '/pop/' . $pop;
+            $data['type'] = 'manual.wallet.topup';
+            $data['email'] = 'davsong16@gmail.com';
+            $data['name'] = auth()->user()->name;
+            // Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+            $data['participant_email'] = auth()->user()->email;
+            $data['realfilename'] = $pop;
+
+            $this->sendWelcomeMail($data);
+        }
+        
+        return back()->with('message', 'Payment logged, your account balance will be updated as soon as payment is confirmed');
+    }
+
     
     //set balance and determine user receipt values
     private function dosubscript1($balance){

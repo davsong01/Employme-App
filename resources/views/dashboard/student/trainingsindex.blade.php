@@ -1,77 +1,7 @@
 @extends('dashboard.layouts.main')
 @section('title', 'Trainings')
 @section('css')
-<style>
-  /* The Modal (background) */
-  .modal {
-    display: none;
-    /* Hidden by default */
-    position: fixed;
-    /* Stay in place */
-    z-index: 1;
-    /* Sit on top */
-    padding-top: 100px;
-    /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%;
-    /* Full width */
-    height: 100%;
-    /* Full height */
-    overflow: auto;
-    /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0);
-    /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4);
-    /* Black w/ opacity */
-  }
-
-  /* Modal Content */
-  .modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-  }
-
-  /* The Close Button */
-  .close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-
-  .close:hover,
-  .close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .modal-backdrop {
-  position: relative;
-  }
-  a.pre-order-btn { 
-    color:#000;
-    background-color:gold;
-    border-radius:1em;
-    padding:1em;
-    display: block;
-    margin: 2em auto;
-    width:100%;
-    font-size:1.25em;
-    font-weight:6600;
-    text-align: center
-  }
-
-a.pre-order-btn:hover { 
-    background-color:#000;
-    text-decoration:none;
-    color:gold;
-}
-
-</style>
+<link rel="stylesheet" href="{{ asset('modal.css') }}" />
 @endsection
 @section('dashboard')
 <aside class="left-sidebar" data-sidebarbg="skin5">
@@ -131,9 +61,16 @@ a.pre-order-btn:hover {
                 @endif
 
                 @if(isset($balance) && $balance > 0)
+
+                    @if($program->allow_flexible_payment == 'yes')
+                    <li class="sidebar-item">
+                        <a class="blinking btn btn-danger btn-lg btn-block" href="{{ route('balance.checkout', ['p_id' => $program->id, 'program' => $program] )}}" class="form-horizontal">Pay balance</a>
+                    </li>
+                    @else
                     <li class="sidebar-item">
                         <a class="blinking btn btn-danger btn-lg btn-block" href="{{ route('balance.checkout', ['p_id' => $program->id] )}}" class="form-horizontal">Pay balance of {{ number_format($balance) }} now</a>
                     </li>
+                    @endif
                 @endif
             </ul>
         </nav>

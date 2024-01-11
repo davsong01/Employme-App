@@ -150,6 +150,20 @@
                                         <option value="no" <?php echo e($program->allow_payment_restrictions_for_certificates == 'no' ? 'selected' : ''); ?>>No</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label>Enable Flexible payment?</label>
+                                    <select name="allow_flexible_payment" class="form-control" id="allow_flexible_payment" required>
+                                        <option value="no" <?php echo e($program->allow_flexible_payment == 'no' ? 'selected' : ''); ?>>No</option>
+                                        <option value="yes" <?php echo e($program->allow_flexible_payment == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Enable Flexible timing?</label>
+                                    <select name="allow_preferred_timing" class="form-control" id="allow_preferred_timing" required>
+                                        <option value="no" <?php echo e($program->allow_preferred_timing == 'no' ? 'selected' : ''); ?>>No</option>
+                                        <option value="yes" <?php echo e($program->allow_preferred_timing == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                    </select>
+                                </div>
                            
                             
                             <div class="form-group">

@@ -22,6 +22,9 @@
                     class="far fa-money-bill-alt"></i><span class="hide-menu">Payment History
                 </span></a>
                 </li>
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{ route('my.wallet', auth()->user()->id) }}" aria-expanded="false"><i class="fa fa-money-bill"></i><span
+                            class="hide-menu">&nbsp;Account TopUp History</span></a></li>
                
             </ul>
         </nav>
