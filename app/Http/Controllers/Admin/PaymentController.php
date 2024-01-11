@@ -31,7 +31,7 @@ class PaymentController extends Controller
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
 
-            $transactions = DB::table('program_user')->orderBy('created_at', 'DESC')
+            $transactions = Transaction::orderBy('created_at', 'DESC')
                 ->join("programs", "program_user.program_id", "=", "programs.id")
                 ->join("users", "users.id", "=", "program_user.user_id")
                 ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name", "programs.modes", "programs.locations", "coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type", "program_user.preferred_timing", "programs.allow_preferred_timing")
@@ -47,7 +47,7 @@ class PaymentController extends Controller
         }
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
 
-            $transactiondetails = DB::table('program_user')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+            $transactiondetails = Transaction::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
             foreach ($transactiondetails as $details) {
                 $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();

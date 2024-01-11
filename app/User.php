@@ -19,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     protected $guarded = [];
-    protected $append = ['t_phone'];
+    protected $append = ['t_phone','account_balance'];
 
     use Notifiable;
 
@@ -98,6 +98,11 @@ class User extends Authenticatable
             return "0" . $this->attributes['t_phone'];
         }
         return $this->attributes['t_phone'];
+    }
+
+    public function getAccountBalanceAttribute()
+    {
+        return app('App\Http\Controllers\WalletCOntroller')->getWalletBalance($this->id);
     }
 
     protected function scopeRole()

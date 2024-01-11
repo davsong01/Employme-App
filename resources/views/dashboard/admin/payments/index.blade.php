@@ -23,7 +23,7 @@
                     
                     <tbody>
                         @foreach($pops as $pop)
-                     
+                        
                         <tr>
                             <td>{{ $pop->date }}</td>
                             <td>{{ $pop->name }} <br>
@@ -108,9 +108,10 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                        
                         <tr>
-                            <td><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
-                                <br>{{ $transaction->t_phone ?? 'N/A' }} <br> {{ $transaction->email ?? 'N/A' }} </td>
+                            <td><strong>Name: </strong><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
+                                <br> <strong>Phone: </strong>{{ $transaction->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->email ?? 'N/A' }} <br> <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
                             <td>
                                 <small class="training-details">
                                     <a href="{{ route('programs.edit', $transaction->program_id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }}</a><br>  

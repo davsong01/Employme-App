@@ -92,7 +92,6 @@
                         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body">
                                 <p><strong>1. Make payment into any of the following account</strong></p>
-
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div id="nigeria" class="accounts" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">

@@ -22,7 +22,7 @@
                     
                     <tbody>
                         <?php $__currentLoopData = $pops; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pop): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                     
+                        
                         <tr>
                             <td><?php echo e($pop->date); ?></td>
                             <td><?php echo e($pop->name); ?> <br>
@@ -109,9 +109,10 @@
                     
                     <tbody>
                         <?php $__currentLoopData = $transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        
                         <tr>
-                            <td><a href="<?php echo e(route('users.edit', $transaction->user_id)); ?>" target="_blank"><?php echo e($transaction->name ?? 'N/A'); ?> &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
-                                <br><?php echo e($transaction->t_phone ?? 'N/A'); ?> <br> <?php echo e($transaction->email ?? 'N/A'); ?> </td>
+                            <td><strong>Name: </strong><a href="<?php echo e(route('users.edit', $transaction->user_id)); ?>" target="_blank"><?php echo e($transaction->name ?? 'N/A'); ?> &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
+                                <br> <strong>Phone: </strong><?php echo e($transaction->t_phone ?? 'N/A'); ?> <br> <strong>Email:</strong> <?php echo e($transaction->email ?? 'N/A'); ?> <br> <strong>Account balance: </strong><?php echo e(number_format($transaction->user->account_balance)); ?></td>
                             <td>
                                 <small class="training-details">
                                     <a href="<?php echo e(route('programs.edit', $transaction->program_id)); ?>" target="_blank"><strong>Training:</strong> <?php echo e($transaction->p_name ?? 'N/A'); ?></a><br>  

@@ -19,11 +19,8 @@
                     <thead>
                         <tr>
                             <th>S/N</th>
-                            <th>Date</th>
-                            <th>Avatar</th>
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Email</th>
+                            <th>Details</th>
+                            
                             <th>Trainings</th>
                             <th>Manage</th>
                         </tr>
@@ -34,8 +31,15 @@
                         <tr>
                             
                             <td><?php echo e($i++); ?></td>
-                            <td><?php echo e($user->created_at->format('d/m/Y')); ?></td>
-                            <td> <img src="<?php echo e(asset('/avatars/'.$user->profile_picture)); ?>" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td> 
+                            <td> <strong>Name:</strong> <?php echo e($user->name); ?> <br>
+                                <strong>Email: </strong><?php echo e($user->email); ?> <br>
+                                <strong>Phone: </strong><?php echo e($user->t_phone); ?> <br>
+                                <strong>Account Balance:</strong> <?php echo e(number_format($user->account_balance)); ?> <br>
+                                <strong>Date Added:</strong> <?php echo e($user->created_at->format('d/m/Y')); ?> <br>
+                                <strong>Trainings count: </strong><?php echo e($user->programs()->count()); ?>
+
+                            </td>
+                            
 
                             <b style="display:none"><?php echo e($count = 1); ?></b>
                             <td>
@@ -46,18 +50,15 @@
                                     <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </td> 
-                            <td><?php echo e($user->t_phone); ?></td>
-                            <td><?php echo e($user->email); ?></td>
-                            <td><?php echo e($user->programs()->count()); ?></td>
                            
                             <td>
                                 <div class="btn-group">
                                     <a data-toggle="tooltip" data-placement="top" title="Edit User"
-                                        class="btn btn-info" href="<?php echo e(route('users.edit', $user->id)); ?>"><i
+                                        class="btn btn-info btn-sm" href="<?php echo e(route('users.edit', $user->id)); ?>"><i
                                             class="fa fa-edit"></i>
                                     </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                        class="btn btn-warning" href="<?php echo e(route('impersonate', $user->id)); ?>"><i
+                                        class="btn btn-warning btn-sm" href="<?php echo e(route('impersonate', $user->id)); ?>"><i
                                             class="fa fa-unlock"></i>
                                     </a>
                                     
@@ -68,7 +69,7 @@
                                         <?php echo e(method_field('DELETE')); ?>
 
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
                                             data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>

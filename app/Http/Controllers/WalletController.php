@@ -33,8 +33,10 @@ class WalletController extends Controller
     }
 
     public function getWalletBalance($user_id){
-        $credits = Wallet::where(['user_id' => auth()->user()->id, 'type' => 'credit', 'status' => 'approved'])->sum('amount');
-        $debits = Wallet::where(['user_id' => auth()->user()->id, 'type' => 'debit', 'status' => 'approved'])->sum('amount');
+        $user_id = $user_id ?? auth()->user()->id;
+        
+        $credits = Wallet::where(['user_id' => $user_id, 'type' => 'credit', 'status' => 'approved'])->sum('amount');
+        $debits = Wallet::where(['user_id' => $user_id, 'type' => 'debit', 'status' => 'approved'])->sum('amount');
         $balance = $credits - $debits;
         return $balance;
     }
