@@ -1,4 +1,7 @@
 @extends('dashboard.admin.index')
+@section('css')
+<link rel="stylesheet" href="{{ asset('modal.css') }}" />
+@endsection
 @section('title', 'Payment History')
 @section('content')
 
@@ -163,6 +166,10 @@
                                     @endif
                                      <strong>Type: </strong>{{ $transaction->t_type }} <br>
                                     <strong>Currency: </strong>{{ $transaction->currency }}
+                                    @if($transaction->paymentthreads->count() > 0)
+                                    <br>
+                                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal{{$transaction->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                    @endif
                                 </small>
                             </td>
                              <td>
@@ -198,7 +205,51 @@
 
                             </td>
                         </tr>
-                        {{-- @endif --}}
+                        
+                         <div class="modal fade" id="exampleModal{{$transaction->transid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    @foreach($transaction->paymentthreads as $thread)
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            Transaction Id <br>
+                                            <strong>{{ $thread->transaction_id}}</strong>
+                                        </div>
+                                        <div class="col-md-6">
+                                            Date <br>
+                                            <strong>{{ $thread->created_at->format('d/m/Y') }}</strong>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            Amount<br>
+                                            <strong>{{ number_format($thread->amount) }}</strong>
+                                        </div>
+                                        @if(!empty($thread->admin_id))
+                                        <div class="col-md-6" style="background: #18006f38;padding: 10px;border-radius: 10px;">
+                                            Transaction added by<br>
+                                            <strong>{{ $thread->admin->name }}</strong>
+                                        </div>
+                                        @else 
+                                        <div class="col-md-6" style="background: #006f3138;padding: 10px;border-radius: 10px;">
+                                            Transaction added by<br>
+                                            <strong>{{ $thread->user->name }}</strong>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    <hr>
+                                    @endforeach
+                                </div>
+                                
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
                     </tbody>
                     

@@ -98,10 +98,10 @@
 					<td></td>
 					<td></td>
 					<td class="text-right">
-					<p><strong>Total:&nbsp;</strong></p>
+					<p><strong>Total Paid:&nbsp;</strong></p>
 					</td>
 					<td class="text-center">
-					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['amount']) }}</strong></p>
+					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['total_amount_paid'] ?? $data['amount']) }}</strong></p>
 					</td>
 				</tr>
 				<tr>

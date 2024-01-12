@@ -1,7 +1,7 @@
 <?php 
     use App\Settings;
 ?>
-@extends('dashboard.student.index')
+@extends('dashboard.admin.index')
 @section('title', 'Account TopUp History')
 @section('content')
 <div class="container-fluid">

@@ -6,7 +6,6 @@
 ?>
 @extends('dashboard.student.index')
 @section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="" crossorigin="anonymous">
 <style>
     a{
@@ -49,7 +48,7 @@
                 <div class="box bg-dark text-center">
                     <h1 class="font-light text-white"><img src="/money-bag.png" alt="" style="width: 38px;"></h1>
                     <h6 class="text-white">Account Balance</h6>
-                    <p class="text-white">{{ \App\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal">Top Up</a></p>
+                    <p class="text-white">{{ \App\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
                 </div>
             </div>
         </div>
@@ -61,7 +60,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Top Up account</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Top Up account balance</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>

@@ -21,7 +21,6 @@
             <form action="<?php echo e(route('pay')); ?>" method="POST">
                 <input type="hidden" name="_token" value="<?php echo e(csrf_token()); ?>">
                 <div class="row">
-                    
                     <div class="col-lg-6 col-md-6">
                         <div class="row">
                             <div class="col-lg-12">
@@ -125,10 +124,10 @@
                                 </tr>
                             </table>
                             
-                            <input type="hidden" name="orderID" value="<?php echo e($training['id']); ?>">
                             <input type="hidden" name="modes" value="<?php echo e($modes); ?>">
                             <input type="hidden" name="location" value="<?php echo e($location); ?>">
                             <input type="hidden" name="preferred_timing" value="<?php echo e($preferred_timing); ?>">
+                            <input type="hidden" name="orderID" value="<?php echo e($training['id']); ?>">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" class="total" id="amount" name="amount" value="<?php echo e(($amount)); ?>">
                             <input type="hidden" name="currency" value="<?php echo e($currency); ?>">

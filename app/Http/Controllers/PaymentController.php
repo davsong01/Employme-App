@@ -7,18 +7,16 @@ use App\User;
 use App\Coupon;
 use App\Program;
 use App\Settings;
-use App\CouponUser;
 use App\PaymentMode;
+use App\Transaction;
 use App\Http\Requests;
 use App\Models\Wallet;
 use App\TempTransaction;
-use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\PaymentThread;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
 use Unicodeveloper\Paystack\Facades\Paystack;
@@ -327,7 +325,7 @@ class PaymentController extends Controller
         
     }
     
-    public function verifyProcessor($reference, $temp, $verify_only){
+    public function verifyProcessor($reference, $temp, $verify_only=false){
         
         $mode = PaymentMode::find($temp->payment_mode);
             
@@ -390,6 +388,7 @@ class PaymentController extends Controller
                 }
             }
         }
+
         if($status == 'success'){
             if ($balance_payment) {
                 $data['type'] = 'balance';
@@ -398,14 +397,25 @@ class PaymentController extends Controller
                 $data['amount'] = $balance_payment->balance;
                 $data['email'] = User::whereId($balance_payment->user_id)->value('email');
                 $data['programName'] = Program::where('id', $balance_payment->program_id)->value('p_name');
+
                 // Do facilitator stuff here later
-                DB::table('program_user')->where('balance_transaction_id', $request->reference)->update([
+                $old = Transaction::where('balance_transaction_id', $request->reference)->first();
+                $old->update([
                     'balance' => 0,
                     'paymentStatus' => 1,
                     'paymentType' => 'Full',
                     't_amount' => $balance_payment->t_amount + $balance_payment->balance,
                     'balance_paid' => $balance_payment->balance,
                     'balance_amount_paid' => now(),
+                ]);
+
+                PaymentThread::create([
+                    'program_id' => $old->program_id,
+                    'user_id' => $old->user_id,
+                    'payment_id' => $old->id,
+                    'transaction_id' => $request->reference,
+                    'parent_transaction_id' => $old->trans_id,
+                    'amount' => $balance_payment->balance
                 ]);
                
                 $this->sendWelcomeMail($data);
@@ -559,6 +569,168 @@ class PaymentController extends Controller
        
     }
 
+    public function payFromAccount(Request $request, $type){
+       
+        $user_id = $request->user_id ?? auth()->user()->id;
+        $user = User::where('id', $user_id)->first();
+
+        $old = Transaction::where('user_id',$user->id)->where('program_id', $request->p_id)->get();
+
+        $existing = $old->sum('t_amount');
+        $existingTransaction = $old->first();
+        
+        if(!empty($existing)){
+            $request['type'] = 'balance';
+        }else{
+            $request['type'] = 'fresh';
+        }
+        
+        $program = Program::where('id', $request->p_id)->first();
+        $training_fee = $program->p_amount;
+        $account_balance = $user->account_balance;
+        $amount_to_pay = $training_fee - $existing;
+        $balance = $training_fee - ($request->amount + $existing);
+       
+        if($account_balance < $existingTransaction->balance){
+            return back()->with('error', 'Insufficient Account Balance');
+        }
+
+        if(($request->amount + $existing) > $training_fee){
+            return back()->with('error', 'You cannot pay more than '.$amount_to_pay. ' for this training!');
+        }
+       
+        // Process transaction
+        $allDetails['programFee'] = $program->p_amount;
+        $allDetails['program_id'] = $program->id;
+        $allDetails['programName'] = $program->p_name;
+        $allDetails['programAbbr'] = $program->p_abbr;
+        $allDetails['bookingForm'] = $program->booking_form;
+        $allDetails['programEarlyBird'] = $program->e_amount;
+        $allDetails['name'] = $user->name;
+        $allDetails['email'] = $user->email;
+        $allDetails['phone'] = $user->t_phone;
+        $allDetails['t_type'] = 'wallet';
+        $allDetails['currency'] = $existingTransaction->currency;
+        $allDetails['currency_symbol'] = $existingTransaction->currency_symbol;
+        $allDetails['message'] = $this->dosubscript1($balance);
+        $allDetails['paymentStatus'] = $this->paymentStatus($balance);
+        $total_amount_paid = $request->amount + $existing;
+        $allDetails['amount'] = $request->amount;
+
+        if ($request->type == 'balance') {
+            $allDetails['balance_transaction_id'] = $this->getReference('USER_TOP_UP_BAL');
+            $allDetails['transaction_id'] = $existingTransaction->transid;
+            $allDetails['invoice_id'] = $existingTransaction->invoice_id;
+            $allDetails['balance'] = $existingTransaction->balance - $request->amount;
+
+            if($allDetails['balance'] < 1){
+                $data['payment_type'] = 'Full';
+                $data['message'] = 'Full payment';
+                $data['paymentStatus'] = 1;
+            }else{
+                $data['payment_type'] = 'Part';
+                $data['message'] = 'Part payment';
+                $data['paymentStatus'] = 0;
+            }
+        } else {
+            $balance = $training_fee - $request->amount;
+            $allDetails['transaction_id'] = $existingTransaction->transid ?? $this->getReference('WLTP');
+            $allDetails['invoice_id'] = $this->getInvoiceId();
+            $allDetails['balance'] = $balance;
+            $allDetails['transid'] = $this->getReference('USER_WALLET');
+        }
+
+        $data['payment_type'] = 'Part';
+        $data['message'] = 'Part payment';
+        $data['paymentStatus'] = 1;
+    
+        // Log wallet
+        $wallet['amount'] = abs($request->amount);
+        $wallet['transaction_id'] = $allDetails['transaction_id'];
+        $wallet['type'] = 'debit';
+        $wallet['method'] = 'wallet';
+        $wallet['provider'] = 'SYSTEM';
+        $wallet['status'] = 'approved';
+        $wallet['user_id'] = $user->id;
+       
+        // dd($allDetails['amount'], $total_amount_paid, $allDetails['balance'], $training_fee);
+        app('App\Http\Controllers\WalletController')->logWallet($wallet);
+        
+        if($request['type'] == 'balance'){
+            $existingTransaction->update([
+                't_amount' => $total_amount_paid,
+                'paymentStatus' => $allDetails['paymentStatus'],
+                'balance' => $allDetails['balance']
+            ]);
+
+            PaymentThread::create([
+                'program_id' => $existingTransaction->program_id,
+                'user_id' => $existingTransaction->user_id,
+                'payment_id' => $existingTransaction->id,
+                'transaction_id' => $allDetails['balance_transaction_id'],
+                'parent_transaction_id' => $existingTransaction->transid,
+                't_type' => 'wallet',
+                'amount' => $request->amount
+            ]);
+
+            
+            $data['training'] = $allDetails['balance_transaction_id'];
+            $data['invoice_id'] = $existingTransaction->transid;
+            $data['transid'] = $existingTransaction->transid;
+            $data['type'] = 'payment.from.toup';
+            $data['t_type'] = 'wallet';
+            $data['email'] = auth()->user()->email;
+            $data['programName'] = $program->p_name;
+            $data['programAbbr'] = $program->p_abbr;
+            $data['programFee'] = $existingTransaction->t_amount + $existingTransaction->balance;
+            $data['amount'] = $allDetails['amount'];
+            $data['total_amount_paid'] = $total_amount_paid;
+            $data['balance'] = $allDetails['balance'];
+            $data['name'] = auth()->user()->name;
+            $data['currency_symbol'] = $existingTransaction->currency_symbol;
+            
+            $this->sendWelcomeMail($data);
+        }else{
+            $user->programs()->attach($allDetails['program_id'], [
+                't_amount' => $allDetails['amount'],
+                't_type' => 'wallet',
+                't_location' => $allDetails['location'],
+                'paymentStatus' => $allDetails['paymentStatus'],
+                'balance' => $allDetails['balance'],
+                'transid' =>  $allDetails['transaction_id'],
+                'invoice_id' =>  $allDetails['invoice_id'],
+                'currency' => $allDetails['currency'],
+                'currency_symbol' => $allDetails['currency_symbol'],
+                'created_at' => $allDetails['date'],
+                'coupon_id' => $allDetails['coupon_id'] ?? null,
+                'coupon_amount' => $allDetails['coupon_amount'] ?? null,
+                'coupon_code' => $allDetails['coupon_code'] ?? null,
+                'training_mode' => $allDetails['training_mode'] ?? null,
+                'preferred_timing' => $allDetails['preferred_timing'] ?? null,
+            ]);
+
+            $data['training'] = $allDetails['balance_transaction_id'];
+            $data['invoice_id'] = $allDetails['invoice_id'];
+            $data['transid'] = $allDetails['transid'];
+            $data['type'] = 'initial';
+            $data['t_type'] = 'wallet';
+            $data['email'] = auth()->user()->email;
+            $data['name'] = auth()->user()->name;
+            $data['programName'] = $program->p_name;
+            $data['total_amount_paid'] = $total_amount_paid;
+            $data['programAbbr'] = $program->p_abbr;
+            $data['programFee'] = $program->p_amount;
+            $data['balance'] = $allDetails['balance'];
+            $data['amount'] = $allDetails['amount'];
+            $data['currency_symbol'] = $allDetails['currency_symbol'];
+
+            $this->sendWelcomeMail($data);
+        }
+
+        return redirect(route('home'))->with('message', 'Transaction Succesful');
+    }
+
+    
     public function accountTopUp(Request $request, $type){
         if($request->type == 'virtual'){
            

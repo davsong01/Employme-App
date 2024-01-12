@@ -9,6 +9,7 @@ use App\Program;
 use App\Material;
 use App\Question;
 use App\ScoreSetting;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -415,28 +416,13 @@ class ProgramController extends Controller
         $modules = $training->modules;
         $questions = $training->questions;
 
+        $training->p_name = 'copy_' . $training->p_name;
         // Create new program
-        $new = Program::create([
-            "p_name" => 'copy_' . $training->p_name,
-            "p_abbr" => $training->p_abbr,
-            "description" => $training->description,
-            "p_amount" => $training->p_amount,
-            "e_amount" => $training->e_amount,
-            "close_earlybird" => $training->close_earlybird,
-            "p_start" => $training->p_start,
-            "p_end" => $training->p_end,
-            "image" => $training->image,
-            "booking_form" => $training->booking_form,
-            "hascrm" => $training->hascrm,
-            "hasmock" => $training->hasmock,
-            "haspartpayment" => $training->haspartpayment,
-            "status" => 0,
-            "off_season" => $training->off_season,
-            "verification" => $training->verification,
-            "hasresult" => $training->hasresult,
-            "close_registration" => $training->close_registration
-        ]);
-
+       
+        $newT = Arr::except($training->toArray(), ['id','created_at','updated_at','deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
+        $new = Program::create($newT);
+       
+      
         // Create scoresettings
         if (isset($training->scoresettings) && !empty($training->scoresettings)) {
             $score = ScoreSetting::create([

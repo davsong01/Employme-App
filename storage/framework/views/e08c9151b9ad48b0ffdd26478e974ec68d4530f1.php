@@ -6,18 +6,7 @@
 ?>
 
 <?php $__env->startSection('css'); ?>
-<link rel="stylesheet" href="<?php echo e(asset('modal.css')); ?>" />
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="" crossorigin="anonymous">
-<style>
-    a{
-        text-decoration: none !important;
-    }
 
-    .accounts{
-        min-height: 270px;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
@@ -49,7 +38,7 @@
                 <div class="box bg-dark text-center">
                     <h1 class="font-light text-white"><img src="/money-bag.png" alt="" style="width: 38px;"></h1>
                     <h6 class="text-white">Account Balance</h6>
-                    <p class="text-white"><?php echo e(\App\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance)); ?> &nbsp;&nbsp; <a style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal">Top Up</a></p>
+                    <p class="text-white"><?php echo e(\App\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance)); ?> &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
                 </div>
             </div>
         </div>
@@ -61,7 +50,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Top Up account</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Top Up account balance</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -93,7 +82,6 @@
                         <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                             <div class="accordion-body">
                                 <p><strong>1. Make payment into any of the following account</strong></p>
-
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div id="nigeria" class="accounts" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">

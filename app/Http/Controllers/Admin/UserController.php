@@ -43,7 +43,7 @@ class UserController extends Controller
     public function import(Request $request)
     {
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-
+            
             $this->validate(request(), [
                 'file' => 'required|
 				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,

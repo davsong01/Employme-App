@@ -1,3 +1,6 @@
+<?php $__env->startSection('css'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('modal.css')); ?>" />
+<?php $__env->stopSection(); ?>
 <?php $__env->startSection('title', 'Payment History'); ?>
 <?php $__env->startSection('content'); ?>
 
@@ -167,6 +170,10 @@
                                      <strong>Type: </strong><?php echo e($transaction->t_type); ?> <br>
                                     <strong>Currency: </strong><?php echo e($transaction->currency); ?>
 
+                                    <?php if($transaction->paymentthreads->count() > 0): ?>
+                                    <br>
+                                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal<?php echo e($transaction->transid); ?>"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                    <?php endif; ?>
                                 </small>
                             </td>
                              <td>
@@ -205,6 +212,50 @@
                             </td>
                         </tr>
                         
+                         <div class="modal fade" id="exampleModal<?php echo e($transaction->transid); ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Payment Trail for <?php echo e($transaction->transid); ?></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <?php $__currentLoopData = $transaction->paymentthreads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $thread): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            Transaction Id <br>
+                                            <strong><?php echo e($thread->transaction_id); ?></strong>
+                                        </div>
+                                        <div class="col-md-6">
+                                            Date <br>
+                                            <strong><?php echo e($thread->created_at->format('d/m/Y')); ?></strong>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            Amount<br>
+                                            <strong><?php echo e(number_format($thread->amount)); ?></strong>
+                                        </div>
+                                        <?php if(!empty($thread->admin_id)): ?>
+                                        <div class="col-md-6" style="background: #18006f38;padding: 10px;border-radius: 10px;">
+                                            Transaction added by<br>
+                                            <strong><?php echo e($thread->admin->name); ?></strong>
+                                        </div>
+                                        <?php else: ?> 
+                                        <div class="col-md-6" style="background: #006f3138;padding: 10px;border-radius: 10px;">
+                                            Transaction added by<br>
+                                            <strong><?php echo e($thread->user->name); ?></strong>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <hr>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                                
+                                </div>
+                            </div>
+                        </div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                     

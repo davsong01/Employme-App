@@ -49,7 +49,7 @@ Route::middleware(['template'])->group(function(){
     Route::post('/get-mode-payment-types', 'FrontendController@getModePaymentTypes');
     
     //upload proof of payment 
-    Route::resource('pop', 'PopController');
+    Route::resource('pops', 'PopController');
     Route::get('/temp-destroy/{id}', 'PopController@tempDestroy')->name('temp.destroy');
 
     Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');
@@ -107,6 +107,8 @@ Route::resource('scoreSettings', 'ScoreSettingController')->middleware(['auth'])
 Route::get('selectfacilitator/{id}', 'ProfileController@showFacilitator')->middleware(['impersonate', 'auth']);
 Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savefacilitator')->middleware(['impersonate', 'auth']);
 Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate', 'auth']);
+Route::post('/pay-with-account/{type}', 'paymentController@payFromAccount')->name('account.pay')->middleware(['impersonate', 'auth']);
+
 Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate', 'auth']);
 
 

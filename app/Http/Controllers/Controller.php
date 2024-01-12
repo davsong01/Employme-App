@@ -64,7 +64,6 @@ class Controller extends BaseController
             }
 
         }else{
-           
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
                 if(env('ENT') == 'local'){
@@ -706,7 +705,15 @@ class Controller extends BaseController
     public function emailContent($data)
     {
         $content = "";
-        if ($data['type'] == 'balance') {
+         
+        if ($data['type'] == 'payment.from.toup') {
+            $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
+
+            $subject = 'E - Receipt';
+            $content .= '<div>
+            <p style="text-align:justify !important">Your payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br></p>
+            </div>';
+        }else if ($data['type'] == 'balance') {
             $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
@@ -912,4 +919,75 @@ class Controller extends BaseController
 
 
     }
+
+    public function updateOrCreateTransaction($user, $allDetails)
+    {
+
+        if (isset($allDetails['existingTransaction'])) {
+            $existingTransaction = DB::table('program_user')->where('id', $allDetails['existingTransaction']->id)
+                ->update([
+                    't_amount' => $allDetails['amount'],
+                    't_type' => $allDetails['t_type'],
+                    't_location' => $allDetails['location'],
+                    'paymentStatus' => $allDetails['paymentStatus'],
+                    // 'training_mode' => $allDetails['training_mode'] ?? null,
+                    'balance' => $allDetails['balance'],
+                    'currency' => $allDetails['currency'],
+                    'currency_symbol' => $allDetails['currency_symbol'],
+                    'balance_transaction_id' => $allDetails['balance_transaction_id'],
+                    'balance_paid' => $allDetails['date'],
+                    'balance_amount_paid' => $allDetails['current_paid_amount'],
+                    'coupon_id' => $allDetails['coupon_id'] ?? null,
+                    'coupon_amount' => $allDetails['coupon_amount'] ?? null,
+                    'coupon_code' => $allDetails['coupon_code'] ?? null,
+                    'training_mode' => $allDetails['training_mode'] ?? null,
+                    'preferred_timing' => $allDetails['preferred_timing'] ?? null,
+                ]);
+        } else {
+
+            $programUser = $user->programs()->attach($allDetails['program_id'], [
+                't_amount' => $allDetails['amount'],
+                't_type' => $allDetails['t_type'],
+                't_location' => $allDetails['location'],
+                'paymentStatus' => $allDetails['paymentStatus'],
+                'balance' => $allDetails['balance'],
+                'transid' =>  $allDetails['transaction_id'],
+                'invoice_id' =>  $allDetails['invoice_id'],
+                'currency' => $allDetails['currency'],
+                'currency_symbol' => $allDetails['currency_symbol'],
+                'created_at' => $allDetails['date'],
+                'coupon_id' => $allDetails['coupon_id'] ?? null,
+                'coupon_amount' => $allDetails['coupon_amount'] ?? null,
+                'coupon_code' => $allDetails['coupon_code'] ?? null,
+                'training_mode' => $allDetails['training_mode'] ?? null,
+                'preferred_timing' => $allDetails['preferred_timing'] ?? null,
+            ]);
+        }
+        // Update existing payment if 
+
+        return $allDetails;
+    }
+
+    public function updateUserDetails($allDetails)
+    {
+        $user = User::where('email', $allDetails['email'])->first();
+        if (!$user) {
+            //save to database
+            $user = User::Create([
+                'name' => $allDetails['name'],
+                'email' => $allDetails['email'],
+                't_phone' => $allDetails['phone'],
+                'password' => bcrypt('12345'),
+                'role_id' => $allDetails['role_id'],
+            ]);
+        } else {
+            $user->update([
+                'name' => $allDetails['name'],
+                't_phone' => $allDetails['phone'],
+            ]);
+        }
+
+        return $user;
+    }
+
 }

@@ -47,7 +47,7 @@ class PaymentController extends Controller
         }
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
 
-            $transactiondetails = Transaction::where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+            $transactiondetails = Transaction::with('paymentthreads')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
             foreach ($transactiondetails as $details) {
                 $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();
@@ -113,8 +113,8 @@ class PaymentController extends Controller
 
     public function show(Request $request, $id)
     {
-        $transaction = DB::table('program_user')->where('id', $id)->first();
-
+        $transaction = Transaction::where('id', $id)->first();
+       
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             //get user details
             $user = User::findorFail($transaction->user_id);
@@ -262,7 +262,6 @@ class PaymentController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $transaction = Transaction::with('user', 'program')->whereId($id)->first();
 
         $user = $transaction->user;
