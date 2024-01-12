@@ -10,8 +10,10 @@ use App\Settings;
 use Carbon\Carbon;
 use App\CouponUser;
 use App\PaymentMode;
+use App\Transaction;
 use App\TempTransaction;
 use App\Mail\Welcomemail;
+use App\Models\PaymentThread;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -563,21 +565,10 @@ class Controller extends BaseController
         $data['faculty_earning'] = $earnings['faculty'] ?? NULL;
         $data['other_earning'] = $earnings['other'] ?? NULL;
 
-        // if user doesnt exist, create new user and attach program
-        // if (!isset($user)) {
-        //     //save to database
-        //     $user = User::updateOrCreate(['email' => $data['email']],[
-        //         'name' => $data['name'],
-        //         't_phone' => $data['t_phone'],
-        //         'password' => $data['password'],
-        //         'role_id' => $data['role_id'],
-        //     ]); 
-        // }
-       
         $data['invoice_id'] = $this->getInvoiceId($user->id);
      
         //If program id is not in array of user program, attach program
-        $userPrograms = DB::table('program_user')->where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
+        $userPrograms = Transaction::where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
        
         if( $userPrograms < 1){
             // Attach program
@@ -606,14 +597,18 @@ class Controller extends BaseController
                 'payment_mode' => $data['paymentModeDetails']['id'],
                 'preferred_timing' => $data['preferred_timing'] ?? null,
             ] );
+
+            $attach = Transaction::where('user_id', $user->id)->where('program_id', $data['program_id'])->first();
+
         } 
         else{
             $data['user_id'] = $user->id;
+            
             return $data;
         }
-   
-        $data['user_id'] = $user->id;
         
+        $data['user_id'] = $user->id;
+        $data['payment_id'] = $attach->id;
         return $data;
     }
 

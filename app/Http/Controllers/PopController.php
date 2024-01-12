@@ -314,8 +314,6 @@ class PopController extends Controller
         ];
         $data['type'] = 'initial';
 
-        // $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-        // return view('emails.receipt', compact('data'));
         $this->sendWelcomeMail($data);
 
         $pop->delete();

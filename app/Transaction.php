@@ -32,6 +32,11 @@ class Transaction extends Model
         return $this->hasMany(PaymentThread::class, 'parent_transaction_id','transid');
     }
 
+    public function paymentthreadsbyinvoice()
+    {
+        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'invoice_id');
+    }
+
 }
 
 

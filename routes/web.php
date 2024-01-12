@@ -1,6 +1,7 @@
 <?php
 
 use App\Settings;
+use App\Transaction;
 
 // Route::get('/test', function () {
 //     dd(Settings::all());
@@ -36,7 +37,15 @@ Auth::routes();
 // });
 Route::get('test', 'Controller@printTextOnImage');
 //route for the home
-Route::get('/reset', 'FrontendController@reset')->name('reset');
+Route::get( '/reset', 'FrontendController@reset')->name('reset');
+Route::get('/correcttransid', function(){
+    $transactions = Transaction::whereNull('transid')->get();
+    foreach($transactions as $transaction){
+        $transaction->update([
+            'transid' => $transaction->invoice_id,
+        ]);
+    }
+});
 
 Route::middleware(['template'])->group(function(){
     Route::get('/', 'FrontendController@index')->name('welcome');
@@ -49,7 +58,7 @@ Route::middleware(['template'])->group(function(){
     Route::post('/get-mode-payment-types', 'FrontendController@getModePaymentTypes');
     
     //upload proof of payment 
-    Route::resource('pops', 'PopController');
+    Route::resource('pop', 'PopController');
     Route::get('/temp-destroy/{id}', 'PopController@tempDestroy')->name('temp.destroy');
 
     Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');

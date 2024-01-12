@@ -170,6 +170,7 @@
                                      <strong>Type: </strong><?php echo e($transaction->t_type); ?> <br>
                                     <strong>Currency: </strong><?php echo e($transaction->currency); ?>
 
+                                   
                                     <?php if($transaction->paymentthreads->count() > 0): ?>
                                     <br>
                                         <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal<?php echo e($transaction->transid); ?>"><i class="fa fa-eye"></i>View Payment Trail</a>
@@ -211,8 +212,7 @@
 
                             </td>
                         </tr>
-                        
-                         <div class="modal fade" id="exampleModal<?php echo e($transaction->transid); ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="exampleModal<?php echo e($transaction->transid); ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                 <div class="modal-header">

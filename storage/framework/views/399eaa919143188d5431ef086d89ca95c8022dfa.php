@@ -29,7 +29,12 @@
                     <tbody>
                         <?php $__currentLoopData = $wallets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $wallet): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>Name: <?php echo e($wallet->user->name); ?> <br>Email: <?php echo e($wallet->user->email); ?> <br>Date: <?php echo e(date("M jS, Y", strtotime($wallet->created_at))); ?></td>
+                            <td>Name: <?php echo e($wallet->user->name); ?> <br>Email: <?php echo e($wallet->user->email); ?> <br>Date: <?php echo e(date("M jS, Y", strtotime($wallet->created_at))); ?>
+
+                                <?php if(!empty($wallet->admin_id)): ?>
+                                  <br> <small style="color:blue"> <strong>(Admin Transaction) <br> Created by: <?php echo e($wallet->admin->name); ?> </strong></small>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo e($wallet->transaction_id); ?></td>
                             <td><?php echo e(ucfirst($wallet->method)); ?></td>
                             <td style="color:<?php echo e($wallet->type == 'credit' ? 'green' : 'red'); ?>"><?php echo e($wallet->type); ?></td>

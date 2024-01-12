@@ -13,6 +13,7 @@ use App\Transaction;
 use App\Models\Wallet;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
+use App\Models\PaymentThread;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -275,9 +276,10 @@ class PaymentController extends Controller
             }
         }
 
+        
         $newamount = $transaction->t_amount + $request->amount;
         $balance = $programFee - $newamount;
-
+        
         // Checks for coupon code
         // && $request->coupon_id != $transaction->coupon_id
         if ($request->has('coupon_id') && !empty($request->coupon_id)) {
@@ -294,7 +296,7 @@ class PaymentController extends Controller
                 $amount = $transaction->t_amount + $response['amount'];
                 $balance = $programFee - $amount;
 
-                DB::table('program_user')->whereId($transaction->id)->update([
+                $transaction->update([
                     'coupon_id' => $response['id'],
                     'coupon_amount' => $response['amount'],
                     'coupon_code' => $response['code'],
@@ -310,25 +312,83 @@ class PaymentController extends Controller
         if ($newamount > $programFee) {
             return back()->with('warning', 'Student cannot pay more than program fee');
         }
+        
+        if ($request->funds_source == 'wallet') {
+            // Does he have enough in wallet
+            $account_balance = $user->account_balance;
+
+            if($account_balance < $request->amount){
+                return back()->with('error', 'Insufficient funds in user account balance');
+            }
+            $t_type = 'wallet';
+            // log a credit
+            $wallet['amount'] = abs($request->amount);
+            $wallet['transaction_id'] = $transaction->transid ?? $transaction->invoice_id;
+            $wallet['type'] = 'debit';
+            $wallet['method'] = 'wallet';
+            $wallet['provider'] = 'ADMIN TOPUP';
+            $wallet['status'] = 'approved';
+            $wallet['user_id'] = $user->id;
+            $wallet['admin_id'] = auth()->user()->id;
+
+            app('App\Http\Controllers\WalletController')->logWallet($wallet);
+        }else{
+            $t_type = 'wallet';
+
+            $wallet['amount'] = abs($request->amount);
+            $wallet['transaction_id'] = $transaction->transid ?? $transaction->invoice_id;
+            $wallet['type'] = 'credit';
+            $wallet['method'] = 'offline';
+            $wallet['provider'] = 'ADMIN TOPUP';
+            $wallet['status'] = 'approved';
+            $wallet['user_id'] = $user->id;
+            $wallet['admin_id'] = auth()->user()->id;
+
+            app('App\Http\Controllers\WalletController')->logWallet($wallet);
+
+            // log a debit
+            $wallet['amount'] = abs($request->amount);
+            $wallet['transaction_id'] = $transaction->transid ?? $transaction->invoice_id;
+            $wallet['type'] = 'debit';
+            $wallet['method'] = 'offline';
+            $wallet['provider'] = 'ADMIN TOPUP';
+            $wallet['status'] = 'approved';
+            $wallet['user_id'] = $user->id;
+            $wallet['admin_id'] = auth()->user()->id;
+
+            app('App\Http\Controllers\WalletController')->logWallet($wallet);
+        }
+
         //update the program table here @ column fully paid or partly paid
-        DB::table('program_user')->whereId($transaction->id)->update([
+        $transaction->update([
             't_amount' => $newamount,
             'balance' => $balance,
             't_type' => $request['bank'] ?? null,
             't_location' => $request['location'],
             'training_mode' => $request['training_mode'],
-            'transid' => $request['transaction_id'],
+            'admin_id' => auth()->user()->id,
             'paymentStatus' =>  $paymentStatus,
         ]);
 
+        $reference = $this->getReference('ADMIN_TOP_UP_WALLET');
 
+        PaymentThread::create([
+            'program_id' => $transaction->program_id,
+            'user_id' => $transaction->user_id,
+            'payment_id' => $transaction->id,
+            'transaction_id' => $reference,
+            't_type' => $t_type,
+            'admin_id' => auth()->user()->id,
+            'parent_transaction_id' => $transaction->transid ?? $transaction->invoice_id,
+            'amount' => abs($request->amount),
+        ]);
+        
         return back()->with('message', 'Transaction updated successfully');
     }
 
     public function destroy($id)
     {
         DB::table('program_user')->whereId($id)->delete();
-
         return back()->with('message', 'Transaction has been deleted forever');
     }
 }

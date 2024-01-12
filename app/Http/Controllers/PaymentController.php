@@ -414,7 +414,7 @@ class PaymentController extends Controller
                     'user_id' => $old->user_id,
                     'payment_id' => $old->id,
                     'transaction_id' => $request->reference,
-                    'parent_transaction_id' => $old->trans_id,
+                    'parent_transaction_id' => $old->transid,
                     'amount' => $balance_payment->balance
                 ]);
                
@@ -518,7 +518,17 @@ class PaymentController extends Controller
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
-                
+
+                PaymentThread::create([
+                    'program_id' => $data['program_id'],
+                    'user_id' => $data['user_id'],
+                    'payment_id' => $data['payment_id'],
+                    'transaction_id' => $this->getReference('PYTHRD'),
+                    't_type' => $data['t_type'],
+                    'parent_transaction_id' => $data['transid'],
+                    'amount' => $data['amount'],
+                ]);
+
                 $this->sendWelcomeMail($data);
                 
                 // Login User in
@@ -653,7 +663,6 @@ class PaymentController extends Controller
         $wallet['status'] = 'approved';
         $wallet['user_id'] = $user->id;
        
-        // dd($allDetails['amount'], $total_amount_paid, $allDetails['balance'], $training_fee);
         app('App\Http\Controllers\WalletController')->logWallet($wallet);
         
         if($request['type'] == 'balance'){

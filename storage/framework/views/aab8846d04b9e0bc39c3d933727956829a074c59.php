@@ -1,4 +1,7 @@
 <?php $__env->startSection('Edit Transaction' ); ?>
+<?php $__env->startSection('css'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('modal.css')); ?>" />
+<?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
 <div class="container-fluid">
     <div class="row">
@@ -19,10 +22,14 @@
                                 
                                 <div class="form-group">
                                     <label for="name">Name of Participant:  <?php echo e($transaction->name); ?></label> <br>
+                                    <strong>Account Balance:  <?php echo e(\App\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->user->account_balance)); ?></strong> <br>
 
                                     <label>Bank: <?php echo e($transaction->t_type); ?> </label> <br>
                                     <label for="transaction_id">Program Amount: <?php echo e(\App\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->p_amount)); ?></label> <br>
-                                    <label for="transaction_id">Paid: <?php echo e(\App\Settings::value('DEFAULT_CURRENCY').number_format($transaction->t_amount)); ?></label> <br> <br>
+                                    <label for="transaction_id">Paid: <?php echo e(\App\Settings::value('DEFAULT_CURRENCY').number_format($transaction->t_amount)); ?> <?php if($transaction->paymentthreads->count() > 0): ?>
+                                   
+                                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal<?php echo e($transaction->transid); ?>"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                    <?php endif; ?></label> <br> <br>
 
                                     <label>Balance: <span style="color:<?php echo e($transaction->balance > 0 ? 'red' : 'green'); ?>"><?php echo e(\App\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->balance)); ?></span> </label> <br>
 
@@ -55,23 +62,31 @@
                                 <?php endif; ?>
                                
                                 <?php if(isset($coupons) && $coupons->count()>0): ?>
-                                <div class="form-group<?php echo e($errors->has('coupon_id') ? ' has-error' : ''); ?>">
-                                    <label for="location">Coupon Used </label>
-                                     <select  id="coupon_id" name="coupon_id" class="form-control">
-                                        <option value="">Select..</option>
-                                        <?php $__currentLoopData = $coupons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $coupon): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <option value="<?php echo e($coupon->id); ?>" <?php echo e($coupon->id == $transaction->coupon_id ? 'selected' :''); ?>><?php echo e($coupon->code); ?>(<?php echo e(number_format($coupon->amount)); ?>)</option>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    </select>
+                                    <div class="form-group<?php echo e($errors->has('coupon_id') ? ' has-error' : ''); ?>">
+                                        <label for="location">Coupon Used </label>
+                                        <select  id="coupon_id" name="coupon_id" class="form-control">
+                                            <option value="">Select..</option>
+                                            <?php $__currentLoopData = $coupons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $coupon): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($coupon->id); ?>" <?php echo e($coupon->id == $transaction->coupon_id ? 'selected' :''); ?>><?php echo e($coupon->code); ?>(<?php echo e(number_format($coupon->amount)); ?>)</option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
 
-                                    <?php if($errors->has('coupon_id')): ?>
-                                    <span class="help-block">
-                                        <strong><?php echo e($errors->first('coupon_id')); ?></strong>
-                                    </span>
-                                    <?php endif; ?>
-                                </div>
+                                        <?php if($errors->has('coupon_id')): ?>
+                                        <span class="help-block">
+                                            <strong><?php echo e($errors->first('coupon_id')); ?></strong>
+                                        </span>
+                                        <?php endif; ?>
+                                    </div>
                                 <?php endif; ?>
-                                
+                                <div class="form-group">
+                                    <label for="funds-source">Funds Source </label>
+                                     <select  id="funds-source" name="funds_source" class="form-control" required>
+                                        <option value="offline" selected>Offline Payment</option>
+                                        <option value="wallet">Wallet</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                             <div class="row">
                                 <button type="submit" class="btn btn-primary" style="width:100%">
                                     Submit
@@ -83,6 +98,50 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModal<?php echo e($transaction->transid); ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Payment Trail for <?php echo e($transaction->transid); ?></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <?php $__currentLoopData = $transaction->paymentthreads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $thread): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <div class="row">
+                <div class="col-md-6">
+                    Transaction Id <br>
+                    <strong><?php echo e($thread->transaction_id); ?></strong>
+                </div>
+                <div class="col-md-6">
+                    Date <br>
+                    <strong><?php echo e($thread->created_at->format('d/m/Y')); ?></strong>
+                </div>
+                
+                <div class="col-md-6">
+                    Amount<br>
+                    <strong><?php echo e(number_format($thread->amount)); ?></strong>
+                </div>
+                <?php if(!empty($thread->admin_id)): ?>
+                <div class="col-md-6" style="background: #18006f38;padding: 10px;border-radius: 10px;">
+                    Transaction added by<br>
+                    <strong><?php echo e($thread->admin->name); ?></strong>
+                </div>
+                <?php else: ?> 
+                <div class="col-md-6" style="background: #006f3138;padding: 10px;border-radius: 10px;">
+                    Transaction added by<br>
+                    <strong><?php echo e($thread->user->name); ?></strong>
+                </div>
+                <?php endif; ?>
+            </div>
+            <hr>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
+        
         </div>
     </div>
 </div>

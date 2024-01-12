@@ -5,7 +5,6 @@
     <div class="card">
         <div class="card-body">
             <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-            
             <h5 class="card-title">Payment History</h5>
             <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
@@ -24,6 +23,7 @@
                     
                     <tbody>
                         <?php $__currentLoopData = $transactions->sortBy('date'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                       
                         <tr>
                             <td><?php echo e($i++); ?></td>
                             <td><?php echo e($transaction->created_at); ?></td>

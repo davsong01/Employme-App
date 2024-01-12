@@ -29,7 +29,11 @@
                     <tbody>
                         @foreach($wallets as $wallet)
                         <tr>
-                            <td>Name: {{$wallet->user->name}} <br>Email: {{$wallet->user->email}} <br>Date: {{  date("M jS, Y", strtotime($wallet->created_at)) }}</td>
+                            <td>Name: {{$wallet->user->name}} <br>Email: {{$wallet->user->email}} <br>Date: {{  date("M jS, Y", strtotime($wallet->created_at)) }}
+                                @if(!empty($wallet->admin_id))
+                                  <br> <small style="color:blue"> <strong>(Admin Transaction) <br> Created by: {{$wallet->admin->name}} </strong></small>
+                                @endif
+                            </td>
                             <td>{{ $wallet->transaction_id }}</td>
                             <td>{{ ucfirst($wallet->method) }}</td>
                             <td style="color:{{ $wallet->type == 'credit' ? 'green' : 'red'}}">{{ $wallet->type }}</td>
