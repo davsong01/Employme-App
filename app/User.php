@@ -102,7 +102,7 @@ class User extends Authenticatable
 
     public function getAccountBalanceAttribute()
     {
-        return app('App\Http\Controllers\WalletCOntroller')->getWalletBalance($this->id);
+        return app('App\Http\Controllers\WalletController')->getWalletBalance($this->id);
     }
 
     protected function scopeRole()
