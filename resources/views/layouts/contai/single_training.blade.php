@@ -89,7 +89,7 @@
                                         </div> 
                                         @if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' )
                                             <div class="checkout__input">
-                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <p>Your preferred Off Diet month<span>*</span></p>
                                                 <select name="preferred_timing" id="preferred_timing" required>
                                                     <option value="">Select...</option>
                                                     @foreach($training->programRange() as $preferred_timing)
@@ -135,7 +135,7 @@
                                         
                                         @if(isset($training->allow_preferred_timing) && $training->allow_preferred_timing == 'yes' )
                                             <div class="checkout__input">
-                                                <p>Select Preferred Date to start<span>*</span></p>
+                                                <p>Your preferred Off Diet month<span>*</span></p>
                                                 <select name="preferred_timing" id="preferred_timing" required>
                                                     <option value="">Select...</option>
                                                     @foreach($training->programRange() as $preferred_timing)
