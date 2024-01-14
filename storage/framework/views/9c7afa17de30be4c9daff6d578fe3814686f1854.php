@@ -33,7 +33,6 @@
                                 <?php echo e($pop->email); ?> <br>
                             </td>
                             <td><?php echo e($pop->program->p_name); ?> <br>(<?php echo e($pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount); ?>)
-                                 <?php if($pop->program->allow_preferred_timing == 'yes'): ?> <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;"><?php echo e($pop->preferred_timing); ?> </span> <br> <?php endif; ?>
                             <?php if(isset($pop->is_fresh)): ?> <br>
                             <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                             <?php endif; ?>
@@ -119,7 +118,7 @@
                             <td>
                                 <small class="training-details">
                                     <a href="<?php echo e(route('programs.edit', $transaction->program_id)); ?>" target="_blank"><strong>Training:</strong> <?php echo e($transaction->p_name ?? 'N/A'); ?></a><br>  
-                                    <?php if($transaction->allow_preferred_timing == 'yes'): ?> <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;"><?php echo e($transaction->preferred_timing); ?> </span> <br> <?php endif; ?>
+                                    <?php if($transaction->allow_preferred_timing == 'yes' && !empty($transaction->preferred_timing)): ?> <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;"><?php echo e($transaction->preferred_timing); ?> </span> <br> <?php endif; ?>
                                     <strong>Paid:</strong> <?php echo e($transaction->currency. number_format($transaction->t_amount)); ?>
 
                                     <?php if(!is_null($transaction->coupon_code)): ?>

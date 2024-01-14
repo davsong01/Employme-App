@@ -1,6 +1,7 @@
 <?php 
     use App\Settings;
     $accounts = getAccounts();
+   
     $settings = Settings::first();
     $payment_modes = app('App\Http\Controllers\PaymentController')->getPaymentModes();
 ?>
@@ -66,7 +67,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div>
+                {{-- <div>
                     @if (!empty($topup_programs))
                             <strong>Please note that you can only use funds in your account for the following Training(s): </strong> <br>
                             @foreach($topup_programs as $key=>$program)
@@ -79,7 +80,7 @@
                         @else 
                             Please note that there are no Trainings that you can pay for with your account balance
                         @endif
-                </div>
+                </div> --}}
                 <strong>Click any of the following methods to top up your account</strong> <br>
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <div class="accordion-item">
@@ -95,7 +96,7 @@
                                     <div class="col-md-6">
                                         <div id="nigeria" class="accounts" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
                                             <h6 style="">Nigeria (Naira Payment)</h6>
-                                            @foreach($accounts as $account)
+                                            @foreach($accounts as $key=>$account)
                                                 @if ($account['country'] == 'Nigeria')
                                                     <div class="inner" style="margin-bottom: 15px;">
                                                         <strong>Bank: </strong>{{$account['bank']}} <br>

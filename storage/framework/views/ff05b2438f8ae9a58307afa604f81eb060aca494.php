@@ -27,14 +27,14 @@
                                 <div class="checkout__input">
                                     <p>Name<span>*</span></p>
                                      <input type="text" class="form-control" id="name" name="name" 
-                                        <?php if(auth()->guard()->check()): ?>
-                                        value="<?php echo e(auth()->user()->name); ?>"  
-                                        placeholder="Full Name"
-                                        <?php endif; ?>
+                                    <?php if(auth()->guard()->check()): ?>
+                                    value="<?php echo e(auth()->user()->name); ?>"  
+                                    placeholder="Full Name"
+                                    <?php endif; ?>
 
-                                        <?php if(auth()->guard()->guest()): ?> 
-                                        value="<?php echo e(old('name')); ?>" placeholder="Full Name"  
-                                        <?php endif; ?> required>
+                                    <?php if(auth()->guard()->guest()): ?> 
+                                    value="<?php echo e(old('name')); ?>" placeholder="Full Name"  
+                                    <?php endif; ?> required>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                         </div>
                         <span style="color:red; display:none" id="enter-email">You must enter your email and coupon code</span>
                         <span style="color:green; display:none" id="coupon-applied"></span>
-                       
+                        
                         <div class="row" id="coupon-field" style="display:none">
                             <div class="col-lg-6" style="padding-right:0px">
                                 <div class="checkout__input">
@@ -132,27 +132,31 @@
                             <input type="hidden" class="total" id="amount" name="amount" value="<?php echo e(($amount)); ?>">
                             <input type="hidden" name="currency" value="<?php echo e($currency); ?>">
                             <input type="hidden" name="metadata" value="<?php echo e(json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL])); ?>"> 
-                                                 
+
                             <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             <?php if($amount > 0): ?>
                                 <h4 class="">Choose payment method</h4>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
+                                    <?php if(auth()->check() && auth()->user()): ?>
+                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
+                                    <?php endif; ?>
                                     <?php if($settings->allow_transfer_button == 'yes'): ?>
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
                                     <?php endif; ?>
                                     <?php $__currentLoopData = $payment_modes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <?php if($mode->type == 'card'): ?>
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                     <?php endif; ?>
                                     <?php if($mode->type == 'crypto'): ?>
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                     <?php endif; ?>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    
                                 </div>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                             <?php else: ?>
-                            <h4 class=""></h4>
-                            <button class="mr-1 mb-1 pay-option btn-primary" name="payment_mode" value="register"><i class="fa fa-hand-pointer-o"></i> <span>COMPLETE REGISTRATION</span></button>
+                                <h4 class=""></h4>
+                                <button class="mr-1 mb-1 pay-option btn-primary" name="payment_mode" value="register"><i class="fa fa-hand-pointer-o"></i> <span>COMPLETE REGISTRATION</span></button>
                             <?php endif; ?>
                             </div>
                         </div>

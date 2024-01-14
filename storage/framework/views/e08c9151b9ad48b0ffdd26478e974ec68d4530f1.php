@@ -1,6 +1,7 @@
 <?php 
     use App\Settings;
     $accounts = getAccounts();
+   
     $settings = Settings::first();
     $payment_modes = app('App\Http\Controllers\PaymentController')->getPaymentModes();
 ?>
@@ -66,21 +67,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div>
-                    <?php if(!empty($topup_programs)): ?>
-                            <strong>Please note that you can only use funds in your account for the following Training(s): </strong> <br>
-                            <?php $__currentLoopData = $topup_programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <ol>
-                                <li>
-                                    <?php echo e($program->p_name); ?>
-
-                                </li>
-                            </ol>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        <?php else: ?> 
-                            Please note that there are no Trainings that you can pay for with your account balance
-                        <?php endif; ?>
-                </div>
+                
                 <strong>Click any of the following methods to top up your account</strong> <br>
                 <div class="accordion accordion-flush" id="accordionFlushExample">
                     <div class="accordion-item">
@@ -96,7 +83,7 @@
                                     <div class="col-md-6">
                                         <div id="nigeria" class="accounts" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
                                             <h6 style="">Nigeria (Naira Payment)</h6>
-                                            <?php $__currentLoopData = $accounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $account): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <?php $__currentLoopData = $accounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$account): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <?php if($account['country'] == 'Nigeria'): ?>
                                                     <div class="inner" style="margin-bottom: 15px;">
                                                         <strong>Bank: </strong><?php echo e($account['bank']); ?> <br>

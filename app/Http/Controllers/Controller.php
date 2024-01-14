@@ -539,20 +539,32 @@ class Controller extends BaseController
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
-        
-        $user = User::updateOrCreate(['email' => $data['email']], [
-            'name' => $data['name'],
-            't_phone' => $data['t_phone'],
-            'password' => $data['password'],
-            'role_id' => $data['role_id'],
-        ]); 
-       
+        if(Auth::check()){
+            $user = auth()->user();
+        }else{
+            // Check if user exists previously
+            $existingUser = User::where(['email' => $data['email']])->first();
+
+            if($existingUser){
+                $user = $existingUser;
+            }else{
+                $user = User::updateOrCreate(['email' => $data['email']], [
+                    'password' => $data['password'],
+                    'role_id' => $data['role_id'],
+                ]); 
+            }
+        }
+
+        // Update 
+        $user->name = $data['name'];
+        $user->t_phone = $data['t_phone'];
+        $user->save();
+
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
         $data['coupon_code'] = NULL;
        
         if(!is_null($coupon)){
-            // $data['facilitator_id'] = $coupon->facilitator_id;
             $data['coupon_amount'] = $coupon->amount;
             $data['coupon_id'] = $coupon->id;
             $data['coupon_code'] = $coupon->code;

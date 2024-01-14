@@ -46,7 +46,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Pay from Account Balance (<?php echo e($currency.number_format($balance)); ?>)</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Pay balance of <?php echo e($program->checkBalance($program->id )); ?>from Account Balance (<?php echo e($currency.number_format($balance)); ?>)</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>

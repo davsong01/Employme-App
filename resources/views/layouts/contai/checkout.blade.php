@@ -27,14 +27,14 @@
                                 <div class="checkout__input">
                                     <p>Name<span>*</span></p>
                                      <input type="text" class="form-control" id="name" name="name" 
-                                        @auth
-                                        value="{{ auth()->user()->name }}"  
-                                        placeholder="Full Name"
-                                        @endauth
+                                    @auth
+                                    value="{{ auth()->user()->name }}"  
+                                    placeholder="Full Name"
+                                    @endauth
 
-                                        @guest 
-                                        value="{{ old('name') }}" placeholder="Full Name"  
-                                        @endguest required>
+                                    @guest 
+                                    value="{{ old('name') }}" placeholder="Full Name"  
+                                    @endguest required>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +84,7 @@
                         </div>
                         <span style="color:red; display:none" id="enter-email">You must enter your email and coupon code</span>
                         <span style="color:green; display:none" id="coupon-applied"></span>
-                       
+                        
                         <div class="row" id="coupon-field" style="display:none">
                             <div class="col-lg-6" style="padding-right:0px">
                                 <div class="checkout__input">
@@ -132,27 +132,31 @@
                             <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
                             <input type="hidden" name="currency" value="{{  $currency }}">
                             <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}"> 
-                                                 
+
                             <div class="d-lg-flex justify-content-center align-items-start flex-column">
                             @if($amount > 0)
                                 <h4 class="">Choose payment method</h4>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
+                                    @if(auth()->check() && auth()->user())
+                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
+                                    @endif
                                     @if($settings->allow_transfer_button == 'yes')
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
                                     @endif
                                     @foreach($payment_modes as $mode)
                                     @if($mode->type == 'card')
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                     @endif
                                     @if($mode->type == 'crypto')
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                     @endif
                                     @endforeach
+                                    
                                 </div>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                             @else
-                            <h4 class=""></h4>
-                            <button class="mr-1 mb-1 pay-option btn-primary" name="payment_mode" value="register"><i class="fa fa-hand-pointer-o"></i> <span>COMPLETE REGISTRATION</span></button>
+                                <h4 class=""></h4>
+                                <button class="mr-1 mb-1 pay-option btn-primary" name="payment_mode" value="register"><i class="fa fa-hand-pointer-o"></i> <span>COMPLETE REGISTRATION</span></button>
                             @endif
                             </div>
                         </div>

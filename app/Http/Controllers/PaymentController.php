@@ -253,7 +253,23 @@ class PaymentController extends Controller
                 
             }
 
-            
+            // Pay from wallet
+            if ($request->payment_mode == 'wallet') {
+                $request['user_id'] = auth()->user()->id;
+                $request['p_id'] = $pid;
+                $response = $this->payFromAccount($request, 'frontent-wallet');
+
+                if(isset($response['status']) && $response['status'] == 'failed'){
+                    return redirect(url('trainings/' . $pid))->with('error', $response['message']);
+                }
+
+                if (isset($response['status']) && $response['status'] == 'success') {
+                    return redirect(route($response['route']))->with('message', $response['message']);
+                }
+
+            }
+
+
             // Create temp user and redirect
             $request['metadata'] = $type;
             
@@ -265,9 +281,10 @@ class PaymentController extends Controller
                     return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try again!');
                 }
             }catch(\Exception $e) {
+                dd($e->getMessage());
                 \Log::info($e->getMessage());
                 
-                return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try a different payment method!');
+                return redirect(url('trainings/' . $pid))->with('error', 'Something went while verifying payment, Kindly contact admin!');
             } 
 
         }
@@ -579,36 +596,62 @@ class PaymentController extends Controller
        
     }
 
-    public function payFromAccount(Request $request, $type){
+    public function payFromAccount(Request $request, $source=null){
        
         $user_id = $request->user_id ?? auth()->user()->id;
         $user = User::where('id', $user_id)->first();
-
+        
         $old = Transaction::where('user_id',$user->id)->where('program_id', $request->p_id)->get();
-
+        
         $existing = $old->sum('t_amount');
         $existingTransaction = $old->first();
-        
-        if(!empty($existing)){
-            $request['type'] = 'balance';
-        }else{
-            $request['type'] = 'fresh';
-        }
-        
         $program = Program::where('id', $request->p_id)->first();
         $training_fee = $program->p_amount;
         $account_balance = $user->account_balance;
         $amount_to_pay = $training_fee - $existing;
         $balance = $training_fee - ($request->amount + $existing);
+
+        if (!empty($existingTransaction) && $existingTransaction->balance < 1) {
+            if(isset($source) && $source == 'frontent-wallet'){
+                return [
+                    'status' => 'failed',
+                    'message' => 'You are already enrolled for this training!',
+                ];
+            }else{
+                return back()->with('error', 'You are already enrolled for this training!');
+            }
+            $balance = $existingTransaction->balance;
+        }else{
+            $balance = $training_fee;
+        }
        
-        if($account_balance < $existingTransaction->balance){
-            return back()->with('error', 'Insufficient Account Balance');
+        if(!empty($existingTransaction)){
+            $request['type'] = 'balance';
+        }else{
+            $request['type'] = 'fresh';
+        }
+        
+        if($account_balance < $balance){
+            if (isset($source) && $source == 'frontent-wallet') {
+                return [
+                    'status' => 'failed',
+                    'message' => 'Insufficient Account Balance!',
+                ];
+            } else {
+                return back()->with('error', 'Insufficient Account Balance');
+            }
         }
 
         if(($request->amount + $existing) > $training_fee){
-            return back()->with('error', 'You cannot pay more than '.$amount_to_pay. ' for this training!');
+            if (isset($source) && $source == 'frontent-wallet') {
+                return [
+                    'status' => 'failed',
+                    'message' => 'You cannot pay more than ' . $amount_to_pay . ' for this training!',
+                ];
+            } else {
+                return back()->with('error', 'You cannot pay more than '.$amount_to_pay. ' for this training!');
+            }
         }
-       
         // Process transaction
         $allDetails['programFee'] = $program->p_amount;
         $allDetails['program_id'] = $program->id;
@@ -620,8 +663,8 @@ class PaymentController extends Controller
         $allDetails['email'] = $user->email;
         $allDetails['phone'] = $user->t_phone;
         $allDetails['t_type'] = 'wallet';
-        $allDetails['currency'] = $existingTransaction->currency;
-        $allDetails['currency_symbol'] = $existingTransaction->currency_symbol;
+        $allDetails['currency'] = $existingTransaction->currency ?? \Session::get('currency');
+        $allDetails['currency_symbol'] = $existingTransaction->currency_symbol ?? \Session::get('currency_symbol');
         $allDetails['message'] = $this->dosubscript1($balance);
         $allDetails['paymentStatus'] = $this->paymentStatus($balance);
         $total_amount_paid = $request->amount + $existing;
@@ -644,16 +687,27 @@ class PaymentController extends Controller
             }
         } else {
             $balance = $training_fee - $request->amount;
-            $allDetails['transaction_id'] = $existingTransaction->transid ?? $this->getReference('WLTP');
+
+            if ($balance < 1) {
+                $data['payment_type'] = 'Full';
+                $data['message'] = 'Full payment';
+                $data['paymentStatus'] = 1;
+            } else {
+                $data['payment_type'] = 'Part';
+                $data['message'] = 'Part payment';
+                $data['paymentStatus'] = 0;
+            }
+
+            $allDetails['transaction_id'] = $existingTransaction->transid ?? $this->getReference('WLTUP');
             $allDetails['invoice_id'] = $this->getInvoiceId();
             $allDetails['balance'] = $balance;
             $allDetails['transid'] = $this->getReference('USER_WALLET');
         }
 
-        $data['payment_type'] = 'Part';
-        $data['message'] = 'Part payment';
-        $data['paymentStatus'] = 1;
-    
+        // $data['payment_type'] = 'Part';
+        // $data['message'] = 'Part payment';
+        // $data['paymentStatus'] = 1;
+   
         // Log wallet
         $wallet['amount'] = abs($request->amount);
         $wallet['transaction_id'] = $allDetails['transaction_id'];
@@ -682,7 +736,6 @@ class PaymentController extends Controller
                 'amount' => $request->amount
             ]);
 
-            
             $data['training'] = $allDetails['balance_transaction_id'];
             $data['invoice_id'] = $existingTransaction->transid;
             $data['transid'] = $existingTransaction->transid;
@@ -703,14 +756,14 @@ class PaymentController extends Controller
             $user->programs()->attach($allDetails['program_id'], [
                 't_amount' => $allDetails['amount'],
                 't_type' => 'wallet',
-                't_location' => $allDetails['location'],
+                't_location' => $allDetails['location'] ?? null,
                 'paymentStatus' => $allDetails['paymentStatus'],
                 'balance' => $allDetails['balance'],
                 'transid' =>  $allDetails['transaction_id'],
                 'invoice_id' =>  $allDetails['invoice_id'],
                 'currency' => $allDetails['currency'],
                 'currency_symbol' => $allDetails['currency_symbol'],
-                'created_at' => $allDetails['date'],
+                'created_at' => $allDetails['date'] ?? now(),
                 'coupon_id' => $allDetails['coupon_id'] ?? null,
                 'coupon_amount' => $allDetails['coupon_amount'] ?? null,
                 'coupon_code' => $allDetails['coupon_code'] ?? null,
@@ -718,7 +771,18 @@ class PaymentController extends Controller
                 'preferred_timing' => $allDetails['preferred_timing'] ?? null,
             ]);
 
-            $data['training'] = $allDetails['balance_transaction_id'];
+            $payment = Transaction::where(['user_id' => $user->id, 'program_id' => $allDetails['program_id']])->first();
+            PaymentThread::create([
+                'program_id' => $allDetails['program_id'],
+                'user_id' => $user->id,
+                'payment_id' => $payment->id,
+                'transaction_id' => $payment->transid,
+                'parent_transaction_id' => $payment->transid,
+                't_type' => 'wallet',
+                'amount' => $request->amount
+            ]);
+
+            $data['training'] = $payment->transid;
             $data['invoice_id'] = $allDetails['invoice_id'];
             $data['transid'] = $allDetails['transid'];
             $data['type'] = 'initial';
@@ -732,11 +796,21 @@ class PaymentController extends Controller
             $data['balance'] = $allDetails['balance'];
             $data['amount'] = $allDetails['amount'];
             $data['currency_symbol'] = $allDetails['currency_symbol'];
-
-            $this->sendWelcomeMail($data);
+            
+        
+            // $this->sendWelcomeMail($data);
         }
 
-        return redirect(route('home'))->with('message', 'Transaction Succesful');
+        if (isset($source) && $source == 'frontent-wallet') {
+            return [
+                'status' => 'success',
+                'message' => 'Transaction Succesful',
+                'route' => 'home',
+            ];
+        } else {
+            return redirect(route('home'))->with('message', 'Transaction Succesful');
+        }
+
     }
 
     
@@ -752,9 +826,8 @@ class PaymentController extends Controller
             $request['email'] = auth()->user()->email;
             
             $response = $this->queryProcessor($request, [],'query-only');
-
+            
             if ($response) {
-               
                 $data = [
                     'amount' => abs($data['amount']),
                     'transaction_id' => $response['transaction_id'],

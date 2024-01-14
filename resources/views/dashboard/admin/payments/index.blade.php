@@ -34,7 +34,6 @@
                                 {{ $pop->email }} <br>
                             </td>
                             <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
-                                 @if($pop->program->allow_preferred_timing == 'yes') <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$pop->preferred_timing}} </span> <br> @endif
                             @if(isset($pop->is_fresh)) <br>
                             <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                             @endif
@@ -118,7 +117,7 @@
                             <td>
                                 <small class="training-details">
                                     <a href="{{ route('programs.edit', $transaction->program_id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->p_name ?? 'N/A' }}</a><br>  
-                                    @if($transaction->allow_preferred_timing == 'yes') <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
+                                    @if($transaction->allow_preferred_timing == 'yes' && !empty($transaction->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
                                     <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
                                     @if(!is_null($transaction->coupon_code))
                                     <span style="color:blue">
