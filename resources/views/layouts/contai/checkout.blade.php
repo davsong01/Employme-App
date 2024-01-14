@@ -137,7 +137,7 @@
                             @if($amount > 0)
                                 <h4 class="">Choose payment method</h4>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                                    @if(auth()->check() && auth()->user())
+                                    @if(auth()->user())
                                     <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
                                     @endif
                                     @if($settings->allow_transfer_button == 'yes')
