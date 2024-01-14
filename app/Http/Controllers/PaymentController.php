@@ -253,9 +253,9 @@ class PaymentController extends Controller
                 }
             }
 
-            
+
             // Pay with Transfer
-            if($request->has('payment_mode') && $request->payment_mode === '0'){
+            if($request->has('payment_mode') && $request->payment_mode == 0){
                 $request->request->add(['reference' => $request->reference]);
                 $request['transid'] = 'BT-'.rand(11111111,9999999);
                 $metadata = json_decode($request->metadata, true);
