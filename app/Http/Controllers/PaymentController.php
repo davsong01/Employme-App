@@ -238,8 +238,24 @@ class PaymentController extends Controller
 
             }
 
+            // Pay from wallet
+            if ($request->payment_mode == 'wallet') {
+                $request['user_id'] = auth()->user()->id;
+                $request['p_id'] = $pid;
+                $response = $this->payFromAccount($request, 'frontent-wallet');
+
+                if (isset($response['status']) && $response['status'] == 'failed') {
+                    return redirect(url('trainings/' . $pid))->with('error', $response['message']);
+                }
+
+                if (isset($response['status']) && $response['status'] == 'success') {
+                    return redirect(route($response['route']))->with('message', $response['message']);
+                }
+            }
+
+            
             // Pay with Transfer
-            if($request->has('payment_mode') && $request->payment_mode == 0){
+            if($request->has('payment_mode') && $request->payment_mode === '0'){
                 $request->request->add(['reference' => $request->reference]);
                 $request['transid'] = 'BT-'.rand(11111111,9999999);
                 $metadata = json_decode($request->metadata, true);
@@ -253,23 +269,7 @@ class PaymentController extends Controller
                 
             }
 
-            // Pay from wallet
-            if ($request->payment_mode == 'wallet') {
-                $request['user_id'] = auth()->user()->id;
-                $request['p_id'] = $pid;
-                $response = $this->payFromAccount($request, 'frontent-wallet');
-
-                if(isset($response['status']) && $response['status'] == 'failed'){
-                    return redirect(url('trainings/' . $pid))->with('error', $response['message']);
-                }
-
-                if (isset($response['status']) && $response['status'] == 'success') {
-                    return redirect(route($response['route']))->with('message', $response['message']);
-                }
-
-            }
-
-
+        
             // Create temp user and redirect
             $request['metadata'] = $type;
             
@@ -798,7 +798,7 @@ class PaymentController extends Controller
             $data['currency_symbol'] = $allDetails['currency_symbol'];
             
         
-            // $this->sendWelcomeMail($data);
+            $this->sendWelcomeMail($data);
         }
 
         if (isset($source) && $source == 'frontent-wallet') {
