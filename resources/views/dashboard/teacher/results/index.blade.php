@@ -25,7 +25,7 @@
                             <th>R. Play Score</th>
                             <th>Email Score</th>
                             <th>Passmark</th>
-                            <th>T. Score</th>
+                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<th>Total</th>@endif
                             <th>Facilitator</th>
                             <th>Grader</th>
                             <th>Actions</th>

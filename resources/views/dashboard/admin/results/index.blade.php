@@ -37,11 +37,13 @@
                             <td><strong class="tit">Name: </strong>{{ $user->name }} </td>
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ) <br>
-                                <strong class="tit">Email: </strong>{{ $user->email }} <br>
+                                <strong class="tit">Email: </strong>{{ $user->email }} <br> @endif
                             </td>
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}@endif <br>
+
+                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) <br> <strong class="tit">Graded by: </strong> {{ $user->grader }}<br>
+
                                 <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>
                                 @endif
                                 <br>
@@ -58,9 +60,17 @@
                             
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                        <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
-                                    @endif
+                                <?php
+                                $total = ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->total_cert_score : 0 )
+                                + ((!empty($score_settings->certification) && $score_settings->certification > 0 ) ? $user->final_ct_score : 0)
+                                + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
+                                + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
+                                + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
+                            ?>
+                            
+                                        @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                            <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
+                                        @endif
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                     @if(isset($score_settings->certification) && $score_settings->certification > 0)
@@ -84,23 +94,13 @@
                                             <strong>Email: </strong> {{ $user->total_email_test_score }}% 
                                         @endif
                                     @endif
-                                <?php
-                                
-                                    $total = ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->total_cert_score : 0 )
-                                    + ((!empty($score_settings->certification) && $score_settings->certification > 0 ) ? $user->final_ct_score : 0)
-                                    + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
-                                    + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
-                                    + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
-
-                                                   
-
-                                    // $total = $user->total_cert_score  + $user->final_ct_score + $user->total_role_play_score + $user->total_email_test_score;
-                                ?>
+                                @endif
                             </td>
+                            
                             <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
                             @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                             <td>
-                                 <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
+                                <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
                             </td>
                             @endif
                             <td>
@@ -147,43 +147,30 @@
                                         @endif
                                     @else
                                         @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                            {{-- <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i class="fa fa-stop"></i> End resit</a> --}}
-                                            {{-- @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                            <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
-                                                {{ csrf_field() }}
-                                                {{method_field('DELETE')}}
-                                                <input type="hidden" name="uid" value="{{ $user->user_id }}">
-                                                <input type="hidden" name="rid" value="{{ $user->result_id }}">
-                                                <input type="hidden" name="pid" value="{{ $user->program_id }}">
-                                                <button type="submit" class="btn btn-danger btn-xsm"> <i
-                                                        class="fa fa-redo"> Enable Resit</i>
-                                                </button>
-                                            </form>
-                                            @endif --}}
-                                            @endif
                                             @if($user->redotest != 0)
-                                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                                <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
-                                                        class="fa fa-stop"></i> End resit
-                                                </a>
-                                            @endif
+                                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
+                                                    <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
+                                                            class="fa fa-stop"></i> End resit
+                                                    </a>
+                                                @endif
                                             @endif
                                         @endif
-                                    </div>
+                                        </div>
+                                    @endif
                                 @else
-                                <div class="btn-group">
-                                   <button class="btn btn-button btn-danger btn-sm" disabled>Participant has not taken any test!</button>
-                                </div>
+                                    <div class="btn-group">
+                                    <button class="btn btn-button btn-danger btn-sm" disabled>Participant has not taken any test!</button>
+                                    </div>
                                 @endif
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning btn-sm" href="{{ route('impersonate', $user->user_id) }}"><i
                                         class="fa fa-unlock"> Peek</i>
-                                </a>
+                                    </a>
                                 @endif 
                             </td>
-                           
-                        @endif
+                        </tr>
+                     
                         @endforeach
                     </tbody>
                 </table>
