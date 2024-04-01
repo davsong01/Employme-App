@@ -140,18 +140,19 @@
                                     @if(auth()->user())
                                     <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
                                     @endif
-                                    @if($settings->allow_transfer_button == 'yes')
+                                    @if($settings->allow_transfer_button == 'yes' || in_array($training['id'], [68]))
                                         <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
                                     @endif
-                                    @foreach($payment_modes as $mode)
-                                    @if($mode->type == 'card')
-                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                    @if(!in_array($training['id'], [68]))
+                                        @foreach($payment_modes as $mode)
+                                        @if($mode->type == 'card')
+                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        @endif
+                                        @if($mode->type == 'crypto')
+                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        @endif
+                                        @endforeach
                                     @endif
-                                    @if($mode->type == 'crypto')
-                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
-                                    @endif
-                                    @endforeach
-                                    
                                 </div>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                             @else

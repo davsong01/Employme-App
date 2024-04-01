@@ -40,8 +40,34 @@
     }
 
 if (!function_exists("getAccounts")) {
-    function getAccounts()
+    function getAccounts($program_id = null)
     {
+        // TAKE CARE OF PROGRAMS FROM WAACSP
+        if(in_array($program_id, [68])){
+            $accounts = [
+                [
+                    'bank' =>  'GTB',
+                    'number' => '0610151960',
+                    'name' => ' West Africa Ass of Customer SP',
+                    'status' => 1,
+                    'country' => 'Nigeria'
+                ],
+                [
+                    'bank' =>  'GTB (Gambia)',
+                    'number' => '0610151960',
+                    'name' => ' West Africa Ass of Customer SP',
+                    'status' => 1,
+                    'country' => 'Gambia'
+                ],
+                [
+                    'bank' =>  'Mobile Money (MoMo)',
+                    'number' => '0557963331',
+                    'name' => 'Frank Asiedu',
+                    'status' => 1,
+                    'country' => 'Ghana'
+                ],
+            ];
+        }else{
         $accounts = [
             [
                 'bank' =>  'Access Bank',
@@ -65,8 +91,9 @@ if (!function_exists("getAccounts")) {
                 'status' => 1,
                 'country' => 'Ghana'
             ],
-
         ];
+        }
+
         return $accounts;
     }
 }

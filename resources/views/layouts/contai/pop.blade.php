@@ -1,5 +1,5 @@
 <?php 
-   $accounts = getAccounts();
+   $accounts = getAccounts(68);
 ?>
 @extends('layouts.contai.app')
 @section('title')
@@ -40,6 +40,19 @@
                             </div>
                             <hr>
 
+                        @endif
+                    @endforeach
+                </div>
+                <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
+                    <h4 style="">Gambia</h4>
+                    @foreach($accounts as $account)
+                        @if ($account['country'] == 'Gambia')
+                            <div class="inner" style="margin-bottom: 15px;">
+                                <strong>Bank: </strong>{{$account['bank']}} <br>
+                                <strong>Account Number: </strong>{{$account['number']}} <br>
+                                <strong>Name: </strong>{{$account['name']}} <br>
+                            </div>
+                            <hr>
                         @endif
                     @endforeach
                 </div>

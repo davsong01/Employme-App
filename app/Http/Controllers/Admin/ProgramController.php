@@ -230,7 +230,7 @@ class ProgramController extends Controller
             $data['booking_form'] = 'bookingforms/' . $filePath;
         }
 
-        if ($request->has('show_locations') && $request->show_locations == 'yes') {
+        if (!empty($request->show_locations) && $request->show_locations == 'yes') {
             for ($i = 0; $i < count($request->location_name); $i++) {
                 $l[] = array_column($request->only(['location_name', 'location_address']), $i);
             }
@@ -240,7 +240,8 @@ class ProgramController extends Controller
             }
             $data['locations'] = json_encode($locations);
         }
-        if ($request->has('show_modes') && $request->show_modes == 'yes') {
+
+        if (!empty($request->show_modes) && $request->show_modes == 'yes') {
             for ($i = 0; $i < count($request->mode_name); $i++) {
                 $m[] = array_column($request->only(['mode_name', 'mode_amount']), $i);
             }
