@@ -135,11 +135,11 @@
                     @if(in_array(14, $menus))
                     <li class="sidebar-item"><a href="{{route('posttest.results')}}" class="sidebar-link"><span class="hide-menu">- Grades</span></a>
                     @endif
-                        @if(Auth()->user()->role_id == "Admin")
-                        @if(in_array(15, $menus))
-                        <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span class="hide-menu">- Certificates</span></a>
-                        </li>
-                        @endif
+                    @if(in_array(15, $menus))
+                    <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span class="hide-menu">- Certificates</span></a>
+                    </li>
+                    @endif
+                    @if(Auth()->user()->role_id == "Admin")
                         @if(in_array(16, $menus))
                         <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span
                                     class="hide-menu">- Score Settings</span></a>
