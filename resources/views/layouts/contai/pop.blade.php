@@ -122,8 +122,8 @@
                                     <select name="training" id="training" class="form-control" required>
                                         <option value="">-- Select --</option>
                                         @foreach($trainings as $training)
-
-                                        <option value="{{ $training->id }}" {{ (isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''  }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }})</option>
+                                        <option value="{{ $training->id }}" {{ (isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''  }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }} @if(in_array($training->id, [68])), GHc 60, GMD 75
+                                    @endif)</option>
                                         @endforeach
                                     </select>
                                 </div>

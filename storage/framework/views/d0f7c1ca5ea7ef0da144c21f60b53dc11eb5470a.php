@@ -1,5 +1,5 @@
 <?php 
-   $accounts = getAccounts();
+   $accounts = getAccounts(68);
 ?>
 
 <?php $__env->startSection('title'); ?>
@@ -40,6 +40,19 @@
                             </div>
                             <hr>
 
+                        <?php endif; ?>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </div>
+                <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
+                    <h4 style="">Gambia</h4>
+                    <?php $__currentLoopData = $accounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $account): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($account['country'] == 'Gambia'): ?>
+                            <div class="inner" style="margin-bottom: 15px;">
+                                <strong>Bank: </strong><?php echo e($account['bank']); ?> <br>
+                                <strong>Account Number: </strong><?php echo e($account['number']); ?> <br>
+                                <strong>Name: </strong><?php echo e($account['name']); ?> <br>
+                            </div>
+                            <hr>
                         <?php endif; ?>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
@@ -109,8 +122,8 @@
                                     <select name="training" id="training" class="form-control" required>
                                         <option value="">-- Select --</option>
                                         <?php $__currentLoopData = $trainings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $training): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                                        <option value="<?php echo e($training->id); ?>" <?php echo e((isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''); ?>><?php echo e($training->p_name); ?> | (<?php echo e($currency . number_format($training->p_amount)); ?>)</option>
+                                        <option value="<?php echo e($training->id); ?>" <?php echo e((isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''); ?>><?php echo e($training->p_name); ?> | (<?php echo e($currency . number_format($training->p_amount)); ?> <?php if(in_array($training->id, [58])): ?>, GHc 60, GMD 75
+                                    <?php endif; ?>)</option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>

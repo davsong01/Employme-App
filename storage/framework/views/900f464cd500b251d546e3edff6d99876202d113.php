@@ -39,6 +39,9 @@
                                     <?php if($training->p_amount > 0): ?>
                                     <?php echo e($currency_symbol); ?><?php echo e(number_format($training->p_amount)); ?>
 
+                                    <?php if(in_array($training->id, [68])): ?>
+                                    , GHc 60, GMD 75
+                                    <?php endif; ?>
                                     <?php else: ?>
                                     <span style="color:green">FREE TRAINING</span>
                                     <?php endif; ?>
@@ -126,7 +129,7 @@
                                             <p>Select payment type<span>*</span></p>
                                             <select name="type" id="" required>
                                                 <option value="">Select</option>
-                                                <option value="full" <?php echo e(old('amount') == $training->p_amount ? 'selected' : ''); ?>>Full Payment (<?php echo e($currency_symbol.number_format($training->p_amount)); ?>)</option>
+                                                <option value="full" <?php echo e(old('amount') == $training->p_amount ? 'selected' : ''); ?>>Full Payment (<?php echo e($currency_symbol.number_format($training->p_amount)); ?>  <?php if(in_array($training->id, [58])): ?>, GHc 60, GMD 75 <?php endif; ?>)</option>
                                                 <?php if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0): ?>
                                                 <option value="earlybird" <?php echo e(old('amount') == $training->e_amount ? 'selected' : ''); ?>>Earlybird (<?php echo e($currency_symbol.number_format($training->e_amount)); ?>)</option>
                                                 <?php endif; ?>

@@ -76,8 +76,8 @@
                             </label>
                         </div>
                         @if(isset($type) && $type == 'full')
-                         <div class="row">
-                           <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-12">
                                 <h6 style="margin-bottom: 10px !important;"><span class="icon_tag_alt"></span> Have a coupon? <b onclick="showCoupon()" style="text-decoration: underline; cursor: pointer;" >Click here</b> to enter your code
                                 </h6>
                             </div>

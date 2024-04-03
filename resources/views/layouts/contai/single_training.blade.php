@@ -36,6 +36,9 @@
                                 @else
                                     @if($training->p_amount > 0)
                                     {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                                    @if(in_array($training->id, [68]))
+                                    , GHc 60, GMD 75
+                                    @endif
                                     @else
                                     <span style="color:green">FREE TRAINING</span>
                                     @endif
@@ -120,7 +123,7 @@
                                             <p>Select payment type<span>*</span></p>
                                             <select name="type" id="" required>
                                                 <option value="">Select</option>
-                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }})</option>
+                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }}  @if(in_array($training->id, [68])), GHc 60, GMD 75 @endif)</option>
                                                 @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount > 0)
                                                 <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }})</option>
                                                 @endif
