@@ -19,7 +19,7 @@ class CertificateController extends Controller
     {
         $userid = Auth::user()->id;
         $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             // $programs = Program::whereHas('certificates', function ($query) {
             //     return $query;
             // })->withCount('certificates')->orderby('created_at', 'DESC')->get();
@@ -58,7 +58,8 @@ class CertificateController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
 
             $programs = Program::withCount('users')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
 
@@ -75,7 +76,8 @@ class CertificateController extends Controller
     }
     public function selectUser(Request $request, $program_id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
             $i = 1;
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
             $certificates = Certificate::with(['user', 'program'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
@@ -99,7 +101,8 @@ class CertificateController extends Controller
 
     public function save(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
 
             $data = $this->validate($request, [
                 'user_id' => 'required',
@@ -162,8 +165,7 @@ class CertificateController extends Controller
     }
 
     public function generateCertificates($program_id){
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $program = Program::find($program_id);
             $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
             
