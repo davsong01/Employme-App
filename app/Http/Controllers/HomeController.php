@@ -120,7 +120,7 @@ class HomeController extends Controller
 
             return view('dashboard.admin.dashboard', compact('calendar', 'requests',  'i', 'user', 'materialCount'));
         }
-
+        dd(Auth::user()->role());
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             //get enabled module Tests for this user
             $thisusertransactions = DB::table('program_user')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();

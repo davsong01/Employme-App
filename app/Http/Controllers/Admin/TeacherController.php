@@ -27,8 +27,7 @@ class TeacherController extends Controller
             ->distinct()->with('trainings')
             ->where('role_id', '!=', 'Student')
             ->orderBy('created_at', 'DESC')->get();
-
-
+        
         $users->map(function ($users) {
             $details = DB::table('facilitator_trainings')->where('user_id', $users->id);
             $users->program_count = $details->distinct()->count();
@@ -109,7 +108,6 @@ class TeacherController extends Controller
     }
     public function store(Request $request)
     {
-
         $data = request()->validate([
             'payment_mode' => 'required',
             'license' => 'nullable',
@@ -125,6 +123,7 @@ class TeacherController extends Controller
             'off_season_availability' => 'nullable',
             'status' => 'required',
         ]);
+
         if (isset($request->password) && !empty($request->password)) {
             $password = $data['password'];
         } else {
@@ -139,8 +138,10 @@ class TeacherController extends Controller
             $imgName = null;
         }
 
-        try {
-            if ($data['role'] == "Facilitator" || $data['role'] == "Grader") {
+        $data['menu_permissions'] = implode(',', $request->menu_permissions);
+
+        // try {
+            if (!empty(array_intersect($data['role'], ["Facilitator", "Grader"]))) {
                 $facilitator = User::create([
                     'name' => $data['name'],
                     'email' => $data['email'],
@@ -150,10 +151,12 @@ class TeacherController extends Controller
                     'profile_picture' => $data['picture'] ?? $imgName,
                     'license' => $data['license'],
                     'password' => bcrypt($password),
-                    'role_id' => $data['role'],
+                    'role_id' => implode(',', $data['role']),
                     'status' => $data['status'],
                     'payment_mode' => $data['payment_mode'],
                     'waacsp_url' => $data['waacsp_url'] ?? null,
+                    'menu_permissions' => $data['menu_permissions'],
+
                 ]);
 
                 if ($request->has('training')) {
@@ -169,12 +172,10 @@ class TeacherController extends Controller
                 return redirect(route('teachers.index'))->with('message', 'Facilitator added succesfully');
             }
 
-            if ($data['role'] == "Admin") {
+            if (!empty(array_intersect($data['role'], ["Admin"]))) {
                 $datax = request()->validate([
                     'menu_permissions' => 'required',
                 ]);
-
-                $data['menu_permissions'] = implode(',', $request->menu_permissions);
 
                 User::create([
                     'name' => $data['name'],
@@ -182,16 +183,16 @@ class TeacherController extends Controller
                     'email' => $data['email'],
                     't_phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
-                    'role_id' => $data['role'],
+                    'role_id' => implode(',', $data['role']),
                     'menu_permissions' => $data['menu_permissions'],
                 ]);
 
                 return redirect(route('teachers.index'))->with('message', 'Admin added succesfully');
             }
-        } catch (\Throwable $th) {
-            dd($th->getMessage());
-            return back()->with('error', $th->getMessage());
-        }
+        // } catch (\Throwable $th) {
+        //     dd($th->getMessage(), $th->getLine());
+        //     return back()->with('error', $th->getMessage());
+        // }
     }
 
     public function show($id)

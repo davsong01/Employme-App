@@ -66,8 +66,8 @@ class UserController extends Controller
     public function index()
     {
         $i = 1;
-        $users = User::withCount('programs')->where('role_id', 'Student')->orderBy('created_at', 'DESC')->get();
-
+        $users = User::withCount('programs')->whereIn('role_id', ['Student'])->orderBy('created_at', 'DESC')->get();
+        
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return view('dashboard.admin.users.index', compact('users', 'i'));
         } elseif (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
