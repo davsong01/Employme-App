@@ -23,7 +23,7 @@ class ProgramController extends Controller
     public function index(Program $program)
     {
         $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || in_array(4, Auth::user()->permissions())) {
             //Get all programs
             $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
 

@@ -1,12 +1,5 @@
 <?php 
-    $menus = Auth::user()->menu_permissions ?? [];
-    
-    if($menus){
-        $menus = explode(',',$menus);
-    }else{
-        $menus = [];
-    }
-
+    $menus = Auth::user()->permissions() ?? [];
 ?>
 
 <?php $__env->startSection('css'); ?>

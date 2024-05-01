@@ -28,7 +28,9 @@
                             <th>Dates</th>
                             <th>Payment Stats</th>
                             <th>Status</th>
+                            @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <th>Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -44,20 +46,24 @@
                                 @endif
                                 <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;font-size: smaller;"><i class="fa fa-download"></i> Export Participant's details</span></a>
                                 @if($program->status == 1) <br><a style="font-size: smaller;" href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> @endif  <br>
+                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
                                     class="btn btn-info btn-xs" href="{{ route('programs.edit', $program->id)}}"><i
                                         class="fa fa-edit"></i> Edit
                                 </a> 
-                                @if($program->hascrm == 0)
-                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
-                                        class="btn btn-primary btn-xs" href="{{ route('crm.show', $program->id)}}" ><i
-                                            class="far fa-comments"></i> Enable CRM
-                                    </a>
-                                    @else
-                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
-                                        class="btn btn-primary btn-xs" href="{{ route('crm.hide', $program->id)}}" ><i class="fa fa-ban"> Disable CRM</i>
-                                    </a>
-                                    
+                                @endif
+                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
+                                    @if($program->hascrm == 0)
+                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
+                                            class="btn btn-primary btn-xs" href="{{ route('crm.show', $program->id)}}" ><i
+                                                class="far fa-comments"></i> Enable CRM
+                                        </a>
+                                        @else
+                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
+                                            class="btn btn-primary btn-xs" href="{{ route('crm.hide', $program->id)}}" ><i class="fa fa-ban"> Disable CRM</i>
+                                        </a>
+                                        
+                                    @endif
                                 @endif
                                 @if($program->hasresult == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
@@ -90,6 +96,7 @@
                                 @endif
                               
                             </td>
+                            @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
                                     
@@ -102,11 +109,10 @@
                                            onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i>
                                     </a>
                                     @endif
-
-                                   
+                                    @endif                                   
                                 </div>
+                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <div class="" style="margin-bottom: 5px;">
-                                    
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Training"
                                         class="btn btn-success btn-xs" style="background:#183153" href="{{ route('training.clone', $program->id)}}" onclick="return confirm('This will clone training materials, modules, questions, settings, etc?');"><i class="fa fa-copy"></i> Clone Training
                                     </a>
@@ -140,6 +146,7 @@
                                 @endif
                             </td>
                         </tr>
+                        @endif
                         @endforeach
                     </tbody>
                     

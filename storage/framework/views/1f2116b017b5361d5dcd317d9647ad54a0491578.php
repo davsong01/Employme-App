@@ -59,17 +59,17 @@
                             
                             <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
-                                <?php
-                                $total = ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->total_cert_score : 0 )
-                                + ((!empty($score_settings->certification) && $score_settings->certification > 0 ) ? $user->final_ct_score : 0)
-                                + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
-                                + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
-                                + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
-                            ?>
-                            
-                                        <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
-                                            <strong class="tit">Class Tests:</strong> <?php echo e($user->final_ct_score); ?>% <br> <?php endif; ?>
-                                        <?php endif; ?>
+                                    <?php
+                                        $total = ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->total_cert_score : 0 )
+                                        + ((!empty($score_settings->certification) && $score_settings->certification > 0 ) ? $user->final_ct_score : 0)
+                                        + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
+                                        + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
+                                        + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
+                                    ?>
+
+                                    <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
+                                        <strong class="tit">Class Tests:</strong> <?php echo e($user->final_ct_score); ?>% <br> <?php endif; ?>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
                                     <?php if(isset($score_settings->certification) && $score_settings->certification > 0): ?>

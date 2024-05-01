@@ -24,7 +24,9 @@
                             <th>Dates</th>
                             <th>Payment Stats</th>
                             <th>Status</th>
+                            <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <th>Actions</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,20 +42,24 @@
                                 <?php endif; ?>
                                 <a href="<?php echo e(route('program.detailsexport', $program->id)); ?>"><span style="color:brown;font-size: smaller;"><i class="fa fa-download"></i> Export Participant's details</span></a>
                                 <?php if($program->status == 1): ?> <br><a style="font-size: smaller;" href="<?php echo e(url('/trainings').'/'.$program->id); ?>" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> <?php endif; ?>  <br>
+                                <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
                                     class="btn btn-info btn-xs" href="<?php echo e(route('programs.edit', $program->id)); ?>"><i
                                         class="fa fa-edit"></i> Edit
                                 </a> 
-                                <?php if($program->hascrm == 0): ?>
-                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
-                                        class="btn btn-primary btn-xs" href="<?php echo e(route('crm.show', $program->id)); ?>" ><i
-                                            class="far fa-comments"></i> Enable CRM
-                                    </a>
-                                    <?php else: ?>
-                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
-                                        class="btn btn-primary btn-xs" href="<?php echo e(route('crm.hide', $program->id)); ?>" ><i class="fa fa-ban"> Disable CRM</i>
-                                    </a>
-                                    
+                                <?php endif; ?>
+                                <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
+                                    <?php if($program->hascrm == 0): ?>
+                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
+                                            class="btn btn-primary btn-xs" href="<?php echo e(route('crm.show', $program->id)); ?>" ><i
+                                                class="far fa-comments"></i> Enable CRM
+                                        </a>
+                                        <?php else: ?>
+                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
+                                            class="btn btn-primary btn-xs" href="<?php echo e(route('crm.hide', $program->id)); ?>" ><i class="fa fa-ban"> Disable CRM</i>
+                                        </a>
+                                        
+                                    <?php endif; ?>
                                 <?php endif; ?>
                                 <?php if($program->hasresult == 0): ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
@@ -89,6 +95,7 @@
                                 <?php endif; ?>
                               
                             </td>
+                            <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
                                     
@@ -101,11 +108,10 @@
                                            onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i>
                                     </a>
                                     <?php endif; ?>
-
-                                   
+                                    <?php endif; ?>                                   
                                 </div>
+                                <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                                 <div class="" style="margin-bottom: 5px;">
-                                    
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Training"
                                         class="btn btn-success btn-xs" style="background:#183153" href="<?php echo e(route('training.clone', $program->id)); ?>" onclick="return confirm('This will clone training materials, modules, questions, settings, etc?');"><i class="fa fa-copy"></i> Clone Training
                                     </a>
@@ -141,6 +147,7 @@
                                 <?php endif; ?>
                             </td>
                         </tr>
+                        <?php endif; ?>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                     

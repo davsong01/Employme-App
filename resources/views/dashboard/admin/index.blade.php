@@ -1,12 +1,5 @@
 <?php 
-    $menus = Auth::user()->menu_permissions ?? [];
-    
-    if($menus){
-        $menus = explode(',',$menus);
-    }else{
-        $menus = [];
-    }
-
+    $menus = Auth::user()->permissions() ?? [];
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
