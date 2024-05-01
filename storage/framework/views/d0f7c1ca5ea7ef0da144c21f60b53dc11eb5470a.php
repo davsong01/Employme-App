@@ -122,7 +122,7 @@
                                     <select name="training" id="training" class="form-control" required>
                                         <option value="">-- Select --</option>
                                         <?php $__currentLoopData = $trainings; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $training): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($training->id); ?>" <?php echo e((isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''); ?>><?php echo e($training->p_name); ?> | (<?php echo e($currency . number_format($training->p_amount)); ?> <?php if(in_array($training->id, [58])): ?>, GHc 60, GMD 75
+                                        <option value="<?php echo e($training->id); ?>" <?php echo e((isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''); ?>><?php echo e($training->p_name); ?> | (<?php echo e($currency . number_format($training->p_amount)); ?> <?php if(in_array($training->id, [68])): ?>, GHc 60, GMD 75
                                     <?php endif; ?>)</option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>

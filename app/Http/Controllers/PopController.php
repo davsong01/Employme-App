@@ -68,7 +68,7 @@ class PopController extends Controller
         //handle file
         $file = $data['name'] . '-' . date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();
-        $filePath = $request->file('file')->storeAs('pop', $file . '.' . $extension, 'uploads');
+        $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
         $date = \Carbon\Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
         // Check if already uploaded same pop
