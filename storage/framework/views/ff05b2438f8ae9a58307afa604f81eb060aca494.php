@@ -76,8 +76,8 @@
                             </label>
                         </div>
                         <?php if(isset($type) && $type == 'full'): ?>
-                         <div class="row">
-                           <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-12">
                                 <h6 style="margin-bottom: 10px !important;"><span class="icon_tag_alt"></span> Have a coupon? <b onclick="showCoupon()" style="text-decoration: underline; cursor: pointer;" >Click here</b> to enter your code
                                 </h6>
                             </div>
@@ -137,21 +137,22 @@
                             <?php if($amount > 0): ?>
                                 <h4 class="">Choose payment method</h4>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                                    <?php if(auth()->check() && auth()->user()): ?>
+                                    <?php if(auth()->user()): ?>
                                     <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
                                     <?php endif; ?>
-                                    <?php if($settings->allow_transfer_button == 'yes'): ?>
+                                    <?php if($settings->allow_transfer_button == 'yes' || in_array($training['id'], [68])): ?>
                                         <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
                                     <?php endif; ?>
-                                    <?php $__currentLoopData = $payment_modes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <?php if($mode->type == 'card'): ?>
-                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                    <?php if(!in_array($training['id'], [68])): ?>
+                                        <?php $__currentLoopData = $payment_modes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mode): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php if($mode->type == 'card'): ?>
+                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <?php endif; ?>
+                                        <?php if($mode->type == 'crypto'): ?>
+                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                        <?php endif; ?>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     <?php endif; ?>
-                                    <?php if($mode->type == 'crypto'): ?>
-                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="<?php echo e($mode->id); ?>"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url(<?php echo e(url('/').'/paymentmodes/'.$mode->image); ?>);background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
-                                    <?php endif; ?>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    
                                 </div>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
                             <?php else: ?>

@@ -79,7 +79,6 @@
                             
                             <td><strong>Normal Fee:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
                                <strong>EarlyBird:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
-                            
                             </td>
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
                                 <strong>End: </strong>{{ $program->p_end }}
@@ -87,14 +86,12 @@
                             <td>Part: {{ $program->part_paid }} <br>
                                 Full: {{ $program->fully_paid }}
                             </td>
-                           
                             <td>
                                 @if( $program->status == 1 )
                                 <button class="btn btn-success btn-xs">Published</button> 
                                 @else
                                 <button class="btn btn-danger btn-xs">Draft</button> 
                                 @endif
-                              
                             </td>
                             @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <td style="vertical-align: unset;">

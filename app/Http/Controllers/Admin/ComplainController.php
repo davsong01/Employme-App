@@ -27,7 +27,7 @@ class ComplainController extends Controller
                 } else {
                     $trainings = [];
                 }
-
+                
                 $complains = Complain::with('user')->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
                 $resolvedComplains =  Complain::where('status', '=', 'Resolved')->whereIn('program_id', $trainings)->count();
                 $pendingComplains =  Complain::where('status', '=', 'Pending')->whereIn('program_id', $trainings)->count();

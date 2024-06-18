@@ -519,13 +519,13 @@ class PaymentController extends Controller
                 // process data
                 // Get training details
                 $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
-               
+            
                 $data['balance'] = $balance;
                 $data['payment_type'] = $payment_type;
                 $data['message'] = $message;
                 $data['paymentStatus'] =  $paymentStatus;
                 $c = $c ?? NULL; // Coupon
-               
+            
                 $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
                 
                 if(isset($c) && !empty($c)){
@@ -535,11 +535,11 @@ class PaymentController extends Controller
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
-
+               
                 PaymentThread::create([
                     'program_id' => $data['program_id'],
                     'user_id' => $data['user_id'],
-                    'payment_id' => $data['payment_id'],
+                    'payment_id' => $temp->id,
                     'transaction_id' => $this->getReference('PYTHRD'),
                     't_type' => $data['t_type'],
                     'parent_transaction_id' => $data['transid'],
