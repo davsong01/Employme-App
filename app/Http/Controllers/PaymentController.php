@@ -853,7 +853,7 @@ class PaymentController extends Controller
             $trans = $this->getInvoiceId();
 
             if (!empty($request->pop)) {
-                $pop = $this->uploadImage($request->pop, 'pop');
+                $pop = $this->uploadImage($request->pop, 'pops');
             }
 
             $data = [
@@ -868,7 +868,7 @@ class PaymentController extends Controller
 
             app('App\Http\Controllers\WalletController')->logWallet($data);
             // send email
-            $data['pop'] = public_path() .  '/pop/' . $pop;
+            $data['pop'] = public_path() .  '/pops/' . $pop;
             $data['type'] = 'manual.wallet.topup';
             $data['email'] = 'davsong16@gmail.com';
             $data['name'] = auth()->user()->name;
