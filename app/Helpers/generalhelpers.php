@@ -43,7 +43,8 @@ if (!function_exists("getAccounts")) {
     function getAccounts($program_id = null)
     {
         // TAKE CARE OF PROGRAMS FROM WAACSP
-        if(in_array($program_id, [68])){
+        $waacsp_program_ids = [68];
+        if(!empty($program_id) && in_array($program_id, $waacsp_program_ids)){
             $accounts = [
                 [
                     'bank' =>  'GTB',
@@ -68,32 +69,32 @@ if (!function_exists("getAccounts")) {
                 ],
             ];
         }else{
-        $accounts = [
-            [
-                'bank' =>  'Access Bank',
-                'number' => '0106070151',
-                'name' => 'Employme E-learning',
-                'status' => 1,
-                'country' => 'Nigeria'
-            ],
-            [
-                'bank' =>  'GTB',
-                'number' => '0434442453',
-                'name' => 'EmployMe E-Learning',
-                'status' => 1,
-                'country' => 'Nigeria'
-            ],
+            $accounts = [
+                [
+                    'bank' =>  'Access Bank',
+                    'number' => '0106070151',
+                    'name' => 'Employme E-learning',
+                    'status' => 1,
+                    'country' => 'Nigeria'
+                ],
+                [
+                    'bank' =>  'GTB',
+                    'number' => '0434442453',
+                    'name' => 'EmployMe E-Learning',
+                    'status' => 1,
+                    'country' => 'Nigeria'
+                ],
 
-            [
-                'bank' =>  'Mobile Money (MoMo)',
-                'number' => '0557963331',
-                'name' => '3y publicity limited (Frank Asiedu)',
-                'status' => 1,
-                'country' => 'Ghana'
-            ],
-        ];
+                [
+                    'bank' =>  'Mobile Money (MoMo)',
+                    'number' => '0557963331',
+                    'name' => '3y publicity limited (Frank Asiedu)',
+                    'status' => 1,
+                    'country' => 'Ghana'
+                ],
+            ];
         }
-
+        
         return $accounts;
     }
 }

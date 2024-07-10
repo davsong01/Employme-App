@@ -1,7 +1,3 @@
-<?php 
-   $accounts = getAccounts(68);
-?>
-
 <?php $__env->startSection('title'); ?>
     <?php echo e(config('app.name')); ?> - Upload POP
 <?php $__env->stopSection(); ?>

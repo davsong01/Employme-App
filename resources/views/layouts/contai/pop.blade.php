@@ -1,6 +1,3 @@
-<?php 
-   $accounts = getAccounts(68);
-?>
 @extends('layouts.contai.app')
 @section('title')
     {{ config('app.name') }} - Upload POP
