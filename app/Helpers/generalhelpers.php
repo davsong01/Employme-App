@@ -77,13 +77,13 @@ if (!function_exists("getAccounts")) {
                     'status' => 1,
                     'country' => 'Nigeria'
                 ],
-                [
-                    'bank' =>  'GTB',
-                    'number' => '0434442453',
-                    'name' => 'EmployMe E-Learning',
-                    'status' => 1,
-                    'country' => 'Nigeria'
-                ],
+                // [
+                //     'bank' =>  'GTB',
+                //     'number' => '0434442453',
+                //     'name' => 'EmployMe E-Learning',
+                //     'status' => 1,
+                //     'country' => 'Nigeria'
+                // ],
 
                 [
                     'bank' =>  'Mobile Money (MoMo)',

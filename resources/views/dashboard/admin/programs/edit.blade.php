@@ -281,7 +281,7 @@
                             @endif
                         </section>
                         
-                         <section>
+                        <section>
                             <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px;">
                                     <label>Show Location</label>
@@ -454,7 +454,7 @@
                 </div>
             </div>`
         $("#course-holder").append(child);      
-        });
+    });
 
     $("#course-holder").on('click','.remove-course', function(e) {
         var removeId = $(e.target).attr('id').split('-');
