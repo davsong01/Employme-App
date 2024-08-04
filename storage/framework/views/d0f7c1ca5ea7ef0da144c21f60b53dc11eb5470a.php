@@ -35,7 +35,6 @@
                                 <strong>Name: </strong><?php echo e($account['name']); ?> <br>
                             </div>
                             <hr>
-
                         <?php endif; ?>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
@@ -131,9 +130,9 @@
                                     <p>Bank paid into<span>*</span></p>
                                     <select name="bank" id="bank" class="form-control" required>
                                         <option value="">-- Select bank --</option>
-                                        <option value="Access">Access</option>
-                                        <option value="GTB">GTB</option>
-                                        <option value="Mobile Money (MoMo)">Mobile Money (MoMo)</option>
+                                        <?php $__currentLoopData = $accounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $account): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($account['bank']); ?>"><?php echo e($account['bank']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                             </div>

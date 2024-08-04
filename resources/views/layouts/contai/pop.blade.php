@@ -36,7 +36,6 @@
                                 <strong>Name: </strong>{{$account['name']}} <br>
                             </div>
                             <hr>
-
                         @endif
                     @endforeach
                 </div>
@@ -132,14 +131,14 @@
                                     <p>Bank paid into<span>*</span></p>
                                     <select name="bank" id="bank" class="form-control" required>
                                         <option value="">-- Select bank --</option>
-                                        <option value="Access">Access</option>
-                                        <option value="GTB">GTB</option>
-                                        <option value="Mobile Money (MoMo)">Mobile Money (MoMo)</option>
+                                        @foreach($accounts as $account)
+                                        <option value="{{$account['bank']}}">{{$account['bank']}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
                         </div>
-                         <div class="row">
+                        <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Amount (Enter integers only)<span>*</span></p>

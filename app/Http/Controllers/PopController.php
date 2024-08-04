@@ -40,9 +40,9 @@ class PopController extends Controller
     {
         $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
         // $locations = Location::select('title')->distinct()->get();
-//         <?php 
-//     if(@if(session()->get('data')))
-//     $accounts = getAccounts($ids);
+        //         <?php 
+        //     if(@if(session()->get('data')))
+        //     $accounts = getAccounts($ids);
         if(isset(session()->get('data')['metadata']['pid'])){
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         }else{
