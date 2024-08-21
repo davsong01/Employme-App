@@ -43,13 +43,17 @@
                                     {{ $training->p_name }}</a>
                                 </h6>
                                 <h5>
-                                    @if($training->is_closed == 'no') 
-                                    @if($training->close_earlybird == 0 || $training->e_amount != 0)
-                                        {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
-                                        <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
-                                    @else
-                                        {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
-                                    @endif
+                                    @if ($training->is_closed == 'no')
+                                        @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                            {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
+                                            <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
+                                        @else
+                                            @if(!empty($training->price_range))
+                                                From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }}
+                                            @else
+                                                {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                            @endif
+                                        @endif
                                     @else
                                     <span style="color:red">Closed Group Training</span>
                                     @endif
