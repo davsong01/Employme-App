@@ -27,7 +27,6 @@
                             </div>
                         </a>
                         <div class="product__discount__item__text">
-                           
                             <a href="<?php echo e(route('trainings', $discount->id )); ?>" target="_blank">
                                 <h5 style="color: #c2c2c2"><?php echo e($discount->p_name); ?></h5>
                             </a>
@@ -91,8 +90,13 @@
 
                                         <span class="discount-color">&nbsp; <?php echo e($currency_symbol); ?><span class="linethrough discount-color"><?php echo e(number_format($exchange_rate * $training->p_amount)); ?></span></span>
                                     <?php else: ?>
-                                        <?php echo e($currency_symbol); ?><?php echo e(number_format($exchange_rate * $training->p_amount)); ?>
+                                        <?php if(!empty($training->price_range)): ?>
+                                            From <?php echo e($currency_symbol.number_format($exchange_rate * $training->price_range['from'])); ?> to <?php echo e($currency_symbol.number_format($exchange_rate * $training->price_range['to'])); ?>
 
+                                        <?php else: ?>
+                                            <?php echo e($currency_symbol); ?><?php echo e(number_format($exchange_rate * $training->p_amount)); ?>
+
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 <?php else: ?>
                                 <span style="color:red">Closed Group Training</span>

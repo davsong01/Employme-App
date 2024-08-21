@@ -804,11 +804,11 @@ class PaymentController extends Controller
         if (isset($source) && $source == 'frontent-wallet') {
             return [
                 'status' => 'success',
-                'message' => 'Transaction Succesful',
+                'message' => 'Transaction successful',
                 'route' => 'home',
             ];
         } else {
-            return redirect(route('home'))->with('message', 'Transaction Succesful');
+            return redirect(route('home'))->with('message', 'Transaction successful');
         }
 
     }

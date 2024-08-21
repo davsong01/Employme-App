@@ -11,14 +11,12 @@ use DatePeriod;
 use App\Location;
 use App\Material;
 use DateInterval;
-use Carbon\Carbon;
 use App\Certificate;
 use App\ScoreSetting;
-use Carbon\CarbonPeriod;
 use App\FacilitatorTraining;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
@@ -78,7 +76,30 @@ class Program extends Model
     }
     
     public function subPrograms(){
+        
         return $this->hasMany(Program::class, 'parent_id');
+    }
+
+    public function getPriceRangeAttribute()
+    {
+        if ($this->subPrograms->isEmpty()) {
+            return [];
+        }
+
+        $amounts = new Collection([$this->p_amount]);
+
+        if ($this->subPrograms->isNotEmpty()) {
+            $amounts = $this->subPrograms->pluck('p_amount');
+            // $amounts = $amounts->merge($this->subPrograms->pluck('p_amount'));
+        }
+
+        $from = $amounts->min();
+        $to = $amounts->max();
+
+        return [
+            'from' => $from,
+            'to' => $to
+        ];
     }
 
     public function parent()

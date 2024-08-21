@@ -25,8 +25,8 @@ class ProgramController extends Controller
         $i = 1;
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || in_array(4, Auth::user()->permissions())) {
             //Get all programs
-            $programs = Program::with('users')->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
-
+            $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+            
             //Get all students
             $users = User::where('role_id', 'Student')->get();
 

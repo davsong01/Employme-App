@@ -28,16 +28,18 @@
                     <div class="product__details__price">
                         @if(isset($modes) && count($modes) > 0)
                             {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
-                            {{-- {{ number_format($modes['Online'] > $modes['Offline'] ? ) }} / {{ $currency_symbol }} {{ number_format($modes['Offline']) }} --}}
                         @else
                             @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
                                 {{ $currency_symbol }}{{ number_format($training->e_amount) }}
                                 <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                             @else
-                                {{ $currency_symbol }}{{ number_format($training->p_amount) }}
+                                @if(!empty($training->price_range))
+                                    From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }}
+                                @else
+                                    {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                @endif
                             @endif
                         @endif
-                        
                     </div>
                     @if(isset($training->description) && !empty($training->description))
                     <p>{{ $training->description }}</p>
@@ -49,10 +51,10 @@
                                     @if(isset($training->subPrograms) && $training->subPrograms->count() > 0)
                                         <div class="checkout__input">
                                             <p>Select Variation<span>*</span></p>
-                                            <select name="training" id="training" required>
+                                            <select name="training" id="training" class="training-select" style="font-size: 12px !important" required>
                                                 <option value="">Select</option>
-                                                @foreach($training->subPrograms as $training)
-                                                <option value="{{ $training->id }}">{{ $training->p_name }} ({{$currency_symbol.number_format($training->p_amount)}})</option>
+                                                @foreach($training->subPrograms->sortBy('p_amount') as $tran)
+                                                <option value="{{ $tran->id }}">{{ $tran->p_name }} ({{$currency_symbol.number_format($exchange_rate * $tran->p_amount)}})</option>
                                                 @endforeach
                                             </select>
                                         </div>

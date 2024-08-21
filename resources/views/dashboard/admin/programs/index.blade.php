@@ -1,5 +1,58 @@
 @extends('dashboard.admin.index')
 @section('title', 'Trainings')
+@section('css')
+    <style>
+        .dropdown {
+            position: relative;
+            display: block;
+        }
+
+        .btn{
+            margin: 5px 0;
+        }
+        .dropdown-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 4px;
+            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-button:hover {
+            background-color: #138496; /* Slightly darker shade for hover */
+        }
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Show the dropdown content when the button is clicked */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+@endsection
 @section('content')
 
 <div class="container-fluid">
@@ -41,11 +94,28 @@
                             <td>{{ $program->p_name }}<br>
                                 <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif <br>
                                 @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif
-                                @if($program->parent)
-                                <strong>Parent:</strong> <span style="color:red"> {{ $program->parent->p_name }}</span><br>
-                                @endif
-                                <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;font-size: smaller;"><i class="fa fa-download"></i> Export Participant's details</span></a>
-                                @if($program->status == 1) <br><a style="font-size: smaller;" href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> @endif  <br>
+                                <span class="child-parent-details" style="font-size:10px">
+                                    @if($program->parent)
+                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->id)}}">{{ $program->parent->p_name }}</span></a><br>
+                                    @endif
+                                    @if($program->subPrograms->count() > 0)
+                                    <div class="dropdown">
+                                        <button class="dropdown-button">View Children</button>
+                                        <div class="dropdown-content">
+                                            @foreach($program->subPrograms as $p)
+                                            <a target="_blank" href="{{ route('programs.edit', $p->id)}}">{{ $p->p_name }}</a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                   
+                                    {{-- {{dd($program->subPrograms)}}
+                                    @foreach
+                                    <span style="color:magenta"><strong>Children:</strong>{{ $program->parent->p_name }}</span><br> --}}
+                                    @endif
+                                </span>
+                                <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
+
+                                @if($program->status == 1) <br><a  href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> @endif  <br>
                                 @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
                                     class="btn btn-info btn-xs" href="{{ route('programs.edit', $program->id)}}"><i
@@ -153,4 +223,12 @@
         </div>
     </div>
 </div>
+@endsection
+@section('extra-scripts')
+    <script>
+        document.querySelector('.dropdown-button').addEventListener('click', function() {
+            const dropdownContent = document.querySelector('.dropdown-content');
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+    </script>
 @endsection

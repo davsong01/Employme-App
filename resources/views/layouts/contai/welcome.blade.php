@@ -27,7 +27,6 @@
                             </div>
                         </a>
                         <div class="product__discount__item__text">
-                           
                             <a href="{{ route('trainings', $discount->id ) }}" target="_blank">
                                 <h5 style="color: #c2c2c2">{{ $discount->p_name }}</h5>
                             </a>
@@ -90,7 +89,11 @@
                                         {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
                                         <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
                                     @else
-                                        {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                        @if(!empty($training->price_range))
+                                            From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }}
+                                        @else
+                                            {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
+                                        @endif
                                     @endif
                                 @else
                                 <span style="color:red">Closed Group Training</span>

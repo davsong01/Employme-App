@@ -42,13 +42,16 @@ class FrontendController extends Controller
 
         if(Session::get('facilitator')){
             $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
-            $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
+            // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
+            $trainings = Program::mainActivePrograms()->whereIn('id', $programs)->paginate(12);
             $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }else{
-            $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
+            // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
+            $trainings = Program::mainActivePrograms()->paginate(12);
+        
             $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }
-      
+        
         return view('welcome', compact('trainings', 'discounts'));
     }
 
@@ -56,7 +59,6 @@ class FrontendController extends Controller
     public function show($id = null)
     {
         $id = \Request::get('training') ?? $id ;
-       
         $training = Program::with('subPrograms')->where('id', $id)->first();
         
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){

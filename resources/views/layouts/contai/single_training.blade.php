@@ -97,7 +97,7 @@
                                                     <option value="">Select...</option>
                                                     @foreach($training->programRange() as $preferred_timing)
                                                         <option value="{{ $preferred_timing }}" {{ old('preferred_timing') == $preferred_timing ? 'selected' : '' }}>
-                                                         {{ $preferred_timing }}
+                                                        {{ $preferred_timing }}
                                                         </option>
                                                     @endforeach
                                                 </select>
