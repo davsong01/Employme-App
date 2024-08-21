@@ -121,6 +121,16 @@ class Program extends Model
             ->orderBy('created_at', 'DESC');
     }
 
+    public function scopeAllMainPrograms($query)
+    {
+        return $query->where('id', '<>', 1)
+        ->whereNULL('parent_id')
+        ->whereStatus(1)
+            // ->where('p_end', '>=', date('Y-m-d'))
+            ->where('close_registration', 0)
+            ->orderBy('created_at', 'DESC');
+    }
+
     public function scopeActivePrograms($query)
     {
         return $query->where('id', '<>', 1)
