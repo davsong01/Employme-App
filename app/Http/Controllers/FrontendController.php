@@ -31,9 +31,9 @@ class FrontendController extends Controller
         if($request->has('search')){
             if (Session::get('facilitator')) {
                 $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
-                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id', $programs)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->paginate(12);
+                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id', $programs)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->simplePaginate(16);
             } else {
-                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->paginate(12);
+                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->simplePaginate(16);
                 // dd($trainings->count());
             }
             $search = $request->search;
@@ -43,11 +43,11 @@ class FrontendController extends Controller
         if(Session::get('facilitator')){
             $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
             // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
-            $trainings = Program::allMainPrograms()->whereIn('id', $programs)->paginate(12);
+            $trainings = Program::allMainPrograms()->whereIn('id', $programs)->simplePaginate(16);
             $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }else{
             // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
-            $trainings = Program::allMainPrograms()->paginate(12);
+            $trainings = Program::allMainPrograms()->simplePaginate(16);
         
             $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }

@@ -66,6 +66,14 @@
             No results found
             @endif
         </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    {!! $trainings->links() !!}
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 <!-- Featured Section End -->
