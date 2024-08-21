@@ -17,12 +17,12 @@ class ProfileController extends Controller
     public function showFacilitator(Request $request)
     {
         $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', auth::user()->id)->first();
-        $facilitator = User::find($instructor->facilitator_id);
-        if (!$facilitator) {
+        $facilitator = !empty($instructor) ? User::find($instructor->facilitator_id) : null;
+
+        if (!$instructor || !$facilitator) {
             return back()->with('error', 'No Instructor found!');
         }
         $program = Program::find($request->p_id);
-
         return view('dashboard.student.profiles.facilitators', compact('facilitator', 'program'));
     }
 

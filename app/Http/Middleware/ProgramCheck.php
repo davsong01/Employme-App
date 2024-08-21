@@ -20,13 +20,24 @@ class ProgramCheck
 
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $programs = DB::table('program_user')->where('user_id', Auth::user()->id)->whereProgram_id($request->p_id)->first();
+            
             if (empty($programs)) {
                 return abort(404);
             }
 
             $program = Program::find($request->p_id);
-            if ($program->off_season && is_null(Auth::user()->facilitator_id)) {
-                return redirect('selectfacilitator/' . $program->id);
+            if ($program->off_season && is_null(Auth::user()->facilitator_id) ) {
+                // Select instructor mode disabled for now
+                // $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', auth::user()->id)->first();
+                // dd($programs);
+                // $facilitator = !empty($instructor) ? User::find($instructor->facilitator_id) : null;
+
+                // if (!$instructor || !$facilitator) {
+                //     return back()->with('error', 'No Instructor found!');
+                // }
+                // $program = Program::find($request->p_id);
+                // return view('dashboard.student.profiles.facilitators', compact('facilitator', 'program'));
+                // return redirect('selectfacilitator/' . $program->id);
             }
 
             return $next($request);
