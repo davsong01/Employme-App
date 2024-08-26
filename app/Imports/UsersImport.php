@@ -49,17 +49,20 @@ class UsersImport implements ToCollection, WithHeadingRow
                 ]
                 )->validate();
                 $row['phone'] = $row['phone'] ?? null;
-                $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
+                $row['email'] = strtolower($row['email']);
 
+                $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
+                    
                 $data['payment_type'] = 'Full';
                 $data['message'] = 'Full payment';
                 $data['paymentStatus'] = 1;
                 $data['currency_symbol'] = '&#x20A6;';
                 $data['balance'] = 0;
-               
-                // $c = $c ?? NULL; // Coupon
-                $data = app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, []);
                 
+                // $c = $c ?? NULL; // Coupon
+                $data['new'] = 'yes';
+                $data = app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null, );
+            
         }
     }
 

@@ -540,22 +540,24 @@ class Controller extends BaseController
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
-        if(Auth::check()){
+       
+        if(Auth::check() && empty($data['new'])){
             $user = auth()->user();
         }else{
             // Check if user exists previously
             $existingUser = User::where(['email' => $data['email']])->first();
-
+            
             if($existingUser){
                 $user = $existingUser;
             }else{
                 $user = User::updateOrCreate(['email' => $data['email']], [
+                    'name' => $data['name'] ?? 'N/A',
                     'password' => $data['password'],
                     'role_id' => $data['role_id'],
                 ]); 
             }
         }
-
+        
         // Update 
         $user->name = $data['name'];
         $user->t_phone = $data['t_phone'];
@@ -579,10 +581,10 @@ class Controller extends BaseController
         $data['other_earning'] = $earnings['other'] ?? NULL;
 
         $data['invoice_id'] = $this->getInvoiceId($user->id);
-     
+        
         //If program id is not in array of user program, attach program
         $userPrograms = Transaction::where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
-       
+        
         if( $userPrograms < 1){
             // Attach program
             $user->programs()->attach( $data['program_id'], [
@@ -612,7 +614,6 @@ class Controller extends BaseController
             ] );
 
             $attach = Transaction::where('user_id', $user->id)->where('program_id', $data['program_id'])->first();
-
         } 
         else{
             $data['user_id'] = $user->id;
