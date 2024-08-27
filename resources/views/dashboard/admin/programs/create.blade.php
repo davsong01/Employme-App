@@ -251,12 +251,10 @@
                                     <div class="form-group">
                                         <label>Certificate Top offset</label>
                                         <input type="number" min="0" class="form-control" required name="auto_certificate_top_offset">
-                                       
                                     </div>
                                     <div class="form-group">
                                         <label>Certificate Left offset</label>
                                         <input type="number" min="0" required class="form-control" name="auto_certificate_left_offset">
-                                       
                                     </div>
                                 </div>
         

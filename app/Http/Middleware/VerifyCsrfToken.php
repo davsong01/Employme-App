@@ -14,6 +14,7 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'validate-coupon',
         'certificates-modify',
-        'get-mode-payment-types'
+        'get-mode-payment-types',
+        'generate-certificate-preview/*'
     ];
 }

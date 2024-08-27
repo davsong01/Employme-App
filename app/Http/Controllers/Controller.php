@@ -17,6 +17,7 @@ use App\Models\PaymentThread;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Intervention\Image\Facades\Image;
@@ -700,6 +701,25 @@ class Controller extends BaseController
 
         return;
     }
+
+    public function deleteAllFilesInAPublicFolder($folderName)
+    {
+        $folderPath = public_path($folderName);
+
+        if (File::exists($folderPath)) {
+            $files = File::files($folderPath);
+
+            // Loop through the files and delete each one
+            foreach ($files as $file) {
+                File::delete($file);
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     public function showCatalogue($program){
         // Check program
