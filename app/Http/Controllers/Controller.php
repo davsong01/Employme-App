@@ -101,7 +101,6 @@ class Controller extends BaseController
             
             $this->sendEmailWithElastic($data);
         }
-        // \Log::info(['email'=> $data]);
 
         return;
     }
@@ -125,7 +124,7 @@ class Controller extends BaseController
            
             $this->sendEmailWithElastic($data);
         }
-        // \Log::info(['email'=> $data]);
+        // info(['email'=> $data]);
 
         return;
     }

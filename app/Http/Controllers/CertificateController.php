@@ -155,14 +155,61 @@ class CertificateController extends Controller
 
     public function modify(Request $request){
         $action = $request->action == 'disable' ? 0 : 1;
+        $transactions = Transaction::with('user')->whereIn('user_id', $request->data)->where('program_id', $request->program_id);
+    
+        if(in_array($request->action, ['enable','disable'])){
+            $transactions->update(['show_certificate' => $action]);
+        }
+        
+        if($request->action == 'regenerate-certificate'){
+            if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+                $program = Program::find($request->program_id);
+                $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
 
-        $transaction = Transaction::whereIn('user_id',$request->data)->where('program_id', $request->program_id)->update(['show_certificate' => $action]);
+                if (!empty($certificate_settings) && $certificate_settings['auto_certificate_status'] == 'yes') {
+                    // $transactions = Transaction::with('user')->where('program_id', $request->program_id)->where('show_certificate', 0)->get();
+                    $transactions = $transactions->get();
+                    
+                    foreach ($transactions as $transaction) {
+                        $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
+
+                        $size = $certificate_settings['auto_certificate_name_font_size'] ?? 150;
+                        $color = $certificate_settings['auto_certificate_color'] ?? "#000000";
+                        $auto_certificate_top_offset = $certificate_settings['auto_certificate_top_offset'] ?? 300;
+                        $auto_certificate_left_offset = $certificate_settings['auto_certificate_left_offset'] ?? 150;
+                        $auto_certificate_font_weight = $certificate_settings['auto_certificate_name_font_weight'] ?? 300;
+
+                        $location = base_path('uploads/certificates');
+                        // $inputImagePath = base_path('uploads/certificates/b.jpg');
+                        $name = generateCertificate($inputImagePath, $transaction->user->name, $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
+
+                        Certificate::create([
+                            'user_id' =>  $transaction->user_id,
+                            'file' => $name,
+                            'program_id' => $request->program_id,
+                        ]);
+
+                        $transaction->update(['show_certificate' => 0]);
+                    }
+                } else {
+                    return back()->with('error', 'Certificate settings not fully configured for this training');
+                }
+
+                return back()->with('Certificate successfully autugenerated');
+            }
+        }
+        
+
+       
 
         return response()->json(['message' => 'success'], 200);
         
     }
 
     public function generateCertificates($program_id){
+
+        set_time_limit(0);
+
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $program = Program::find($program_id);
             $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
@@ -176,23 +223,16 @@ class CertificateController extends Controller
 
                 foreach($transactions as $transaction){
                     $inputImagePath = base_path('uploads/'.$certificate_settings['auto_certificate_template']);
-                    // $inputImagePath = base_path('uploads/certificates/b.jpg');
-                    $image = Image::make($inputImagePath);
+
                     $size = $certificate_settings['auto_certificate_name_font_size'] ?? 150;
                     $color = $certificate_settings['auto_certificate_color'] ?? "#000000";
                     $auto_certificate_top_offset = $certificate_settings['auto_certificate_top_offset'] ?? 300;
                     $auto_certificate_left_offset = $certificate_settings['auto_certificate_left_offset'] ?? 150;
                     $auto_certificate_font_weight = $certificate_settings['auto_certificate_name_font_weight'] ?? 300;
 
-                    $image->text($transaction->user->name,  $auto_certificate_left_offset,$auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight) {
-                        $font->file(public_path('Pesaro-Bold.ttf'));
-                        $font->size($size);
-                        $font->color($color);
-                        // $font->weight($auto_certificate_font_weight);
-                    });
-                    $name = uniqid(9) . '.jpg';
-                    $outputImagePath = base_path('uploads/certificates/'. $name);
-                    $image->save($outputImagePath);
+                    $location = base_path('uploads/certificates');
+                    // $inputImagePath = base_path('uploads/certificates/b.jpg');
+                    $name = generateCertificate($inputImagePath, $transaction->user->name, $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
 
                     Certificate::create([
                         'user_id' =>  $transaction->user_id,
@@ -221,22 +261,15 @@ class CertificateController extends Controller
         $auto_certificate_left_offset = $request->auto_certificate_left_offset ?? $certificate_settings['auto_certificate_left_offset'];
         $auto_certificate_font_weight = $request->auto_certificate_name_font_weight ?? $certificate_settings['auto_certificate_name_font_weight'];
         
-        if(!empty($request->auto_certificate_template)){    
-            $image = Image::make($request->auto_certificate_template);
+        if(!empty($request->auto_certificate_template)){
+            $inputImagePath = $request->auto_certificate_template;
         }else{
             $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
-            
-            $image = Image::make($inputImagePath);
         }
 
-        $image->text('Aboki Ogbeni Chuckwuma',  $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight) {
-            $font->file(public_path('Pesaro-Bold.ttf'));
-            $font->size($size);
-            $font->color($color);
-            // $font->weight($auto_certificate_font_weight);
-        });
-        $name = uniqid(9) . '.jpg';
-        $image->save('certificate_previews/' . $name);
+        $location = 'certificate_previews';
+
+        $name = generateCertificate($inputImagePath, 'Aboki Ogbeni Chuckwuma', $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
 
         return response()->json([
             'preview_image_path' => '/certificate_previews/' . $name,

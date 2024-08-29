@@ -99,7 +99,7 @@
                                     <p>Phone<span>*</span></p>
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         @auth
-                                        value="{{ auth()->user()->phone }}"  
+                                        value="{{ auth()->user()->t_phone }}"  
                                         
                                         @endauth
 

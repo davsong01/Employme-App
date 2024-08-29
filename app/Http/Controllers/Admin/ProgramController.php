@@ -193,10 +193,13 @@ class ProgramController extends Controller
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image
-        if($request->has('auto_certificate_template')){
+
+        if($request->auto_certificate_template){
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
             $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+            
             $path = 'certificate_templates/'.$name;
+            
         }else{
             $path = $certificate_settings['auto_certificate_template'] ?? '';
         }
@@ -250,7 +253,7 @@ class ProgramController extends Controller
             }
             $data['modes'] = json_encode($modes);
         }
-
+        
         $program->update($data);
 
         if ($request->sub_name && $request->show_sub == 'yes') {

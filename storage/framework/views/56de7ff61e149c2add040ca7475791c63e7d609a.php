@@ -82,7 +82,9 @@ a.pre-order-btn:hover {
                     <div class="card-title">
                         <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <h4 class="card-title">Add new Certificate in <?php echo e($p_name); ?></h4>
+                        <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
                         <a href="<?php echo e(route('certificates.generate', $p_id )); ?>" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates</a>
+                        <?php endif; ?>
                     </div>
                     <form action="<?php echo e(route('certificates.save')); ?>" method="POST" enctype="multipart/form-data"
                         class="pb-2">
@@ -129,7 +131,7 @@ a.pre-order-btn:hover {
                         <tr>
                             <th style="text-align:center">
                                 <a class="btn btn-warning btn-sm m-2" id="send-all">
-                                    Enable/Disable
+                                    Actions
                                 </a> <br>
                                 <input type="checkbox" id="all"/>
                             </th>
@@ -233,12 +235,15 @@ a.pre-order-btn:hover {
                         <option value="" selected>Select Option</option>
                         <option value="enable" selected>Enable</option>
                         <option value="disable" selected>Disable</option>
+                        <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
+                        <option value="regenerate-certificate" selected>Regenerate certificate</option>
+                        <?php endif; ?>
                     </select>
                 </div>
                 
                 <input type="hidden" name="program_id" id="program_id" value="<?php echo e($p_id); ?>">
                 <div class="col-md-12" style="padding: 0px;">
-                    <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner" style="display:none"></i></span></button>
+                    <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
                 </div>
             </div>
             
@@ -305,13 +310,12 @@ a.pre-order-btn:hover {
                 $('#promote-phrase').hide();
             },
             success: function(res){
-               
                 $("#myModal").modal('hide');
                 $('.download-check').prop('checked', false);
 
                 location.reload();
 
-                alert('Status updated successfully')
+                alert('Action performed successfully')
             }
         });
 
