@@ -96,7 +96,7 @@
                                 @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
                                     @if($program->parent)
-                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->id)}}">{{ $program->parent->p_name }}</span></a><br>
+                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->parent->id)}}">{{ $program->parent->p_name }}</span></a><br>
                                     @endif
                                     @if($program->subPrograms->count() > 0)
                                     <div class="dropdown">

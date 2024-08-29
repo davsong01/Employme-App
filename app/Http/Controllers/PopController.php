@@ -2,22 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use PDF;
-use Carbon;
 use App\Pop;
 use App\User;
 use App\Coupon;
 use App\Program;
-use App\Location;
 use App\Settings;
-use App\Mail\POPemail;
 use App\TempTransaction;
-use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use Intervention\Image\Facades\Image;
 
 class PopController extends Controller
 {
@@ -29,7 +22,6 @@ class PopController extends Controller
         }
 
         $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
-       
         // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
 
@@ -38,11 +30,14 @@ class PopController extends Controller
 
     public function create()
     {
-        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
-        // $locations = Location::select('title')->distinct()->get();
-        //         <?php 
-        //     if(@if(session()->get('data')))
-        //     $accounts = getAccounts($ids);
+        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
+        ->doesntHave('children')
+        ->where('id', '<>', 1)
+        ->where('close_registration', 0)
+        ->where('p_end', '>', date('Y-m-d'))
+        ->orderBy('created_at', 'DESC')
+        ->get();
+        
         if(isset(session()->get('data')['metadata']['pid'])){
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         }else{

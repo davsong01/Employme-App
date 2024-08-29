@@ -92,7 +92,7 @@
                                 <?php if($program->e_amount > 0): ?>  <button class="btn btn-danger btn-xs">Discounted</button> <?php endif; ?>
                                 <span class="child-parent-details" style="font-size:10px">
                                     <?php if($program->parent): ?>
-                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="<?php echo e(route('programs.edit', $program->id)); ?>"><?php echo e($program->parent->p_name); ?></span></a><br>
+                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="<?php echo e(route('programs.edit', $program->parent->id)); ?>"><?php echo e($program->parent->p_name); ?></span></a><br>
                                     <?php endif; ?>
                                     <?php if($program->subPrograms->count() > 0): ?>
                                     <div class="dropdown">

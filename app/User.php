@@ -111,6 +111,12 @@ class User extends Authenticatable
         return $role_id;
     }
 
+    // protected function scopeRole($query)
+    // {
+    //     $role_ids = explode(',', $this->role_id);
+    //     return $query->whereIn('role_id', $role_ids);
+    // }
+
     public function scopePermissions(){
         $a_menu = $this->menu_permissions ?? '';
         $a_menu = explode(',', $a_menu);

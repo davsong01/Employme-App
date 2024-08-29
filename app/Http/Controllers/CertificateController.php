@@ -59,8 +59,6 @@ class CertificateController extends Controller
     public function create()
     {
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-
-
             $programs = Program::withCount('users')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
 
             return view('dashboard.admin.certificates.create', compact('programs'));
