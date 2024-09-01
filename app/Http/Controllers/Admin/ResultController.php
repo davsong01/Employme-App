@@ -77,7 +77,7 @@ class ResultController extends Controller
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
                 $user->created_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->count();
+                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status',1)->count();
                 $user->marked_by = '';
                 $user->grader = '';
 
@@ -108,7 +108,7 @@ class ResultController extends Controller
 
                     if ($result->module->type == 'Class Test') {
 
-                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->get();
+                        $u =  Module::where('type', 0)->where('status', 1)->where('program_id', $request->pid)->get();
 
                         $obtainable = array();
 
@@ -163,7 +163,7 @@ class ResultController extends Controller
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
                 $user->updated_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->count();
+                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
                 $user->marked_by = '';
                 $user->grader = '';
 
@@ -193,7 +193,7 @@ class ResultController extends Controller
 
                     if ($result->module->type == 'Class Test') {
 
-                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->get();
+                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->where('status', 1)->get();
 
                         $obtainable = array();
 
@@ -420,7 +420,7 @@ class ResultController extends Controller
                 $roleplay = 0;
                 $crm = 0;
                 $certification = 0;
-                $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id', $program->id)->get();
+                $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id', $program->id)->where('status', 1)->get();
 
                 $obtainable = array();
 
