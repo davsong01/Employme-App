@@ -62,7 +62,7 @@ class MockController extends Controller
 
             $i = 1;
 
-            $modules = Module::with('questions')->where('program_id', $request->p_id)->whereType(0)->get();
+            $modules = Module::with('questions')->where('program_id', $request->p_id)->where('status',1)->whereType(0)->get();
 
             foreach ($modules as $module) {
                 $module_check = Mocks::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
@@ -120,7 +120,7 @@ class MockController extends Controller
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
                 $user->created_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->count();
+                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('status', 1)->where('type', 'Class Test')->count();
                 $user->marked_by = '';
                 $user->grader = '';
 
@@ -144,7 +144,7 @@ class MockController extends Controller
 
                     if ($result->module->type == 'Class Test') {
 
-                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->get();
+                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->where('status', 1)->get();
 
                         $obtainable = array();
 
@@ -193,7 +193,7 @@ class MockController extends Controller
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
                 $user->created_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->count();
+                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
                 $user->marked_by = '';
                 $user->grader = '';
 
@@ -217,7 +217,7 @@ class MockController extends Controller
 
                     if ($result->module->type == 'Class Test') {
 
-                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->get();
+                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->where('status', 1)->get();
 
                         $obtainable = array();
 
