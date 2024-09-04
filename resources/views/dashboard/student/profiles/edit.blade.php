@@ -63,12 +63,17 @@
                                 <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email"
-                                        value="{{ old('email') ?? $user->email }}" disabled>
+                                        value="{{ old('email') ?? $user->email }}" {{ !empty($user->email) ? 'disabled' : ''}}>
                                     @if ($errors->has('email'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                                     @endif
+                                </div>
+                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                    <label for="staffID">Staff ID</label>
+                                    <input id="staffID" type="staffID" class="form-control" name="staffID"
+                                        value="{{ old('staffID') ?? $user->staffID }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="class">Gender</label>

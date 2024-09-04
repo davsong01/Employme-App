@@ -157,7 +157,8 @@ a.pre-order-btn:hover {
                             </td>
                             <td>{{ $i++ }}</td>
                             <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
-                                <span style="font-style: italic">{{ $certificate->user->email }}</span>
+                                <span style="font-style: italic">{{ $certificate->user->email }}</span> <br>
+                                <span style="font-style: bold"> <strong>{{ $certificate->user->staffID }}</strong></span> <br>
                             </td>
                             @if(isset($score_settings) && !empty($score_settings))
                             <td style="width: 115px;">
@@ -173,6 +174,7 @@ a.pre-order-btn:hover {
                                 @if(isset($score_settings->email) && $score_settings->email > 0)
                                     <strong>Email: </strong>{{ isset($results['email_test_score'] ) ? $results['email_test_score'] : '' }}%
                                 @endif
+                                
                                
                                 {{-- <strong class="tit" style="color:blue">Passmark</strong>{{ $score_settings->passmark }}% <br> --}}
                                 <br>

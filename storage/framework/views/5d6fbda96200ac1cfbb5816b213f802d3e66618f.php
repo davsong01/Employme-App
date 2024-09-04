@@ -33,6 +33,7 @@
                             <td><?php echo e($i++); ?></td>
                             <td> <strong>Name:</strong> <?php echo e($user->name); ?> <br>
                                 <strong>Email: </strong><?php echo e($user->email); ?> <br>
+                                <strong>Staff ID: </strong><?php echo e($user->staffID); ?> <br>
                                 <strong>Phone: </strong><?php echo e($user->t_phone); ?> <br>
                                 <strong>Account Balance:</strong> <?php echo e(number_format($user->account_balance)); ?> <br>
                                 <strong>Date Added:</strong> <?php echo e($user->created_at->format('d/m/Y')); ?> <br>

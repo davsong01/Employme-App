@@ -34,6 +34,7 @@
                             <td>{{ $i++ }}</td>
                             <td> <strong>Name:</strong> {{ $user->name }} <br>
                                 <strong>Email: </strong>{{$user->email}} <br>
+                                <strong>Staff ID: </strong>{{$user->staffID}} <br>
                                 <strong>Phone: </strong>{{ $user->t_phone}} <br>
                                 <strong>Account Balance:</strong> {{number_format($user->account_balance)}} <br>
                                 <strong>Date Added:</strong> {{ $user->created_at->format('d/m/Y') }} <br>

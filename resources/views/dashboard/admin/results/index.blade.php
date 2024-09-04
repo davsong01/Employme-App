@@ -34,10 +34,11 @@
                         @if($user->passmark)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td><strong class="tit">Name: </strong>{{ $user->name }} </td>
+                            <td><strong class="tit"></strong>{{ $user->name }} </td>
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ) <br>
-                                <strong class="tit">Email: </strong>{{ $user->email }} <br> @endif
+                                <strong class="tit"></strong>{{ $user->staffID ?? $user->email }} <br>
+                                @endif
                             </td>
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<br> <strong class="tit">Marked by: </strong> {{ $user->marked_by }}@endif

@@ -36,7 +36,8 @@
                             <td><strong class="tit">Name: </strong><?php echo e($user->name); ?> </td>
                             <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ): ?> <br>
-                                <strong class="tit">Email: </strong><?php echo e($user->email); ?> <br> <?php endif; ?>
+                                <strong class="tit"></strong><?php echo e($user->staffID ?? $user->email); ?> <br>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))): ?><br> <strong class="tit">Marked by: </strong> <?php echo e($user->marked_by); ?><?php endif; ?>

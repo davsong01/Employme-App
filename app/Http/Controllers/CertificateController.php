@@ -44,7 +44,7 @@ class CertificateController extends Controller
             }
 
             if ($certificate->show_certificate() == 'Disabled') {
-                return back()->with('error', 'Certificated Unavailable at the moment, please check back');
+                return back()->with('error', 'Certificate Unavailable at the moment, please check back');
             }
 
             return view('dashboard.student.certificates.index', compact('certificate', 'program'));

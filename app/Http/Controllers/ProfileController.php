@@ -70,6 +70,11 @@ class ProfileController extends Controller
         $user->t_phone = $request->t_phone;
         $user->gender = $request->gender;
         $user->job_title = $request->job_title;
+        $user->staffID = $request->staffID;
+
+        if(empty($user->email)){
+            $user->email = $request->email;
+        }
 
         if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $user->off_season_availability = $request->off_season;

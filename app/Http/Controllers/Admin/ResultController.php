@@ -89,6 +89,7 @@ class ResultController extends Controller
                 $userdetails = User::find($user->user_id);
                 $user->name = $userdetails->name ?? NULL;
                 $user->email = $userdetails->email ?? NULL;
+                $user->staffID = $userdetails->staffID ?? NULL;
 
                 $user->redotest = $userdetails->redotest;
 
@@ -457,7 +458,8 @@ class ResultController extends Controller
 
                 $details['program'] = $t['program'];
                 $details['name'] = $t['name'];
-
+                $details['staffID'] = $t->user->staffID;
+               
                 if ($details['total_score'] >= $details['passmark']) {
                     $details['status'] = 'CERTIFIED';
                 } else $details['status'] = 'NOT CERTIFIED';

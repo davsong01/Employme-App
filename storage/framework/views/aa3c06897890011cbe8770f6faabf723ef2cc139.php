@@ -13,13 +13,13 @@
 
             <div class="form-row">
                     <div class="form-group col-md-12 mb-4<?php echo e($errors->has('email') ? ' has-error' : ''); ?>">
-                        <label for="email" class="sr-only">Email</label>
-                        <input type="email" name="email" value="<?php echo e(old('email')); ?>"  id="email" class="form-control"
-                            placeholder="Email address">
+                        <label for="login" class="sr-only">Email or Staff ID</label>
+                        <input type="login" name="login" value="<?php echo e(old('login')); ?>"  id="login" class="form-control"
+                            placeholder="Email or Staff ID">
                     </div>
-                    <?php if($errors->has('email')): ?>
+                    <?php if($errors->has('login')): ?>
                         <span class="help-block" style="font-weight: 50 !important;">
-                            <strong><?php echo e($errors->first('email')); ?></strong>
+                            <strong><?php echo e($errors->first('login')); ?></strong>
                         </span>
                     <?php endif; ?>
                     <div class="form-group col-md-12 mb-4<?php echo e($errors->has('password') ? ' has-error' : ''); ?>">
