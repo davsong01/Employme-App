@@ -503,15 +503,16 @@ class Controller extends BaseController
         //Create User details
         $data['name'] = isset($request->name) ? $request->name : $request['name'];
         $data['email'] = isset($request->email) ? $request->email : $request['email'];
+        $data['staffID'] = isset($request->staffID) ? $request->staffID : $request['staffID'];
         $data['phone'] = isset($request->phone) ? $request->phone : $request['phone'];
         $data['t_phone'] = isset($request->phone) ? $request->phone : $request['phone'];
-
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $training->p_amount;
         $data['t_type'] = ($bulk == false) ? 'Free Training' : 'Bulk Import';
         $data['payload'] = '';
-       
+        $data['metadata'] = $request['metadata'] ?? null;
+        
         // Create Facilitator details
         if (!empty(\Session::get('facilitator_id'))) {
             $data['facilitator_id'] = \Session::get('facilitator_id');
@@ -534,13 +535,13 @@ class Controller extends BaseController
         $data['t_location'] = $data['location'] ?? '';
         $data['training_mode'] = isset($request->training_mode) ? $request->training_mode : $request['training_mode'] ?? '';
         $data['preferred_timing'] = isset($request->preferred_timing) ? $request->preferred_timing : $request['preferred_timing'] ?? '';
+        
         return $data;
     }
 
     public function createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $coupon = NULL){
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
-       
         if(Auth::check() && empty($data['new'])){
             $user = auth()->user();
         }else{
@@ -559,14 +560,18 @@ class Controller extends BaseController
         }
         
         // Update 
-        $user->name = $data['name'];
+        $user->name = $data['name'] ?? 'N/A';
+        $user->staffID = $data['staffID'] ?? null;
+        $user->metadata = $data['metadata'] ?? null;
+
+        \Log::info($data['staffID']);
         $user->t_phone = $data['t_phone'];
         $user->save();
-
+        
         $data['coupon_amount'] = NULL;
         $data['coupon_id'] = NULL;
         $data['coupon_code'] = NULL;
-       
+        
         if(!is_null($coupon)){
             $data['coupon_amount'] = $coupon->amount;
             $data['coupon_id'] = $coupon->id;
@@ -628,7 +633,7 @@ class Controller extends BaseController
 
     public function updateCoupon($c, $email, $pid){
         $coupon = CouponUser::where('coupon_id', $c)->where('email', $email)->where('program_id', $pid)->first();
-       
+    
         try {
             $coupon->status = 1;
             $coupon->save();

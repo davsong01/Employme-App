@@ -18,6 +18,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    protected $casts = ['metadata' => 'array'];
     protected $guarded = [];
     protected $append = ['t_phone','account_balance'];
 
@@ -27,7 +28,6 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    
     public function startRedoStatus($pid){
         $this->redotest = $pid;
         return $this->save(); 

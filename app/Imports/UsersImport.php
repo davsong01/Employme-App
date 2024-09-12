@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Program;
 use Faker\Factory as Faker;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -24,9 +25,9 @@ class UsersImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
+        set_time_limit(3600);
         $program = Program::where('id', $this->p_id)->first();
         
-
         foreach ($rows as $row) {
             if(empty($row['email'])){
                 $faker = Faker::create();
@@ -40,7 +41,7 @@ class UsersImport implements ToCollection, WithHeadingRow
             Validator::make($row->toArray(),
                 [
                     'email'=> 'required',
-                    // 'email'=> 'required|unique:users,email',
+                    'email'=> 'required|unique:users,email',
                     'name' => 'required',
                     'phone' => 'nullable',
                     'gender' => 'nullable',
@@ -53,21 +54,24 @@ class UsersImport implements ToCollection, WithHeadingRow
                     // 'phone.required' => 'One or more rows require phone number, Please check and try again',
                     // 'gender.required' => 'One or more rows require gender, Please check and try again',
                 ]
-                )->validate();
-                $row['phone'] = $row['phone'] ?? null;
-
-                $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
-                    
-                $data['payment_type'] = 'Full';
-                $data['message'] = 'Full payment';
-                $data['paymentStatus'] = 1;
-                $data['currency_symbol'] = '&#x20A6;';
-                $data['balance'] = 0;
+            )->validate();
                 
-                // $c = $c ?? NULL; // Coupon
-                $data['new'] = 'yes';
-                $data = app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null, );
+            $row['staffID'] = $row['staffID'] ?? ($row['staffid'] ?? null);
+            $row['phone'] = $row['phone'] ?? null;
+            $row->forget(['staffid']);
             
+            $row['metadata'] = Arr::except($row->toArray(), ['name', 'staffID', 'phone', 'gender', 'location', 'email', 'staffid', 't_phone']);
+            
+            $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
+                
+            $data['payment_type'] = 'Full';
+            $data['message'] = 'Full payment';
+            $data['paymentStatus'] = 1;
+            $data['currency_symbol'] = '&#x20A6;';
+            $data['balance'] = 0;
+            // $c = $c ?? NULL; // Coupon
+            $data['new'] = 'yes';
+            $data = app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null, );
         }
     }
 

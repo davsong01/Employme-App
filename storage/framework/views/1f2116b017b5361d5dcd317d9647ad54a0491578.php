@@ -33,7 +33,7 @@
                         <?php if($user->passmark): ?>
                         <tr>
                             <td><?php echo e($i++); ?></td>
-                            <td><strong class="tit">Name: </strong><?php echo e($user->name); ?> </td>
+                            <td><strong class="tit"></strong><?php echo e($user->name); ?> </td>
                             <td>
                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) ): ?> <br>
                                 <strong class="tit"></strong><?php echo e($user->staffID ?? $user->email); ?> <br>
