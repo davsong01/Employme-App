@@ -77,7 +77,7 @@
                     <script type="text/javascript" src="{{ asset('src/tableHTMLExport.js')}}"></script>
                     
                     <script type="text/javascript">
-                                           
+                  
                       $("#csv").on("click",function(){
                         $("#zero_config").tableHTMLExport({
                           type:'csv',
