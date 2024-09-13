@@ -24,7 +24,8 @@ class Program extends Model
     use SoftDeletes;
     
     protected $guarded = [];
-  
+    protected $casts = ['auto_certificate_settings' => 'array'];
+    
     public function scoresettings(){
         return $this->hasOne(ScoreSetting::class, 'program_id');
     }

@@ -252,41 +252,7 @@ class CertificateController extends Controller
 
     public function generateCertificatePreview(Request $request, $program_id)
     {
-        // $validator = $this->validate($request, [
-        //     'auto_certificate_template' => 'required',
-        // ]);
-
-        
-
-        // $size = $request->auto_certificate_name_font_size ?? $certificate_settings['auto_certificate_name_font_size'];
-        // $color = $request->auto_certificate_color ?? $certificate_settings['auto_certificate_color'];
-        // $auto_certificate_top_offset = $request->auto_certificate_top_offset ?? $certificate_settings['auto_certificate_top_offset'];
-        // $auto_certificate_left_offset = $request->auto_certificate_left_offset ?? $certificate_settings['auto_certificate_left_offset'];
-        // $auto_certificate_font_weight = $request->auto_certificate_name_font_weight ?? $certificate_settings['auto_certificate_name_font_weight'];
-    
-        if(!empty($request->auto_certificate_template)){
-            $inputImagePath = $request->auto_certificate_template;
-        }else{
-            $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
-        }
-
-        $location = 'certificate_previews';
-        
-        // $counter = count($request->auto_certificate_name_font_weight);
-
-        // for ($i = 0; $i < $counter; $i++) {
-        //     $size = $request->auto_certificate_name_font_size[$i] ?? $certificate_settings['auto_certificate_name_font_size'];
-        //     $color = $request->auto_certificate_color[$i] ?? $certificate_settings['auto_certificate_color'];
-        //     $auto_certificate_top_offset = $request->$request->auto_certificate_top_offset[$i] ?? $certificate_settings['auto_certificate_top_offset'];
-        //     $auto_certificate_left_offset = $request->auto_certificate_left_offset[$i] ?? $certificate_settings['auto_certificate_left_offset'];
-        //     $auto_certificate_font_weight = $request->auto_certificate_name_font_weight[$i] ?? $certificate_settings['auto_certificate_name_font_weight'];
-
-        //     $name = generateCertificate($inputImagePath, 'Aboki Ogbeni Chuckwuma', $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
-        // }
-
-
-        $name = generateCertificate($inputImagePath, $request->all(), $location, $program_id);
-        // $name = generateCertificate($inputImagePath, 'Aboki Ogbeni Chuckwuma', $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
+        $name = generateCertificate($request->all(), $program_id);
 
         return response()->json([
             'preview_image_path' => '/certificate_previews/' . $name,

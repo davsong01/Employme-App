@@ -1,13 +1,28 @@
 <?php
 
 use App\Program;
+use App\Transaction;
 
     if (!function_exists("generateCertificate")) {
-        function generateCertificate($inputImagePath, $request, $location, $program_id)
+        function generateCertificate($request, $program_id, $user=null)
         {
             $program = Program::find($program_id);
-            $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
+
+            if(empty($user)){
+                $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
+                $user = $user->user;
+            }
             
+            $certificate_settings = $program->auto_certificate_settings;
+        
+            if (!empty($request['auto_certificate_template'])) {
+                $inputImagePath = $request['auto_certificate_template'];
+            } else {
+                $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
+            }
+            
+            $location = 'certificate_previews';
+    
             $image = Image::make($inputImagePath);
         
             $counter = count($request['auto_certificate_name_font_weight']);
@@ -25,8 +40,23 @@ use App\Program;
                 $auto_certificate_top_offset = $request['auto_certificate_top_offset'][$i] ?? $certificate_settings['auto_certificate_top_offset'];
                 $auto_certificate_left_offset = $request['auto_certificate_left_offset'][$i] ?? $certificate_settings['auto_certificate_left_offset'];
                 $auto_certificate_font_weight = $request['auto_certificate_name_font_weight'][$i] ?? ($certificate_settings['auto_certificate_name_font_weight'] ?? 10);
-                $text = $request['auto_certificate_text'][$i] ?? 'Aboki Ogbeni Chuckwuma';
+                $text = 'Aboki Ogbeni Chuckwuma';
+                
+                // Get text
+                if($request['text_type'][$i] == 'name') $text = $user->name ?? $text;
+                if($request['text_type'][$i] == 'email') $text = $user->email;
+                if($request['text_type'][$i] == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
+                
+                if($request['text_type'][$i] == 'certificate_number'){
+                    $programId = $program->id;
+                    $programAbbr = $program->p_abbr ?? '#';
 
+                    $randomNumber = rand(100, 999);
+
+                    $text = strtoupper($programAbbr) . '-' . $programId . '-' . $randomNumber. '-'.$user->id;
+                }
+                
+                // End text
                 $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight) {
                     $font->file(public_path('Pesaro-Bold.ttf'));
                     $font->size($size);
@@ -43,6 +73,7 @@ use App\Program;
             return $name;
         }
     }
+
 
     // if (!function_exists("generateCertificate")) {
     //     function generateCertificate($inputImagePath, $text, $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location)

@@ -1,5 +1,5 @@
 <?php 
-    $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
+    $c_settings = $program->auto_certificate_settings;
 ?>
 <?php $__env->startSection('css'); ?>
     <style>
@@ -355,18 +355,15 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <?php endif; ?>
                         </section>
-
-                        
-                        
                         <section style="padding: 0px 10px;border: solid 1px blue;margin: 20px 0;">
-                            <div class="row" style="background:#6eeeee;padding:20px 0px;margin-bottom:10px;">  
+                            <div class="row" style="background:#6eeeee;padding:20px 0px;">  
                                 <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
                                         <label>Enable Auto generate certificate</label>
                                         <select name="auto_certificate_status" class="form-control" id="auto_certificate_status" required>
                                             <option value="">Select...</option>
-                                            <option value="yes" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes' ? 'selected' : ''); ?>>Yes</option>
-                                            <option value="no" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : ''); ?>>No</option>
+                                            <option value="yes" <?php echo e(isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                            <option value="no" <?php echo e(isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'no' ? 'selected' : ''); ?>>No</option>
                                         </select>
                                     </div>
                                 </div>
@@ -385,52 +382,56 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="row">  
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Text Type</label>
-                                        <select name="text_type" class="form-control" id="text_type" required>
-                                            <option value="">Select...</option>
-                                            <option value="certificate_number" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes' ? 'selected' : ''); ?>>Certificate Number</option>
-                                            <option value="name" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : ''); ?>>Name</option>
-                                            <option value="email" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : ''); ?>>Email</option>
-                                            <option value="staffID" <?php echo e(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : ''); ?>>Staff ID</option>
-                                        </select>
+                            <?php if(!empty($c_settings['settings'])): ?>
+                                <?php $__currentLoopData = $c_settings['settings']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $setting): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <div class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Text Type</label>
+                                            <select name="text_type[]" class="form-control" id="text_type" required>
+                                                <option value="">Select...</option>
+                                                <option value="certificate_number">Certificate Number</option>
+                                                <option value="name" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''); ?>>Name</option>
+                                                <option value="email" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''); ?>>Email</option>
+                                                <option value="staffID" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''); ?>>Staff ID</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Text font size, e.g 150</label>
-                                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="<?php echo e($certificate_settings['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')); ?>" id="auto_certificate_name_font_size">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Text font size, e.g 150</label>
+                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="<?php echo e($setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')); ?>" id="auto_certificate_name_font_size">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Text font weight e.g 300</label>
-                                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="<?php echo e($certificate_settings['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')); ?>" id="auto_certificate_name_font_weight">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Text font weight e.g 300</label>
+                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="<?php echo e($setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')); ?>" id="auto_certificate_name_font_weight">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Text Top offset. e.g 300</label>
-                                        <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="<?php echo e($certificate_settings['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset')); ?>" id="auto_certificate_top_offset">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Text Top offset. e.g 300</label>
+                                            <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="<?php echo e($setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset')); ?>" id="auto_certificate_top_offset">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Certificate Left offset. e.g 100</label>
-                                        <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="<?php echo e($certificate_settings['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset')); ?>" id="auto_certificate_left_offset">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Certificate Left offset. e.g 100</label>
+                                            <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="<?php echo e($setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset')); ?>" id="auto_certificate_left_offset">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Text color</label>
-                                        <input type="color" class="form-control" name="auto_certificate_color[]" value="#000000">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Text color</label>
+                                            <input type="color" class="form-control" name="auto_certificate_color[]" value="<?php echo e($setting['auto_certificate_color'] ?? '#000000'); ?>">
+                                        </div>
                                     </div>
+                                    
                                 </div>
-                                
-                            </div>
 
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                             <!-- Container for dynamically added rows -->
                             <div id="certificateRows"></div>
                             <div class="row mt-5">
@@ -465,7 +466,7 @@
                     <div class="col-md-4" style="margin-bottom:5px">
                         <div class="form-group">
                             <label>Text Type</label>
-                            <select name="text_type" class="form-control" id="text_type" required>
+                            <select name="text_type[]" class="form-control" id="text_type" required>
                                 <option value="">Select...</option>
                                 <option value="certificate_number">Certificate Number</option>
                                 <option value="name">Name</option>
@@ -523,7 +524,11 @@
             e.preventDefault();
 
             var formData = new FormData();
-            
+
+            $('select[name="text_type[]"]').each(function() {
+                formData.append('text_type[]', $(this).val());
+            });
+
             $('input[name="auto_certificate_name_font_size[]"]').each(function() {
                 formData.append('auto_certificate_name_font_size[]', $(this).val());
             });
@@ -562,46 +567,11 @@
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
-                    alert('An error occurred. Please try again.');
+                    alert('An error occurred. '+ error);
                 }
             });
         });
     });
-
-    // $('#previewButton').on('click', function(e) {
-    //     e.preventDefault();
-
-    //     var formData = new FormData();
-    //     formData.append('auto_certificate_name_font_weight', $('#auto_certificate_name_font_weight').val());
-    //     formData.append('auto_certificate_top_offset', $('#auto_certificate_top_offset').val());
-    //     formData.append('auto_certificate_left_offset', $('#auto_certificate_left_offset').val());
-    //     formData.append('auto_certificate_color', $('#auto_certificate_color').val());
-
-    //     var fileInput = $('#auto_certificate_template')[0].files[0];
-    //     if (fileInput) {
-    //         formData.append('auto_certificate_template', fileInput);
-    //     }
-
-    //     $.ajax({
-    //         url: '/generate-certificate-preview/'+'<?php echo e($program->id); ?>',  // Laravel route for generating the certificate preview
-    //         type: 'POST',
-    //         data: formData,
-    //         contentType: false,
-    //         processData: false,
-    //         success: function(response) {
-    //             if(response.preview_image_path) {
-    //                 $('#certificatePreviewImage').attr('src', response.preview_image_path);
-    //                 $('#previewModal').show(); // Display the modal
-    //             } else {
-    //                 alert('Failed to generate preview. Please try again.');
-    //             }
-    //         },
-    //         error: function(xhr, status, error) {
-    //             console.error(error);
-    //             alert('An error occurred. Please try again.');
-    //         }
-    //     });
-    // });
 
     $(document).on('click', function(event) {
         if ($(event.target).closest('#previewModal').length === 0 && $('#previewModal').is(':visible')) {
