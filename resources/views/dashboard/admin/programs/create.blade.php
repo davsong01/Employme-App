@@ -249,11 +249,11 @@
                                 </div>
                                 <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
-                                        <label>Certificate Top offset</label>
+                                        <label>Text Top offset</label>
                                         <input type="number" min="0" class="form-control" required name="auto_certificate_top_offset">
                                     </div>
                                     <div class="form-group">
-                                        <label>Certificate Left offset</label>
+                                        <label>Text Left offset</label>
                                         <input type="number" min="0" required class="form-control" name="auto_certificate_left_offset">
                                     </div>
                                 </div>

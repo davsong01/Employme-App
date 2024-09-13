@@ -40,7 +40,7 @@ use App\Transaction;
                 $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
                 $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
                 $auto_certificate_top_offset = !empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset'];
-                $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
+                $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
                 $auto_certificate_font_weight = !empty($request['auto_certificate_name_font_weight'][$i]) ? $request['auto_certificate_name_font_weight'][$i] : ($certificate_settings['settings'][$i]['auto_certificate_name_font_weight'] ?? 10);
                 $text = 'Aboki Ogbeni Chuckwuma';
                 
