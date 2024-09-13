@@ -161,67 +161,53 @@ class CertificateController extends Controller
 
         if($request->action == 'regenerate-certificate'){
             if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-                // $program = Program::find($request->program_id);
-                // $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
                 foreach ($transactions->get() as $transaction) {
-                    $name = generateCertificate($request, $request->program_id, $transaction->user);
-                    dd($name);
-                    Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
-                        'user_id' =>  $transaction->user_id,
+                    $location = base_path('uploads/certificates');
+
+                    $name = generateCertificate($request, $request->program_id, $location, $transaction->user);
+                    ;
+
+                    $certificate = Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
+                        'user_id' => $transaction->user_id,
                         'file' => $name,
                         'program_id' => $request->program_id,
                     ]);
-
-                    $transaction->update(['show_certificate' => 0]);
+                    
+                    $transaction->show_certificate = 0;
+                    $transaction->save();
                 }
 
                 return back()->with('Certificate successfully autugenerated');
             }
         }
         
-        dd('sdd');
         return response()->json(['message' => 'success'], 200);
         
     }
 
-    public function generateCertificates($program_id){
+    public function generateCertificates(Request $request, $program_id){
 
         set_time_limit(0);
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-            $program = Program::find($program_id);
-            $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
+            $transactions = Transaction::with('user')->where('program_id', $program_id)->where('show_certificate', 0)->get();
 
-            if(!empty($certificate_settings) && $certificate_settings['auto_certificate_status'] == 'yes'){
-                $transactions = Transaction::with('user')->where('program_id', $program_id)->where('show_certificate',0)->get();
+            if ($transactions->isEmpty()) {
+                return back()->with('error', 'No Participant found for selected progtam!');
+            }
 
-                if($transactions->isEmpty()){
-                    return back()->with('error', 'No Participant found for selected progtam!');
-                }
+            foreach ($transactions as $transaction) {
+                $location = base_path('uploads/certificates');
+                $name = generateCertificate($request, $program_id, $location, $transaction->user);
+                
+                Certificate::create([
+                    'user_id' =>  $transaction->user_id,
+                    'file' => $name,
+                    'program_id' => $program_id,
+                ]);
 
-                foreach($transactions as $transaction){
-                    $inputImagePath = base_path('uploads/'.$certificate_settings['auto_certificate_template']);
-
-                    $size = $certificate_settings['auto_certificate_name_font_size'] ?? 150;
-                    $color = $certificate_settings['auto_certificate_color'] ?? "#000000";
-                    $auto_certificate_top_offset = $certificate_settings['auto_certificate_top_offset'] ?? 300;
-                    $auto_certificate_left_offset = $certificate_settings['auto_certificate_left_offset'] ?? 150;
-                    $auto_certificate_font_weight = $certificate_settings['auto_certificate_name_font_weight'] ?? 300;
-
-                    $location = base_path('uploads/certificates');
-                    // $inputImagePath = base_path('uploads/certificates/b.jpg');
-                    $name = generateCertificate($inputImagePath, $transaction->user->name, $auto_certificate_left_offset, $auto_certificate_top_offset, $auto_certificate_font_weight, $size, $color, $location);
-
-                    Certificate::create([
-                        'user_id' =>  $transaction->user_id,
-                        'file' => $name,
-                        'program_id' => $program_id,
-                    ]);
-                    
-                    $transaction->update(['show_certificate' => 0]);
-                }
-            }else{
-                return back()->with('error', 'Certificate settings not fully configured for this training');
+                $transaction->show_certificate = 0;
+                $transaction->save();
             }
 
             return back()->with('Certificate successfully autugenerated');
@@ -230,7 +216,8 @@ class CertificateController extends Controller
 
     public function generateCertificatePreview(Request $request, $program_id)
     {
-        $name = generateCertificate($request->all(), $program_id);
+        $location = 'certificate_previews';
+        $name = generateCertificate($request->all(), $program_id, $location);
 
         return response()->json([
             'preview_image_path' => '/certificate_previews/' . $name,

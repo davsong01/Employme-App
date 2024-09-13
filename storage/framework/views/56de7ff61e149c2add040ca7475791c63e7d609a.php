@@ -315,7 +315,7 @@ a.pre-order-btn:hover {
                 $("#myModal").modal('hide');
                 $('.download-check').prop('checked', false);
 
-                // location.reload();
+                location.reload();
 
                 alert('Action performed successfully')
             }
