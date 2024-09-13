@@ -409,9 +409,8 @@
                         {{-- <div class="col-12">
                             <input type="submit" name="submit" value="Update" class="btn btn-primary" style="width:100%">
                         </div> --}}
-                        <section style="padding: 20px 20px;border: solid 1px blue;margin: 20px 0;">
-                            <div class="row">  
-                                <!-- These fields will only appear in the original row -->
+                        <section style="padding: 0px 10px;border: solid 1px blue;margin: 20px 0;">
+                            <div class="row" style="background:#6eeeee;padding:20px 0px;margin-bottom:10px;">  
                                 <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
                                         <label>Enable Auto generate certificate</label>
@@ -421,6 +420,9 @@
                                             <option value="no" {{ isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>No</option>
                                         </select>
                                     </div>
+                                </div>
+
+                                <div class="col-md-4" style="margin-bottom:5px">
                                     @if(isset($certificate_settings['auto_certificate_template']))
                                     <div class="form-group">
                                         <label>Replace Certificate Template</label> <br> 
@@ -433,12 +435,27 @@
                                     </div>
                                     @endif
                                 </div>
-                                <!-- Original row fields -->
+                            </div>
+                            <div class="row">  
+                                <div class="col-md-4" style="margin-bottom:5px">
+                                    <div class="form-group">
+                                        <label>Text Type</label>
+                                        <select name="text_type" class="form-control" id="text_type" required>
+                                            <option value="">Select...</option>
+                                            <option value="certificate_number" {{ isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes' ? 'selected' : '' }}>Certificate Number</option>
+                                            <option value="name" {{ isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>Name</option>
+                                            <option value="email" {{ isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>Email</option>
+                                            <option value="staffID" {{ isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>Staff ID</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
                                         <label>Text font size, e.g 150</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $certificate_settings['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
                                     </div>
+                                </div>
+                                <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
                                         <label>Text font weight e.g 300</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="{{ $certificate_settings['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')}}" id="auto_certificate_name_font_weight">
@@ -449,6 +466,8 @@
                                         <label>Text Top offset. e.g 300</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="{{ $certificate_settings['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" id="auto_certificate_top_offset">
                                     </div>
+                                </div>
+                                <div class="col-md-4" style="margin-bottom:5px">
                                     <div class="form-group">
                                         <label>Certificate Left offset. e.g 100</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="{{ $certificate_settings['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" id="auto_certificate_left_offset">
@@ -489,99 +508,116 @@
 </div>
 <script>
     $(document).ready(function() {
-    // Add new row
-    $('#addRowButton').on('click', function(e) {
-        e.preventDefault();
-        var newRow = `
-            <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">
-                <div class="col-md-4" style="margin-bottom:5px">
-                    <div class="form-group">
-                        <label>Text font size, e.g 150</label>
-                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]">
+        // Add new row
+        $('#addRowButton').on('click', function(e) {
+            e.preventDefault();
+            var newRow = `
+                <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Text Type</label>
+                            <select name="text_type" class="form-control" id="text_type" required>
+                                <option value="">Select...</option>
+                                <option value="certificate_number">Certificate Number</option>
+                                <option value="name">Name</option>
+                                <option value="email">Email</option>
+                                <option value="staffID">Staff ID</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Text font size, e.g 150</label>
+                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]">
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Text font weight e.g 300</label>
+                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]">
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Text Top offset. e.g 300</label>
+                            <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]">
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Certificate Left offset. e.g 100</label>
+                            <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]">
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Text color</label>
+                            <input type="color" class="form-control" name="auto_certificate_color[]">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-danger btn-sm removeRowButton"><i class="fa fa-minus"></i> Remove Row</button>
                     </div>
                 </div>
-                <div class="col-md-4" style="margin-bottom:5px">
-                    <div class="form-group">
-                        <label>Text font weight e.g 300</label>
-                        <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]">
-                    </div>
-                </div>
-                <div class="col-md-4" style="margin-bottom:5px">
-                    <div class="form-group">
-                        <label>Text Top offset. e.g 300</label>
-                        <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]">
-                    </div>
-                </div>
-                <div class="col-md-4" style="margin-bottom:5px">
-                    <div class="form-group">
-                        <label>Certificate Left offset. e.g 100</label>
-                        <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]">
-                    </div>
-                </div>
-                <div class="col-md-4" style="margin-bottom:5px">
-                    <div class="form-group">
-                        <label>Text color</label>
-                        <input type="color" class="form-control" name="auto_certificate_color[]">
-                    </div>
-                </div>
-                <div class="col-md-12">
-                    <button type="button" class="btn btn-danger btn-sm removeRowButton"><i class="fa fa-minus"></i> Remove Row</button>
-                </div>
-            </div>
-        `;
-        $('#certificateRows').append(newRow);
-    });
-
-    // Remove row
-    $(document).on('click', '.removeRowButton', function(e) {
-        e.preventDefault();
-        $(this).closest('.added-row').remove();
-    });
-
-    // Preview button handling
-    $('#previewButton').on('click', function(e) {
-        e.preventDefault();
-
-        var formData = new FormData();
-        $('input[name="auto_certificate_name_font_weight[]"]').each(function() {
-            formData.append('auto_certificate_name_font_weight[]', $(this).val());
-        });
-        $('input[name="auto_certificate_top_offset[]"]').each(function() {
-            formData.append('auto_certificate_top_offset[]', $(this).val());
-        });
-        $('input[name="auto_certificate_left_offset[]"]').each(function() {
-            formData.append('auto_certificate_left_offset[]', $(this).val());
-        });
-        $('input[name="auto_certificate_color[]"]').each(function() {
-            formData.append('auto_certificate_color[]', $(this).val());
+            `;
+            $('#certificateRows').append(newRow);
         });
 
-        var fileInput = $('#auto_certificate_template')[0].files[0];
-        if (fileInput) {
-            formData.append('auto_certificate_template', fileInput);
-        }
+        // Remove row
+        $(document).on('click', '.removeRowButton', function(e) {
+            e.preventDefault();
+            $(this).closest('.added-row').remove();
+        });
 
-        $.ajax({
-            url: '/generate-certificate-preview/' + '{{$program->id}}',  // Laravel route for generating the certificate preview
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                if (response.preview_image_path) {
-                    $('#certificatePreviewImage').attr('src', response.preview_image_path);
-                    $('#previewModal').show(); // Display the modal
-                } else {
-                    alert('Failed to generate preview. Please try again.');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error(error);
-                alert('An error occurred. Please try again.');
+        // Preview button handling
+        $('#previewButton').on('click', function(e) {
+            e.preventDefault();
+
+            var formData = new FormData();
+            
+            $('input[name="auto_certificate_name_font_size[]"]').each(function() {
+                formData.append('auto_certificate_name_font_size[]', $(this).val());
+            });
+
+            $('input[name="auto_certificate_name_font_weight[]"]').each(function() {
+                formData.append('auto_certificate_name_font_weight[]', $(this).val());
+            });
+            $('input[name="auto_certificate_top_offset[]"]').each(function() {
+                formData.append('auto_certificate_top_offset[]', $(this).val());
+            });
+            $('input[name="auto_certificate_left_offset[]"]').each(function() {
+                formData.append('auto_certificate_left_offset[]', $(this).val());
+            });
+            $('input[name="auto_certificate_color[]"]').each(function() {
+                formData.append('auto_certificate_color[]', $(this).val());
+            });
+
+            var fileInput = $('#auto_certificate_template')[0].files[0];
+            if (fileInput) {
+                formData.append('auto_certificate_template', fileInput);
             }
+
+            $.ajax({
+                url: '/generate-certificate-preview/' + '{{$program->id}}',  // Laravel route for generating the certificate preview
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.preview_image_path) {
+                        $('#certificatePreviewImage').attr('src', response.preview_image_path);
+                        $('#previewModal').show(); // Display the modal
+                    } else {
+                        alert('Failed to generate preview. Please try again.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
         });
     });
-});
 
     // $('#previewButton').on('click', function(e) {
     //     e.preventDefault();
@@ -618,11 +654,11 @@
     //     });
     // });
 
-    // $(document).on('click', function(event) {
-    //     if ($(event.target).closest('#previewModal').length === 0 && $('#previewModal').is(':visible')) {
-    //         $('#previewModal').fadeOut();
-    //     }
-    // });
+    $(document).on('click', function(event) {
+        if ($(event.target).closest('#previewModal').length === 0 && $('#previewModal').is(':visible')) {
+            $('#previewModal').fadeOut();
+        }
+    });
 
     $("#show_locations").on('change', function () {
         if($("#show_locations").val() == 'yes'){

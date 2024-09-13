@@ -98,35 +98,33 @@
 
                                     @if($module->status == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Enable Module Questions"
-                                        class="btn btn-primary" href="{{ route('modules.enable', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
+                                        class="btn btn-secondary" href="{{ route('modules.enable', $module->id)}}" onclick="return confirm('Are you really sure?');"><i
                                             class="fa fa-check"></i>
                                     </a>
                                     @else
                                     <a data-toggle="tooltip" data-placement="top" title="Disable Module Questions"
                                         class="btn btn-info" href="{{ route('modules.disable', $module->id)}}" ><i
-                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
+                                        onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     @endif
                                     @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                    @if($module->questions->count() > 0)
-                                    <a data-toggle="tooltip" data-placement="top" title="Clone Module"
-                                        class="btn btn-primary" href="{{ route('modules.show', $module->id) }}"><i
-                                            class="fa fa-clone"></i>
-                                    </a>
+                                        @if($module->questions->count() > 0)
+                                        <a data-toggle="tooltip" data-placement="top" title="Clone Module"
+                                            class="btn btn-info" href="{{ route('modules.show', $module->id) }}"><i
+                                                class="fa fa-clone"></i>
+                                        </a>
+                                        @endif
                                     @endif
-                                    @endif
+                                    @if($module->status == 0)
                                     <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete?');">
-                                        
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
-
-                                        {{-- <button type="submit" class="btn btn-warning" data-toggle="tooltip"
-                                            data-placement="top" title="Trash Training"> <i class="fa fa-trash"></i>
-                                        </button> --}}
+                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip" data-placement="top" title="Delete module"> <i class="fa fa-trash"></i>
+                                        </button>
                                     </form>
+                                    @endif
                                 </div>
-
                             </td>
                         </tr> 
                         @endforeach
