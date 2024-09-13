@@ -196,37 +196,14 @@ class ProgramController extends Controller
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
             $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
             
-            $path = 'certificate_templates/'.$name;
+            $request['path'] = 'certificate_templates/'.$name;
             
         }else{
-            $path = $program->auto_certificate_settings['auto_certificate_template'];
+            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'];
         }
 
+        $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);
         
-        $auto_certificate_settings = [
-            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
-            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
-            "auto_certificate_color" => $request->auto_certificate_color,
-            "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
-            "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
-            "text_type" => $request->text_type,
-        ];
-
-        $final_array = [];
-
-        // Loop over the settings array to correctly map the values
-        foreach ($auto_certificate_settings as $key => $req) {
-            foreach ($req as $index => $value) {
-                $final_array[$index][$key] = $value;
-            }
-        }
-
-        $data['auto_certificate_settings'] = [
-            "auto_certificate_status" => $request->auto_certificate_status,
-            "auto_certificate_template" => $path,
-            "settings" => $final_array
-        ];
-
         if ($request->hasFile('image')) {
 
             // Dont delete old files, another progeam may be using it
@@ -304,6 +281,33 @@ class ProgramController extends Controller
         }
 
         return redirect()->back()->with('message', 'Training updated successfully');
+    }
+
+    public function buildCertificateSettings($request){
+        $auto_certificate_settings = [
+            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
+            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
+            "auto_certificate_color" => $request->auto_certificate_color,
+            "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
+            "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
+            "text_type" => $request->text_type,
+        ];
+
+        $final_array = [];
+
+        foreach ($auto_certificate_settings as $key => $req) {
+            foreach ($req as $index => $value) {
+                $final_array[$index][$key] = $value;
+            }
+        }
+
+        $data['auto_certificate_settings'] = [
+            "auto_certificate_status" => $request->auto_certificate_status,
+            "auto_certificate_template" => $request->path,
+            "settings" => $final_array
+        ];
+
+        return $data['auto_certificate_settings'];
     }
 
     public function removeSubProgram($id)
