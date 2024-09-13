@@ -158,7 +158,7 @@ a.pre-order-btn:hover {
                             <td><?php echo e($i++); ?></td>
                             <td><?php echo e(isset($certificate->user->name) ? $certificate->user->name : 'N/A'); ?> <br>
                                 <span style="font-style: italic"><?php echo e($certificate->user->email); ?></span> <br>
-                                <span style="font-style: bold"> <strong><?php echo e($certificate->user->staffID); ?></span> <br>
+                                <span style="font-style: bold"> <strong><?php echo e($certificate->user->staffID); ?></strong></span> <br>
                             </td>
                             <?php if(isset($score_settings) && !empty($score_settings)): ?>
                             <td style="width: 115px;">

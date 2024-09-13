@@ -188,34 +188,22 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment' ]);
-        $certificate_settings = !empty($program->auto_certificate_settings) ? json_decode($program->auto_certificate_settings, true) : [];
 
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image
-
-        if($request->auto_certificate_template){
+        if(!empty($request->auto_certificate_template)){
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
             $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
             
-            $path = 'certificate_templates/'.$name;
+            $request['path'] = 'certificate_templates/'.$name;
             
         }else{
-            $path = $certificate_settings['auto_certificate_template'] ?? '';
+            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'];
         }
 
-        $cetificate_settings = [
-            "auto_certificate_status" => $request->auto_certificate_status ?? '',
-            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size ?? '',
-            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight ?? '',
-            "auto_certificate_color" => $request->auto_certificate_color ?? '',
-            "auto_certificate_top_offset" => $request->auto_certificate_top_offset ?? '',
-            "auto_certificate_left_offset" => $request->auto_certificate_left_offset ?? '',
-            "auto_certificate_template" => $path,
-        ];
+        $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);
         
-        $data['auto_certificate_settings'] = json_encode($cetificate_settings);
-
         if ($request->hasFile('image')) {
 
             // Dont delete old files, another progeam may be using it
@@ -255,7 +243,7 @@ class ProgramController extends Controller
         }
         
         $program->update($data);
-
+        
         if ($request->sub_name && $request->show_sub == 'yes') {
 
             for ($i = 0; $i < count($request->sub_name); $i++) {
@@ -293,6 +281,33 @@ class ProgramController extends Controller
         }
 
         return redirect()->back()->with('message', 'Training updated successfully');
+    }
+
+    public function buildCertificateSettings($request){
+        $auto_certificate_settings = [
+            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
+            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
+            "auto_certificate_color" => $request->auto_certificate_color,
+            "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
+            "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
+            "text_type" => $request->text_type,
+        ];
+
+        $final_array = [];
+
+        foreach ($auto_certificate_settings as $key => $req) {
+            foreach ($req as $index => $value) {
+                $final_array[$index][$key] = $value;
+            }
+        }
+
+        $data['auto_certificate_settings'] = [
+            "auto_certificate_status" => $request->auto_certificate_status,
+            "auto_certificate_template" => $request->path,
+            "settings" => $final_array
+        ];
+
+        return $data['auto_certificate_settings'];
     }
 
     public function removeSubProgram($id)

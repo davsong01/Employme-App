@@ -98,35 +98,35 @@
 
                                     <?php if($module->status == 0): ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Enable Module Questions"
-                                        class="btn btn-primary" href="<?php echo e(route('modules.enable', $module->id)); ?>" onclick="return confirm('Are you really sure?');"><i
+                                        class="btn btn-secondary" href="<?php echo e(route('modules.enable', $module->id)); ?>" onclick="return confirm('Are you really sure?');"><i
                                             class="fa fa-check"></i>
                                     </a>
                                     <?php else: ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Disable Module Questions"
                                         class="btn btn-info" href="<?php echo e(route('modules.disable', $module->id)); ?>" ><i
-                                           onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
+                                        onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                     </a>
                                     <?php endif; ?>
                                     <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
-                                    <?php if($module->questions->count() > 0): ?>
-                                    <a data-toggle="tooltip" data-placement="top" title="Clone Module"
-                                        class="btn btn-primary" href="<?php echo e(route('modules.show', $module->id)); ?>"><i
-                                            class="fa fa-clone"></i>
-                                    </a>
+                                        <?php if($module->questions->count() > 0): ?>
+                                        <a data-toggle="tooltip" data-placement="top" title="Clone Module"
+                                            class="btn btn-info" href="<?php echo e(route('modules.show', $module->id)); ?>"><i
+                                                class="fa fa-clone"></i>
+                                        </a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
-                                    <?php endif; ?>
+                                    <?php if($module->status == 0): ?>
                                     <form action="<?php echo e(route('modules.destroy', $module->id)); ?>" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete?');">
-                                        
                                         <?php echo e(csrf_field()); ?>
 
                                         <?php echo e(method_field('DELETE')); ?>
 
-
-                                        
+                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip" data-placement="top" title="Delete module"> <i class="fa fa-trash"></i>
+                                        </button>
                                     </form>
+                                    <?php endif; ?>
                                 </div>
-
                             </td>
                         </tr> 
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
