@@ -284,6 +284,7 @@ class ProgramController extends Controller
     }
 
     public function buildCertificateSettings($request){
+
         $auto_certificate_settings = [
             "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
             "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
@@ -294,6 +295,9 @@ class ProgramController extends Controller
         ];
 
         $final_array = [];
+        if(count($auto_certificate_settings) < 1 ){
+            return;
+        }
 
         foreach ($auto_certificate_settings as $key => $req) {
             foreach ($req as $index => $value) {
