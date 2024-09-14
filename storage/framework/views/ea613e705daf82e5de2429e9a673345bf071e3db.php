@@ -495,7 +495,7 @@
                     </div>
                     <div class="col-md-4" style="margin-bottom:5px">
                         <div class="form-group">
-                            <label>Certificate Left offset. e.g 100</label>
+                            <label>Text Left offset. e.g 100</label>
                             <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]">
                         </div>
                     </div>

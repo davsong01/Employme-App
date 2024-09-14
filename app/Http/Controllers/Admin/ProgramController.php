@@ -295,6 +295,12 @@ class ProgramController extends Controller
         ];
 
         $final_array = [];
+
+        $auto_certificate_settings = array_filter($auto_certificate_settings, function ($value) {
+            return !is_null($value);
+        });
+
+        
         if(count($auto_certificate_settings) < 1 ){
             return;
         }
