@@ -226,6 +226,7 @@ class ModuleController extends Controller
 
     public function destroy(Module $module)
     {
-        //
+        $module->delete();
+        return back()->with('message', 'Module deleted successfully');
     }
 }
