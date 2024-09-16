@@ -37,7 +37,7 @@ class Module extends Model
 
     public function scopeClassTests($query, $program){
            
-        return $query->where('type', 0)->where('program_id', $program)->where('status', 1);
+        return $query->where('type', 0)->where('program_id', $program);
        
     }
 

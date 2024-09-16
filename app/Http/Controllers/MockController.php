@@ -62,7 +62,7 @@ class MockController extends Controller
 
             $i = 1;
 
-            $modules = Module::with('questions')->where('program_id', $request->p_id)->where('status',1)->whereType(0)->get();
+            $modules = Module::with('questions')->where('program_id', $request->p_id)->whereType(0)->get();
 
             foreach ($modules as $module) {
                 $module_check = Mocks::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();

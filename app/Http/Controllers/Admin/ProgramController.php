@@ -192,6 +192,7 @@ class ProgramController extends Controller
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image
+        
         if(!empty($request->auto_certificate_template)){
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
             $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
@@ -199,7 +200,7 @@ class ProgramController extends Controller
             $request['path'] = 'certificate_templates/'.$name;
             
         }else{
-            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'];
+            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
         }
 
         $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);
