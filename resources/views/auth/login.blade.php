@@ -15,7 +15,7 @@
             <div class="form-row">
                     <div class="form-group col-md-12 mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
                         <label for="login" class="sr-only">Email or Staff ID</label>
-                        <input type="login" name="login" value="{{ old('login') }}"  id="login" class="form-control"
+                        <input type="login" name="login" value="{{ old('login') }}"  id="email" class="form-control"
                             placeholder="Email or Staff ID">
                     </div>
                     @if ($errors->has('login'))

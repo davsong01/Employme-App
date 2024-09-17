@@ -98,7 +98,7 @@
                                     <p>Phone<span>*</span></p>
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         <?php if(auth()->guard()->check()): ?>
-                                        value="<?php echo e(auth()->user()->phone); ?>"  
+                                        value="<?php echo e(auth()->user()->t_phone); ?>"  
                                         
                                         <?php endif; ?>
 
