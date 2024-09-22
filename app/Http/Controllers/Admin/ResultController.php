@@ -60,8 +60,7 @@ class ResultController extends Controller
         return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
     }
 
-    public function 
-    s(Request $request, $id)
+    public function getgrades(Request $request, $id)
     {
         $request->pid = $id;
 
