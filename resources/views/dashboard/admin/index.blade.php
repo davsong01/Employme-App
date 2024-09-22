@@ -123,10 +123,10 @@
                     </li>
                     @endif
                     @if(in_array(13, $menus))
-                    <li class="sidebar-item"><a href="{{route('pretest.select')}}" class="sidebar-link"><span class="hide-menu">- Pre Test Grades</span></a>
+                    <li class="sidebar-item"><a href="{{route('pretest.select')}}" class="sidebar-link"><span class="hide-menu">- Pre Test Results</span></a>
                     @endif
                     @if(in_array(14, $menus))
-                    <li class="sidebar-item"><a href="{{route('posttest.results')}}" class="sidebar-link"><span class="hide-menu">- Grades</span></a>
+                    <li class="sidebar-item"><a href="{{route('posttest.results')}}" class="sidebar-link"><span class="hide-menu">- Post Test Results</span></a>
                     @endif
                     @if(in_array(15, $menus))
                     <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span class="hide-menu">- Certificates</span></a>

@@ -14,6 +14,7 @@ use App\Program;
 use App\Material;
 use Carbon\Carbon;
 use App\PaymentMode;
+use App\Transaction;
 use App\Models\Wallet;
 use App\FacilitatorTraining;
 use Illuminate\Http\Request;
@@ -65,7 +66,7 @@ class HomeController extends Controller
 
             //Get Users owing
             foreach ($users as $user) {
-                $users['userowing'] = DB::table('program_user')->where('balance', '>', 0)->count();
+                $users['userowing'] = Transaction::where('balance', '>', 0)->count();
             }
             if (isset($users['userowing']))
                 $userowing = ($users['userowing']);

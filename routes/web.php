@@ -104,7 +104,7 @@ Route::post('/top-up-account/{type?}', 'PaymentController@accountTopUp')->name('
 Route::get('/download-program-brochure/{p_id}', 'HomeController@downloadProgramBrochure')->name('download.program.brochure')->middleware(['impersonate', 'auth', 'programCheck']);
 
 Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
-Route::get('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
+Route::any('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
 Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
 Route::get( 'userresults', 'TestsController@userresults')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
 Route::get('userresultscomments/{id}', 'TestsController@userResultComments')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results.comment');
@@ -160,7 +160,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
     Route::resource('results', 'ResultController');
 
     Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
-    Route::get('postclassresults/{id?}', 'ResultController@getgrades')->name('results.getgrades');
+    Route::any('postclassresults/{id?}', 'ResultController@getgrades')->name('results.getgrades');
     Route::post('waacsp', 'ResultController@verify')->name('send.waacsp');
     
     // Route::get('user/{uid?}/module/{modid?}/{pid?}', 'ResultController@add')->name('results.add');

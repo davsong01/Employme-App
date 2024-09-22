@@ -1,6 +1,3 @@
-    
-
-    
 <?php $__env->startSection('title', 'Trainings'); ?>
 <?php $__env->startSection('content'); ?>
 

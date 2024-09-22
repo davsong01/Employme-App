@@ -1,4 +1,4 @@
-<?php $__env->startSection('title', 'Test Results'); ?>
+<?php $__env->startSection('title', 'All Results'); ?>
 <?php $__env->startSection('css'); ?>
 <link rel="stylesheet" href="<?php echo e(asset('modal.css')); ?>" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
@@ -71,37 +71,17 @@
     }
 
     .btn.active {
-        background-color: #0056b3;
-        color: white;
+        background-color: #0056b3; /* Darker shade for active buttons */
+        color: white; /* Ensure text is visible */
         border: 4px solid black;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05); 
-        transition: all 0.3s;
+        transform: scale(1.05); /* Slightly enlarge */
+        transition: all 0.3s; /* Smooth transition */
     }
 
     .btn:not(.active):hover {
-        transform: scale(1.05); 
+        transform: scale(1.05); /* Scale up on hover for non-active buttons */
     }
-
-    .button-container .btn {
-        border-radius: 8px;
-        font-weight: 500;
-        text-align: center;
-        transition: all 0.3s ease; 
-    }
-
-    .button-container .btn:hover {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .button-container .btn:disabled {
-        opacity: 0.6;
-    }
-
-    .button-container .fa-unlock {
-        margin-right: 0.25rem; 
-    }
-
 </style>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
@@ -114,25 +94,25 @@
                 <div class="card-header">
                     <div>
                         <h5 class="card-title"> 
-                            <?php echo $title; ?>
-
+                            <b>Pre Test Results for:</b> <?php echo e($program->p_name); ?> 
                         </h5>
                         <br>
                         <div class="card-body">
                             <?php
                                 $currentStatus = request('status');
                             ?>
-                            <a href="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id])); ?>">
+
+                            <a href="<?php echo e(route('mocks.getgrades', ['id' => $program->id])); ?>">
                                 <button class="btn btn-dark rounded <?php echo e(is_null($currentStatus) ? 'active' : ''); ?>">All</button>
                             </a>
-                            <a href="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id])); ?>?<?php echo e(http_build_query(array_merge(request()->query(), ['status' => 'yes']))); ?>">
+                            <a href="<?php echo e(route('mocks.getgrades', ['id' => $program->id])); ?>?<?php echo e(http_build_query(array_merge(request()->query(), ['status' => 'yes']))); ?>">
                                 <button class="btn btn-success rounded <?php echo e($currentStatus === 'yes' ? 'active' : ''); ?>">Has Tests</button>
                             </a>
-                            <a href="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id])); ?>?<?php echo e(http_build_query(array_merge(request()->query(), ['status' => 'no']))); ?>">
+                            <a href="<?php echo e(route('mocks.getgrades', ['id' => $program->id])); ?>?<?php echo e(http_build_query(array_merge(request()->query(), ['status' => 'no']))); ?>">
                                 <button class="btn btn-danger rounded <?php echo e($currentStatus === 'no' ? 'active' : ''); ?>">Pending Tests</button>
                             </a>
 
-                            <a class="btn btn-info rounded" href="javascript:void(0)" data-toggle="modal" data-target="#exportmodal"><i class="fa fa-download"></i> Export <?php echo e($page == 'results' ? 'Post' : 'Pre'); ?> Test Results</a>
+                            <a class="btn btn-info rounded" href="javascript:void(0)" data-toggle="modal" data-target="#exportmodal"><i class="fa fa-download"></i> Export Pretest Results</a>
                             <div class="badge float-right">
                                 <span class="transaction-count"><?php echo e($records); ?></span> <!-- Number of transactions -->
                             </div>
@@ -140,7 +120,7 @@
 
                         </div>
                         <div class="mt-4">
-                            <form class="form-inline search-form" method="GET" action="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id])); ?>">
+                            <form class="form-inline search-form" method="GET" action="<?php echo e(route('mocks.getgrades', ['id' => $program->id])); ?>">
                                 <input type="hidden" name="status" value="<?php echo e(request('status')); ?>">
                                 <div class="form-group mx-sm-2 mb-2">
                                     <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="<?php echo e(request('staffID')); ?>">
@@ -167,12 +147,13 @@
                     
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>S/N</th>
                             <th>Date</th>
                             <th>Details</th>
                             <th>Test Scores</th>
                             <?php if($page == 'results'): ?>
-                            <th>Admin Details</th>
+                            <th>Grader Details</th>
+                            <th>Facilitator Details</th>
                             <?php endif; ?>
                             <th>Passmark</th>
                             <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?><th>Total</th>
@@ -203,14 +184,6 @@
                                     <br><b>Phone</b> <i><?php echo e($user->phone); ?></i>
                                     <?php endif; ?>
                                 <?php endif; ?>
-                                <div class="button-container">
-                                    <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
-                                        <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                        class="btn btn-dark btn-sm w-50 mb-3" href="<?php echo e(route('impersonate', $user->user_id)); ?>"><i
-                                            class="fa fa-unlock"> Peek</i>
-                                        </a>
-                                    <?php endif; ?>
-                                </div>
                             </td>
                             
                             <td>
@@ -250,26 +223,6 @@
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </td>
-                            <?php if($page == 'results'): ?>
-                            <td>
-                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))): ?><strong class="tit">Marked by: </strong> <?php echo e($user->marked_by ?: 'N/A'); ?><?php endif; ?>
-
-                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?> <br> <strong class="tit">Graded by: </strong> <?php echo e($user->grader ?: 'N/A'); ?><br>
-
-                                <small> Last updated on: <?php echo e(isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''); ?></small>
-                                <?php endif; ?>
-                                <br>
-                                Certificate Access : <?php if(isset($user->cert)): ?>
-                                    <?php if($user->cert->show_certificate == 1): ?>
-                                    <strong style="color:green">Enabled</strong>
-                                    <?php else: ?>
-                                    <strong style="color:red">Disabled</strong>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                Not Uploaded
-                                <?php endif; ?> 
-                            </td>
-                            <?php endif; ?>
                             <td><strong class="tit" style="color:blue"><?php echo e($user->passmark); ?>%</strong> </td>
                             <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
                             <td>
@@ -303,12 +256,11 @@
                             </td>
                             <?php else: ?> 
                             <td>
-                                <div class="button-container">
                                 <?php if( isset($user->result_id)): ?> 
                                     <?php if($user->redotest == 0): ?>
                                         <?php if(!empty($user->certification_test_details)): ?>
                                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
-                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="<?php echo e(route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id])); ?>"><i
+                                                    <a class="btn btn-info btn-sm" href="<?php echo e(route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id])); ?>"><i
                                                             class="fa fa-eye"> View/Update </i>
                                                     </a>
                                                 <?php endif; ?>
@@ -326,9 +278,11 @@
                                                 </form>
                                                 <?php endif; ?>
                                         <?php else: ?> 
-                                            <button class="btn btn-danger btn-sm w-100 mb-3" style="display: block;" disabled>Resit In Progress!</button>
+                                            <div class="btn-group">
+                                            <button class="btn btn-button btn-danger btn-sm" style="display: block;" disabled>Participant did not retake a resit!</button>
+                                            </div>
                                             <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))): ?>
-                                                <a class="btn btn-info btn-sm w-100 mb-3" href="<?php echo e(route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id])); ?>"><i
+                                                <a class="btn btn-info btn-sm" href="<?php echo e(route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id])); ?>"><i
                                                         class="fa fa-eye"> View/Update </i>
                                                 </a>
                                             <?php endif; ?>
@@ -341,7 +295,7 @@
                                                 <input type="hidden" name="uid" value="<?php echo e($user->user_id); ?>">
                                                 <input type="hidden" name="rid" value="<?php echo e($user->result_id); ?>">
                                                 <input type="hidden" name="pid" value="<?php echo e($user->program_id); ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm w-100 mb-3"> <i
+                                                <button type="submit" class="btn btn-danger btn-sm"> <i
                                                         class="fa fa-redo"> Enable Resit</i>
                                                 </button>
                                             </form>
@@ -351,7 +305,7 @@
                                         <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())): ?>
                                             <?php if($user->redotest != 0): ?>
                                                 <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())): ?>
-                                                    <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm w-100 mb-3" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i
+                                                    <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm" href="<?php echo e(route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id])); ?>"><i
                                                             class="fa fa-stop"></i> End resit
                                                     </a>
                                                 <?php endif; ?>
@@ -360,9 +314,16 @@
                                         </div>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
+                                    <div class="btn-group">
+                                    <button class="btn btn-button btn-danger btn-sm" disabled>Participant has not taken any test!</button>
+                                    </div>
                                 <?php endif; ?>
-                                </div>
+                                <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
+                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    class="btn btn-warning btn-sm" href="<?php echo e(route('impersonate', $user->user_id)); ?>"><i
+                                        class="fa fa-unlock"> Peek</i>
+                                    </a>
+                                <?php endif; ?> 
                             </td>
                             <?php endif; ?>
                         </tr>
@@ -379,13 +340,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Export <?php echo e($page == 'results' ? 'Post' : 'Pre'); ?> test results</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Export Pre test results</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form action="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id])); ?>" method="POST" class="pb-2">
+                <form action="<?php echo e(route('mocks.getgrades', ['id'=>$program->id])); ?>" method="POST" class="pb-2">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
@@ -423,4 +384,4 @@
     });
 </script>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/results/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/mocks/index.blade.php ENDPATH**/ ?>

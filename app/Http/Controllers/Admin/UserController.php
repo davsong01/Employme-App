@@ -15,12 +15,13 @@ use App\UpdateMails;
 use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
 use App\FacilitatorTraining;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Imports\UsersImport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserController extends Controller
 {
@@ -63,23 +64,50 @@ class UserController extends Controller
         return abort(404);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $i = 1;
-        $users = User::withCount('programs')->orderBy('created_at', 'DESC')->get();
-        $users = $users->filter(function($query){
-            if (!empty(array_intersect(studentRoles(), $query->role()))) {
-                return $query;
-            }
-        });
+        $users = User::withCount('programs')->orderBy('created_at', 'DESC');
+
+        if (!empty($request->email)) {
+            $users = $users->where('email',$request->email);
+        }
+
+        if (!empty($request->name)) {
+            $users = $users->where('name', 'LIKE', "%{$request->name}%");
+        }
+
+        if (!empty($request->phone)) {
+            $users = $users->where('t_phone', $request->phone);
+        }
+
+        if (!empty($request->staffID)) {
+            $users = $users->where('staffID', $request->staffID);
+        }
+
+        if (!empty($request->program_id)) {
+            $users = $users->whereHas('programs', function ($query) use ($request) {
+                $query->where('program_user.program_id', $request->program_id);
+            });
+        }
+
+        $records = $users->count();
+        $users = $users->paginate(50);
+
+        $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at','DESC')->get();
         
+        // dd($user->role());
+
+        // $filteredUsers = $users->filter(function ($user) {
+        //     return !empty(array_intersect(studentRoles(), $user->role()));
+        // });
+
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.users.index', compact('users', 'i'));
+            return view('dashboard.admin.users.index', compact('users', 'i','records', 'allPrograms'));
         } elseif (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
-            $users = Transaction::with('user')->whereIn('program_id', $programs)->orderBy('created_at', 'DESC')
-                ->get();
-            return view('dashboard.teacher.users.index', compact('users', 'i', 'programs'));
+            $users = $users->whereIn('program_id', $programs)->orderBy('created_at', 'DESC');
+            return view('dashboard.teacher.users.index', compact('users', 'i', 'programs', 'records', 'allPrograms'));
         }
     }
 

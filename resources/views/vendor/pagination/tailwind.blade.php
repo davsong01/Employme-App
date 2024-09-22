@@ -26,6 +26,7 @@
                     @endforeach
                 @endif
             @endforeach
+
             {{-- Next Page Link --}}
             <li class="page-item {{ $paginator->hasMorePages() ? '' : 'disabled' }}">
                 <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next" aria-disabled="{{ !$paginator->hasMorePages() }}">

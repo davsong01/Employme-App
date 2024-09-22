@@ -5,6 +5,7 @@ namespace App;
 use App\User;
 use App\Coupon;
 use App\Program;
+use App\Mocks;
 use App\Models\PaymentThread;
 use Illuminate\Database\Eloquent\Model;
 
@@ -37,6 +38,14 @@ class Transaction extends Model
         return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'invoice_id');
     }
 
+    public function results(){
+        return $this->hasMany(Result::class, 'user_id', 'user_id');
+    }
+
+    public function mocks()
+    {
+        return $this->hasMany(Mocks::class, 'user_id', 'user_id');
+    }
 }
 
 

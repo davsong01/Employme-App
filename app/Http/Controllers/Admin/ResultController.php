@@ -9,6 +9,7 @@ use App\Result;
 use App\Program;
 use App\Question;
 use App\Settings;
+use App\Transaction;
 use App\ScoreSetting;
 use GuzzleHttp\Client;
 use App\FacilitatorTraining;
@@ -16,6 +17,7 @@ use App\Models\ResultThread;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Rap2hpoutre\FastExcel\FastExcel;
 use intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Redirect;
 
@@ -58,16 +60,72 @@ class ResultController extends Controller
         return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
     }
 
-    public function getgrades(Request $request, $id)
+    public function 
+    s(Request $request, $id)
     {
-        $request['pid'] = $id;
-        $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        $request->pid = $id;
 
-            $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
+        $users = Transaction::where('program_id', $request->pid)
+            ->with(['user', 'results' => function ($query) use ($request) {
+                $query->where('program_id', $request->pid);
+            }]);
 
-            foreach ($users as $user) {
-                $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
+        if (!empty($request->status)) {
+            if ($request->status == 'yes') {
+                $users = $users->has('results');
+            } else {
+                $users = $users->doesntHave('results');
+            }
+        }
+
+        if (!empty($request->email)) {
+            $users = $users->whereHas('user', function ($query) use ($request) {
+                $query->where('email', $request->email);
+            });
+        }
+
+        if (!empty($request->name)) {
+            $users = $users->whereHas('user', function ($query) use ($request) {
+                $query->where('name', 'LIKE', "%{$request->name}%");
+            });
+        }
+
+        if (!empty($request->phone)) {
+            $users = $users->whereHas('user', function ($query) use ($request) {
+                $query->where('t_phone', $request->phone);
+            });
+        }
+
+        if (!empty($request->staffID)) {
+            $users = $users->whereHas('user', function ($query) use ($request) {
+                $query->where('staffID', $request->staffID);
+            });
+        }
+
+        $records = $users->count();
+    
+        // Roles determination
+        $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
+        $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+        $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play', 'crm_test', 'email'])
+        ->where('program_id', $request->pid)
+            ->first();
+
+        // Execute query
+        if (empty($request->columns)) {
+            $users = $users->paginate(50);
+        } else {
+            $users = $users->get();
+        }
+
+        if ($isAdmin || $isFacilitatorOrGrader) {
+            $i = 1;
+
+            $isPaginated = $users instanceof \Illuminate\Pagination\LengthAwarePaginator || $users instanceof \Illuminate\Pagination\Paginator;
+
+            $modifiedUsers = $users->map(function ($user) use ($request, $score_settings) {
+                $results = $user->results;
+                
                 $user->total_cert_score = 0;
                 $user->total_class_test_score = 0;
                 $user->total_email_test_score = 0;
@@ -77,55 +135,43 @@ class ResultController extends Controller
                 $user->program_ct_score_settings = 0;
                 $user->passmark = 0;
                 $user->created_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status',1)->count();
+                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
                 $user->marked_by = '';
                 $user->grader = '';
-
-                $score_settings = ScoreSetting::whereProgramId($request->pid)->first();
-
-                $user->program_ct_score_settings = $score_settings->class_test ?? null;
-                $user->passmark = $score_settings->passmark ?? null;
-
-                $userdetails = User::find($user->user_id);
-                $user->name = $userdetails->name ?? NULL;
-                $user->email = $userdetails->email ?? NULL;
-                $user->staffID = $userdetails->staffID ?? NULL;
-
-                $user->redotest = $userdetails->redotest;
-
                 $user->final_ct_score = 0;
                 $user->total_class_test_score = 0;
                 $user->obtainable = 0;
 
+                $user->name = $user->user->name;
+                $user->email = $user->user->email;
+                $user->staffID = $user->user->staffID;
+                $user->phone = $user->user->t_phone;
+                $user->metadata = $user->user->metadata;
+                $user->gender = $user->user->gender;
+                $user->redotest = $user->user->redotest;
+
+                // Fetch score settings
+                $user->program_ct_score_settings = $score_settings->class_test;
+                $user->passmark = $score_settings->passmark;
+                
+                // Check if $users is paginated
                 foreach ($results as $result) {
-                    $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score;
-                    $user->total_crm_test_score = $result->crm_test_score + $user->total_crm_test_score;
-                    
+                    $user->total_role_play_score += $result->role_play_score;
+                    $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
+                    $user->total_crm_test_score += $result->crm_test_score;
+
+                    $user->created_at = $result->created_at;
                     $user->updated_at = $result->updated_at;
                     $user->module_id = $result->module_id;
                     $user->cert = $result->cert();
 
-                    $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
 
                     if ($result->module->type == 'Class Test') {
-
-                        $u =  Module::where('type', 0)->where('status', 1)->where('program_id', $request->pid)->get();
-
-                        $obtainable = array();
-
-                        foreach ($u as $t) {
-                            $questions = array_push($obtainable, $t->questions->count());
-                        }
-
-                        $user->obtainable = array_sum($obtainable);
-
-                        if ($u->count() > 0) {
-                            $user->total_class_test_score = $result->class_test_score + $user->total_class_test_score;
-                        }
+                        $this->calculateClassTestScore($result, $user, $request->pid);
                     }
 
                     if ($result->module->type == 'Certification Test') {
-                        $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
+                        $user->total_cert_score += $result->certification_test_score;
                         $user->certification_test_details = $result->certification_test_details;
 
                         $user->marked_by = $result->marked_by;
@@ -134,109 +180,256 @@ class ResultController extends Controller
                         $user->redo_test = $result->redo_test ?? NULL;
                     }
                 }
-                if ($user->obtainable > 0) {
-                    $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
+
+                // Calculate final class test score
+                $user->final_ct_score = $this->calculateFinalCtScore($user);
+
+                return $user;
+
+            });
+
+            if ($isPaginated) {
+                $users = new \Illuminate\Pagination\LengthAwarePaginator(
+                    $modifiedUsers,
+                    $users->total(),
+                    $users->perPage(),
+                    $users->currentPage(),
+                    ['path' => $users->path()]
+                );
+            } else {
+                $users = $modifiedUsers;
+            }
+            
+            $program = Program::whereId($request->pid)->first();
+
+            if (!empty($request->columns)) {
+                if (in_array('all', $request->columns)) {
+                    $data = [
+                        'staffID',
+                        'name',
+                        'email',
+                        'phone',
+                        'gender',
+                        'metadata'
+                    ];
+                } else {
+                    $data = $request->columns;
                 }
+
+                $finalBuild = buildResultExport($users, $data, $score_settings);
+                return (new FastExcel($finalBuild))->download('Post-test Report for ' . $program->p_name . '.xlsx');
             }
 
-            $program = Program::whereId($request->pid)->first();
-            $program_name = $program->p_name;
-            $pid = $program->id;
-            $passmark = '';
+            $page = 'results';
+            $title = '<b>Post Test Results for: </b>' . $program->p_name;
 
-            return view('dashboard.admin.results.index', compact('passmark', 'users', 'i', 'program_name', 'pid', 'score_settings'));
+            return view('dashboard.admin.results.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
         }
-
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-
-            $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
-
-            foreach ($users as $user) {
-
-                $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
-
-                $user->total_cert_score = 0;
-                $user->total_class_test_score = 0;
-                $user->total_email_test_score = 0;
-                $user->total_role_play_score = 0;
-                $user->total_cert_score = 0;
-                $user->program_id = $request->pid;
-                $user->program_ct_score_settings = 0;
-                $user->passmark = 0;
-                $user->updated_at = NULL;
-                $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
-                $user->marked_by = '';
-                $user->grader = '';
-
-                // $score_settings = ScoreSetting::select(['class_test', 'passmark'])->whereProgramId($request->pid)->first();
-                $score_settings = ScoreSetting::whereProgramId($request->pid)->first();
-
-                $user->program_ct_score_settings = $score_settings->class_test;
-                $user->passmark = $score_settings->passmark;
-                $user->result_id = 0;
-
-                // $user->name =  User::where('id', $user->user_id)->value('name');
-                $userdetails = User::find($user->user_id);
-                $user->name = $userdetails->name;
-                $user->email = $userdetails->email;
-                $user->redotest = $userdetails->redotest;
-
-                $user->final_ct_score = 0;
-                $user->total_class_test_score = 0;
-                $user->obtainable = 0;
-
-                foreach ($results as $result) {
-                    $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score;
-                    $user->updated_at = $result->updated_at;
-                    $user->module_id = $result->module_id;
-
-                    $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
-
-                    if ($result->module->type == 'Class Test') {
-
-                        $u =  Module::where('type', 0)->where('program_id', $request->pid)->where('status', 1)->get();
-
-                        $obtainable = array();
-
-                        foreach ($u as $t) {
-                            $questions = array_push($obtainable, $t->questions->count());
-                        }
-
-                        $user->obtainable = array_sum($obtainable);
-
-                        if ($u->count() > 0) {
-
-                            $user->total_class_test_score = $result->class_test_score + $user->total_class_test_score;
-                        }
-                    }
-
-                    if ($result->module->type == 'Certification Test') {
-                        $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
-                        $user->certification_test_details = $result->certification_test_details;
-
-                        $user->marked_by = $result->marked_by;
-                        $user->grader = $result->grader;
-                        $user->result_id = $result->id;
-                    }
-                }
-                if ($user->obtainable > 0) {
-                    $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
-                }
-            }
-
-            // $program_name = Program::whereId($request->pid)->value('p_name');
-            // $passmark = $score_settings->passmark;
-            $program = Program::whereId($request->pid)->first();
-            $program_name = $program->p_name;
-            $pid = $program->id;
-            $passmark = '';
-
-
-            return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark', 'score_settings'));
-        }
-
-        return redirect('/dashboard');
     }
+
+
+    private function calculateClassTestScore($result, &$user, $programId)
+    {
+        $modules = Module::where('type', 0)->where('program_id', $programId)->where('status',1)->get();
+        $obtainable = array();
+
+        foreach ($modules as $module) {
+            array_push($obtainable, $module->questions->count());
+        }
+
+        $user->obtainable = array_sum($obtainable);
+
+        if ($modules->count() > 0) {
+            $user->total_class_test_score += $result->class_test_score;
+        }
+    }
+
+    private function calculateFinalCtScore($user)
+    {
+        return $user->obtainable > 0
+            ? round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0)
+            : 0;
+    }
+
+    // public function getgrades(Request $request, $id)
+    // {
+    //     $request['pid'] = $id;
+    //     $i = 1;
+    //     if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+    //         $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
+
+    //         foreach ($users as $user) {
+    //             $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
+    //             $user->total_cert_score = 0;
+    //             $user->total_class_test_score = 0;
+    //             $user->total_email_test_score = 0;
+    //             $user->total_role_play_score = 0;
+    //             $user->total_crm_test_score = 0;
+    //             $user->program_id = $request->pid;
+    //             $user->program_ct_score_settings = 0;
+    //             $user->passmark = 0;
+    //             $user->created_at = NULL;
+    //             $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
+    //             $user->marked_by = '';
+    //             $user->grader = '';
+
+    //             $score_settings = ScoreSetting::whereProgramId($request->pid)->first();
+
+    //             $user->program_ct_score_settings = $score_settings->class_test ?? null;
+    //             $user->passmark = $score_settings->passmark ?? null;
+
+    //             $userdetails = User::find($user->user_id);
+    //             $user->name = $userdetails->name ?? NULL;
+    //             $user->email = $userdetails->email ?? NULL;
+    //             $user->staffID = $userdetails->staffID ?? NULL;
+
+    //             $user->redotest = $userdetails->redotest;
+
+    //             $user->final_ct_score = 0;
+    //             $user->total_class_test_score = 0;
+    //             $user->obtainable = 0;
+
+    //             foreach ($results as $result) {
+    //                 $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score;
+    //                 $user->total_crm_test_score = $result->crm_test_score + $user->total_crm_test_score;
+
+    //                 $user->updated_at = $result->updated_at;
+    //                 $user->module_id = $result->module_id;
+    //                 $user->cert = $result->cert();
+
+    //                 $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
+
+    //                 if ($result->module->type == 'Class Test') {
+
+    //                     $u =  Module::where('type', 0)->where('status', 1)->where('program_id', $request->pid)->get();
+
+    //                     $obtainable = array();
+
+    //                     foreach ($u as $t) {
+    //                         $questions = array_push($obtainable, $t->questions->count());
+    //                     }
+
+    //                     $user->obtainable = array_sum($obtainable);
+
+    //                     if ($u->count() > 0) {
+    //                         $user->total_class_test_score = $result->class_test_score + $user->total_class_test_score;
+    //                     }
+    //                 }
+
+    //                 if ($result->module->type == 'Certification Test') {
+    //                     $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
+    //                     $user->certification_test_details = $result->certification_test_details;
+
+    //                     $user->marked_by = $result->marked_by;
+    //                     $user->grader = $result->grader;
+    //                     $user->result_id = $result->id;
+    //                     $user->redo_test = $result->redo_test ?? NULL;
+    //                 }
+    //             }
+    //             if ($user->obtainable > 0) {
+    //                 $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
+    //             }
+    //         }
+
+    //         $program = Program::whereId($request->pid)->first();
+    //         $program_name = $program->p_name;
+    //         $pid = $program->id;
+    //         $passmark = '';
+
+    //         return view('dashboard.admin.results.index', compact('passmark', 'users', 'i', 'program_name', 'pid', 'score_settings'));
+    //     }
+
+    //     if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
+    //         $users = DB::table('program_user')->select('user_id')->distinct()->whereProgramId($request->pid)->get();
+
+    //         foreach ($users as $user) {
+
+    //             $results = Result::where('user_id', $user->user_id)->where('program_id', $request->pid)->get();
+
+    //             $user->total_cert_score = 0;
+    //             $user->total_class_test_score = 0;
+    //             $user->total_email_test_score = 0;
+    //             $user->total_role_play_score = 0;
+    //             $user->total_cert_score = 0;
+    //             $user->program_id = $request->pid;
+    //             $user->program_ct_score_settings = 0;
+    //             $user->passmark = 0;
+    //             $user->updated_at = NULL;
+    //             $user->class_test_module_count = Module::where('program_id', $request->pid)->where('type', 'Class Test')->where('status', 1)->count();
+    //             $user->marked_by = '';
+    //             $user->grader = '';
+
+    //             // $score_settings = ScoreSetting::select(['class_test', 'passmark'])->whereProgramId($request->pid)->first();
+    //             $score_settings = ScoreSetting::whereProgramId($request->pid)->first();
+
+    //             $user->program_ct_score_settings = $score_settings->class_test;
+    //             $user->passmark = $score_settings->passmark;
+    //             $user->result_id = 0;
+
+    //             // $user->name =  User::where('id', $user->user_id)->value('name');
+    //             $userdetails = User::find($user->user_id);
+    //             $user->name = $userdetails->name;
+    //             $user->email = $userdetails->email;
+    //             $user->redotest = $userdetails->redotest;
+
+    //             $user->final_ct_score = 0;
+    //             $user->total_class_test_score = 0;
+    //             $user->obtainable = 0;
+
+    //             foreach ($results as $result) {
+    //                 $user->total_role_play_score = $result->role_play_score + $user->total_role_play_score;
+    //                 $user->updated_at = $result->updated_at;
+    //                 $user->module_id = $result->module_id;
+
+    //                 $user->total_email_test_score = $result->email_test_score + $user->total_email_test_score;
+
+    //                 if ($result->module->type == 'Class Test') {
+
+    //                     $u =  Module::where('type', 0)->where('program_id', $request->pid)->where('status', 1)->get();
+
+    //                     $obtainable = array();
+
+    //                     foreach ($u as $t) {
+    //                         $questions = array_push($obtainable, $t->questions->count());
+    //                     }
+
+    //                     $user->obtainable = array_sum($obtainable);
+
+    //                     if ($u->count() > 0) {
+
+    //                         $user->total_class_test_score = $result->class_test_score + $user->total_class_test_score;
+    //                     }
+    //                 }
+
+    //                 if ($result->module->type == 'Certification Test') {
+    //                     $user->total_cert_score = $result->certification_test_score +  $user->total_cert_score;
+    //                     $user->certification_test_details = $result->certification_test_details;
+
+    //                     $user->marked_by = $result->marked_by;
+    //                     $user->grader = $result->grader;
+    //                     $user->result_id = $result->id;
+    //                 }
+    //             }
+    //             if ($user->obtainable > 0) {
+    //                 $user->final_ct_score = round(($user->total_class_test_score * $user->program_ct_score_settings) / $user->obtainable, 0);
+    //             }
+    //         }
+
+    //         // $program_name = Program::whereId($request->pid)->value('p_name');
+    //         // $passmark = $score_settings->passmark;
+    //         $program = Program::whereId($request->pid)->first();
+    //         $program_name = $program->p_name;
+    //         $pid = $program->id;
+    //         $passmark = '';
+
+
+    //         return view('dashboard.admin.results.index', compact('users', 'i', 'program_name', 'passmark', 'score_settings'));
+    //     }
+
+    //     return redirect('/dashboard');
+    // }
 
     public function create()
     {
