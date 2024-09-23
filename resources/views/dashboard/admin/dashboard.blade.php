@@ -9,7 +9,7 @@
     @if(Auth()->user()->role_id == "Admin")
         <div class="row">
             <div class="card-title">
-                    @include('layouts.partials.alerts')
+                @include('layouts.partials.alerts')
             </div>
         </div>
         

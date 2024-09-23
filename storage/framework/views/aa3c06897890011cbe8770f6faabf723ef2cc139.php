@@ -8,13 +8,14 @@
             </a>
         </div>
         <p class="login-card-description">Login to Start learning</p>
-        <form method="POST" action="<?php echo e(route('login')); ?>" method="post" >
-            <?php echo e(csrf_field()); ?>
+        <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
+        <form method="POST" action="<?php echo e(route('login')); ?>" method="post" style="max-width:100% !important">
+            <?php echo e(csrf_field()); ?> 
             <div class="form-row">
                     <div class="form-group col-md-12 mb-4<?php echo e($errors->has('email') ? ' has-error' : ''); ?>">
                         <label for="login" class="sr-only">Email or Staff ID</label>
-                        <input type="login" name="login" value="<?php echo e(old('login')); ?>"  id="email" class="form-control"
+                        <input type="text" name="login" value="<?php echo e(old('login')); ?>"  id="login" class="form-control"
                             placeholder="Email or Staff ID">
                     </div>
                     <?php if($errors->has('login')): ?>

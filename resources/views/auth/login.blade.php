@@ -10,12 +10,14 @@
             </a>
         </div>
         <p class="login-card-description">Login to Start learning</p>
-        <form method="POST" action="{{ route('login') }}" method="post" >
-            {{ csrf_field() }}
+        @include('layouts.partials.alerts')
+
+        <form method="POST" action="{{ route('login') }}" method="post" style="max-width:100% !important">
+            {{ csrf_field() }} 
             <div class="form-row">
                     <div class="form-group col-md-12 mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
                         <label for="login" class="sr-only">Email or Staff ID</label>
-                        <input type="login" name="login" value="{{ old('login') }}"  id="email" class="form-control"
+                        <input type="text" name="login" value="{{ old('login') }}"  id="login" class="form-control"
                             placeholder="Email or Staff ID">
                     </div>
                     @if ($errors->has('login'))
