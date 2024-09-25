@@ -651,7 +651,7 @@ class ResultController extends Controller
                 $details['program'] = $t['program'];
                 $details['name'] = $t['name'];
                 $details['staffID'] = $t->user->staffID;
-               
+                
                 if ($details['total_score'] >= $details['passmark']) {
                     $details['status'] = 'CERTIFIED';
                 } else $details['status'] = 'NOT CERTIFIED';

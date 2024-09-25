@@ -36,7 +36,7 @@ class CertificateController extends Controller
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
                 }
             }
-
+            
             $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
 
             if (!isset($certificate)) {

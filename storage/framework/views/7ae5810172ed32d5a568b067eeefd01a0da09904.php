@@ -8,7 +8,7 @@
     <?php if(Auth()->user()->role_id == "Admin"): ?>
         <div class="row">
             <div class="card-title">
-                    <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
             </div>
         </div>
         
