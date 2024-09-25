@@ -38,6 +38,52 @@
             color: darkred;
         }
 
+        .dropdown {
+            position: relative;
+            display: block;
+        }
+        .dropdown-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 4px;
+            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-button:hover {
+            background-color: #138496; /* Slightly darker shade for hover */
+        }
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Show the dropdown content when the button is clicked */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
     </style>
 @endsection
 @section('content')
@@ -153,6 +199,7 @@
                             @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ route('password.reset', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password
                                     
                                     @if($program->close_registration == 0)
                                     <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="{{ route('registration.close', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
@@ -165,6 +212,7 @@
                                     @endif
                                     @endif                                   
                                 </div>
+                                
                                 @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <div class="" style="margin-bottom: 5px;">
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Training"

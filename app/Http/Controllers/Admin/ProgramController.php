@@ -8,11 +8,13 @@ use App\Module;
 use App\Program;
 use App\Material;
 use App\Question;
+use App\Transaction;
 use App\ScoreSetting;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProgramDetailsExport;
 use Intervention\Image\Facades\Image;
@@ -509,4 +511,28 @@ class ProgramController extends Controller
 
         return back()->with('message', 'Training cloned successfully');
     }
+
+    public function passwordReset($id)
+    {
+        $transactions = Transaction::with('user')->where('program_id', $id)->get();
+
+        $plainPassword = '11111';
+        $hashedPassword = Hash::make($plainPassword);
+
+        $counter = 0;
+
+        DB::transaction(function () use ($transactions, $hashedPassword, &$counter) {
+            foreach ($transactions as $transaction) {
+                if ($transaction->user) {
+                    $transaction->user->update([
+                        'password' => $hashedPassword
+                    ]);
+                    $counter++;
+                }
+            }
+        });
+        
+        return back()->with('message', "Password for $counter participants successfully reset to: $plainPassword");
+    }
+
 }

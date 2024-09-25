@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use DB;
 use App\User;
+use App\Result;
 use App\Program;
 use App\Certificate;
 use App\Transaction;
@@ -30,10 +31,24 @@ class CertificateController extends Controller
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $program = Program::find($request->p_id);
 
+            // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+                $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
+                }
+            }
+
+            if ($program->only_certified_should_see_certificate == 'yes') {
+                $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->get();
+    
+                $details = certificationStatus($result, $program);
+                if(!$details){
+                    return back()->with('error', 'You must be certified before you can view certificate');
+                }
+
+                if(isset($details['status']) && $details['status'] == 'NOT CERTIFIED'){
+                    return back()->with('error', 'You must be certified before you can view certificate');
                 }
             }
             

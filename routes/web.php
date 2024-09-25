@@ -180,7 +180,9 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');
     Route::get('complainhide/{crm}', 'ProgramController@hidecrm')->name('crm.hide');
     Route::get('close/{id}', 'ProgramController@closeRegistration')->name('registration.close');
+
     Route::get('open/{id}', 'ProgramController@openRegistration')->name('registration.open');
+    Route::get('password-reset/{id}', 'ProgramController@passwordReset')->name('password.reset');
     Route::get('earlybirdopen/{id}', 'ProgramController@openEarlyBird')->name('earlybird.open');
     Route::get('earlybirdclose/{id}', 'ProgramController@closeEarlyBird')->name('earlybird.close');
 

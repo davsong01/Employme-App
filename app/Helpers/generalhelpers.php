@@ -1,9 +1,112 @@
 <?php
 
+use App\Module;
 use App\Program;
 use App\Settings;
 use App\Transaction;
 
+    if (!function_exists("certificationStatus")) {
+    function certificationStatus($result, $program)
+    {
+        $details = [];
+        $class = $email = $roleplay = $crm = $certification = 0;
+
+        // Get the modules and calculate the total obtainable score
+        $modules = Module::with('questions')
+        ->where('type', 'Class Test')
+        ->where('program_id', $program->id)
+        ->where('status', 1)
+        ->get();
+
+        $obtainable = $modules->sum(fn($module) => $module->questions->count());
+
+        foreach ($result as $t) {
+            // Accumulate test scores
+            $class += $t['class_test_score'];
+            $email += $t['email_test_score'];
+            $roleplay += $t['role_play_score'];
+            $crm += $t['crm_test_score'];
+            $certification += $t['certification_test_score'];
+
+            // Add program and score settings to each result
+            $t['program'] = $t->program->p_name;
+            $t['passmark'] = $program->scoresettings->passmark;
+            $t['ct_set_score'] = $program->scoresettings->class_test;
+            $t['name'] = $t->user->name;
+        }
+
+        // Calculate and round the class test score
+        $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
+
+        // Add other test scores to the details array
+        $details['email_test_score'] = $email;
+        $details['role_play_score'] = $roleplay;
+        $details['crm_test_score'] = $crm;
+        $details['certification_test_score'] = $certification;
+
+        // Calculate the total score and add program details
+        $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
+        $details['passmark'] = $t['passmark'];
+        $details['program'] = $t['program'];
+        $details['name'] = $t['name'];
+        $details['staffID'] = $t->user->staffID;
+
+        // Determine certification status
+        $details['status'] = ($details['total_score'] >= $details['passmark']) ? 'CERTIFIED' : 'NOT CERTIFIED';
+
+        return $details;
+        // $details = array();
+
+        // $class = 0;
+        // $email = 0;
+        // $roleplay = 0;
+        // $crm = 0;
+        // $certification = 0;
+        // $modules = Module::with('questions')->where('type', 'Class Test')->where('program_id', $program->id)->where('status', 1)->get();
+
+        // $obtainable = array();
+
+        // foreach ($modules as $module) {
+        //     $questions = array_push($obtainable, $module->questions->count());
+        // }
+
+        // $obtainable = array_sum($obtainable);
+
+        // foreach ($result as $t) {
+        //     $class = $t['class_test_score'] + $class;
+        //     $email =  $t['email_test_score'] + $email;
+        //     $roleplay =  $t['role_play_score'] + $roleplay;
+        //     $crm =  $t['crm_test_score'] + $crm;
+        //     $certification =  $t['certification_test_score'] + $certification;
+
+        //     $t['program'] = $t->program->p_name;
+        //     $t['passmark'] = $program->scoresettings->passmark;
+        //     $t['ct_set_score'] = $program->scoresettings->class_test;
+        //     $t['name'] = $t->user->name;
+        // }
+
+        // $details['class_test_score'] = ($class  *  $t['ct_set_score']) /  $obtainable;
+        // $details['class_test_score'] = round($details['class_test_score'], 0);
+
+        // $details['email_test_score'] = $email;
+        // $details['role_play_score'] = $roleplay;
+        // $details['crm_test_score'] = $crm;
+        // $details['certification_test_score'] = $certification;
+
+        // $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
+
+        // $details['passmark'] = $t['passmark'];
+
+        // $details['program'] = $t['program'];
+        // $details['name'] = $t['name'];
+        // $details['staffID'] = $t->user->staffID;
+
+        // if ($details['total_score'] >= $details['passmark']) {
+        //     $details['status'] = 'CERTIFIED';
+        // } else $details['status'] = 'NOT CERTIFIED';
+        }
+    }
+         
     if (!function_exists("buildResultExport")) {
         function buildResultExport($users, $data, $score_settings){
         $filteredUsers = $users->map(function ($user) use ($data, $score_settings) {

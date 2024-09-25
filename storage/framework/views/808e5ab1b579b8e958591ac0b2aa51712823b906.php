@@ -2,76 +2,86 @@
 <?php $__env->startSection('css'); ?>
     <style>
        .table {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-/* thead th {
-    background-color: #4e73df;
-    color: #fff;
-    padding: 10px;
-    text-align: center;
-} */
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
 
-tbody tr:hover {
-    background-color: #f1f1f1;
-}
+        .table-image {
+            width: 85px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .btn {
+            border-radius: 5px;
+            margin: 2px 0;
+        }
 
-.table-image {
-    width: 85px;
-    border-radius: 5px;
-    object-fit: cover;
-}
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-/* .dropdown-button {
-    background-color: #f8f9fc;
-    border: 1px solid #4e73df;
-    color: #4e73df;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .export-link {
+            color: brown;
+            font-weight: bold;
+        }
 
-.dropdown-button:hover {
-    background-color: #4e73df;
-    color: white;
-} */
+        .export-link:hover {
+            text-decoration: underline;
+            color: darkred;
+        }
 
-/* .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
+        .dropdown {
+            position: relative;
+            display: block;
+        }
+        .dropdown-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 4px;
+            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-.dropdown:hover .dropdown-content {
-    display: block;
-} */
+        .dropdown-button:hover {
+            background-color: #138496; /* Slightly darker shade for hover */
+        }
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
 
-.btn {
-    border-radius: 5px;
-    margin: 2px 0;
-}
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
 
-.actions-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
 
-.export-link {
-    color: brown;
-    font-weight: bold;
-}
-
-.export-link:hover {
-    text-decoration: underline;
-    color: darkred;
-}
+        /* Show the dropdown content when the button is clicked */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
 
     </style>
 <?php $__env->stopSection(); ?>
@@ -186,6 +196,7 @@ tbody tr:hover {
                             <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="<?php echo e(route('password.reset', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password
                                     
                                     <?php if($program->close_registration == 0): ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="<?php echo e(route('registration.close', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
@@ -198,6 +209,7 @@ tbody tr:hover {
                                     <?php endif; ?>
                                     <?php endif; ?>                                   
                                 </div>
+                                
                                 <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                                 <div class="" style="margin-bottom: 5px;">
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Training"
