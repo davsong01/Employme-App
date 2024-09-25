@@ -1,6 +1,7 @@
 <?php
 
 use App\Program;
+use App\Settings;
 use App\Transaction;
 
     if (!function_exists("buildResultExport")) {
@@ -145,6 +146,15 @@ use App\Transaction;
             ];
         }
     }
+
+    if (!function_exists("currency")) {
+        function currency()
+        {
+            return Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION');
+        }
+    }
+
+    
 
     if (!function_exists("adminRoles")) {
         function adminRoles(){

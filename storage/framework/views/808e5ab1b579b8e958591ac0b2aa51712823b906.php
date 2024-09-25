@@ -1,55 +1,78 @@
 <?php $__env->startSection('title', 'Trainings'); ?>
 <?php $__env->startSection('css'); ?>
     <style>
-        .dropdown {
-            position: relative;
-            display: block;
-        }
+       .table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-        .btn{
-            margin: 5px 0;
-        }
-        .dropdown-button {
-            background-color: #17a2b8;
-            color: white;
-            padding: 4px 4px;
-            font-size: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+/* thead th {
+    background-color: #4e73df;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+} */
 
-        .dropdown-button:hover {
-            background-color: #138496; /* Slightly darker shade for hover */
-        }
-        /* Dropdown content (hidden by default) */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
 
-        /* Links inside the dropdown */
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
+.table-image {
+    width: 85px;
+    border-radius: 5px;
+    object-fit: cover;
+}
 
-        /* Change color of dropdown links on hover */
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
+/* .dropdown-button {
+    background-color: #f8f9fc;
+    border: 1px solid #4e73df;
+    color: #4e73df;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-        /* Show the dropdown content when the button is clicked */
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+.dropdown-button:hover {
+    background-color: #4e73df;
+    color: white;
+} */
+
+/* .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+} */
+
+.btn {
+    border-radius: 5px;
+    margin: 2px 0;
+}
+
+.actions-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.export-link {
+    color: brown;
+    font-weight: bold;
+}
+
+.export-link:hover {
+    text-decoration: underline;
+    color: darkred;
+}
+
     </style>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
@@ -70,12 +93,12 @@
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Banner</th>
                             <th>Title</th>
                             <th>Fee</th>
                             <th>Dates</th>
-                            <th>Payment Stats</th>
+                            <th>Participants</th>
                             <th>Status</th>
                             <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <th>Actions</th>
@@ -165,7 +188,7 @@
                                 <div class="" style="margin-bottom: 5px;">
                                     
                                     <?php if($program->close_registration == 0): ?>
-                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="<?php echo e(route('registration.close', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i>Close registration
+                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="<?php echo e(route('registration.close', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
                                     </a>
                                     <?php else: ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Extend Registration"

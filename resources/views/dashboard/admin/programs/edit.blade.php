@@ -24,8 +24,19 @@
             height: auto; /* Maintain aspect ratio */
         }
 
-        
-
+        .holder{
+            padding: 0px 10px;
+            margin-bottom:20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            background: antiquewhite; 
+        }
+        .field{
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 5px; background-color: #f9f9f9;
+        }
     </style>
 @endsection
 @extends('dashboard.admin.index')
@@ -43,7 +54,7 @@
                     <form action="{{route('programs.update', $program->id)}}" method="POST" enctype="multipart/form-data" class="pb-2">
                         {{ method_field('PATCH') }}
                         {{ csrf_field() }}
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
+                        <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Core Settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
@@ -119,12 +130,13 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                    <label>Does Program have pre class tests?</label>
-                                    <select name="hasmock" class="form-control" id="hasmock" required>
-                                        <option value="1" {{ $program->hasmock == 1 ? 'selected' : '' }}>Yes</option>
-                                        <option value="0" {{ $program->hasmock == 0 ? 'selected' : '' }}>No</option>
-                                    </select>
-                                    <small style="color:red">{{ $errors->first('p_end')}}</small>
+                                        <label>Does Program have pre class tests?</label>
+                                        <select name="hasmock" class="form-control" id="hasmock" required>
+                                            <option value="1" {{ $program->hasmock == 1 ? 'selected' : '' }}>Yes</option>
+                                            <option value="0" {{ $program->hasmock == 0 ? 'selected' : '' }}>No</option>
+                                        </select>
+                                        <small style="color:red">{{ $errors->first('p_end')}}</small>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -135,7 +147,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="md-6">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Status</label>
                                         <select name="status" class="form-control" id="status" required>
@@ -147,7 +159,7 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
+                        <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Payment settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
@@ -184,6 +196,7 @@
                                     </div>
                                 </div>
                             </div>
+                            
                             <div class="row" style="margin-top: 20px;">  
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Show Mode (2 payment modes only)</label>
@@ -197,56 +210,40 @@
                                     <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
                                 </div>
                             </div>
-                                {{-- <section>
-                                    <div class="row" style="margin-top: 20px;">                                   
-                                        <div class="col-md-6" style="margin-bottom:5px">
-                                            <label>Show Mode (2 payment modes only)</label>
-                                            <select name="show_modes" class="form-control" id="show_modes" required>
-                                                <option value="no" {{ $program->show_modes == 'no' ? 'selected' : '' }}>No</option>
-                                                <option value="yes" {{ $program->show_modes == 'yes' ? 'selected' : '' }}>Yes</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2" id="add_mode" style="display:{{ $program->show_modes == 'yes' ? 'block':'none' }}">
-                                            <label style="color:white">S</label>
-                                            <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
-                                        </div>
-                                    </div>
-                                </section> --}}
-                                <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
-                                    <div class="row" id="mode-0">
-                                    </div>
-                                    <?php $mode_counter = 1?>
-                                    @if($program->show_modes == 'yes' && isset($program->modes) && !empty($program->modes))
-                                        @foreach(json_decode($program->modes, true) as $key=>$value)
-                                            <?php $counter = $mode_counter++ ?>
-                                            <div class="row" id="oldmode-{{ $counter }}">
-                                                <div class="col-md-5">
-                                                    <div class="form-group">
-                                                        <label for="mode_name">Mode Name</label>
-                                                    
-                                                        <input type="select" class="form-control" value="{{ $key }}"
-                                                            name="mode_name[]" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-5">
-                                                    <div class="form-group">
-                                                        <label for="mode_amount">Mode Amount</label>
-                                                        <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <div class="form-group">
-                                                        <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
-                                                        <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
-                                                    </div>
+                            <section id="mode-holder" class="holder pt-2" style="display: none">
+                                <div class="row" id="mode-0">
+                                </div>
+                                <?php $mode_counter = 1?>
+                                @if($program->show_modes == 'yes' && isset($program->modes) && !empty($program->modes))
+                                    @foreach(json_decode($program->modes, true) as $key=>$value)
+                                        <?php $counter = $mode_counter++ ?>
+                                        <div class="row" id="oldmode-{{ $counter }}">
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label for="mode_name">Mode Name</label>
+                                                
+                                                    <input type="select" class="form-control" value="{{ $key }}"
+                                                        name="mode_name[]" required>
                                                 </div>
                                             </div>
-                                        @endforeach
-                                    @endif
-                                </section>
-                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label for="mode_amount">Mode Amount</label>
+                                                    <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
+                                                    <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </section>
                         </fieldset>
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
+                        <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Payment Restriction Settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
@@ -305,62 +302,26 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
+                        <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Certificate settings</legend>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-12" style="margin-bottom:5px">
                                     <div class="form-group">
-                                        <label>Training Title *</label>
-                                        <input type="text" name="p_name" value="{{ old('p_name') ?? $program->p_name}}" class="form-control" required>
+                                        <label>Only Certified Should See Certificate</label>
+                                        <select name="only_certified_should_see_certificate" class="form-control" id="only_certified_should_see_certificate" required>
+                                            <option value="">Select...</option>
+                                            <option value="yes" {{ $program->only_certified_should_see_certificate == 'yes' ? 'selected' : '' }}>Yes</option>
+                                            <option value="no" {{ $program->only_certified_should_see_certificate == 'no' ? 'selected' : '' }}>No</option>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Training Hashtag *</label>
-                                        <input type="text" name="p_abbr" value="{{ old('p_abbr') ?? $program->p_abbr }}" class="form-control" required>
-                                    </div>
-                                </div>
+        
                             </div>
                         </fieldset>
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
+                        <fieldset style="" class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Sub Trainings</legend>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Training Title *</label>
-                                        <input type="text" name="p_name" value="{{ old('p_name') ?? $program->p_name}}" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Training Hashtag *</label>
-                                        <input type="text" name="p_abbr" value="{{ old('p_abbr') ?? $program->p_abbr }}" class="form-control" required>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                        </fieldset>
-                        <fieldset style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 5px; background-color: #f9f9f9;">
-                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Auto Certificate settings</legend>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Training Title *</label>
-                                        <input type="text" name="p_name" value="{{ old('p_name') ?? $program->p_name}}" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Training Hashtag *</label>
-                                        <input type="text" name="p_abbr" value="{{ old('p_abbr') ?? $program->p_abbr }}" class="form-control" required>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                        </fieldset>
-                    
-                        <section>
-                            <div class="row" style="margin-top: 20px;">                                   
+                            <section>
+                            <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px">
                                     <label>Sub Trainings?</label>
                                     <select name="show_sub" class="form-control" id="show_sub" required>
@@ -374,15 +335,15 @@
                                 </div>
                             </div>
                         </section>
-                        <section id="sub-holder" style="background: antiquewhite; margin-top:15px !important; padding: 0px 10px;margin-bottom:20px">
-                            <div class="row" id="sub-0">
+                        <section id="sub-holder" class="holder pt-2" style="display: none">
+                            <div class="row pt-2" id="sub-0">
                             </div>
                             <?php $sub_counter = 1?>
                             @if(isset($program->subPrograms) && !empty($program->subPrograms))
                             @foreach($program->subPrograms as $sub)
                             <?php $counter = $sub_counter++ ?>
                                     <input type="hidden" name="sub_program_id[]" value="{{ $sub->id }}">
-                                    <div class="row" id="oldsub-{{ $counter }}">
+                                    <div class="row p-2" id="oldsub-{{ $counter }}">
                                         <div class="col-md-5">
                                             <div class="form-group">
                                                 <label for="sub_name" style="padding-top:10px">Sub Program Name</label>
@@ -416,56 +377,106 @@
                                 @endforeach
                             @endif
                         </section>
-                        
-                        {{-- <section>
-                            <div class="row" style="margin-top: 20px;">                                   
-                                <div class="col-md-6" style="margin-bottom:5px">
-                                    <label>Show Mode (2 payment modes only)</label>
-                                    <select name="show_modes" class="form-control" id="show_modes" required>
-                                        <option value="no" {{ $program->show_modes == 'no' ? 'selected' : '' }}>No</option>
-                                        <option value="yes" {{ $program->show_modes == 'yes' ? 'selected' : '' }}>Yes</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2" id="add_mode" style="display:{{ $program->show_modes == 'yes' ? 'block':'none' }}">
-                                    <label style="color:white">S</label>
-                                    <button class="btn btn-sm btn-info form-control" style="padding: 8px;" type="button" id="add-mode"><i class="fa fa-plus"></i> Add Mode</button>
-                                </div>
-                            </div>
-                        </section>
-                        <section id="mode-holder" style="background: antiquewhite; padding: 0px 10px;margin-bottom:20px">
-                            <div class="row" id="mode-0">
-                            </div>
-                            <?php $mode_counter = 1?>
-                            @if($program->show_modes == 'yes' && isset($program->modes) && !empty($program->modes))
-                                @foreach(json_decode($program->modes, true) as $key=>$value)
-                                    <?php $counter = $mode_counter++ ?>
-                                    <div class="row" id="oldmode-{{ $counter }}">
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label for="mode_name">Mode Name</label>
-                                               
-                                                <input type="select" class="form-control" value="{{ $key }}"
-                                                    name="mode_name[]" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <div class="form-group">
-                                                <label for="mode_amount">Mode Amount</label>
-                                                <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="form-group">
-                                                <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
-                                                <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
-                                            </div>
+                        </fieldset>
+                        <fieldset class="field">
+                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Auto Certificate settings</legend>
+                            <section>
+                                @php
+                                    $c_settings['auto_certificate_status'] = $c_settings['auto_certificate_status'] ?? 'no';
+                                @endphp
+                                <div class="row">  
+                                    <div class="col-md-6" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <label>Enable Auto generate certificate</label>
+                                            <select name="auto_certificate_status" class="form-control" id="auto_certificate_status" required>
+                                                <option value="">Select...</option>
+                                                <option value="yes" {{ isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                                                <option value="no" {{ isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>No</option>
+                                            </select>
                                         </div>
                                     </div>
-                                @endforeach
-                            @endif
-                        </section> --}}
-                        
-                        <section>
+
+                                    <div class="col-md-6" style="margin-bottom:5px">
+                                        @if(isset($certificate_settings['auto_certificate_template']))
+                                        <div class="form-group">
+                                            <label>Replace Certificate Template</label> <br> 
+                                            <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
+                                        </div>
+                                        @else
+                                        <div class="form-group">
+                                            <label>Upload Certificate Template</label>
+                                            <input type="file" id="auto_certificate_template" name="auto_certificate_template" value="{{ old('auto_certificate_template') }}" class="form-control">
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if(!empty($c_settings['settings']))
+                                    @foreach($c_settings['settings'] as $setting)
+                                    <div class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text Type</label>
+                                                <select name="text_type[]" class="form-control" id="text_type" required>
+                                                    <option value="">Select...</option>
+                                                    <option value="certificate_number">Certificate Number</option>
+                                                    <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
+                                                    <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
+                                                    <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text font size, e.g 150</label>
+                                                <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text font weight e.g 300</label>
+                                                <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')}}" id="auto_certificate_name_font_weight">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text Top offset. e.g 300</label>
+                                                <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" id="auto_certificate_top_offset">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text Left offset. e.g 100</label>
+                                                <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" id="auto_certificate_left_offset">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Text color</label>
+                                                <input type="color" class="form-control" name="auto_certificate_color[]" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+
+                                    @endforeach
+                                @endif
+                                <!-- Container for dynamically added rows -->
+                                <div id="certificateRows"></div>
+                                <div class="row mt-5">
+                                    <div class="col-md-4" style="margin-bottom:5px">
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-success btn-sm" id="addRowButton"><i class="fa fa-plus"></i> Add New Row</button>
+                                            <button type="button" class="btn-info btn-sm" id="previewButton"><i class="fa fa-eye"></i> Preview</button>
+                                        </div>
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </fieldset>
+                        <fieldset class="field">
+                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Others</legend>
+                            <section>
                             <div class="row">                                   
                                 <div class="col-md-6" style="margin-bottom:5px;">
                                     <label>Show Location</label>
@@ -480,7 +491,7 @@
                                 </div>
                             </div>
                         </section>
-                        <section id="course-holder" style="background: #80c4ff;padding: 0 10px; margin-bottom: 10px;">
+                        <section id="course-holder" class="holder pt-2" style="display: none">
                             <div class="row" id="course-0">
                             </div>
                             <?php $location_counter = 1 ?>
@@ -504,7 +515,7 @@
                                     
                                     <div class="col-md-2">
                                         <div class="form-group">
-                                            <label for="mark" style="color:#80c4ff">sdsdsddsdssd</label>
+                                            <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                                             <button class="btn btn-danger remove-old-course" id="oldcourse-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                         </div>
                                     </div>
@@ -512,96 +523,9 @@
                                 @endforeach
                             @endif
                         </section>
-                        <section style="padding: 0px 10px;border: solid 1px blue;margin: 20px 0;">
-                            <div class="row" style="background:#6eeeee;padding:20px 0px;">  
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <label>Enable Auto generate certificate</label>
-                                        <select name="auto_certificate_status" class="form-control" id="auto_certificate_status" required>
-                                            <option value="">Select...</option>
-                                            <option value="yes" {{ isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'yes' ? 'selected' : '' }}>Yes</option>
-                                            <option value="no" {{ isset($c_settings['auto_certificate_status']) && $c_settings['auto_certificate_status'] == 'no' ? 'selected' : '' }}>No</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    @if(isset($certificate_settings['auto_certificate_template']))
-                                    <div class="form-group">
-                                        <label>Replace Certificate Template</label> <br> 
-                                        <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
-                                    </div>
-                                    @else
-                                    <div class="form-group">
-                                        <label>Upload Certificate Template</label>
-                                        <input type="file" id="auto_certificate_template" name="auto_certificate_template" value="{{ old('auto_certificate_template') }}" class="form-control">
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            @if(!empty($c_settings['settings']))
-                                @foreach($c_settings['settings'] as $setting)
-                                <div class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text Type</label>
-                                            <select name="text_type[]" class="form-control" id="text_type" required>
-                                                <option value="">Select...</option>
-                                                <option value="certificate_number">Certificate Number</option>
-                                                <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
-                                                <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
-                                                <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text font size, e.g 150</label>
-                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text font weight e.g 300</label>
-                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')}}" id="auto_certificate_name_font_weight">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text Top offset. e.g 300</label>
-                                            <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" id="auto_certificate_top_offset">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text Left offset. e.g 100</label>
-                                            <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" id="auto_certificate_left_offset">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
-                                            <label>Text color</label>
-                                            <input type="color" class="form-control" name="auto_certificate_color[]" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
-                                        </div>
-                                    </div>
-                                    
-                                </div>
-
-                                @endforeach
-                            @endif
-                            <!-- Container for dynamically added rows -->
-                            <div id="certificateRows"></div>
-                            <div class="row mt-5">
-                                <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
-                                        <button type="button" class="btn btn-success btn-sm" id="addRowButton"><i class="fa fa-plus"></i> Add New Row</button>
-                                        <button type="button" class="btn-info btn-sm" id="previewButton"><i class="fa fa-eye"></i> Preview</button>
-                                    </div>
-                                    <div class="form-group">
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                        </fieldset>
+                        
+                       
                         <div class="col-12">
                             <input type="submit" name="submit" value="Update" class="btn btn-primary" style="width:100%">
                         </div>
@@ -793,7 +717,7 @@
                 
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label for="mark" style="color:#80c4ff">sdsdsddsdssd</label>
+                        <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                         <button class="btn btn-danger remove-course" id="remove-course-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                     </div>
                 </div>
