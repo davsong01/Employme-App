@@ -136,8 +136,6 @@
                             <div class="badge float-right">
                                 <span class="transaction-count"><?php echo e($records); ?></span> <!-- Number of transactions -->
                             </div>
-
-
                         </div>
                         <div class="mt-4">
                             <form class="form-inline search-form" method="GET" action="<?php echo e(route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id])); ?>">
@@ -157,8 +155,6 @@
                                 <button type="submit" class="btn btn-primary btn-search mb-2">Search</button>
                             </form>
                         </div>
-
-
                     </div>
                 </div>
             </div>

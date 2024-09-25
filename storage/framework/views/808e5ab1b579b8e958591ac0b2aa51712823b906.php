@@ -1,13 +1,45 @@
 <?php $__env->startSection('title', 'Trainings'); ?>
 <?php $__env->startSection('css'); ?>
     <style>
+       .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-image {
+            width: 85px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .btn {
+            border-radius: 5px;
+            margin: 2px 0;
+        }
+
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .export-link {
+            color: brown;
+            font-weight: bold;
+        }
+
+        .export-link:hover {
+            text-decoration: underline;
+            color: darkred;
+        }
+
         .dropdown {
             position: relative;
             display: block;
-        }
-
-        .btn{
-            margin: 5px 0;
         }
         .dropdown-button {
             background-color: #17a2b8;
@@ -50,6 +82,7 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
     </style>
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
@@ -70,12 +103,12 @@
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Banner</th>
                             <th>Title</th>
                             <th>Fee</th>
                             <th>Dates</th>
-                            <th>Payment Stats</th>
+                            <th>Participants</th>
                             <th>Status</th>
                             <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <th>Actions</th>
@@ -163,9 +196,10 @@
                             <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="<?php echo e(route('password.reset', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password
                                     
                                     <?php if($program->close_registration == 0): ?>
-                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="<?php echo e(route('registration.close', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i>Close registration
+                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="<?php echo e(route('registration.close', $program->id)); ?>" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
                                     </a>
                                     <?php else: ?>
                                     <a data-toggle="tooltip" data-placement="top" title="Extend Registration"
@@ -175,6 +209,7 @@
                                     <?php endif; ?>
                                     <?php endif; ?>                                   
                                 </div>
+                                
                                 <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                                 <div class="" style="margin-bottom: 5px;">
                                     <a data-toggle="tooltip" data-placement="top" title="Clone Training"

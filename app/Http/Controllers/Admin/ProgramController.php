@@ -8,11 +8,13 @@ use App\Module;
 use App\Program;
 use App\Material;
 use App\Question;
+use App\Transaction;
 use App\ScoreSetting;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProgramDetailsExport;
 use Intervention\Image\Facades\Image;
@@ -187,7 +189,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment' ]);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate' ]);
 
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
@@ -509,4 +511,28 @@ class ProgramController extends Controller
 
         return back()->with('message', 'Training cloned successfully');
     }
+
+    public function passwordReset($id)
+    {
+        $transactions = Transaction::with('user')->where('program_id', $id)->get();
+
+        $plainPassword = '11111';
+        $hashedPassword = Hash::make($plainPassword);
+
+        $counter = 0;
+
+        DB::transaction(function () use ($transactions, $hashedPassword, &$counter) {
+            foreach ($transactions as $transaction) {
+                if ($transaction->user) {
+                    $transaction->user->update([
+                        'password' => $hashedPassword
+                    ]);
+                    $counter++;
+                }
+            }
+        });
+        
+        return back()->with('message', "Password for $counter participants successfully reset to: $plainPassword");
+    }
+
 }

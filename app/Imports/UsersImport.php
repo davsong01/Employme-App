@@ -2,7 +2,9 @@
 
 namespace App\Imports;
 
+use App\User;
 use App\Program;
+use App\Transaction;
 use Faker\Factory as Faker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -26,52 +28,80 @@ class UsersImport implements ToCollection, WithHeadingRow
     public function collection(Collection $rows)
     {
         set_time_limit(3600);
-        $program = Program::where('id', $this->p_id)->first();
-        
+        $program = Program::find($this->p_id);
+
         foreach ($rows as $row) {
-            if(empty($row['email'])){
+            if (empty($row['email'])) {
+                // Generate fake email if missing
                 $faker = Faker::create();
                 $programId = $program->id;
-
                 $row['email'] = $faker->unique()->userName . "{$programId}@" . $faker->safeEmailDomain;
-            }else{
+            } else {
+                // Check if email already exists
+                $user = User::select('id', 'email')->where('email', $row['email'])->first();
+
+                if ($user) {
+                    $check = Transaction::where('user_id', $user->id)
+                        ->where('program_id', $program->id)
+                        ->first();
+
+                    if ($check) {
+                        continue; // Skip if transaction exists for this user and program
+                    }
+                }
+
+                // Normalize email
                 $row['email'] = strtolower($row['email']);
             }
 
-            Validator::make($row->toArray(),
-                [
-                    'email'=> 'required',
-                    'email'=> 'required|unique:users,email',
-                    'name' => 'required',
-                    'phone' => 'nullable',
-                    'gender' => 'nullable',
-                    'location' => 'nullable',
-                ],
-                [
-                    'email.required' => 'One or more users do not have an email, please check and try again',
-                    'email.unique' => 'One or more email already exists in database, please check and try again',
-                    'name.required' => 'One or more rows require name, Please check and try again',
-                    // 'phone.required' => 'One or more rows require phone number, Please check and try again',
-                    // 'gender.required' => 'One or more rows require gender, Please check and try again',
-                ]
-            )->validate();
-                
+            // Staff ID check
+            $staffID = $row['staffID'] ?? ($row['staffid'] ?? null);
+            if (!empty($staffID)) {
+                $user = User::select('id', 'staffID')->where('staffID', $staffID)->first();
+
+                if ($user) {
+                    $check = Transaction::where('user_id', $user->id)
+                        ->where('program_id', $program->id)
+                        ->first();
+
+                    if ($check) {
+                        continue; // Skip if transaction exists for this user and program
+                    }
+                }
+            }
+
+            // Validate the row data
+            Validator::make($row->toArray(), [
+                'email' => 'required|unique:users,email',
+                'name' => 'required',
+                'phone' => 'nullable',
+                'gender' => 'nullable',
+                'location' => 'nullable',
+            ], [
+                'email.required' => 'One or more users do not have an email, please check and try again.',
+                'email.unique' => 'One or more emails already exist in the database, please check and try again.',
+                'name.required' => 'One or more rows require a name, please check and try again.',
+            ])->validate();
+
+            // Normalize data before processing
             $row['staffID'] = $row['staffID'] ?? ($row['staffid'] ?? null);
             $row['phone'] = $row['phone'] ?? null;
             $row->forget(['staffid']);
-            
+
+            // Exclude unnecessary metadata
             $row['metadata'] = Arr::except($row->toArray(), ['name', 'staffID', 'phone', 'gender', 'location', 'email', 'staffid', 't_phone']);
-            
+
+            // Prepare training details and attach program
             $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
-                
             $data['payment_type'] = 'Full';
             $data['message'] = 'Full payment';
             $data['paymentStatus'] = 1;
             $data['currency_symbol'] = '&#x20A6;';
             $data['balance'] = 0;
-            // $c = $c ?? NULL; // Coupon
             $data['new'] = 'yes';
-            $data = app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null, );
+
+            // Create user, attach program, and update earnings
+            app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null);
         }
     }
 
