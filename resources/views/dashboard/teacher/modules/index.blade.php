@@ -19,7 +19,7 @@
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Training</th>
                             <th>Modules</th> 
                             <th>Questions</th>                           

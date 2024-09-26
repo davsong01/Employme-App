@@ -10,7 +10,7 @@
 <table class="table table-bordered" id="example">
 
 <thead>
-  <th>S/N</th>
+  <th>#</th>
   <th>Firstname</th>
   <th>Lastname</th>
 </thead>

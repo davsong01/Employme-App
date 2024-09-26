@@ -62,7 +62,7 @@
 		<table class="table table-bordered">
 			<thead>
 				<tr>
-					<th>S/N</th>
+					<th>#</th>
 					<th>DESCRIPTION</th>
 					<th>FEE</th>
 					<th>AMOUNT PAID</th>

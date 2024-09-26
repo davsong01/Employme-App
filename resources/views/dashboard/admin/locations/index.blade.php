@@ -17,7 +17,7 @@
                 <table id="zero_config" class="table table-striped table-bordered responsive">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Name</th>
                             <th>Training</th>
                             <th>Actions</th>

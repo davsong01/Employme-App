@@ -16,7 +16,7 @@
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Code</th>
                             <th>Amount</th>
                             <th>Training</th>

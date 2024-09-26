@@ -148,7 +148,7 @@
                     
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Date</th>
                             <th>Details</th>
                             <th>Test Scores</th>

@@ -135,7 +135,7 @@ a.pre-order-btn:hover {
                                 </a> <br>
                                 <input type="checkbox" id="all"/>
                             </th>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Name</th>
                             @if(!empty($score_settings))
                             <th style="width: 115px;">Program Details</th>

@@ -17,7 +17,7 @@
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Avatar</th>
                             <th>Name</th>
                             <th>Role</th>

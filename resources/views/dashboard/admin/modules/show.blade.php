@@ -63,7 +63,7 @@
                 <table id="zero_config" class="">
                     <thead>
                         <tr>
-                            <th>S/N</th>
+                            <th>#</th>
                             <th>Date</th>
                             <th>Title</th>                            
                             <th>Associated Training</th>
