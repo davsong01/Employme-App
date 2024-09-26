@@ -664,24 +664,25 @@ class ResultController extends Controller
             }
 
             // Save result thread
-            $thread = \DB::table('result_threads')->insert([
-                'result_id' => $results->id,
-                'submitted_on' => $results->created_at,
-                "program_id" => $results->program_id,
-                "module_id" => $results->module_id,
-                "user_id" => $results->user_id,
-                "marked_by" => $results->marked_by,
-                "grader" => $results->grader,
-                "class_test_score" => $results->class_test_score,
-                "class_test_details" => $results->class_test_details,
-                "certification_test_score" => $results->certification_test_score,
-                "certification_test_details" => $results->certification_test_details,
-                "role_play_score" => $results->role_play_score,
-                "crm_test_score" => $results->crm_test_score,
-                "email_test_score" => $results->email_test_score,
-                "facilitator_comment" => $results->facilitator_comment,
-                "grader_comment" => $results->grader_comment
-            ]);
+            $this->createResultThread($results);
+            // $thread = \DB::table('result_threads')->insert([
+            //     'result_id' => $results->id,
+            //     'submitted_on' => $results->created_at,
+            //     "program_id" => $results->program_id,
+            //     "module_id" => $results->module_id,
+            //     "user_id" => $results->user_id,
+            //     "marked_by" => $results->marked_by,
+            //     "grader" => $results->grader,
+            //     "class_test_score" => $results->class_test_score,
+            //     "class_test_details" => $results->class_test_details,
+            //     "certification_test_score" => $results->certification_test_score,
+            //     "certification_test_details" => $results->certification_test_details,
+            //     "role_play_score" => $results->role_play_score,
+            //     "crm_test_score" => $results->crm_test_score,
+            //     "email_test_score" => $results->email_test_score,
+            //     "facilitator_comment" => $results->facilitator_comment,
+            //     "grader_comment" => $results->grader_comment
+            // ]);
 
             $results->certification_test_details = NULL;
             $results->certification_test_score = NULL;
@@ -729,6 +730,29 @@ class ResultController extends Controller
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
         return back()->with('error', 'You are not allowed to perform this action');
+    }
+
+    public function createResultThread($results){
+        $thread = ResultThread::create([
+            'result_id' => $results->id,
+            'submitted_on' => $results->created_at,
+            "program_id" => $results->program_id,
+            "module_id" => $results->module_id,
+            "user_id" => $results->user_id,
+            "marked_by" => $results->marked_by,
+            "grader" => $results->grader,
+            "class_test_score" => $results->class_test_score,
+            "class_test_details" => $results->class_test_details,
+            "certification_test_score" => $results->certification_test_score,
+            "certification_test_details" => $results->certification_test_details,
+            "role_play_score" => $results->role_play_score,
+            "crm_test_score" => $results->crm_test_score,
+            "email_test_score" => $results->email_test_score,
+            "facilitator_comment" => $results->facilitator_comment,
+            "grader_comment" => $results->grader_comment
+        ]);
+
+        return $thread;
     }
 
     public function verify(Request $request)

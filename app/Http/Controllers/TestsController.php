@@ -18,7 +18,6 @@ class TestsController extends Controller
 {
     public function index(Request $request)
     {
-
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
@@ -244,6 +243,25 @@ class TestsController extends Controller
         $comments = Result::where('id', $id)->first();
         $program = Program::find($request->p_id);
         return view('dashboard.student.tests.result_comments', compact('comments', 'id', 'program'));
+    }
+
+    public function retakeTest(Request $request, Module $module){
+        $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', auth()->user()->id)->get();
+        
+        
+        $history = app('App\Http\Controllers\ResultController')->createResultThread($result);
+        $results->certification_test_details = NULL;
+        $results->certification_test_score = NULL;
+        $results->grader = NULL;
+        
+        if($module->type = 1){
+            $results->redo_test = 1;
+        }
+
+        $results->save();
+
+        return Redirect::to('tests?p_id=' . $program->id);
+
     }
 
     public function edit($id)

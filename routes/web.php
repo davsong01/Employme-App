@@ -107,6 +107,8 @@ Route::get('pretestresults', 'MockController@pretest')->name('pretest.select')->
 Route::any('pretestresults/{id}', 'MockController@getgrades')->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
 Route::get('mockuser/{uid}/module/{modid}', 'MockController@grade')->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
 Route::get( 'userresults', 'TestsController@userresults')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
+Route::get('retake-test/{module}', 'TestsController@retakeTest')->middleware(['impersonate', 'auth', 'programCheck'])->name('user.retake.module.test');
+
 Route::get('userresultscomments/{id}', 'TestsController@userResultComments')->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results.comment');
 Route::get('balance-checkout', 'HomeController@balanceCheckout')->name('balance.checkout')->middleware(['impersonate', 'auth', 'programCheck']);
 

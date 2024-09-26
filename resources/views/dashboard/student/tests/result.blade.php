@@ -18,9 +18,8 @@
             <div>
                 <h5 style="color:red">No completed tests Yet! Go back and take a Post Class Test</h5>
             </div> 
-        </>
         @else   
-         <div class="row"> 
+        <div class="row"> 
             <div class="col-md-12">
                 <h5> <strong>OVERALL TEST RESULTS</strong></h5>
             </div>
@@ -35,13 +34,13 @@
                     <div class="box bg-success text-center">
                         <h1 class="font-light text-white"><i class="fa fa-list-alt"></i></h1>
                         <div class="card-title">
-                           
                         <h5 class="font-light text-white"> <b>Training: </b>  {{ $program->p_name }}</h5>
                         <h5 class="font-light text-white"> <b>Module: </b>{{ $result->module->title}}</h5>
                             <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                             <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                 @if($result->module->type == 'Class Test')
-                                    {{$result->class_test_score .'/'.$result->module->noofquestions}}
+                                    {{$result->class_test_score .'/'.$result->module->noofquestions}} 
+                                    @if($result->module->allow_test_retake == 1 && $result->class_test_score < $result->module->noofquestions)<a onclick="return confirm('This will clear all your scores for this module. Are you sure you want to do this?');" href="{{ route('user.retake.module.test', ['module' => $result->module_id, 'p_id'=>$result->program_id])}}" style="border-radius: 10px;" class="btn btn-danger btn-sm"><i class="fas fa-redo"></i> Retake</a>@endif
                                 @endif
                                 @if($result->module->type == 'Certification Test')
                                     {{ ($result->certification_test_score > 0) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing' }}

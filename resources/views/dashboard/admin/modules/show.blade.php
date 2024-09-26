@@ -82,7 +82,11 @@
 
                             <td>{{ $module->created_at->format('d/m/Y') }}</td>
                             <td>{{ $module->title }}<br><span style="color: red">{{$module->type }}</span></td>
-                            <td>{{ $module->program->p_name}}</td>
+                            <td>{{ $module->program->p_name}}
+                                @if($module->allow_test_retake == 1)
+                                <br> <button style="border-radius: 10px;" class="btn btn-danger btn-sm">Can Retake Tests</button>
+                                @endif
+                            </td>
                             <td>{{ $module->noofquestions }}</td>
                             <td>{{ $module->questions->count() }}</td>
                             <td>{{ $module->time}} minutes</td>

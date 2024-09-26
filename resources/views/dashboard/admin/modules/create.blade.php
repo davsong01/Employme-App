@@ -74,7 +74,13 @@
                                     </span>
                                     @endif
                                 </div>
-
+                                <div class="form-group">
+                                    <label>Allow Test retake</label>
+                                    <select name="allow_test_retake" class="form-control" id="allow_test_retake" required>
+                                        <option value="1" {{ old('allow_test_retake') == 1 ? 'selected' : '' }}>Yes</option>
+                                        <option value="0" {{ old('allow_test_retake') == 0 ? 'selected' : '' }}>No</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="row">

@@ -13,18 +13,20 @@ class CreatePaymentThreadsTable extends Migration
      */
     public function up()
     {
-        Schema::create('payment_threads', function (Blueprint $table) {
-            $table->id();
-            $table->integer('program_id');
-            $table->integer('user_id');
-            $table->string('payment_id');
-            $table->string('admin_id')->nullable();
-            $table->string('t_type');
-            $table->string('transaction_id');
-            $table->string('parent_transaction_id');
-            $table->decimal('amount', 11, 2);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('payment_threads')) {
+            Schema::create('payment_threads', function (Blueprint $table) {
+                $table->id();
+                $table->integer('program_id');
+                $table->integer('user_id');
+                $table->string('payment_id');
+                $table->string('admin_id')->nullable();
+                $table->string('t_type');
+                $table->string('transaction_id');
+                $table->string('parent_transaction_id');
+                $table->decimal('amount', 11, 2);
+                $table->timestamps();
+            });
+        }
     }
     
     /**

@@ -95,7 +95,9 @@ class ModuleController extends Controller
             'status' => 'required|numeric',
             'time' => 'required|numeric|min:2',
             'type' => 'required|numeric',
-            'noofquestions' => 'required|numeric'
+            'noofquestions' => 'required|numeric',
+            'allow_test_retake' => 'required|numeric'
+
         ]);
 
         if ($data['type'] == 1 && $data['noofquestions'] > 1) {
@@ -115,6 +117,7 @@ class ModuleController extends Controller
             'noofquestions' => $request->noofquestions,
             'time' => $request->time,
             'type' => $request->type,
+            'allow_test_retake' => $request->allow_test_retake
         ]);
 
         return redirect(route('facilitatormodules', $request->program))->with('message', 'Module succesfully added');
@@ -144,6 +147,7 @@ class ModuleController extends Controller
             'status' => $module->status,
             'noofquestions' => $module->noofquestions,
             'time' => $module->time,
+            'allow_test_retake' => $module->allow_test_retake,
             'type' => $type,
         ]);
 
@@ -220,6 +224,7 @@ class ModuleController extends Controller
             'noofquestions' => $request->noofquestions,
             'time' => $request->time,
             'type' => $request->type,
+            'allow_test_retake' => $request->allow_test_retake
         ]);
         return redirect(route('facilitatormodules', $module->program))->with('message', 'Module succesfully updated');
     }

@@ -120,6 +120,15 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label>Enable Flexible timing?</label>
+                                        <select name="allow_preferred_timing" class="form-control" id="allow_preferred_timing" required>
+                                            <option value="no" <?php echo e($program->allow_preferred_timing == 'no' ? 'selected' : ''); ?>>No</option>
+                                            <option value="yes" <?php echo e($program->allow_preferred_timing == 'yes' ? 'selected' : ''); ?>>Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <?php if($program->booking_form): ?>
                                         <label>Replace Booking form</label>
                                         <i data-toggle="tooltip" title="<?php echo e($program->booking_form); ?>" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
@@ -140,15 +149,7 @@
                                         <small style="color:red"><?php echo e($errors->first('p_end')); ?></small>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Enable Flexible timing?</label>
-                                        <select name="allow_preferred_timing" class="form-control" id="allow_preferred_timing" required>
-                                            <option value="no" <?php echo e($program->allow_preferred_timing == 'no' ? 'selected' : ''); ?>>No</option>
-                                            <option value="yes" <?php echo e($program->allow_preferred_timing == 'yes' ? 'selected' : ''); ?>>Yes</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Status</label>

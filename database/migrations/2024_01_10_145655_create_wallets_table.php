@@ -13,20 +13,22 @@ class CreateWalletsTable extends Migration
      */
     public function up()
     {
-        Schema::create('wallets', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id');
-            $table->integer('amount');
-            $table->string('type');
-            $table->string('method');
-            $table->string('provider')->nullable();
-            $table->string('status')->default('pending');
-            $table->string('transaction_id');
-            $table->integer('admin_id')->nullable();
-            $table->string('proof_of_payment')->nullable();
-            
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('wallets')) {
+            Schema::create('wallets', function (Blueprint $table) {
+                $table->id();
+                $table->integer('user_id');
+                $table->integer('amount');
+                $table->string('type');
+                $table->string('method');
+                $table->string('provider')->nullable();
+                $table->string('status')->default('pending');
+                $table->string('transaction_id');
+                $table->integer('admin_id')->nullable();
+                $table->string('proof_of_payment')->nullable();
+                
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -77,6 +77,17 @@
                                     </span>
                                     @endif
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Allow Test retake</label>
+                                        <select name="allow_test_retake" class="form-control" id="allow_test_retake" required>
+                                            <option value="1" {{ $program->allow_test_retake == 1 ? 'selected' : '' }}>Yes</option>
+                                            <option value="0" {{ $program->allow_test_retake == 0 ? 'selected' : '' }}>No</option>
+                                        </select>
+                                        <small style="color:red">{{ $errors->first('p_end')}}</small>
+                                    </div>
+                                </div>
+                                
                         
                             </div>
                         </div>
