@@ -248,19 +248,20 @@ class TestsController extends Controller
     public function retakeTest(Request $request, Module $module){
         $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', auth()->user()->id)->get();
         
-        
-        $history = app('App\Http\Controllers\ResultController')->createResultThread($result);
-        $results->certification_test_details = NULL;
-        $results->certification_test_score = NULL;
-        $results->grader = NULL;
-        
-        if($module->type = 1){
-            $results->redo_test = 1;
+        foreach($results as $result){
+            $history = app('App\Http\Controllers\Admin\ResultController')->createResultThread($result);
+            $result->certification_test_details = NULL;
+            $result->certification_test_score = NULL;
+            $result->grader = NULL;
+            
+            if($module->type = 1){
+                $result->redo_test = 1;
+            }
+    
+            $result->save();
+            \Log::info(['reseult_id' => $result->id, 'history_id' => $history->id]);
+            return Redirect::to('tests?p_id=' . request()->get('p_id'));
         }
-
-        $results->save();
-
-        return Redirect::to('tests?p_id=' . $program->id);
 
     }
 

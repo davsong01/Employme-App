@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ResultThread extends Model
 {
     use HasFactory;
-
+    protected $guarded = [];
+    
     protected $table = 'result_threads';
     
     public function program()

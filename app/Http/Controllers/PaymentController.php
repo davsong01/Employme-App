@@ -707,7 +707,7 @@ class PaymentController extends Controller
         // $data['payment_type'] = 'Part';
         // $data['message'] = 'Part payment';
         // $data['paymentStatus'] = 1;
-   
+        
         // Log wallet
         $wallet['amount'] = abs($request->amount);
         $wallet['transaction_id'] = $allDetails['transaction_id'];
@@ -716,7 +716,7 @@ class PaymentController extends Controller
         $wallet['provider'] = 'SYSTEM';
         $wallet['status'] = 'approved';
         $wallet['user_id'] = $user->id;
-       
+        
         app('App\Http\Controllers\WalletController')->logWallet($wallet);
         
         if($request['type'] == 'balance'){
