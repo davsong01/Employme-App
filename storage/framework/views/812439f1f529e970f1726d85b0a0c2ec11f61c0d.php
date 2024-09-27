@@ -87,8 +87,8 @@
                                 <br />
                                 <span id="LblMatricno2"
                                     
-                                <br />
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;"><?php echo e(strtoupper($details['program'] )); ?></span>
+                                <br/>
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;"><?php echo e(strtoupper($details['program']->p_name )); ?></span>
                                 <br />
                                 <?php if(!empty($details['staffID'])): ?>
                                 <span id="LblDept" style="font-size:Small;font-weight:bold;">STAFF ID: <span style="color:blue"><?php echo e($details['staffID']); ?></span></span>

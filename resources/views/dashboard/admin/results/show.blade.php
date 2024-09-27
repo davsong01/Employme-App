@@ -87,8 +87,8 @@
                                 <br />
                                 <span id="LblMatricno2"
                                     {{-- style="font-size:Small;font-weight:bold;">R/{{strtoupper($details->program->p_abbr)}}/{{strtoupper($details->program_id)}}/{{strtoupper($details->user->id)}}</span> --}}
-                                <br />
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details['program'] )}}</span>
+                                <br/>
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details['program']->p_name )}}</span>
                                 <br />
                                 @if(!empty($details['staffID']))
                                 <span id="LblDept" style="font-size:Small;font-weight:bold;">STAFF ID: <span style="color:blue">{{$details['staffID'] }}</span></span>
