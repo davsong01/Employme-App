@@ -40,7 +40,11 @@
                             <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                 @if($result->module->type == 'Class Test')
                                     {{$result->class_test_score .'/'.$result->module->noofquestions}} 
-                                    @if($result->module->allow_test_retake == 1 && $result->class_test_score < $result->module->noofquestions)<a onclick="return confirm('This will clear all your scores for this module. Are you sure you want to do this?');" href="{{ route('user.retake.module.test', ['module' => $result->module_id, 'p_id'=>$result->program_id])}}" style="border-radius: 10px;" class="btn btn-danger btn-sm"><i class="fas fa-redo"></i> Retake</a>@endif
+                                    @php
+                                        $details = certificationStatus($program->id, auth()->user()->id);
+                                    @endphp
+
+                                    @if($result->module->allow_test_retake == 1 && $details['status'] == 'NOT CERTIFIED')<a onclick="return confirm('This will clear all your scores for this module. Are you sure you want to do this?');" href="{{ route('user.retake.module.test', ['module' => $result->module_id, 'p_id'=>$result->program_id])}}" style="border-radius: 10px;" class="btn btn-danger btn-sm"><i class="fas fa-redo"></i> Retake</a>@endif
                                 @endif
                                 @if($result->module->type == 'Certification Test')
                                     {{ ($result->certification_test_score > 0) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing' }}

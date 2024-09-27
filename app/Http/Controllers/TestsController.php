@@ -246,20 +246,18 @@ class TestsController extends Controller
     }
 
     public function retakeTest(Request $request, Module $module){
-        $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', auth()->user()->id)->get();
+        // $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', auth()->user()->id)->get();
+        $details = certificationStatus(request()->get('p_id'), auth()->user()->id);
+        $results = $details['results'];
+        
+        if (!$details || $details['status'] == 'CERTIFIED') {
+            return back()->with('error', 'You are already certified for this training');
+        }
         
         foreach($results as $result){
             $history = app('App\Http\Controllers\Admin\ResultController')->createResultThread($result);
-            $result->certification_test_details = NULL;
-            $result->certification_test_score = NULL;
-            $result->grader = NULL;
-            
-            if($module->type = 1){
-                $result->redo_test = 1;
-            }
-    
-            $result->save();
-            \Log::info(['reseult_id' => $result->id, 'history_id' => $history->id]);
+            $result->delete();
+
             return Redirect::to('tests?p_id=' . request()->get('p_id'));
         }
 

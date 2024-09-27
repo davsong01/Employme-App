@@ -583,15 +583,16 @@ class ResultController extends Controller
     {
         if (!empty(array_intersect(studentRoles(), Auth::user()->role())) || Auth::user()->id == $id) {
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            $program = Program::find($request->p_id);
-            
+            $details = certificationStatus($request->p_id, auth()->user()->id);
+
+            $program = $details['program'] ?? collect([]);
+            $result = $details['results'] ?? collect([]);
+
             if ($program->allow_payment_restrictions_for_results == 'yes') {
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
                 }
             }
-
-            $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->get();
 
             if ($program->hasresult == 0) {
                 return back()->with('error', 'Results for this program have not been enabled, Please check back!');
@@ -605,8 +606,6 @@ class ResultController extends Controller
                         return back()->with('error', 'Dear ' . Auth::user()->name . ', Please pay your balance of ' . $balance . ' in order to view/print your result');
                     }
                 }
-
-                $details = certificationStatus($result, $program);
                 
                 return view('dashboard.admin.results.show', compact('details', 'program'));
             }
@@ -615,7 +614,7 @@ class ResultController extends Controller
         } elseif (!empty(array_intersect(teacherRoles(), Auth::user()->role()))) {
             $result = Result::where('user_id', $id)->first();
             $resultcount = (count($result));
-           
+            
             return view('dashboard.admin.results.show', compact('result'));
         }
         return redirect('/');

@@ -29,7 +29,8 @@ class CertificateController extends Controller
         }
 
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
-            $program = Program::find($request->p_id);
+            $details = certificationStatus($request->p_id, auth()->user()->id);
+            $program = $details['program'] ?? collect([]);
 
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
@@ -40,16 +41,15 @@ class CertificateController extends Controller
             }
 
             if ($program->only_certified_should_see_certificate == 'yes') {
-                $result = Result::with('program', 'module', 'user')->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->get();
-    
-                $details = certificationStatus($result, $program);
-                if(!$details){
+                $details = $details['status'] ?? collect([]);
+
+                if (!$details || $details['status'] == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
 
-                if(isset($details['status']) && $details['status'] == 'NOT CERTIFIED'){
-                    return back()->with('error', 'You must be certified before you can view certificate');
-                }
+                // if (isset($details['status']) && $details['status'] == 'NOT CERTIFIED') {
+                //     return back()->with('error', 'You must be certified before you can view certificate');
+                // }
             }
             
             $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
