@@ -99,6 +99,7 @@
                     <table class="table table-striped table-bordered" style="width:100%">
                         <thead>
                             <tr>
+                                <th>#</th>
                                 <th>Customer details</th>
                                 <th>Training details</th>
                                 <th>Payment details</th>
@@ -110,6 +111,7 @@
                             @foreach($transactions as $transaction)
                             
                             <tr>
+                                <td>{{ $i++ }}</a>
                                 <td><strong>Name: </strong><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
                                     <br> <strong>Phone: </strong>{{ $transaction->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }} <br> <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
                                 <td>
