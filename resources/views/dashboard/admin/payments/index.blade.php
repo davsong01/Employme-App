@@ -251,7 +251,8 @@
                         
                     </table>
                 </div>
-                {{ $transactions->links() }}
+                {{  $transactions->appends($_GET)->links()  }}
+
             </div>
         </div>
     </div>
