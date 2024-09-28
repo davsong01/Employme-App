@@ -233,6 +233,8 @@ Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}'
 //route for payments history
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::resource('payments', 'PaymentController');
+    
+    Route::get('proof-history', 'PaymentController@proofOfPaymentHistory')->name('proof.payment');
     Route::get('payment-history', 'PaymentController@paymentHistory')->name('payments.history');
     Route::get('approve-wallet-transaction\{wallet_id}', 'PaymentController@approveWalletTransaction')->name('approve.wallet.history');
     Route::get('delete-wallet-transaction\{wallet_id}', 'PaymentController@deleteWalletTransaction')->name('delete.wallet.history');

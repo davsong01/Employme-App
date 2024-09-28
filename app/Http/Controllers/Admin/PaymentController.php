@@ -25,23 +25,57 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $i = 1;
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            // $transactions = Transaction::with('program','user')->orderBy('program_user.id', 'DESC')->get();
-
-            $transactions = Transaction::orderBy('created_at', 'DESC')
-                ->join("programs", "program_user.program_id", "=", "programs.id")
-                ->join("users", "users.id", "=", "program_user.user_id")
-                ->select("program_user.*", "users.name", "users.email", "users.t_phone", "programs.p_name", "programs.modes", "programs.locations", "coupon_amount", "coupon_id", "coupon_code", "currency", "program_user.t_type", "program_user.preferred_timing", "programs.allow_preferred_timing")
-                ->get();
+            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,t_phone')->orderBy('created_at', 'DESC');
+            
             $i = 1;
-            // dd($transactions);
-            $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
+            
+            if (!empty($request->email)) {
+                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
+                    $query->where('email', $request->email);
+                });
+            }
 
-            return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops'));
+            if (!empty($request->name)) {
+                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
+                    $query->where('name','LIKE', "%{$request->name}%");
+                });
+            }
+
+            if (!empty($request->phone)) {
+                $transactions = $transactions->where('user', function ($query) use ($request) {
+                    $query->where('t_phone', $request->phone);
+                });
+            }
+            // dd($request->type);
+            if (!empty($request->type)) {
+                $transactions = $transactions->where('t_type', $request->type);
+            }
+
+            if (!empty($request->program_id)) {
+                $transactions = $transactions->where('program_id', $request->program_id);
+            }
+            
+            if (!empty($request->from) && !empty($request->to)) {
+                $transactions = $transactions->whereBetween('created_at', [$request->from." 00:00:00", $request->to. " 23:59:59"]);
+            }
+
+            $records = $transactions->count();
+            $transactions = $transactions->paginate(50);
+            $types = Transaction::select('t_type')
+            ->distinct()
+            ->whereNotNull('t_type') 
+            ->whereNotIn('t_type',['0']) 
+            ->get();
+
+            $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
+            $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();
+
+            return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops','records','allPrograms','types'));
         }
         if (!empty(array_intersect(teacherRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             return back();
@@ -60,6 +94,18 @@ class PaymentController extends Controller
         }
     }
 
+    public function proofOfPaymentHistory(Request $request)
+    {
+        $i = 1;
+
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {;
+
+            $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
+
+            return view('dashboard.admin.payments.popfull', compact('i', 'pops'));
+        }
+    }
+    
     public function paymentHistory()
     {
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {

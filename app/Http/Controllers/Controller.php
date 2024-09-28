@@ -564,7 +564,6 @@ class Controller extends BaseController
         $user->staffID = $data['staffID'] ?? null;
         $user->metadata = $data['metadata'] ?? null;
 
-        \Log::info($data['staffID']);
         $user->t_phone = $data['t_phone'];
         $user->save();
         

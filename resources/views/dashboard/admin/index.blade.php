@@ -5,8 +5,8 @@
 @section('css')
 {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"> --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 @endsection
 @section('dashboard')
 <aside class="left-sidebar" data-sidebarbg="skin5">
@@ -100,6 +100,9 @@
                 @endif
                 @if(in_array(9, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('proof.payment')}}" aria-expanded="false"><i class="fa fa-try"></i><span
+                    class="hide-menu">Proof of Payment</span></a></li>
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('pop.index')}}" aria-expanded="false"><i class="fa fa-try"></i><span
                     class="hide-menu">Attempted Payments</span></a></li>
                 @endif
@@ -134,13 +137,12 @@
                     @endif
                     @if(Auth()->user()->role_id == "Admin")
                         @if(in_array(16, $menus))
-                        <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- Score Settings</span></a>
+                        <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span class="hide-menu">- Score Settings</span></a>
                         </li>
                         @endif
                     @endif
                 </ul>
-                 @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
+                @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
                 @if(in_array(17, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span

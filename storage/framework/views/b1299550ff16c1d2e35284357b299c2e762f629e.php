@@ -34,6 +34,9 @@
     <link href="<?php echo e(asset('assets/extra-libs/calendar/calendar.css')); ?>" rel="stylesheet" />
     <link href="<?php echo e(asset('dist/css/style.min.css')); ?>" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?php echo e(asset('assets/libs/select2/dist/css/select2.min.css')); ?>">
+    <style>
+        
+    </style>
     <?php echo $__env->yieldContent('css'); ?>
 
 
@@ -149,27 +152,126 @@
             background-color: #f1f1f1;
             padding: 30px;
             text-align: center;
-            }
+        }
 
-            .header {
+        .header {
             padding: 10px 16px;
             background: red;
             color: #f1f1f1;
-            }
+        }
 
-            .content {
+        .content {
             padding: 16px;
-            }
+        }
 
-            .sticky {
+        .sticky {
             position: fixed;
             top: 0;
             width: 100%;
-            }
+        }
 
-            .sticky + .content {
+        .sticky + .content {
             padding-top: 102px;
-            }
+        }
+
+         .select2-container--default .select2-selection--multiple {
+        width: 100% !important; /* Force full width */
+    }
+
+    .select2-container {
+        width: 50% !important; /* Force full width */
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        color: black; /* Text color for selected items */
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        color: black; /* Text color for the rendered selections */
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: black; /* Text color for the single selected item */
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: black; /* Text color for the placeholder */
+    }
+
+    .select2-container--default .select2-results__option {
+        color: black; /* Text color for the dropdown options */
+    }
+    
+
+    .badge {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 45px;
+        height: 45px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .transaction-count {
+        text-align: center;
+    }
+    .search-form {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .form-control {
+        border-radius: 20px;
+    }
+
+    .rounded {
+        border-radius: 20px !important;
+    }
+    .btn-search {
+        border-radius: 20px;
+        transition: background-color 0.3s;
+    }
+    .btn-search:hover {
+        background-color: #0056b3;
+    }
+
+    .btn.active {
+        background-color: #0056b3;
+        color: white;
+        border: 4px solid black;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        transform: scale(1.05); 
+        transition: all 0.3s;
+    }
+
+    .btn:not(.active):hover {
+        transform: scale(1.05); 
+    }
+
+    .button-container .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        text-align: center;
+        transition: all 0.3s ease; 
+    }
+
+    .button-container .btn:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-container .btn:disabled {
+        opacity: 0.6;
+    }
+
+    .button-container .fa-unlock {
+        margin-right: 0.25rem; 
+    }
+
 
 </style>
 </head>
