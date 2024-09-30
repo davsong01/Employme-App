@@ -46,10 +46,6 @@ class CertificateController extends Controller
                 if (!$details || $details == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
-
-                // if (isset($details['status']) && $details['status'] == 'NOT CERTIFIED') {
-                //     return back()->with('error', 'You must be certified before you can view certificate');
-                // }
             }
             
             $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
