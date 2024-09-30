@@ -222,7 +222,7 @@ class CertificateController extends Controller
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             $transactions = Transaction::with('user')->where('program_id', $program_id)
-            // ->where('show_certificate', 0)
+            ->where('show_certificate', 0)
             ->get();
 
             if ($transactions->isEmpty()) {
