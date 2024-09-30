@@ -39,8 +39,10 @@ use App\Transaction;
             }
 
             // Calculate and round the class test score
-            $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
-
+            if(isset($t['ct_set_score'])){
+                $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
+            }
+            
             // Add other test scores to the details array
             $details['email_test_score'] = $email;
             $details['role_play_score'] = $roleplay;
@@ -58,7 +60,7 @@ use App\Transaction;
             $details['status'] = ($details['total_score'] >= $details['passmark']) ? 'CERTIFIED' : 'NOT CERTIFIED';
             $details['results'] = $result;
             $details['program'] = $program;
-
+            
             return $details;
         }
     }

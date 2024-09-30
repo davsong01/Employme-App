@@ -42,8 +42,8 @@ class CertificateController extends Controller
 
             if ($program->only_certified_should_see_certificate == 'yes') {
                 $details = $details['status'] ?? collect([]);
-
-                if (!$details || $details['status'] == 'NOT CERTIFIED') {
+                
+                if (!$details || $details == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
 
