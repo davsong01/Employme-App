@@ -151,6 +151,8 @@ class CertificateController extends Controller
             }
         }
 
+        Transaction::where(['program_id' => $certificate->program_id, 'user_id' => $certificate->user_id])->update(['show_certificate' => 0])->get();
+
         $certificate->delete();
 
         if($internal){
@@ -219,7 +221,9 @@ class CertificateController extends Controller
         set_time_limit(0);
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-            $transactions = Transaction::with('user')->where('program_id', $program_id)->where('show_certificate', 0)->get();
+            $transactions = Transaction::with('user')->where('program_id', $program_id)
+            // ->where('show_certificate', 0)
+            ->get();
 
             if ($transactions->isEmpty()) {
                 return back()->with('error', 'No Participant found for selected progtam!');
