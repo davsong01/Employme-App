@@ -151,7 +151,7 @@ class CertificateController extends Controller
             }
         }
 
-        Transaction::where(['program_id' => $certificate->program_id, 'user_id' => $certificate->user_id])->update(['show_certificate' => 0])->get();
+        Transaction::where(['program_id' => $certificate->program_id, 'user_id' => $certificate->user_id])->update(['show_certificate' => 0]);
 
         $certificate->delete();
 
