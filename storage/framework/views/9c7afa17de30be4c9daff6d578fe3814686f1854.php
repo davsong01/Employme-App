@@ -1,6 +1,5 @@
-@extends('dashboard.admin.index')
-@section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
+<?php $__env->startSection('css'); ?>
+<link rel="stylesheet" href="<?php echo e(asset('modal.css')); ?>" />
 <style>
     .select2-container--default .select2-selection--single {
         border: 1px solid #e9ecef;
@@ -17,36 +16,36 @@
         width: 100% !important;
     }
 </style>
-@endsection
-@section('title', 'Payment History')
-@section('content')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('title', 'Payment History'); ?>
+<?php $__env->startSection('content'); ?>
 
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Payment History
                 <div class="badge float-right">
-                    <span class="transaction-count">{{ $records }}</span>
+                    <span class="transaction-count"><?php echo e($records); ?></span>
                 </div>
             </h5>
             <div class="card-body">
-                @php
+                <?php
                     $currentStatus = request('status');
-                @endphp
+                ?>
             
                 <div class="">
-                <form class="search-form" method="GET" action="{{ route('payments.index') }}">
+                <form class="search-form" method="GET" action="<?php echo e(route('payments.index')); ?>">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
+                                <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="<?php echo e(request('email')); ?>">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="phone">Phone</label>
-                                <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
+                                <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="<?php echo e(request('phone')); ?>">
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -54,9 +53,9 @@
                                 <label for="type">Type</label>
                                 <select name="type" id="type" class="form-control select2">
                                     <option value="">Select Type</option>
-                                    @foreach ($types as $type)
-                                    <option value="{{ $type->t_type}}">{{ $type->t_type}}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($type->t_type); ?>"><?php echo e($type->t_type); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                         </div>
@@ -66,9 +65,9 @@
                                 <label for="program_id">Select Training</label> <br>
                                 <select name="program_id" id="program_id" class="form-control select2">
                                     <option value="">Select Training</option>
-                                    @foreach($allPrograms as $training)
-                                    <option value="{{ $training->id}}">{{ $training->p_name }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = $allPrograms; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $training): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($training->id); ?>"><?php echo e($training->p_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                         </div>
@@ -108,28 +107,29 @@
                         </thead>
                         
                         <tbody>
-                            @foreach($transactions as $transaction)
+                            <?php $__currentLoopData = $transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
-                                <td>{{ $i++ }}</a>
-                                <td><strong>Name: </strong><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
-                                    <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }} <br> <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
+                                <td><?php echo e($i++); ?></a>
+                                <td><strong>Name: </strong><a href="<?php echo e(route('users.edit', $transaction->user_id)); ?>" target="_blank"><?php echo e($transaction->user->name ?? 'N/A'); ?> &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
+                                    <br> <strong>Phone: </strong><?php echo e($transaction->user->t_phone ?? 'N/A'); ?> <br> <strong>Email:</strong> <?php echo e($transaction->user->email ?? 'N/A'); ?> <br> <strong>Account balance: </strong><?php echo e(number_format($transaction->user->account_balance)); ?></td>
                                 <td>
                                     <small class="training-details">
-                                        <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }}</a><br>  
-                                        @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
-                                        <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
-                                        @if(!is_null($transaction->coupon_code))
+                                        <a href="<?php echo e(route('programs.edit', $transaction->program->id)); ?>" target="_blank"><strong>Training:</strong> <?php echo e($transaction->program->p_name ?? 'N/A'); ?></a><br>  
+                                        <?php if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)): ?> <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;"><?php echo e($transaction->preferred_timing); ?> </span> <br> <?php endif; ?>
+                                        <strong>Paid:</strong> <?php echo e($transaction->currency. number_format($transaction->t_amount)); ?>
+
+                                        <?php if(!is_null($transaction->coupon_code)): ?>
                                         <span style="color:blue">
-                                        <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
+                                        <strong>Coupon (<?php echo e($transaction->coupon_code); ?>) Applied | <?php echo e($transaction->currency.number_format($transaction->coupon_amount)); ?>  </strong>
                                         </span>
-                                        @endif
+                                        <?php endif; ?>
                                         <br>
                                         <strong>Balance:</strong>
-                                            @if($transaction->balance > 0 )
-                                                <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
-                                            @else
-                                                <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
-                                            @endif
+                                            <?php if($transaction->balance > 0 ): ?>
+                                                <span style="color:red"><?php echo e($transaction->currency. number_format($transaction->balance)); ?> </span>
+                                            <?php else: ?>
+                                                <span style="color:green"><?php echo e($transaction->currency.  number_format($transaction->balance)); ?></span>
+                                            <?php endif; ?>
                                         <br>      
                                     
                                         <?php
@@ -139,61 +139,65 @@
                                             }
                                         ?>
                                     
-                                        @if(isset($transaction->t_location) && !empty($transaction->t_location) && !empty( $location_address))
-                                        <strong>Location:</strong> {{ $transaction->t_location}}({{ $location_address}}) <br>
-                                        @endif
-                                        <strong>Date: </strong>{{ $transaction->created_at }}
+                                        <?php if(isset($transaction->t_location) && !empty($transaction->t_location) && !empty( $location_address)): ?>
+                                        <strong>Location:</strong> <?php echo e($transaction->t_location); ?>(<?php echo e($location_address); ?>) <br>
+                                        <?php endif; ?>
+                                        <strong>Date: </strong><?php echo e($transaction->created_at); ?>
+
                                     
                                     </small>
                                     
                                 </td>   
                                 <td>
                                     <small class="id-details">
-                                        <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
-                                        <strong>Transaction ID:</strong> {{ $transaction->transid }} 
-                                        @if(isset($transaction->balance_amount_paid))
+                                        <strong>Invoice ID:</strong> <?php echo e($transaction->invoice_id); ?> <br>
+                                        <strong>Transaction ID:</strong> <?php echo e($transaction->transid); ?> 
+                                        <?php if(isset($transaction->balance_amount_paid)): ?>
                                         <br>
-                                        <strong>Last Balance Paid:</strong> {{ $transaction->currency_symbol.number_format($transaction->balance_amount_paid) }} <br>
-                                        <strong>Paid At:</strong> {{ $transaction->balance_paid }} 
-                                        @endif
+                                        <strong>Last Balance Paid:</strong> <?php echo e($transaction->currency_symbol.number_format($transaction->balance_amount_paid)); ?> <br>
+                                        <strong>Paid At:</strong> <?php echo e($transaction->balance_paid); ?> 
+                                        <?php endif; ?>
                                         <br>
-                                        <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
-                                        @if(isset($transaction->training_mode))
-                                        <strong>Training Mode:</strong> {{ $transaction->training_mode }} <br>
-                                        @endif
-                                        <strong>Type: </strong>{{ $transaction->t_type }} <br>
-                                        <strong>Currency: </strong>{{ $transaction->currency }}
+                                        <strong>Payment Type:</strong> <?php echo e($transaction->paymenttype); ?> <br>
+                                        <?php if(isset($transaction->training_mode)): ?>
+                                        <strong>Training Mode:</strong> <?php echo e($transaction->training_mode); ?> <br>
+                                        <?php endif; ?>
+                                        <strong>Type: </strong><?php echo e($transaction->t_type); ?> <br>
+                                        <strong>Currency: </strong><?php echo e($transaction->currency); ?>
+
                                     
-                                        @if($transaction->paymentthreads->count() > 0)
+                                        <?php if($transaction->paymentthreads->count() > 0): ?>
                                         <br>
-                                            <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal{{$transaction->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
-                                        @endif
+                                            <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal<?php echo e($transaction->transid); ?>"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                        <?php endif; ?>
                                     </small>
                                 </td>
                                 <td>
                                     <div class="btn-group">
                                         <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"
-                                            class="btn btn-info btn-sm" href="{{ route('payments.edit', $transaction->id) }}"><i
+                                            class="btn btn-info btn-sm" href="<?php echo e(route('payments.edit', $transaction->id)); ?>"><i
                                                 class="fa fa-edit"></i>
                                         </a>
                                         <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
-                                            class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
+                                            class="btn btn-warning btn-sm" href="<?php echo e(route('payments.print', $transaction->id)); ?>"><i
                                                 class="fa fa-print"></i>
                                         </a>
                                         <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
-                                            class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
+                                            class="btn btn-primary btn-sm" href="<?php echo e(route('payments.show', $transaction->id)); ?>"><i
                                                 class="far fa-envelope"></i>
                                         </a>
-                                        @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
+                                        <?php if(!empty(array_intersect(adminRoles(), auth()->user()->role()))): ?>
                                             <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                                class="btn btn-dark btn-sm" href="{{ route('impersonate', $transaction->user_id) }}"><i
+                                                class="btn btn-dark btn-sm" href="<?php echo e(route('impersonate', $transaction->user_id)); ?>"><i
                                                     class="fa fa-unlock"></i>
                                             </a>
-                                        @endif 
-                                        <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
+                                        <?php endif; ?> 
+                                        <form action="<?php echo e(route('payments.destroy', $transaction->id)); ?>" method="POST"
                                             onsubmit="return confirm('Are you really sure?');">
-                                            {{ csrf_field() }}
-                                            {{method_field('DELETE')}}
+                                            <?php echo e(csrf_field()); ?>
+
+                                            <?php echo e(method_field('DELETE')); ?>
+
 
                                             <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
                                                 data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
@@ -203,56 +207,57 @@
 
                                 </td>
                             </tr>
-                            <div class="modal fade" id="exampleModal{{$transaction->transid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="exampleModal<?php echo e($transaction->transid); ?>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Payment Trail for <?php echo e($transaction->transid); ?></h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        @foreach($transaction->paymentthreads as $thread)
+                                        <?php $__currentLoopData = $transaction->paymentthreads; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $thread): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 Transaction Id <br>
-                                                <strong>{{ $thread->transaction_id}}</strong>
+                                                <strong><?php echo e($thread->transaction_id); ?></strong>
                                             </div>
                                             <div class="col-md-6">
                                                 Date <br>
-                                                <strong>{{ $thread->created_at->format('d/m/Y') }}</strong>
+                                                <strong><?php echo e($thread->created_at->format('d/m/Y')); ?></strong>
                                             </div>
                                             
                                             <div class="col-md-6">
                                                 Amount<br>
-                                                <strong>{{ number_format($thread->amount) }}</strong>
+                                                <strong><?php echo e(number_format($thread->amount)); ?></strong>
                                             </div>
-                                            @if(!empty($thread->admin_id))
+                                            <?php if(!empty($thread->admin_id)): ?>
                                             <div class="col-md-6" style="background: #18006f38;padding: 10px;border-radius: 10px;">
                                                 Transaction added by<br>
-                                                <strong>{{ $thread->admin->name }}</strong>
+                                                <strong><?php echo e($thread->admin->name); ?></strong>
                                             </div>
-                                            @else 
+                                            <?php else: ?> 
                                             <div class="col-md-6" style="background: #006f3138;padding: 10px;border-radius: 10px;">
                                                 Transaction added by<br>
-                                                <strong>{{ $thread->user->name }}</strong>
+                                                <strong><?php echo e($thread->user->name); ?></strong>
                                             </div>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <hr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </div>
                                     
                                     </div>
                                 </div>
                             </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                         
                     </table>
                 </div>
-                {{  $transactions->appends($_GET)->links()  }}
+                <?php echo e($transactions->appends($_GET)->links()); ?>
+
 
             </div>
         </div>
@@ -267,4 +272,5 @@
         });
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('dashboard.admin.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/admin/payments/index.blade.php ENDPATH**/ ?>
