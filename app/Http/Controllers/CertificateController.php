@@ -107,7 +107,7 @@ class CertificateController extends Controller
         }
         return back();
     }
-    
+
     public function save(Request $request)
     {
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
@@ -141,17 +141,21 @@ class CertificateController extends Controller
         return view('dashboard.admin.certificates.edit')->with('certificate', $certificate)->with('programs', Program::orderBy('created_at', 'desc')->get());
     }
 
-    public function destroy(certificate $certificate)
+    public function destroy(certificate $certificate, $internal=false)
     {
-
         $certificate_count = certificate::where('file', $certificate->file)->count();
 
         if ($certificate_count <= 1) {
-            unlink(base_path() . '/uploads/certificates' . '/' . $certificate->file);
+            if (file_exists(base_path() . '/uploads/certificates' . '/' . $certificate->file)) {
+                unlink(base_path() . '/uploads/certificates' . '/' . $certificate->file);
+            }
         }
 
         $certificate->delete();
 
+        if($internal){
+            return true;
+        }
         //delete certificate from storage           
         return redirect('certificates')->with('message', 'certificate succesfully deleted');
     }
@@ -163,13 +167,15 @@ class CertificateController extends Controller
     }
 
     public function modify(Request $request){
+        set_time_limit(7600);
+
         $action = $request->action == 'disable' ? 0 : 1;
         $transactions = Transaction::with('user')->whereIn('user_id', $request->data)->where('program_id', $request->program_id);
     
         if(in_array($request->action, ['enable','disable'])){
             $transactions->update(['show_certificate' => $action]);
         }
-
+        
         if($request->action == 'regenerate-certificate'){
             if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
                 foreach ($transactions->get() as $transaction) {
@@ -178,7 +184,7 @@ class CertificateController extends Controller
                     $name = generateCertificate($request, $request->program_id, $location, $transaction->user);
                     ;
 
-                    $certificate = Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
+                    Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
                         'user_id' => $transaction->user_id,
                         'file' => $name,
                         'program_id' => $request->program_id,
@@ -186,6 +192,18 @@ class CertificateController extends Controller
                     
                     $transaction->show_certificate = 0;
                     $transaction->save();
+                }
+
+                return back()->with('Certificate successfully autugenerated');
+            }
+        }
+
+        if ($request->action == 'delete-certificate') {
+            if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+                $certificates = Certificate::whereIn('user_id', $request->data)->where('program_id', $request->program_id)->get();
+                
+                foreach ($certificates as $certificate) {
+                    $this->destroy($certificate, true);
                 }
 
                 return back()->with('Certificate successfully autugenerated');

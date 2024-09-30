@@ -141,7 +141,7 @@ a.pre-order-btn:hover {
                             <th style="width: 115px;">Program Details</th>
                             <?php endif; ?>
                             <th>Access</th>
-                            <th>Date</th>
+                            <th>Date Updated</th>
                             <th>Program</th>
                             <th>Actions</th>
                         </tr>
@@ -175,14 +175,13 @@ a.pre-order-btn:hover {
                                     <strong>Email: </strong><?php echo e(isset($results['email_test_score'] ) ? $results['email_test_score'] : ''); ?>%
                                 <?php endif; ?>
                                 
-                               
                                 
                                 <br>
                                 <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
                             </td>
                             <?php endif; ?>
                             <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>"><?php echo e($certificate->show_certificate()); ?></td>
-                            <td><?php echo e($certificate->created_at->format('d/m/Y')); ?></td>
+                            <td><?php echo e($certificate->updated_at->format('d/m/Y')); ?></td>
                             <td><?php echo e(isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed"); ?></td>
                             <td>
                                 <div class="btn-group">
@@ -238,8 +237,9 @@ a.pre-order-btn:hover {
                         <option value="enable" selected>Enable</option>
                         <option value="disable" selected>Disable</option>
                         <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
-                        <option value="regenerate-certificate" selected>Regenerate certificate</option>
+                        <option value="regenerate-certificate" selected>Regenerate Certificate</option>
                         <?php endif; ?>
+                        <option value="delete-certificate" selected>Delete Certificate</option>
                     </select>
                 </div>
                 

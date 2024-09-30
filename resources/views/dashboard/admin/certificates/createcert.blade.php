@@ -235,8 +235,9 @@ a.pre-order-btn:hover {
                         <option value="enable" selected>Enable</option>
                         <option value="disable" selected>Disable</option>
                         @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
-                        <option value="regenerate-certificate" selected>Regenerate certificate</option>
+                        <option value="regenerate-certificate" selected>Regenerate Certificate</option>
                         @endif
+                        <option value="delete-certificate" selected>Delete Certificate</option>
                     </select>
                 </div>
                 
