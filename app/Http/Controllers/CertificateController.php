@@ -107,7 +107,7 @@ class CertificateController extends Controller
         }
         return back();
     }
-
+    
     public function save(Request $request)
     {
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
