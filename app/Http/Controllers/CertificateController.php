@@ -231,16 +231,22 @@ class CertificateController extends Controller
 
             foreach ($transactions as $transaction) {
                 $location = base_path('uploads/certificates');
-                $name = generateCertificate($request, $program_id, $location, $transaction->user);
-                
-                Certificate::create([
-                    'user_id' =>  $transaction->user_id,
-                    'file' => $name,
-                    'program_id' => $program_id,
-                ]);
+                $check = Ceritificate::where(['user_id' =>  $transaction->user_id, 'program_id' => $program_id])->first();
 
-                $transaction->show_certificate = 0;
-                $transaction->save();
+                if(!$check){
+                    $name = generateCertificate($request, $program_id, $location, $transaction->user);
+                    
+                    Certificate::create([
+                        'user_id' =>  $transaction->user_id,
+                        'file' => $name,
+                        'program_id' => $program_id,
+                    ]);
+    
+                    $transaction->show_certificate = 0;
+                    $transaction->save();
+                }else{
+                    continue;
+                }
             }
 
             return back()->with('Certificate successfully autugenerated');
