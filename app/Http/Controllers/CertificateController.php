@@ -278,6 +278,7 @@ class CertificateController extends Controller
         set_time_limit(0);
         
         $cron_task = $request->use_cron;
+
         if(!empty($cron_task) && $cron_task == 'yes'){
             // Cron
             $payload = $request->except('use_cron');
@@ -298,7 +299,7 @@ class CertificateController extends Controller
         if ($internal) {
             $check = true;
         }
-
+        
         if ($check) {
             $tracker = UtilityTracker::firstOrCreate(
                 ['key' => 'AGC-' . $program_id],

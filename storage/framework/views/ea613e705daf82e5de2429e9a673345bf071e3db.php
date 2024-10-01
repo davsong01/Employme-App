@@ -1,4 +1,5 @@
 <?php 
+    use Illuminate\Support\Facades\Storage;
     $c_settings = $program->auto_certificate_settings;
 ?>
 <?php $__env->startSection('css'); ?>
@@ -398,70 +399,90 @@
                                             </select>
                                         </div>
                                     </div>
-
+                                    
                                     <div class="col-md-6" style="margin-bottom:5px">
-                                        <?php if(isset($certificate_settings['auto_certificate_template'])): ?>
-                                        <div class="form-group">
-                                            <label>Replace Certificate Template</label> <br> 
-                                            <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
-                                        </div>
-                                        <?php else: ?>
-                                        <div class="form-group">
-                                            <label>Upload Certificate Template</label>
-                                            <input type="file" id="auto_certificate_template" name="auto_certificate_template" value="<?php echo e(old('auto_certificate_template')); ?>" class="form-control">
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <?php if(!empty($c_settings['settings'])): ?>
-                                    <?php $__currentLoopData = $c_settings['settings']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $setting): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <div class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text Type</label>
-                                                <select name="text_type[]" class="form-control" id="text_type" required>
-                                                    <option value="">Select...</option>
-                                                    <option value="certificate_number">Certificate Number</option>
-                                                    <option value="name" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''); ?>>Name</option>
-                                                    <option value="email" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''); ?>>Email</option>
-                                                    <option value="staffID" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''); ?>>Staff ID</option>
-                                                </select>
+                                        <div class="form-group row">
+                                            <label class="col-md-6 col-form-label">
+                                                <?php if(isset($c_settings['auto_certificate_template'])): ?>
+                                                    Replace Certificate Template
+                                                <?php else: ?>
+                                                    Upload Certificate Template
+                                                <?php endif; ?>
+                                            </label>
+                                            
+                                            <div class="col-md-12">
+                                                <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
                                             </div>
                                         </div>
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text font size, e.g 150</label>
-                                                <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="<?php echo e($setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')); ?>" id="auto_certificate_name_font_size">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text font weight e.g 300</label>
-                                                <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="<?php echo e($setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')); ?>" id="auto_certificate_name_font_weight">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text Top offset. e.g 300</label>
-                                                <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="<?php echo e($setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset')); ?>" id="auto_certificate_top_offset">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text Left offset. e.g 100</label>
-                                                <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="<?php echo e($setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset')); ?>" id="auto_certificate_left_offset">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4" style="margin-bottom:5px">
-                                            <div class="form-group">
-                                                <label>Text color</label>
-                                                <input type="color" class="form-control" name="auto_certificate_color[]" value="<?php echo e($setting['auto_certificate_color'] ?? '#000000'); ?>">
-                                            </div>
-                                        </div>
+
                                         
                                     </div>
 
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    
+                                </div>
+                                <?php if(!empty($c_settings['settings'])): ?>
+                                    <?php
+                                        $certificate_counter = 1;
+                                    ?>
+                                    <section id="certificate-holder" class="pt-2">
+                                        <div class="row" id="certificate-0">
+                                        </div>
+                                        <?php $__currentLoopData = $c_settings['settings']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $setting): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
+                                            $counter = $certificate_counter++;
+                                        ?>
+                                        <div id="oldcertificate-<?php echo e($counter); ?>" class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text Type</label>
+                                                    <select name="text_type[]" class="form-control" id="text_type" required>
+                                                        <option value="">Select...</option>
+                                                        <option value="certificate_number" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'certificate_number') ? 'selected' : ''); ?>>Certificate Number</option>
+                                                        <option value="name" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''); ?>>Name</option>
+                                                        <option value="email" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''); ?>>Email</option>
+                                                        <option value="staffID" <?php echo e((isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''); ?>>Staff ID</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text font size, e.g 150</label>
+                                                    <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="<?php echo e($setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')); ?>" id="auto_certificate_name_font_size">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text font weight e.g 300</label>
+                                                    <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="<?php echo e($setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')); ?>" id="auto_certificate_name_font_weight">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text Top offset. e.g 300</label>
+                                                    <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="<?php echo e($setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset')); ?>" id="auto_certificate_top_offset">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text Left offset. e.g 100</label>
+                                                    <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="<?php echo e($setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset')); ?>" id="auto_certificate_left_offset">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
+                                                    <label>Text color</label>
+                                                    <input type="color" class="form-control" name="auto_certificate_color[]" value="<?php echo e($setting['auto_certificate_color'] ?? '#000000'); ?>">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label for="mark" style="color:transparent">sdsdsddsdssd</label>
+                                                    <button class="btn btn-danger remove-old-certificate" id="oldcertificate-<?php echo e($counter); ?>" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </section>
                                 <?php endif; ?>
                                 <!-- Container for dynamically added rows -->
                                 <div id="certificateRows"></div>
@@ -494,7 +515,8 @@
                                 </div>
                             </div>
                         </section>
-                        <section id="course-holder" class="holder pt-2" style="display: none">
+                        
+                        <section id="course-holder" class="holder pt-2">
                             <div class="row" id="course-0">
                             </div>
                             <?php $location_counter = 1 ?>
@@ -544,9 +566,12 @@
     $(document).ready(function() {
         // Add new row
         $('#addRowButton').on('click', function(e) {
-            e.preventDefault();
+            var lastChild = $("#certificate-holder").children().last();
+            var lastId = $(lastChild).attr('id').split('-');
+            var id = lastId[1] + 1;
+
             var newRow = `
-                <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">
+                <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;" id="certificate-`+id+`">
                     <div class="col-md-4" style="margin-bottom:5px">
                         <div class="form-group">
                             <label>Text Type</label>
@@ -590,7 +615,7 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <button type="button" class="btn btn-danger btn-sm removeRowButton"><i class="fa fa-minus"></i> Remove Row</button>
+                        <button type="button" class="btn btn-danger btn-sm removeRowButton"><i class="fa fa-minus"></i> Remove</button>
                     </div>
                 </div>
             `;
@@ -738,6 +763,25 @@
         var removeId = $(e.target).attr('id');
         $("#"+removeId).remove();
     });
+
+    // $("#certificate-holder").on('click','.remove-old-certificate', function(e) {
+    //     var removeId = $(e.target).attr('id');        
+    //     $("#"+removeId).remove();
+    //     // $("#oldcertificate-2").remove();
+    // });
+    $("#certificate-holder").on('click', '.remove-old-certificate', function() {
+        // Get the ID of the clicked element
+        var removeId = $(this).attr('id');  
+    
+        // Check if the ID is not empty
+        if (removeId) {
+            // Remove the element with the corresponding ID
+            $("#" + removeId).remove();
+        } else {
+            console.warn("No ID found to remove.");
+        }
+    });
+
 
     $("#mode-holder").on('click','.removeold-mode', function(e) {
         var removeId = $(e.target).attr('id').split('-');
