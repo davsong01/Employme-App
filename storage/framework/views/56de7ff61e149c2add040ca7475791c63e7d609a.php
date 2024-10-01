@@ -160,8 +160,8 @@ a.pre-order-btn:hover {
                             <td><?php echo e($i++); ?></td>
                             <td style="text-align:center;">
                                 <?php if($certificate->file): ?>
-                                    <a href="#" data-toggle="modal" data-target="#imageModal<?php echo e($certificate->id); ?>">
-                                        <img src="/certificate/<?php echo e($certificate->file); ?>" alt="Certificate Preview" style="width: 80px; height: auto;">
+                                    <a class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#imageModal<?php echo e($certificate->id); ?>">
+                                        Preview
                                     </a>
                                         
                                     <div class="modal fade" id="imageModal<?php echo e($certificate->id); ?>" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel<?php echo e($certificate->id); ?>" aria-hidden="true">

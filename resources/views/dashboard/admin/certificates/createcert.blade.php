@@ -160,8 +160,8 @@ a.pre-order-btn:hover {
                             <td>{{ $i++ }}</td>
                             <td style="text-align:center;">
                                 @if($certificate->file)
-                                    <a href="#" data-toggle="modal" data-target="#imageModal{{ $certificate->id }}">
-                                        <img src="/certificate/{{ $certificate->file }}" alt="Certificate Preview" style="width: 80px; height: auto;">
+                                    <a class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#imageModal{{ $certificate->id }}">
+                                        Preview
                                     </a>
                                         
                                     <div class="modal fade" id="imageModal{{ $certificate->id }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel{{ $certificate->id }}" aria-hidden="true">
