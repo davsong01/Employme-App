@@ -396,6 +396,6 @@ class CertificateController extends Controller
         ->whereIn('id', $duplicateIds)
         ->delete();
 
-        return back()->with('message', 'Duplicates removed successfully');
+        return back()->with('message', count($duplicateIds).' Duplicates removed successfully');
     }
 }
