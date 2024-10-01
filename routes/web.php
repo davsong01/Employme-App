@@ -2,7 +2,7 @@
 
 use App\Transaction;
 
-Route::get('cron/run-utitlity-tasks', 'UtilityTaskController@runTool');
+Route::get('cron/run-utility-tasks', 'UtilityTaskController@runTool');
 
 Route::get('/clear', function () {
     Artisan::call('cache:clear');
