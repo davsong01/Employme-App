@@ -127,7 +127,6 @@ a.pre-order-btn:hover {
 
     <div class="card">
         <div class="col-md-12">
-            
             <div class="card-body">
                 <table id="zero_config" class="table table-bordered">
                     <thead>
@@ -146,7 +145,6 @@ a.pre-order-btn:hover {
                             @endif
                             <th>Access</th>
                             <th>Date Updated</th>
-                            <th>Program</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -198,7 +196,6 @@ a.pre-order-btn:hover {
                             @endif
                             <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">{{ $certificate->show_certificate() }}</td>
                             <td>{{ $certificate->updated_at->format('d/m/Y') }}</td>
-                            <td>{{ isset($certificate->program) ? $certificate->program->p_name: "Program has been trashed" }}</td>
                             <td>
                                 <div class="btn-group">
                                     @if($certificate->show_certificate() == 'Disabled')
