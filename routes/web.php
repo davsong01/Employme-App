@@ -12,6 +12,8 @@ Route::get('/clear', function () {
 });
 Auth::routes();
 
+
+
 // Route::get('test', function(){
 //     $path = base_path('uploads/certificate_templates/b.jpeg');
 
