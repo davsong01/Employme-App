@@ -160,7 +160,7 @@ a.pre-order-btn:hover {
                                 <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="{{$certificate->user_id}}">
                             </td>
                             <td>{{ $i++ }}</td>
-                            <td style="text-align:center;">
+                            {{-- <td style="text-align:center;">
                                 @if($certificate->file)
                                     <a class="btn btn-info btn-sm" href="#" data-toggle="modal" data-target="#imageModal{{ $certificate->id }}">
                                         Preview
@@ -179,7 +179,17 @@ a.pre-order-btn:hover {
                                 @else
                                     <span>No Preview Available</span>
                                 @endif
-                            </td> <!-- Image preview of the certificate -->
+                            </td> <!-- Image preview of the certificate --> --}}
+                            <td style="text-align:center;">
+                                @if($certificate->file)
+                                    <a class="btn btn-info btn-sm" href="#" 
+                                    onclick="loadCertificateImage({{ $certificate->id }}, '/certificate/{{ $certificate->file }}')">
+                                        Preview
+                                    </a>
+                                @else
+                                    <span>No Preview Available</span>
+                                @endif
+                            </td>
                             <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
                                 <span style="font-style: italic">{{ $certificate->user->email }}</span> <br>
                                 <span style="font-style: bold"> <strong>{{ $certificate->user->staffID }}</strong></span> <br>
@@ -230,81 +240,95 @@ a.pre-order-btn:hover {
     </div>
 </div>
 <div id="myModal" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Select Action</h5>
-                    <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="col-md-12" style="padding: 10px 0;">
-                        <select class="form-control" id="action" name="action" required>
-                            <option value="" selected>Select Option</option>
-                            <option value="enable" selected>Enable</option>
-                            <option value="disable" selected>Disable</option>
-                            @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
-                            <option value="regenerate-certificate" selected>Regenerate Certificate</option>
-                            @endif
-                            <option value="delete-certificate" selected>Delete Certificate</option>
-                        </select>
-                    </div>
-                    
-                    <input type="hidden" name="program_id" id="program_id" value="{{ $p_id }}">
-                    <div class="col-md-12" style="padding: 0px;">
-                        <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
-                    </div>
-                </div>
-                
-                <div class="modal-footer">
-                    <button id="close" class="btn btn-danger" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal -->
-    <div class="modal fade" id="batchModal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="batchModalLabel">Auto Certificate Options</h5>
+                <h5 class="modal-title">Select Action</h5>
                 <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="{{ route('certificates.generate', $p_id) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="batch-size" class="form-label">Batch Size</label>
-                        <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="show_certificate" class="form-label">Enable Generated Certificates</label>
-                        <select name="show_certificate" class="form-control" id="">
-                            <option value="">Select</option>
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="use_cron" class="form-label">Use Cron</label>
-                        <select name="use_cron" class="form-control" id="">
-                            <option value="">Select</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
+            <div class="modal-body">
+                <div class="col-md-12" style="padding: 10px 0;">
+                    <select class="form-control" id="action" name="action" required>
+                        <option value="" selected>Select Option</option>
+                        <option value="enable" selected>Enable</option>
+                        <option value="disable" selected>Disable</option>
+                        @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
+                        <option value="regenerate-certificate" selected>Regenerate Certificate</option>
+                        @endif
+                        <option value="delete-certificate" selected>Delete Certificate</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="generate-button">
-                    <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                    Generate
-                </button>
+                
+                <input type="hidden" name="program_id" id="program_id" value="{{ $p_id }}">
+                <div class="col-md-12" style="padding: 0px;">
+                    <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
                 </div>
-            </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button id="close" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="batchModal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="batchModalLabel">Auto Certificate Options</h5>
+            <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="{{ route('certificates.generate', $p_id) }}" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="batch-size" class="form-label">Batch Size</label>
+                    <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
+                </div>
+                <div class="mb-3">
+                    <label for="show_certificate" class="form-label">Enable Generated Certificates</label>
+                    <select name="show_certificate" class="form-control" id="">
+                        <option value="">Select</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="use_cron" class="form-label">Use Cron</label>
+                    <select name="use_cron" class="form-control" id="">
+                        <option value="">Select</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="generate-button">
+                <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                Generate
+            </button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="certificateModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body" style="text-align:center;">
+                <!-- Spinner to be shown while the image loads -->
+                <div id="spinner" class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <!-- Image will be loaded here dynamically -->
+                <img id="certificate-img" src="" alt="Certificate" style="display:none; width:500px; height:auto;">
             </div>
         </div>
     </div>
@@ -313,6 +337,22 @@ a.pre-order-btn:hover {
     $(document).ready(function() {
         $('#user_id').select2();
     });
+
+    function loadCertificateImage(certificateId, filePath) {
+        var modalId = '#certificateModal';
+        var imageId = 'certificate-img';
+        var spinnerId = 'spinner';
+
+        $('#certificate-img').hide();
+        $('#spinner').show();
+
+        $('#' + imageId).attr('src', filePath).on('load', function () {
+            $('#' + spinnerId).hide(); // Hide the spinner
+            $(this).show(); // Show the loaded image
+        });
+
+        $(modalId).modal('show');
+    }
 
 </script>
 <script type="text/javascript">
