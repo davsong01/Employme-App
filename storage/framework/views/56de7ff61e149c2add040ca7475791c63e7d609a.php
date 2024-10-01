@@ -160,12 +160,10 @@ a.pre-order-btn:hover {
                                 <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="<?php echo e($certificate->user_id); ?>">
                             </td>
                             <td><?php echo e($i++); ?></td>
-                            
                             <td style="text-align:center;">
                                 <?php if($certificate->file): ?>
-                                    <a class="btn btn-info btn-sm" href="#" 
-                                    onclick="loadCertificateImage(<?php echo e($certificate->id); ?>, '/certificate/<?php echo e($certificate->file); ?>')">
-                                        Preview
+                                    
+                                    <a class="btn btn-info btn-sm" href="#" onclick="loadCertificateImage(event, <?php echo e($certificate->id); ?>, '/certificate/<?php echo e($certificate->file); ?>')">Preview
                                     </a>
                                 <?php else: ?>
                                     <span>No Preview Available</span>
@@ -177,7 +175,22 @@ a.pre-order-btn:hover {
                             </td>
                             <?php if(isset($score_settings) && !empty($score_settings)): ?>
                             <td style="width: 115px;">
-                                <!-- Program Details Display -->
+                                <?php if(isset($score_settings->certification) && $score_settings->certification > 0): ?>
+                                    <strong>Certification: </strong> <?php echo e(isset($results['certification_test_score'] ) ? $results['certification_test_score'] : ''); ?>% 
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
+                                    <br><strong class="tit">Class Tests:</strong> <?php echo e(isset($results['class_test_score'] ) ? $results['class_test_score'] : ''); ?>% <br>
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
+                                    <strong class="tit">Role Play: </strong><?php echo e(isset($results['role_play_score'] ) ? $results['role_play_score'] : ''); ?>% <br> 
+                                <?php endif; ?>
+                                <?php if(isset($score_settings->email) && $score_settings->email > 0): ?>
+                                    <strong>Email: </strong><?php echo e(isset($results['email_test_score'] ) ? $results['email_test_score'] : ''); ?>%
+                                <?php endif; ?>
+                                
+                                
+                                <br>
+                                <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
                             </td>
                             <?php endif; ?>
                             <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>"><?php echo e($certificate->show_certificate()); ?></td>
@@ -306,11 +319,9 @@ a.pre-order-btn:hover {
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-body" style="text-align:center;">
-                <!-- Spinner to be shown while the image loads -->
                 <div id="spinner" class="spinner-border text-primary" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-                <!-- Image will be loaded here dynamically -->
                 <img id="certificate-img" src="" alt="Certificate" style="display:none; width:500px; height:auto;">
             </div>
         </div>
@@ -321,17 +332,22 @@ a.pre-order-btn:hover {
         $('#user_id').select2();
     });
 
-    function loadCertificateImage(certificateId, filePath) {
+    function loadCertificateImage(event,certificateId, filePath) {
+        event.preventDefault();
         var modalId = '#certificateModal';
         var imageId = 'certificate-img';
         var spinnerId = 'spinner';
 
+        var noCache = new Date().getTime(); 
+
         $('#certificate-img').hide();
         $('#spinner').show();
 
-        $('#' + imageId).attr('src', filePath).on('load', function () {
-            $('#' + spinnerId).hide(); // Hide the spinner
-            $(this).show(); // Show the loaded image
+        var imageUrl = filePath + '?nocache=' + noCache;
+
+        $('#' + imageId).attr('src', imageUrl).on('load', function () {
+            $('#' + spinnerId).hide();
+            $(this).show();
         });
 
         $(modalId).modal('show');
