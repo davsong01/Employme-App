@@ -86,6 +86,8 @@ a.pre-order-btn:hover {
                         @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
                         {{-- <a href="{{route('certificates.generate', $p_id )}}" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates (40/batch)</a> --}}
                         <a href="javascript:void(0)" class="btn btn-info" data-toggle="modal" data-target="#batchModal">Auto Generate Certificates</a>
+
+                        <a href="{{ route('certificate.clear.duplicates', $p_id)}}" class="btn btn-danger">Clear Duplicates</a>
                         @endif
                     </div>
                     <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data"

@@ -85,6 +85,8 @@ a.pre-order-btn:hover {
                         <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
                         
                         <a href="javascript:void(0)" class="btn btn-info" data-toggle="modal" data-target="#batchModal">Auto Generate Certificates</a>
+
+                        <a href="<?php echo e(route('certificate.clear.duplicates', $p_id)); ?>" class="btn btn-danger">Clear Duplicates</a>
                         <?php endif; ?>
                     </div>
                     <form action="<?php echo e(route('certificates.save')); ?>" method="POST" enctype="multipart/form-data"

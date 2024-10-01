@@ -381,4 +381,21 @@ class CertificateController extends Controller
     public function clearAllPreviews(){
 
     }
+
+    public function clearDuplicates($program_id){
+        $duplicateIds = DB::table('certificates as t1')
+        ->select('t1.id')
+        ->join('certificates as t2', function ($join) {
+            $join->on('t1.program_id', '=', 't2.program_id')
+                ->on('t1.user_id', '=', 't2.user_id')
+                ->whereRaw('t1.id > t2.id'); 
+        })
+        ->pluck('t1.id');
+
+        DB::table('certificates')
+        ->whereIn('id', $duplicateIds)
+        ->delete();
+
+        return back()->with('message', 'Duplicates removed successfully');
+    }
 }

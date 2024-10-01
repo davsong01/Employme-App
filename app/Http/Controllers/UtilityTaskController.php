@@ -16,15 +16,19 @@ class UtilityTaskController extends Controller
         }
         $request = new Request($pending->payload);
         
-        // $pending->update(['status' => 'picked'. $rand]);
+        $pending->update(['status' => 'picked'. $rand]);
     
         if($pending && $pending->key == 'certificate-generation'){
             $process = app('App\Http\Controllers\CertificateController')->generateCertificates($request, $pending->payload['pick'], true);
 
-            if($process && isset($process['status'])){
-                
+            if($process && isset($process['status']) && $process['status'] == 'success'){
+                $pending->update(['status' => 'completed']);
+            }else{
+                // $pending->update(['response' => 'completed']);
             }
         }
+
+        dd('all done');
 
     }
 }

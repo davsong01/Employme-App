@@ -225,7 +225,9 @@ Route::get('certificate/{filename}', 'CertificateController@getfile')->middlewar
 Route::get('suser/{program_id}', 'CertificateController@selectUser')->name('program.select');
 Route::POST('certificate/save', 'CertificateController@save')->middleware(['impersonate','auth'])->name('certificates.save');
 Route::DELETE('certificates/{certificate}', 'CertificateController@destroy')->name('certificates.destroy');
-Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'CertificateController@certificateStatus')->name('certificate.status');
+Route:: get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'CertificateController@certificateStatus')->name('certificate.status');
+Route::get('certificate-clear-duplicate/{program_id}', 'CertificateController@clearDuplicates')->name('certificate.clear.duplicates');
+
 
 
 //route for payments history
