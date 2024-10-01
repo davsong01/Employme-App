@@ -273,6 +273,7 @@ class CertificateController extends Controller
     public function generateCertificates(Request $request, $program_id)
     {
         $pick = $request->pick;
+        $show_certificate = $request->show_certificate ?? 0;
         set_time_limit(0);
 
         // Check if the user has the required roles
@@ -320,7 +321,7 @@ class CertificateController extends Controller
                 ]);
 
                 // Leave the show_certificate as 0 as per your request
-                $transaction->show_certificate = 0;
+                $transaction->show_certificate = $show_certificate;
                 $transaction->save();
             }
 
@@ -341,7 +342,6 @@ class CertificateController extends Controller
         ]);
         
     }
-
 
     public function clearAllPreviews(){
 

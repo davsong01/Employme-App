@@ -266,7 +266,7 @@ a.pre-order-btn:hover {
         <div class="modal-dialog">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="batchModalLabel">Select Batch Size</h5>
+                <h5 class="modal-title" id="batchModalLabel">Auto Certificate Options</h5>
                 <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -274,10 +274,26 @@ a.pre-order-btn:hover {
             <form action="{{ route('certificates.generate', $p_id) }}" method="POST">
                 @csrf
                 <div class="modal-body">
-                <div class="mb-3">
-                    <label for="batch-size" class="form-label">Batch Size</label>
-                    <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
-                </div>
+                    <div class="mb-3">
+                        <label for="batch-size" class="form-label">Batch Size</label>
+                        <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="show_certificate" class="form-label">Enable Generated Certificates</label>
+                        <select name="show_certificate" class="form-control" id="">
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="use_cron" class="form-label">Use Cron</label>
+                        <select name="use_cron" class="form-control" id="">
+                            <option value="">Select</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
