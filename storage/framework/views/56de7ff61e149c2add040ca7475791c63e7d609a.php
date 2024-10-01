@@ -83,7 +83,8 @@ a.pre-order-btn:hover {
                         <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                         <h4 class="card-title">Add new Certificate in <?php echo e($p_name); ?></h4>
                         <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
-                        <a href="<?php echo e(route('certificates.generate', $p_id )); ?>" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates</a>
+                        
+                        <a href="javascript:void(0)" class="btn btn-info" data-toggle="modal" data-target="#batchModal">Auto Generate Certificates</a>
                         <?php endif; ?>
                     </div>
                     <form action="<?php echo e(route('certificates.save')); ?>" method="POST" enctype="multipart/form-data"
@@ -136,6 +137,7 @@ a.pre-order-btn:hover {
                                 <input type="checkbox" id="all"/>
                             </th>
                             <th>#</th>
+                            <th>Preview</th> <!-- New Column for Preview -->
                             <th>Name</th>
                             <?php if(!empty($score_settings)): ?>
                             <th style="width: 115px;">Program Details</th>
@@ -156,28 +158,33 @@ a.pre-order-btn:hover {
                                 <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="<?php echo e($certificate->user_id); ?>">
                             </td>
                             <td><?php echo e($i++); ?></td>
+                            <td style="text-align:center;">
+                                <?php if($certificate->file): ?>
+                                    <a href="#" data-toggle="modal" data-target="#imageModal<?php echo e($certificate->id); ?>">
+                                        <img src="/certificate/<?php echo e($certificate->file); ?>" alt="Certificate Preview" style="width: 80px; height: auto;">
+                                    </a>
+                                        
+                                    <div class="modal fade" id="imageModal<?php echo e($certificate->id); ?>" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel<?php echo e($certificate->id); ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    <img src="/certificate/<?php echo e($certificate->file); ?>" alt="Full Certificate" style="width: 500px; height: auto;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <?php else: ?>
+                                    <span>No Preview Available</span>
+                                <?php endif; ?>
+                            </td> <!-- Image preview of the certificate -->
                             <td><?php echo e(isset($certificate->user->name) ? $certificate->user->name : 'N/A'); ?> <br>
                                 <span style="font-style: italic"><?php echo e($certificate->user->email); ?></span> <br>
                                 <span style="font-style: bold"> <strong><?php echo e($certificate->user->staffID); ?></strong></span> <br>
                             </td>
                             <?php if(isset($score_settings) && !empty($score_settings)): ?>
                             <td style="width: 115px;">
-                                <?php if(isset($score_settings->certification) && $score_settings->certification > 0): ?>
-                                    <strong>Certification: </strong> <?php echo e(isset($results['certification_test_score'] ) ? $results['certification_test_score'] : ''); ?>% 
-                                <?php endif; ?>
-                                <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
-                                    <br><strong class="tit">Class Tests:</strong> <?php echo e(isset($results['class_test_score'] ) ? $results['class_test_score'] : ''); ?>% <br>
-                                <?php endif; ?>
-                                <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
-                                    <strong class="tit">Role Play: </strong><?php echo e(isset($results['role_play_score'] ) ? $results['role_play_score'] : ''); ?>% <br> 
-                                <?php endif; ?>
-                                <?php if(isset($score_settings->email) && $score_settings->email > 0): ?>
-                                    <strong>Email: </strong><?php echo e(isset($results['email_test_score'] ) ? $results['email_test_score'] : ''); ?>%
-                                <?php endif; ?>
-                                
-                                
-                                <br>
-                                <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
+                                <!-- Program Details Display -->
                             </td>
                             <?php endif; ?>
                             <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>"><?php echo e($certificate->show_certificate()); ?></td>
@@ -213,48 +220,78 @@ a.pre-order-btn:hover {
                                         </button>
                                     </form>
                                 </div>
+                            </td>
                         </tr>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
-                    
                 </table>
             </div>
         </div>
     </div>
-    <div id="myModal" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+</div>
+<div id="myModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Action</h5>
+                    <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="col-md-12" style="padding: 10px 0;">
+                        <select class="form-control" id="action" name="action" required>
+                            <option value="" selected>Select Option</option>
+                            <option value="enable" selected>Enable</option>
+                            <option value="disable" selected>Disable</option>
+                            <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
+                            <option value="regenerate-certificate" selected>Regenerate Certificate</option>
+                            <?php endif; ?>
+                            <option value="delete-certificate" selected>Delete Certificate</option>
+                        </select>
+                    </div>
+                    
+                    <input type="hidden" name="program_id" id="program_id" value="<?php echo e($p_id); ?>">
+                    <div class="col-md-12" style="padding: 0px;">
+                        <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button id="close" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="batchModal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Select Action</h5>
+                <h5 class="modal-title" id="batchModalLabel">Select Batch Size</h5>
                 <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="col-md-12" style="padding: 10px 0;">
-                    <select class="form-control" id="action" name="action" required>
-                        <option value="" selected>Select Option</option>
-                        <option value="enable" selected>Enable</option>
-                        <option value="disable" selected>Disable</option>
-                        <?php if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes'): ?>
-                        <option value="regenerate-certificate" selected>Regenerate Certificate</option>
-                        <?php endif; ?>
-                        <option value="delete-certificate" selected>Delete Certificate</option>
-                    </select>
+            <form action="<?php echo e(route('certificates.generate', $p_id)); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <div class="modal-body">
+                <div class="mb-3">
+                    <label for="batch-size" class="form-label">Batch Size</label>
+                    <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
                 </div>
-                
-                <input type="hidden" name="program_id" id="program_id" value="<?php echo e($p_id); ?>">
-                <div class="col-md-12" style="padding: 0px;">
-                    <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
                 </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button id="close" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="generate-button">
+                    <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Generate
+                </button>
+                </div>
+            </form>
             </div>
         </div>
     </div>
-    
 </div>
 <script>
     $(document).ready(function() {
@@ -322,6 +359,18 @@ a.pre-order-btn:hover {
         });
 
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const generateButton = document.getElementById('generate-button');
+        const spinner = document.getElementById('generate-spinner');
+
+        form.addEventListener('submit', function () {
+            // Disable the button and show the spinner when the form is submitted
+            generateButton.disabled = true;
+            spinner.classList.remove('d-none'); // Show the spinner
+        });
     });
 </script>
 <?php $__env->stopSection(); ?>

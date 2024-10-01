@@ -10,6 +10,7 @@ use App\Certificate;
 use App\Transaction;
 use App\ScoreSetting;
 use Illuminate\Http\Request;
+use App\Models\UtilityTracker;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -143,6 +144,7 @@ class CertificateController extends Controller
 
     public function destroy(certificate $certificate, $internal=false)
     {
+
         $certificate_count = certificate::where('file', $certificate->file)->count();
 
         if ($certificate_count <= 1) {
@@ -154,6 +156,11 @@ class CertificateController extends Controller
         Transaction::where(['program_id' => $certificate->program_id, 'user_id' => $certificate->user_id])->update(['show_certificate' => 0]);
 
         $certificate->delete();
+
+        UtilityTracker::where(['key' => 'AGC-' . $certificate->program_id])->update([
+            'start' => 0,
+            'end' => 0
+        ]);
 
         if($internal){
             return true;
@@ -216,42 +223,113 @@ class CertificateController extends Controller
         
     }
 
-    public function generateCertificates(Request $request, $program_id){
+    // public function generateCertificates(Request $request, $program_id, $pick=40){
 
+    //     set_time_limit(0);
+
+    //     if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+    //         // $tracker = UtitlityTracker::where('key' => 'AGC-'. $program_id)->first();
+    //         $tracker = UtilityTracker::firstOrCreate(['key' => 'AGC-' . $program_id], ['key' => 'AGC-' . $program_id, 'start' => 0, 'end' => 0]);
+    //         $end = $tracker->end;
+
+    //         $transactions = Transaction::with('user')->where('program_id', $program_id)
+    //         ->where('show_certificate', 0)
+    //         ->where('id', '>', $end)
+    //         ->get();
+
+    //         if ($transactions->isEmpty()) {
+    //             return back()->with('error', 'No Participant found for selected progtam!');
+    //         }
+
+    //         foreach ($transactions as $transaction) {
+
+    //             $tracker->update([
+    //                 'start' => $end,
+    //                 'end' => $transaction->id
+    //             ]);
+
+    //             $location = base_path('uploads/certificates');
+    //             $check = Certificate::where(['user_id' =>  $transaction->user_id, 'program_id' => $program_id])->first();
+
+    //             if(!$check){
+    //                 $name = generateCertificate($request, $program_id, $location, $transaction->user);
+
+    //                 Certificate::create([
+    //                     'user_id' =>  $transaction->user_id,
+    //                     'file' => $name,
+    //                     'program_id' => $program_id,
+    //                 ]);
+
+    //                 $transaction->show_certificate = 0;
+    //                 $transaction->save();
+    //             }else{
+    //                 continue;
+    //             }
+    //         }
+
+    //         return back()->with('Certificate successfully autugenerated');
+    //     }
+    // }
+    public function generateCertificates(Request $request, $program_id)
+    {
+        $pick = $request->pick;
         set_time_limit(0);
 
+        // Check if the user has the required roles
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-            $transactions = Transaction::with('user')->where('program_id', $program_id)
-            ->where('show_certificate', 0)
-            ->get();
 
+            $tracker = UtilityTracker::firstOrCreate(
+                ['key' => 'AGC-' . $program_id],
+                ['key' => 'AGC-' . $program_id, 'start' => 0, 'end' => 0]
+            );
+            $end = $tracker->end;
+
+            // Fetch the transactions based on program ID, show_certificate status, and tracker end value
+            $transactions = Transaction::with('user', 'certificate')
+                ->where('program_id', $program_id)
+                ->where('show_certificate', 0)
+                ->whereDoesntHave('certificate') 
+                ->where('id', '>', $end)
+                ->take($pick)
+                ->get();
+            
+            // Check if there are any eligible transactions
             if ($transactions->isEmpty()) {
-                return back()->with('error', 'No Participant found for selected progtam!');
+                return back()->with('error', 'Looks like all certificates have been generated!');
             }
 
+            // Loop through each transaction
             foreach ($transactions as $transaction) {
-                $location = base_path('uploads/certificates');
-                $check = Ceritificate::where(['user_id' =>  $transaction->user_id, 'program_id' => $program_id])->first();
+                // Update tracker with the current transaction ID
+                $tracker->update([
+                    'start' => $end,
+                    'end' => $transaction->id
+                ]);
 
-                if(!$check){
-                    $name = generateCertificate($request, $program_id, $location, $transaction->user);
-                    
-                    Certificate::create([
-                        'user_id' =>  $transaction->user_id,
-                        'file' => $name,
-                        'program_id' => $program_id,
-                    ]);
-    
-                    $transaction->show_certificate = 0;
-                    $transaction->save();
-                }else{
-                    continue;
-                }
+                // Certificate storage location
+                $location = base_path('uploads/certificates');
+
+                // Generate the certificate
+                $name = generateCertificate($request, $program_id, $location, $transaction->user);
+
+                // Save the certificate to the database
+                Certificate::create([
+                    'user_id' =>  $transaction->user_id,
+                    'file' => $name,
+                    'program_id' => $program_id,
+                ]);
+
+                // Leave the show_certificate as 0 as per your request
+                $transaction->show_certificate = 0;
+                $transaction->save();
             }
 
-            return back()->with('Certificate successfully autugenerated');
+            return back()->with('success', 'Certificates successfully autogenerated');
         }
+
+        return back()->with('error', 'You do not have permission to perform this action.');
     }
+
 
     public function generateCertificatePreview(Request $request, $program_id)
     {

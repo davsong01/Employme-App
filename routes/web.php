@@ -218,7 +218,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 });
 
 Route::get('certificates', 'CertificateController@index')->middleware(['impersonate','auth'])->name('certificates.index');
-Route::get('generate-auto-certificates/{program_id}', 'CertificateController@generateCertificates')->middleware(['impersonate', 'auth'])->name('certificates.generate');
+Route::any('generate-auto-certificates/{program_id}', 'CertificateController@generateCertificates')->middleware(['impersonate', 'auth'])->name('certificates.generate');
 Route::post('generate-certificate-preview/{program_id}', 'CertificateController@generateCertificatePreview')->middleware(['impersonate', 'auth'])->name('certificates.preview');
 
 Route::get('certificates/create', 'CertificateController@create')->middleware(['impersonate', 'auth'])->name('certificates.create');
