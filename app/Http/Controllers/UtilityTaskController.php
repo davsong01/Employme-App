@@ -11,7 +11,7 @@ use App\Models\UtilityCronTask;
 class UtilityTaskController extends Controller
 {
     public function runTool(){
-        $this->generateOldCertificateNumbers();
+        // $this->generateOldCertificateNumbers();
         $pending = UtilityCronTask::get();
         $rand = rand();
 

@@ -580,14 +580,18 @@
 </div>
 <script>
     $(document).ready(function() {
-        // Add new row
         $('#addRowButton').on('click', function(e) {
-            var lastChild = $("#certificate-holder").children().last();
-            var lastId = $(lastChild).attr('id').split('-');
-            var id = lastId[1] + 1;
+            var lastChild = $("#certificateRows").children().last();
+            var lastId = $(lastChild).attr('id');
+
+            var id = 1;
+            if (lastId) {
+                lastId = lastId.split('-'); 
+                id = parseInt(lastId[1]) + 1; 
+            }
 
             var newRow = `
-                <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;" id="certificate-`+id+`">
+                <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;" id="certificate-` + id + `">
                     <div class="col-md-4" style="margin-bottom:5px">
                         <div class="form-group">
                             <label>Text Type</label>
@@ -631,10 +635,13 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <button type="button" class="btn btn-danger btn-sm removeRowButton"><i class="fa fa-minus"></i> Remove</button>
+                        <button type="button" class="btn btn-danger btn-sm removeRowButton">
+                            <i class="fa fa-minus"></i> Remove
+                        </button>
                     </div>
                 </div>
             `;
+            
             $('#certificateRows').append(newRow);
         });
 
