@@ -194,18 +194,31 @@ a.pre-order-btn:hover {
                                 <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
                             </td>
                             @endif
-                            <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">Certificate Status: <strong>{{ $certificate->show_certificate() }}</strong>
+                            <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">
+                                Certificate Status: <strong>{{ $certificate->show_certificate() }}</strong>
                                 @if($certificate->certificate_number)
                                 <br>Certificate No: <strong>{{ $certificate->certificate_number }}</strong> <br>
                                 <div class="form-group mb-3">
-                                    <button id="copy-btn" class="btn btn-primary">
+                                    <button id="copy-btn{{$certificate->id}}" class="btn btn-primary">
                                         <i class="fa fa-copy"></i> Copy Certificate Verification Link
                                     </button>
-                                    <small id="copy-status" style="color: green; display: none;">Copied!</small>
+                                    <small id="copy-status{{$certificate->id}}" style="color: green; display: none;"></small>
                                 </div>
+                                <input type="text" id="verification-link{{$certificate->id}}" value="{{url('/api/verify-certificate').'?certificate_number='.$certificate->certificate_number }}" hidden>
+                                <script>
+                                    $('#copy-btn{{$certificate->id}}').click(function() {
+                                        var verificationLink = $('#verification-link{{$certificate->id}}').val();
+                                        
+                                        var tempInput = $('<input>');
+                                        $('body').append(tempInput);
+                                        tempInput.val(verificationLink).select();
+                                        document.execCommand("copy");
+                                        tempInput.remove(); 
 
-                                <!-- Hidden input containing the verification link to be copied -->
-                                <input type="text" id="verification-link" value="http://127.0.0.1:8000/api/verify-certificate/#EEI2024-84-533-1648" hidden>
+                                        $('#copy-status{{$certificate->id}}').text("{{$certificate->certificate_number}} Copied");
+                                        $('#copy-status{{$certificate->id}}').fadeIn().delay(2000).fadeOut();
+                                    });
+                                </script>
                                 @endif
                             </td>
                             <td>{{ $certificate->updated_at->format('d/m/Y') }}</td>

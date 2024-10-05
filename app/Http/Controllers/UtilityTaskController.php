@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UtilityCronTask;
+use App\User;
+use App\Program;
+use App\Certificate;
 use Illuminate\Http\Request;
+use App\Models\UtilityCronTask;
 
 class UtilityTaskController extends Controller
 {
     public function runTool(){
+        $this->generateOldCertificateNumbers();
         $pending = UtilityCronTask::get();
         $rand = rand();
 
@@ -33,5 +37,20 @@ class UtilityTaskController extends Controller
 
         dd('all done');
 
+    }
+
+    public function generateOldCertificateNumbers(){
+        $certificates = Certificate::whereNull('certificate_number')->whereNotIn('program_id', [83,84])->get();
+        foreach($certificates as $certificate){
+            $program = Program::find($certificate->program_id);
+            $user = User::find($certificate->user_id);
+
+            $certificate_number = generateCertificateNumber($program, $user);
+
+            $certificate->certificate_number = $certificate_number;
+            $certificate->save();
+        }
+
+        return;
     }
 }

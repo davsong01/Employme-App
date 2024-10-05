@@ -191,18 +191,31 @@ a.pre-order-btn:hover {
                                 <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
                             </td>
                             <?php endif; ?>
-                            <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>">Certificate Status: <strong><?php echo e($certificate->show_certificate()); ?></strong>
+                            <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>">
+                                Certificate Status: <strong><?php echo e($certificate->show_certificate()); ?></strong>
                                 <?php if($certificate->certificate_number): ?>
                                 <br>Certificate No: <strong><?php echo e($certificate->certificate_number); ?></strong> <br>
                                 <div class="form-group mb-3">
-                                    <button id="copy-btn" class="btn btn-primary">
+                                    <button id="copy-btn<?php echo e($certificate->id); ?>" class="btn btn-primary">
                                         <i class="fa fa-copy"></i> Copy Certificate Verification Link
                                     </button>
-                                    <small id="copy-status" style="color: green; display: none;">Copied!</small>
+                                    <small id="copy-status<?php echo e($certificate->id); ?>" style="color: green; display: none;"></small>
                                 </div>
+                                <input type="text" id="verification-link<?php echo e($certificate->id); ?>" value="<?php echo e(url('/api/verify-certificate').'?certificate_number='.$certificate->certificate_number); ?>" hidden>
+                                <script>
+                                    $('#copy-btn<?php echo e($certificate->id); ?>').click(function() {
+                                        var verificationLink = $('#verification-link<?php echo e($certificate->id); ?>').val();
+                                        
+                                        var tempInput = $('<input>');
+                                        $('body').append(tempInput);
+                                        tempInput.val(verificationLink).select();
+                                        document.execCommand("copy");
+                                        tempInput.remove(); 
 
-                                <!-- Hidden input containing the verification link to be copied -->
-                                <input type="text" id="verification-link" value="http://127.0.0.1:8000/api/verify-certificate/#EEI2024-84-533-1648" hidden>
+                                        $('#copy-status<?php echo e($certificate->id); ?>').text("<?php echo e($certificate->certificate_number); ?> Copied");
+                                        $('#copy-status<?php echo e($certificate->id); ?>').fadeIn().delay(2000).fadeOut();
+                                    });
+                                </script>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo e($certificate->updated_at->format('d/m/Y')); ?></td>

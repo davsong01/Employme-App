@@ -122,11 +122,15 @@ class CertificateController extends Controller
             $file = $data['certificate'];
 
             $imagePath = $file->storeAs('certificates', $file->getClientOriginalName(), 'uploads');
+            $program = Program::find($request->p_id);
+            $user = User::find($request->user_id);
 
-            Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->p_id], [
+            $certificate_number = generateCertificateNumber($program, $user);
+            $certificte = Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->p_id], [
                 'user_id' =>  $request->user_id,
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
+                'certificate_number' => $certificate_number,
             ]);
 
             Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->p_id])->update(['show_certificate' => 0]);
