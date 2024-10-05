@@ -41,6 +41,11 @@ class UtilityTaskController extends Controller
 
     public function generateOldCertificateNumbers(){
         $certificates = Certificate::whereNull('certificate_number')->whereNotIn('program_id', [83,84])->get();
+        
+        if($certificates->count() < 1){
+            return;
+        }
+
         foreach($certificates as $certificate){
             $program = Program::find($certificate->program_id);
             $user = User::find($certificate->user_id);
