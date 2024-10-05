@@ -123,7 +123,7 @@ class CertificateController extends Controller
 
             $imagePath = $file->storeAs('certificates', $file->getClientOriginalName(), 'uploads');
 
-            certificate::create([
+            Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->p_id], [
                 'user_id' =>  $request->user_id,
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
@@ -300,7 +300,7 @@ class CertificateController extends Controller
                 }
                 
                 // Save the certificate to the database
-                Certificate::create([
+                Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $program_id],[
                     'user_id' =>  $transaction->user_id,
                     'file' => $certificate['name'],
                     'certificate_number' => $certificate['certificate_number'],
