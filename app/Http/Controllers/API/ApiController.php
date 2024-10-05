@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Certificate;
 use App\User;
 use App\Module;
 use App\Result;
@@ -117,5 +118,32 @@ class ApiController extends Controller
             }
            
            return $rating;
+    }
+
+    public function verifyCertificateNumber(Request $request){
+        $certificate_number = request()->get('certificate_number');
+
+        if(!$certificate_number){
+            return response()->json(['status' => false, 'message' => 'Certificate number is required!',], 422);
+        }
+
+        $certificate = Certificate::where('certificate_number', $certificate_number)->first();
+        
+        if(!$certificate){
+            return response()->json(['status' => false,'message' => 'Certificate not found!','data' => null], 401);
+        }
+        
+        if ($certificate->show_certificate() == 'Disabled') {
+            return response()->json(['status' => false, 'message' => 'Certificate not found!', 'data' => null], 401);
+        }
+        
+        $details = [
+            'certificate_number' => $certificate->certificate_number,
+            'training' => $certificate->program->p_name,
+            'participant' => $certificate->user->name,
+        ];
+        $response = ['success' => true,'message' => 'Success', 'data' => $details,];
+
+        return response()->json($response, 200);
     }
 }

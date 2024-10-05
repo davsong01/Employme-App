@@ -172,14 +172,11 @@ use App\Transaction;
                     if($text_type == 'name') $text = $user->name ?? $text;
                     if($text_type == 'email') $text = $user->email;
                     if($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
+
+                    $certificate_number = generateCertificateNumber($program, $user);
                     
                     if($text_type == 'certificate_number'){
-                        $programId = $program->id;
-                        $programAbbr = $program->p_abbr ?? '#';
-
-                        $randomNumber = rand(100, 999);
-
-                        $text = strtoupper($programAbbr) . '-' . $programId . '-' . $randomNumber. '-'.$user->id;
+                        $text = $certificate_number;
                     }
 
                     // End text
@@ -195,8 +192,35 @@ use App\Transaction;
                 // $outputImagePath = base_path('uploads/certificates/' . $name);
                 $outputImagePath = $location .'/'. $name;
                 $image->save($outputImagePath);
-                return $name;
+
+                return [
+                    'name' => $name,
+                    'certificate_number' => $certificate_number
+                ];
             }
+        }
+    }
+
+    if (!function_exists("generateCertificateNumber")) {
+        function generateCertificateNumber($program, $user){
+            $randomNumber = generateRandomNumberBasedOnKey($program->programAbbr. $program->id, 100, 999);
+            $programId = $program->id;
+            $programAbbr = $program->p_abbr ?? 'CT';
+            $programAbbr = $program->p_abbr ?? 'CT';
+            $programAbbr = str_replace('#', '', $programAbbr);
+            
+            $certificate_number = strtoupper($programAbbr) . '-' . $programId . '-' . $randomNumber . '-' . $user->id;
+
+            return $certificate_number;
+        }
+    }
+
+    if (!function_exists("generateRandomNumberBasedOnKey")) {
+        function generateRandomNumberBasedOnKey($key, $min = 1000, $max = 9999)
+        {
+            $hash = crc32($key);
+            $randomNumber = $min + ($hash % ($max - $min + 1));
+            return $randomNumber;
         }
     }
 

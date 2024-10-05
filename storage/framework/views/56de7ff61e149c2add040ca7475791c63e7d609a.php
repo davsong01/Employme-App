@@ -143,7 +143,7 @@ a.pre-order-btn:hover {
                             <?php if(!empty($score_settings)): ?>
                             <th style="width: 115px;">Program Details</th>
                             <?php endif; ?>
-                            <th>Access</th>
+                            <th>Details</th>
                             <th>Date Updated</th>
                             <th>Actions</th>
                         </tr>
@@ -177,7 +177,7 @@ a.pre-order-btn:hover {
                                     <strong>Certification: </strong> <?php echo e(isset($results['certification_test_score'] ) ? $results['certification_test_score'] : ''); ?>% 
                                 <?php endif; ?>
                                 <?php if(isset($score_settings->class_test) && $score_settings->class_test > 0): ?>
-                                    <br><strong class="tit">Class Tests:</strong> <?php echo e(isset($results['class_test_score'] ) ? $results['class_test_score'] : ''); ?>% <br>
+                                    <strong class="tit">Class Tests:</strong> <?php echo e(isset($results['class_test_score'] ) ? $results['class_test_score'] : ''); ?>% <br>
                                 <?php endif; ?>
                                 <?php if(isset($score_settings->role_play) && $score_settings->role_play > 0): ?>
                                     <strong class="tit">Role Play: </strong><?php echo e(isset($results['role_play_score'] ) ? $results['role_play_score'] : ''); ?>% <br> 
@@ -191,7 +191,20 @@ a.pre-order-btn:hover {
                                 <strong class="tit" style="color:<?php echo e($results['total'] < $score_settings->passmark ? 'red' : 'green'); ?>"> Total: <?php echo e($results['total']); ?>%</strong> 
                             </td>
                             <?php endif; ?>
-                            <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>"><?php echo e($certificate->show_certificate()); ?></td>
+                            <td style="color:<?php echo e($certificate->show_certificate() == 'Disabled' ? 'red' : 'green'); ?>">Certificate Status: <strong><?php echo e($certificate->show_certificate()); ?></strong>
+                                <?php if($certificate->certificate_number): ?>
+                                <br>Certificate No: <strong><?php echo e($certificate->certificate_number); ?></strong> <br>
+                                <div class="form-group mb-3">
+                                    <button id="copy-btn" class="btn btn-primary">
+                                        <i class="fa fa-copy"></i> Copy Certificate Verification Link
+                                    </button>
+                                    <small id="copy-status" style="color: green; display: none;">Copied!</small>
+                                </div>
+
+                                <!-- Hidden input containing the verification link to be copied -->
+                                <input type="text" id="verification-link" value="http://127.0.0.1:8000/api/verify-certificate/#EEI2024-84-533-1648" hidden>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo e($certificate->updated_at->format('d/m/Y')); ?></td>
                             <td>
                                 <div class="btn-group">

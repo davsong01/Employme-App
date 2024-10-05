@@ -20,7 +20,7 @@
                             <th>Name</th>
                             <th>Access</th>
                             <th>Date</th>
-                            <th>Program</th>
+                            <th>Training</th>
                             <th>Actions</th>
                         </tr>
                     </thead>

@@ -191,12 +191,18 @@ class CertificateController extends Controller
                 foreach ($transactions->get() as $transaction) {
                     $location = base_path('uploads/certificates');
 
-                    $name = generateCertificate($request, $request->program_id, $location, $transaction->user);
+                    $certificate = generateCertificate($request, $request->program_id, $location, $transaction->user);
                     ;
 
+                    if (!$certificate) {
+                        continue;
+                        \Log::info('Certificate Generation Error');
+                    }
+                
                     Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
                         'user_id' => $transaction->user_id,
-                        'file' => $name,
+                        'file' => $certificate['name'],
+                        'certificate_number' => $certificate['certificate_number'],
                         'program_id' => $request->program_id,
                     ]);
                     
@@ -224,53 +230,6 @@ class CertificateController extends Controller
         
     }
 
-    // public function generateCertificates(Request $request, $program_id, $pick=40){
-
-    //     set_time_limit(0);
-
-    //     if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-    //         // $tracker = UtitlityTracker::where('key' => 'AGC-'. $program_id)->first();
-    //         $tracker = UtilityTracker::firstOrCreate(['key' => 'AGC-' . $program_id], ['key' => 'AGC-' . $program_id, 'start' => 0, 'end' => 0]);
-    //         $end = $tracker->end;
-
-    //         $transactions = Transaction::with('user')->where('program_id', $program_id)
-    //         ->where('show_certificate', 0)
-    //         ->where('id', '>', $end)
-    //         ->get();
-
-    //         if ($transactions->isEmpty()) {
-    //             return back()->with('error', 'No Participant found for selected progtam!');
-    //         }
-
-    //         foreach ($transactions as $transaction) {
-
-    //             $tracker->update([
-    //                 'start' => $end,
-    //                 'end' => $transaction->id
-    //             ]);
-
-    //             $location = base_path('uploads/certificates');
-    //             $check = Certificate::where(['user_id' =>  $transaction->user_id, 'program_id' => $program_id])->first();
-
-    //             if(!$check){
-    //                 $name = generateCertificate($request, $program_id, $location, $transaction->user);
-
-    //                 Certificate::create([
-    //                     'user_id' =>  $transaction->user_id,
-    //                     'file' => $name,
-    //                     'program_id' => $program_id,
-    //                 ]);
-
-    //                 $transaction->show_certificate = 0;
-    //                 $transaction->save();
-    //             }else{
-    //                 continue;
-    //             }
-    //         }
-
-    //         return back()->with('Certificate successfully autugenerated');
-    //     }
-    // }
     public function generateCertificates(Request $request, $program_id, $internal = false)
     {
         $pick = $request->pick;
@@ -333,12 +292,17 @@ class CertificateController extends Controller
                 $location = base_path('uploads/certificates');
 
                 // Generate the certificate
-                $name = generateCertificate($request, $program_id, $location, $transaction->user);
-
+                $certificate = generateCertificate($request, $program_id, $location, $transaction->user);
+                if(!$certificate){
+                    continue;
+                    \Log::info('Certificate Generation Error');
+                }
+                
                 // Save the certificate to the database
                 Certificate::create([
                     'user_id' =>  $transaction->user_id,
-                    'file' => $name,
+                    'file' => $certificate['name'],
+                    'certificate_number' => $certificate['certificate_number'],
                     'program_id' => $program_id,
                 ]);
 
@@ -371,10 +335,10 @@ class CertificateController extends Controller
     public function generateCertificatePreview(Request $request, $program_id)
     {
         $location = 'certificate_previews';
-        $name = generateCertificate($request->all(), $program_id, $location);
+        $certificate = generateCertificate($request->all(), $program_id, $location);
 
         return response()->json([
-            'preview_image_path' => '/certificate_previews/' . $name,
+            'preview_image_path' => '/certificate_previews/' . $certificate['name'],
         ]);
         
     }

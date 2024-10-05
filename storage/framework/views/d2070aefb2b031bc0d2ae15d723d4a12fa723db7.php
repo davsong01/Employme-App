@@ -7,17 +7,14 @@
         <a class="navbar-brand" href="<?php echo e(url('/')); ?>">
             <!-- Logo icon -->
             <b class="logo-icon p-l-10"></b>
-
             <span class="logo-text">
                 <img src="<?php echo e(asset(\App\Settings::value('logo'))); ?>" alt="homepage" class="light-logo" />
             </span>
         </a>
-
         <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
             data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
             aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
     </div>
-
     <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
         <ul class="navbar-nav float-left mr-auto">
             <li class="nav-item d-none d-md-block"><a class="nav-link sidebartoggler waves-effect waves-light"
@@ -25,7 +22,6 @@
             </li>
 
         </ul>
-       
         <li class="navbar-nav" style="color:white">
 
             <body onload=display_ct();>

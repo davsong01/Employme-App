@@ -18,3 +18,4 @@ use Illuminate\Http\Request;
 // });
 
 Route::POST('users', 'API\ApiController@show')->name('verify');
+Route::GET('verify-certificate', 'API\ApiController@verifyCertificateNumber')->name('verify-certificate');

@@ -9,11 +9,9 @@
                 <table id="" class="table table-striped table-bordered">
                     <thead>
                         <tr>
-                        
                             <th>Name</th>
-                            <th>Program</th>
+                            <th>Training</th>
                             <th>Action</th>
-                        
                         </tr>
                     </thead>
                     <tbody>
