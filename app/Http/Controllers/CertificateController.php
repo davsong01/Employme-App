@@ -253,10 +253,11 @@ class CertificateController extends Controller
         }
 
         // Check if the user has the required roles
-        $check = !empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
-
+        
         if ($internal) {
             $check = true;
+        }else{
+            $check = !empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
         }
         
         if ($check) {
