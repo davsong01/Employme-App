@@ -224,6 +224,21 @@ use App\Transaction;
         }
     }
 
+    if (!function_exists("generateRandomNumber")) {
+        function generateRandomNumber($length){
+            $charset = '';
+            $chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+            for ($i = 0; $i < $length; $i++) {
+                $chars = str_shuffle($chars);
+                $randIdx = rand(0, 32);
+                $charset .= $chars[$randIdx];
+            }
+
+            return $charset;
+        }
+    }
+
     if (!function_exists("graderRoles")) {
         function graderRoles(){
             return [

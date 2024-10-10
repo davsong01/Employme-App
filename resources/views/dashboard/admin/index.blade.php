@@ -49,7 +49,7 @@
                             class="hide-menu">Admin Dashboard</span></a></li>
                 @endif
                 @endif
-               
+
                 @if(in_array(2, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
@@ -58,8 +58,14 @@
                 @if(in_array(3, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('teachers.index')}}" aria-expanded="false"><i class="fas fas fa-user"></i><span
-                            class="hide-menu">View All Facilitators</span></a></li>
+                            class="hide-menu">Facilitator Management</span></a></li>
                 @endif
+                
+                {{-- @if(in_array(22, $menus)) --}}
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('companyuser.index')}}" aria-expanded="false"><i class="fas fa-building-o"></i><span
+                            class="hide-menu">Company Admin Management</span></a></li>
+                {{-- @endif --}}
                 
                 <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
                         href="javascript:void(0)" aria-expanded="false"><i class="fas fa-chalkboard-teacher"></i><span

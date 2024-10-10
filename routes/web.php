@@ -12,28 +12,6 @@ Route::get('/clear', function () {
 });
 Auth::routes();
 
-
-
-// Route::get('test', function(){
-//     $path = base_path('uploads/certificate_templates/b.jpeg');
-
-//     $image = imagecreatefromjpeg($path);
-
-//     $color = imagecolorallocate($image, 255, 255, 255);
-//     $string = 'The string you want to write horizontally on the image';
-//     $fontSize = 5;
-//     $x = 300;
-//     $y = 1000;
-
-//     // write on the image
-//     imagestring($image, $fontSize, $x, $y, $string, $color);
-//     $fileName = base_path('uploads/certificates/image.jpg');
-//     // save the image
-//     imagepng($image, $fileName, $quality = 100);
-//     dd('done');
-// });
-
-// Route::get('test', 'Controller@printTextOnImage');
 //route for the home
 Route::get( '/reset', 'FrontendController@reset')->name('reset');
 Route::get('/correcttransid', function(){
@@ -152,6 +130,7 @@ Route::namespace('Admin')->middleware(['auth', 'impersonate', 'permission'])->gr
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
     Route::resource('teachers', 'TeacherController');
+    Route::resource('companyuser', 'CompanyUserController');
     Route::resource('coupon', 'CouponController');
     Route::get('teachers_students/{id}', 'TeacherController@showStudents')->name('teachers.students');
     Route::get('teachers_programs/{id}', 'TeacherController@showPrograms')->name('teachers.programs');

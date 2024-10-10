@@ -187,9 +187,9 @@
                                 <div>
                             </div>
                         </div>
-                         <div class="row" style="margin-bottom: 10px">
+                        <div class="row" style="margin-bottom: 10px">
                             <div class="col-md-12">
-                               <span><h6>Admin Menu Permissions</h6></span>
+                                <span><h6>Admin Menu Permissions</h6></span>
                             </div>
                             <?php
                                 $a_menu = $user->menu_permissions ?? '';
