@@ -203,7 +203,7 @@ class CompanyUserController extends Controller
         }
         
         $companyuser->update(Arr::except($data, 'trainings'));
-       
+        
         if (!empty($selectedPrograms)) {
             CompanyUserTraining::where('company_user_id', $companyuser->id)->delete();
             foreach ($selectedPrograms as $key => $value) {
@@ -223,5 +223,12 @@ class CompanyUserController extends Controller
         }
 
         return back()->with('message', 'Update Successful');
+    }
+
+    public function destroy(CompanyUser $companyuser){
+        CompanyUserTraining::where('company_user_id', $companyuser->id)->delete();
+        $companyuser->delete();
+
+        return back()->with('message','Delete Successful');
     }
 }

@@ -33,7 +33,7 @@
 
                     <form action="{{ route('companyuser.update', $user->id) }}" method="POST" enctype="multipart/form-data" class="pb-2">
                         @csrf
-                        @method('PUT') <!-- Use PUT method for update -->
+                        @method('PATCH')
                         
                         <!-- Personal Information Fieldset -->
                         <fieldset class="border p-3 mb-4">
