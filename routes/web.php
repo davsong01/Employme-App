@@ -1,6 +1,7 @@
 <?php
 
 use App\Transaction;
+use App\Http\Controllers\FrontendController;
 
 Route::get('cron/run-utility-tasks', 'UtilityTaskController@runTool');
 
@@ -24,7 +25,7 @@ Route::get('/correcttransid', function(){
 });
 
 Route::middleware(['template'])->group(function(){
-    Route::get('/', 'FrontendController@index')->name('welcome');
+    Route::get('/', [FrontendController::class, 'index'])->name('welcome');
     Route::get('/thankyou', 'FrontendController@thankyou')->name('thankyou');    
 
     Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');

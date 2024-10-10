@@ -32,7 +32,7 @@
 
                     <form action="<?php echo e(route('companyuser.update', $user->id)); ?>" method="POST" enctype="multipart/form-data" class="pb-2">
                         <?php echo csrf_field(); ?>
-                        <?php echo method_field('PUT'); ?> <!-- Use PUT method for update -->
+                        <?php echo method_field('PATCH'); ?>
                         
                         <!-- Personal Information Fieldset -->
                         <fieldset class="border p-3 mb-4">

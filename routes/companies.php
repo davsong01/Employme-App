@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CompanyUserController;
+use App\Http\Controllers\Admin\CompanyUserController;
 
 Route::get('/', [CompanyUserController::class, 'showLoginForm'])->name('company_user.login');
 Route::get('/login', [CompanyUserController::class, 'showLoginForm'])->name('company_user.login');

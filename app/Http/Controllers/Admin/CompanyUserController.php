@@ -21,19 +21,22 @@ class CompanyUserController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('login', 'password');
-        dd($credentials);
+        $credentials = $request->only('email', 'password');
+        
         if (Auth::guard('company_user')->attempt($credentials)) {
             return redirect()->intended(route('company_user.dashboard'));
         }
-
-        return redirect()->back()->withErrors(['error' => 'Invalid credentials']);
+    
+        return redirect()->back()->with('error', 'Invalid credentials');
     }
 
     public function dashboard()
     {
-        // Logic for dashboard view
-        return view('company_user.dashboard');
+        $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
+            $query->where('program_lock', 0);
+        })->get();
+
+        return view('dashboard.company.dashboard', compact('programs'));
     }
 
     public function profile()

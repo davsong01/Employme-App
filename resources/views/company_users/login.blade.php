@@ -22,8 +22,8 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
-                                    <p>Email or Staff ID<span>*</span></p>
-                                    <input type="text" class="form-control" id="login" name="login" required>
+                                    <p>Email<span>*</span></p>
+                                    <input type="text" class="form-control" id="email" name="email" required>
                                 </div>
                             </div>
                         </div>
