@@ -8,10 +8,12 @@ Route::get('/login', [CompanyUserController::class, 'showLoginForm'])->name('com
 Route::post('/login', [CompanyUserController::class, 'login'])->name('company_user.login.post');
 Route::post('/logout', [CompanyUserController::class, 'logout'])->name('company_user.logout');
 
-
 Route::middleware('auth:company_user')->group(function () {
-    Route::get('/dashboard', [CompanyUserController::class, 'dashboard'])->name('company_user.dashboard');
-
-    // Other routes for company users
-    Route::get('/profile', [CompanyUserController::class, 'profile'])->name('company_user.profile');
+    Route::get('dashboard', [CompanyUserController::class, 'dashboard'])->name('company_user.dashboard');
+    Route::get('participants', [CompanyUserController::class, 'participants'])->name('company.participants');
+    Route::get('profile', [CompanyUserController::class, 'profile'])->name('company_user.profile');
+    Route::get('pretestresults', [CompanyUserController::class,'pretest'])->name('company.pretest.select');
+    Route::any('pretestresults/{id}', [CompanyUserController::class,'getgrades'])->name('company.mocks.getgrades');
+    Route::get('userresults', [CompanyUserController::class, 'userresults'])->name('company.tests.results');
+    Route::get('userresultscomments/{id}', [CompanyUserController::class, 'userResultComments'])->name('companytests.results.comment');
 });

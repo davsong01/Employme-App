@@ -7,8 +7,8 @@
         <div class="card-body">
             <div class="card-title">
                 @include('layouts.partials.alerts')
-             </div>
-             <div class="card-header">
+            </div>
+            <div class="card-header">
                 <div>
                     <h5 class="card-title">My Students</h5> 
                 </div>
