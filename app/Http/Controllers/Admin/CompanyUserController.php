@@ -14,44 +14,6 @@ use Illuminate\Support\Facades\Hash;
 
 class CompanyUserController extends Controller
 {
-    public function showLoginForm()
-    {
-        return view('company_users.login');
-    }
-
-    public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
-        
-        if (Auth::guard('company_user')->attempt($credentials)) {
-            return redirect()->intended(route('company_user.dashboard'));
-        }
-    
-        return redirect()->back()->with('error', 'Invalid credentials');
-    }
-
-    public function dashboard()
-    {
-        $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
-            $query->where('program_lock', 0);
-        })->get();
-
-        return view('dashboard.company.dashboard', compact('programs'));
-    }
-
-    public function profile()
-    {
-        // Logic for profile view
-        return view('company_user.profile');
-    }
-
-    public function logout()
-    {
-        Auth::guard('company_user')->logout();
-        return redirect()->route('company_user.login');
-    }
-
-
     public function index()
     {
         $i = 1;
