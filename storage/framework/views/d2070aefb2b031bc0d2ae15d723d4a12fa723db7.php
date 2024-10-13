@@ -29,6 +29,7 @@
         </li>
         <li class="navbar-nav" style="color:white;margin-left:5px"><b style="color:yellow">| </b>Welcome,
             <?php echo e(Auth::user()->name); ?> <b style="color:yellow"> |</b> </li>
+        <?php if((\Request::route()->getPrefix() != '/company')): ?>
         <li class="nav-item dropdown" style="list-style: none;">
             <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href=""
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="<?php echo e((filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) ? Auth::user()->profile_picture : asset('/avatars/'.Auth::user()->profile_picture)); ?>" alt="avatar" class="rounded-circle" width="50"
@@ -40,22 +41,20 @@
                 <a class="dropdown-item" href="<?php echo e(route('register')); ?>"><i class="ti-wallet m-r-5 m-l-5"></i>
                     Register</a>
                 <?php else: ?>
+                    <a class="dropdown-item" href="<?php echo e(route('profiles.edit', Auth::user()->id)); ?>"><i
+                            class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
+                    
+                    <a class="dropdown-item" href="<?php echo e(route('logout')); ?>" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-power-off m-r-5 m-l-5"></i>
+                        Logout
+                    </a>
+                    
+                    <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" style="display: none;">
+                        <?php echo e(csrf_field()); ?>
 
-                <a class="dropdown-item" href="<?php echo e(route('profiles.edit', Auth::user()->id)); ?>"><i
-                        class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
-                <a class="dropdown-item" href="<?php echo e(route('logout')); ?>" onclick="event.preventDefault();
-                                document.getElementById('logout-form').submit();"><i
-                        class="fa fa-power-off m-r-5 m-l-5"></i>
-                    Logout
-                </a>
-
-                <form id="logout-form" action="<?php echo e(route('logout')); ?>" method="POST" style="display: none;">
-                    <?php echo e(csrf_field()); ?>
-
-                </form>
-
+                    </form>
                 <?php endif; ?>
             </div>
         </li>
+        <?php endif; ?>
     </div>
 </nav><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/layouts/nav.blade.php ENDPATH**/ ?>

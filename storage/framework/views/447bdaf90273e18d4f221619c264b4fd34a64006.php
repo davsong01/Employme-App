@@ -13,6 +13,7 @@
         padding: 10px;
     }
 </style>
+<?php echo $__env->make('dashboard.company.partials.company_extra_css', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <?php $__env->stopSection(); ?>
 <?php $__env->startSection('title', 'All Participants'); ?>
@@ -85,10 +86,6 @@
                             <td><?php echo e($user->name); ?> <br>
                                 <?php if($user->staffID): ?>
                                 <strong>Staff ID: </strong><?php echo e($user->staffID); ?> <br>
-                                <?php endif; ?>
-                                <?php if($user->t_phone): ?>
-                                <strong>Phone: </strong><?php echo e($user->t_phone); ?>
-
                                 <?php endif; ?>
                             </td>
 

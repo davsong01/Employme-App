@@ -21,7 +21,11 @@ class CompanyUserController extends Controller
         $users = CompanyUser::select('id', 'name', 'email', 'created_at', 'phone', 'permissions', 'status')
             ->distinct()->with('trainings')
             ->orderBy('created_at', 'DESC')->get();
-        
+
+        foreach($users as $user){
+            $trainings = $user->trainings->pluck('program_id')->toArray();
+            $user->p_names = Program::select(['id','p_name'])->whereIn('id', $trainings)->orderBy('created_at','DESC')->get();
+        }
         // $users->map(function ($users) {
         //     $details = CompanyUserTraining::where('company_user_id', $users->id);
         //     $users->program_count = $details->distinct()->count();

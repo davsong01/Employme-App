@@ -40,17 +40,7 @@ class HomeController extends Controller
 
             $events = [];
             $data = Program::all();
-            // if($data->count()){
-            //     foreach ($data as $key => $value) {
-            //         $events[] = Calendar::event(
-            //             $value->p_name,
-            //             true,
-            //             new \DateTime($value->p_start),
-            //             new \DateTime($value->p_end.' +1 day')
-            //         );
-            //     }
-            // }
-
+            
             // $calendar = Calendar::addEvents($events);
             $calendar = [];
 
@@ -124,8 +114,9 @@ class HomeController extends Controller
         
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             //get enabled module Tests for this user
-            $thisusertransactions = DB::table('program_user')->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
-
+            $thisusertransactions = Transaction::whereHas('program', function($query){
+                $query->where('program_lock', 0);
+            })->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
             foreach ($thisusertransactions as $transactions) {
                 $transactions->modules = Module::where('program_id', $transactions->program_id)->where('status', 1)->count();
                 $transactions->materials = Material::where('program_id', $transactions->program_id)->count();

@@ -6,7 +6,7 @@
         <div class="card-body">
             <div class="card-title">
                 <?php echo $__env->make('layouts.partials.alerts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-             </div>
+            </div>
             <div class="card-header">
                 <div>
                     <h5 class="card-title">Facilitators $ Graders <a href="<?php echo e(route('teachers.create')); ?>"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 

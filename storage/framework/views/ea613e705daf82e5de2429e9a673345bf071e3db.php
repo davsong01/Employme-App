@@ -161,6 +161,16 @@
                                         <small style="color:red"><?php echo e($errors->first('status')); ?></small>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Program Status <small>(Participants will not be able to access program)</small></label>
+                                        <select name="program_lock" class="form-control" id="program_lock" required>
+                                            <option value="1" <?php echo e($program->program_lock == 1 ? 'selected' : ''); ?>>Locked</option>
+                                            <option value="0" <?php echo e($program->program_lock == 0 ? 'selected' : ''); ?>>Unlocked</option>
+                                        </select>
+                                        <small style="color:red"><?php echo e($errors->first('program_lock')); ?></small>
+                                    </div>
+                                </div>
                             </div>
                         </fieldset>
                         <fieldset class="field">

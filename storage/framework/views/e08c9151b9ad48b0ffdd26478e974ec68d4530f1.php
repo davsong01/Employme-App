@@ -198,6 +198,7 @@
             </div>
         </div>
     </div>
+    <?php if($thisusertransactions->count() > 0): ?>
     <div class="row">
         <!-- Column -->
         <div class="col-md-12 col-lg-12">
@@ -220,6 +221,6 @@
         </div>
         <!-- Column -->
     </div>
-</div>
+    <?php endif; ?>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('dashboard.student.index', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Applications/MAMP/htdocs/employme/resources/views/dashboard/student/dashboard.blade.php ENDPATH**/ ?>

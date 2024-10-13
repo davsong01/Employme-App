@@ -62,7 +62,7 @@
                 
                 {{-- @if(in_array(22, $menus)) --}}
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('companyuser.index')}}" aria-expanded="false"><i class="fas fa-building-o"></i><span
+                        href="{{route('companyuser.index')}}" aria-expanded="false"><i class="fa fa-solid fa-building"></i><span
                             class="hide-menu">Company Admin Management</span></a></li>
                 {{-- @endif --}}
                 

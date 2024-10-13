@@ -36,8 +36,21 @@
                             </td>
                             <td>
                                 <small>
-                                    
+                                    <?php $index = 1; ?>
+                                    <?php $counter = 1; ?>
+                                    <?php $__currentLoopData = $user->p_names; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $names): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <strong style="color:green">
+                                            <?php echo e($counter ++); ?>.
+                                        </strong>
+                                        <?php echo e($names->p_name); ?>
+
+                                        <?php if($index < count($user->p_names)): ?>
+                                            <br>
+                                        <?php endif; ?>
+                                        <?php $index++; ?>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </small>
+
                             </td>
                             <td>
                                 <?php if($user->status == 'active'): ?> <button class="btn btn-success btn-xs">Active</button> <?php else: ?> <button class="btn btn-danger btn-xs">Inactive</button> <?php endif; ?>

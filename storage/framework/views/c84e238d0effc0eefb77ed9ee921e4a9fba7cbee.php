@@ -3,7 +3,6 @@
 ?>
 
 <?php $__env->startSection('css'); ?>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -63,7 +62,7 @@
                 
                 
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="<?php echo e(route('companyuser.index')); ?>" aria-expanded="false"><i class="fas fa-building-o"></i><span
+                        href="<?php echo e(route('companyuser.index')); ?>" aria-expanded="false"><i class="fa fa-solid fa-building"></i><span
                             class="hide-menu">Company Admin Management</span></a></li>
                 
                 
@@ -121,11 +120,6 @@
 
                     </ul>
                 </li>
-                <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
-                    
-                    
-                    
-                <?php endif; ?>
                 <?php if(in_array(10, $menus)): ?>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="<?php echo e(route('complains.index')); ?>" aria-expanded="false"><i class="far fa-comments"></i><span
@@ -161,6 +155,7 @@
                             <?php endif; ?>
                         <?php endif; ?>
                     </ul>
+                    
                     <?php if(!empty(array_intersect(adminRoles(), Auth::user()->role()))): ?>
                     <?php if(in_array(17, $menus)): ?>
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

@@ -37,10 +37,20 @@
                             </td>
                             <td>
                                 <small>
-                                    {{-- @foreach($user->p_names as $index=>$names)
-                                    <strong style="color:red">@if($index < count($user->p_names))|| @endif</strong>{{ $names }} @if($index < count($user->p_names)-1)<br>@endif
-                                    @endforeach --}}
+                                    @php $index = 1; @endphp
+                                    @php $counter = 1; @endphp
+                                    @foreach($user->p_names as $names)
+                                        <strong style="color:green">
+                                            {{ $counter ++ }}.
+                                        </strong>
+                                        {{ $names->p_name }}
+                                        @if($index < count($user->p_names))
+                                            <br>
+                                        @endif
+                                        @php $index++; @endphp
+                                    @endforeach
                                 </small>
+
                             </td>
                             <td>
                                 @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
@@ -53,10 +63,7 @@
                                         class="btn btn-info" href="{{ route('companyuser.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>                                   
-                                    {{-- <a data-toggle="tooltip" data-placement="top" title="Peep"
-                                    class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
-                                        class="fa fa-unlock"></i>
-                                    </a> --}}
+                                    
                                     <form action="{{ route('companyuser.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}

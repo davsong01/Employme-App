@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\User;
 use App\Program;
+use App\Transaction;
 use App\Models\CompanyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -12,6 +13,9 @@ use App\Models\CompanyUserTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\MockController;
+use Rap2hpoutre\FastExcel\Facades\FastExcel;
+use App\Http\Controllers\Admin\ResultController;
 
 
 class CompanyUserController extends Controller
@@ -37,7 +41,10 @@ class CompanyUserController extends Controller
         $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->get();
-
+        
+        foreach($programs as $program){
+            $program->user_count = Transaction::where('program_id', $program->program_id)->count();
+        }
         return view('dashboard.company.dashboard', compact('programs'));
     }
 
@@ -106,5 +113,49 @@ class CompanyUserController extends Controller
 
         return view('dashboard.company.users.index', compact('users', 'i', 'records','programs', 'allPrograms'));
 
+    }
+
+    public function pretest()
+    {
+        $trainings = auth()->user()->trainings()->whereHas('program', function ($query) {
+            $query->where('program_lock', 0);
+        })->pluck('program_id')->toArray();
+
+        $programs = Program::whereIn('id', $trainings)->whereHas('mocks', function ($query) {
+            return $query->orderby('created_at', 'DESC');
+        })->orderby('created_at', 'DESC')->get();
+
+        $i = 1;
+        
+        return view('dashboard.company.pretests.selecttraining', compact('programs', 'i'));
+    }
+
+    public function getgrades(Request $request, $id)
+    {
+        $mock = new  MockController();
+        return $mock->getgrades($request, $id, true);
+        $request->pid = $id;
+    }
+
+    public function postTest()
+    {
+        $trainings = auth()->user()->trainings()->whereHas('program', function ($query) {
+            $query->where('program_lock', 0);
+        })->pluck('program_id')->toArray();
+        
+        $programs = Program::whereIn('id', $trainings)->whereHas('mocks', function ($query) {
+            return $query->orderby('created_at', 'DESC');
+        })->orderby('created_at', 'DESC')->get();
+
+        $i = 1;
+
+        return view('dashboard.company.posttests.selecttraining', compact('programs', 'i'));
+    }
+
+    public function getPostTesGrades(Request $request, $id)
+    {
+        $result = new ResultController();
+        return $result->getgrades($request, $id, true);
+        $request->pid = $id;
     }
 }

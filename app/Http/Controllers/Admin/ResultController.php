@@ -60,7 +60,7 @@ class ResultController extends Controller
         return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
     }
 
-    public function getgrades(Request $request, $id)
+    public function getgrades(Request $request, $id,$internal = false)
     {
         $request->pid = $id;
 
@@ -102,10 +102,14 @@ class ResultController extends Controller
         }
 
         $records = $users->count();
-    
-        // Roles determination
-        $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
-        $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+
+        if ($internal) {
+            $isAdmin = true;
+        } else {
+            $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
+            $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+        }
+
         $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play', 'crm_test', 'email'])
         ->where('program_id', $request->pid)
             ->first();
@@ -221,6 +225,10 @@ class ResultController extends Controller
 
             $page = 'results';
             $title = '<b>Post Test Results for: </b>' . $program->p_name;
+
+            if ($internal) {
+                return view('dashboard.company.pretests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
+            }
 
             return view('dashboard.admin.results.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
         }

@@ -210,6 +210,7 @@
             </div>
         </div>
     </div>
+    @if($thisusertransactions->count() > 0)
     <div class="row">
         <!-- Column -->
         <div class="col-md-12 col-lg-12">
@@ -232,5 +233,5 @@
         </div>
         <!-- Column -->
     </div>
-</div>
+    @endif
 @endsection

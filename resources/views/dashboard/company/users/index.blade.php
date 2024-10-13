@@ -14,6 +14,7 @@
         padding: 10px;
     }
 </style>
+@include('dashboard.company.partials.company_extra_css')
 
 @endsection
 @section('title', 'All Participants')
@@ -86,9 +87,6 @@
                             <td>{{ $user->name }} <br>
                                 @if($user->staffID)
                                 <strong>Staff ID: </strong>{{$user->staffID}} <br>
-                                @endif
-                                @if($user->t_phone)
-                                <strong>Phone: </strong>{{ $user->t_phone}}
                                 @endif
                             </td>
 

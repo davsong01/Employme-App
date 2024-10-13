@@ -1,6 +1,7 @@
 <?php
 
 use App\Transaction;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FrontendController;
 
 Route::get('cron/run-utility-tasks', 'UtilityTaskController@runTool');
@@ -102,11 +103,11 @@ Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savef
 Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate', 'auth']);
 Route::post('/pay-with-account/{type}', 'paymentController@payFromAccount')->name('account.pay')->middleware(['impersonate', 'auth']);
 
-Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate', 'auth']);
+Route::get('/home', [HomeController::class, 'index'])->name('home2')->middleware(['impersonate', 'auth']);
 
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
-    Route::resource('complains', 'ComplainController');
+    Route::resource('complains', ComplainController::class);
     Route::get('complainresolved/{complain}', 'ComplainController@resolve')->name('crm.resolved');
 });
 
@@ -121,25 +122,25 @@ Route::get('/stopimpersonating', 'Admin\ImpersonateController@stopImpersonate')-
 Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImpersonateFacilitator')->name('stop.impersonate.facilitator');
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate', 'permission'])->group(function(){
-    Route::resource('users', 'UserController');
-    Route::resource('payment-modes', 'PaymentModeController');
-    Route::resource('paymentmethod', 'PaymentMethodController');
+    Route::resource('users', UserController::class);
+    Route::resource('payment-modes', PaymentModeController::class);
+    Route::resource('paymentmethod', PaymentMethodController::class);
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
     Route::get('users/stopredotest/{user_id}/{result_id}', 'UserController@stopredotest')->name('stopredotest');
 });
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
-    Route::resource('teachers', 'TeacherController');
-    Route::resource('companyuser', 'CompanyUserController');
-    Route::resource('coupon', 'CouponController');
+    Route::resource('teachers', TeacherController::class);
+    Route::resource('companyuser', CompanyUserController::class);
+    Route::resource('coupon', CouponController::class);
     Route::get('teachers_students/{id}', 'TeacherController@showStudents')->name('teachers.students');
     Route::get('teachers_programs/{id}', 'TeacherController@showPrograms')->name('teachers.programs');
     Route::get('teachers_earnings/{id}', 'TeacherController@showEarnings')->name('teachers.earnings');
 });
 
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
-    Route::resource('results', 'ResultController');
+    Route::resource('results', ResultController::class);
 
     Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
     Route::any('postclassresults/{id?}', 'ResultController@getgrades')->name('results.getgrades');
@@ -153,11 +154,11 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 });
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
-    Route::resource('programs', 'ProgramController');
+    Route::resource('programs', ProgramController::class);
     Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
     
-    Route::resource('locations', 'LocationController');
-    Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
+    Route::resource('locations', LocationController::class);
+    Route::get('complainshow/{crm}', [ProgramController::class, 'showcrm'])->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');
     Route::get('complainhide/{crm}', 'ProgramController@hidecrm')->name('crm.hide');
