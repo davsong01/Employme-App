@@ -816,7 +816,7 @@ class Controller extends BaseController
             ],
             [
                 'id' => 3,
-                'name' => 'View All Facilitators',
+                'name' => 'Facilitator Management',
                 'route' => 'teachers.index',
             ],
             [
@@ -915,6 +915,59 @@ class Controller extends BaseController
                 'id' => 22,
                 'name' => 'Enable Resit for participants',
                 'route' => 'modules.create',
+            ],
+            [
+                'id' => 22,
+                'name' => 'Company Admin Management',
+                'route' => 'modules.create',
+            ],
+        ];
+
+        return $menus;
+    }
+
+    public function companyMenus()
+    {
+        $menus = [
+            [
+                'id' => 1,
+                'name' => 'Organization Dashboard',
+                'route' => 'dashboard',
+                'isParent' => 'yes',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Participant Management',
+                'route' => 'users.index',
+                'isParent' => 'yes',
+            ],
+            
+            [
+                'id' => 3,
+                'name' => 'LMS',
+                'route' => '',
+                'isParent' => 'yes',
+            ],
+            [
+                'id' => 4,
+                'name' => 'Pre Test Results',
+                'route' => 'pretest.select',
+                'isParent' => 'no',
+                'parentId' => 3
+
+            ],
+            [
+                'id' => 5,
+                'name' => 'Post Tests Results',
+                'route' => 'posttest.results',
+                'isParent' => 'no',
+                'parentId' => 3
+            ],
+            [
+                'id' => 6,
+                'name' => 'CRM Tool',
+                'route' => 'complains.index',
+                'isParent' => 'yes',
             ],
         ];
 

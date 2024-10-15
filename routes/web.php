@@ -1,6 +1,8 @@
 <?php
 
 use App\Transaction;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Admin\LocationController;
 
 Route::get('cron/run-utility-tasks', 'UtilityTaskController@runTool');
 
@@ -12,28 +14,6 @@ Route::get('/clear', function () {
 });
 Auth::routes();
 
-
-
-// Route::get('test', function(){
-//     $path = base_path('uploads/certificate_templates/b.jpeg');
-
-//     $image = imagecreatefromjpeg($path);
-
-//     $color = imagecolorallocate($image, 255, 255, 255);
-//     $string = 'The string you want to write horizontally on the image';
-//     $fontSize = 5;
-//     $x = 300;
-//     $y = 1000;
-
-//     // write on the image
-//     imagestring($image, $fontSize, $x, $y, $string, $color);
-//     $fileName = base_path('uploads/certificates/image.jpg');
-//     // save the image
-//     imagepng($image, $fileName, $quality = 100);
-//     dd('done');
-// });
-
-// Route::get('test', 'Controller@printTextOnImage');
 //route for the home
 Route::get( '/reset', 'FrontendController@reset')->name('reset');
 Route::get('/correcttransid', function(){
@@ -46,7 +26,7 @@ Route::get('/correcttransid', function(){
 });
 
 Route::middleware(['template'])->group(function(){
-    Route::get('/', 'FrontendController@index')->name('welcome');
+    Route::get('/', [FrontendController::class, 'index'])->name('welcome');
     Route::get('/thankyou', 'FrontendController@thankyou')->name('thankyou');    
 
     Route::get('/trainingimage/{filename}', 'FrontendController@getfile')->name('trainingimage');
@@ -96,7 +76,6 @@ Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::resource('settings', 'SettingsController');
 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
-Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
 Route::get('/my-wallet/{user_id}', 'WalletController@participantWalletIndex')->name('my.wallet')->middleware(['impersonate', 'auth']);
@@ -142,24 +121,25 @@ Route::get('/stopimpersonating', 'Admin\ImpersonateController@stopImpersonate')-
 Route::get('/stopimpersonatingfacilitator', 'Admin\ImpersonateController@stopImpersonateFacilitator')->name('stop.impersonate.facilitator');
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate', 'permission'])->group(function(){
-    Route::resource('users', 'UserController');
-    Route::resource('payment-modes', 'PaymentModeController');
-    Route::resource('paymentmethod', 'PaymentMethodController');
+    Route::resource('users', UserController::class);
+    Route::resource('payment-modes', PaymentModeController::class);
+    Route::resource('paymentmethod', PaymentMethodController::class);
     Route::get('users/redotest/{id}', 'UserController@redotest')->name('redotest');
     Route::post('users/redotest', 'UserController@saveredotest')->name('saveredotest');
     Route::get('users/stopredotest/{user_id}/{result_id}', 'UserController@stopredotest')->name('stopredotest');
 });
 
 Route::namespace('Admin')->middleware(['auth', 'impersonate'])->group(function(){
-    Route::resource('teachers', 'TeacherController');
-    Route::resource('coupon', 'CouponController');
+    Route::resource('teachers', TeacherController::class);
+    Route::resource('companyuser', CompanyUserController::class);
+    Route::resource('coupon', CouponController::class);
     Route::get('teachers_students/{id}', 'TeacherController@showStudents')->name('teachers.students');
     Route::get('teachers_programs/{id}', 'TeacherController@showPrograms')->name('teachers.programs');
     Route::get('teachers_earnings/{id}', 'TeacherController@showEarnings')->name('teachers.earnings');
 });
 
 Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->group(function(){
-    Route::resource('results', 'ResultController');
+    Route::resource('results', ResultController::class);
 
     Route::get('postclassresults', 'ResultController@posttest')->name('posttest.results');
     Route::any('postclassresults/{id?}', 'ResultController@getgrades')->name('results.getgrades');
@@ -173,10 +153,10 @@ Route::namespace('Admin')->middleware(['impersonate','auth', 'programCheck'])->g
 });
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
-    Route::resource('programs', 'ProgramController');
+    Route::resource('programs', ProgramController::class);
     Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
     
-    Route::resource('locations', 'LocationController');
+    Route::resource('locations', LocationController::class);
     Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');

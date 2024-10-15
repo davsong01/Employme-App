@@ -106,6 +106,7 @@ class TeacherController extends Controller
         }
         return back();
     }
+
     public function store(Request $request)
     {
         $data = request()->validate([
@@ -221,7 +222,7 @@ class TeacherController extends Controller
         }
         return back();
     }
-
+    
     public function update(Request $request, $id)
     {
         $user = User::findorFail($id);

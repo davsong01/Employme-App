@@ -168,7 +168,7 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="breadcrumb__text">
-                        <h2>EMPLOYME NG Course Portal</h2>
+                        <h2>@yield('pagetitle', 'EMPLOYME NG Course Portal')</h2>
                         <div class="breadcrumb__option">
                             @if(!empty(\Session::get('facilitator')))
                             <span>Instructor {{ \Session::get('facilitator_name') }}'s page</span>

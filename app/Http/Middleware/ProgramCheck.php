@@ -26,6 +26,12 @@ class ProgramCheck
             }
 
             $program = Program::find($request->p_id);
+            
+            // check if program is locked
+            if($program->program_lock == 1){
+                return redirect(route('home'));
+            }
+
             if ($program->off_season && is_null(Auth::user()->facilitator_id) ) {
                 // Select instructor mode disabled for now
                 // $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', auth::user()->id)->first();
@@ -39,11 +45,9 @@ class ProgramCheck
                 // return view('dashboard.student.profiles.facilitators', compact('facilitator', 'program'));
                 // return redirect('selectfacilitator/' . $program->id);
             }
-
+            
             return $next($request);
         }
-
-
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
             return $next($request);

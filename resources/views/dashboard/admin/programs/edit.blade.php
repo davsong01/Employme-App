@@ -159,6 +159,27 @@
                                         <small style="color:red">{{ $errors->first('status')}}</small>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Program Status <small>(Participants will not be able to access program)</small></label>
+                                        <select name="program_lock" class="form-control" id="program_lock" required>
+                                            <option value="1" {{ $program->program_lock == 1 ? 'selected' : '' }}>Locked</option>
+                                            <option value="0" {{ $program->program_lock == 0 ? 'selected' : '' }}>Unlocked</option>
+                                        </select>
+                                        <small style="color:red">{{ $errors->first('program_lock')}}</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label style="color:red">Login Without Password</label>
+                                        <select name="login_without_password" class="form-control" id="login_without_password" required>
+                                            <option value="1" {{ $program->login_without_password == 1 ? 'selected' : '' }}>Yes</option>
+                                            <option value="0" {{ $program->login_without_password == 0 ? 'selected' : '' }}>No</option>
+                                        </select>
+                                        <small style="color:red">{{ $errors->first('login_without_password')}}</small>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </fieldset>
                         <fieldset class="field">

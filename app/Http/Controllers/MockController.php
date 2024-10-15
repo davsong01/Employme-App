@@ -25,9 +25,9 @@ class MockController extends Controller
 
     protected $excelService;
 
-    public function __construct(ExcelService $excelService)
+    public function __construct()
     {
-        $this->excelService = $excelService;
+        $this->excelService = new ExcelService();
     }
 
     
@@ -111,7 +111,7 @@ class MockController extends Controller
         return view('dashboard.admin.mocks.edit', compact('user_results', 'array', 'i'));
     }
 
-    public function getgrades(Request $request, $id)
+    public function getgrades(Request $request, $id, $internal=false)
     {
         $request->pid = $id;
         
@@ -154,10 +154,14 @@ class MockController extends Controller
         }
 
         $records = $users->count();
-
         // Roles determination
-        $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
-        $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+        if($internal){
+            $isAdmin = true;
+        }else{
+            $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
+            $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+        }
+        
         $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play','crm_test', 'email'])
         ->where('program_id', $request->pid)
             ->first();
@@ -171,7 +175,6 @@ class MockController extends Controller
         // Process users if Admin or Facilitator/Grader
         if ($isAdmin || $isFacilitatorOrGrader) {
             $i = 1;
-
             // Check if $users is paginated
             $isPaginated = $users instanceof \Illuminate\Pagination\LengthAwarePaginator || $users instanceof \Illuminate\Pagination\Paginator;
 
@@ -214,20 +217,21 @@ class MockController extends Controller
                     $user->total_role_play_score += $result->role_play_score;
                     $user->total_email_test_score += $result->email_test_score;
                     $user->created_at = $result->created_at;
-                    
-                    if ($result->module->type === 'Class Test') {
-                        $this->calculateClassTestScore($result, $user, $request->pid);
+    
+                    if($result->module){
+                        if ($result->module->type === 'Class Test') {
+                            $this->calculateClassTestScore($result, $user, $request->pid);
+                        }
+    
+                        if ($result->module->type === 'Certification Test') {
+                            $user->total_cert_score += $result->certification_test_score;
+                            $user->result_id = $result->id;
+                            $user->certification_test_details = 1;
+    
+                            $user->marked_by = $result->marked_by;
+                            $user->grader = $result->grader;
+                        }
                     }
-
-                    if ($result->module->type === 'Certification Test') {
-                        $user->total_cert_score += $result->certification_test_score;
-                        $user->result_id = $result->id;
-                        $user->certification_test_details = 1;
-
-                        $user->marked_by = $result->marked_by;
-                        $user->grader = $result->grader;
-                    }
-
                     // Calculate final class test score
                     $user->final_ct_score = $this->calculateFinalCtScore($user);
                 }
@@ -270,6 +274,10 @@ class MockController extends Controller
 
             $page = 'mocks';
             $title = '<b>Pre Test Results for: </b>'.$program->p_name;
+
+            if ($internal) {
+                return view('dashboard.company.pretests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
+            }
 
             return view('dashboard.admin.results.index', compact('users', 'i', 'program','records', 'score_settings','page','title'));
         }

@@ -3,7 +3,6 @@
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
-{{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css"> --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -49,7 +48,7 @@
                             class="hide-menu">Admin Dashboard</span></a></li>
                 @endif
                 @endif
-               
+
                 @if(in_array(2, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
@@ -58,8 +57,14 @@
                 @if(in_array(3, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('teachers.index')}}" aria-expanded="false"><i class="fas fas fa-user"></i><span
-                            class="hide-menu">View All Facilitators</span></a></li>
+                            class="hide-menu">Facilitator Management</span></a></li>
                 @endif
+                
+                {{-- @if(in_array(22, $menus)) --}}
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                        href="{{route('companyuser.index')}}" aria-expanded="false"><i class="fa fa-solid fa-building"></i><span
+                            class="hide-menu">Company Admin Management</span></a></li>
+                {{-- @endif --}}
                 
                 <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
                         href="javascript:void(0)" aria-expanded="false"><i class="fas fa-chalkboard-teacher"></i><span
@@ -115,26 +120,6 @@
 
                     </ul>
                 </li>
-                @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
-                    {{-- @if(in_array(8, $menus)) --}}
-                    {{-- <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('payments.index')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
-                                class="hide-menu">Transactions</span></a></li>
-                    @endif --}}
-                    {{-- @if(in_array(8, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('payments.history')}}" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
-                                class="hide-menu">Wallet Transactions</span></a></li>
-                    @endif
-                    @if(in_array(9, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('proof.payment')}}" aria-expanded="false"><i class="fa fa-try"></i><span
-                        class="hide-menu">Proof of Payment</span></a></li>
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('pop.index')}}" aria-expanded="false"><i class="fa fa-try"></i><span
-                        class="hide-menu">Attempted Payments</span></a></li>
-                    @endif --}}
-                @endif
                 @if(in_array(10, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{route('complains.index')}}" aria-expanded="false"><i class="far fa-comments"></i><span
@@ -170,6 +155,7 @@
                             @endif
                         @endif
                     </ul>
+                    
                     @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
                     @if(in_array(17, $menus))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"

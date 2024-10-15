@@ -124,8 +124,7 @@ class User extends Authenticatable
         $a_menu = !empty($a_menu) ? $a_menu : [];
        
         return $a_menu; 
-    }
-        
+    }    
 }
    
 
