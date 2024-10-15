@@ -171,6 +171,17 @@
                                         <small style="color:red"><?php echo e($errors->first('program_lock')); ?></small>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label style="color:red">Login Without Password</label>
+                                        <select name="login_without_password" class="form-control" id="login_without_password" required>
+                                            <option value="1" <?php echo e($program->login_without_password == 1 ? 'selected' : ''); ?>>Yes</option>
+                                            <option value="0" <?php echo e($program->login_without_password == 0 ? 'selected' : ''); ?>>No</option>
+                                        </select>
+                                        <small style="color:red"><?php echo e($errors->first('login_without_password')); ?></small>
+                                    </div>
+                                </div>
+                                
                             </div>
                         </fieldset>
                         <fieldset class="field">

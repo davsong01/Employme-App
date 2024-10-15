@@ -1,8 +1,8 @@
 <?php
 
 use App\Transaction;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Admin\LocationController;
 
 Route::get('cron/run-utility-tasks', 'UtilityTaskController@runTool');
 
@@ -76,7 +76,6 @@ Route::get('reconcile', 'PopController@reconcile')->name('reconcile');
 Route::resource('settings', 'SettingsController');
 
 Route::resource('tests', 'TestsController')->middleware(['impersonate','auth', 'programCheck']);
-Route::resource('mocks', 'MockController')->middleware(['impersonate','auth', 'programCheck']);
 
 Route::get('/training/{p_id}', 'HomeController@trainings')->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
 Route::get('/my-wallet/{user_id}', 'WalletController@participantWalletIndex')->name('my.wallet')->middleware(['impersonate', 'auth']);
@@ -103,11 +102,11 @@ Route::POST('savefacilitator', 'ProfileController@saveFacilitator')->name('savef
 Route::get('/dashboard', 'HomeController@index')->name('home')->middleware(['impersonate', 'auth']);
 Route::post('/pay-with-account/{type}', 'paymentController@payFromAccount')->name('account.pay')->middleware(['impersonate', 'auth']);
 
-Route::get('/home', [HomeController::class, 'index'])->name('home2')->middleware(['impersonate', 'auth']);
+Route::get('/home', 'HomeController@index')->name('home2')->middleware(['impersonate', 'auth']);
 
 
 Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
-    Route::resource('complains', ComplainController::class);
+    Route::resource('complains', 'ComplainController');
     Route::get('complainresolved/{complain}', 'ComplainController@resolve')->name('crm.resolved');
 });
 
@@ -158,7 +157,7 @@ Route::namespace('Admin')->middleware(['impersonate','auth'])->group(function(){
     Route::get('training-clone/{training}', 'ProgramController@cloneTraining')->name('training.clone');
     
     Route::resource('locations', LocationController::class);
-    Route::get('complainshow/{crm}', [ProgramController::class, 'showcrm'])->name('crm.show');
+    Route::get('complainshow/{crm}', 'ProgramController@showcrm')->name('crm.show');
     Route::get('trashed-programs', 'ProgramController@trashed')->name('programs.trashed');
     Route::get('restore/{id}', 'ProgramController@restore')->name('programs.restore');
     Route::get('complainhide/{crm}', 'ProgramController@hidecrm')->name('crm.hide');

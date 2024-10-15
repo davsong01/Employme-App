@@ -189,7 +189,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password']);
 
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
