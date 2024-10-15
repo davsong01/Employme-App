@@ -12,7 +12,7 @@ class ScoreSetting extends Model
 
     public function module()
     {
-        return $this->belongsTo('App\Module', 'App\Program');
+        return $this->belongsTo('App\Models\Module', 'App\Program');
     }
 
     public function program(){

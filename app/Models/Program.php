@@ -61,7 +61,7 @@ class Program extends Model
     
     public function questions()
     {
-        return $this->hasManyThrough('App\Question', 'App\Module');
+        return $this->hasManyThrough('App\Models\Question', 'App\Models\Module');
     }
 
     //Facilitator's relationship
