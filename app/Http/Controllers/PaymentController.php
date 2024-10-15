@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use PDF;
-use App\User;
-use App\Coupon;
-use App\Program;
-use App\Settings;
-use App\PaymentMode;
-use App\Transaction;
+use App\Models\User;
+use App\Models\Coupon;
+use App\Models\Program;
+use App\Models\Settings;
+use App\Models\PaymentMode;
+use App\Models\Transaction;
 use App\Http\Requests;
 use App\Models\Wallet;
-use App\TempTransaction;
+use App\Models\TempTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

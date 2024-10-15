@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\User;
-use App\Program;
-use App\Complain;
-use App\FacilitatorTraining;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Complain;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;

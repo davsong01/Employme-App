@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Certificate;
-use App\User;
-use App\Module;
-use App\Result;
+use App\Models\Certificate;
+use App\Models\User;
+use App\Models\Module;
+use App\Models\Result;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

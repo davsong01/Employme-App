@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Role;
-use App\User;
-use App\Mocks;
-use App\Module;
-use App\Program;
-use App\Material;
-use App\FacilitatorTraining;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Mocks;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Material;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

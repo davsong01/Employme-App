@@ -128,7 +128,7 @@
                                 </div>
                                 <div class="col-md-12" style="display: flex;">
                                     <div class="form-group col-md-4" style="float: left;">
-                                        <img src="{{ asset(\App\Settings::value('favicon')) }}" alt="favicon" style="width: 64px;"/>
+                                        <img src="{{ asset(\App\Models\Settings::value('favicon')) }}" alt="favicon" style="width: 64px;"/>
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;padding-left: 0;padding-right: 0;">
                                         <label>Replace site favicon</label>
@@ -137,7 +137,7 @@
                                 </div>
                                 <div class="form-group col-md-12" style="display: flex;">
                                     <div class="form-group col-md-4" style="float: left;">
-                                        <img src="{{ asset(\App\Settings::value('logo')) }}" alt="logo" style="width: 170px;" >
+                                        <img src="{{ asset(\App\Models\Settings::value('logo')) }}" alt="logo" style="width: 170px;" >
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;">
                                         <label>Replace site logo (152px by 60px preferred)</label>
@@ -146,7 +146,7 @@
                                 </div>
                                 <div class="form-group col-md-12" style="display: flex;">
                                     <div class="form-group col-md-4" style="float: left;">
-                                        <img src="{{ asset(\App\Settings::value('banner')) }}" alt="banner" style="width: 95px">
+                                        <img src="{{ asset(\App\Models\Settings::value('banner')) }}" alt="banner" style="width: 95px">
                                     </div>
                                     <div class="form-group col-md-8" style="float: right;">
                                         <label>Replace site banner (1280px by 853px preferred)</label>

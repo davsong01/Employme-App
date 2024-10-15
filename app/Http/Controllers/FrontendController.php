@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
-use App\Program;
-use App\Location;
-use App\Settings;
-use App\FacilitatorTraining;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Location;
+use App\Models\Settings;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 

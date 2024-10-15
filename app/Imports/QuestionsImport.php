@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Question;
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToModel;

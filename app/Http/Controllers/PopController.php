@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Pop;
-use App\User;
-use App\Coupon;
-use App\Program;
-use App\Settings;
-use App\TempTransaction;
+use App\Models\Pop;
+use App\Models\User;
+use App\Models\Coupon;
+use App\Models\Program;
+use App\Models\Settings;
+use App\Models\TempTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;

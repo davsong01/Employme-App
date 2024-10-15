@@ -2,7 +2,7 @@
 
 namespace App\Http\View\Composers;
 
-use App\Settings;
+use App\Models\Settings;
 use Illuminate\View\View;
 
 class ColorComposer
@@ -10,14 +10,14 @@ class ColorComposer
 	/**
 	 * The setting resource implementation.
 	 *
-	 * @var \App\Settings
+	 * @var \App\Models\Settings
 	 */
 	protected $setting;
 
 	/**
 	 * Create a new profile composer.
 	 *
-	 * @param  \App\Settings  $settings
+	 * @param  \App\Models\Settings  $settings
 	 * @return void
 	 */
 	public function __construct(Settings $settings)

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Company;
 
-use App\User;
-use App\Program;
-use App\Transaction;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Transaction;
 use App\Models\CompanyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;

@@ -3,9 +3,9 @@
 namespace App\Exports;
 
 use DB;
-use App\User;
-use App\Program;
-use App\Transaction;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;

@@ -1,6 +1,6 @@
 <?php
 
-use App\Transaction;
+use App\Models\Transaction;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Admin\LocationController;
 

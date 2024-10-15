@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
-use App\Mocks;
-use App\Module;
-use App\Result;
-use App\Program;
-use App\Question;
-use App\Settings;
+use App\Models\User;
+use App\Models\Mocks;
+use App\Models\Module;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Question;
+use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;

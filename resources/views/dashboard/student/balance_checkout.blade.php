@@ -1,5 +1,5 @@
 <?php 
-    use App\Settings;
+    use App\Models\Settings;
     $balance = app('App\Http\Controllers\WalletController')->getWalletBalance(auth()->user()->id);
     $currency = Settings::value('DEFAULT_CURRENCY');
 ?>

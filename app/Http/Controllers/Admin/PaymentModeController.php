@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Settings;
-use App\PaymentMode;
+use App\Models\Settings;
+use App\Models\PaymentMode;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;

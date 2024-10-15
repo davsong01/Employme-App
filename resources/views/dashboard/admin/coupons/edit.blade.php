@@ -20,7 +20,7 @@
                             <select name="program_id" id="program_id" class="form-control" required>
                                 <option value="">-- Select Training --</option>
                                 @foreach ($programs as $program)
-                                <option value="{{ $program->id }}" {{ $program->id == $coupon->program_id ? 'selected':'' }}>{{$program->p_name}} | <strong>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($program->p_amount) }}</strong></option>
+                                <option value="{{ $program->id }}" {{ $program->id == $coupon->program_id ? 'selected':'' }}>{{$program->p_name}} | <strong>{{ \App\Models\Settings::value('DEFAULT_CURRENCY') . number_format($program->p_amount) }}</strong></option>
                                 @endforeach
                             </select>
                            

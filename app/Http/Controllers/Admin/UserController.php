@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use DB;
 use PDF;
-use App\User;
-use App\Result;
-use App\Program;
-use App\Location;
-use App\Settings;
+use App\Models\User;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Location;
+use App\Models\Settings;
 use App\Mail\Email;
-use App\Transaction;
-use App\UpdateMails;
+use App\Models\Transaction;
+use App\Models\UpdateMails;
 use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
-use App\FacilitatorTraining;
+use App\Models\FacilitatorTraining;
 use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -486,7 +486,7 @@ class UserController extends Controller
 
             try {
                 //code...
-                Mail::to(\App\Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new Email($data, $name, $subject));
+                Mail::to(Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL'))->send(new Email($data, $name, $subject));
             } catch (\Throwable $th) {
                 //throw $th;
             }

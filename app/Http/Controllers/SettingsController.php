@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Settings;
+use App\Models\Settings;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;

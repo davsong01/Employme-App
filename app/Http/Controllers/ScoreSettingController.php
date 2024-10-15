@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Module;
-use App\Program;
-use App\ScoreSetting;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\ScoreSetting;
 use Illuminate\Http\Request;
 
 class ScoreSettingController extends Controller

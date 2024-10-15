@@ -1,5 +1,5 @@
 <?php 
-    use App\Settings;
+    use App\Models\Settings;
 ?>
 @extends('dashboard.admin.index')
 @section('title', 'Account TopUp History')

@@ -1,5 +1,5 @@
 <?php
-    $logo = \App\Settings::first()->value('logo');
+    $logo = \App\Models\Settings::first()->value('logo');
     $currency = \Session::get('currency');
     $currency_symbol = \Session::get('currency_symbol');
     $exchange_rate = \Session::get('exchange_rate');
@@ -28,6 +28,6 @@ Login to your Portal here
 @endif
 
 Accept our warm regards.<br><br>
-<b> {{ \App\Settings::select('program_coordinator')->first()->value('program_coordinator') }}</b><br>
+<b> {{ \App\Models\Settings::select('program_coordinator')->first()->value('program_coordinator') }}</b><br>
 Program Coordinator
 @endcomponent

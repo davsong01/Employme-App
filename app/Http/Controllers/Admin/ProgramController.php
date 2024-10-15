@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use DB;
-use App\User;
-use App\Module;
-use App\Program;
-use App\Material;
-use App\Question;
-use App\Transaction;
-use App\ScoreSetting;
+use App\Models\User;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Material;
+use App\Models\Question;
+use App\Models\Transaction;
+use App\Models\ScoreSetting;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;

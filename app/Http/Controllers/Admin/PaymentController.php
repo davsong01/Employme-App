@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use DB;
 use PDF;
-use App\Pop;
-use App\Role;
-use App\User;
-use App\Coupon;
-use App\Program;
-use App\Transaction;
+use App\Models\Pop;
+use App\Models\Role;
+use App\Models\User;
+use App\Models\Coupon;
+use App\Models\Program;
+use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;

@@ -50,7 +50,7 @@
                                            <td>{{  $user->students_count }} </td>
                                            <td>{{ $user->license }}</td>
                                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No'}}</td>
-                                           <td>{{ \App\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings }}</td>
+                                           <td>{{ \App\Models\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings }}</td>
                                         </tr>
                                         
                                     </table>

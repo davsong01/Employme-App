@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use PDF;
-use App\User;
-use App\Program;
+use App\Models\User;
+use App\Models\Program;
 use App\Mail\Email;
 use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use App\Exports\UsersExport;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Controller;
-use App\UpdateMails;
+use App\Models\UpdateMails;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 

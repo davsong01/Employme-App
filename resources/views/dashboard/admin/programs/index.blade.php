@@ -180,8 +180,8 @@
 
                             </td>
                             
-                            <td><strong>Normal Fee:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
-                               <strong>EarlyBird:</strong> {{ \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
+                            <td><strong>Normal Fee:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
+                               <strong>EarlyBird:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
                             </td>
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
                                 <strong>End: </strong>{{ $program->p_end }}

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use DB;
-use App\User;
-use App\Module;
-use App\Result;
-use App\Program;
-use App\Question;
-use App\Settings;
-use App\Transaction;
-use App\ScoreSetting;
+use App\Models\User;
+use App\Models\Module;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Question;
+use App\Models\Settings;
+use App\Models\Transaction;
+use App\Models\ScoreSetting;
 use GuzzleHttp\Client;
-use App\FacilitatorTraining;
+use App\Models\FacilitatorTraining;
 use App\Models\ResultThread;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
