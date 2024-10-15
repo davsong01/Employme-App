@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\User;
-use App\PaymentMode;
+use App\Models\User;
+use App\Models\PaymentMode;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

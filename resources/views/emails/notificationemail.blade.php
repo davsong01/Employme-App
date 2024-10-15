@@ -16,6 +16,6 @@ Login to your Portal to view and manage your students<br><br>
 @endif
 
 Accept our warm regards.<br><br>
-<b> {{ \App\Settings::select('program_coordinator')->first()->value('program_coordinator') }}</b><br>
+<b> {{ \App\Models\Settings::select('program_coordinator')->first()->value('program_coordinator') }}</b><br>
 Program Coordinator
 @endcomponent

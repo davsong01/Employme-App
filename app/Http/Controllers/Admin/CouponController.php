@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\User;
-use App\Coupon;
-use App\Program;
-use App\CouponUser;
+use App\Models\User;
+use App\Models\Coupon;
+use App\Models\Program;
+use App\Models\CouponUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

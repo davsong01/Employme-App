@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use DB;
-use App\User;
-use App\Result;
-use App\Program;
-use App\Certificate;
-use App\Transaction;
-use App\ScoreSetting;
+use App\Models\User;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Certificate;
+use App\Models\Transaction;
+use App\Models\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Models\UtilityTracker;
 use App\Models\UtilityCronTask;

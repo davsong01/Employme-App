@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Module;
-use App\Program;
-use App\Complain;
-use App\Material;
-use App\Question;
-use App\FacilitatorTraining;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Complain;
+use App\Models\Material;
+use App\Models\Question;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Imports\QuestionsImport;
 use App\Http\Controllers\Controller;

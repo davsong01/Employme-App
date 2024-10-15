@@ -27,7 +27,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.js"></script>
 
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset(\App\Settings::value('favicon')) }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset(\App\Models\Settings::value('favicon')) }}">
     <title>{{ config('app.name') }}</title>
     <!-- Custom CSS -->
     <link href="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.css') }}" rel="stylesheet" />

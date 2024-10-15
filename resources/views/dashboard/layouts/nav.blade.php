@@ -8,7 +8,7 @@
             <!-- Logo icon -->
             <b class="logo-icon p-l-10"></b>
             <span class="logo-text">
-                <img src="{{ asset(\App\Settings::value('logo')) }}" alt="homepage" class="light-logo" />
+                <img src="{{ asset(\App\Models\Settings::value('logo')) }}" alt="homepage" class="light-logo" />
             </span>
         </a>
         <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"

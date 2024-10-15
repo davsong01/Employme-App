@@ -34,12 +34,12 @@
                                 {{ $transaction->email }} <br>
                             </td>
                             <td>
-                                {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
+                                {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
                             </td>
-                            <td>{{ $transaction->program->p_name }} <br>({{  $transaction->program->e_amount <= 0 ? 'Amount: '.\App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->p_amount : 'E/Amount '. \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->e_amount  }}) <br>
+                            <td>{{ $transaction->program->p_name }} <br>({{  $transaction->program->e_amount <= 0 ? 'Amount: '.\App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->p_amount : 'E/Amount '. \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->e_amount  }}) <br>
                             @if(!is_null($transaction->coupon_code))
                                 <span style="color:blue">
-                                    <strong>Coupon ({{ $transaction->coupon }}) Applied | {{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->coupon->coupon_amount) }}  </strong>
+                                    <strong>Coupon ({{ $transaction->coupon }}) Applied | {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->coupon->coupon_amount) }}  </strong>
                                 </span>
                                 @endif
                             </td>

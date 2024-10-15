@@ -3,9 +3,9 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\User;
-use App\Settings;
-use App\Template;
+use App\Models\User;
+use App\Models\Settings;
+use App\Models\Template;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;

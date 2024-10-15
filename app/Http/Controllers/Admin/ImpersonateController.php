@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\User;
-use App\Module;
-use App\Program;
-use App\Material;
+use App\Models\User;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;

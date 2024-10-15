@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
-use App\Program;
-use App\Transaction;
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;

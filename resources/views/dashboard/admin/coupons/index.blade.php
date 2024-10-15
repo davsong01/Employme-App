@@ -30,7 +30,7 @@
                         <tr>
                             <td>{{ $i++ }}</td>
                             <td>{{ $coupon->code }}</td>
-                            <td>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($coupon->amount) }}</td>                          
+                            <td>{{ \App\Models\Settings::value('DEFAULT_CURRENCY') . number_format($coupon->amount) }}</td>                          
                             <td>{{$coupon->program->p_name  ?? 'NULL'}}</td>                          
                             <td>{{ isset($coupon->facilitator->name) ? $coupon->facilitator->name : 'Administrator' }}</td>                          
                             <td>{{ $coupon->coupon_users->count() }}</td>                          

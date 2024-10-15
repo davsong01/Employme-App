@@ -1,6 +1,6 @@
 <?php
-    $logo = \App\Settings::first()->value('logo');
-    $settings = \App\Settings::first();
+    $logo = \App\Models\Settings::first()->value('logo');
+    $settings = \App\Models\Settings::first();
 ?>
 
 <!DOCTYPE html>
@@ -181,7 +181,7 @@
     </section>
 
     @yield('content')
-    <?php $setting = App\Settings::first() ?>
+    <?php $setting = App\Models\Settings::first() ?>
   
     <!-- Footer Section Begin -->
     <footer class="footer spad">

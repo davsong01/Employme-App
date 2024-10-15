@@ -30,7 +30,7 @@
 	</div>
 
 	<div class="row">&nbsp;
-		<div class="col-8"><strong>School Address: </strong>{!! \App\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
+		<div class="col-8"><strong>School Address: </strong>{!! \App\Models\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
 		</div>
 	</div>
 

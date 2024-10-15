@@ -4,19 +4,19 @@ namespace App\Http\Controllers;
 
 use DB;
 use Auth;
-use App\Pop;
-use App\User;
+use App\Models\Pop;
+use App\Models\User;
 use Calendar;
-use App\Module;
-use App\Picture;
+use App\Models\Module;
+use App\Models\Picture;
 
-use App\Program;
-use App\Material;
+use App\Models\Program;
+use App\Models\Material;
 use Carbon\Carbon;
-use App\PaymentMode;
-use App\Transaction;
-use App\Models\Wallet;
-use App\FacilitatorTraining;
+use App\Models\PaymentMode;
+use App\Models\Transaction;
+use App\Models\Models\Wallet;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller

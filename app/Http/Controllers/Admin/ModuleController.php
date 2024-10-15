@@ -3,12 +3,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Module;
-use App\Program;
-use App\Complain;
-use App\Question;
-use App\ScoreSetting;
-use App\FacilitatorTraining;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Complain;
+use App\Models\Question;
+use App\Models\ScoreSetting;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\facades\DB;
 use App\Http\Controllers\Controller;

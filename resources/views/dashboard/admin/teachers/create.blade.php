@@ -177,7 +177,7 @@
     CKEDITOR.replace('ckeditor');
     var editor = CKEDITOR.instances['ckeditor'];
     src = "{{ env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
-    token = "{{ \App\Settings::value('token') }}";
+    token = "{{ \App\Models\Settings::value('token') }}";
     
     function myFunction() {
         $.ajax({

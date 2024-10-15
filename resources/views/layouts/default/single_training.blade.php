@@ -34,7 +34,7 @@
                      @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
                      <div class="product-meta-data">
                         <div class="line"></div>
-                        <p class="product-price">{{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }}</p>
+                        <p class="product-price">{{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }}</p>
                         <a>
                             <h6 style="font-size: 22px !important;">{{ $training->p_name }}</h6>
                         </a>
@@ -47,7 +47,7 @@
                     <!-- Product Meta Data -->
                     <div class="product-meta-data">
                         <div class="line"></div>
-                        <p class="product-price">{{\App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($training->p_amount) }}</p>
+                        <p class="product-price">{{\App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY'). number_format($training->p_amount) }}</p>
                         <a>
                             <h6 style="font-size: 22px !important;">{{ $training->p_name }}</h6>
                         </a>
@@ -60,12 +60,12 @@
                             <div class="col-md-12 mb-3">
                                 <select name="amount" id="amount" class="form-control" required>
                                     <option value="">Select Payment Type</option>
-                                    <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</option>
+                                    <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</option>
                                     @if($training->close_earlybird == 0 && $training->e_amount > 0)
-                                    <option value="{{ $training->e_amount * 100}}">Earlybird ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->e_amount) }})</option>
+                                    <option value="{{ $training->e_amount * 100}}">Earlybird ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->e_amount) }})</option>
                                     @endif
                                     @if($training->haspartpayment == 1)
-                                    <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ \App\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount/2) }})</option>
+                                    <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount/2) }})</option>
                                     @endif
                                 </select>
                             </div>
@@ -160,7 +160,7 @@
                         @endif
                         
                         <input type="hidden" name="quantity" value="1">
-                        <input type="hidden" name="currency" value="{{  \App\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
+                        <input type="hidden" name="currency" value="{{  \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
                         {{-- <input type="hidden" name="metadata2" value="{{ json_encode($array = ['pid' => $training->id]) }}" >  --}}
                         
                         <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}

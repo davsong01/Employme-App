@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use DB;
-use App\User;
-use App\Mocks;
-use App\Module;
-use App\Result;
-use App\Program;
-use App\Question;
-use App\Transaction;
-use App\ScoreSetting;
-use App\FacilitatorTraining;
+use App\Models\User;
+use App\Models\Mocks;
+use App\Models\Module;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Question;
+use App\Models\Transaction;
+use App\Models\ScoreSetting;
+use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use App\Services\ExcelService;
 use App\Http\Controllers\Controller;

@@ -21,7 +21,7 @@
                                 <option value="">-- Select Training --</option>
                                 <option value="all">All</option>
                                 @foreach ($programs as $program)
-                                <option value="{{ $program->id }}">{{$program->p_name}} | <strong>{{ \App\Settings::value('DEFAULT_CURRENCY') . number_format($program->p_amount) }}</strong></option>
+                                <option value="{{ $program->id }}">{{$program->p_name}} | <strong>{{ \App\Models\Settings::value('DEFAULT_CURRENCY') . number_format($program->p_amount) }}</strong></option>
                                 @endforeach
                             </select>
                            

@@ -1,5 +1,5 @@
 <?php 
-    use App\Settings;
+    use App\Models\Settings;
     $accounts = getAccounts();
    
     $settings = Settings::first();
@@ -49,7 +49,7 @@
                 <div class="box bg-dark text-center">
                     <h1 class="font-light text-white"><img src="/money-bag.png" alt="" style="width: 38px;"></h1>
                     <h6 class="text-white">Account Balance</h6>
-                    <p class="text-white">{{ \App\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
+                    <p class="text-white">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
                 </div>
             </div>
         </div>

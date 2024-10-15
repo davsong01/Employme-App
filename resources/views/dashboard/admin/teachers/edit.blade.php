@@ -129,7 +129,7 @@
                                     <input type="file" name="file" value="" class="form-control">
                                 </div>
                                 {{-- <div class="form-group">
-                                    <label for="earning_per_head">Earning per head ({{ \App\Settings::first()->value('DEFAULT_CURRENCY') }})</label>
+                                    <label for="earning_per_head">Earning per head ({{ \App\Models\Settings::first()->value('DEFAULT_CURRENCY') }})</label>
                                     <input id="earning_per_head" type="number" step="0.01" class="form-control" name="earning_per_head" value="{{ old('earning_per_head') ?? $user->earning_per_head}}">
                                     @if ($errors->has('earning_per_head'))
                                     <span class="help-block">

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Program;
+use App\Models\Program;
 use App\Models\CompanyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;

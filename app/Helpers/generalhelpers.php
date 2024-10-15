@@ -1,10 +1,10 @@
 <?php
 
-use App\Module;
-use App\Result;
-use App\Program;
-use App\Settings;
-use App\Transaction;
+use App\Models\Module;
+use App\Models\Result;
+use App\Models\Program;
+use App\Models\Settings;
+use App\Models\Transaction;
 
     if (!function_exists("certificationStatus")) {
         function certificationStatus($program_id, $user_id){

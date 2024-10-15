@@ -1,7 +1,7 @@
 <?php
     $facilitator = \Session::get('facilitator_id');
     $price = $amount;
-    $settings = \App\Settings::first();
+    $settings = \App\Models\Settings::first();
 ?>
 
 @extends('layouts.contai.app')
@@ -70,7 +70,7 @@
                             
                         <div class="checkout__input__checkbox">
                             <label for="acc">
-                                Agree to <a href="{{ !is_null(\App\Settings::first()->value('tac_link')) ? \App\Settings::first()->value('tac_link') : '#'}}">terms and conditions?</a> 
+                                Agree to <a href="{{ !is_null(\App\Models\Settings::first()->value('tac_link')) ? \App\Models\Settings::first()->value('tac_link') : '#'}}">terms and conditions?</a> 
                                 <input type="checkbox" id="acc" required checked>
                                 <span class="checkmark"></span>
                             </label>

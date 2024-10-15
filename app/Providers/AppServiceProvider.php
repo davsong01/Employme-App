@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Program;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
