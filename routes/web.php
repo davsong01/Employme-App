@@ -106,6 +106,7 @@ Route::get('reconcile', [PopController::class, 'reconcile'])->name('reconcile');
 Route::resource('settings', SettingsController::class);
 
 Route::resource('tests', TestsController::class)->middleware(['impersonate','auth', 'programCheck']);
+Route::resource('mocks', MockController::class)->middleware(['impersonate','auth', 'programCheck']);
 
 Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
 Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet')->middleware(['impersonate', 'auth']);
