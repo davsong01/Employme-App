@@ -11,6 +11,13 @@ use App\Models\Transaction;
             $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
             $program = Program::find($program_id);
 
+            if($result->count() < 1){
+                return [
+                    'results' => $result,
+                    'program' => $program,
+                ];
+            }
+            
             $details = [];
             $class = $email = $roleplay = $crm = $certification = 0;
 
@@ -22,7 +29,7 @@ use App\Models\Transaction;
             ->get();
             
             $obtainable = $modules->sum(fn($module) => $module->questions->count());
-
+            
             foreach ($result as $t) {
                 // Accumulate test scores
                 $class += $t['class_test_score'];
@@ -40,14 +47,16 @@ use App\Models\Transaction;
 
             // Calculate and round the class test score
             if(isset($t['ct_set_score'])){
-                $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
+                $details['class_test_score'] = !empty($details['class_test_score']) ? round(($class * $t['ct_set_score']) / $obtainable, 0) : 0;
+            }else{
+                $details['class_test_score'] = 0;
             }
             
             // Add other test scores to the details array
-            $details['email_test_score'] = $email;
-            $details['role_play_score'] = $roleplay;
-            $details['crm_test_score'] = $crm;
-            $details['certification_test_score'] = $certification;
+            $details['email_test_score'] = $email ?? 0;
+            $details['role_play_score'] = $roleplay ?? 0;
+            $details['crm_test_score'] = $crm ?? 0;
+            $details['certification_test_score'] = $certification ?? 0;
 
             // Calculate the total score and add program details
             $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
