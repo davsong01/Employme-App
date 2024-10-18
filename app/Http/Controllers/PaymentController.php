@@ -610,7 +610,9 @@ class PaymentController extends Controller
         $account_balance = $user->account_balance;
         $amount_to_pay = $training_fee - $existing;
         $balance = $training_fee - ($request->amount + $existing);
+        // $balance = $old->balance;
 
+        
         if (!empty($existingTransaction) && $existingTransaction->balance < 1) {
             if(isset($source) && $source == 'frontent-wallet'){
                 return [
@@ -620,11 +622,16 @@ class PaymentController extends Controller
             }else{
                 return back()->with('error', 'You are already enrolled for this training!');
             }
-            $balance = $existingTransaction->balance;
-        }else{
+
             $balance = $training_fee;
+
+        }else{
+            $balance = $existingTransaction->balance;
         }
-       
+        
+        // else{
+        //     $balance = $training_fee;
+        // }
         if(!empty($existingTransaction)){
             $request['type'] = 'balance';
         }else{

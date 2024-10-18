@@ -60,7 +60,6 @@
                 <?php endif; ?>
 
                 <?php if(isset($balance) && $balance > 0): ?>
-
                     <?php if($program->allow_flexible_payment == 'yes'): ?>
                     <li class="sidebar-item">
                         <a class="blinking btn btn-danger btn-lg btn-block" href="<?php echo e(route('balance.checkout', ['p_id' => $program->id, 'program' => $program] )); ?>" class="form-horizontal">Pay balance</a>

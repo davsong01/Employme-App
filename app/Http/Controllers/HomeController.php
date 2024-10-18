@@ -143,7 +143,7 @@ class HomeController extends Controller
         $program = Program::whereId($request->p_id)->first();
 
         $payment_mode =  PaymentMode::where('id', $data->payment_mode)->first();
-
+        
         return view('dashboard.student.balance_checkout', compact('data', 'payment_mode', 'program'));
     }
 

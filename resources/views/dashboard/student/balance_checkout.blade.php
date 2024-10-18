@@ -18,15 +18,13 @@
                
                 <div class="card-body" style="text-align: center;padding-bottom:20px">
                     <h4 style="color:red; text-align:center; padding:20px">You have a pending balance payment of {{$currency. number_format($program->checkBalance($program->id))}} for : {{$program->p_name}}</h4> <br>
-                   
-                    @if($program->checkBalance($program->id) < $balance)
-                       
+                    @if($program->checkBalance($program->id) <= $balance)
                         <a style="margin-top:15px" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal" class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br>
                         <p><a class="btn btn-success btn-sm" target="_blank" style="border-radius:5px" href="{{route('home')}}"><i class="fa fa-plus"></i>&nbsp;Top Up Account Balance</a>
                         </p>
                     @else 
                         <p>
-                             <span class="balance">Your Account Balance : ({{$currency.number_format($balance)}})</span> <br>
+                            <span class="balance">Your Account Balance : ({{$currency.number_format($balance)}})</span> <br>
                             <a target="_blank" class="btn btn-success btn-sm" style="border-radius:5px"href="{{route('home')}}"><i class="fa fa-plus"></i>&nbsp;Top Up Account Balance to be able to make payment</a></p>
                         </p>
                     @endif
@@ -74,12 +72,11 @@
             <div class="modal-body">
                 <form action="{{route('account.pay', 'wallet')}}" method="POST" onsubmit="return loader()">
                     @csrf
-                  
                     @if($program->allow_flexible_payment == 'yes')
                     <div class="col-md-12">
                         <div class="form-group{{ $errors->has('amount') ? ' has-error' : '' }}">
                             <label for="amount">Amount</label>
-                            <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
+                            <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ $program->checkBalance($program->id )}}" autofocus required>
                             @if ($errors->has('amount'))
                             <span class="help-block">
                                 <strong>{{ $errors->first('amount') }}</strong>
@@ -90,6 +87,7 @@
                     @else 
                     <input type="hidden" class="form-control" name="amount" value="{{$program->checkBalance($program->id)}}" autofocus required>
                     @endif
+                    
                     <input type="hidden" class="form-control" name="p_id" value="{{$program->id}}" required>
                     <button type="submit" class="btn btn-success">Make payment</button> <span id="spinner" style="display:none"><i style="color:red" class="fa fa-spinner fa-spin"></i> <strong style="color:red">Please wait, payment is processing</strong></span>
                 </form>
