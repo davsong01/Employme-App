@@ -595,7 +595,7 @@ class ResultController extends Controller
 
             $program = $details['program'] ?? collect([]);
             $result = $details['results'] ?? collect([]);
-
+            
             if ($program->allow_payment_restrictions_for_results == 'yes') {
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to view results');
