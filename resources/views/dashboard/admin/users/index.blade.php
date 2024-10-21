@@ -14,7 +14,7 @@
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
         color: black; /* Text color for selected items */
     }
-
+§
     .select2-container--default .select2-selection--multiple .select2-selection__rendered {
         color: black; /* Text color for the rendered selections */
     }
@@ -131,7 +131,7 @@
                                 <span class="transaction-count">{{ $records }}</span>
                             </div>
                         </div>
-                        <div class="mt-4">
+                        {{-- <div class="mt-4">
                             <form class="form-inline search-form" method="GET" action="{{ route('users.index') }}">
                                 <input type="hidden" name="status" value="{{ request('status') }}">
                                 
@@ -157,7 +157,50 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-search mb-2">Search</button>
                             </form>
+                        </div> --}}
+                        <div class="mt-4">
+                            <form class="row" method="GET" action="{{ route('users.index') }}">
+                                <input type="hidden" name="status" value="{{ request('status') }}">
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-group">
+                                        <select name="program_id" id="" class="form-control">
+                                            <option value="">Select Training</option>
+                                            @foreach($allPrograms as $training)
+                                            <option value="{{ $training->id }}">{{ $training->p_name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-group">
+                                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 mb-2">
+                                    <button type="submit" class="btn btn-primary btn-search w-100">Search</button>
+                                </div>
+                            </form>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -167,6 +210,7 @@
                         <tr>
                             <th>#</th>
                             <th>Details</th>
+                            <th>Last Login</th>
                             <th>Trainings</th>
                             <th>Manage</th>
                         </tr>
@@ -188,6 +232,7 @@
                             {{-- <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td>  --}}
 
                             <b style="display:none">{{ $count = 1 }}</b>
+                            <td style="color:green">{{ $user->last_login ? date("M jS, Y H:i", strtotime($user->last_login)) : '' }}</td>
                             <td>
                                 {{ $user->name }} <br>
                                 @foreach($user->programs as $programs)

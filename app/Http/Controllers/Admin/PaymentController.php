@@ -30,7 +30,7 @@ class PaymentController extends Controller
         $i = 1;
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,t_phone')->orderBy('created_at', 'DESC');
+            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,t_phone,last_login')->orderBy('created_at', 'DESC');
             
             $i = 1;
             

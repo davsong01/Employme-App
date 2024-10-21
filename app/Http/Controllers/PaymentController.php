@@ -823,7 +823,7 @@ class PaymentController extends Controller
     
     public function accountTopUp(Request $request, $type){
         if($request->type == 'virtual'){
-           
+        
             $mode = PaymentMode::find($request->payment_mode);
 
             $data = $this->validate($request, [

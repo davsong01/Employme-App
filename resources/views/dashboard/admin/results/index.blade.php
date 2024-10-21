@@ -195,6 +195,9 @@
                                     @if($user->phone)
                                     <br><b>Phone</b> <i>{{ $user->phone }}</i>
                                     @endif
+                                    @if($user->user->last_login) <br>
+                                    <span style="color:green"><strong>Last Login: </strong>{{ $user->user->last_login ? date("M jS, Y H:i", strtotime($user->user->last_login)) : '' }}</span>
+                                    @endif
                                 @endif
                                 <div class="button-container">
                                     @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
@@ -205,7 +208,6 @@
                                     @endif
                                 </div>
                             </td>
-                            
                             <td>
                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
                                     <?php

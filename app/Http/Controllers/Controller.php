@@ -52,10 +52,10 @@ class Controller extends BaseController
     
     public function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
-       
+        
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
-       
+        
         if($provider == 'default'){
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
@@ -86,7 +86,6 @@ class Controller extends BaseController
                     'filepath' => $filepath,
                     'file' => $file,
                 ];
-               
             }
            
             if(isset($data['type']) && $data['type'] == 'pop'){
@@ -121,7 +120,7 @@ class Controller extends BaseController
                 return false;
             }
         } else {
-           
+            
             $this->sendEmailWithElastic($data);
         }
         // info(['email'=> $data]);
@@ -154,13 +153,13 @@ class Controller extends BaseController
         
         $url = 'https://api.elasticemail.com/v2/email/send';
         // dd($data);
-       
+    
         if(isset($data['attachments']) && !empty($data['attachments'])){
             $filename = $data['attachments']['filename'] ?? null;
             $file_name_with_full_path = $data['attachments']['filepath'] ?? null;
             $filetype = "application/pdf"; // Change correspondingly to the file type  
         }
-        // try{
+        try{
             $post = [
                 'from' => 'training.employme@gmail.com',
                 'fromName' => env('APP_NAME'),
@@ -195,19 +194,13 @@ class Controller extends BaseController
             if (isset($data['attachments']) && !empty($data['attachments'])) {
                 $this->deleteImage($data['attachments']['file']);
             }
-            
-            // if(isset($result) && $result->success == true){
-            //     $setting->update[
-            //         '' => $setting + 1
-            //     ];
-            // }
 
-           
             return;
     
-        // catch(Exception $ex){
-        //     echo $ex->getMessage();
-        // }
+        }catch(Exception $ex){
+            dd($ex);
+            \Log::info(['email sending error' => $ex->getMessage()]);
+        }
   
     }
 

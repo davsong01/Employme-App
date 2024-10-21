@@ -23,7 +23,7 @@ class TeacherController extends Controller
     {
         $i = 1;
 
-        $users = User::select('id', 'off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
+        $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
             ->distinct()->with('trainings')
             ->where('role_id', '!=', 'Student')
             ->orderBy('created_at', 'DESC')->get();

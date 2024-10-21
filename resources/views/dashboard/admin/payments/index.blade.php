@@ -119,7 +119,12 @@
                             <tr>
                                 <td>{{ $i++ }}</a>
                                 <td><strong>Name: </strong><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
-                                    <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }} <br> <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
+                                    <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
+                                    @if($transaction->user->last_login) <br>
+                                    <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
+                                    @endif
+                                    <br> 
+                                    <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
                                 <td>
                                     <small class="training-details">
                                         <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }}</a><br>  

@@ -67,7 +67,7 @@ class PopController extends Controller
 
         // Remove data from session
         \Session::forget(['data']);
-
+        
         //handle file
         $file = $data['name'] . '-' . date('D-s');
         $extension = $request->file('file')->getClientOriginalExtension();
@@ -125,7 +125,7 @@ class PopController extends Controller
                 'date' =>  $date,
                 'file' => $filePath,
             ]);
-
+            
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
             $data['training'] = Program::where('id', $data['training'])->value('p_name');
@@ -133,13 +133,13 @@ class PopController extends Controller
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
             $data['participant_email'] = $pop->email;
             $data['realfilename'] = $file . '.' . $extension;
+            
             $this->sendWelcomeMail($data);
         } catch (\Exception $e) {
-            // dd($e->getMessage());
+            \Log::info($e->getMessage());
             // return back()->with('error', $e->getMessage());
         }
 
-        //Send mail to admin
         return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
     }
 

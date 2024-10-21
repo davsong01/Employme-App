@@ -43,7 +43,10 @@
                                 
                                 <strong>Assigned trainings: </strong>{{ $user->trainings->count() }} <br>
                                 @if($user->license)
-                                <strong style="color:green">WTN License: </strong> <span style="color:green">{{ $user->license }}</span> <br>
+                                <strong style="color:green">WTN License: </strong> <span style="color:green">{{ $user->license }}</span>
+                                @endif
+                                @if($user->last_login)
+                                <span style="color:green"><strong>Last Login: </strong>{{ $user->last_login ? date("M jS, Y H:i", strtotime($user->last_login)) : '' }}</span>
                                 @endif
                                 </small>
                             </td>

@@ -25,16 +25,20 @@ class CompanyUserController extends Controller
         return view('company_users.login');
     }
 
-    public function login(Request $request)
-    {
+    public function login(Request $request){
         $credentials = $request->only('email', 'password');
-        
+
         if (Auth::guard('company_user')->attempt($credentials)) {
+            $user = Auth::guard('company_user')->user();
+
+            $user->update(['last_login' => now()]);
+
             return redirect()->route('company_user.dashboard');
         }
 
         return redirect()->back()->with('error', 'Invalid credentials');
     }
+
 
     public function dashboard()
     {
