@@ -55,7 +55,7 @@
                                     *Email:* " . $pop->email . "
                                     *Training:* " . $pop->program->p_name;
                                 ?>
-                                <a class="btn btn-dark btn-sm rounded" href="https://api.whatsapp.com/send?phone=2348180010243&text={{ urlencode($string)  }}" target="_blank">
+                                <a class="btn btn-dark btn-sm rounded" href="https://api.whatsapp.com/send?phone=2348037067223&text={{ urlencode($string)  }}" target="_blank">
                                     <i class="fab fa-whatsapp"></i> Send via WhatsApp
                                 </a>
                             </td>
