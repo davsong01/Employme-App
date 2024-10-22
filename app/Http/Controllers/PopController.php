@@ -24,6 +24,7 @@ class PopController extends Controller
         $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
         // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
         $i = 1;
+        $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
 
         return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
     }
@@ -231,7 +232,12 @@ class PopController extends Controller
                     $expectedAmount = $amount;
 
                     $modes = $pop->program->modes;
-                    $modes = json_decode($modes, true);
+                    
+                    if(!empty($modes)){
+                        $modes = json_decode($modes, true);
+                    }else{
+
+                    }
                     // dd($temp->training_mode);
                     $amt = $modes[$pop->temp->training_mode];
 

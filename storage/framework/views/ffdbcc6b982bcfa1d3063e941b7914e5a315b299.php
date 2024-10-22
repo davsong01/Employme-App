@@ -86,6 +86,7 @@
                                     <select name="email_provider" class="form-control" id="email_provider" required>
                                         <option value="" selected>Select...</option>
                                         <option value="default" <?php echo e($setting->email_provider == 'default' ? 'selected' : ''); ?>>Default</option>
+                                        
                                         <option value="elastic" <?php echo e($setting->email_provider == 'elastic' ? 'selected' : ''); ?>>Elastic</option>
                                     </select>
                                 </div>

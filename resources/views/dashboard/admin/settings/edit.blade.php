@@ -85,6 +85,7 @@
                                     <select name="email_provider" class="form-control" id="email_provider" required>
                                         <option value="" selected>Select...</option>
                                         <option value="default" {{ $setting->email_provider == 'default' ? 'selected' : '' }}>Default</option>
+                                        {{-- <option value="gmail" {{ $setting->email_provider == 'gmail' ? 'selected' : '' }}>Gmail</option> --}}
                                         <option value="elastic" {{ $setting->email_provider == 'elastic' ? 'selected' : '' }}>Elastic</option>
                                     </select>
                                 </div>

@@ -66,8 +66,7 @@ class Controller extends BaseController
                 // Get error here
                 return false;
             }
-
-        }else{
+        } else{
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
                 if(env('ENT') == 'local'){
@@ -100,7 +99,7 @@ class Controller extends BaseController
             
             $this->sendEmailWithElastic($data);
         }
-
+        dd('done');
         return;
     }
 
@@ -189,7 +188,7 @@ class Controller extends BaseController
             
             $result=curl_exec ($ch);
             curl_close ($ch);
-
+            \Log::info(['Elasticemail response' => $result]);
             // Delete the attachment
             if (isset($data['attachments']) && !empty($data['attachments'])) {
                 $this->deleteImage($data['attachments']['file']);
@@ -198,7 +197,6 @@ class Controller extends BaseController
             return;
     
         }catch(Exception $ex){
-            dd($ex);
             \Log::info(['email sending error' => $ex->getMessage()]);
         }
   

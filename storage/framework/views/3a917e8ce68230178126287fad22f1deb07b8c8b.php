@@ -31,6 +31,9 @@
                                 <?php echo e($transaction->name); ?> <br>
                                 <?php echo e($transaction->phone); ?> <br>
                                 <?php echo e($transaction->email); ?> <br>
+                                <a href="https://api.whatsapp.com/send?phone=2348037067223&text=<?php echo e(urlencode('Name: ' . $transaction->name . '\nPhone: ' . $transaction->phone . '\nEmail: ' . $transaction->email . '\nCreated At: ' . $transaction->created_at)); ?>" target="_blank">
+                                    Send via WhatsApp
+                                </a>
                             </td>
                             <td>
                                 <?php echo e(\App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount)); ?>

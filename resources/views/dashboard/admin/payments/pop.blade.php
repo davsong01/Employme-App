@@ -32,6 +32,7 @@
                                 {{ $transaction->name }} <br>
                                 {{ $transaction->phone }} <br>
                                 {{ $transaction->email }} <br>
+                                
                             </td>
                             <td>
                                 {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
