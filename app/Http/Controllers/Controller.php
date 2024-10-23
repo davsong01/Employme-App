@@ -99,7 +99,7 @@ class Controller extends BaseController
             
             $this->sendEmailWithElastic($data);
         }
-        dd('done');
+        
         return;
     }
 
