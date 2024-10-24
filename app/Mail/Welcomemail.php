@@ -43,9 +43,14 @@ class Welcomemail extends Mailable
                         'mime' => 'application/pdf',
                     ]);
             }else{
-                return $this->markdown('emails.welcomemail')
-                ->attachData($this->pdf->output(), "E-receipt.pdf")
-                ->subject('E - Receipt');
+                if(!empty($this->pdf)){
+                    return $this->markdown('emails.welcomemail')
+                    ->attachData($this->pdf->output(), "E-receipt.pdf")
+                    ->subject('E - Receipt');
+                }else{
+                    return $this->markdown('emails.welcomemail')
+                    ->subject('E - Receipt');
+                }
             }
             
         }

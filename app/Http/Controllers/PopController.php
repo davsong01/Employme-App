@@ -7,8 +7,9 @@ use App\Models\User;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\Settings;
-use App\Models\TempTransaction;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\TempTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,20 +69,20 @@ class PopController extends Controller
 
         // Remove data from session
         \Session::forget(['data']);
-        
-        //handle file
-        $file = $data['name'] . '-' . date('D-s');
+
+        $file = Str::random(10);
         $extension = $request->file('file')->getClientOriginalExtension();
         $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
+        
         $date = \Carbon\Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
         // Check if already uploaded same pop
         // $popCheck = Pop::whereEmail($data['email'])->whereAmount($data['amount'])->whereProgramId($data['training'])->count();
         $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training'])->count();
 
-        if ($popCheck > 0) {
-            return back()->with('error', 'You have already uploaded proof of payment for this training and with the same amount, kindly wait while an administrator approves your request');
-        }
+        // if ($popCheck > 0) {
+        //     return back()->with('error', 'You have already uploaded proof of payment for this training and with the same amount, kindly wait while an administrator approves your request');
+        // }
 
         if (isset($user) && !empty($user)) {
             $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
@@ -107,7 +108,7 @@ class PopController extends Controller
         $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training'])->first();
         $data['location'] = $temp->location ?? null;
         $data['training_mode'] = $temp->training_mode ?? null;
-
+        
         try {
             //Store new pop
             $pop = Pop::create([
@@ -124,7 +125,7 @@ class PopController extends Controller
                 'temp_transaction_id' => $temp->id ?? null,
                 'location' =>  $data['location'] ?? null,
                 'date' =>  $date,
-                'file' => $filePath,
+                'file' => base64_encode($filePath),
             ]);
             
             //Prepare Attachment
@@ -205,7 +206,7 @@ class PopController extends Controller
             $allDetails['invoice_id'] = $existingTransaction['transaction']->invoice_id;
             $allDetails['transaction_id'] = $existingTransaction['transaction']->transid;
             $allDetails['preferred_timing'] = $pop->temp->preferred_timing;
-           
+            
             $user = $this->updateUserDetails($allDetails);
             $data = $this->updateOrCreateTransaction($user, $allDetails);
         } else {
@@ -273,7 +274,7 @@ class PopController extends Controller
             $allDetails['training_mode'] = $pop->temp->training_mode ?? null;
             $allDetails['preferred_timing'] = $pop->temp->preferred_timing ?? null;
             $allDetails['t_type'] = $pop->temp->type ?? null;
-           
+            
             $user = $this->updateUserDetails($allDetails);
 
             // request->coupon, $request->email, $pid, $request['amount']
@@ -329,76 +330,11 @@ class PopController extends Controller
         return redirect(route('payments.index'))->with('message', 'Student added succesfully');
     }
 
-    // public function updateOrCreateTransaction($user, $allDetails)
-    // {
-
-    //     if (isset($allDetails['existingTransaction'])) {
-    //         $existingTransaction = DB::table('program_user')->where('id', $allDetails['existingTransaction']->id)
-    //             ->update([
-    //                 't_amount' => $allDetails['amount'],
-    //                 't_type' => $allDetails['t_type'],
-    //                 't_location' => $allDetails['location'],
-    //                 'paymentStatus' => $allDetails['paymentStatus'],
-    //                 // 'training_mode' => $allDetails['training_mode'] ?? null,
-    //                 'balance' => $allDetails['balance'],
-    //                 'currency' => $allDetails['currency'],
-    //                 'currency_symbol' => $allDetails['currency_symbol'],
-    //                 'balance_transaction_id' => $allDetails['balance_transaction_id'],
-    //                 'balance_paid' => $allDetails['date'],
-    //                 'balance_amount_paid' => $allDetails['current_paid_amount'],
-    //                 'coupon_id' => $allDetails['coupon_id'] ?? null,
-    //                 'coupon_amount' => $allDetails['coupon_amount'] ?? null,
-    //                 'coupon_code' => $allDetails['coupon_code'] ?? null,
-    //                 'training_mode' => $allDetails['training_mode'] ?? null,
-    //                 'preferred_timing' => $allDetails['preferred_timing'] ?? null,
-    //             ]);
-    //     } else {
-
-    //         $programUser = $user->programs()->attach($allDetails['program_id'], [
-    //             't_amount' => $allDetails['amount'],
-    //             't_type' => $allDetails['t_type'],
-    //             't_location' => $allDetails['location'],
-    //             'paymentStatus' => $allDetails['paymentStatus'],
-    //             'balance' => $allDetails['balance'],
-    //             'transid' =>  $allDetails['transaction_id'],
-    //             'invoice_id' =>  $allDetails['invoice_id'],
-    //             'currency' => $allDetails['currency'],
-    //             'currency_symbol' => $allDetails['currency_symbol'],
-    //             'created_at' => $allDetails['date'],
-    //             'coupon_id' => $allDetails['coupon_id'] ?? null,
-    //             'coupon_amount' => $allDetails['coupon_amount'] ?? null,
-    //             'coupon_code' => $allDetails['coupon_code'] ?? null,
-    //             'training_mode' => $allDetails['training_mode'] ?? null,
-    //             'preferred_timing' => $allDetails['preferred_timing'] ?? null,
-    //         ]);
-    //     }
-    //     // Update existing payment if 
-
-    //     return $allDetails;
-    // }
-
-    // public function updateUserDetails($allDetails)
-    // {
-    //     $user = User::where('email', $allDetails['email'])->first();
-    //     if (!$user) {
-    //         //save to database
-    //         $user = User::Create([
-    //             'name' => $allDetails['name'],
-    //             'email' => $allDetails['email'],
-    //             't_phone' => $allDetails['phone'],
-    //             'password' => bcrypt('12345'),
-    //             'role_id' => $allDetails['role_id'],
-    //         ]);
-    //     } else {
-    //         $user->update([
-    //             'name' => $allDetails['name'],
-    //             't_phone' => $allDetails['phone'],
-    //         ]);
-    //     }
-
-    //     return $user;
-    // }
-
+    public function update(Pop $pop, Request $request){
+        $pop->update($request->except(['template', '_token', '_method', 'template']));
+        return back()->with('message', 'Update Successful');
+    }
+    
     public function getExistingTransactionAndBalance($pop)
     {
         if (isset($pop->user->id)) {

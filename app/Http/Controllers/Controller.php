@@ -60,6 +60,7 @@ class Controller extends BaseController
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
             } else $pdf = null;
+            
             try {
                 Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
             } catch(\Exception $e){

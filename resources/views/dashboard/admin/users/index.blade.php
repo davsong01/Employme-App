@@ -204,7 +204,7 @@
                     </div>
                 </div>
             </div>
-            <div class="">
+            <div class="table-responsive">
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>

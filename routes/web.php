@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Transaction;
+use Illuminate\Support\Facades\File;
 use App\Http\Controllers\PopController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MockController;
@@ -83,6 +84,22 @@ Route::get('bookingforms/{filename}', function($filename){
 Route::get('uploads/certificate_previews/{filename}', function ($filename) {
     $realpath = base_path() . '/uploads' . '/' . $filename;
     return $realpath;
+});
+
+
+Route::get('uploads/{filename}', function ($filename) {
+    $decodedFilename = base64_decode($filename);
+    $realpath = base_path('uploads') . '/' . $decodedFilename;
+
+    if (!File::exists($realpath)) {
+        abort(404, 'File not found');
+    }
+
+    $mimeType = File::mimeType($realpath);
+
+    return response()->file($realpath, [
+        'Content-Type' => $mimeType
+    ]);
 });
 
 Route::get('/thanks', function() {

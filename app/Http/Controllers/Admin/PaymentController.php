@@ -101,8 +101,15 @@ class PaymentController extends Controller
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {;
 
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
-
-            return view('dashboard.admin.payments.popfull', compact('i', 'pops'));
+            $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
+                ->doesntHave('children')
+                ->where('id', '<>', 1)
+                ->where('close_registration', 0)
+                ->where('p_end', '>', date('Y-m-d'))
+                ->orderBy('created_at', 'DESC')
+                ->get();
+        
+            return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs'));
         }
     }
     
