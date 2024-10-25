@@ -81,9 +81,11 @@ class ProfileController extends Controller
             $user->profile = $request->profile;
         }
 
-        if ($request['password']) {
+        if (!empty($request->password)) {
             $user->password = bcrypt($request['password']);
-        };
+        }else{
+            $user->password = $user->password;
+        }
 
         if (!empty($request->image)) {
             $imgName = $this->uploadImage($request->image, 'avatars', 100, 100);
