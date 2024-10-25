@@ -47,7 +47,7 @@ class PaymentController extends Controller
             }
 
             if (!empty($request->phone)) {
-                $transactions = $transactions->where('user', function ($query) use ($request) {
+                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
                     $query->where('t_phone', $request->phone);
                 });
             }
