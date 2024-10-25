@@ -110,7 +110,7 @@ class Controller extends BaseController
 
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
-
+        
         if ($provider == 'default') {
            
             try {
