@@ -40,10 +40,6 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'company_user' => [
-            'driver' => 'session',
-            'provider' => 'company_users',
-        ],
     ],
 
     /*
@@ -73,10 +69,6 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
-        'company_users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\CompanyUser::class, // Model for the company_users table
-        ],
     ],
 
     /*
