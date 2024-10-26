@@ -210,9 +210,9 @@ class PaymentController extends Controller
             // return view('emails.receipt', compact('data', 'details'));
             $data['type'] = 'initial';
             $data = array_merge($data, $details);
-            $pdf = PDF::loadView('emails.printreceipt', compact('data'));
+            $pdf = PDF::loadView('emails.printreceipt', compact('data','details'));
             // return view('emails.printreceipt', compact('data', 'details'));
-
+            
             try {
                 // to admin
                 // $this->sendWelcomeMail($data, $pdf);
@@ -285,7 +285,7 @@ class PaymentController extends Controller
 
         //generate pdf from receipt view
         $pdf = PDF::loadView('emails.receipt', compact('data'));
-
+       
         return view('emails.printreceipt', compact('data'));
     }
 
