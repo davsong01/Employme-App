@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
 
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
+Route::get('decode-materials', [MaterialController::class, 'decode']);
 
 Route::get('/clear', function () {
     Artisan::call('cache:clear');

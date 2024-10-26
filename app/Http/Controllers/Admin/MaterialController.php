@@ -8,9 +8,10 @@ use App\Models\Mocks;
 use App\Models\Module;
 use App\Models\Program;
 use App\Models\Material;
-use App\Models\FacilitatorTraining;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,17 @@ use Illuminate\Support\Facades\Redirect;
 
 class MaterialController extends Controller
 {
+    public function decode(){
+        $materials = Material::all();
+        foreach($materials as $material){
+            $material->update([
+                'file' => base64_encode($material->file)
+            ]);
+        }
+
+        return response()->json('Operation successful');
+    }
+
     public function index(Request $request)
     {
         $userid = Auth::user()->id;
@@ -116,13 +128,20 @@ class MaterialController extends Controller
         if ($request->has('p_id')) {
             //$imagePath = request('booking_form')->store('/uploads', 'public');
             foreach ($request->file('file') as $file) {
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $filename = Str::slug($fileName);
+                $path = base64_encode($request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension());
 
-                $imagePath = $file->storeAs('materials', $file->getClientOriginalName(), 'uploads');
-
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $filename = Str::slug($fileName);
+                $preferredName = $request->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
+                
+                $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
+                
                 Material::create([
                     'title' => $file->getClientOriginalName(),
                     'program_id' =>  $request->p_id,
-                    'file' => $file->getClientOriginalName(),
+                    'file' => $path,
                 ]);
             }
 
@@ -134,21 +153,23 @@ class MaterialController extends Controller
                 'file.*' => 'mimes:doc,pdf,docx',
             ]);
 
-            //get id of selected program
             $program_id = $data['program_id'];
-            //$imagePath = request('booking_form')->store('/uploads', 'public');
+
             foreach ($request->file('file') as $file) {
-
-                $imagePath = $file->storeAs('materials', $file->getClientOriginalName(), 'uploads');
-
+                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $filename = Str::slug($fileName);
+                $preferredName = $program_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
+                
+                $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
+                //
                 Material::create([
                     'title' => $file->getClientOriginalName(),
                     'program_id' =>  $program_id,
-                    'file' => $file->getClientOriginalName(),
+                    'file' => $path,
                 ]);
             }
         }
-        // return response()->json(['success'=>'Study Material Uploaded Successfully']);
+
         return redirect('materials')->with('message', 'Study material succesfully added');
     }
 
@@ -171,11 +192,15 @@ class MaterialController extends Controller
     public function destroy(Material $material)
     {
         $material_count = Material::where('file', $material->file)->count();
-
+        
         if ($material_count <= 1) {
-            unlink(base_path() . '/uploads/materials' . '/' . $material->file);
-        }
+            $file = base64_decode($material->file);
 
+            if (file_exists(base_path() . '/uploads/materials' . '/' . $file)) {
+                unlink(base_path() . '/uploads/materials' . '/' . $file);
+            }
+        }
+        
         $material->delete();
         if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) {
             return back()->with('message', 'Material has been deleted forever');
@@ -197,9 +222,8 @@ class MaterialController extends Controller
 
     public function getfile($filename)
     {
-
+        $filename = base64_decode($filename);
         $realpath = base_path() . '/uploads/materials' . '/' . $filename;
-
         return response()->download($realpath);
     }
 

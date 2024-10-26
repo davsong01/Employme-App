@@ -46,7 +46,7 @@ class PictureController extends Controller
                 'title' => 'required | min:5',
                 'file' => 'required|file|image|mimes:jpg,png,jpeg',
             ]);
-
+            
             //$imagePath = request('booking_form')->store('/uploads', 'public');
             $imagePath = $request->file->storeAs('uploads/slides', $request->file->getClientOriginalName());
             //$this->storeImage($program);

@@ -82,11 +82,7 @@
                     </ul>
                 </li>
                 {{-- @endif --}}
-                @if(in_array(6, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('materials.index')}}" aria-expanded="false"><i class="fas fa-download"></i><span
-                            class="hide-menu">View All study Materials</span></a></li>
-                @endif
+                
                 @if(in_array(7, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ route('coupon.index') }}" aria-expanded="false"><i class="fa fa-gift"></i><span
@@ -129,6 +125,10 @@
                         href="javascript:void(0)" aria-expanded="false"><i class="fa fa-edit"></i><span
                             class="hide-menu">LMS </span></a>
                     <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
+                        @if(in_array(6, $menus))
+                        <li class="sidebar-item"> <a href="{{route('materials.index')}}" class="sidebar-link"><span class="hide-menu">- View All study Materials</span></a></li>
+                        @endif
+
                         @if(in_array(11, $menus))
                         <li class="sidebar-item"><a href="{{route('modules.index')}}" class="sidebar-link"><span
                                     class="hide-menu">- Modules</span></a>

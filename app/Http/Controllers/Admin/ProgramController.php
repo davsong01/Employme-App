@@ -452,63 +452,73 @@ class ProgramController extends Controller
        
         $newT = Arr::except($training->toArray(), ['id','created_at','updated_at','deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
         $new = Program::create($newT);
-       
-      
-        // Create scoresettings
-        if (isset($training->scoresettings) && !empty($training->scoresettings)) {
-            $score = ScoreSetting::create([
-                'program_id' => $new->id,
-                'certification' => $training->scoresettings->certification,
-                'class_test' => $training->scoresettings->class_test,
-                'role_play' => $training->scoresettings->role_play,
-                'crm_test' => $training->scoresettings->crm_test,
-                'email' => $training->scoresettings->email,
-                'passmark' => $training->scoresettings->passmark,
-                'total' => $training->scoresettings->total,
-            ]);
-        }
 
-        // Material
-        if (isset($training->materials) && !empty($training->materials)) {
-            foreach ($training->materials as $material) {
-                Material::create([
-                    "program_id" => $new->id,
-                    "title" => $material->title,
-                    "file" => $material->file,
+        try {
+            DB::beginTransaction();
+            // Create scoresettings
+            if (isset($training->scoresettings) && !empty($training->scoresettings)) {
+                $score = ScoreSetting::create([
+                    'program_id' => $new->id,
+                    'certification' => $training->scoresettings->certification,
+                    'class_test' => $training->scoresettings->class_test,
+                    'role_play' => $training->scoresettings->role_play,
+                    'crm_test' => $training->scoresettings->crm_test,
+                    'email' => $training->scoresettings->email,
+                    'passmark' => $training->scoresettings->passmark,
+                    'total' => $training->scoresettings->total,
                 ]);
             }
-        }
 
-        // Modules
-        if (isset($training->modules) && !empty($training->modules)) {
-            foreach ($training->modules as $module) {
-                $new_module =  Module::create([
-                    "program_id" => $new->id,
-                    "title" => $module->title,
-                    "time" => $module->time,
-                    "noofquestions" => $module->noofquestions,
-                    "status" => 0,
-                    "type" => $module->type == 'Class Test' ? 0 : 1,
-                ]);
-
-                //Get Module questions 
-                $module_questions = Question::whereModuleId($module->id)->get();
-
-                //Duplicate module questions for newly created module       
-                foreach ($module_questions as $question) {
-                    Question::create([
-                        'title' => $question->title,
-                        'optionA' => $question->optionA,
-                        'optionB' => $question->optionB,
-                        'optionC' => $question->optionC,
-                        'optionD' => $question->optionD,
-                        'correct' => $question->correct,
-                        'module_id' => $new_module->id,
+            // Material
+            if (isset($training->materials) && !empty($training->materials)) {
+                foreach ($training->materials as $material) {
+                    $file = base64_decode($material->file);
+                    Material::create([
+                        "program_id" => $new->id,
+                        "title" => $material->title,
+                        "file" => $material->file,
                     ]);
                 }
             }
-        }
 
+            // Modules
+            if (isset($training->modules) && !empty($training->modules)) {
+                foreach ($training->modules as $module) {
+                    $new_module =  Module::create([
+                        "program_id" => $new->id,
+                        "title" => $module->title,
+                        "time" => $module->time,
+                        "noofquestions" => $module->noofquestions,
+                        "status" => 0,
+                        "type" => $module->type == 'Class Test' ? 0 : 1,
+                    ]);
+
+                    //Get Module questions 
+                    $module_questions = Question::whereModuleId($module->id)->get();
+
+                    //Duplicate module questions for newly created module       
+                    foreach ($module_questions as $question) {
+                        Question::create([
+                            'title' => $question->title,
+                            'optionA' => $question->optionA,
+                            'optionB' => $question->optionB,
+                            'optionC' => $question->optionC,
+                            'optionD' => $question->optionD,
+                            'correct' => $question->correct,
+                            'module_id' => $new_module->id,
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollback();
+
+            return back()->with('error', $e->getMessage());
+
+        }
+        
         return back()->with('message', 'Training cloned successfully');
     }
 

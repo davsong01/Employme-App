@@ -673,10 +673,22 @@ class Controller extends BaseController
         if($type == 'booking_form'){
             $filePath = $image->storeAs('bookingforms', $file, 'uploads');
         }
-       
+        
         return $file;
     }
+
+    public function storeFileInUploadsDiskAndEncodeInDb($file, $folder, $preferred_name=null)
+    {
+        $filename = !empty($preferred_name) ? $preferred_name : uniqid(9) . '.' . $file->getClientOriginalExtension();
+
+        $decodedFilename = base64_encode($filename);
+        
+        $file->storeAs($folder . '/', $filename, 'uploads');
+        
+        return $decodedFilename;
+    }
     
+
     public function deleteImage($image)
     {
 
