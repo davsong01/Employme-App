@@ -20,14 +20,14 @@ use Illuminate\Support\Facades\Redirect;
 class MaterialController extends Controller
 {
     public function decode(){
-        $materials = Material::all();
-        foreach($materials as $material){
-            $material->update([
-                'file' => base64_encode($material->file)
-            ]);
-        }
+        // $materials = Material::all();
+        // foreach($materials as $material){
+        //     $material->update([
+        //         'file' => base64_encode($material->file)
+        //     ]);
+        // }
 
-        return response()->json('Operation successful');
+        // return response()->json('Operation successful');
     }
 
     public function index(Request $request)
@@ -200,7 +200,7 @@ class MaterialController extends Controller
                 unlink(base_path() . '/uploads/materials' . '/' . $file);
             }
         }
-        
+
         $material->delete();
         if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) {
             return back()->with('message', 'Material has been deleted forever');
