@@ -5,6 +5,8 @@ use App\Models\Result;
 use App\Models\Program;
 use App\Models\Settings;
 use App\Models\Transaction;
+use Intervention\Image\Facades\Image;
+
 
 if (!function_exists("certificationStatus")) {
     function certificationStatus($program_id, $user_id)
