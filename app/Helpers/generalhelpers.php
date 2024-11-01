@@ -13,8 +13,18 @@ if (!function_exists("certificationStatus")) {
     {
         $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
         $program = Program::find($program_id);
-
         $details = [];
+        // if($program->allow_express_certificate_access == 1){
+
+        // }
+        // Controll certificate status here
+        if(in_array($program->id, [70])){
+            return [
+                'program' => $program,
+                'status' => 'CERTIFIED',
+            ];
+        }
+
         $class = $email = $roleplay = $crm = $certification = 0;
 
         // Get the modules and calculate the total obtainable score

@@ -175,11 +175,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         App\Providers\ViewComposerServiceProvider::class,
-        // Intervention\Image\ImageServiceProvider::class,
-
-
     ],
-
+    
     /*
     |--------------------------------------------------------------------------
     | Class Aliases
