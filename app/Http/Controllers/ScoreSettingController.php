@@ -101,9 +101,10 @@ class ScoreSettingController extends Controller
             // 'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
-        $total = array_sum($request->except(['passmark', 'program', '_token']));
-
-
+        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit']), function ($value) {
+            return $value !== null;
+        })));
+        
         if ($total > 100 || $total < 100) {
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100%, please try again');
         }
@@ -151,10 +152,11 @@ class ScoreSettingController extends Controller
             // 'emailscore' => 'sometimes|numeric|min:1|max:100',
             // 'certificationscore' => 'sometimes|numeric|min:1|max:100',
         ]);
-
-
-        $total = array_sum($request->except(['passmark', 'program', '_token']));
-
+       
+        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit']), function ($value) {
+            return $value !== null;
+        })));
+        
         if ($total > 100 || $total < 100) {
             return back()->with('error', 'Sorry, sum of parameters cannot be more than or less than 100, please try again');
         }
