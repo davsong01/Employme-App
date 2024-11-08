@@ -12,9 +12,9 @@ if (!function_exists("certificationStatus")) {
     function certificationStatus($program_id, $user_id)
     {
         $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
-        $program = Program::find($program_id);
+        $program = Program::with('scoresettings')->find($program_id);
         $details = [];
-        
+    
         $class = $email = $roleplay = $crm = $certification = 0;
 
         // Get the modules and calculate the total obtainable score
@@ -31,10 +31,10 @@ if (!function_exists("certificationStatus")) {
         //         'status' => 'CERTIFIED',
         //     ];
         // }
-        if ($modules->count() < 1) {
+        if (empty($program->scoresettings)) {
             return [
                 'program' => $program,
-                'status' => 'CERTIFIED',
+                'status' => 'NO SCORE SETTINGS AVAILABLE',
             ];
         }
         

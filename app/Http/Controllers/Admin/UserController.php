@@ -28,9 +28,12 @@ class UserController extends Controller
 
     public function importExport($p_id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        $program =  Program::select('id','p_name')->where('id', $p_id)->first();
 
-            return view('dashboard.admin.users.import', compact('p_id'));
+        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+            $programs = Program::select('id','p_name')->where('id', '<>', $p_id)->AllMainPrograms()->get();
+            
+            return view('dashboard.admin.users.import', compact('program','programs'));
         }
         return abort(404);
     }
@@ -46,20 +49,69 @@ class UserController extends Controller
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
             
             $this->validate(request(), [
-                'file' => 'required|
+                'file' => 'sometimes|
 				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
-				application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv'
+				application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv',
+                'import_from' => 'sometimes',
             ], [
                 'file.mimetypes' => 'The file must be a file of type: xlsx'
             ]);
 
             try {
-                Excel::import(new UsersImport($request->p_id), request()->file('file'));
+                if($request->has('file')){
+                    Excel::import(new UsersImport($request->p_id), request()->file('file'));
+                }
+
+                if (!empty($request->import_from)) {
+                    // Get old partiicipants
+                    set_time_limit(3600);
+
+                    $participants = Transaction::with('user')->where('program_id', $request->import_from)
+                    ->get();
+
+                    $program = Program::where('id', $request->p_id)->first();
+
+                    foreach ($participants as $participant) {
+                        $check = Transaction::where('user_id', $participant->user->id)
+                            ->where('program_id', $program->id)
+                            ->first();
+
+                        if (!empty($check)) {
+                            continue;
+                        }
+
+                        $user = $participant->user;
+
+                        // Normalize data before processing
+                        $row['staffID'] = $user->staffID;
+                        $row['phone'] = $user->t_phone;
+                        $row['email'] = $user->email;
+                        $row['name'] = $user->name;
+                        $row['gender'] = $user->gender;
+                        $row['location'] = $user->t_location;
+
+                        // Exclude unnecessary metadata
+                        $row['metadata'] = !empty($user->metadata) ? $user->metadata : null;
+                        
+                        // Prepare training details and attach program
+                        $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
+                        $data['payment_type'] = 'Full';
+                        $data['message'] = 'Full payment';
+                        $data['paymentStatus'] = 1;
+                        $data['currency_symbol'] = '&#x20A6;';
+                        $data['balance'] = 0;
+                        $data['new'] = 'no';
+                        
+                        // Create user, attach program, and update earnings
+                        app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null);
+                    }
+                }
             } catch (\Illuminate\Database\QueryException $ex) {
                 $error = $ex->getMessage();
                 return back()->with('error', $error);
             }
-            return back()->with('message', 'Data has been imported succesfully');
+
+            return back()->with('message', 'Participants have been imported succesfully');
         }
         return abort(404);
     }
