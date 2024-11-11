@@ -60,18 +60,21 @@ class UserController extends Controller
             try {
                 if($request->has('file')){
                     Excel::import(new UsersImport($request->p_id), request()->file('file'));
+                    $extraMessage = '';
                 }
 
                 if (!empty($request->import_from)) {
                     // Get old partiicipants
                     set_time_limit(3600);
 
-                    $participants = Transaction::with('user')->where('program_id', $request->import_from)
+                    $participants = Transaction::with('user')->where('program_id', $request->import_from)->where('balance', '<=', 0)
                     ->get();
-
+                    $count = 0;
                     $program = Program::where('id', $request->p_id)->first();
+                    $oldProgram = Program::select('id, p_name')->where('id', $request->import_from)->first();
 
                     foreach ($participants as $participant) {
+                        $count ++;
                         $check = Transaction::where('user_id', $participant->user->id)
                             ->where('program_id', $program->id)
                             ->first();
@@ -105,13 +108,15 @@ class UserController extends Controller
                         // Create user, attach program, and update earnings
                         app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null);
                     }
+
+                    $extraMessage = $count . ' Participants Imported from '.$oldProgram->p_name; 
                 }
             } catch (\Illuminate\Database\QueryException $ex) {
                 $error = $ex->getMessage();
                 return back()->with('error', $error);
             }
 
-            return back()->with('message', 'Participants have been imported succesfully');
+            return back()->with('message', 'Participants have been imported succesfully'. ' '. $extraMessage );
         }
         return abort(404);
     }
