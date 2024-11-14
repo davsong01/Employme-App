@@ -76,7 +76,7 @@
         <!-- End Sidebar navigation -->
     </div>
     <!-- End Sidebar scroll-->
-    <div id="myModal" class="modal">
+    <div id="trainingcatalogue" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
           <div class="card">
@@ -96,11 +96,11 @@
 </aside>
 
 @if($program->show_catalogue_popup == 'yes' && auth()->user()->downloaded_catalogue == 'no')
-<script>
+{{-- <script>
     $(document).ready(function(){       
-        $('#myModal').modal('show');
+        $('#trainingcatalogue').modal('show');
     }); 
-</script>
+</script> --}}
 @endif
 
 @endsection
