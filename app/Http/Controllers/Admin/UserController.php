@@ -28,10 +28,10 @@ class UserController extends Controller
 
     public function importExport($p_id)
     {
-        $program =  Program::select('id','p_name')->where('id', $p_id)->first();
+        $program =  Program::select('id','p_name','p_amount')->where('id', $p_id)->first();
 
         if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-            $programs = Program::select('id','p_name')->where('id', '<>', $p_id)->AllMainPrograms()->get();
+            $programs = Program::select('id','p_name','p_amount')->where('id', '<>', $p_id)->AllMainPrograms()->get();
             
             return view('dashboard.admin.users.import', compact('program','programs'));
         }
@@ -71,8 +71,8 @@ class UserController extends Controller
                     ->get();
                     $count = 0;
                     $program = Program::where('id', $request->p_id)->first();
-                    $oldProgram = Program::select('id, p_name')->where('id', $request->import_from)->first();
-
+                    $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();
+                    
                     foreach ($participants as $participant) {
                         $count ++;
                         $check = Transaction::where('user_id', $participant->user->id)
