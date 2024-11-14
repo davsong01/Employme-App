@@ -24,9 +24,11 @@ class ScoreSettingController extends Controller
                     $score['module_count'] = 0;
                 };
 
-                foreach ($score->program->modules as $modules) {
-                    if ($modules->status == 1) {
-                        $score['module_status_count'] += 1;
+                if(isset($score->program->modules)){
+                    foreach ($score->program->modules as $modules) {
+                        if ($modules->status == 1) {
+                            $score['module_status_count'] += 1;
+                        }
                     }
                 }
             }
