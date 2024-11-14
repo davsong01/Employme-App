@@ -37,8 +37,8 @@
                         @foreach($scores as $score)
                         <tr>
                             <td>{{ $i++ }}</td>
-                            <td>{{ $score->program->p_name}}</td>
-                            <td>{{$score->module_status_count}}</td>
+                            <td>{{ $score->program->p_name ?? ''}}</td>
+                            <td>{{$score->module_status_count ?? 0}}</td>
                             <td>{{ $score->class_test ?? 0}}%</td>
                             <td>{{ $score->role_play ?? 0}}%</td>
                             <td>{{ $score->email ?? 0}}%</td>
