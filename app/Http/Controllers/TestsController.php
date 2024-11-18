@@ -214,7 +214,7 @@ class TestsController extends Controller
     {
         $questions = Question::with('module')->where('module_id', $id)->get();
         $i = 1;
-
+        
         //check if registered module
         $questionsarray = $questions->toArray();
         if ($questionsarray[0]['module']['program_id'] <> $request->p_id) {
@@ -229,7 +229,7 @@ class TestsController extends Controller
             $time = $question->module->time;
             $module_title = $question->module->title;
         }
-
+        
         if ($module_type == 'Class Test') {
             return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program', 'program_name', 'module_title', 'time'));
         }

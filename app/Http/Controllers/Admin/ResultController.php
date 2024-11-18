@@ -671,7 +671,7 @@ class ResultController extends Controller
                     return back()->with('error', 'User has not written this test or has a previous pending resit');
                 }
             }
-        
+            
             // Save result thread
             if(!empty($results->certification_test_details)){
                 $this->createResultThread($results);

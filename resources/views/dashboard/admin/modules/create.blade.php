@@ -38,7 +38,7 @@
                                 <div class="form-group">
                                     <label for="class">Type</label>
                                     <select name="type" id="type" class="form-control" required>
-                                         <option value="" selected>-- Select Option --</option>
+                                        <option value="" selected>-- Select Option --</option>
                                         <option value="0">Class Test</option>
                                         <option value="1">Certification Test</option>
                                     </select>
@@ -65,9 +65,9 @@
                                 </div>
 
                                 <div class="form-group{{ $errors->has('time') ? ' has-error' : '' }}">
-                                    <label for="time">How many minutes for Module Questions(Min: 2minutes)</label>
+                                    <label for="time">How many minutes for Module Questions(0 means no time limit)</label>
                                     <input id="time" type="number" class="form-control" name="time"
-                                        value="{{ old('time') }}" autofocus required min="2">
+                                        value="{{ old('time') }}" autofocus required min="0">
                                     @if ($errors->has('time'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('time') }}</strong>

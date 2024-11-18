@@ -93,13 +93,13 @@ class ModuleController extends Controller
             'title' => 'required|min:5',
             'program' => 'required',
             'status' => 'required|numeric',
-            'time' => 'required|numeric|min:2',
+            'time' => 'required|numeric|min:0',
             'type' => 'required|numeric',
             'noofquestions' => 'required|numeric',
             'allow_test_retake' => 'required|numeric'
 
         ]);
-
+        
         if ($data['type'] == 1 && $data['noofquestions'] > 1) {
             return back()->with('error', 'Module of type certification can only accomodate 1 question per module');
         }
