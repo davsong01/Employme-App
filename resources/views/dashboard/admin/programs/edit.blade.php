@@ -528,6 +528,9 @@
                                         <div class="form-group">
                                             <button type="button" class="btn btn-success btn-sm" id="addRowButton"><i class="fa fa-plus"></i> Add New Row</button>
                                             <button type="button" class="btn-info btn-sm" id="previewButton"><i class="fa fa-eye"></i> Preview</button>
+                                            <span id="loadingSpinner" style="display: none; margin-left: 5px;">
+                                                <i class="fa fa-spinner fa-spin"></i>
+                                            </span>
                                         </div>
                                         <div class="form-group">
                                         </div>
@@ -675,7 +678,7 @@
         // Preview button handling
         $('#previewButton').on('click', function(e) {
             e.preventDefault();
-
+            $('#loadingSpinner').show();
             var formData = new FormData();
 
             $('select[name="text_type[]"]').each(function() {
@@ -711,6 +714,7 @@
                 contentType: false,
                 processData: false,
                 success: function(response) {
+                    $('#loadingSpinner').hide();
                     if (response.preview_image_path) {
                         $('#certificatePreviewImage').attr('src', response.preview_image_path);
                         $('#previewModal').show(); // Display the modal
