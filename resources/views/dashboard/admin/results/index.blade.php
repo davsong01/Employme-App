@@ -305,8 +305,7 @@
                                     @if($user->redotest == 0)
                                         @if (!empty($user->certification_test_details))
                                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i
-                                                            class="fa fa-eye"> View/Update </i>
+                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i `zclass="fa fa-eye"> View/Update </i>
                                                     </a>
                                                 @endif
                                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
@@ -334,6 +333,7 @@
                                                 <input type="hidden" name="uid" value="{{ $user->user_id }}">
                                                 <input type="hidden" name="rid" value="{{ $user->result_id }}">
                                                 <input type="hidden" name="pid" value="{{ $user->program_id }}">
+                                                <input type="hidden" name="override_resit" value="yes">
                                                 <button type="submit" class="btn btn-danger btn-sm w-100 mb-3"> <i
                                                         class="fa fa-redo"> Enable Resit</i>
                                                 </button>

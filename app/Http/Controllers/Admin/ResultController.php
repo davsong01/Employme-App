@@ -665,32 +665,18 @@ class ResultController extends Controller
     {
         if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())){
             $results = Result::where('id', $request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
-           
-            if (empty($results->certification_test_details)) {
-                return back()->with('error', 'User has not written this test or has a previous pending resit');
+            
+            if(empty($request->override_resit) || $request->override_resit == 'no'){
+                if (empty($results->certification_test_details)) {
+                    return back()->with('error', 'User has not written this test or has a previous pending resit');
+                }
             }
-
+        
             // Save result thread
-            $this->createResultThread($results);
-            // $thread = \DB::table('result_threads')->insert([
-            //     'result_id' => $results->id,
-            //     'submitted_on' => $results->created_at,
-            //     "program_id" => $results->program_id,
-            //     "module_id" => $results->module_id,
-            //     "user_id" => $results->user_id,
-            //     "marked_by" => $results->marked_by,
-            //     "grader" => $results->grader,
-            //     "class_test_score" => $results->class_test_score,
-            //     "class_test_details" => $results->class_test_details,
-            //     "certification_test_score" => $results->certification_test_score,
-            //     "certification_test_details" => $results->certification_test_details,
-            //     "role_play_score" => $results->role_play_score,
-            //     "crm_test_score" => $results->crm_test_score,
-            //     "email_test_score" => $results->email_test_score,
-            //     "facilitator_comment" => $results->facilitator_comment,
-            //     "grader_comment" => $results->grader_comment
-            // ]);
-
+            if(!empty($results->certification_test_details)){
+                $this->createResultThread($results);
+            }
+            
             $results->certification_test_details = NULL;
             $results->certification_test_score = NULL;
             $results->grader = NULL;
