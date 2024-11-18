@@ -138,29 +138,33 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <form class="form-inline search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
+                            <form class="search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
                                 <input type="hidden" name="status" value="{{ request('status') }}">
-                                <div class="form-group mx-sm-2 mb-2">
-                                    <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
+                                <div class="row">
+                                    <div class="col-12 col-md-6 mb-2">
+                                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-2">
+                                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-2">
+                                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
+                                    </div>
+                                    <div class="col-12 col-md-6 mb-2">
+                                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
+                                    </div>
+                                    <div class="col-12 text-center">
+                                        <button type="submit" class="btn btn-primary btn-search">Search</button>
+                                    </div>
                                 </div>
-                                <div class="form-group mx-sm-2 mb-2">
-                                    <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
-                                </div>
-                                <div class="form-group mx-sm-2 mb-2">
-                                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
-                                </div>
-                                <div class="form-group mx-sm-2 mb-2">
-                                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-search mb-2">Search</button>
                             </form>
                         </div>
+
                     </div>
                 </div>
             </div>
-            <div class="">
+            <div class="table-responsive mt-4">
                 <table class="table table-striped table-bordered">
-                    
                     <thead>
                         <tr>
                             <th>#</th>

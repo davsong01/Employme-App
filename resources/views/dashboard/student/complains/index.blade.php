@@ -109,9 +109,6 @@
 </div>
 
 <script>
-    $('#zero_config').DataTable();
-</script>
-<script>
         $(".delete").on("submit", function(){
             return confirm("Are you sure?");
         });

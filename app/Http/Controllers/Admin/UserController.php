@@ -74,7 +74,6 @@ class UserController extends Controller
                     $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();
                     
                     foreach ($participants as $participant) {
-                        $count ++;
                         $check = Transaction::where('user_id', $participant->user->id)
                             ->where('program_id', $program->id)
                             ->first();
@@ -82,7 +81,7 @@ class UserController extends Controller
                         if (!empty($check)) {
                             continue;
                         }
-
+                        $count++;
                         $user = $participant->user;
 
                         // Normalize data before processing

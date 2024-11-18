@@ -12,6 +12,7 @@ use App\Models\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Models\UtilityTracker;
 use App\Models\UtilityCronTask;
+use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -26,7 +27,20 @@ class CertificateController extends Controller
             // $programs = Program::whereHas('certificates', function ($query) {
             //     return $query;
             // })->withCount('certificates')->orderby('created_at', 'DESC')->get();
-            $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+            if(!empty(array_intersect(graderRoles(), Auth::user()->role()))){
+                $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
+                if ($programs->count() > 0) {
+                    foreach ($programs as $program) {
+                        $program['id'] = $program->program_id;
+                        $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
+
+                        $program['certificates_count'] = Certificate::whereProgramId($program->program_id)->count();
+                    }
+                }
+            }else{
+                $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+            }
+
             return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
         }
 

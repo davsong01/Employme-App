@@ -352,20 +352,25 @@
 
     <script>
         $('#zero_config').DataTable({
-             "ordering": true,
-              "pageLength": 100,
-              "lengthMenu": [ 100, 250, 500, 1000, 2000, "All" ],
-               "scrollY": true,
-                // "scrollX": true,
-                "scroller": true
+            "ordering": true,
+            "pageLength": 100,
+            "lengthMenu": [
+                [100, 250, 500, 1000, 2000, -1], // The values for pagination
+                [100, 250, 500, 1000, 2000, "All"] // The labels shown in the dropdown
+            ],
+
+            "scrollX": true,    // Enable horizontal scrolling
+            "scroller": true,   // Enhance scrolling performance for large data sets
+            "responsive": true, // Make the table adjust its layout on smaller screens
+            "autoWidth": false  // Prevent columns from stretching automatically to fit
         });
-        
+
         $('#transTable').DataTable({
-             "ordering": false,
+            "ordering": false,
             //   "pageLength": 100,
-               "scrollY": true,
-                "scrollX": true,
-                "scroller": true
+            "scrollY": true,
+            "scrollX": true,
+            "scroller": true
         });
         
         // For select 2

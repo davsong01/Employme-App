@@ -65,7 +65,4 @@
     </div>
 </div>
 
-<script>
-    // $('#zero_config').DataTable();
-</script>
 @endsection

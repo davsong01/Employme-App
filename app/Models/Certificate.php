@@ -29,7 +29,7 @@ class Certificate extends Model
         if($check){
             $access = $check->show_certificate == 1 ? 'Enabled' : 'Disabled';
         }
-      
+        
         return $access;
     }
 

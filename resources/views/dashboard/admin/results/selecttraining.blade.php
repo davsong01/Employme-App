@@ -10,7 +10,7 @@
                 @include('layouts.partials.alerts')
              </div>
            
-            <div class="">
+            <div class="responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -39,4 +39,5 @@
         </div>
     </div>
 </div>
+
 @endsection
