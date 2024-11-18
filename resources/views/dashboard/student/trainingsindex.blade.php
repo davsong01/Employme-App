@@ -2,6 +2,38 @@
 @section('title', 'Trainings')
 @section('css')
 <link rel="stylesheet" href="{{ asset('modal.css') }}" />
+<style>
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 1050;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7); /* Dim background */
+    }
+
+    .modal-dialog {
+        margin: 10% auto;
+        width: 80%; /* Adjust based on need */
+    }
+
+    .modal-content {
+        position: relative;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Prevent modal close on click outside */
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.7);
+        pointer-events: none;
+    }
+</style>
 @endsection
 @section('dashboard')
 <aside class="left-sidebar" data-sidebarbg="skin5">
@@ -76,7 +108,7 @@
         <!-- End Sidebar navigation -->
     </div>
     <!-- End Sidebar scroll-->
-    <div id="trainingcatalogue" class="modal">
+    <div id="trainingcatalogue" style="margin-top: 100px;" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
           <div class="card">
@@ -96,11 +128,16 @@
 </aside>
 
 @if($program->show_catalogue_popup == 'yes' && auth()->user()->downloaded_catalogue == 'no')
-{{-- <script>
+<script>
     $(document).ready(function(){       
+        $('#trainingcatalogue').modal({
+            backdrop: 'static',
+            keyboard: false 
+        });
         $('#trainingcatalogue').modal('show');
+
     }); 
-</script> --}}
+</script>
 @endif
 
 @endsection
