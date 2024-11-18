@@ -9,7 +9,7 @@
     }
 
     .select2-container {
-        width: 50% !important; /* Force full width */
+        width: 100% !important; /* Force full width */
     }
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
         color: black; /* Text color for selected items */

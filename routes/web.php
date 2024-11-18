@@ -205,7 +205,7 @@ Route::middleware(['impersonate', 'auth'])->group(function () {
     Route::resource('programs', ProgramController::class);
 
     Route::controller(ProgramController::class)->group(function () {
-        Route::get('training-clone/{training}', 'cloneTraining')->name('training.clone');
+        Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
         Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
         Route::get('trashed-programs', 'trashed')->name('programs.trashed');
         Route::get('restore/{id}', 'restore')->name('programs.restore');

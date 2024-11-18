@@ -1,90 +1,143 @@
 @extends('dashboard.admin.index')
 @section('title', 'Trainings')
 @section('css')
-    <style>
-       .table {
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+<style>
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-        tbody tr:hover {
-            background-color: #f1f1f1;
-        }
+    tbody tr:hover {
+        background-color: #f1f1f1;
+    }
 
-        .table-image {
-            width: 85px;
-            border-radius: 5px;
-            object-fit: cover;
-        }
-        .btn {
-            border-radius: 5px;
-            margin: 2px 0;
-        }
+    .table-image {
+        width: 85px;
+        border-radius: 5px;
+        object-fit: cover;
+    }
+    .btn {
+        border-radius: 5px;
+        margin: 2px 0;
+    }
 
-        .actions-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+    .actions-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
 
-        .export-link {
-            color: brown;
-            font-weight: bold;
-        }
+    .export-link {
+        color: brown;
+        font-weight: bold;
+    }
 
-        .export-link:hover {
-            text-decoration: underline;
-            color: darkred;
-        }
+    .export-link:hover {
+        text-decoration: underline;
+        color: darkred;
+    }
 
-        .dropdown {
-            position: relative;
-            display: block;
-        }
-        .dropdown-button {
-            background-color: #17a2b8;
-            color: white;
-            padding: 4px 4px;
-            font-size: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    .dropdown {
+        position: relative;
+        display: block;
+    }
+    .dropdown-button {
+        background-color: #17a2b8;
+        color: white;
+        padding: 4px 4px;
+        font-size: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-        .dropdown-button:hover {
-            background-color: #138496; /* Slightly darker shade for hover */
-        }
-        /* Dropdown content (hidden by default) */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
+    .dropdown-button:hover {
+        background-color: #138496; /* Slightly darker shade for hover */
+    }
+    /* Dropdown content (hidden by default) */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
 
-        /* Links inside the dropdown */
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
 
-        /* Change color of dropdown links on hover */
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
+    /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
 
-        /* Show the dropdown content when the button is clicked */
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+    /* Show the dropdown content when the button is clicked */
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
 
-    </style>
+    /* The Modal (background) */
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 100px;
+        /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 100%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        border-radius: 50%;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .modal-backdrop {
+        position: relative;
+    }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 @endsection
 @section('content')
 
@@ -93,7 +146,7 @@
         <div class="card-body">
             <div class="card-title">
                 @include('layouts.partials.alerts')
-             </div>
+            </div>
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
@@ -140,10 +193,6 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                   
-                                    {{-- {{dd($program->subPrograms)}}
-                                    @foreach
-                                    <span style="color:magenta"><strong>Children:</strong>{{ $program->parent->p_name }}</span><br> --}}
                                     @endif
                                 </span>
                                 <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
@@ -215,8 +264,8 @@
                                 
                                 @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <div class="" style="margin-bottom: 5px;">
-                                    <a data-toggle="tooltip" data-placement="top" title="Clone Training"
-                                        class="btn btn-success btn-xs" style="background:#183153" href="{{ route('training.clone', $program->id)}}" onclick="return confirm('This will clone training materials, modules, questions, settings, etc?');"><i class="fa fa-copy"></i> Clone Training
+                                    <a href="javascript:void(0)" data-toggle="modal" data-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
+                                        class="btn btn-success btn-xs" style="background:#183153"><i class="fa fa-copy"></i> Clone Training
                                     </a>
                                     <a data-toggle="tooltip" data-placement="top" title="Import Participants"
                                         class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('training.import', $program->id)}}"><i class="fa fa-upload"></i> Bulk Import
@@ -249,6 +298,40 @@
                             </td>
                         </tr>
                         @endif
+                        <div class="modal fade" id="cloneTraining{{ $program->id }}" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="batchModalLabel">Clone {{ $program->p_name }}</h5>
+                                    <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form onsubmit="return confirm('This will clone training');" action="{{ route('training.clone', $program->id) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="clone_options" class="form-label">Select Clone Options</label> <br>
+                                            <select name="clone_options[]" class="form-control select2" multiple="multiple" required id="clone_options" style="width: 100%;">
+                                                <option value="">Select</option>
+                                                <option value="training_materials">Training Materials</option>
+                                                <option value="modules">Modules</option>
+                                                <option value="score_settings">Score Settings</option>
+                                                <option value="certificate_settings">Certificate Settings</option>
+                                                <option value="all">All</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success" id="generate-button">
+                                        Clone
+                                    </button>
+                                    </div>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
                     </tbody>
                     
@@ -258,9 +341,18 @@
         </div>
     </div>
 </div>
+
 @endsection
 @section('extra-scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
+        $(document).ready(function() {
+            $('#clone_options').select2({
+                dropdownParent: $('body'), // Ensures the dropdown is appended to the body
+                width: '100%' // Makes the select box full width
+            });
+        });
         document.querySelector('.dropdown-button').addEventListener('click', function() {
             const dropdownContent = document.querySelector('.dropdown-content');
             dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
