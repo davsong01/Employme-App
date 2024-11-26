@@ -719,7 +719,7 @@
                         $('#certificatePreviewImage').attr('src', response.preview_image_path);
                         $('#previewModal').show(); // Display the modal
                     } else {
-                        alert('Failed to generate preview. Please try again.');
+                        alert('Failed to generate preview. Please try again.' + response.error);
                     }
                 },
                 error: function(xhr, status, error) {

@@ -353,12 +353,19 @@ class CertificateController extends Controller
 
     public function generateCertificatePreview(Request $request, $program_id)
     {
-        $location = 'certificate_previews';
-        $certificate = generateCertificate($request->all(), $program_id, $location);
+        try {
+            $location = 'certificate_previews';
+            $certificate = generateCertificate($request->all(), $program_id, $location);
 
-        return response()->json([
-            'preview_image_path' => '/certificate_previews/' . $certificate['name'],
-        ]);
+            return response()->json([
+                'preview_image_path' => '/certificate_previews/' . $certificate['name'],
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage(),
+            ]);
+        }
+       
         
     }
 
