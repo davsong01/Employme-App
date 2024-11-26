@@ -39,10 +39,9 @@
     </style>
     @yield('css')
     <!---include font awesome-->
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> --}}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
     <!--Include CK Editor-->
-    <script src="https://cdn.ckeditor.com/4.14.0/standard-all/ckeditor.js"></script>
+    <script src="{{ asset('assets/ckeditor/ckeditor.js') }}"></script>
 
     <!---Calender scripts-->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -395,5 +394,11 @@
         });
     </script>
     @yield('extra-scripts')
-    
+    <script>
+
+       CKEDITOR.replace("ckeditor", {
+            uiColor: '#9AB8F3'
+        });
+    };
+    </script>
 </body>

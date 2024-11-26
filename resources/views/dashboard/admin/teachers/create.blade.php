@@ -172,68 +172,67 @@
     </div>
 </div>
 @section('extra-scripts')
-<script src="https://cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
-<script>
-    CKEDITOR.replace('ckeditor');
-    var editor = CKEDITOR.instances['ckeditor'];
-    src = "{{ env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
-    token = "{{ \App\Models\Settings::value('token') }}";
+    <script>
+        CKEDITOR.replace('ckeditor');
+        var editor = CKEDITOR.instances['ckeditor'];
+        src = "{{ env('ENT') == 'demo' ? 'http://localhost:8888/waacsp/public/api/verifyinstructor' : 'https://thewaacsp.com/api/verifyinstructor' }}";
+        token = "{{ \App\Models\Settings::value('token') }}";
+        
+        function myFunction() {
+            $.ajax({
+                url: src,
+                headers: {
+                    license:  $('#license').val(),
+                    token: token
+                },
+
+                beforeSend: function(xhr){
+                    $('#result').prepend('LOADING...');
+                },
+                success: function(res){
+                    // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
+                    $('#result').css('display','none');
+                    $('#name').val(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
+                    $('#license').val(res.data.license);
+                    $('#email').val(res.data.email);
+                    $('#phone').val(res.data.phone);
+                    $('#waacsp_url').val(res.data.url);
+                    editor.insertText(res.data.short_profile); 
+                    $("#profile_picture").css("display",'block'); 
+                    $("#profile_picture").attr("src",res.data.avatar); 
+                    $("#picture").val(res.data.avatar); 
+                    $("#verify-button").css("bakground:green");
+                    $("#verify-button").html("<span class='btn btn-success' style='float:left' id='verify'>Verified!</span>"); 
+                    
+                },
+
+                error: function(xhr, status, error) {
+                    var err = eval("(" + xhr.responseText + ")");
+                    // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
+                    $('#result').html(err.message);
+                    $('#result').css('color','red');
+
+                }
+            });
+        }
     
-    function myFunction() {
-        $.ajax({
-            url: src,
-            headers: {
-                license:  $('#license').val(),
-                token: token
-            },
+    </script>
 
-            beforeSend: function(xhr){
-                $('#result').prepend('LOADING...');
-            },
-            success: function(res){
-                // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
-                $('#result').css('display','none');
-                $('#name').val(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
-                $('#license').val(res.data.license);
-                $('#email').val(res.data.email);
-                $('#phone').val(res.data.phone);
-                $('#waacsp_url').val(res.data.url);
-                editor.insertText(res.data.short_profile); 
-                $("#profile_picture").css("display",'block'); 
-                $("#profile_picture").attr("src",res.data.avatar); 
-                $("#picture").val(res.data.avatar); 
-                $("#verify-button").css("bakground:green");
-                $("#verify-button").html("<span class='btn btn-success' style='float:left' id='verify'>Verified!</span>"); 
+    <script>                                
+        $('#role').on('change', function(){
+            console.log($('#role').val());
                 
-            },
-
-            error: function(xhr, status, error) {
-                var err = eval("(" + xhr.responseText + ")");
-                // console.log(res.data.first_name + ' ' + res.data.middle_name + ' '+ res.data.last_name);
-                $('#result').html(err.message);
-                $('#result').css('color','red');
-
-            }
+                if($('#role').val()=='Facilitator' || $('#role').val()=='Grader' ){
+                    $('.selecttraining').css('display','block');
+                    
+                }else if($('#role').val()=='Admin'){
+                    $('.selecttraining').css('display','none');
+                    
+                }
         });
-    }
-   
-</script>
-
-<script>                                
-    $('#role').on('change', function(){
-        console.log($('#role').val());
-            
-            if($('#role').val()=='Facilitator' || $('#role').val()=='Grader' ){
-                $('.selecttraining').css('display','block');
-                
-            }else if($('#role').val()=='Admin'){
-                $('.selecttraining').css('display','none');
-                
-            }
-    });
 
 
-    
-</script>
+        
+    </script>
 @endsection
 @endsection

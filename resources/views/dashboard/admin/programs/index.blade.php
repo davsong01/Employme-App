@@ -313,7 +313,6 @@
                                         <div class="mb-3">
                                             <label for="clone_options" class="form-label">Select Clone Options</label> <br>
                                             <select name="clone_options[]" class="form-control select2" multiple="multiple" required id="clone_options" style="width: 100%;">
-                                                <option value="">Select</option>
                                                 <option value="training_materials">Training Materials</option>
                                                 <option value="modules">Modules</option>
                                                 <option value="score_settings">Score Settings</option>
