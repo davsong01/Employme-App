@@ -289,10 +289,13 @@ class CertificateController extends Controller
             $transactions = Transaction::with('user', 'certificate')
                 ->where('program_id', $program_id)
                 ->where('show_certificate', 0)
-                ->whereDoesntHave('certificate') 
-                ->where('id', '>', $end)
-                ->take($pick)
-                ->get();
+                ->whereDoesntHave('certificate');
+
+            if (!empty($cron_task) && $cron_task == 'yes') {
+                $transactions = $transactions->where('id', '>', $end);
+            }
+
+            $transactions = $transactions->take($pick)->get();
 
             // Check if there are any eligible transactions
             if ($transactions->isEmpty()) {
