@@ -65,6 +65,7 @@ class PaymentController extends Controller
             }
 
             $records = $transactions->count();
+            
             $transactions = $transactions->paginate(50);
             $types = Transaction::select('t_type')
             ->distinct()

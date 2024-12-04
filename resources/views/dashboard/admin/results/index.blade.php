@@ -259,7 +259,7 @@
                                 @endif
                                 <br>
                                 Certificate Access : @if(isset($user->cert))
-                                    @if($user->cert->show_certificate == 1)
+                                    @if($user->show_certificate == 1)
                                     <strong style="color:green">Enabled</strong>
                                     @else
                                     <strong style="color:red">Disabled</strong>

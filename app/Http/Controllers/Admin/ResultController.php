@@ -186,7 +186,14 @@ class ResultController extends Controller
 
                 // Calculate final class test score
                 $user->final_ct_score = $this->calculateFinalCtScore($user);
-
+                $trans = Transaction::query()
+                ->select('id', 'show_certificate', 'program_id', 'user_id')
+                ->where('user_id', $user->user_id)
+                ->where('program_id', $request->pid)
+                ->first();
+                
+                $user->show_certificate = !empty($trans) ? $trans->show_certificate : 0;
+                
                 return $user;
 
             });
