@@ -1,3 +1,6 @@
+@php
+    use App\Models\Transaction;
+@endphp
 @extends('dashboard.layouts.main')
 @section('title', 'Trainings')
 @section('css')
@@ -78,14 +81,23 @@
                 <li class="sidebar-item"><a href="{{ route('tests.results', ['p_id' => $program->id])}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">My Completed Tests</span></a>
                 </li>
-               
+                
                 @if($program->hasresult == 1 )
                 <li class="sidebar-item"><a href="{{ route('results.show', ['result' => Auth::user()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
                 @endif
                 
-                @if(auth()->user()->certificates->count() > 0 )
+                @php
+                    $trans = Transaction::query()
+                    ->select('id', 'show_certificate', 'program_id', 'user_id')
+                    ->where('user_id', auth()->user()->id)
+                    ->where('program_id', $program->id)
+                    ->first();
+                    
+                    $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
+                @endphp
+                @if($show_certificate == 1 )
                 <li class="sidebar-item"><a href="{{ route('certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                             class="fas fa-certificate"></i><span class="hide-menu">My Certificate
                     </span></a>
