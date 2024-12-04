@@ -214,13 +214,14 @@ class ModuleController extends Controller
     public function update(Request $request, Module $module)
     {
 
-        if ($request->type == 0) {
-            $type = 0;
-        }
+        // if ($request->type == 0) {
+        //     $type = 0;
+        // }
         $module->update([
             'title' => $request->title,
             'program_id' => $request->program_id,
             'status' => $request->status,
+            'computation_status' => $request->computation_status,
             'noofquestions' => $request->noofquestions,
             'time' => $request->time,
             'type' => $request->type,

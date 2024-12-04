@@ -58,6 +58,14 @@
                                 </select>
                                 <div><small style="color:red">{{ $errors->first('status')}}</small></div>
                             </div>
+                            <div class="form-group">
+                                <label for="class">Computation Status</label>
+                                <select name="computation_status" id="class" class="form-control">
+                                    <option value="1" {{ $module->computation_status == 1 ? 'selected' : ''}}>Enabled</option>
+                                <option value="0" {{ $module->computation_status == 0 ? 'selected' : ''}}>Disabled</option>
+                                </select>
+                                <div><small style="color:red">{{ $errors->first('status')}}</small></div>
+                            </div>
                     
                             <div class="form-group{{ $errors->has('noofquestions') ? ' has-error' : '' }}">
                                 <label for="noofquestions">No of Questions</label>

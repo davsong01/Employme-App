@@ -25,7 +25,7 @@ class ApiController extends Controller
                 $user['program_score_settings'] = 0;
                 $user['total_email_test_score'] = 0;
                 
-                $user['class_test_module_count'] = Module::where('program_id', $user->program->id)->where('type', 'Class Test')->count();  
+                $user['class_test_module_count'] = Module::where('program_id', $user->program->id)->where('type', 'Class Test')->where('computation_status', 1)->count();  
                 $user['total_role_play_score'] = 0;
                 if(isset($user->results)){
                     foreach($user->results as $results){
@@ -42,7 +42,7 @@ class ApiController extends Controller
                             //print_r( $results->module->questions->count());
                             $user['program_score_settings'] = $results->program->scoresettings->class_test;
                            
-                            $u =  Module::where('type', 0)->get();
+                            $u =  Module::where('computation_status', 1)->get();
                             $obtainable = array();
                             foreach($u as $t){
                                 $questions = array_push($obtainable, $t->questions->count());

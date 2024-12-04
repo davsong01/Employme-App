@@ -21,23 +21,14 @@ use Intervention\Image\Facades\Image;
             $modules = Module::with('questions')
                 ->where('type', 'Class Test')
                 ->where('program_id', $program_id)
-                ->where('status', 1)
+                ->where('computation_status', 1)
                 ->get();
-
-            // Controll certificate status here
-            // if (in_array($program->id, [70])) {
-            //     return [
-            //         'program' => $program,
-            //         'status' => 'CERTIFIED',
-            //     ];
-            // }
 
             if (empty($program->scoresettings) || $modules->count() < 1) {
 
                 return [
                     'program' => $program,
                     'status' => 'CERTIFIED'
-                    // 'status' => 'NO SCORE SETTINGS AVAILABLE',
                 ];
             }
 
