@@ -118,16 +118,19 @@
                                                 class="fa fa-clone"></i>
                                         </a>
                                         @endif
+
+                                        @if($module->status == 0 && $module->questions->count() < 1)
+                                        <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
+                                            onsubmit="return confirm('Do you really want to Delete?');">
+                                            {{ csrf_field() }}
+                                            {{method_field('DELETE')}}
+                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip" data-placement="top" title="Delete module"> <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        @endif
                                     @endif
-                                    @if($module->status == 0)
-                                    <form action="{{ route('modules.destroy', $module->id) }}" method="POST"
-                                        onsubmit="return confirm('Do you really want to Delete?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip" data-placement="top" title="Delete module"> <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
-                                    @endif
+                                    
+                                    
                                 </div>
                             </td>
                         </tr> 

@@ -237,7 +237,7 @@ class ResultController extends Controller
 
     private function calculateClassTestScore($result, &$user, $programId)
     {
-        $modules = Module::where('type', 0)->where('program_id', $programId)->where('status',1)->get();
+        $modules = Module::where('type', 0)->where('program_id', $programId)->where('computation_status',1)->get();
         $obtainable = array();
 
         foreach ($modules as $module) {
