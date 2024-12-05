@@ -82,7 +82,7 @@
                         <!-- Role and Status Section -->
                         <fieldset>
                             <legend>Role and Status</legend>
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label for="role">Role*</label>
                                 <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" style="height: 30px; width: 100%;">
                                     <option value="" disabled>Assign Role</option>
@@ -93,7 +93,46 @@
                                 @error('role')
                                 <span class="text-danger">{{ $message }}</span>
                                 @enderror
+                            </div> --}}
+                            <div class="form-group">
+                                <label>Role*</label>
+                                <div class="row">
+                                    <!-- Admin Role -->
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="role[]" value="Admin" 
+                                                {{ in_array('Admin', $user->role()) ? 'checked' : '' }} id="role-admin">
+                                            <label class="form-check-label" for="role-admin">
+                                                Admin
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Grader Role -->
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="role[]" value="Grader" 
+                                                {{ in_array('Grader', $user->role()) ? 'checked' : '' }} id="role-grader">
+                                            <label class="form-check-label" for="role-grader">
+                                                Grader
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Facilitator Role -->
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="role[]" value="Facilitator" 
+                                                {{ in_array('Facilitator', $user->role()) ? 'checked' : '' }} id="role-facilitator">
+                                            <label class="form-check-label" for="role-facilitator">
+                                                Facilitator
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                @error('role')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
+
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control" required>
