@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class FacilitatorTraining extends Model
 {
     protected $guarded = [];
+    protected $casts = ['training_permissions' => 'array'];
     
     public function trainings()
     {

@@ -216,7 +216,7 @@ class TeacherController extends Controller
         $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/' . $user->profile_picture;
 
         $payment_modes = PaymentMode::whereStatus('active')->get();
-
+        
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             return view('dashboard.admin.teachers.edit', compact('programs', 'user', 'allprograms', 'payment_modes'));
         }
@@ -236,7 +236,6 @@ class TeacherController extends Controller
             $picture->save('profiles/' . '/' . $imgName);
         }
 
-        dd($request->all(), $request->all());
         $request['role'] = implode(',', $request['role']);
 
         $user->name = $request['name'];
@@ -259,17 +258,15 @@ class TeacherController extends Controller
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
 
-        // if(!isset($facilitator) && !isset($request['training'])){
-        //     return back()->with('error', 'Facilitator is not attached to any training, please add a training to facilitator');
-        // }
-
         $facilitator->delete();
-
+    
         if (!empty($request['training'])) {
             foreach ($request['training'] as $training) {
+                
                 FacilitatorTraining::UpdateorCreate([
                     'user_id' => $user->id,
-                    'program_id' => $training
+                    'program_id' => $training,
+                    'training_permissions' => $request->training_permissions[$training]
                 ]);
             }
         }

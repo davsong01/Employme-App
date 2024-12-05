@@ -976,7 +976,25 @@ class Controller extends BaseController
         ];
 
         return $menus;
-    } 
+    }
+
+    public function adminPermissions()
+    {
+        $permissions = [
+            [
+                'id' => 1,
+                'name' => 'Admin Dashboard',
+                'slug' => 'dashboard',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Student Management',
+                'slug' => 'users.index',
+            ],
+        ];
+
+        return $permissions;
+    }
 
     public function printNameOnCertificate(){
         // Import the Intervention Image class
