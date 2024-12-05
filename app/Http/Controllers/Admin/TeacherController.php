@@ -236,7 +236,7 @@ class TeacherController extends Controller
             $picture->save('profiles/' . '/' . $imgName);
         }
 
-
+        dd($request->all(), $request->all());
         $request['role'] = implode(',', $request['role']);
 
         $user->name = $request['name'];

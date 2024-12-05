@@ -220,10 +220,10 @@ use Intervention\Image\Facades\Image;
         function certificateFontType()
         {
             return [
+                'Times-New-Roman.ttf' => 'Times New Roman',
                 'Times-New-Roman-Bold.ttf' => 'Times New Roman Bold',
                 'Pesaro-Bold.ttf' => 'Pesaro-Bold',
                 'Edwardian-Script-ITC.ttf' => 'Edwardian Script ITC',
-                'Times-New-Roman.ttf' => 'Times New Roman'
             ];
         }
     }
