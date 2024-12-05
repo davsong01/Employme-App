@@ -295,6 +295,7 @@ class ProgramController extends Controller
             "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
             "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
             "text_type" => $request->text_type,
+            "text_type_face" => $request->text_type_face ?: 'Pesaro-Bold.ttf',
         ];
 
         $final_array = [];

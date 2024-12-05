@@ -483,6 +483,16 @@
                                             </div>
                                             <div class="col-md-4" style="margin-bottom:5px">
                                                 <div class="form-group">
+                                                    <label>Font Type Face</label>
+                                                    <select name="text_type_face[]" class="form-control" id="text_type_face">
+                                                        @foreach(certificateFontType() as $key=>$value)
+                                                        <option value="{{ $key }}" {{ (isset($setting['text_type_face']) && $setting['text_type_face'] == $key) ? 'selected' : ''}}>{{ $value }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin-bottom:5px">
+                                                <div class="form-group">
                                                     <label>Text font size, e.g 150</label>
                                                     <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
                                                 </div>
@@ -628,6 +638,18 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="col-md-4" style="margin-bottom:5px">
+                        <div class="form-group">
+                            <label>Font Type Face</label>
+                            <select name="text_type_face[]" class="form-control" id="text_type_face">
+                                @foreach(certificateFontType() as $key=>$value)
+                                <option value="{{ $key }}" {{ (isset($setting['text_type_face']) && $setting['text_type_face'] == $key) ? 'selected' : ''}}>{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-md-4" style="margin-bottom:5px">
                         <div class="form-group">
                             <label>Text font size, e.g 150</label>
@@ -685,6 +707,10 @@
                 formData.append('text_type[]', $(this).val());
             });
 
+            $('select[name="text_type_face[]"]').each(function() {
+                formData.append('text_type_face[]', $(this).val());
+            });
+
             $('input[name="auto_certificate_name_font_size[]"]').each(function() {
                 formData.append('auto_certificate_name_font_size[]', $(this).val());
             });
@@ -708,7 +734,7 @@
             }
 
             $.ajax({
-                url: '/generate-certificate-preview/' + '{{$program->id}}',  // Laravel route for generating the certificate preview
+                url: '/generate-certificate-preview/' + '{{$program->id}}',
                 type: 'POST',
                 data: formData,
                 contentType: false,

@@ -142,7 +142,7 @@ use Intervention\Image\Facades\Image;
             function generateCertificate($request, $program_id, $location, $user=null)
             {
                 $program = Program::find($program_id);
-
+                
                 if(empty($user)){
                     $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
                     $user = $user->user;
@@ -170,13 +170,15 @@ use Intervention\Image\Facades\Image;
                         $constraint->upsize();
                     });
                 }
-
+                
                 for ($i = 0; $i < $counter; $i++) {
                     $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
                     $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
                     $auto_certificate_top_offset = !empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset'];
                     $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
                     $auto_certificate_font_weight = !empty($request['auto_certificate_name_font_weight'][$i]) ? $request['auto_certificate_name_font_weight'][$i] : ($certificate_settings['settings'][$i]['auto_certificate_name_font_weight'] ?? 10);
+                    $text_type_face = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
+                    
                     $text = 'Aboki Ogbeni Chuckwuma';
                     
                     $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
@@ -190,10 +192,10 @@ use Intervention\Image\Facades\Image;
                     if($text_type == 'certificate_number'){
                         $text = $certificate_number;
                     }
-
+                    
                     // End text
-                    $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight) {
-                        $font->file(public_path('Pesaro-Bold.ttf'));
+                    $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight, $text_type_face) {
+                        $font->file(public_path('certificate_fonts/'. $text_type_face));
                         $font->size($size);
                         $font->color($color);
                         // $font->weight($auto_certificate_font_weight);
@@ -204,12 +206,25 @@ use Intervention\Image\Facades\Image;
                 // $outputImagePath = base_path('uploads/certificates/' . $name);
                 $outputImagePath = $location .'/'. $name;
                 $image->save($outputImagePath);
-
+                
                 return [
                     'name' => $name,
                     'certificate_number' => $certificate_number
                 ];
             }
+        }
+    }
+
+
+    if (!function_exists("certificateFontType")) {
+        function certificateFontType()
+        {
+            return [
+                'Times-New-Roman-Bold.ttf' => 'Times New Roman Bold',
+                'Pesaro-Bold.ttf' => 'Pesaro-Bold',
+                'Edwardian-Script-ITC.ttf' => 'Edwardian Script ITC',
+                'Times-New-Roman.ttf' => 'Times New Roman'
+            ];
         }
     }
 
