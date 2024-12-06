@@ -11,7 +11,18 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("certificationStatus")) {
         function certificationStatus($program_id, $user_id)
         {
-            $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
+            // $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
+            $result = Result::with('program', 'module', 'user')
+            ->where('user_id', $user_id)
+            ->where('program_id', $program_id)
+            ->whereIn(
+                'id',
+                Result::select(DB::raw('MIN(id)'))
+                    ->where('user_id', $user_id)
+                    ->where('program_id', $program_id)
+                    ->groupBy('module_id')
+            )->get();
+
             $program = Program::with('scoresettings')->find($program_id);
             $details = [];
 
@@ -38,9 +49,9 @@ use Intervention\Image\Facades\Image;
                     'status' => 'CERTIFIED'
                 ];
             }
-
+            
             $obtainable = $modules->sum(fn($module) => $module->questions->count());
-
+            // dd($result, $program_id);
             foreach ($result as $t) {
                 // Accumulate test scores
                 $class += $t['class_test_score'];
@@ -55,12 +66,13 @@ use Intervention\Image\Facades\Image;
                 $t['ct_set_score'] = $program->scoresettings->class_test;
                 $t['name'] = $t->user->name;
             }
-
+            
             // Calculate and round the class test score
             if (isset($t['ct_set_score'])) {
                 $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
+                $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
             }
-
+            // dd($details['class_test_score'],  $t['ct_set_score']);
             // Add other test scores to the details array
             $details['email_test_score'] = $email;
             $details['role_play_score'] = $roleplay;
@@ -78,7 +90,7 @@ use Intervention\Image\Facades\Image;
             $details['status'] = ($details['total_score'] >= $details['passmark']) ? 'CERTIFIED' : 'NOT CERTIFIED';
             $details['results'] = $result;
             $details['program'] = $program;
-
+            
             return $details;
         }
     }
