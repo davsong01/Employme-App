@@ -127,7 +127,16 @@ class ResultController extends Controller
             $isPaginated = $users instanceof \Illuminate\Pagination\LengthAwarePaginator || $users instanceof \Illuminate\Pagination\Paginator;
 
             $modifiedUsers = $users->map(function ($user) use ($request, $score_settings) {
-                $results = $user->results;
+                $results = Result::with('program', 'module', 'user')
+                ->where('user_id', $user->user_id)
+                ->where('program_id', $request->pid)
+                ->whereIn(
+                    'id',
+                    Result::select(DB::raw('MIN(id)'))
+                        ->where('user_id', $user->user_id)
+                        ->where('program_id', $request->pid)
+                        ->groupBy('module_id')
+                )->get();
                 
                 $user->total_cert_score = 0;
                 $user->total_class_test_score = 0;

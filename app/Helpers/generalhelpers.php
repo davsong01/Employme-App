@@ -25,7 +25,7 @@ use Intervention\Image\Facades\Image;
 
             $program = Program::with('scoresettings')->find($program_id);
             $details = [];
-
+                
             if ($result->count() < 1) {
                 return [
                     'program' => $program,
