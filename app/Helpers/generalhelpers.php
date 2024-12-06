@@ -24,8 +24,8 @@ use Intervention\Image\Facades\Image;
                 ->where('computation_status', 1)
                 ->get();
 
+            
             if (empty($program->scoresettings) || $modules->count() < 1) {
-
                 return [
                     'program' => $program,
                     'status' => 'CERTIFIED'
@@ -53,7 +53,7 @@ use Intervention\Image\Facades\Image;
             if (isset($t['ct_set_score'])) {
                 $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
             }
-
+            
             // Add other test scores to the details array
             $details['email_test_score'] = $email;
             $details['role_play_score'] = $roleplay;
