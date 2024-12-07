@@ -18,7 +18,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    protected $casts = ['metadata' => 'array'];
+    protected $casts = ['metadata' => 'array', 'menu_permissions' => 'array'];
     protected $guarded = [];
     protected $append = ['t_phone','account_balance'];
 
@@ -111,20 +111,10 @@ class User extends Authenticatable
         return $role_id;
     }
 
-    // protected function scopeRole($query)
-    // {
-    //     $role_ids = explode(',', $this->role_id);
-    //     return $query->whereIn('role_id', $role_ids);
-    // }
-
     public function scopePermissions(){
-        $a_menu = $this->menu_permissions ?? '';
-        $a_menu = explode(',', $a_menu);
+        $a_menu = in_array($this->id, [1]) ? allRoutes() : ($this->menu_permissions ?? []);            
 
-        $a_menu = !empty($a_menu) ? $a_menu : [];
-       
         return $a_menu; 
     }    
 }
-   
 

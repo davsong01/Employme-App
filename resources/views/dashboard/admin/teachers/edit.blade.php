@@ -141,20 +141,90 @@
                                 </select>
                             </div>
                         </fieldset>
-
-                        <!-- Menu Permissions -->
                         <fieldset>
                             <legend>Menu Permissions</legend>
+                            @php
+                                $parentMenus = app('app\Http\Controllers\Controller')->adminMenus();
+                                $user_permissions = $user->permissions();
+                                // dd($parentMenus );
+                            @endphp
                             <div class="row">
-                                @foreach(app('app\Http\Controllers\Controller')->adminMenus() as $menu)
-                                <div class="col-md-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="menu_permissions[]" value="{{ $menu['id'] }}" id="{{ $menu['id'] }}" {{ in_array($menu['id'], explode(',', $user->menu_permissions ?? '')) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="{{ $menu['id'] }}">
-                                            {{ $menu['name'] }}
-                                        </label>
+                                @foreach($parentMenus as $menu)
+                                    <!-- Parent Menu -->
+                                    <div class="col-md-3 mb-4">
+                                        <div class="card border-primary shadow-sm">
+                                            <div class="card-header bg-primary text-white">
+                                                <div class="form-check">
+                                                    <input class="form-check-input parent-checkbox" 
+                                                        type="checkbox" 
+                                                        name="menu_permissions[]" 
+                                                        value="{{ $menu['route'] }}" 
+                                                        id="parent-{{ $menu['id'] }}" 
+                                                        {{ in_array($menu['route'], $user_permissions) ? 'checked' : '' }}>
+                                                    <label class="form-check-label fw-bold" for="parent-{{ $menu['id'] }}">
+                                                        {{ $menu['name'] }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                @if(!empty($menu['children']))
+                                                    <!-- Group Children by Type -->
+                                                    @php
+                                                        $menuChildren = array_filter($menu['children'], fn($child) => $child['type'] === 'menu');
+                                                        $accessChildren = array_filter($menu['children'], fn($child) => $child['type'] === 'access');
+                                                    @endphp
+
+                                                    <!-- Menu Section -->
+                                                    @if(count($menuChildren) > 0)
+                                                        <h6 class="fw-bold text-secondary">Menus</h6>
+                                                        <ul class="list-unstyled ms-3">
+                                                            @foreach($menuChildren as $child)
+                                                                <li>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input child-checkbox" 
+                                                                            type="checkbox" 
+                                                                            name="menu_permissions[]" 
+                                                                            value="{{ $child['route'] }}" 
+                                                                            id="child-{{ $child['id'] }}" 
+                                                                            data-parent-id="parent-{{ $menu['id'] }}" 
+                                                                            {{ in_array($child['route'], $user_permissions) ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="child-{{ $child['id'] }}">
+                                                                            {{ $child['name'] }}
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+
+                                                    <!-- Access Section -->
+                                                    @if(count($accessChildren) > 0)
+                                                        <h6 class="fw-bold text-secondary">Permissions</h6>
+                                                        <ul class="list-unstyled ms-3">
+                                                            @foreach($accessChildren as $child)
+                                                                <li>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input child-checkbox" 
+                                                                            type="checkbox" 
+                                                                            name="menu_permissions[]" 
+                                                                            value="{{ $child['route'] }}" 
+                                                                            id="child-{{ $child['id'] }}" 
+                                                                            data-parent-id="parent-{{ $menu['id'] }}" 
+                                                                            {{ in_array($child['route'], $user_permissions) ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="child-{{ $child['id'] }}">
+                                                                            {{ $child['name'] }}
+                                                                        </label>
+                                                                    </div>
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                @else
+                                                    <p class="text-muted fst-italic mb-0">No submenus available.</p>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                                 @endforeach
                             </div>
                         </fieldset>
@@ -226,6 +296,28 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        // When a parent checkbox is toggled
+        $('.parent-checkbox').on('change', function() {
+            let parentId = $(this).attr('id');
+            let isChecked = $(this).is(':checked');
+            
+            // Select or deselect all children associated with this parent
+            $(`.child-checkbox[data-parent-id="${parentId}"]`).prop('checked', isChecked);
+        });
+
+        // When a child checkbox is toggled
+        $('.child-checkbox').on('change', function() {
+            let parentId = $(this).data('parent-id');
+            let allChecked = $(`.child-checkbox[data-parent-id="${parentId}"]:checked`).length > 0;
+            
+            // Update parent checkbox based on children
+            $(`#${parentId}`).prop('checked', allChecked);
+        });
+    });
+</script>
+
 
 <script>
     $(document).ready(function () {

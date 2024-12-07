@@ -806,12 +806,15 @@ class Controller extends BaseController
         return ['content'=>$content,'subject'=>$subject];
     }
 
-    public function adminMenus(){
+    public function adminMenus2(){
         $menus = [
             [
                 'id' => 1,
                 'name' => 'Admin Dashboard',
                 'route' => 'dashboard',
+                'isParent' => 'yes',
+                'parentId' => 3
+
             ],
             [
                 'id' => 2,
@@ -929,6 +932,497 @@ class Controller extends BaseController
 
         return $menus;
     }
+
+    public function adminMenus($type=null,$parent=null)
+    {
+        $menus = [
+            // Menus
+            // [
+            //     'id' => 1,
+            //     'name' => 'Admin Dashboard',
+            //     'route' => 'home',
+            //     'type' => 'menu',
+            //     'order' => 1,
+            //     'parentId' => null
+            // ],
+            [
+                'id' => 2,
+                'name' => 'Student Management',
+                'route' => 'users.index',
+                'type' => 'menu',
+                'order' => 2,
+                'icon_class' => 'fa fa-users',
+                'parentId' => null
+            ],
+            // Student Management
+                [
+                    'id' => 20,
+                    'name' => 'Add New Participant',
+                    'route' => 'users.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 21,
+                    'name' => 'View User',
+                    'route' => 'users.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 22,
+                    'name' => 'Update User',
+                    'route' => 'users.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 23,
+                    'name' => 'Peek',
+                    'route' => 'impersonate',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 24,
+                    'name' => 'Delete User',
+                    'route' => 'users.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 2
+                ],
+            [
+                'id' => 3,
+                'name' => 'Staff Management',
+                'route' => 'teachers.index',
+                'type' => 'menu',
+                'order' => 3,
+                'icon_class' => 'fas fas fa-user',
+                'parentId' => null
+            ],
+                [
+                    'id' => 31,
+                    'name' => 'Add Staff',
+                    'route' => 'teachers.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 32,
+                    'name' => 'View Staff',
+                    'route' => 'teachers.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 33,
+                    'name' => 'Update Staff',
+                    'route' => 'teachers.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 34,
+                    'name' => 'Peek',
+                    'route' => 'teachers.impersonate',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 35,
+                    'name' => 'Delete Staff',
+                    'route' => 'teachers.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 33,
+                    'name' => 'Update Staff Menus',
+                    'route' => 'teachers.update.menu',
+                    'type' => 'access',
+                    'order' => 6,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 33,
+                    'name' => 'Update Staff Training Access',
+                    'route' => 'teachers.update.training.access',
+                    'type' => 'access',
+                    'order' => 7,
+                    'parentId' => 3
+                ],
+            [
+                'id' => 4,
+                'name' => 'Company Admin Management',
+                'route' => 'companyuser.index',
+                'type' => 'menu',
+                'order' => 4,
+                'icon_class' => 'fa fa-solid fa-building',
+                'parentId' => null
+            ],
+                [
+                    'id' => 41,
+                    'name' => 'Add Company Admin',
+                    'route' => 'companyuser.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 42,
+                    'name' => 'View Company Admin',
+                    'route' => 'companyuser.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 43,
+                    'name' => 'Update Company Admin',
+                    'route' => 'companyuser.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 44,
+                    'name' => 'Delete Company Admin',
+                    'route' => 'companyuser.destroy',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 4
+                ],
+            [
+                'id' => 5,
+                'name' => 'Training Management',
+                'route' => 'training.management',
+                'type' => 'menu',
+                'order' => 5,
+                'icon_class' => 'fas fa-chalkboard-teacher',
+                'parentId' => null
+            ],
+                [
+                    'id' => 51,
+                    'name' => 'Add Training',
+                    'route' => 'programs.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 5
+                ],
+            [
+                'id' => 6,
+                'name' => 'View all Trainings',
+                'route' => 'programs.index',
+                'type' => 'menu',
+                'parentId' => 5
+            ],
+            [
+                'id' => 7,
+                'name' => 'Trashed Trainings',
+                'route' => 'programs.trashed',
+                'type' => 'menu',
+                'parentId' => 5
+            ],
+            [
+                'id' => 8,
+                'name' => 'Coupons',
+                'route' => 'coupon.index',
+                'type' => 'menu',
+                'order' => 6,
+                'icon_class' => 'fa fa-gift',
+                'parentId' => null
+            ],
+                [
+                    'id' => 81,
+                    'name' => 'Add Coupon',
+                    'route' => 'coupon.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 82,
+                    'name' => 'View Coupon',
+                    'route' => 'coupon.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 83,
+                    'name' => 'Update Coupon',
+                    'route' => 'coupon.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 84,
+                    'name' => 'View Coupon Usage',
+                    'route' => 'coupon.show',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 85,
+                    'name' => 'Delete Coupon',
+                    'route' => 'coupon.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 8
+                ],
+                
+            [
+                'id' => 9,
+                'name' => 'Financials',
+                'route' => 'financials',
+                'type' => 'menu',
+                'order' => 7,
+                'icon_class' => 'far fa-money-bill-alt',
+                'parentId' => null
+            ],
+            [
+                'id' => 10,
+                'name' => 'Attempted Payments',
+                'route' => 'pop.index',
+                'type' => 'menu',
+                'parentId' => 9
+            ],
+            [
+                'id' => 11,
+                'name' => 'Proof of Payment',
+                'route' => 'proof.payment',
+                'type' => 'menu',
+                'parentId' => 9
+            ],
+                [
+                    'id' => 111,
+                    'name' => 'Edit Proof of Payment',
+                    'route' => 'pop.edit',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 11
+                ],
+                [
+                    'id' => 112,
+                    'name' => 'Update Proof of Payment',
+                    'route' => 'pop.update',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 11
+                ],
+                [
+                    'id' => 113,
+                    'name' => 'Approve Proof of Payment',
+                    'route' => 'pop.show',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 11
+                ],
+                [
+                    'id' => 114,
+                    'name' => 'Delete Proof of Payment',
+                    'route' => 'pop.delete',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 11
+                ],
+            [
+                'id' => 12,
+                'name' => 'Transactions',
+                'route' => 'payments.index',
+                'type' => 'menu',
+                'parentId' => 9
+            ],
+                [
+                    'id' => 121,
+                    'name' => 'Update Transaction',
+                    'route' => 'payments.edit',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 12
+                ],
+                [
+                    'id' => 122,
+                    'name' => 'Send Transaction Receipt',
+                    'route' => 'payments.show',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 12
+                ],
+                [
+                    'id' => 122,
+                    'name' => 'Peek Transaction User',
+                    'route' => 'payments.user.impersonate',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 12
+                ],
+                [
+                    'id' => 123,
+                    'name' => 'Delete Transaction',
+                    'route' => 'payments.delete',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 12
+                ],
+            [
+                'id' => 13,
+                'name' => 'CRM Tool',
+                'route' => 'complains.index',
+                'type' => 'menu',
+                'order' => 8,
+                'icon_class' => 'far fa-comments',
+                'parentId' => null
+            ],
+            [
+                'id' => 14,
+                'name' => 'LMS',
+                'route' => 'lms',
+                'type' => 'menu',
+                'order' => 9,
+                'icon_class' => 'far fa-comments',
+                'parentId' => null
+            ],
+            [
+                'id' => 15,
+                'name' => 'Modules',
+                'route' => 'modules.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 16,
+                'name' => 'Questions',
+                'route' => 'questions.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 17,
+                'name' => 'Pre Test results',
+                'route' => 'pretest.select',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 18,
+                'name' => 'Post Test Results',
+                'route' => 'posttest.results',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 19,
+                'name' => 'Certificates',
+                'route' => 'certificates.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 20,
+                'name' => 'Score Settings',
+                'route' => 'scoreSettings.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 21,
+                'name' => 'Email Participants',
+                'route' => 'users.mail',
+                'type' => 'menu',
+                'order' => 10,
+                'icon_class' => 'fa fa-envelope',
+                'parentId' => null
+            ],
+            [
+                'id' => 22,
+                'name' => 'Payment modes',
+                'route' => 'payment-modes.index',
+                'type' => 'menu',
+                'order' => 11,
+                'icon_class' => 'fa fa-credit-card',
+                'parentId' => null
+            ],
+            [
+                'id' => 23,
+                'name' => 'General Settings',
+                'route' => 'settings.index',
+                'order' => 12,
+                'type' => 'menu',
+                'icon_class' => 'fa fa-cog',
+                'parentId' => null
+            ],
+
+            // Access
+           
+            // [
+            //     'id' => 22,
+            //     'name' => 'Company Admin Management',
+            //     'route' => 'modules.create',
+            // ],
+
+        ];
+
+        $allmenus = collect($menus);
+
+        if ($parent) {
+            $allmenus = $allmenus->where('parentId', $parent);
+        }
+
+        if($type){
+            $allmenus = $allmenus->where('type', $type);
+            if($type == 'access'){
+                return $allmenus;
+            }
+        }
+
+        // Group children by parentId
+        $grouped = $allmenus->groupBy('parentId');
+        
+        // Map parents and attach children
+        $nestedMenus = $grouped->get(null, collect())->map(function ($parent) use ($grouped) {
+            return array_merge($parent, [
+                'children' => $grouped->get($parent['id'], collect())->toArray(),
+            ]);
+        });
+        
+        return $nestedMenus;
+    }
+
+    public function flattenedMenus($menus)
+    {
+        $routes = [];
+
+        foreach ($menus as $menu) {
+            if (isset($menu['route'])) {
+                $routes[] = $menu['route'];
+            }
+
+            if (!empty($menu['children'])) {
+                $routes = array_merge($routes, $this->flattenedMenus($menu['children']));
+            }
+        }
+
+        return $routes;
+    }
+
+    // Export participants details
+                // Preview program
+                // Edit program
+                // Toggle CRM Setting
+                // Toggle Result Setting
+                // Rest Participant Password
 
     public function companyMenus()
     {

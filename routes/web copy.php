@@ -120,7 +120,44 @@ Route::namespace('Admin')->middleware(['auth'])->group(function(){
 Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
 
 //Reconcile route
-// Route::get('reconcile', [PopController::class, 'reconcile'])->name('reconcile');
+Route::get('reconcile', [PopController::class, 'reconcile'])->name('reconcile');
+Route::resource('settings', SettingsController::class);
+
+Route::resource('tests', TestsController::class)->middleware(['impersonate','auth', 'programCheck']);
+Route::resource('mocks', MockController::class)->middleware(['impersonate','auth', 'programCheck']);
+
+Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('trainings.show')->middleware(['impersonate', 'auth', 'programCheck']);
+Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet')->middleware(['impersonate', 'auth']);
+Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup')->middleware(['impersonate', 'auth']);
+Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['impersonate', 'auth', 'programCheck']);
+
+Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['impersonate','auth','programCheck']);
+Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['impersonate','auth','programCheck']);
+Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['impersonate', 'auth', 'programCheck'])->name('mocks.add');
+Route::get( 'userresults', [TestsController::class, 'userresults'])->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results');
+Route::get('retake-test/{module}', [TestsController::class, 'retakeTest'])->middleware(['impersonate', 'auth', 'programCheck'])->name('user.retake.module.test');
+
+Route::get('userresultscomments/{id}', [TestsController::class, 'userResultComments'])->middleware(['impersonate', 'auth', 'programCheck'])->name('tests.results.comment');
+Route::get('balance-checkout', [HomeController::class, 'balanceCheckout'])->name('balance.checkout')->middleware(['impersonate', 'auth', 'programCheck']);
+
+Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['impersonate','auth','programCheck'])->name('training.instructor');
+
+Route::get('mockresults', [MockController::class, 'mockresults'])->middleware(['auth'])->name('mocks.results');
+Route::resource('profiles', ProfileController::class)->middleware(['impersonate', 'auth']);
+Route::resource('scoreSettings', ScoreSettingController::class)->middleware(['auth']);
+
+Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator'])->middleware(['impersonate', 'auth']);
+Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator')->middleware(['impersonate', 'auth']);
+Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware(['impersonate', 'auth']);
+Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay')->middleware(['impersonate', 'auth']);
+
+Route::get('/home', [HomeController::class, 'index'])->name('home2')->middleware(['impersonate', 'auth']);
+
+
+Route::middleware(['impersonate','auth'])->group(function(){
+    Route::resource('complains', ComplainController::class);
+    Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
+});
 
 Route::middleware(['auth'])->group(function(){
     //Send Mails
@@ -132,69 +169,38 @@ Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('
 Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
 Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
 
-Route::middleware(['auth', 'impersonate','permission'])->group(function () {
-    Route::resource('settings', SettingsController::class);
-
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
-    Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
-    Route::get('/home', [HomeController::class, 'index'])->name('home2');
-
-    Route::resource('tests', TestsController::class)->middleware(['programCheck']);
-    Route::resource('mocks', MockController::class)->middleware(['programCheck']);
-
-    Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('trainings.show')->middleware(['programCheck']);
-    Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet');
-    Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
-    Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
-
-    Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
-    Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
-    Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
-    Route::get('userresults', [TestsController::class, 'userresults'])->middleware(['programCheck'])->name('tests.results');
-    Route::get('retake-test/{module}', [TestsController::class, 'retakeTest'])->middleware(['programCheck'])->name('user.retake.module.test');
-
-    Route::get('userresultscomments/{id}', [TestsController::class, 'userResultComments'])->middleware(['programCheck'])->name('tests.results.comment');
-    Route::get('balance-checkout', [HomeController::class, 'balanceCheckout'])->name('balance.checkout')->middleware(['programCheck']);
-
-    Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['programCheck'])->name('training.instructor');
-
-    Route::get('mockresults', [MockController::class, 'mockresults'])->middleware(['auth'])->name('mocks.results');
-    Route::resource('profiles', ProfileController::class);
-    Route::resource('scoreSettings', ScoreSettingController::class)->middleware(['auth']);
-
-    Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
-    Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
-
-    Route::resource('complains', ComplainController::class);
-    Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
-   
+Route::middleware(['auth', 'impersonate', 'permission'])->group(function(){
     Route::resource('users', UserController::class);
     Route::resource('payment-modes', PaymentModeController::class);
     Route::resource('paymentmethod', PaymentMethodController::class);
     Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
     Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
     Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');
-    
+});
+
+Route::middleware(['auth', 'impersonate'])->group(function(){
     Route::resource('teachers', TeacherController::class);
     Route::resource('companyuser', AdminCompanyUserController::class);
     Route::resource('coupon', CouponController::class);
     Route::get('teachers_students/{id}', [TeacherController::class, 'showStudents'])->name('teachers.students');
     Route::get('teachers_programs/{id}', [TeacherController::class, 'showPrograms'])->name('teachers.programs');
     Route::get('teachers_earnings/{id}', [TeacherController::class, 'showEarnings'])->name('teachers.earnings');
+});
 
-    Route::middleware(['programCheck'])->group(function(){
-        Route::resource('results', ResultController::class);
+Route::middleware(['impersonate','auth', 'programCheck'])->group(function(){
+    Route::resource('results', ResultController::class);
 
-        Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
-        Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
-        Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
-        
-        Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
-        Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
-        Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
-        Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
-    });
+    Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
+    Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
+    Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
+    
+    Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
+    Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
+    Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
+    Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
+});
 
+Route::middleware(['impersonate', 'auth'])->group(function () {
     // Programs Routes
     Route::resource('programs', ProgramController::class);
 
@@ -242,18 +248,21 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
     Route::resource('questions', QuestionController::class);
     Route::resource('modules', ModuleController::class);
     Route::resource('programs', ProgramController::class);
+});
 
-    Route::middleware(['programCheck'])->group(function () {
-        Route::resource('materials', MaterialController::class);
 
-        Route::controller(MaterialController::class)->group(function () {
-            Route::get('materialscreate/{p_id}', 'add')->name('creatematerials');
-            Route::get('facilitatormaterials/{p_id}', 'all')->name('facilitatormaterials');
-            Route::post('cloneMaterial/{material_id}', 'clone')->name('material.clone');
-            Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('getmaterial');
-        });
+Route::middleware(['impersonate', 'auth', 'programCheck'])->group(function () {
+    Route::resource('materials', MaterialController::class);
+
+    Route::controller(MaterialController::class)->group(function () {
+        Route::get('materialscreate/{p_id}', 'add')->name('creatematerials');
+        Route::get('facilitatormaterials/{p_id}', 'all')->name('facilitatormaterials');
+        Route::post('cloneMaterial/{material_id}', 'clone')->name('material.clone');
+        Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('getmaterial');
     });
+});
 
+Route::middleware(['impersonate', 'auth'])->group(function () {
     Route::controller(CertificateController::class)->group(function () {
         Route::get('certificates', 'index')->name('certificates.index');
         Route::any('generate-auto-certificates/{program_id}', 'generateCertificates')->name('certificates.generate');
@@ -267,8 +276,12 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
         Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'certificateStatus')->name('certificate.status');
         Route::get('certificate-clear-duplicate/{program_id}', 'clearDuplicates')->name('certificate.clear.duplicates');
     });
-    
-    //route for payments history
+});
+
+
+
+//route for payments history
+Route::middleware(['impersonate', 'auth'])->group(function () {
     Route::resource('payments', AdminPaymentController::class);
 
     Route::get('proof-history', [AdminPaymentController::class, 'proofOfPaymentHistory'])->name('proof.payment');
@@ -276,11 +289,20 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
     Route::get('approve-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'approveWalletTransaction'])->name('approve.wallet.history');
     Route::get('delete-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'deleteWalletTransaction'])->name('delete.wallet.history');
     Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('payments.print');
-    
-    Route::resource('pictures', PictureController::class);
-    Route::resource('details', DetailsController::class);
-
-    Route::get('admin-remove-sub-program/{id}', [ProgramController::class, 'removeSubProgram']);
 });
+
+Route::middleware(['auth'])->group(function(){
+    Route::resource('pictures', PictureController::class);
+});
+
+Route::middleware(['auth'])->group(function(){
+    Route::resource('details', DetailsController::class);
+});
+
+Route::get('admin-remove-sub-program/{id}', [ProgramController::class, 'removeSubProgram']);
+
+
+
+
 
 

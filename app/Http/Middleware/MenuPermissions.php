@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
@@ -19,40 +20,40 @@ class MenuPermissions
      */
     public function handle(Request $request, Closure $next)
     {
-        if (empty(array_intersect(adminRoles(), Auth::user()->role())) && empty(array_intersect(studentRoles(), Auth::user()->role()))) {
-            $i_menus = [];
-            $all_menus = app('App\Http\Controllers\Controller')->adminMenus();
-
-            if (auth()->user()) {
-                $i_menus  = Auth::user()->menu_permissions ?? [];
-                if ($i_menus) {
-                    $i_menus  = explode(',', $i_menus);
-                } else {
-                    $i_menus = [];
-                }
-            }
-
-            $allowed = [];
-
-            foreach ($all_menus as $menu) {
-                if (in_array($menu['id'], $i_menus)) {
-                    $allowed[] = $menu['route'];
-                }
-            }
-
-            // Check if user has access to page
-            $name = Route::currentRouteName();
-            if (in_array($name, array_column($all_menus, 'route'))) {
-                if (in_array($name, $allowed)) {
-                    return $next($request);
-                } else {
-                    return back()->with('error', 'Unauthorised');
-                }
-            } else {
-                return $next($request);
-            }
+        // Exclude students from this check for now
+        if (session()->get('impersonate')) {
+            $user = User::where('id', session()->get('impersonate'))->first();
+        } else {
+            $user = Auth::user();
         }
 
+        $roles = $user->role();
+        
+        if(in_array('Student', $roles)){
+            return $next($request);
+        }
+
+        // Exclude some users from this middleware
+        if (in_array($user->id, [1])) {
+            return $next($request);
+        }
+
+        if (empty(array_intersect(adminRoles(), $roles)) || empty(array_intersect(facilitatorRoles(), $roles))) {
+            $all_menus = allRoutes();            
+            $user_menus = auth()->check() ? $user->menu_permissions ?? [] : [];
+            
+            $currentRouteName = Route::currentRouteName();
+            
+            if (in_array($currentRouteName, $all_menus)){
+                if(in_array($currentRouteName, $user_menus)){
+                    return $next($request);
+                }else{
+                    return redirect(route('home'))->with('danger', 'Unauthorized access.');
+                }
+            }
+        }
+        
         return $next($request);
+
     }
 }

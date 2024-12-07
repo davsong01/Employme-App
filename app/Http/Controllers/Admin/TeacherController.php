@@ -203,7 +203,7 @@ class TeacherController extends Controller
     public function edit($id)
     {
         $user = User::with('trainings')->where('id', $id)->first();
-
+        
         $programs = Program::whereIn('id', $user->trainings->pluck('program_id'))->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
 
         $allprograms = Program::where('id', '<>', 1)
@@ -250,10 +250,10 @@ class TeacherController extends Controller
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
-
+        
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             // if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
+            $user->menu_permissions = $request->menu_permissions;
         }
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);

@@ -1,5 +1,9 @@
 <?php 
-    $menus = Auth::user()->permissions() ?? [];
+    $user =  Auth::user();
+    $menus = in_array($user->id, [1]) ? allRoutes() : ($user->permissions() ?? []);            
+    
+    $role = $user->role();
+    $allmenus = app('app\Http\Controllers\Controller')->adminMenus('menu');
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
@@ -20,14 +24,11 @@
                         href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i
                             class="fa fa-arrow-left"></i><span class="hide-menu">BACK TO ADMIN</span></a></li>
                 @endif
-                @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                    @if(in_array(1, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                                class="hide-menu">Staff Dashboard</span></a></li>
-                    @endif
-                @endif
-                @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                                class="hide-menu">Dashboard</span></a></li>
+                {{-- Grader and Facilitator Dashboard only --}}
+                {{-- @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ route('teachers.students', auth()->user()->id) }}" aria-expanded="false"><i
                                 class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>
@@ -39,140 +40,47 @@
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ route('teachers.earnings', auth()->user()->id) }}" aria-expanded="false"><i
                                 class="fas fa-wallet"></i><span class="hide-menu">My Earnings</span></a></li>
-                @endif
-               
-                @if (!empty(array_intersect(adminRoles(), Auth::user()->role())) )
-                @if(in_array(1, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                            class="hide-menu">Admin Dashboard</span></a></li>
-                @endif
-                @endif
-
-                @if(in_array(2, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('users.index')}}" aria-expanded="false"><i class="fas fa-users"></i><span
-                            class="hide-menu">Student Management</span></a></li>
-                @endif
-                @if(in_array(3, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('teachers.index')}}" aria-expanded="false"><i class="fas fas fa-user"></i><span
-                            class="hide-menu">Facilitator Management</span></a></li>
-                @endif
-                
-                {{-- @if(in_array(22, $menus)) --}}
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('companyuser.index')}}" aria-expanded="false"><i class="fa fa-solid fa-building"></i><span
-                            class="hide-menu">Company Admin Management</span></a></li>
-                {{-- @endif --}}
-                
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="fas fa-chalkboard-teacher"></i><span
-                            class="hide-menu">Training Management </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level"> 
-                        @if(in_array(4, $menus))
-                        <li class="sidebar-item"><a href="{{route('programs.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- View all Trainings </span></a>
-                        </li>
-                        @endif
-                        @if(in_array(5, $menus))
-                        <li class="sidebar-item"><a href="{{route('programs.trashed')}}" class="sidebar-link"><span class="hide-menu">- Trashed Trainings </span></a>
-                        </li>
-                        @endif
-                    </ul>
-                </li>
-                {{-- @endif --}}
-                
-                @if(in_array(7, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{ route('coupon.index') }}" aria-expanded="false"><i class="fa fa-gift"></i><span
-                            class="hide-menu">Coupons</span></a></li>
-                @endif
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="far fa-money-bill-alt"></i><span
-                            class="hide-menu">Financial</span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level"> 
-                        @if(in_array(9, $menus))
-                        <li class="sidebar-item"> <a class="sidebar-link"
-                                href="{{route('pop.index')}}" aria-expanded="false"><span
-                            class="hide-menu">- Attempted Payments</span></a></li>
-                        <li class="sidebar-item"> <a class="sidebar-link"
-                                href="{{route('proof.payment')}}" aria-expanded="false"><span
-                            class="hide-menu">- Proof of Payment</span></a></li>
-                        @endif
-
-                        @if(in_array(8, $menus))
-                        <li class="sidebar-item"> <a class="sidebar-link"
-                                href="{{route('payments.index')}}" aria-expanded="false"><span
-                                    class="hide-menu">- Transactions</span></a></li>
-                        @endif
-                        
-                        @if(in_array(8, $menus))
-                        <li class="sidebar-item"> <a class="sidebar-link"
-                                href="{{route('payments.history')}}" aria-expanded="false"><span
-                                    class="hide-menu">- Wallet Transactions</span></a></li>
-                        @endif
-                        
-
-                    </ul>
-                </li>
-                @if(in_array(10, $menus))
-                <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                        href="{{route('complains.index')}}" aria-expanded="false"><i class="far fa-comments"></i><span
-                            class="hide-menu">CRM Tool</span></a></li>
-                @endif
-                <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark"
-                        href="javascript:void(0)" aria-expanded="false"><i class="fa fa-edit"></i><span
-                            class="hide-menu">LMS </span></a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse  first-level">
-                        @if(in_array(6, $menus))
-                        <li class="sidebar-item"> <a href="{{route('materials.index')}}" class="sidebar-link"><span class="hide-menu">- View All study Materials</span></a></li>
-                        @endif
-
-                        @if(in_array(11, $menus))
-                        <li class="sidebar-item"><a href="{{route('modules.index')}}" class="sidebar-link"><span
-                                    class="hide-menu">- Modules</span></a>
-                        </li>
-                        @endif
-                        @if(in_array(12, $menus))
-                        <li class="sidebar-item"><a href="{{route('questions.index')}}" class="sidebar-link"><span class="hide-menu">- Questions</span></a>
-                        </li>
-                        @endif
-                        @if(in_array(13, $menus))
-                        <li class="sidebar-item"><a href="{{route('pretest.select')}}" class="sidebar-link"><span class="hide-menu">- Pre Test Results</span></a>
-                        @endif
-                        @if(in_array(14, $menus))
-                        <li class="sidebar-item"><a href="{{route('posttest.results')}}" class="sidebar-link"><span class="hide-menu">- Post Test Results</span></a>
-                        @endif
-                        @if(in_array(15, $menus))
-                        <li class="sidebar-item"><a href="{{route('certificates.index')}}" class="sidebar-link"><span class="hide-menu">- Certificates</span></a>
-                        </li>
-                        @endif
-                        @if(Auth()->user()->role_id == "Admin")
-                            @if(in_array(16, $menus))
-                            <li class="sidebar-item"><a href="{{route('scoreSettings.index')}}" class="sidebar-link"><span class="hide-menu">- Score Settings</span></a>
+                @endif --}}
+                {{-- End grader and facilitator menu --}}
+                @foreach($allmenus as $allmenu)
+                    {{-- Without children --}}
+                    @if(empty($allmenu['children']))
+                        @if(in_array($allmenu['route'], $menus))
+                            <li class="sidebar-item">
+                                <a class="sidebar-link waves-effect waves-dark sidebar-link"
+                                href="{{ route($allmenu['route']) }}"
+                                aria-expanded="false">
+                                    <i class="{{ $allmenu['icon_class'] }}"></i>
+                                    <span class="hide-menu">{{ $allmenu['name'] }}</span>
+                                </a>
                             </li>
-                            @endif
                         @endif
-                    </ul>
-                    
-                    @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
-                    @if(in_array(17, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span
-                                class="hide-menu">Email Participants</span></a></li>
+                    @else
+                        {{-- With children --}}
+                        @if(in_array($allmenu['route'], $menus))
+                            <li class="sidebar-item">
+                                <a class="sidebar-link has-arrow waves-effect waves-dark"
+                                href="javascript:void(0)"
+                                aria-expanded="false">
+                                    <i class="{{ $allmenu['icon_class'] }}"></i>
+                                    <span class="hide-menu">{{ $allmenu['name'] }}</span>
+                                </a>
+                                <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
+                                    @foreach($allmenu['children'] as $child)
+                                        @if(in_array($child['route'], $menus))
+                                            <li class="sidebar-item">
+                                                <a href="{{ route($child['route']) }}" class="sidebar-link">
+                                                    <span class="hide-menu">- {{ $child['name'] }}</span>
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endif
                     @endif
-                    @if(in_array(18, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('payment-modes.index')}}" aria-expanded="false"><i class="fa fa-credit-card"></i><span
-                                class="hide-menu">Payment modes</span></a></li>
-                    @endif
-                    @if(in_array(19, $menus))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{route('settings.edit', 1)}}" aria-expanded="false"><i class="fa fa-cog"></i><span
-                            class="hide-menu">Settings</span></a></li>
-                    @endif
-                @endif
+                @endforeach
+
             </ul>
         </nav>
         <!-- End Sidebar navigation -->

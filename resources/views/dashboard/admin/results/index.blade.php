@@ -1,11 +1,98 @@
 @extends('dashboard.admin.index')
 @section('title', 'Test Results')
 @section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
+{{-- <link rel="stylesheet" href="{{ asset('modal.css') }}" /> --}}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <style>
+
+	.modal.left .modal-dialog,
+	.modal.right .modal-dialog {
+		position: fixed;
+		margin: auto;
+		width: 320px;
+		height: 100%;
+		-webkit-transform: translate3d(0%, 0, 0);
+		    -ms-transform: translate3d(0%, 0, 0);
+		     -o-transform: translate3d(0%, 0, 0);
+		        transform: translate3d(0%, 0, 0);
+	}
+
+	.modal.left .modal-content,
+	.modal.right .modal-content {
+		height: 100%;
+		overflow-y: auto;
+	}
+	
+	.modal.left .modal-body,
+	.modal.right .modal-body {
+		padding: 15px 15px 80px;
+	}
+
+
+
+        
+/*Right*/
+	.modal.right.fade .modal-dialog {
+		right: -320px;
+		-webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+		   -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+		     -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+		        transition: opacity 0.3s linear, right 0.3s ease-out;
+	}
+	.modal.right.fade.in .modal-dialog {
+		right: 0;
+	}
+
+/* ----- MODAL STYLE ----- */
+	.modal-content {
+		border-radius: 0;
+		border: none;
+	}
+
+	.modal-header {
+		border-bottom-color: #EEEEEE;
+		background-color: #FAFAFA;
+	}
+
+/* ----- v CAN BE DELETED v ----- */
+body {
+	background-color: #78909C;
+}
+
+.demo {
+	padding-top: 60px;
+	padding-bottom: 110px;
+}
+
+.btn-demo {
+	margin: 15px;
+	padding: 10px 15px;
+	border-radius: 0;
+	font-size: 16px;
+	background-color: #FFFFFF;
+}
+
+.btn-demo:focus {
+	outline: 0;
+}
+
+.demo-footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	padding: 15px;
+	background-color: #212121;
+	text-align: center;
+}
+
+.demo-footer > a {
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 16px;
+	color: #fff;
+}
     .select2-container--default .select2-selection--multiple {
         width: 100% !important; /* Force full width */
     }
@@ -265,7 +352,7 @@
                                     <strong style="color:red">Disabled</strong>
                                     @endif
                                 @else
-                                Not Uploaded
+                                Not Uploaded/Test Not Taken
                                 @endif 
                             </td>
                             @endif
@@ -301,12 +388,14 @@
                             @else 
                             <td>
                                 <div class="button-container">
-                                @if( isset($user->result_id)) 
+                                @if(isset($user->result_id)) 
                                     @if($user->redotest == 0)
                                         @if (!empty($user->certification_test_details))
                                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
                                                     <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i `zclass="fa fa-eye"> View/Update </i>
                                                     </a>
+                                                    @include('dashboard.admin.results.edit_modal')
+
                                                 @endif
                                                 @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
                                                 <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
