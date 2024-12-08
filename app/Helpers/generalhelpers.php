@@ -415,12 +415,11 @@ use Intervention\Image\Facades\Image;
         }
     }
 
-    if (!function_exists("checkPermissionHas")) {
-        function checkPermissionHas($training_id, $permissionsToCheck = null)
+    if (!function_exists("checkTrainingHasPermissions")) {
+        function checkTrainingHasPermissions($training_id, $permissionsToCheck = null)
         {
             $result = [];
-                    
-            // Get the authenticated user's training permissions
+
             $userPermissions = auth()->user()->trainingPermissions();
             $userTrainingPermissions = $userPermissions->where('program_id', $training_id)->first();
             $trainingPermissions = $userTrainingPermissions->training_permissions ?? [];
@@ -439,6 +438,28 @@ use Intervention\Image\Facades\Image;
                 foreach ($trainingPermissions as $permission) {
                     $result[$permission] = true;
                 }
+            }
+            
+            return $result;
+        }
+    }
+
+    if (!function_exists("canUserAccessPermission")) {
+        function canUserAccessPermission($routes, $user=null)
+        {
+            $user = $user ??  auth()->user();
+            $allMenus = allRoutes('access'); 
+            $userMenus = $user->permissions();
+            $result = [];
+
+            // Check for route-specific access
+            foreach($routes as $route){
+                if (in_array($route, $allMenus)) {
+                    $result[$route] = in_array($route, $userMenus) ? true : false;
+                }else{
+                    $result[$route] = true;
+                }
+
             }
             
             return $result;

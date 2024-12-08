@@ -47,7 +47,7 @@ class MenuPermissions
 
     //         // Check for program access
     //         if(!empty($request->p_id)){
-    //             if (checkPermissionHas($request->p_id, [$currentRouteName])) {
+    //             if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])) {
     //                     return $next($request);
     //             } else {
     //                 return redirect(route('home'))->with('danger', 'Unauthorized access.');
@@ -106,7 +106,7 @@ class MenuPermissions
                         return redirect()->route('home')->with('danger', 'Invalid or expired link.');
                     }
 
-                    if (checkPermissionHas($request->p_id, [$currentRouteName])[$currentRouteName]) {
+                    if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])[$currentRouteName]) {
                         return $next($request);
                     }
                     return redirect(route('home'))->with('danger', 'Unauthorized access to program.');

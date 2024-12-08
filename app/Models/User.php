@@ -163,7 +163,8 @@ class User extends Authenticatable
     }
 
     public function scopePermissions(){
-        $a_menu = in_array($this->id, [1]) ? array_merge(allRoutes(), allAccess()) : ($this->menu_permissions ?? []);            
+        // $a_menu = in_array($this->id, [1]) ? array_merge(allRoutes(), allAccess()) : ($this->menu_permissions ?? []);
+        $a_menu = in_array($this->id, [1]) ? allRoutes() : ($this->menu_permissions ?? []);            
 
         return $a_menu; 
     }

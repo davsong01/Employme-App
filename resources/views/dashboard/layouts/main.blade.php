@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html dir="ltr" lang="{{ app()->getLocale() }}">
 <title>@yield('title')</title>

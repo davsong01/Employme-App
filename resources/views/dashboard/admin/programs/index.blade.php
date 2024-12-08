@@ -1,3 +1,11 @@
+<?php 
+    $user =  Auth::user();
+    $menus = $user->permissions();            
+
+    $role = $user->role();
+    $allmenus = allRoutes('access');
+?>
+
 @extends('dashboard.admin.index')
 @section('title', 'Trainings')
 @section('css')
@@ -149,8 +157,9 @@
             <div class="card-header">
                 <div>
                     <h5 class="card-title"> All Trainings 
-                        
+                        @if(canUserAccessPermission(['programs.create'])['programs.create'])
                         <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a>
+                        @endif
                     </h5> 
                 </div> 
             </div>
@@ -188,12 +197,12 @@
                                 'earlybird.open'
                             ];
                             
-                            $program->permissions = checkPermissionHas($program->id, $permissionsToCheck);
+                            $program->permissions = checkTrainingHasPermissions($program->id, $permissionsToCheck);
                         @endphp
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
-                            <td>{{ $program->p_name }}<br>
+                            <td><strong>{{ $program->p_name }}</strong><br>
                                 <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif 
                                 @if($program->e_amount > 0) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
@@ -265,9 +274,9 @@
                             </td>
                             <td>
                                 @if( $program->status == 1 )
-                                <button class="btn btn-success btn-xs">Published</button> 
+                                <button class="btn btn-dark btn-xs">Published</button> 
                                 @else
-                                <button class="btn btn-danger btn-xs">Draft</button> 
+                                <button class="btn btn-muted btn-xs">Draft</button> 
                                 @endif
                             </td>
                             <td style="vertical-align: unset;">
@@ -299,7 +308,7 @@
 
                                     @if($program->permissions['training.import'])
                                         <a data-toggle="tooltip" data-placement="top" title="Import Participants"
-                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{  URL::signedRoute('training.import', ['p_id'=> $program->id])}}"><i class="fa fa-upload"></i> Bulk Import
+                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ URL::signedRoute('training.import', ['p_id'=> $program->id])}}"><i class="fa fa-upload"></i> Bulk Import
                                         </a>
                                     @endif
                                     <form action="{{ URL::signedRoute('programs.destroy', ['p_id'=> $program->id, 'program' => $program->id]) }}" method="POST"
@@ -315,19 +324,18 @@
                                     </form>
                                 </div>
                                 @if($program->e_amount > 0)
-                                    <div class="extra-actions" style="padding-top:10px">
+                                    <div class="extra-actions" style="padding-top:0px">
                                         @if($program->close_earlybird == 1)
                                             @if($program->permissions['earlybird.close'])
-                                                <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment"
-                                                        class="btn btn-info" href="{{ route('earlybird.close', $program->id)}}" ><i
-                                                        onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i>
+                                                <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment" class="btn btn-info btn-xs" href="{{ URL::signedRoute('earlybird.close', ['id' => $program->id])}}"><i
+                                                        onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i> Close Earlybird
                                                 </a>
                                             @endif
                                         @else
                                             @if($program->permissions['earlybird.open'])
                                             <a data-toggle="tooltip" data-placement="top" title="Extend Early Bird Payment"
-                                                    class="btn btn-info" href="{{ route('earlybird.open', $program->id)}}" ><i
-                                                    onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i>
+                                                    class="btn btn-info btn-xs" href="{{ URL::signedRoute('earlybird.open', ['id' => $program->id])}}" ><i
+                                                    onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i> Extend Earlybird
                                             </a>
                                             @endif
                                         @endif
