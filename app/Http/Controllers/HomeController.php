@@ -76,16 +76,7 @@ class HomeController extends Controller
 
             $events = [];
             $data = Program::all();
-            // if($data->count()){
-            // foreach ($data as $key => $value) {
-            //     $events[] = Calendar::event(
-            //         $value->p_name,
-            //         true,
-            //         new \DateTime($value->p_start),
-            //         new \DateTime($value->p_end.' +1 day')
-            //     );
-            // }
-            // }
+            
 
             $calendar = [];
 

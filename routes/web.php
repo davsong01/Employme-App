@@ -108,31 +108,32 @@ Route::get('/thanks', function() {
 })->name('thankyou');
 
 
-//Export Routes
-Route::namespace('Admin')->middleware(['auth'])->group(function(){
-    Route::get('export/users', [UserController::class, 'export'])->name('user.export');
-    Route::get('export/participantdetails/{id}', [ProgramController::class, 'exportdetails'])->name('program.detailsexport');
-    //Show email history
-    Route::get('updateemails/{id}', [UserController::class, 'emailHistory'])->name('updateemails.show');
-});
-
-//View proofofpayment
-Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
-
 //Reconcile route
 // Route::get('reconcile', [PopController::class, 'reconcile'])->name('reconcile');
-
-Route::middleware(['auth'])->group(function(){
-    //Send Mails
-    Route::get('usermail', [UserController::class, 'mails'])->name('users.mail');
-    Route::post('sendmail', [UserController::class, 'sendmail'])->name('user.sendmail');  
-});
 
 Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
 Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
 Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
 
 Route::middleware(['auth', 'impersonate','permission'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
+        //Send Mails
+        Route::get('usermail', [UserController::class, 'mails'])->name('users.mail');
+        Route::post('sendmail', [UserController::class, 'sendmail'])->name('user.sendmail');
+    });
+
+
+    //Export Routes
+    Route::namespace('Admin')->middleware(['auth'])->group(function () {
+        Route::get('export/users', [UserController::class, 'export'])->name('user.export');
+        Route::get('export/participantdetails/{id}', [ProgramController::class, 'exportdetails'])->name('program.detailsexport');
+        //Show email history
+        Route::get('updateemails/{id}', [UserController::class, 'emailHistory'])->name('updateemails.show');
+    });
+
+    //View proofofpayment
+    Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
+
     Route::resource('settings', SettingsController::class);
 
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
@@ -195,21 +196,35 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
         Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
     });
 
-    // Programs Routes
-    Route::resource('programs', ProgramController::class);
+        // Programs Routes
 
-    Route::controller(ProgramController::class)->group(function () {
-        Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
-        Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
-        Route::get('trashed-programs', 'trashed')->name('programs.trashed');
-        Route::get('restore/{id}', 'restore')->name('programs.restore');
-        Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
-        Route::get('close/{id}', 'closeRegistration')->name('registration.close');
-        Route::get('open/{id}', 'openRegistration')->name('registration.open');
-        Route::get('password-reset/{id}', 'passwordReset')->name('password.reset');
-        Route::get('earlybirdopen/{id}', 'openEarlyBird')->name('earlybird.open');
-        Route::get('earlybirdclose/{id}', 'closeEarlyBird')->name('earlybird.close');
+    Route::middleware(['signed'])->group(function (){
+
+        Route::resource('programs', ProgramController::class);
+        
+        Route::controller(ProgramController::class)->group(function () {
+            Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
+            Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
+            Route::get('restore/{id}', 'restore')->name('programs.restore');
+            Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
+            Route::get('close/{id}', 'closeRegistration')->name('registration.close');
+            Route::get('open/{id}', 'openRegistration')->name('registration.open');
+            Route::get('password-reset/{id}', 'passwordReset')->name('password.reset');
+            Route::get('earlybirdopen/{id}', 'openEarlyBird')->name('earlybird.open');
+            Route::get('earlybirdclose/{id}', 'closeEarlyBird')->name('earlybird.close');
+        });
+
+        Route::controller(UserController::class)->group(function () {
+            Route::get('participantsimport/{p_id}', 'importExport')->middleware(['programCheck'])->name('training.import');
+            Route::post('import-training-participant', 'import')->middleware(['programCheck'])->name('users.import');
+            Route::get('download-bulk-user-sample/{filename}', 'downloadBulkSample')->middleware(['programCheck'])->name('user-bulk-sample');
+        });
     });
+    
+    Route::controller(ProgramController::class)->group(function () {
+        Route::get('trashed-programs', 'trashed')->name('programs.trashed');
+    });
+
 
     // Locations Routes
     Route::resource('locations', LocationController::class);
@@ -223,11 +238,7 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
     });
 
     // Participants Routes
-    Route::controller(UserController::class)->group(function () {
-        Route::get('participantsimport/{p_id}', 'importExport')->middleware(['programCheck'])->name('training.import');
-        Route::post('import-training-participant', 'import')->middleware(['programCheck'])->name('users.import');
-        Route::get('download-bulk-user-sample/{filename}', 'downloadBulkSample')->middleware(['programCheck'])->name('user-bulk-sample');
-    });
+    
 
     // Modules Routes
     Route::resource('modules', ModuleController::class);

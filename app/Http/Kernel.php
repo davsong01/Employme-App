@@ -61,7 +61,7 @@ class Kernel extends HttpKernel
         'programCheck' => \App\Http\Middleware\ProgramCheck::class,
         'template' => \App\Http\Middleware\TemplateCheck::class,
         'permission' => \App\Http\Middleware\MenuPermissions::class,
-        
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         //register custom middleware
        
     ];
