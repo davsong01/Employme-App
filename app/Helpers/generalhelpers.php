@@ -5,6 +5,7 @@ use App\Models\Result;
 use App\Models\Program;
 use App\Models\Settings;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
 
@@ -395,4 +396,49 @@ use Intervention\Image\Facades\Image;
             return $menus;
         }
     }
+
+    if (!function_exists("allAccess")) {
+        function allAccess()
+        {
+            $menus = app('App\Http\Controllers\Controller')->adminTrainingPermissions();
+
+            return $menus->sortBy('order')->pluck('route')->toArray();
+        }
+    }
+
+    if (!function_exists("checkRoleHas")) {
+        function checkRoleHas($roles_to_check, $user=null)
+        {
+            $user = $user ?? Auth::user();
+            $user_roles = $user->role();
+            return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
+        }
+    }
+
+    if (!function_exists("checkPermissionHas")) {
+        function checkPermissionHas($training_id, $permissionsToCheck=null )
+        {
+            $res = [];
+            $userPermissions = auth()->user()->TrainingPermissions();
+            $userPermissions = $userPermissions->where('program_id', $training_id)->first();
+            
+            $trainingPermission = $userPermissions->training_permissions;
+
+            if(!empty($permissionsToCheck)){
+                foreach($permissionsToCheck as $permission){
+                    $res[$permission] = in_array($permission, $trainingPermission) ? true : false;
+                }
+            }else{
+                foreach ($trainingPermission as $permission) {
+                    $res[$permission] = true;
+                }
+
+            }
+            
+            return $res;
+        }
+    }
+
+
+
     

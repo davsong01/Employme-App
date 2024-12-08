@@ -237,7 +237,7 @@ class TeacherController extends Controller
         }
 
         $request['role'] = implode(',', $request['role']);
-
+        
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->t_phone = $request['phone'];

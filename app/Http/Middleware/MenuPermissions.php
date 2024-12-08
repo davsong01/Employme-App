@@ -39,7 +39,10 @@ class MenuPermissions
         }
 
         if (empty(array_intersect(adminRoles(), $roles)) || empty(array_intersect(facilitatorRoles(), $roles))) {
-            $all_menus = allRoutes();            
+            $a_menus = allRoutes();
+            $a_permissions = allAccess();
+            $all_menus = array_merge($a_menus, $a_permissions);
+            
             $user_menus = auth()->check() ? $user->menu_permissions ?? [] : [];
             
             $currentRouteName = Route::currentRouteName();

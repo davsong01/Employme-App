@@ -806,133 +806,6 @@ class Controller extends BaseController
         return ['content'=>$content,'subject'=>$subject];
     }
 
-    public function adminMenus2(){
-        $menus = [
-            [
-                'id' => 1,
-                'name' => 'Admin Dashboard',
-                'route' => 'dashboard',
-                'isParent' => 'yes',
-                'parentId' => 3
-
-            ],
-            [
-                'id' => 2,
-                'name' => 'Student Management',
-                'route' => 'users.index',
-            ],
-            [
-                'id' => 3,
-                'name' => 'Facilitator Management',
-                'route' => 'teachers.index',
-            ],
-            [
-                'id' => 4,
-                'name' => 'View all Trainings',
-                'route' => 'programs.index',
-            ],
-            [
-                'id' => 5,
-                'name' => 'Trashed Trainings',
-                'route' => 'programs.trashed',
-            ],
-            [
-                'id' => 6,
-                'name' => 'View All study Materials',
-                'route' => 'materials.index',
-            ],
-            [
-                'id' => 7,
-                'name' => 'Coupons',
-                'route' => 'coupon.index',
-            ],
-            [
-                'id' => 8,
-                'name' => 'Transactions',
-                'route' => 'payments.index',
-            ],
-            [
-                'id' => 9,
-                'name' => 'Attempted Payments',
-                'route' => 'pop.index',
-            ],
-            [
-                'id' => 10,
-                'name' => 'CRM Tool',
-                'route' => 'complains.index',
-            ],
-            [
-                'id' => 11,
-                'name' => 'Modules',
-                'route' => 'modules.index',
-            ],
-            [
-                'id' => 12,
-                'name' => 'Questions',
-                'route' => 'questions.index',
-            ],
-            [
-                'id' => 13,
-                'name' => 'Pre Test Grades',
-                'route' => 'pretest.select',
-            ],
-            [
-                'id' => 14,
-                'name' => 'Grades',
-                'route' => 'posttest.results',
-            ],
-            [
-                'id' => 15,
-                'name' => 'Certificates',
-                'route' => 'certificates.index',
-            ],
-            [
-                'id' => 16,
-                'name' => 'Score Settings',
-                'route' => 'scoreSettings.index',
-            ],
-            [
-                'id' => 17,
-                'name' => 'Email Participants',
-                'route' => 'users.mail',
-            ],
-            [
-                'id' => 18,
-                'name' => 'Payment modes',
-                'route' => 'payment-modes.index',
-            ],
-            [
-                'id' => 19,
-                'name' => 'Settings',
-                'route' => 'settings.edit',
-            ],
-
-            [
-                'id' => 20,
-                'name' => 'Update User',
-                'route' => 'users.update',
-            ],
-            [
-                'id' => 21,
-                'name' => 'Add Modules',
-                'route' => 'modules.create',
-            ],
-
-            [
-                'id' => 22,
-                'name' => 'Enable Resit for participants',
-                'route' => 'modules.create',
-            ],
-            [
-                'id' => 22,
-                'name' => 'Company Admin Management',
-                'route' => 'modules.create',
-            ],
-        ];
-
-        return $menus;
-    }
-
     public function adminMenus($type=null,$parent=null)
     {
         $menus = [
@@ -1363,15 +1236,6 @@ class Controller extends BaseController
                 'icon_class' => 'fa fa-cog',
                 'parentId' => null
             ],
-
-            // Access
-           
-            // [
-            //     'id' => 22,
-            //     'name' => 'Company Admin Management',
-            //     'route' => 'modules.create',
-            // ],
-
         ];
 
         $allmenus = collect($menus);
@@ -1416,13 +1280,6 @@ class Controller extends BaseController
 
         return $routes;
     }
-
-    // Export participants details
-                // Preview program
-                // Edit program
-                // Toggle CRM Setting
-                // Toggle Result Setting
-                // Rest Participant Password
 
     public function companyMenus()
     {
@@ -1472,23 +1329,99 @@ class Controller extends BaseController
         return $menus;
     }
 
-    public function adminPermissions()
+    public function adminTrainingPermissions()
     {
         $permissions = [
             [
                 'id' => 1,
-                'name' => 'Admin Dashboard',
-                'slug' => 'dashboard',
+                'name' => 'Export Participant\'s details',
+                'route' => 'program.detailsexport',
+                'order' => 1,
             ],
             [
                 'id' => 2,
-                'name' => 'Student Management',
-                'slug' => 'users.index',
+                'name' => 'Edit Training',
+                'route' => 'programs.edit',
+                'order' => 2,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Disable CRM',
+                'route' => 'crm.hide',
+                'order' => 3,
+            ],
+            [
+                'id' => 4,
+                'name' => 'Enable CRM',
+                'route' => 'crm.show',
+                'order' => 4,
+            ],
+            [
+                'id' => 5,
+                'name' => 'Disable Result',
+                'route' => 'results.disable',
+                'order' => 5,
+            ],
+            [
+                'id' => 6,
+                'name' => 'Enable Result',
+                'route' => 'results.enable',
+                'order' => 6,
+            ],
+            [
+                'id' => 7,
+                'name' => 'Reset Password',
+                'route' => 'password.reset',
+                'order' => 7,
+            ],
+            [
+                'id' => 8,
+                'name' => 'Close Registration',
+                'route' => 'registration.close',
+                'order' => 8,
+            ],
+            [
+                'id' => 9,
+                'name' => 'Extend Registration',
+                'route' => 'registration.open',
+                'order' => 9,
+            ],
+            [
+                'id' => 10,
+                'name' => 'Open Earlybird',
+                'route' => 'earlybird.open',
+                'order' => 10,
+            ],
+            [
+                'id' => 11,
+                'name' => 'Close Earlybird',
+                'route' => 'earlybird.close',
+                'order' => 11,
+            ],
+            [
+                'id' => 12,
+                'name' => 'Clone Training',
+                'route' => 'training.clone',
+                'order' => 12,
+            ],
+            [
+                'id' => 13,
+                'name' => 'Bulk Import',
+                'route' => 'training.import',
+                'order' => 13,
+            ],
+            [
+                'id' => 14,
+                'name' => 'Trash Training',
+                'route' => 'programs.destroy',
+                'order' => 14,
             ],
         ];
 
-        return $permissions;
+        // Convert to a collection and sort by 'order' in ascending order.
+        return collect($permissions)->sortBy('order');
     }
+
 
     public function printNameOnCertificate(){
         // Import the Intervention Image class

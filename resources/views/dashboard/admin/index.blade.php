@@ -1,7 +1,7 @@
 <?php 
     $user =  Auth::user();
-    $menus = in_array($user->id, [1]) ? allRoutes() : ($user->permissions() ?? []);            
-    
+    $menus = $user->permissions();            
+
     $role = $user->role();
     $allmenus = app('app\Http\Controllers\Controller')->adminMenus('menu');
 ?>

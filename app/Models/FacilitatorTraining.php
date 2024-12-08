@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Mocks;
 use App\Models\Program;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Model;
 
 class FacilitatorTraining extends Model
@@ -16,9 +17,6 @@ class FacilitatorTraining extends Model
     {
         return $this->HasMany(Program::class);
     }
-    public function users(){
-        return $this->belongsTo(User::class);
-    }
 
     public function programName(){
         return $this->belongsTo(Program::class, 'program_id');
@@ -28,4 +26,20 @@ class FacilitatorTraining extends Model
     {
         return $this->hasMany(Material::class, 'program_id');
     }
+
+    // public function users()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
+
+    public function training()
+    {
+        return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function transactions()
+    {
+        return Transaction::whereIn('program_id', $this->trainings()->pluck('program_id'))->get();
+    }
+
 }

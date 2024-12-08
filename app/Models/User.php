@@ -10,6 +10,7 @@ use App\Models\Complain;
 use App\Models\Material;
 use App\Models\Certificate;
 use App\Models\PaymentMode;
+use App\Models\Transaction;
 use App\Models\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -65,13 +66,63 @@ class User extends Authenticatable
 
     public function programs(){
         return $this->belongsToMany(Program::class);
-    } 
+    }
 
-    //Facilitator's relationship
     public function trainings()
     {
-        return $this->hasMany(FacilitatorTraining::class);
+        return $this->hasMany(FacilitatorTraining::class, 'user_id');
     }
+
+    public function scopeTrainingPermissions($query, $training_id = null)
+    {
+        $trainings = $this->trainings()->get();
+
+        if (!empty($training_id)) {
+            $trainingPermissions = $trainings->where('program_id', $training_id)->pluck('training_permissions')->first();
+            return $trainingPermissions;
+        }
+
+        return $trainings;
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'user_id');
+    }
+    
+    public function userTrainings()
+    {
+        if($this->role_id == 'Student'){
+            return Program::isUserProgram()->with(['subPrograms'])->whereHas('transactions', function ($query) {
+                $query->where('user_id', $this->id);
+            })->get();
+        }else{
+            return Program::isUserProgram()->with(['subPrograms'])->whereHas('trainings', function ($query) {
+                $query->where('user_id', $this->id);
+            })->get();
+        }
+    }
+
+    public function trainerStudents()
+    {
+        // Fetch program IDs linked to this facilitator
+        $programIds = $this->trainings()->pluck('program_id');
+        
+        // Ensure program IDs are not empty
+        if ($programIds->isEmpty()) {
+            return collect(); // Return an empty collection if no programs are found
+        }
+
+        // Fetch students linked to these programs via transactions
+        $students = User::where('role_id', 'Student')
+        ->whereHas('transactions', function ($query) use ($programIds) {
+            $query->whereIn('program_id', $programIds);
+        })->get();
+
+        return $students;
+    }
+
+
 
     public function payment_modes(){
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
@@ -112,9 +163,10 @@ class User extends Authenticatable
     }
 
     public function scopePermissions(){
-        $a_menu = in_array($this->id, [1]) ? allRoutes() : ($this->menu_permissions ?? []);            
+        $a_menu = in_array($this->id, [1]) ? array_merge(allRoutes(), allAccess()) : ($this->menu_permissions ?? []);            
 
         return $a_menu; 
-    }    
+    }
+ 
 }
 

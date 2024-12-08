@@ -17,13 +17,14 @@ class Transaction extends Model
     protected $guarded = [];
     
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function program(){
-        return $this->belongsTo(Program::class);
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'program_id');
     }
-
+    
     public function coupon()
     {
         return $this->belongsTo(Coupon::class);
@@ -53,6 +54,7 @@ class Transaction extends Model
         return $this->hasOne(Certificate::class, 'user_id', 'user_id')
         ->whereColumn('program_id', 'program_id');
     }
+
 
 }
 

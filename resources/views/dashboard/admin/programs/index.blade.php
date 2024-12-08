@@ -137,7 +137,6 @@
     }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 @endsection
 @section('content')
 
@@ -149,12 +148,11 @@
             </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Trainings <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a></h5> 
+                    <h5 class="card-title"> All Trainings 
+                        
+                        <a href="{{route('programs.create')}}"><button type="button" class="btn btn-outline-primary">Add New Training</button></a>
+                    </h5> 
                 </div> 
-                {{-- <div>
-                    <h5 class="card-title"> Actions Legend:</h5>
-                    <p style="color:green">1. Edit Training | 2. Close/Extend Registration | 3. Enable/Disable CRM | 4. Enable/Disable Result Availability| 5. Trash Training | 6. Close EarlyBird Payment(if applicable)  </p> 
-                </div> --}}
             </div>
             <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
@@ -167,19 +165,37 @@
                             <th>Dates</th>
                             <th>Participants</th>
                             <th>Status</th>
-                            @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <th>Actions</th>
-                            @endif
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($programs as $program)
+                        @php
+                            $permissionsToCheck = [
+                                'program.detailsexport',
+                                'programs.edit',
+                                'crm.hide',
+                                'crm.show',
+                                'results.disable',
+                                'results.enable',
+                                'password.reset', 
+                                'registration.close', 
+                                'registration.open',
+                                'training.clone', 
+                                'training.import',
+                                'programs.destroy',
+                                'earlybird.close',
+                                'earlybird.open'
+                            ];
+
+                            $program->permissions = checkPermissionHas($program->id, $permissionsToCheck);
+                        @endphp
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td>{{ $program->p_name }}<br>
-                                <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif <br>
-                                @if($program->e_amount > 0)  <button class="btn btn-danger btn-xs">Discounted</button> @endif
+                                <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif 
+                                @if($program->e_amount > 0) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
                                     @if($program->parent)
                                     <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->parent->id)}}">{{ $program->parent->p_name }}</span></a><br>
@@ -195,42 +211,51 @@
                                     </div>
                                     @endif
                                 </span>
-                                <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
+                                
+                                @if($program->permissions['program.detailsexport'])
+                                <br> <a href="{{ route('program.detailsexport', $program->id) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
+                                @endif
 
-                                @if($program->status == 1) <br><a  href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Program</a> @endif  <br>
-                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
+                                @if($program->status == 1) <br>
+                                <a  href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Training</a> @endif  <br>
+                                @if($program->permissions['programs.edit'])
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
                                     class="btn btn-info btn-xs" href="{{ route('programs.edit', $program->id)}}"><i
                                         class="fa fa-edit"></i> Edit
                                 </a> 
                                 @endif
-                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
-                                    @if($program->hascrm == 0)
-                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
-                                            class="btn btn-primary btn-xs" href="{{ route('crm.show', $program->id)}}" ><i
-                                                class="far fa-comments"></i> Enable CRM
-                                        </a>
-                                        @else
-                                        <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
-                                            class="btn btn-primary btn-xs" href="{{ route('crm.hide', $program->id)}}" ><i class="fa fa-ban"> Disable CRM</i>
-                                        </a>
-                                        
+                                @if($program->hascrm == 0)
+                                    @if($program->permissions['crm.show'])
+                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
+                                        class="btn btn-primary btn-xs" href="{{ route('crm.show', $program->id)}}" ><i
+                                            class="far fa-comments"></i> Enable CRM
+                                    </a>
+                                    @endif
+                                @else
+                                    @if($program->permissions['crm.hide'])
+                                    <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
+                                        class="btn btn-primary btn-xs" href="{{ route('crm.hide', $program->id)}}" ><i class="fa fa-ban"> Disable CRM</i>
+                                    </a>
                                     @endif
                                 @endif
                                 @if($program->hasresult == 0)
+                                    @if($program->permissions['results.enable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
                                         class="btn btn-success btn-xs" href="{{ route('results.enable', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable result
                                     </a>
-                                    @else
+                                    @endif
+                                @else
+                                    @if($program->permissions['results.disable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Disable User Results"
                                         class="btn btn-info btn-xs" href="{{ route('results.disable', $program->id)}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Result
                                     </a>
+                                    @endif
                                 @endif
 
                             </td>
                             
                             <td><strong>Normal Fee:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>
-                               <strong>EarlyBird:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
+                            <strong>EarlyBird:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->e_amount) }}
                             </td>
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
                                 <strong>End: </strong>{{ $program->p_end }}
@@ -245,59 +270,72 @@
                                 <button class="btn btn-danger btn-xs">Draft</button> 
                                 @endif
                             </td>
-                            @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
-                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ route('password.reset', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password
-                                    
-                                    @if($program->close_registration == 0)
-                                    <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="{{ route('registration.close', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
-                                    </a>
-                                    @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Extend Registration"
-                                        class="btn btn-success" href="{{ route('registration.open', $program->id)}}" ><i
-                                           onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i>
-                                    </a>
+                                    @if($program->permissions['password.reset'])
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ route('password.reset', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password </a>
                                     @endif
-                                    @endif                                   
+                                    @if($program->close_registration == 0)
+                                        @if($program->permissions['registration.close'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="{{ route('registration.close', $program->id)}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
+                                        </a>
+                                        @endif
+                                    @else
+                                        @if($program->permissions['registration.close'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Extend Registration"
+                                            class="btn btn-success btn-xs" href="{{ route('registration.open', $program->id)}}"><i
+                                            onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i> Extend Registration
+                                        </a>
+                                        @endif
+                                    @endif                                 
                                 </div>
                                 
-                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
                                 <div class="" style="margin-bottom: 5px;">
-                                    <a href="javascript:void(0)" data-toggle="modal" data-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
-                                        class="btn btn-success btn-xs" style="background:#183153"><i class="fa fa-copy"></i> Clone Training
-                                    </a>
-                                    <a data-toggle="tooltip" data-placement="top" title="Import Participants"
-                                        class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('training.import', $program->id)}}"><i class="fa fa-upload"></i> Bulk Import
-                                    </a>
+                                    @if($program->permissions['training.clone'])
+                                        <a href="javascript:void(0)" data-toggle="modal" data-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
+                                            class="btn btn-success btn-xs" style="background:#183153"><i class="fa fa-copy"></i> Clone Training
+                                        </a>
+                                    @endif
+
+                                    @if($program->permissions['training.import'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Import Participants"
+                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('training.import', $program->id)}}"><i class="fa fa-upload"></i> Bulk Import
+                                        </a>
+                                    @endif
                                     <form action="{{ route('programs.destroy', $program->id) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to trash?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
-
+                                        @if($program->permissions['programs.destroy'])
                                         <button type="submit" class="btn btn-warning btn-xs" data-toggle="tooltip"
                                             data-placement="top" title="Trash Training"> <i class="fa fa-recycle"></i> Trash
                                         </button>
+                                        @endif
+
                                     </form>
                                 </div>
                                 @if($program->e_amount > 0)
-                                <div class="extra-actions" style="padding-top:10px">
-                                    @if($program->close_earlybird == 1)
-                                    <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment"
-                                            class="btn btn-info" href="{{ route('earlybird.close', $program->id)}}" ><i
-                                            onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i>
-                                    </a>
-                                    @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Extend Early Bird Payment"
-                                            class="btn btn-info" href="{{ route('earlybird.open', $program->id)}}" ><i
-                                            onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i>
-                                    </a>
-                                    @endif
-                                </div>
+                                    <div class="extra-actions" style="padding-top:10px">
+                                        @if($program->close_earlybird == 1)
+                                            @if($program->permissions['earlybird.close'])
+                                                <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment"
+                                                        class="btn btn-info" href="{{ route('earlybird.close', $program->id)}}" ><i
+                                                        onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i>
+                                                </a>
+                                            @endif
+                                        @else
+                                            @if($program->permissions['earlybird.open'])
+                                            <a data-toggle="tooltip" data-placement="top" title="Extend Early Bird Payment"
+                                                    class="btn btn-info" href="{{ route('earlybird.open', $program->id)}}" ><i
+                                                    onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i>
+                                            </a>
+                                            @endif
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                         </tr>
-                        @endif
+                        @if($program->permissions['training.clone'])
                         <div class="modal fade" id="cloneTraining{{ $program->id }}" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
@@ -331,6 +369,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                         @endforeach
                     </tbody>
                     
@@ -339,7 +378,7 @@
 
         </div>
     </div>
-</div>
+
 
 @endsection
 @section('extra-scripts')
