@@ -124,40 +124,16 @@
                             @php
                                 $currentStatus = request('status');
                             @endphp
-                            <a href="{{route('users.create')}}"><button type="button" class="btn btn-outline-primary rounded">Add New Participant</button></a>
+                            @if(canUserAccessPermission(['users.create'])['users.create'])
+                                <a href="{{route('users.create')}}"><button type="button" class="btn btn-outline-primary rounded">Add New Participant</button></a>
+                            @endif
                             {{-- <button class="btn btn-success rounded" id="csv">Export Participants</button> --}}
                             
                             <div class="badge float-right">
                                 <span class="transaction-count">{{ $records }}</span>
                             </div>
                         </div>
-                        {{-- <div class="mt-4">
-                            <form class="form-inline search-form" method="GET" action="{{ route('users.index') }}">
-                                <input type="hidden" name="status" value="{{ request('status') }}">
-                                
-                                <div class="form-group mx-sm-1 mb-2">
-                                    <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
-                                </div>
-                                <div class="form-group mx-sm-1 mb-2">
-                                    <select name="program_id" id="" class="form-control w-75">
-                                        <option value="">Select Training</option>
-                                        @foreach($allPrograms as $training)
-                                        <option value="{{ $training->id}}">{{ $training->p_name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group mx-sm-1 mb-2">
-                                    <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
-                                </div>
-                                <div class="form-group mx-sm-1 mb-2">
-                                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
-                                </div>
-                                <div class="form-group mx-sm-1 mb-2">
-                                    <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-search mb-2">Search</button>
-                            </form>
-                        </div> --}}
+                        
                         <div class="mt-4">
                             <form class="row" method="GET" action="{{ route('users.index') }}">
                                 <input type="hidden" name="status" value="{{ request('status') }}">
@@ -217,7 +193,6 @@
                     </thead>
                     <tbody>
                         @foreach($users as $user)
-                        
                         <tr>
                             
                             <td>{{ $i++ }}</td>
@@ -236,22 +211,30 @@
                             <td>
                                 {{ $user->name }} <br>
                                 @foreach($user->programs as $programs)
-                                    <small style="color:green">{{ $count ++ }}.
-                                    {{ $programs->p_name }} <br></small>
-                                    <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
+                                    @if (in_array($programs->id, $allPrograms->pluck('id')->toArray()))
+                                        <small style="color:green">{{ $count ++ }}.
+                                        {{ $programs->p_name }} <br></small>
+                                        <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
+                                    @endif
                                 @endforeach
                             </td> 
                            
                             <td>
                                 <div class="btn-group">
+                                    @if(canUserAccessPermission(['users.edit'])['users.edit'])
                                     <a data-toggle="tooltip" data-placement="top" title="Edit User"
                                         class="btn btn-info btn-sm" href="{{ route('users.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
+                                    @endif
+                                    @if(canUserAccessPermission(['impersonate'])['impersonate'])
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                         class="btn btn-warning btn-sm" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
+                                    @endif
+
+                                    @if(canUserAccessPermission(['users.destroy'])['users.destroy'])
                                     <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
@@ -261,6 +244,7 @@
                                             data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
 
                             </td>

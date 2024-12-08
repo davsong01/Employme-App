@@ -838,7 +838,7 @@ class Controller extends BaseController
                 ],
                 [
                     'id' => 21,
-                    'name' => 'View User',
+                    'name' => 'View Participant',
                     'route' => 'users.edit',
                     'type' => 'access',
                     'order' => 2,
@@ -846,7 +846,7 @@ class Controller extends BaseController
                 ],
                 [
                     'id' => 22,
-                    'name' => 'Update User',
+                    'name' => 'Update Participant',
                     'route' => 'users.update',
                     'type' => 'access',
                     'order' => 3,
@@ -862,7 +862,7 @@ class Controller extends BaseController
                 ],
                 [
                     'id' => 24,
-                    'name' => 'Delete User',
+                    'name' => 'Delete Participant',
                     'route' => 'users.destroy',
                     'type' => 'access',
                     'order' => 5,

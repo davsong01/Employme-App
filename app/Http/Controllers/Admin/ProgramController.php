@@ -31,7 +31,7 @@ class ProgramController extends Controller
                 //Get all programs
                 $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
             }else{
-                $programs = auth()->user()->userTrainings();
+                $programs = auth()->user()->userTrainings()->get();
             }
 
             //Get Users payment status

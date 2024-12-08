@@ -15,7 +15,7 @@ class FacilitatorTraining extends Model
     
     public function trainings()
     {
-        return $this->HasMany(Program::class);
+        return $this->HasMany(Program::class)->where('program_lock', 0);
     }
 
     public function programName(){

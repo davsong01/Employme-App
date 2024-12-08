@@ -1,11 +1,3 @@
-<?php 
-    $user =  Auth::user();
-    $menus = $user->permissions();            
-
-    $role = $user->role();
-    $allmenus = allRoutes('access');
-?>
-
 @extends('dashboard.admin.index')
 @section('title', 'Trainings')
 @section('css')

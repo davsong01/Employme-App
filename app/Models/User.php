@@ -95,11 +95,11 @@ class User extends Authenticatable
         if($this->role_id == 'Student'){
             return Program::isUserProgram()->with(['subPrograms'])->whereHas('transactions', function ($query) {
                 $query->where('user_id', $this->id);
-            })->get();
+            });
         }else{
             return Program::isUserProgram()->with(['subPrograms'])->whereHas('trainings', function ($query) {
                 $query->where('user_id', $this->id);
-            })->get();
+            });
         }
     }
 
@@ -107,9 +107,10 @@ class User extends Authenticatable
     {
         // Fetch program IDs linked to this facilitator
         $programIds = $this->trainings()->pluck('program_id');
+        $programIds = $this->userTrainings()->pluck('id')->toArray();
         
         // Ensure program IDs are not empty
-        if ($programIds->isEmpty()) {
+        if (empty($programIds)) {
             return collect(); // Return an empty collection if no programs are found
         }
 
@@ -117,8 +118,8 @@ class User extends Authenticatable
         $students = User::where('role_id', 'Student')
         ->whereHas('transactions', function ($query) use ($programIds) {
             $query->whereIn('program_id', $programIds);
-        })->get();
-
+        });
+        
         return $students;
     }
 
