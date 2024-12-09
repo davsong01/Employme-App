@@ -224,7 +224,18 @@ class TeacherController extends Controller
     
     public function update(Request $request, $id)
     {
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return redirect('home');
+        }
+
         $user = User::findorFail($id);
+        $check = [
+            'teachers.update.menu',
+            'teachers.update.training.access',
+        ];
+
+        $allpermissions = canUserAccessPermission($check);
+        
         if ($request['password']) {
             $user->password = bcrypt($request['password']);
         };
@@ -249,33 +260,34 @@ class TeacherController extends Controller
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
-        
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            // if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+
+        if($allpermissions['teachers.update.menu']){
             $user->menu_permissions = $request->menu_permissions;
         }
+
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
 
         $facilitator->delete();
-    
-        if (!empty($request['training'])) {
-            foreach ($request['training'] as $training) {
-                
-                FacilitatorTraining::UpdateorCreate([
-                    'user_id' => $user->id,
-                    'program_id' => $training,
-                    'training_permissions' => $request->training_permissions[$training]
-                ]);
+
+        if ($allpermissions['teachers.update.training.access']) {
+            if (!empty($request['training'])) {
+                foreach ($request['training'] as $training) {
+                    FacilitatorTraining::UpdateorCreate([
+                        'user_id' => $user->id,
+                        'program_id' => $training,
+                        'training_permissions' => $request->training_permissions[$training]
+                    ]);
+                }
             }
         }
+
         $user->save();
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return redirect('teachers')->with('message', 'Facilitator updated successfully');
-        }
-        return back();
+        return back()->with('message', 'Operation Successful');
     }
+
     public function destroy($id)
     {
         $user = User::findOrFail($id);
