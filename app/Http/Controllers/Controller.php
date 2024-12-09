@@ -918,7 +918,7 @@ class Controller extends BaseController
                     'parentId' => 3
                 ],
                 [
-                    'id' => 33,
+                    'id' => 36,
                     'name' => 'Update Staff Menus',
                     'route' => 'teachers.update.menu',
                     'type' => 'access',
@@ -926,7 +926,7 @@ class Controller extends BaseController
                     'parentId' => 3
                 ],
                 [
-                    'id' => 33,
+                    'id' => 37,
                     'name' => 'Update Staff Training Access',
                     'route' => 'teachers.update.training.access',
                     'type' => 'access',
@@ -934,11 +934,19 @@ class Controller extends BaseController
                     'parentId' => 3
                 ],
                 [
-                    'id' => 34,
+                    'id' => 38,
                     'name' => 'View Staff Referral Details',
                     'route' => 'teachers.view.referral.details',
                     'type' => 'access',
                     'order' => 8,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 39,
+                    'name' => 'Edit Role and status',
+                    'route' => 'teachers.role.status',
+                    'type' => 'access',
+                    'order' => 9,
                     'parentId' => 3
                 ],
             

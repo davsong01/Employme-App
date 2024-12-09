@@ -17,7 +17,10 @@ class CompanyUserController extends Controller
     public function index()
     {
         $i = 1;
-
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return route('home');
+        }
+        
         $users = CompanyUser::select('id', 'name', 'email', 'created_at', 'phone', 'permissions', 'status')
             ->distinct()->with('trainings')
             ->orderBy('created_at', 'DESC')->get();
@@ -26,32 +29,8 @@ class CompanyUserController extends Controller
             $trainings = $user->trainings->pluck('program_id')->toArray();
             $user->p_names = Program::select(['id','p_name'])->whereIn('id', $trainings)->orderBy('created_at','DESC')->get();
         }
-        // $users->map(function ($users) {
-        //     $details = CompanyUserTraining::where('company_user_id', $users->id);
-        //     $users->program_count = $details->distinct()->count();
-        //     $transactions = DB::table('program_user')->where('facilitator_id', $users->id);
-        //     $users->students_count = $transactions->count();
-        //     $users->earnings = $transactions->sum('facilitator_earning');
-        //     $users->image = (filter_var($users->profile_picture, FILTER_VALIDATE_URL) !== false) ? $users->profile_picture : url('/') . '/avatars' . '/' . $users->profile_picture;
-
-        //     return $users;
-        // });
         
-        // foreach ($users as $user) {
-        //     $names = [];
-        //     foreach ($user->trainings as $trainings) {
-        //         if (isset($trainings)) {
-        //             $trainingp_name = Program::whereId($trainings->program_id)->value('p_name');
-        //             array_push($names, $trainingp_name);
-        //         } else;
-        //     }
-
-        //     $user->p_names =  $names;
-        // }
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.company.index', compact('users', 'i'));
-        }
+        return view('dashboard.admin.company.index', compact('users', 'i'));
     }
 
     public function create()
@@ -144,6 +123,15 @@ class CompanyUserController extends Controller
 
     public function update(Request $request, CompanyUser $companyuser)
     {
+        $check = [
+            'companyuser.destroy',
+        ];
+
+        $allpermissions = canUserAccessPermission($check);
+        if(!$allpermissions['companyuser.destroy']){
+            return back();
+        }
+
         $data = request()->validate([
             'name' => 'required | min:5',
             'phone' => 'sometimes',

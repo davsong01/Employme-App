@@ -94,7 +94,6 @@
                             </td>
                           
                             <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
-                                          
                             <td>
                                 <div class="btn-group">
                                     @if($permissions['teachers.edit'])

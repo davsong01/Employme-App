@@ -232,6 +232,7 @@ class TeacherController extends Controller
         $check = [
             'teachers.update.menu',
             'teachers.update.training.access',
+            'teachers.role.status'
         ];
 
         $allpermissions = canUserAccessPermission($check);
@@ -251,7 +252,11 @@ class TeacherController extends Controller
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->t_phone = $request['phone'];
-        $user->role_id = $request['role'];
+
+        if ($allpermissions['teachers.role.status']) {
+            $user->role_id = $request['role'];
+        }
+
         $user->profile = $request['profile'];
         $user->status = $request['status'];
         $user->profile_picture = $imgName ?? $user->profile_picture;

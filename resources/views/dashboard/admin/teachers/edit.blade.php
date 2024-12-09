@@ -3,7 +3,8 @@
         'teachers.update.menu',
         'teachers.update.training.access',
         'teachers.view.referral.details',
-        'teachers.update'
+        'teachers.update',
+        'teachers.role.status'
     ];
 
     $allpermissions = canUserAccessPermission($check);
@@ -91,6 +92,7 @@
                         </fieldset>
 
                         <!-- Role and Status Section -->
+                        @if($allpermissions['teachers.role.status'])
                         <fieldset>
                             <legend>Role and Status</legend>
                             
@@ -141,7 +143,7 @@
                                 </select>
                             </div>
                         </fieldset>
-                        
+                        @endif
                         @if ($allpermissions['teachers.update.menu'])
                         <fieldset>
                             <legend>Menu Permissions</legend>
