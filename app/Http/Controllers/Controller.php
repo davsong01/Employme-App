@@ -1433,6 +1433,60 @@ class Controller extends BaseController
                 'route' => 'programs.destroy',
                 'order' => 14,
             ],
+            [
+                'id' => 15,
+                'name' => 'View Modules',
+                'route' => 'module.index',
+                'order' => 15,
+            ],
+            [
+                'id' => 16,
+                'name' => 'Edit Modules',
+                'route' => 'module.edit',
+                'order' => 16,
+            ],
+            [
+                'id' => 17,
+                'name' => 'Update Modules',
+                'route' => 'module.update',
+                'order' => 17,
+            ],
+
+            // update module, 
+            // enable questions, 
+            // disabled questius, 
+            // clone modules
+            // add question,
+            // import question,
+            // edit question,
+            // delete question
+            // Perform certificate actions, 
+            // download certificate,
+            // delete certificate
+            // Add new Score setting, 
+            // edit score setting, 
+            // delete score setting
+            // Export test results, 
+            
+            // View cetification score,
+            // View rolepay score,
+            // View email score,
+            // View crm score,
+            // View test score,
+
+            // Update certification score, 
+            // Update roleplay score, 
+            // Update email score, 
+            // Update crm score, 
+
+            // Enable resit,
+            // Stop resit process,
+            // Grader comment
+            // Facilitator comment
+
+            
+            // edit score setting, 
+            // delete score setting
         ];
 
         // Convert to a collection and sort by 'order' in ascending order.
