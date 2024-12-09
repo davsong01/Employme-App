@@ -50,10 +50,8 @@ class TeacherController extends Controller
 
             $user->p_names =  $names;
         }
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.teachers.index', compact('users', 'i'));
-        }
+        
+        return view('dashboard.admin.teachers.index', compact('users', 'i'));
     }
 
     public function showStudents($id)
@@ -216,11 +214,12 @@ class TeacherController extends Controller
         $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/' . $user->profile_picture;
 
         $payment_modes = PaymentMode::whereStatus('active')->get();
-        
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.teachers.edit', compact('programs', 'user', 'allprograms', 'payment_modes'));
+
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return back();
         }
-        return back();
+
+        return view('dashboard.admin.teachers.edit', compact('programs', 'user', 'allprograms', 'payment_modes'));
     }
     
     public function update(Request $request, $id)

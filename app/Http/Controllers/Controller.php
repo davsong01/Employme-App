@@ -904,7 +904,7 @@ class Controller extends BaseController
                 [
                     'id' => 34,
                     'name' => 'Peek',
-                    'route' => 'teachers.impersonate',
+                    'route' => 'impersonate',
                     'type' => 'access',
                     'order' => 4,
                     'parentId' => 3
@@ -933,6 +933,15 @@ class Controller extends BaseController
                     'order' => 7,
                     'parentId' => 3
                 ],
+                [
+                    'id' => 34,
+                    'name' => 'View Staff Referral Details',
+                    'route' => 'teachers.view.referral.details',
+                    'type' => 'access',
+                    'order' => 8,
+                    'parentId' => 3
+                ],
+            
             [
                 'id' => 4,
                 'name' => 'Company Admin Management',

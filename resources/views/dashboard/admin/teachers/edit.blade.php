@@ -1,3 +1,14 @@
+@php
+    $check = [
+        'teachers.update.menu',
+        'teachers.update.training.access',
+        'teachers.view.referral.details',
+        'teachers.update'
+    ];
+
+    $allpermissions = canUserAccessPermission($check);
+   
+@endphp
 @extends('dashboard.admin.index')
 @section('title', $user->name )
 @section('css')
@@ -33,7 +44,7 @@
                     @include('layouts.partials.alerts')
                     <h4 class="card-title">{{$user->name}}</h4>
                     
-                    @if(!empty(array_intersect(facilitatorRoles(), $user->role())))  
+                    @if ($allpermissions['teachers.view.referral.details'])
                         <p>
                             Referral link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b><br>
                             WAACSP Profile link: <b>{{ $user->waaccsp_link }}</b>
@@ -82,18 +93,7 @@
                         <!-- Role and Status Section -->
                         <fieldset>
                             <legend>Role and Status</legend>
-                            {{-- <div class="form-group">
-                                <label for="role">Role*</label>
-                                <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" style="height: 30px; width: 100%;">
-                                    <option value="" disabled>Assign Role</option>
-                                    <option value="Facilitator" {{ !empty(array_intersect(facilitatorRoles(), $user->role())) ? 'selected' : '' }}>Facilitator</option>
-                                    <option value="Grader" {{ !empty(array_intersect(graderRoles(), $user->role())) ? 'selected' : '' }}>Grader</option>
-                                    <option value="Admin" {{ !empty(array_intersect(adminRoles(), $user->role())) ? 'selected' : '' }}>Admin</option>
-                                </select>
-                                @error('role')
-                                <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div> --}}
+                            
                             <div class="form-group">
                                 <label>Role*</label>
                                 <div class="row">
@@ -141,6 +141,8 @@
                                 </select>
                             </div>
                         </fieldset>
+                        
+                        @if ($allpermissions['teachers.update.menu'])
                         <fieldset>
                             <legend>Menu Permissions</legend>
                             @php
@@ -228,7 +230,9 @@
                                 @endforeach
                             </div>
                         </fieldset>
-
+                        @endif
+        
+                        @if ($allpermissions['teachers.update.training.access'])
                         <fieldset>
                             <legend>Trainings and Permissions</legend>
                             <div id="trainingContainer">
@@ -296,10 +300,13 @@
                                 </div>
                             </div>
                         </fieldset>
-
+                        @endif
+                        
+                        @if ($allpermissions['teachers.update'])
                         <div class="row">
                             <button type="submit" class="btn btn-primary w-100">Submit</button>
                         </div>
+                        @endif
                     </form>
                 </div>
             </div>
