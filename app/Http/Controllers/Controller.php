@@ -1452,41 +1452,168 @@ class Controller extends BaseController
                 'order' => 17,
             ],
 
-            // update module, 
-            // enable questions, 
-            // disabled questius, 
-            // clone modules
-            // add question,
-            // import question,
-            // edit question,
-            // delete question
-            // Perform certificate actions, 
-            // download certificate,
-            // delete certificate
-            // Add new Score setting, 
-            // edit score setting, 
-            // delete score setting
-            // Export test results, 
-            
-            // View cetification score,
-            // View rolepay score,
-            // View email score,
-            // View crm score,
-            // View test score,
-
-            // Update certification score, 
-            // Update roleplay score, 
-            // Update email score, 
-            // Update crm score, 
-
-            // Enable resit,
-            // Stop resit process,
-            // Grader comment
-            // Facilitator comment
-
-            
-            // edit score setting, 
-            // delete score setting
+            [
+                'id' => 18,
+                'name' => 'Add Questions',
+                'route' => '',
+                'order' => 18,
+            ],
+            [
+                'id' => 19,
+                'name' => 'Disable Questions',
+                'route' => 'module.update',
+                'order' => 19,
+            ],
+            [
+                'id' => 20,
+                'name' => 'Clone Modules',
+                'route' => 'module.update',
+                'order' => 20,
+            ],
+            [
+                'id' => 21,
+                'name' => 'Enable Questions',
+                'route' => 'module.update',
+                'order' => 21,
+            ],
+            [
+                'id' => 22,
+                'name' => 'Import Questions',
+                'route' => 'module.update',
+                'order' => 22,
+            ],
+            [
+                'id' => 23,
+                'name' => 'Edit Questions',
+                'route' => 'module.update',
+                'order' => 23,
+            ],
+            [
+                'id' => 24,
+                'name' => 'Delete Questions',
+                'route' => 'module.update',
+                'order' => 24,
+            ],
+            [
+                'id' => 25,
+                'name' => 'Perform Certificate Actions',
+                'route' => 'module.update',
+                'order' => 25,
+            ],
+            [
+                'id' => 26,
+                'name' => 'Download Certificate',
+                'route' => 'module.update',
+                'order' => 26,
+            ],
+            [
+                'id' => 27,
+                'name' => 'Delete Certificate',
+                'route' => 'module.update',
+                'order' => 27,
+            ],
+            [
+                'id' => 28,
+                'name' => 'Add New Score Setting',
+                'route' => 'module.update',
+                'order' => 28,
+            ],
+            [
+                'id' => 29,
+                'name' => 'Edit Score Setting',
+                'route' => 'module.update',
+                'order' => 29,
+            ],
+            [
+                'id' => 30,
+                'name' => 'Delete Score Setting',
+                'route' => 'module.update',
+                'order' => 30,
+            ],
+            [
+                'id' => 31,
+                'name' => 'Export Test Results',
+                'route' => 'module.update',
+                'order' => 31,
+            ],
+            [
+                'id' => 32,
+                'name' => 'View Certification Score',
+                'route' => 'module.update',
+                'order' => 32,
+            ],
+            [
+                'id' => 33,
+                'name' => 'View Roleplay Score',
+                'route' => 'module.update',
+                'order' => 33,
+            ],
+            [
+                'id' => 34,
+                'name' => 'View Email Score',
+                'route' => 'module.update',
+                'order' => 34,
+            ],
+            [
+                'id' => 35,
+                'name' => 'View CRM Score',
+                'route' => 'module.update',
+                'order' => 35,
+            ],
+            [
+                'id' => 36,
+                'name' => 'View Class Tests Score',
+                'route' => 'module.update',
+                'order' => 36,
+            ],
+            [
+                'id' => 37,
+                'name' => 'Update Certification Score',
+                'route' => 'module.update',
+                'order' => 37,
+            ],
+            [
+                'id' => 38,
+                'name' => 'Update Roleplay Score',
+                'route' => 'module.update',
+                'order' => 38,
+            ],
+            [
+                'id' => 39,
+                'name' => 'Update Email Score',
+                'route' => 'module.update',
+                'order' => 39,
+            ],
+            [
+                'id' => 40,
+                'name' => 'Update CRM Score',
+                'route' => 'module.update',
+                'order' => 40,
+            ],
+            [
+                'id' => 41,
+                'name' => 'Enable Resit',
+                'route' => 'module.update',
+                'order' => 41,
+            ],
+            [
+                'id' => 42,
+                'name' => 'Stop Resit Process',
+                'route' => 'module.update',
+                'order' => 42,
+            ],
+            [
+                'id' => 43,
+                'name' => 'Edit score Setting',
+                'route' => 'module.update',
+                'order' => 43,
+            ],
+            [
+                'id' => 44,
+                'name' => 'Delete score Setting',
+                'route' => 'module.update',
+                'order' => 44,
+            ],
         ];
 
         // Convert to a collection and sort by 'order' in ascending order.
