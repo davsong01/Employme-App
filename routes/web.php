@@ -251,7 +251,7 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
     });
 
     Route::resource('questions', QuestionController::class);
-    Route::resource('modules', ModuleController::class);
+    // Route::resource('modules', ModuleController::class);
     Route::resource('programs', ProgramController::class);
 
     Route::middleware(['programCheck'])->group(function () {

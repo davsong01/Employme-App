@@ -71,14 +71,6 @@ class ModuleController extends Controller
         $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
 
         return view('dashboard.admin.modules.create', compact('program'));
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-        }
-
-        // if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))|| !empty(array_intersect(graderRoles(), Auth::user()->role()))){
-
-        //     return view('dashboard.admin.modules.create', compact('programs'));
-        // }
-        // return back();
     }
 
     public function store(Request $request)
