@@ -218,7 +218,7 @@
                                     @endif
                                 @endforeach
                             </td> 
-                           
+        
                             <td>
                                 <div class="btn-group">
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])

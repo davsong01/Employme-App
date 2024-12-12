@@ -22,7 +22,6 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-
         $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
             ->distinct()->with('trainings')
             ->where('role_id', '!=', 'Student')
@@ -201,8 +200,6 @@ class TeacherController extends Controller
     public function edit($id)
     {
         $user = User::with('trainings')->where('id', $id)->first();
-        
-        $programs = Program::whereIn('id', $user->trainings->pluck('program_id'))->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
 
         $allprograms = Program::where('id', '<>', 1)
             ->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
@@ -214,12 +211,17 @@ class TeacherController extends Controller
         $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/' . $user->profile_picture;
 
         $payment_modes = PaymentMode::whereStatus('active')->get();
-
+        
+        foreach($user->trainings as $training){
+            $program = Program::select('id','p_name')->where('programs.id', $training->program_id)->first();
+            $training->p_name = $program->p_name;
+        }
+        
         if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             return back();
         }
-
-        return view('dashboard.admin.teachers.edit', compact('programs', 'user', 'allprograms', 'payment_modes'));
+        
+        return view('dashboard.admin.teachers.edit', compact( 'user', 'allprograms', 'payment_modes'));
     }
     
     public function update(Request $request, $id)

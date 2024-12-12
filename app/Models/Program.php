@@ -75,6 +75,11 @@ class Program extends Model
         return $this->hasMany(FacilitatorTraining::class, 'program_id');
     }
 
+    public function training()
+    {
+        return $this->hasOne(FacilitatorTraining::class, 'program_id');
+    }
+
     
     public function checkBalance($p_id)
     {

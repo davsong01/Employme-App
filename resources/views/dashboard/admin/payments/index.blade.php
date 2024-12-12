@@ -118,7 +118,7 @@
                             @foreach($transactions as $transaction)
                             <tr>
                                 <td>{{ $i++ }}</a>
-                                <td><strong>Name: </strong><a href="{{route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} &nbsp;<img src="/external.png" alt="" style="width: 10px;"></a>
+                                <td><strong>Name: </strong><a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
                                     <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
                                     @if($transaction->user->last_login) <br>
                                     <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
@@ -127,7 +127,7 @@
                                     <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
                                 <td>
                                     <small class="training-details">
-                                        <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }}</a><br>  
+                                        <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a><br>  
                                         @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
                                         <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
                                         @if(!is_null($transaction->coupon_code))

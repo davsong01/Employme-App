@@ -14,13 +14,13 @@
 
     <meta name="description" content="">
     <meta name="author" content="">
-    <!--Calender links-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <!--Working Datatables-->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> --}}
+    {{-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"> --}}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
@@ -34,7 +34,139 @@
     <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/dist/css/select2.min.css') }}">
     <style>
-        
+        .table {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-image {
+            width: 85px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .btn {
+            border-radius: 5px;
+            margin: 2px 0;
+        }
+
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .export-link {
+            color: brown;
+            font-weight: bold;
+        }
+
+        .export-link:hover {
+            text-decoration: underline;
+            color: darkred;
+        }
+
+        .dropdown {
+            position: relative;
+            display: block;
+        }
+        .dropdown-button {
+            background-color: #17a2b8;
+            color: white;
+            padding: 4px 4px;
+            font-size: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-button:hover {
+            background-color: #138496; /* Slightly darker shade for hover */
+        }
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Show the dropdown content when the button is clicked */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* The Modal (background) */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 100%;
+        }
+
+        /* The Close Button */
+        .close {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            border-radius: 50%;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-backdrop {
+            position: relative;
+        }
     </style>
     @yield('css')
     <!---include font awesome-->
@@ -112,7 +244,7 @@
             animation: blinkingText 2s infinite;
         }
 
-         .pay-option{
+        .pay-option{
             width:auto !important;
             border:0px;
             border-radius:10px;
@@ -170,105 +302,148 @@
             padding-top: 102px;
         }
 
-         .select2-container--default .select2-selection--multiple {
-        width: 100% !important; /* Force full width */
-    }
+        .select2-container--default .select2-selection--multiple {
+            width: 100% !important; /* Force full width */
+        }
 
-    .select2-container {
-        width: 100% !important; /* Force full width */
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        color: black; /* Text color for selected items */
-    }
+        .select2-container {
+            width: 100% !important; /* Force full width */
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            color: black; /* Text color for selected items */
+        }
 
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-        color: black; /* Text color for the rendered selections */
-    }
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            color: black; /* Text color for the rendered selections */
+        }
 
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: black; /* Text color for the single selected item */
-    }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: black; /* Text color for the single selected item */
+        }
 
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: black; /* Text color for the placeholder */
-    }
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: black; /* Text color for the placeholder */
+        }
 
-    .select2-container--default .select2-results__option {
-        color: black; /* Text color for the dropdown options */
-    }
-    
+        .select2-container--default .select2-results__option {
+            color: black; /* Text color for the dropdown options */
+        }
+        
+        .badge {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-    .badge {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 45px;
-        height: 45px;
-        background-color: #4CAF50;
-        border-radius: 50%;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+        .transaction-count {
+            text-align: center;
+        }
+        .search-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-control {
+            border-radius: 20px;
+        }
 
-    .transaction-count {
-        text-align: center;
-    }
-    .search-form {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .form-control {
-        border-radius: 20px;
-    }
+        .rounded {
+            border-radius: 20px !important;
+        }
+        .btn-search {
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        .btn-search:hover {
+            background-color: #0056b3;
+        }
 
-    .rounded {
-        border-radius: 20px !important;
-    }
-    .btn-search {
-        border-radius: 20px;
-        transition: background-color 0.3s;
-    }
-    .btn-search:hover {
-        background-color: #0056b3;
-    }
+        .btn.active {
+            background-color: #0056b3;
+            color: white;
+            border: 4px solid black;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            transform: scale(1.05); 
+            transition: all 0.3s;
+        }
 
-    .btn.active {
-        background-color: #0056b3;
-        color: white;
-        border: 4px solid black;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05); 
-        transition: all 0.3s;
-    }
+        .btn:not(.active):hover {
+            transform: scale(1.05); 
+        }
 
-    .btn:not(.active):hover {
-        transform: scale(1.05); 
-    }
+        .button-container .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease; 
+        }
 
-    .button-container .btn {
-        border-radius: 8px;
-        font-weight: 500;
-        text-align: center;
-        transition: all 0.3s ease; 
-    }
+        .button-container .btn:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-    .button-container .btn:hover {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+        .button-container .btn:disabled {
+            opacity: 0.6;
+        }
 
-    .button-container .btn:disabled {
-        opacity: 0.6;
-    }
+        .button-container .fa-unlock {
+            margin-right: 0.25rem; 
+        }
 
-    .button-container .fa-unlock {
-        margin-right: 0.25rem; 
-    }
+        .select2-container--default .select2-selection--multiple {
+            line-height: 27px;
+            overflow: scroll;
+            height: 150px;
+        }
+        .view {
+            margin: 0 10px;
+            border-radius: 10%;
+        }
+        fieldset {
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+        legend {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+        /* Optional: Custom styling for checkboxes */
+        .permission-checkbox {
+            transform: scale(1.1); /* Slightly enlarge checkboxes */
+        }
 
+        /* Optional: Style for the parent group header */
+        .permissions-container .h5 {
+            font-weight: 600; /* Make parent headings slightly bolder */
+            margin-bottom: 10px;
+        }
 
+        .select-all-permissions + label {
+            font-size: 0.9rem;
+            color: #6c757d; /* Muted text for a professional look */
+        }
+
+        /* Optional: Add hover effect for labels */
+        .form-check-label:hover {
+            color: #0056b3; /* Hover effect for better interactivity */
+            cursor: pointer;
+        }
+
+        .rounded2{
+            border-radius: 5px !important;
+        }
 </style>
 </head>
 <!--Preloader-->
@@ -322,8 +497,9 @@
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
 
     <!-- Bootstrap tether Core JavaScript -->
-    <script src="{{ asset('assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/libs/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.min.js') }}"></script> --}}
+
     <!-- slimscrollbar scrollbar JavaScript -->
     <script src="{{ asset('assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js') }}"></script>
     <script src="{{ asset('assets/extra-libs/sparkline/sparkline.js') }}"></script>
@@ -334,11 +510,7 @@
     <!--Custom JavaScript -->
     <script src="{{ asset('dist/js/custom.min.js') }}"></script>
     <!-- this page js -->
-    {{-- <script src="{{ asset('assets/libs/moment/min/moment.min.js') }}../"></script> --}}
-    <script src="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.js') }}"></script>
-    <script src="{{ asset('dist/js/pages/calendar/cal-init.js') }}"></script>
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-
 
     <!--Script for States and LGA Dropdown-->
     <script src="{{asset('dist/js/lga.min.js')}}"></script>

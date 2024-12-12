@@ -1301,6 +1301,7 @@ class Controller extends BaseController
     public function companyMenus()
     {
         $menus = [
+            // Categories
             [
                 'id' => 1,
                 'name' => 'Organization Dashboard',
@@ -1346,134 +1347,188 @@ class Controller extends BaseController
         return $menus;
     }
 
-    public function adminTrainingPermissions()
+    public function adminTrainingPermissions($children=null)
     {
         $permissions = [
+            [
+                'id' => 1,
+                'name' => 'Training CRUD',
+                'order' => 1,
+            ],
+            [
+                'id' => 2,
+                'name' => 'Modules CRUD',
+                'order' => 2,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Questions CRUD',
+                'order' => 3,
+            ],
+
+            [
+                'id' => 4,
+                'name' => 'Certificate Actions',
+                'order' => 4,
+            ],
+            [
+                'id' => 5,
+                'name' => 'Tests Actions',
+                'order' => 5,
+            ],
+            [
+                'id' => 7,
+                'name' => 'Score Settings Actions',
+                'order' => 7,
+            ],
+            
+            // Children
             [
                 'id' => 1,
                 'name' => 'Export Participant\'s details',
                 'route' => 'program.detailsexport',
                 'order' => 1,
+                'category_id' => 1
             ],
             [
                 'id' => 2,
                 'name' => 'Edit Training',
                 'route' => 'programs.edit',
-                'order' => 2,
+                'order' => 1,
+                'category_id' => 1
             ],
             [
                 'id' => 3,
                 'name' => 'Disable CRM',
                 'route' => 'crm.hide',
                 'order' => 3,
+                'category_id' => 1
             ],
             [
                 'id' => 4,
                 'name' => 'Enable CRM',
                 'route' => 'crm.show',
                 'order' => 4,
+                'category_id' => 1
             ],
             [
                 'id' => 5,
                 'name' => 'Disable Result',
                 'route' => 'results.disable',
                 'order' => 5,
+                'category_id' => 1
             ],
             [
                 'id' => 6,
                 'name' => 'Enable Result',
                 'route' => 'results.enable',
                 'order' => 6,
+                'category_id' => 1
             ],
             [
                 'id' => 7,
                 'name' => 'Reset Password',
                 'route' => 'password.reset',
                 'order' => 7,
+                'category_id' => 1
             ],
             [
                 'id' => 8,
                 'name' => 'Close Registration',
                 'route' => 'registration.close',
                 'order' => 8,
+                'category_id' => 1
             ],
             [
                 'id' => 9,
                 'name' => 'Extend Registration',
                 'route' => 'registration.open',
                 'order' => 9,
+                'category_id' => 1
             ],
             [
                 'id' => 10,
                 'name' => 'Open Earlybird',
                 'route' => 'earlybird.open',
                 'order' => 10,
+                'category_id' => 1
             ],
             [
                 'id' => 11,
                 'name' => 'Close Earlybird',
                 'route' => 'earlybird.close',
                 'order' => 11,
+                'category_id' => 1
             ],
             [
                 'id' => 12,
                 'name' => 'Clone Training',
                 'route' => 'training.clone',
                 'order' => 12,
+                'category_id' => 1
             ],
             [
                 'id' => 13,
                 'name' => 'Bulk Import',
                 'route' => 'training.import',
                 'order' => 13,
+                'category_id' => 1
             ],
             [
                 'id' => 14,
                 'name' => 'Trash Training',
                 'route' => 'programs.destroy',
                 'order' => 14,
+                'category_id' => 1
             ],
             [
                 'id' => 15,
                 'name' => 'View Modules',
                 'route' => 'modules.index',
                 'order' => 15,
+                'category_id' => 2
             ],
             [
                 'id' => 15,
                 'name' => 'Add Modules',
                 'route' => 'modules.create',
                 'order' => 15,
+                'category_id' => 2
             ],
             [
                 'id' => 16,
                 'name' => 'Edit Modules',
                 'route' => 'modules.edit',
                 'order' => 16,
+                'category_id' => 2
             ],
             [
                 'id' => 17,
                 'name' => 'Update Modules',
                 'route' => 'modules.update',
                 'order' => 17,
+                'category_id' => 2
             ],
             [
                 'id' => 18,
                 'name' => 'Clone Modules',
                 'route' => 'modules.show',
                 'order' => 18,
+                'category_id' => 2
             ],
             [
                 'id' => 18,
                 'name' => 'Enable Modules',
                 'route' => 'modules.enable',
                 'order' => 18,
+                'category_id' => 2
             ],
             [
                 'id' => 18,
                 'name' => 'Disable Modules',
                 'route' => 'modules.disable',
                 'order' => 18,
+                'category_id' => 2
             ],
             
             [
@@ -1481,6 +1536,7 @@ class Controller extends BaseController
                 'name' => 'Add Questions',
                 'route' => 'questions.store',
                 'order' => 20,
+                'category_id' => 3
             ],
             
             [
@@ -1488,143 +1544,223 @@ class Controller extends BaseController
                 'name' => 'Import Questions',
                 'route' => 'questions.import',
                 'order' => 22,
+                'category_id' => 3
             ],
             [
                 'id' => 23,
                 'name' => 'Edit Questions',
                 'route' => 'questions.edit',
                 'order' => 23,
+                'category_id' => 3
             ],
             [
                 'id' => 23,
                 'name' => 'Update Questions',
                 'route' => 'questions.update',
                 'order' => 23,
+                'category_id' => 3
             ],
             [
                 'id' => 24,
                 'name' => 'Delete Questions',
                 'route' => 'questions.destroy',
                 'order' => 24,
+                'category_id' => 3
             ],
             [
                 'id' => 25,
                 'name' => 'Perform Certificate Actions',
                 'route' => 'certificate-actions',
                 'order' => 25,
+                'category_id' => 4
             ],
             [
                 'id' => 26,
                 'name' => 'Download Certificate',
                 'route' => '',
                 'order' => 26,
+                'category_id' => 4
             ],
             [
                 'id' => 27,
                 'name' => 'Delete Certificate',
                 'route' => 'certificates.destroy',
                 'order' => 27,
+                'category_id' => 4
             ],
             [
                 'id' => 28,
                 'name' => 'Add New Score Setting',
                 'route' => 'scoreSettings.create',
                 'order' => 28,
+                'category_id' => 7
             ],
             [
                 'id' => 29,
                 'name' => 'Edit Score Setting',
                 'route' => 'scoreSettings.edit',
                 'order' => 29,
+                'category_id' => 7
             ],
             [
                 'id' => 29,
                 'name' => 'Update Score Setting',
                 'route' => 'scoreSettings.update',
                 'order' => 29,
+                'category_id' => 7
             ],
             [
                 'id' => 30,
                 'name' => 'Delete Score Setting',
                 'route' => 'scoreSettings.destroy',
                 'order' => 30,
+                'category_id' => 7
             ],
             [
                 'id' => 31,
                 'name' => 'Export Test Results',
-                'route' => '',
+                'route' => 'result.export',
                 'order' => 31,
+                'category_id' => 5
             ],
             [
                 'id' => 32,
                 'name' => 'View Certification Score',
-                'route' => '',
+                'route' => 'view-certification-score',
                 'order' => 32,
+                'category_id' => 5
             ],
             [
                 'id' => 33,
                 'name' => 'View Roleplay Score',
-                'route' => 'roleplay-score',
+                'route' => 'view-roleplay-score',
                 'order' => 33,
+                'category_id' => 5
             ],
             [
                 'id' => 34,
                 'name' => 'View Email Score',
-                'route' => 'email-score',
+                'route' => 'view-email-score',
                 'order' => 34,
+                'category_id' => 5
             ],
             [
                 'id' => 35,
                 'name' => 'View CRM Score',
-                'route' => 'crm-score',
+                'route' => 'view-crm-score',
                 'order' => 35,
+                'category_id' => 5
             ],
             [
                 'id' => 36,
                 'name' => 'View Class Tests Score',
-                'route' => 'class-score',
+                'route' => 'view-class-score',
                 'order' => 36,
+                'category_id' => 5
             ],
+            [
+                'id' => 36,
+                'name' => 'View Total Scores',
+                'route' => 'view-total-score',
+                'order' => 36,
+                'category_id' => 5
+            ],
+            
             [
                 'id' => 37,
                 'name' => 'Update Certification Score',
-                'route' => 'update-certificate-score',
+                'route' => 'update-certification-score',
                 'order' => 37,
+                'category_id' => 5
             ],
             [
                 'id' => 38,
                 'name' => 'Update Roleplay Score',
                 'route' => 'update-roleplay-score',
                 'order' => 38,
+                'category_id' => 5
             ],
             [
                 'id' => 39,
                 'name' => 'Update Email Score',
                 'route' => 'update-email-score',
                 'order' => 39,
+                'category_id' => 5
             ],
             [
                 'id' => 40,
                 'name' => 'Update CRM Score',
                 'route' => 'update-crm-score',
                 'order' => 40,
+                'category_id' => 5
             ],
             [
                 'id' => 41,
-                'name' => 'Enable Resit',
-                'route' => '',
+                'name' => 'View Single Post Test Result',
+                'route' => 'results.add',
                 'order' => 41,
+                'category_id' => 5
             ],
+            [
+                'id' => 41,
+                'name' => 'Add/Update Grader\'s Comment',
+                'route' => 'results.grader',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'Add/Update Facilitator\'s Comment',
+                'route' => 'results.facilitator',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'Enable Post Test Resit',
+                'route' => 'results.destroy',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            
             [
                 'id' => 42,
                 'name' => 'Stop Resit Process',
-                'route' => '',
+                'route' => 'stopredotest',
                 'order' => 42,
+                'category_id' => 5
             ],
+            [
+                'id' => 41,
+                'name' => 'View Single Pre Test Result',
+                'route' => 'mocks.add',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            
         ];
 
-        // Convert to a collection and sort by 'order' in ascending order.
-        return collect($permissions)->sortBy('order');
+        $permissions = collect($permissions)->sortBy('order');
+        
+        if($children){
+            $permissions = $permissions->whereNotNull('category_id');
+            return $permissions;
+        }else{
+            // Group children by parentId
+            $permissions = $permissions->groupBy('category_id');
+            
+            // Map parents and attach children
+            $permissions = $permissions->get(null, collect())->map(function ($parent) use ($permissions) {
+                return array_merge($parent, [
+                    'children' => $permissions->get($parent['id'], collect())
+                    ->sortBy('order')
+                    ->toArray(),
+                ]);
+            });
+
+            return $permissions;
+        }
+        
     }
 
 

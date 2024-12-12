@@ -8,32 +8,12 @@
     ];
 
     $allpermissions = canUserAccessPermission($check);
-   
 @endphp
 @extends('dashboard.admin.index')
 @section('title', $user->name )
 @section('css')
 <style>
-    .select2-container--default .select2-selection--multiple {
-        line-height: 27px;
-        overflow: scroll;
-        height: 150px;
-    }
-    .view {
-        margin: 0 10px;
-        border-radius: 10%;
-    }
-    fieldset {
-        border: 1px solid #ddd;
-        padding: 10px 15px;
-        margin-bottom: 15px;
-    }
-    legend {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #0056b3;
-    }
+    
 </style>
 @endsection
 @section('content')
@@ -233,77 +213,111 @@
                             </div>
                         </fieldset>
                         @endif
-        
-                        @if ($allpermissions['teachers.update.training.access'])
-                        <fieldset>
-                            <legend>Trainings and Permissions</legend>
-                            <div id="trainingContainer">
-                                @if(!empty($user->trainings))
-                                @foreach($user->trainings as $program)
-                                    <div class="training-row row mt-3">
-                                        <div class="col-md-6">
-                                            <label>Select Training</label>
-                                            <select class="form-control training-dropdown" name="training[]" required>
-                                                <option value="">Select a program</option>
-                                                @foreach($allprograms as $programOption)
-                                                    <option value="{{ $programOption->id }}" {{ $programOption->id == $program->program_id ? 'selected' : '' }}>
-                                                        {{ $programOption->p_name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-12 mt-2">
-                                            <label class="d-flex justify-content-between align-items-center">
-                                                Permissions 
-                                                <span>
-                                                    <input type="checkbox" class="select-all-permissions" id="selectAll-{{ $program->program_id }}">
-                                                    <label for="selectAll-{{ $program->program_id }}" class="mb-0">Select All</label>
-                                                </span>
-                                            </label>
-                                            @php
-                                                $permissions = app('app\Http\Controllers\Controller')->adminTrainingPermissions();
-                                                $programPermissions = $program->training_permissions;
-                                            @endphp
-                                            <div class="row permissions-container border p-3 rounded">
-                                                @foreach($permissions as $menu)
-                                                    @php
-                                                        $checkboxId = "permission-{$program->program_id}-{$menu['route']}";
-                                                    @endphp
-                                                    <div class="col-md-3">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input permission-checkbox" 
-                                                                type="checkbox" 
-                                                                name="training_permissions[{{ $program->program_id }}][]" 
-                                                                value="{{ $menu['route'] }}"
-                                                                id="{{ $checkboxId }}"
-                                                                @if(in_array($menu['route'], $programPermissions ?? [])) checked @endif>
-                                                            <label class="form-check-label" for="{{ $checkboxId }}">
-                                                                {{ $menu['name'] }}
+                        
+                        @if(!checkRoleHas(['Admin'], $user))
+                            @if ($allpermissions['teachers.update.training.access'])
+                            <fieldset>
+                                <legend>Trainings and Permissions</legend>
+                                
+                                <div id="trainingContainer">
+                                    @if(!empty($user->trainings))
+                                    <div class="accordion" id="trainingAccordion">
+                                        @foreach($user->trainings as $index => $program)
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="heading-{{ $index }}">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $index }}" aria-expanded="false" aria-controls="collapse-{{ $index }}">
+                                                    {{ $program->p_name ?? 'Unnamed Program' }}
+                                                </button>
+                                            </h2>
+                                            <div id="collapse-{{ $index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ $index }}" data-bs-parent="#trainingAccordion">
+                                                <div class="accordion-body">
+                                                    <div class="training-row row mt-3">
+                                                        <div class="col-md-6">
+                                                            <label>Select Training</label>
+                                                            <select class="form-control training-dropdown" name="training[]" required>
+                                                                <option value="">Select a program</option>
+                                                                @foreach($allprograms as $programOption)
+                                                                    <option value="{{ $programOption->id }}" {{ $programOption->id == $program->program_id ? 'selected' : '' }}>
+                                                                        {{ $programOption->p_name }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+
+                                                        <div class="col-md-12 mt-4">
+                                                            <!-- Permissions Section Title -->
+                                                            <label class="d-flex justify-content-between align-items-center mb-3">
+                                                                <span class="h5 mb-0">Permissions</span>
+                                                                <span>
+                                                                    <input type="checkbox" class="select-all-permissions" id="selectAll-{{ $program->program_id }}">
+                                                                    <label for="selectAll-{{ $program->program_id }}" class="mb-0 text-muted">Select All</label>
+                                                                </span>
                                                             </label>
+
+                                                            @php
+                                                                $permissions = app('app\Http\Controllers\Controller')->adminTrainingPermissions();
+                                                                $programPermissions = $program->training_permissions;
+                                                            @endphp
+
+                                                            <!-- Permissions Container -->
+                                                            <div class="row permissions-container border p-4 rounded2 shadow-sm bg-light">
+                                                                @foreach($permissions as $menu)
+                                                                    @if($menu['children'] && count($menu['children']) > 0)
+                                                                    <!-- Parent Group -->
+                                                                    <div class="col-md-12 mb-4">
+                                                                        <!-- Parent Name -->
+                                                                        <h5 class="text-primary">{{ $menu['name'] }}</h5>
+                                                                        <div class="row ml-3">
+                                                                            @foreach($menu['children'] as $children)
+                                                                                @php
+                                                                                    $checkboxId = "permission-{$program->program_id}-{$children['route']}";
+                                                                                @endphp
+                                                                                <!-- Child Permission Checkbox -->
+                                                                                <div class="col-md-3">
+                                                                                    <div class="form-check">
+                                                                                        <input class="form-check-input permission-checkbox" 
+                                                                                            type="checkbox" 
+                                                                                            name="training_permissions[{{ $program->program_id }}][]" 
+                                                                                            value="{{ $children['route'] }}"
+                                                                                            id="{{ $checkboxId }}"
+                                                                                            @if(in_array($children['route'], $programPermissions ?? [])) checked @endif>
+                                                                                        <label class="form-check-label" for="{{ $checkboxId }}">
+                                                                                            {{ $children['name'] }}
+                                                                                        </label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                    @endif
+                                                                @endforeach
+                                                            </div>
+
+                                                            <!-- Error Message for Validation -->
+                                                            <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
+                                                        </div>
+
+                                                        <div class="col-md-12 mt-2 text-end">
+                                                            <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
                                                         </div>
                                                     </div>
-                                                @endforeach
+                                                </div>
                                             </div>
-                                            <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
                                         </div>
-                                        <div class="col-md-12 mt-2 text-end">
-                                            <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
-                                        </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
-                                @endif
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-12 text-end">
-                                    <button type="button" id="addRowButton" class="btn btn-success btn-sm">
-                                        <i class="fa fa-plus"></i> Add New Row
-                                    </button>
+                                    @endif
                                 </div>
-                            </div>
-                        </fieldset>
+                                <div class="row mt-3">
+                                    <div class="col-md-12 text-end">
+                                        <button type="button" id="addRowButton" class="btn btn-success btn-sm">
+                                            <i class="fa fa-plus"></i> Add New Row
+                                        </button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            @endif
                         @endif
-                        
                         @if ($allpermissions['teachers.update'])
                         <div class="row">
                             <button type="submit" class="btn btn-primary w-100">Submit</button>
@@ -336,171 +350,163 @@
         });
     });
 </script>
+
 <script>
     $(document).ready(function () {
-    const programsList = @json($allprograms); // Existing programs list
-    const permissionsData = @json(app('app\Http\Controllers\Controller')->adminTrainingPermissions()); // Permissions data
-    const trainingContainer = $("#trainingContainer");
+        const programsList = @json($allprograms); // Existing programs list
+        const permissionsData = @json(app('app\\Http\\Controllers\\Controller')->adminTrainingPermissions()); // Permissions data
+        const trainingAccordion = $("#trainingAccordion");
 
-    let rowCounter = 0;  // Counter to generate unique IDs for each row
+        let rowCounter = $(".accordion-item").length; // Counter for unique IDs, start with existing rows
 
-    // Add new row
-    $("#addRowButton").click(function () {
-        const selectedPrograms = $("select.training-dropdown").map(function () {
-            return $(this).val();
-        }).get();
+        // Add new row
+        $("#addRowButton").click(function () {
+            const selectedPrograms = $("select.training-dropdown").map(function () {
+                return $(this).val();
+            }).get();
 
-        const availablePrograms = programsList.filter(program => !selectedPrograms.includes(program.id.toString()));
+            const availablePrograms = programsList.filter(program => !selectedPrograms.includes(program.id.toString()));
 
-        if (availablePrograms.length === 0) {
-            alert("No more programs available to select.");
-            return;
-        }
+            if (availablePrograms.length === 0) {
+                alert("No more trainings available to select.");
+                return;
+            }
 
-        let options = availablePrograms.map(program => `<option value="${program.id}">${program.p_name}</option>`).join("");
+            let options = availablePrograms.map(program => `<option value="${program.id}">${program.p_name}</option>`).join("");
 
-        // Increment rowCounter for unique IDs
-        rowCounter++;
-        const uniqueRowId = `row-${rowCounter}`;
+            // Increment rowCounter for unique IDs
+            rowCounter++;
+            const uniqueRowId = `row-${rowCounter}`;
+            const headingId = `heading-${rowCounter}`;
+            const collapseId = `collapse-${rowCounter}`;
 
-        // Generate permissions HTML with unique IDs for checkboxes and labels
-        let permissionsHtml = permissionsData.map(menu => {
-            const permissionId = `${uniqueRowId}-${menu.route}`;
-            return `
-                <div class="col-md-3">
-                    <div class="form-check">
-                        <input class="form-check-input permission-checkbox" 
-                            type="checkbox" 
-                            name="training_permissions[PROGRAM_ID][]" 
-                            value="${menu.route}" 
-                            id="${permissionId}">
-                        <label class="form-check-label" for="${permissionId}">
-                            ${menu.name}
-                        </label>
+            // Generate permissions HTML
+            let permissionsHtml = permissionsData.map(menu => {
+                const permissionIdPrefix = `${uniqueRowId}-${menu.route}`;
+
+                if (menu.children && menu.children.length > 0) {
+                    let childPermissionsHtml = menu.children.map(child => {
+                        const childPermissionId = `${permissionIdPrefix}-${child.route}`;
+                        return `
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input permission-checkbox" 
+                                        type="checkbox" 
+                                        name="training_permissions[PROGRAM_ID][]" 
+                                        value="${child.route}" 
+                                        id="${childPermissionId}">
+                                    <label class="form-check-label" for="${childPermissionId}">
+                                        ${child.name}
+                                    </label>
+                                </div>
+                            </div>`;
+                    }).join('');
+
+                    return `
+                        <div class="col-md-12 mb-3">
+                            <h5 class="text-primary">${menu.name}</h5>
+                            <div class="row ml-3">
+                                ${childPermissionsHtml}
+                            </div>
+                        </div>`;
+                }
+
+                return '';
+            }).join('');
+
+            // Replace PROGRAM_ID with the first available program ID
+            permissionsHtml = permissionsHtml.replace(/PROGRAM_ID/g, availablePrograms[0].id);
+
+            // Create the accordion item HTML
+            let newAccordionItem = `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="${headingId}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                            Training Row ${rowCounter}
+                        </button>
+                    </h2>
+                    <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${headingId}" data-bs-parent="#trainingAccordion">
+                        <div class="accordion-body">
+                            <div class="training-row row mt-3" data-row-id="${uniqueRowId}">
+                                <div class="col-md-6">
+                                    <label>Select Training</label>
+                                    <select class="form-control training-dropdown" name="training[]" required>
+                                        <option value="">Select a program</option>
+                                        ${options}
+                                    </select>
+                                </div>
+                                <div class="col-md-12 mt-2">
+                                    <label class="d-flex justify-content-between align-items-center">
+                                        Permissions
+                                        <span>
+                                            <input type="checkbox" class="select-all-permissions" id="select-all-${uniqueRowId}">
+                                            <label for="select-all-${uniqueRowId}" class="ms-2">Select All</label>
+                                        </span>
+                                    </label>
+                                    <div class="permissions-container border p-3 rounded2 shadow-sm bg-light">
+                                        ${permissionsHtml}
+                                    </div>
+                                    <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
+                                </div>
+                                <div class="col-md-12 mt-2 text-end">
+                                    <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>`;
-        }).join('');
 
-        // Create the new row HTML
-        let newRow = `
-            <div class="training-row row mt-3" data-row-id="${uniqueRowId}">
-                <div class="col-md-6">
-                    <label>Select Training</label>
-                    <select class="form-control training-dropdown" name="training[]" required>
-                        <option value="">Select a program</option>
-                        ${options}
-                    </select>
-                </div>
-                <div class="col-md-12 mt-2">
-                    <label class="d-flex justify-content-between align-items-center">
-                        Permissions 
-                        <span>
-                            <input type="checkbox" class="select-all-permissions" id="select-all-${uniqueRowId}">
-                            <label for="select-all-${uniqueRowId}" class="ms-2">Select All</label>
-                        </span>
-                    </label>
-                    <div class="row permissions-container border p-3 rounded">
-                        ${permissionsHtml}
-                    </div>
-                    <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
-                </div>
-                <div class="col-md-12 mt-2 text-end">
-                    <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
-                </div>
-            </div>`;
-
-        // Replace PROGRAM_ID with the correct program ID dynamically
-        newRow = newRow.replace(/PROGRAM_ID/g, availablePrograms[0].id);
-
-        // Append the new row to the container
-        trainingContainer.append(newRow);
-        updateTrainingOptions();
-    });
-
-    // Remove row
-    trainingContainer.on("click", ".removeRowButton", function () {
-        $(this).closest(".training-row").remove();
-        updateTrainingOptions();
-    });
-
-    // Update training options and permissions name
-    function updateTrainingOptions() {
-        const selectedPrograms = $("select.training-dropdown").map(function () {
-            return $(this).val();
-        }).get();
-
-        $("select.training-dropdown").each(function () {
-            const currentValue = $(this).val();
-            let options = programsList
-                .filter(program => program.id.toString() === currentValue || !selectedPrograms.includes(program.id.toString()))
-                .map(program => `<option value="${program.id}" ${currentValue === program.id.toString() ? "selected" : ""}>${program.p_name}</option>`)
-                .join("");
-            $(this).html(`<option value="">Select a program</option>${options}`);
-        });
-    }
-
-    // "Select All" functionality
-    trainingContainer.on("change", ".select-all-permissions", function () {
-        const parentRow = $(this).closest(".training-row");
-        const isChecked = $(this).prop("checked");
-
-        parentRow.find(".permission-checkbox").each(function () {
-            $(this).prop("checked", isChecked);
-        });
-    });
-
-    // Form validation
-    $("form").submit(function (e) {
-        let isValid = true;
-
-        $(".training-row").each(function () {
-            const trainingSelected = $(this).find(".training-dropdown").val();
-            const permissionsChecked = $(this).find(".permission-checkbox:checked").length > 0;
-
-            if (!trainingSelected) {
-                isValid = false;
-                $(this).find(".training-dropdown").addClass("is-invalid");
-            } else {
-                $(this).find(".training-dropdown").removeClass("is-invalid");
-            }
-
-            if (!permissionsChecked) {
-                isValid = false;
-                $(this).find(".permission-error").removeClass("d-none");
-                $(this).find(".permissions-container").addClass("border border-danger");
-            } else {
-                $(this).find(".permission-error").addClass("d-none");
-                $(this).find(".permissions-container").removeClass("border border-danger");
-            }
+            // Append the new accordion item to the container
+            trainingAccordion.append(newAccordionItem);
+            updateTrainingOptions();
         });
 
-        if (!isValid) {
-            alert("Please complete all fields correctly.");
-            e.preventDefault();
+        // Remove row
+        trainingAccordion.on("click", ".removeRowButton", function () {
+            $(this).closest(".accordion-item").remove();
+            updateTrainingOptions();
+        });
+
+        // Update training options dynamically
+        function updateTrainingOptions() {
+            const selectedPrograms = $("select.training-dropdown").map(function () {
+                return $(this).val();
+            }).get();
+
+            $("select.training-dropdown").each(function () {
+                const currentValue = $(this).val();
+                let options = programsList
+                    .filter(program => program.id.toString() === currentValue || !selectedPrograms.includes(program.id.toString()))
+                    .map(program => `<option value="${program.id}" ${currentValue === program.id.toString() ? "selected" : ""}>${program.p_name}</option>`)
+                    .join("");
+                $(this).html(`<option value="">Select a program</option>${options}`);
+            });
         }
-    });
 
-    // Trigger update when training is changed
-    trainingContainer.on("change", ".training-dropdown", function () {
-        const programId = $(this).val();
-        const parentRow = $(this).closest(".training-row");
-        if (programId) {
-            parentRow
-                .find(".permissions-container .permission-checkbox")
-                .each(function () {
-                    $(this).attr("name", `training_permissions[${programId}][]`);
-                });
-        }
-        updateTrainingOptions();
-    });
+        // "Select All" functionality
+        trainingAccordion.on("change", ".select-all-permissions", function () {
+            const parentRow = $(this).closest(".training-row");
+            const isChecked = $(this).prop("checked");
 
-    // Toggle checkbox by clicking label
-    trainingContainer.on("click", ".permission-label", function () {
-        const checkbox = $(this).siblings(".permission-checkbox");
-        checkbox.prop("checked", !checkbox.prop("checked"));
-    });
-});
+            parentRow.find(".permission-checkbox").each(function () {
+                $(this).prop("checked", isChecked);
+            });
+        });
 
+        // Trigger update when training is changed
+        trainingAccordion.on("change", ".training-dropdown", function () {
+            const programId = $(this).val();
+            const parentRow = $(this).closest(".training-row");
+            if (programId) {
+                parentRow
+                    .find(".permissions-container .permission-checkbox")
+                    .each(function () {
+                        $(this).attr("name", `training_permissions[${programId}][]`);
+                    });
+            }
+            updateTrainingOptions();
+        });
+    });
 </script>
 <script>
     CKEDITOR.replace('ckeditor');

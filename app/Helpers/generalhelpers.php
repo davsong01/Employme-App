@@ -400,7 +400,7 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("allAccess")) {
         function allAccess()
         {
-            $menus = app('App\Http\Controllers\Controller')->adminTrainingPermissions();
+            $menus = app('App\Http\Controllers\Controller')->adminTrainingPermissions('children');
 
             return $menus->sortBy('order')->pluck('route')->toArray();
         }

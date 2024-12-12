@@ -8,7 +8,6 @@
 
     $permissions = canUserAccessPermission($check);
 @endphp
-
 @extends('dashboard.admin.index')
 @section('title', 'All Facilitators')
 @section('content')

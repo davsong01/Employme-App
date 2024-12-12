@@ -458,28 +458,22 @@ class ResultController extends Controller
     public function update(Result $result, Request $request)
     {
         try {
-            if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-                $result->marked_by = Auth::user()->name;
-                $result->role_play_score = $request->roleplayscore;
-            }
+            $result->marked_by = Auth::user()->name;
+            $result->role_play_score = $request->roleplayscore ?? $result->role_play_score;
 
-            if (!empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-                $result->certification_test_score = $request->certification_score;
-                $result->grader = Auth::user()->name;
-                $result->email_test_score = $request->emailscore;
-                $result->grader_comment = $request->grader_comment;
-                $result->grader_comment = $request->grader_comment;
-            }
+            $result->certification_test_score = $request->certification_score ?? $result->certification_test_score;
+            $result->grader = Auth::user()->name;
+            $result->email_test_score = $request->emailscore;
+            $result->grader_comment = $request->grader_comment;
+            $result->grader_comment = $request->grader_comment;
 
-            if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-                $result->role_play_score = $request->roleplayscore;
-                $result->crm_test_score = $request->crm_score;
-                $result->email_test_score = $request->emailscore;
-                $result->certification_test_score = $request->certification_score;
-                $result->grader_comment = $request->grader_comment;
-                $result->facilitator_comment = $request->facilitator_comment;
-            }
-
+            $result->role_play_score = $request->roleplayscore ?? $result->role_play_score;
+            $result->crm_test_score = $request->crm_score ?? $result->crm_test_score;
+            $result->email_test_score = $request->emailscore ?? $result->email_test_score;
+            $result->certification_test_score = $request->certification_score ?? $result->certification_test_score;
+            $result->grader_comment = $request->grader_comment ?? $result->grader_comment;
+            $result->facilitator_comment = $request->facilitator_comment ?? $result->facilitator_comment;
+            
             $result->save();
         } catch (PDOException $ex) {
             return back()->with('error', $ex->getMessage());
@@ -490,6 +484,24 @@ class ResultController extends Controller
 
     public function destroy(Request $request, $result)
     {
+        dd(request()->all());
+        $check = [
+            'view-certification-score',
+            'view-roleplay-score',
+            'view-email-score',
+            'view-crm-score',
+            'view-class-score',
+            'result.export',
+            'stopredotest',
+            'results.destroy',
+            'results.add',
+            'view-total-score',
+            'mocks.add',
+            'mocks.destroy'
+        ];
+
+        $permissions = checkTrainingHasPermissions($request->p_id, $check);
+    
         if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())){
             $results = Result::where('id', $request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
             
@@ -510,38 +522,6 @@ class ResultController extends Controller
             $results->redo_test = 1;
 
             $results->save();
-            // foreach($users_results as $results){
-
-            //     if(is_null($results->certification_test_details)){
-            //         return back()->with('error', 'User has not written this test');
-            //     }
-
-            //     // Save result thread
-            //     $thread = \DB::table('result_threads')->insert([
-            //         'result_id' => $results->id,
-            //         'submitted_on' => $results->created_at,
-            //         "program_id" => $results->program_id,
-            //         "module_id" => $results->module_id,
-            //         "user_id" => $results->user_id,
-            //         "marked_by" => $results->marked_by,
-            //         "grader" => $results->grader,
-            //         "class_test_score" => $results->class_test_score,
-            //         "class_test_details" => $results->class_test_details,
-            //         "certification_test_score" => $results->certification_test_score,
-            //         "certification_test_details" => $results->certification_test_details,
-            //         "role_play_score" => $results->role_play_score,
-            //         "email_test_score" => $results->email_test_score,
-            //         "facilitator_comment" => $results->facilitator_comment,
-            //         "grader_comment" => $results->grader_comment
-            //     ]);
-
-            //     $results->certification_test_details = NULL;
-            //     $results->certification_test_score = NULL;
-            //     $results->grader = NULL;
-            //     $results->redo_test = 1;
-
-            //     $results->save();
-            // };
 
             $user = User::find($request->uid);
             $user->redotest = 1;

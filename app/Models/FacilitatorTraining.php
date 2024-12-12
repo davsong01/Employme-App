@@ -34,7 +34,7 @@ class FacilitatorTraining extends Model
 
     public function training()
     {
-        return $this->belongsTo(Program::class, 'program_id');
+        return $this->belongsTo(Program::class, 'program_id')->where('program_lock',0);
     }
 
     public function transactions()

@@ -1,3 +1,27 @@
+@php
+    $check = [
+        'view-certification-score',
+        'view-roleplay-score',
+        'view-email-score',
+        'view-crm-score',
+        'view-class-score',
+        'result.export',
+        'stopredotest',
+        'results.destroy',
+        'results.add',
+        'view-total-score',
+        'mocks.add',
+        'mocks.destroy'
+    ];
+
+    $permissions = checkTrainingHasPermissions($program->id, $check);
+    
+    $menuCheck = [
+        'impersonate',
+    ];
+
+    $menuPermissions = canUserAccessPermission($menuCheck);
+@endphp
 @extends('dashboard.admin.index')
 @section('title', 'Test Results')
 @section('css')
@@ -33,66 +57,66 @@
 
 
         
-/*Right*/
-	.modal.right.fade .modal-dialog {
-		right: -320px;
-		-webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-		   -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-		     -o-transition: opacity 0.3s linear, right 0.3s ease-out;
-		        transition: opacity 0.3s linear, right 0.3s ease-out;
-	}
-	.modal.right.fade.in .modal-dialog {
-		right: 0;
-	}
+    /*Right*/
+        .modal.right.fade .modal-dialog {
+            right: -320px;
+            -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
+            -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
+                -o-transition: opacity 0.3s linear, right 0.3s ease-out;
+                    transition: opacity 0.3s linear, right 0.3s ease-out;
+        }
+        .modal.right.fade.in .modal-dialog {
+            right: 0;
+        }
 
-/* ----- MODAL STYLE ----- */
-	.modal-content {
-		border-radius: 0;
-		border: none;
-	}
+    /* ----- MODAL STYLE ----- */
+        .modal-content {
+            border-radius: 0;
+            border: none;
+        }
 
-	.modal-header {
-		border-bottom-color: #EEEEEE;
-		background-color: #FAFAFA;
-	}
+        .modal-header {
+            border-bottom-color: #EEEEEE;
+            background-color: #FAFAFA;
+        }
 
-/* ----- v CAN BE DELETED v ----- */
-body {
-	background-color: #78909C;
-}
+    /* ----- v CAN BE DELETED v ----- */
+    body {
+        background-color: #78909C;
+    }
 
-.demo {
-	padding-top: 60px;
-	padding-bottom: 110px;
-}
+    .demo {
+        padding-top: 60px;
+        padding-bottom: 110px;
+    }
 
-.btn-demo {
-	margin: 15px;
-	padding: 10px 15px;
-	border-radius: 0;
-	font-size: 16px;
-	background-color: #FFFFFF;
-}
+    .btn-demo {
+        margin: 15px;
+        padding: 10px 15px;
+        border-radius: 0;
+        font-size: 16px;
+        background-color: #FFFFFF;
+    }
 
-.btn-demo:focus {
-	outline: 0;
-}
+    .btn-demo:focus {
+        outline: 0;
+    }
 
-.demo-footer {
-	position: fixed;
-	bottom: 0;
-	width: 100%;
-	padding: 15px;
-	background-color: #212121;
-	text-align: center;
-}
+    .demo-footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        padding: 15px;
+        background-color: #212121;
+        text-align: center;
+    }
 
-.demo-footer > a {
-	text-decoration: none;
-	font-weight: bold;
-	font-size: 16px;
-	color: #fff;
-}
+    .demo-footer > a {
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 16px;
+        color: #fff;
+    }
     .select2-container--default .select2-selection--multiple {
         width: 100% !important; /* Force full width */
     }
@@ -257,201 +281,233 @@ body {
                             <th>#</th>
                             <th>Date</th>
                             <th>Details</th>
-                            <th>Test Scores</th>
+
+                            @if(!$permissions['view-certification-score'] && !$permissions['view-roleplay-score'] && 
+                                !$permissions['view-email-score'] && !$permissions['view-crm-score'] && !$permissions['view-class-score'])
+                            @else
+                                <th>Test Scores</th>
+                            @endif
+
                             @if($page == 'results')
-                            <th>Admin Details</th>
+                                <th>Admin Details</th>
                             @endif
+
                             <th>Passmark</th>
-                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))<th>Total</th>
+
+                            @if($permissions['view-total-score'])
+                                <th>Total</th>
                             @endif
+
+                            @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'] && !$permissions['mocks.add'])
+                            @else
                             <th>Actions</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $user)
-                        @if($user->passmark)
-                        <tr>
-                            <td>{{ $i++ }}</td>
-                            <td>
-                                @if($page == 'mocks')
-                                {{(($user->mocks->count() > 0)) ? $user->mocks->last()->created_at->format('d/m/Y') : ''}}
-                                @else 
-                                {{(($user->results->count() > 0)) ? $user->results->last()->created_at->format('d/m/Y') : ''}}
-                                @endif
-                            </td>
-                            <td>{{ $user->name }}
-                                @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
-                                    <br><b>StaffID</b>: <i>{{ $user->staffID }}</i>
-                                    <br><b>Email:</b> <i>{{ $user->email }}</i>
-                                    @if($user->phone)
-                                    <br><b>Phone</b> <i>{{ $user->phone }}</i>
-                                    @endif
-                                    @if($user->user->last_login) <br>
-                                    <span style="color:green"><strong>Last Login: </strong>{{ $user->user->last_login ? date("M jS, Y H:i", strtotime($user->user->last_login)) : '' }}</span>
-                                    @endif
-                                @endif
-                                <div class="button-container">
-                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                        <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                        class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}"><i
-                                            class="fa fa-unlock"> Peek</i>
-                                        </a>
-                                    @endif
-                                </div>
-                            </td>
-                            <td>
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                    <?php
-                                        $total = ((!empty($score_settings->certification) && $score_settings->certification > 0) ? $user->total_cert_score : 0 )
-                                        + ((!empty($score_settings->class_test) && $score_settings->class_test > 0 ) ? $user->final_ct_score : 0)
-                                        + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
-                                        + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
-                                        + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
-                                    ?>
-
-                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                        <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
-                                    @endif
-                                @endif
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                    @if(isset($score_settings->certification) && $score_settings->certification > 0)
-                                    <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% <br>
-                                    @endif
-                                @endif
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
-                                        @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                        <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
+                            @if($user->passmark)
+                                <tr>
+                                    <td>{{ $i++ }}</td>
+                                    <td>
+                                        @if($page == 'mocks')
+                                            {{ $user->mocks->count() > 0 ? $user->mocks->last()->created_at->format('d/m/Y') : '' }}
+                                        @else
+                                            {{ $user->results->count() > 0 ? $user->results->last()->created_at->format('d/m/Y') : '' }}
                                         @endif
-                                    @endif
-                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
-                                        @if(isset($score_settings->crm_test) && $score_settings->crm_test > 0)
-                                        <strong class="tit">CRM Test: </strong> {{ $user->total_crm_test_score }}%  <br> 
+                                    </td>
+
+                                    <td>
+                                        @if(canUserAccessPermission(['users.edit'])['users.edit'])                            
+                                            <a target="_blank" href="{{ route('users.edit', $user->id) }}">
+                                                {{ $user->name }} <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                                            </a>
+                                        @else
+                                            {{ $user->name }}
                                         @endif
-                                    @endif
-                                    @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                        @if(isset($score_settings->email) && $score_settings->email > 0)
-                                            <strong>Email: </strong> {{ $user->total_email_test_score }}% 
+
+                                        @if(canUserAccessPermission(['users.edit'])['users.edit'])
+                                            <br><b>StaffID</b>: <i>{{ $user->staffID }}</i>
+                                            <br><b>Email:</b> <i>{{ $user->email }}</i>
+                                            @if($user->phone)
+                                                <br><b>Phone</b> <i>{{ $user->phone }}</i>
+                                            @endif
+                                            @if($user->user->last_login)
+                                                <br><span style="color:green"><strong>Last Login:</strong> 
+                                                    {{ date("M jS, Y H:i", strtotime($user->user->last_login)) }}
+                                                </span>
+                                            @endif
+                                            <br>Certificate Access:
+                                            @if(isset($user->cert))
+                                                <strong style="color:{{ $user->show_certificate == 1 ? 'green' : 'red' }}">
+                                                    {{ $user->show_certificate == 1 ? 'Enabled' : 'Disabled' }}
+                                                </strong>
+                                            @else
+                                                Not Uploaded/Test Not Taken
+                                            @endif
                                         @endif
-                                    @endif
-                                @endif
-                            </td>
-                            @if($page == 'results')
-                            <td>
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))<strong class="tit">Marked by: </strong> {{ $user->marked_by ?: 'N/A' }}@endif
 
-                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) <br> <strong class="tit">Graded by: </strong> {{ $user->grader ?: 'N/A'}}<br>
-
-                                <small> Last updated on: {{isset($user->updated_at) ?  \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA')  : ''}}</small>
-                                @endif
-                                <br>
-                                Certificate Access : @if(isset($user->cert))
-                                    @if($user->show_certificate == 1)
-                                    <strong style="color:green">Enabled</strong>
-                                    @else
-                                    <strong style="color:red">Disabled</strong>
-                                    @endif
-                                @else
-                                Not Uploaded/Test Not Taken
-                                @endif 
-                            </td>
-                            @endif
-                            <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
-                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
-                            <td>
-                                <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
-                            </td>
-                            @endif
-
-                            @if($page == 'mocks')
-                            <td>
-                                @if( $user->result_id )
-                                    <div class="btn-group">
-                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
-                                            class="btn btn-info" href="{{ route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id]) }}"><i
-                                                class="fa fa-eye"></i>
-                                        </a>
-                                            <form action="{{ route('mocks.destroy', $user->result_id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                            {{ csrf_field() }}
-                                            {{method_field('DELETE')}}
-                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete Result"> <i
-                                                    class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            @else 
-                            <td>
-                                <div class="button-container">
-                                @if(isset($user->result_id)) 
-                                    @if($user->redotest == 0)
-                                        @if (!empty($user->certification_test_details))
-                                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i `zclass="fa fa-eye"> View/Update </i>
-                                                    </a>
-                                                    @include('dashboard.admin.results.edit_modal')
-
-                                                @endif
-                                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                                <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
-                                                    {{ csrf_field() }}
-                                                    {{method_field('DELETE')}}
-                                                    <input type="hidden" name="uid" value="{{ $user->user_id }}">
-                                                    <input type="hidden" name="rid" value="{{ $user->result_id }}">
-                                                    <input type="hidden" name="pid" value="{{ $user->program_id }}">
-                                                    <button type="submit" class="btn btn-danger btn-sm"> <i class="fa fa-redo"> Enable Resit</i>
-                                                    </button>
-                                                </form>
-                                                @endif
-                                        @else 
-                                            <button class="btn btn-danger btn-sm w-100 mb-3" style="display: block;" disabled>Resit In Progress!</button>
-                                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                                                <a class="btn btn-info btn-sm w-100 mb-3" href="{{ route('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id]) }}"><i
-                                                        class="fa fa-eye"> View/Update </i>
+                                        <div class="button-container">
+                                            @if($menuPermissions['impersonate'])
+                                                <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                                class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}">
+                                                    <i class="fa fa-unlock"> Peek</i>
                                                 </a>
                                             @endif
-                                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                            <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" action="{{ route('results.destroy', $user->result_id, ['uid' => $user->user_id, 'result' => $user->result_id ]) }}" method="POST">
-                                                {{ csrf_field() }}
-                                                {{method_field('DELETE')}}
-                                                <input type="hidden" name="uid" value="{{ $user->user_id }}">
-                                                <input type="hidden" name="rid" value="{{ $user->result_id }}">
-                                                <input type="hidden" name="pid" value="{{ $user->program_id }}">
-                                                <input type="hidden" name="override_resit" value="yes">
-                                                <button type="submit" class="btn btn-danger btn-sm w-100 mb-3"> <i
-                                                        class="fa fa-redo"> Enable Resit</i>
-                                                </button>
-                                            </form>
-                                            @endif
-                                        @endif
-                                    @else
-                                        @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                            @if($user->redotest != 0)
-                                                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions()))
-                                                    <a onclick="return confirm('This will stop this this user from access to take retest certification test/ Are you sure you want to do this?');" class="btn btn-warning btn-sm w-100 mb-3" href="{{ route('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id]) }}"><i
-                                                            class="fa fa-stop"></i> End resit
-                                                    </a>
-                                                @endif
-                                            @endif
-                                        @endif
                                         </div>
+                                    </td>
+                                    @php
+                                        $total = ((!empty($score_settings->certification) && $score_settings->certification > 0) ? $user->total_cert_score : 0)
+                                                + ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->final_ct_score : 0)
+                                                + ((!empty($score_settings->email) && $score_settings->email > 0) ? $user->total_email_test_score : 0)
+                                                + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0)
+                                                + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ? $user->total_crm_test_score : 0);
+                                    @endphp
+                                    @if(!$permissions['view-certification-score'] && !$permissions['view-roleplay-score'] &&
+                                        !$permissions['view-email-score'] && !$permissions['view-crm-score'] && !$permissions['view-class-score'] &&  !$permissions['mocks.add'])
+                                    @else
+                                        <td>
+                                            @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                                <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br>
+                                            @endif
+                                            
+                                            @if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
+                                                <strong>Certification: </strong> {{ $user->total_cert_score }}% <br>
+                                            @endif
+
+                                            @if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
+                                                <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}% <br>
+                                            @endif
+
+                                            @if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
+                                                <strong class="tit">CRM Test: </strong> {{ $user->total_crm_test_score }}% <br>
+                                            @endif
+
+                                            @if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
+                                                <strong>Email: </strong> {{ $user->total_email_test_score }}% 
+                                            @endif
+                                        </td>
                                     @endif
-                                @else
-                                    <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
-                                @endif
-                                </div>
-                            </td>
+
+                                    @if($page == 'results')
+                                        <td>
+                                            <strong class="tit">Marked by: </strong> {{ $user->marked_by ?: 'N/A' }}<br>
+                                            <strong class="tit">Graded by: </strong> {{ $user->grader ?: 'N/A'}}<br>
+                                            <small>Last updated on: {{ $user->updated_at ? \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA') : ''}}</small>
+                                        </td>
+                                    @endif
+
+                                    <td>
+                                        <strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> 
+                                    </td>
+
+                                    @if($permissions['view-total-score'])
+                                        <td>
+                                            <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green' }}">{{ $total }}%</strong> 
+                                        </td>
+                                    @endif
+
+                                    @if($page == 'mocks')
+                                        <td>
+                                            @if($user->result_id)
+                                                <div class="btn-group">
+                                                    @if($permissions['mocks.add'])
+                                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                                        class="btn btn-info" href="{{ URL::signedRoute('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>]
+
+                                                    @endif
+                                                    @if($permissions['mocks.add'])
+                                                        <form action="{{ URL::signedRoute('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
+                                                            onsubmit="return confirm('Are you really sure?');">
+                                                            {{ csrf_field() }}
+                                                            {{method_field('DELETE')}}
+                                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
+                                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                                                    data-placement="top" title="Delete Result"> 
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                    @else 
+                                        @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'])
+                                        @else
+                                            <td>
+                                                <div class="button-container">
+                                                    @if(isset($user->result_id))
+                                                        @if($user->redotest == 0)
+                                                            @if (!empty($user->certification_test_details))
+                                                                @if($permissions['results.add'])
+                                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ URL::signedRoute('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id, 'p_id' => $user->program_id]) }}">
+                                                                        <i class="fa fa-eye"> View/Update </i>
+                                                                    </a>
+                                                                @endif
+                                                                @if($permissions['results.destroy'])
+                                                            
+                                                                    <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
+                                                                        action="{{ URL::signedRoute('results.destroy', ['uid' => $user->user_id, 'result' => $user->result_id, 'p_id' => $user->program_id]) }}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{method_field('DELETE')}}
+                                                                        <input type="hidden" name="uid" value="{{ $user->user_id }}">
+                                                                        <input type="hidden" name="rid" value="{{ $user->result_id }}">
+                                                                        <input type="hidden" name="pid" value="{{ $user->program_id }}">
+                                                                        <button type="submit" class="btn btn-danger btn-sm btn-sm w-100 mb-3"> 
+                                                                            <i class="fa fa-redo"> Enable Resit</i>
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            @else 
+                                                                <button class="btn btn-danger btn-sm w-100 mb-3" style="display: block;" disabled>Resit In Progress!</button>
+                                                                @if($permissions['results.add'])
+                                                                    <a class="btn btn-info btn-sm w-100 mb-3" href="{{ URL::signedRoute('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id,'p_id' => $user->program_id]) }}">
+                                                                        <i class="fa fa-eye"> View/Update </i>
+                                                                    </a>
+                                                                @endif
+                                                                @if($permissions['results.destroy'])
+                                                                    <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
+                                                                        action="{{ URL::signedRoute('results.destroy', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $user->program_id]) }}" method="POST">
+                                                                        {{ csrf_field() }}
+                                                                        {{method_field('DELETE')}}
+                                                                        <input type="hidden" name="uid" value="{{ $user->user_id }}">
+                                                                        <input type="hidden" name="rid" value="{{ $user->result_id }}">
+                                                                        <input type="hidden" name="pid" value="{{ $user->program_id }}">
+                                                                        <input type="hidden" name="override_resit" value="yes">
+                                                                        <button type="submit" class="btn btn-danger btn-sm w-100 mb-3"> 
+                                                                            <i class="fa fa-redo"> Enable Resit</i>
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            @endif
+                                                        @else
+                                                            @if($user->redotest != 0)
+                                                                @if($permissions['stopredotest'])
+                                                                    <a onclick="return confirm('This will stop this user from access to take retest certification test. Are you sure you want to do this?');" 
+                                                                    class="btn btn-warning btn-sm w-100 mb-3" href="{{ URL::signedRoute('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id,'p_id' => $user->program_id]) }}">
+                                                                        <i class="fa fa-stop"></i> End resit
+                                                                    </a>
+                                                                @endif
+                                                            @endif
+                                                        @endif
+                                                    @else
+                                                        <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        @endif
+                                    @endif
+                                </tr>
                             @endif
-                        </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+
             {{$users->render()}}
         </div>
     </div>
