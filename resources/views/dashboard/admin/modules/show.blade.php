@@ -132,10 +132,10 @@
                                         </a>
                                         @endif
                                     @endif
-                                    @if($allPermissions['modules.show'])
+                                    @if($allPermissions['module.clone'])
                                         @if($module->questions->count() > 0)
                                         <a data-toggle="tooltip" data-placement="top" title="Clone Module"
-                                            class="btn btn-info" href="{{ URL::signedRoute('modules.show', ['p_id' => $p_id, 'id' => $module->id]) }}"><i
+                                            class="btn btn-info" href="{{ URL::signedRoute('module.clone', ['p_id' => $p_id, 'module' => $module->id]) }}"><i
                                                 class="fa fa-clone"></i>
                                         </a>
                                         @endif

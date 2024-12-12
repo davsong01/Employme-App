@@ -1101,7 +1101,7 @@ class Controller extends BaseController
                     'route' => 'pop.edit',
                     'type' => 'access',
                     'order' => 1,
-                    'parentId' => 11
+                    'parentId' => 9
                 ],
                 [
                     'id' => 112,
@@ -1109,7 +1109,7 @@ class Controller extends BaseController
                     'route' => 'pop.update',
                     'type' => 'access',
                     'order' => 2,
-                    'parentId' => 11
+                    'parentId' => 9
                 ],
                 [
                     'id' => 113,
@@ -1117,7 +1117,7 @@ class Controller extends BaseController
                     'route' => 'pop.show',
                     'type' => 'access',
                     'order' => 3,
-                    'parentId' => 11
+                    'parentId' => 9
                 ],
                 [
                     'id' => 114,
@@ -1125,7 +1125,7 @@ class Controller extends BaseController
                     'route' => 'pop.delete',
                     'type' => 'access',
                     'order' => 4,
-                    'parentId' => 11
+                    'parentId' => 9
                 ],
             [
                 'id' => 12,
@@ -1140,7 +1140,7 @@ class Controller extends BaseController
                     'route' => 'payments.edit',
                     'type' => 'access',
                     'order' => 1,
-                    'parentId' => 12
+                    'parentId' => 9
                 ],
                 [
                     'id' => 122,
@@ -1148,23 +1148,16 @@ class Controller extends BaseController
                     'route' => 'payments.show',
                     'type' => 'access',
                     'order' => 2,
-                    'parentId' => 12
+                    'parentId' => 9
                 ],
-                [
-                    'id' => 122,
-                    'name' => 'Peek Transaction User',
-                    'route' => 'payments.user.impersonate',
-                    'type' => 'access',
-                    'order' => 3,
-                    'parentId' => 12
-                ],
+                
                 [
                     'id' => 123,
                     'name' => 'Delete Transaction',
-                    'route' => 'payments.delete',
+                    'route' => 'payments.destroy',
                     'type' => 'access',
-                    'order' => 4,
-                    'parentId' => 12
+                    'order' => 3,
+                    'parentId' => 9
                 ],
             [
                 'id' => 13,

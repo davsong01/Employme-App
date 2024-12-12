@@ -1,3 +1,15 @@
+@php
+    $checks = [
+        'payments.destroy',
+        'payments.edit',
+        'impersonate',
+        'payments.show',
+        'users.edit'
+    ];
+
+    $permissions = canUserAccessPermission($checks);
+
+@endphp
 @extends('dashboard.admin.index')
 @section('css')
 <link rel="stylesheet" href="{{ asset('modal.css') }}" />
@@ -118,32 +130,46 @@
                             @foreach($transactions as $transaction)
                             <tr>
                                 <td>{{ $i++ }}</a>
-                                <td><strong>Name: </strong><a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                <td><strong>Name: </strong>
+                                    @if($permissions['users.edit'])
+                                    <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
                                     <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
+                                    @endif
                                     @if($transaction->user->last_login) <br>
                                     <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
                                     @endif
+                                    @if($permissions['payments.edit'])
                                     <br> 
-                                    <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}</td>
+                                    <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}
+                                    @endif
+                                    @if($permissions['impersonate']) <br>
+                                    <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $transaction->user_id) }}">
+                                        <i class="fa fa-unlock"> Peek</i>
+                                    </a>
+                                    @endif
+                                </td>
                                 <td>
                                     <small class="training-details">
                                         <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a><br>  
-                                        @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> <br> @endif
-                                        <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
-                                        @if(!is_null($transaction->coupon_code))
-                                        <span style="color:blue">
-                                        <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
-                                        </span>
-                                        @endif
-                                        <br>
-                                        <strong>Balance:</strong>
-                                            @if($transaction->balance > 0 )
-                                                <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
-                                            @else
-                                                <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
+                                        @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> @endif
+                                            @if($permissions['payments.edit'])
+                                                <strong>Paid:</strong> {{ $transaction->currency. number_format($transaction->t_amount) }}
+                    
+                                                @if(!is_null($transaction->coupon_code))
+                                                <span style="color:blue">
+                                                <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
+                                                </span>
+                                                @endif
+                                                <br>
+                                                <strong>Balance:</strong>
+                                                    @if($transaction->balance > 0 )
+                                                        <span style="color:red">{{  $transaction->currency. number_format($transaction->balance) }} </span>
+                                                    @else
+                                                        <span style="color:green">{{ $transaction->currency.  number_format($transaction->balance) }}</span>
+                                                    @endif
+                                                <br>      
                                             @endif
-                                        <br>      
-                                    
                                         <?php
                                             if(isset($transaction->t_location) && isset($transaction->t_location)){
                                                 $locations = json_decode($transaction->locations, true);
@@ -184,24 +210,29 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
+                                        @if($permissions['payments.edit'])
                                         <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"
                                             class="btn btn-info btn-sm" href="{{ route('payments.edit', $transaction->id) }}"><i
                                                 class="fa fa-edit"></i>
                                         </a>
+                                        @endif
                                         <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
                                             class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
                                                 class="fa fa-print"></i>
                                         </a>
+                                        @if($permissions['payments.show'])
                                         <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
                                             class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
                                                 class="far fa-envelope"></i>
                                         </a>
-                                        @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
+                                        @endif
+                                        {{-- @if($permissions['impersonate'])
                                             <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                                 class="btn btn-dark btn-sm" href="{{ route('impersonate', $transaction->user_id) }}"><i
                                                     class="fa fa-unlock"></i>
                                             </a>
-                                        @endif 
+                                        @endif  --}}
+                                        @if($permissions['payments.destroy'])
                                         <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
                                             onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
@@ -211,6 +242,7 @@
                                                 data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
 
                                 </td>
