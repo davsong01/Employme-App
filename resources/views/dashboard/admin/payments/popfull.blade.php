@@ -1,3 +1,12 @@
+@php
+    $checks = [
+        'pop.edit',
+        'pop.show',
+        'pop.destroy',
+    ];
+
+    $permissions = canUserAccessPermission($checks);
+@endphp
 @extends('dashboard.admin.index')
 @section('title', 'Payment History')
 @section('content')
@@ -40,15 +49,17 @@
                                             <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2348037067223&text={{ urlencode($string) }}" target="_blank">
                                                 <i class="fab fa-whatsapp"></i> Send via WhatsApp
                                             </a>
-                                            
+                                            @if($permissions['pop.edit'])
                                             <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editpop{{ $pop->id }}">
                                                 <i class="fa fa-edit"></i> Edit
                                             </a>
-                                            
+                                            @endif
+                                            @if($permissions['pop.show'])
                                             <a title="Approve Payment" class="btn btn-success btn-sm" href="{{ route('pop.show', $pop->id) }}">
                                                 <i class="fa fa-check"></i> Approve
                                             </a>
-                                            
+                                            @endif
+                                            @if($permissions['pop.destroy'])
                                             <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you really sure?');">
                                                 {{ csrf_field() }}
                                                 {{ method_field('DELETE') }}
@@ -56,6 +67,7 @@
                                                     <i class="fa fa-trash"></i> Delete
                                                 </button>
                                             </form>
+                                            @endif
                                         </div>
                                     </td>
                                     <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})

@@ -95,20 +95,21 @@ class PaymentController extends Controller
     public function proofOfPaymentHistory(Request $request)
     {
         $i = 1;
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {;
-
-            $pops = Pop::with('program:id,p_name,p_amount,e_amount,p_end,close_registration')->Ordered('date', 'DESC')->get();
-            $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
-                ->doesntHave('children')
-                ->where('id', '<>', 1)
-                // ->where('close_registration', 0)
-                // ->where('p_end', '>', date('Y-m-d'))
-                ->orderBy('created_at', 'DESC')
-                ->get();
-            // dd($pops);
-            return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs'));
+        if(!checkRoleHas(['Facilitator','Admin','Grader'])){
+            return back();
         }
+        
+        $pops = Pop::with('program:id,p_name,p_amount,e_amount,p_end,close_registration')->Ordered('date', 'DESC')->get();
+        $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
+            ->doesntHave('children')
+            ->where('id', '<>', 1)
+            // ->where('close_registration', 0)
+            // ->where('p_end', '>', date('Y-m-d'))
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        // dd($pops);
+        return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs'));
+
     }
     
     public function paymentHistory()
@@ -142,7 +143,6 @@ class PaymentController extends Controller
 
     public function edit($id)
     {
-
         // $transaction = DB::table('program_user')->whereId($id)->first();
         $transaction = Transaction::with(['coupon', 'program', 'user'])->whereId($id)->first();
 
@@ -157,16 +157,23 @@ class PaymentController extends Controller
         $locations =  (isset($program_details->locations) && !empty($program_details->locations)) ? json_decode($program_details->locations) : [];
         // determine balance
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.transactions.edit', compact('transaction', 'locations', 'modes', 'coupons'));
+        $checks = [
+            'payments.edit',
+        ];
+
+        $permissions = canUserAccessPermission($checks);
+
+        if ($permissions['payments.edit']) {
+            return view('dashboard.admin.transactions.partial_edit', compact('transaction', 'locations', 'modes', 'coupons'));
         }
+        
         return back();
     }
 
     public function show(Request $request, $id)
     {
         $transaction = Transaction::where('id', $id)->first();
-       
+        
         if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
             //get user details
             $user = User::findorFail($transaction->user_id);
@@ -314,6 +321,15 @@ class PaymentController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        if(!canUserAccessPermission(['payments.edit'])){
+            return response()->json([
+                'success' => false,
+                'message' => 'You do not have permission to update this resource',
+                'transaction_id' => $id,
+            ]);
+        }
+
         $transaction = Transaction::with('user', 'program')->whereId($id)->first();
 
         $user = $transaction->user;
@@ -327,7 +343,6 @@ class PaymentController extends Controller
             }
         }
 
-        
         $newamount = $transaction->t_amount + $request->amount;
         $balance = $programFee - $newamount;
         
@@ -357,22 +372,30 @@ class PaymentController extends Controller
         }
 
 
-        $message = $this->dosubscript1($balance);
+        $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
 
         if ($newamount > $programFee) {
-            return back()->with('warning', 'Student cannot pay more than program fee');
+            return response()->json([
+                'success' => false,
+                'message' => 'Student cannot pay more than program fee',
+                'transaction_id' => $id,
+            ]);
         }
         
         if ($request->funds_source == 'wallet') {
-            // Does he have enough in wallet
             $account_balance = $user->account_balance;
 
             if($account_balance < $request->amount){
-                return back()->with('error', 'Insufficient funds in user account balance');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Insufficient funds in user account balance',
+                    'transaction_id' => $id,
+                ]);
             }
+
             $t_type = 'wallet';
-            // log a credit
+            
             $wallet['amount'] = abs($request->amount);
             $wallet['transaction_id'] = $transaction->transid ?? $transaction->invoice_id;
             $wallet['type'] = 'debit';
@@ -420,7 +443,6 @@ class PaymentController extends Controller
             'admin_id' => auth()->user()->id,
             'paymentStatus' =>  $paymentStatus,
         ]);
-
         $reference = $this->getReference('ADMIN_TOP_UP_WALLET');
 
         PaymentThread::create([
@@ -433,8 +455,15 @@ class PaymentController extends Controller
             'parent_transaction_id' => $transaction->transid ?? $transaction->invoice_id,
             'amount' => abs($request->amount),
         ]);
-        
-        return back()->with('message', 'Transaction updated successfully');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaction updated successfully',
+            'transaction_id' => $id,
+            'new_amount' => $transaction->t_amount,
+            'new_balance' => $transaction->balance
+        ]);
+        // return back()->with('message', '');
     }
 
     public function destroy($id)

@@ -1097,20 +1097,13 @@ class Controller extends BaseController
             ],
                 [
                     'id' => 111,
-                    'name' => 'Edit Proof of Payment',
+                    'name' => 'Edit/Update Proof of Payment',
                     'route' => 'pop.edit',
                     'type' => 'access',
                     'order' => 1,
                     'parentId' => 9
                 ],
-                [
-                    'id' => 112,
-                    'name' => 'Update Proof of Payment',
-                    'route' => 'pop.update',
-                    'type' => 'access',
-                    'order' => 2,
-                    'parentId' => 9
-                ],
+                
                 [
                     'id' => 113,
                     'name' => 'Approve Proof of Payment',
@@ -1122,7 +1115,7 @@ class Controller extends BaseController
                 [
                     'id' => 114,
                     'name' => 'Delete Proof of Payment',
-                    'route' => 'pop.delete',
+                    'route' => 'pop.destroy',
                     'type' => 'access',
                     'order' => 4,
                     'parentId' => 9
