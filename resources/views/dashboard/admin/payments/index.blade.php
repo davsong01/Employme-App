@@ -12,7 +12,6 @@
 @endphp
 @extends('dashboard.admin.index')
 @section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
 <style>
     .modal-dialog-slideout {
         max-width: 400px;
@@ -315,24 +314,24 @@
                         
                     </table>
                     <!-- Sidebar Modal -->
-<div class="modal fade" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-slideout modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editSidebarModalLabel">Edit Transaction</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="modalContent">
-                    <!-- Content will be dynamically loaded here -->
-                    <div class="text-center">
-                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    <div class="modal fade" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-slideout modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editSidebarModalLabel">Edit Transaction</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="modalContent">
+                                        <!-- Content will be dynamically loaded here -->
+                                        <div class="text-center">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
                 </div>
                 {{  $transactions->appends($_GET)->links()  }}

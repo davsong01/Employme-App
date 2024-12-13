@@ -14,37 +14,22 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <!--Working Datatables old-->
-    {{-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.js"></script> --}}
-    {{-- old --}}
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!-- Bootstrap 5 JS (includes Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
-    <!-- jQuery Form Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset(\App\Models\Settings::value('favicon')) }}">
     <title>{{ config('app.name') }}</title>
-    <!-- Custom CSS -->
     <link href="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/extra-libs/calendar/calendar.css') }}" rel="stylesheet" />
     <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/dist/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('modal.css') }}" />
+
     <style>
         .table {
             border-radius: 8px;
@@ -128,27 +113,23 @@
             display: block;
         }
     </style>
+
     @yield('css')
-    <!---include font awesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
-    <!--Include CK Editor-->
     <script src="{{ asset('assets/ckeditor/ckeditor.js') }}"></script>
 
-    <!---Calender scripts-->
     <script src="https://code.jquery.com/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.js"></script>
-
 
     <script type="text/javascript">
         function display_c() {
-            var refresh = 1000; // Refresh rate in milli seconds
+            var refresh = 1000;
             mytime = setTimeout('display_ct()', refresh)
         }
 
         function display_ct() {
             var x = new Date()
-            var x1 = x.toUTCString(); // changing the display to UTC string
+            var x1 = x.toUTCString();
             document.getElementById('ct').innerHTML = x1;
             tt = display_c();
         }
@@ -404,10 +385,8 @@
         .rounded2{
             border-radius: 5px !important;
         }
-</style>
+    </style>
 </head>
-<!--Preloader-->
-
 
 <body>
     <div class="preloader">

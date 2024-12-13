@@ -1,7 +1,4 @@
 @extends('dashboard.admin.index')
-@section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
-@endsection
 @section('title', 'Payment History')
 @section('content')
 
@@ -20,7 +17,7 @@
                             <th>Amount Paid</th>
                             <th>Bank</th> 
                             <th>Location</th>
-                            <th>Actions</th>       
+                            <th>Image</th>       
                         </tr>
                     </thead>
                     
@@ -38,9 +35,28 @@
                                             *Email:* " . $pop->email . "
                                             *Training:* " . $pop->program?->p_name;
                                         ?>
-                                        <a class="btn btn-dark btn-sm rounded" href="https://api.whatsapp.com/send?phone=2348037067223&text={{ urlencode($string)  }}" target="_blank">
-                                            <i class="fab fa-whatsapp"></i> Send via WhatsApp
-                                        </a>
+                                        
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2348037067223&text={{ urlencode($string) }}" target="_blank">
+                                                <i class="fab fa-whatsapp"></i> Send via WhatsApp
+                                            </a>
+                                            
+                                            <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editpop{{ $pop->id }}">
+                                                <i class="fa fa-edit"></i> Edit
+                                            </a>
+                                            
+                                            <a title="Approve Payment" class="btn btn-success btn-sm" href="{{ route('pop.show', $pop->id) }}">
+                                                <i class="fa fa-check"></i> Approve
+                                            </a>
+                                            
+                                            <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you really sure?');">
+                                                {{ csrf_field() }}
+                                                {{ method_field('DELETE') }}
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete Proof of Payment">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                     <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
                                     @if(isset($pop->is_fresh)) <br>
@@ -50,31 +66,24 @@
                                     <td>{{ number_format($pop->amount) }}</td>
                                     <td>{{ $pop->bank }}</td>
                                     <td>{{ $pop->location }}</td>
-                                    
+                                
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="#" data-toggle="modal" data-target="#myModal{{ $pop->id }}">
-                                                <img title="View Proof of payment" id="myImg{{ $pop->id }}" src="{{ url('/uploads/'.$pop->file) }}" alt="{{ $pop->name }}" style="width:40px;max-width:300px">
-                                            </a>
-                                            <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editpop{{ $pop->id }}"><i class="fa fa-edit"></i>
-                                            </a>
-                                            <a title="Approve Payment" class="btn btn-success" href="{{ route('pop.show', $pop->id) }}"><i class="fa fa-check"></i></a>
-                                            <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                                {{ csrf_field() }}
-                                                {{ method_field('DELETE') }}
-                                                <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip" data-placement="top" title="Delete proof of payment">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#myModal{{ $pop->id }}">
+                                            <img title="View Proof of Payment" id="myImg{{ $pop->id }}" 
+                                                src="{{ url('/uploads/'.$pop->file) }}" 
+                                                alt="{{ $pop->name }}" 
+                                                class="img-thumbnail" style="width: 60px;">
+                                        </a>
+                                
                                     </td>
+
                                 </tr>
                                 <div class="modal fade mt-5" id="myModal{{ $pop->id }}" tabindex="-1" aria-labelledby="imageModal{{ $pop->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title">{{ $pop->name }}'s Payment Proof</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <button type="button" class="close"  data-bs-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -82,43 +91,22 @@
                                                 <img src="{{ url('/uploads/'.$pop->file) }}" alt="{{ $pop->name }}" class="img-fluid">
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">Close</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="modal" id="editpop{{ $pop->id }}" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Modal body text goes here.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-                                <div class="modal fade" id="editpop2{{ $pop->id }}" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="batchModalLabel">Update {{ $pop->name }}'s Payment Proof</h5>
-                                                <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
+                                                <h5 class="modal-title">Update {{ $pop->name }}'s Payment Proof</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <form action="{{ route('pop.update', $pop->id) }}" method="POST">
-                                                @csrf
                                                 @method('PATCH')
+                                                @csrf
                                                 <div class="modal-body">
                                                     <div class="row">
                                                         <div class="col-md-6 mb-3">
@@ -151,23 +139,10 @@
                                                         </div>
                                                     </div>
                                                     
-                                                    {{-- <div class="row">
-                                                        <div class="col-md-12 mb-3">
-                                                            <label for="program_id" class="form-label">Training</label>
-                                                            <select name="program_id" class="form-control">
-                                                                <option value="">Select</option>
-                                                                @foreach($programs as $program)
-                                                                <option value="{{ $program->id }}" {{ $program->id == $pop->program->id ? 'selected' : '' }}>
-                                                                    {{ $program->p_name }} ({{ $program->p_amount }}) @if($program->p_end > date('Y-m-d')) | <span style="color:red">Expired</span>@endif
-                                                                </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div> --}}
                                                     <div class="row">
                                                         <div class="col-md-12 mb-3">
                                                             <label for="program_id" class="form-label">Training</label>
-                                                            <select name="program_id" id="program_id" class="form-control select2">
+                                                            <select name="program_id" id="program_id_{{ $pop->id }}" class="form-control">
                                                                 <option value="">Select</option>
                                                                 @foreach($programs as $program)
                                                                 <option value="{{ $program->id }}" {{ $program->id == $pop->program->id ? 'selected' : '' }}>
@@ -180,10 +155,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    <button type="submit" class="btn btn-primary">
-                                                        Update
-                                                    </button>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -197,15 +170,4 @@
         </div>
     </div>
 </div>
-<script>
-    
-    $(document).ready(function () {
-        // Initialize Select2 on the dropdown
-        $('#program_id').select2({
-            placeholder: "Select a Training", // Optional placeholder
-            allowClear: true // Allows clearing the selection
-        });
-    });
-    
-</script>
 @endsection
