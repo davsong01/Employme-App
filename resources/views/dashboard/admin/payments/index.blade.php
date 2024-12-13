@@ -14,6 +14,17 @@
 @section('css')
 <link rel="stylesheet" href="{{ asset('modal.css') }}" />
 <style>
+    .modal-dialog-slideout {
+        max-width: 400px;
+        margin: 0;
+        height: 100%;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .modal.fade .modal-dialog-slideout {
+        transform: translateX(0);
+    }
     .select2-container--default .select2-selection--single {
         border: 1px solid #e9ecef;
         border-radius: 20px;
@@ -211,10 +222,18 @@
                                 <td>
                                     <div class="btn-group">
                                         @if($permissions['payments.edit'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"
+                                        <a data-toggle="tooltip" data-placement="top" title="Edit Transaction old"
                                             class="btn btn-info btn-sm" href="{{ route('payments.edit', $transaction->id) }}"><i
                                                 class="fa fa-edit"></i>
                                         </a>
+
+                                        <a data-toggle="tooltip" data-placement="top" title="Edit Transaction"
+                                            class="btn btn-info btn-sm open-modal" 
+                                            data-id="{{ $transaction->id }}"
+                                            href="javascript:void(0)">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
                                         @endif
                                         <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
                                             class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
@@ -295,6 +314,26 @@
                         </tbody>
                         
                     </table>
+                    <!-- Sidebar Modal -->
+<div class="modal fade" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-slideout modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSidebarModalLabel">Edit Transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <!-- Content will be dynamically loaded here -->
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
                 </div>
                 {{  $transactions->appends($_GET)->links()  }}
 
@@ -302,6 +341,39 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+    // Attach click event to all buttons with class 'open-modal'
+    $(document).on('click', '.open-modal', function () {
+        const transactionId = $(this).data('id'); // Get transaction ID from the button
+        const modalContent = $('#modalContent'); // Modal content container
+        
+        // Show loading spinner
+        modalContent.html(`<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>`);
+        
+        // Generate the dynamic URL using the transaction ID
+        const url = "{{ route('payments.edit', ':id') }}".replace(':id', transactionId);
+        
+        // Make an AJAX request to fetch the data
+        $.ajax({
+            url: url, // Use the dynamic URL here
+            method: 'GET',
+            success: function (data) {
+                // Inject the response HTML into the modal body
+                modalContent.html(data);
+                
+                // Show the modal
+                $('#editSidebarModal').modal('show');
+            },
+            error: function () {
+                console.error('Error loading modal content');
+                modalContent.html(`<div class="text-danger text-center">Failed to load data.</div>`);
+            }
+        });
+    });
+});
+
+</script>
 <script>
     $(document).ready(function() {
         $('.select2').select2({
