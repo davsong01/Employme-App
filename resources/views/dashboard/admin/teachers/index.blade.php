@@ -2,7 +2,7 @@
     $check = [
         'teachers.create',
         'teachers.edit',
-        'impersonate',
+        'admin-impersonate',
         'teachers.destroy',
     ];
 
@@ -101,7 +101,7 @@
                                             class="fa fa-edit"></i>
                                     </a>       
                                     @endif  
-                                    @if($permissions['impersonate'])
+                                    @if($permissions['admin-impersonate'])
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>

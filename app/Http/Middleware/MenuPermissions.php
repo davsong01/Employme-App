@@ -18,59 +18,11 @@ class MenuPermissions
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    // public function handle(Request $request, Closure $next)
-    // {
-    //     $currentRouteName = Route::currentRouteName();
-
-    //     // Exclude students from this check for now
-    //     if (session()->get('impersonate')) {
-    //         $user = User::where('id', session()->get('impersonate'))->first();
-    //     } else {
-    //         $user = Auth::user();
-    //     }
-
-    //     $roles = $user->role();
-
-    //     if(in_array('Student', $roles)){
-    //         return $next($request);
-    //     }
-
-    //     // Exclude some users from this middleware
-    //     if (in_array($user->id, [1])) {
-    //         return $next($request);
-    //     }
-
-    //     if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
-    //         $all_menus = allRoutes();
-    //         $all_permissions = allAccess();
-    //         $user_menus = auth()->check() ? $user->menu_permissions ?? [] : [];
-
-    //         // Check for program access
-    //         if(!empty($request->p_id)){
-    //             if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])) {
-    //                     return $next($request);
-    //             } else {
-    //                 return redirect(route('home'))->with('danger', 'Unauthorized access.');
-    //             }
-    //         }
-
-    //         // check for route/menu access
-    //         if (in_array($currentRouteName, $all_menus)) {
-    //             if (in_array($currentRouteName, $user_menus)) {
-    //                 return $next($request);
-    //             } else {
-    //                 return redirect(route('home'))->with('danger', 'Unauthorized access.');
-    //             }
-    //         }
-    //     }
-
-    //     return $next($request);
-
-    // }
+    
     public function handle(Request $request, Closure $next)
     {
         $currentRouteName = Route::currentRouteName();
-
+        
         // Get the authenticated or impersonated user
         $user = session()->get('impersonate')
             ? User::find(session()->get('impersonate'))
@@ -87,16 +39,14 @@ class MenuPermissions
             return $next($request);
         }
 
-        // Allow specific users to bypass this middleware
         $excludedUserIds = [1]; // Add more user IDs as needed
         if (in_array($user->id, $excludedUserIds)) {
             return $next($request);
         }
 
-        // Check if the user has specific roles
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
-            $allMenus = allRoutes(); // All possible menu routes
-            $allPermissions = allAccess(); // All possible access permissions
+            $allMenus = allRoutes();
+            $allPermissions = allAccess();
             $userMenus = $user->menu_permissions ?? []; 
             
             // Check for program-specific access

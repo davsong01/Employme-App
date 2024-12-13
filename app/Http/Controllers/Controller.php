@@ -854,7 +854,7 @@ class Controller extends BaseController
                 ],
                 [
                     'id' => 23,
-                    'name' => 'Peek',
+                    'name' => 'Peek Participant',
                     'route' => 'impersonate',
                     'type' => 'access',
                     'order' => 4,
@@ -903,8 +903,8 @@ class Controller extends BaseController
                 ],
                 [
                     'id' => 34,
-                    'name' => 'Peek',
-                    'route' => 'impersonate',
+                    'name' => 'Peek Staff',
+                    'route' => 'admin-impersonate',
                     'type' => 'access',
                     'order' => 4,
                     'parentId' => 3

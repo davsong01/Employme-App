@@ -426,11 +426,8 @@
         @yield('dashboard')
 
         <div class="page-wrapper">
-
             @yield('content')
-
             @include('dashboard.layouts.footer')
-
         </div>
 
     </div>
@@ -438,25 +435,15 @@
     <script src="{{ asset('dist/js/jquery.ui.touch-punch-improved.js') }}"></script>
     <script src="{{ asset('dist/js/jquery-ui.min.js') }}"></script>
 
-    <!-- Bootstrap tether Core JavaScript -->
-    {{-- <script src="{{ asset('assets/libs/popper.js/dist/umd/popper.min.js') }}"></script> --}}
-
-    <!-- slimscrollbar scrollbar JavaScript -->
     <script src="{{ asset('assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js') }}"></script>
     <script src="{{ asset('assets/extra-libs/sparkline/sparkline.js') }}"></script>
-    <!--Wave Effects -->
     <script src="{{ asset('dist/js/waves.js') }}"></script>
-    <!--Menu sidebar -->
     <script src="{{ asset('dist/js/sidebarmenu.js') }}"></script>
     <script src="{{ asset('dist/js/custom.min.js') }}"></script>
-    <!-- this page js -->
     <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
 
-    <!--Script for States and LGA Dropdown-->
     <script src="{{asset('dist/js/lga.min.js')}}"></script>
-    <!--End of states and LGA script-->
 
-    <!--Select 2-->
     <script src="{{ asset('assets/libs/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/dist/js/select2.min.js') }}"></script>
 
@@ -501,8 +488,8 @@
     @yield('extra-scripts')
     <script>
         CKEDITOR.replace("ckeditor", {
-            uiColor: '#9AB8F3'
-        });
-    };
+                uiColor: '#9AB8F3'
+            });
+        };
     </script>
 </body>

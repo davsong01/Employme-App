@@ -25,62 +25,7 @@
 @extends('dashboard.admin.index')
 @section('title', 'Test Results')
 @section('css')
-{{-- <link rel="stylesheet" href="{{ asset('modal.css') }}" /> --}}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <style>
-
-	.modal.left .modal-dialog,
-	.modal.right .modal-dialog {
-		position: fixed;
-		margin: auto;
-		width: 320px;
-		height: 100%;
-		-webkit-transform: translate3d(0%, 0, 0);
-		    -ms-transform: translate3d(0%, 0, 0);
-		     -o-transform: translate3d(0%, 0, 0);
-		        transform: translate3d(0%, 0, 0);
-	}
-
-	.modal.left .modal-content,
-	.modal.right .modal-content {
-		height: 100%;
-		overflow-y: auto;
-	}
-	
-	.modal.left .modal-body,
-	.modal.right .modal-body {
-		padding: 15px 15px 80px;
-	}
-
-
-
-        
-    /*Right*/
-        .modal.right.fade .modal-dialog {
-            right: -320px;
-            -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-            -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-                -o-transition: opacity 0.3s linear, right 0.3s ease-out;
-                    transition: opacity 0.3s linear, right 0.3s ease-out;
-        }
-        .modal.right.fade.in .modal-dialog {
-            right: 0;
-        }
-
-    /* ----- MODAL STYLE ----- */
-        .modal-content {
-            border-radius: 0;
-            border: none;
-        }
-
-        .modal-header {
-            border-bottom-color: #EEEEEE;
-            background-color: #FAFAFA;
-        }
-
-    /* ----- v CAN BE DELETED v ----- */
     body {
         background-color: #78909C;
     }
@@ -117,33 +62,7 @@
         font-size: 16px;
         color: #fff;
     }
-    .select2-container--default .select2-selection--multiple {
-        width: 100% !important; /* Force full width */
-    }
-
-    .select2-container {
-        width: 100% !important; /* Force full width */
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        color: black; /* Text color for selected items */
-    }
-
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-        color: black; /* Text color for the rendered selections */
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: black; /* Text color for the single selected item */
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: black; /* Text color for the placeholder */
-    }
-
-    .select2-container--default .select2-results__option {
-        color: black; /* Text color for the dropdown options */
-    }
-
+   
     .badge {
         display: flex;
         justify-content: center;
@@ -217,7 +136,6 @@
 </style>
 @endsection
 @section('content')
-
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
@@ -243,7 +161,7 @@
                                 <button class="btn btn-danger rounded {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</button>
                             </a>
 
-                            <a class="btn btn-info rounded" href="javascript:void(0)" data-toggle="modal" data-target="#exportmodal"><i class="fa fa-download"></i> Export {{ $page == 'results' ? 'Post' : 'Pre'}} Test Results</a>
+                            <a class="btn btn-info rounded" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal"><i class="fa fa-download"></i> Export {{ $page == 'results' ? 'Post' : 'Pre'}} Test Results</a>
                             <div class="badge float-right">
                                 <span class="transaction-count">{{ $records }}</span> <!-- Number of transactions -->
                             </div>
@@ -307,7 +225,7 @@
                     <tbody>
                         @foreach($users as $user)
                             @if($user->passmark)
-                                <tr>
+                                <tr id="result-row-{{ $user->user_id }}">
                                     <td>{{ $i++ }}</td>
                                     <td>
                                         @if($page == 'mocks')
@@ -354,6 +272,12 @@
                                                     <i class="fa fa-unlock"> Peek</i>
                                                 </a>
                                             @endif
+
+                                            <span id="formSuccessSpan-{{ $user->user_id }}" style="display:none">
+                                                <div class="alert alert-success" role="alert">
+                                                    <strong><span class="formSuccess"></span></strong> 
+                                                </div>
+                                            </span>
                                         </div>
                                     </td>
                                     @php
@@ -368,32 +292,32 @@
                                     @else
                                         <td>
                                             @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                                <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br>
+                                                <strong class="tit">Class Tests:</strong><span id="class_test_score{{ $user->user_id }}"> {{ $user->final_ct_score }}</span>% <br>
                                             @endif
                                             
                                             @if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
-                                                <strong>Certification: </strong> {{ $user->total_cert_score }}% <br>
+                                                <strong>Certification: </strong><span id="certification_test_score{{ $user->user_id }}"> {{ $user->total_cert_score }}</span>% <br>
                                             @endif
 
                                             @if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                                <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}% <br>
+                                                <strong class="tit">Role Play: </strong> <span id="role_play_score{{ $user->user_id }}">{{ $user->total_role_play_score }}</span>% <br>
                                             @endif
 
                                             @if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
-                                                <strong class="tit">CRM Test: </strong> {{ $user->total_crm_test_score }}% <br>
+                                                <strong class="tit">CRM Test: </strong><span id="crm_test_score{{ $user->user_id }}"> {{ $user->total_crm_test_score }}</span>% <br>
                                             @endif
 
                                             @if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
-                                                <strong>Email: </strong> {{ $user->total_email_test_score }}% 
+                                                <strong>Email: </strong> <span id="email_test_score{{ $user->user_id }}">{{ $user->total_email_test_score }}</span>% 
                                             @endif
                                         </td>
                                     @endif
 
                                     @if($page == 'results')
                                         <td>
-                                            <strong class="tit">Marked by: </strong> {{ $user->marked_by ?: 'N/A' }}<br>
-                                            <strong class="tit">Graded by: </strong> {{ $user->grader ?: 'N/A'}}<br>
-                                            <small>Last updated on: {{ $user->updated_at ? \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA') : ''}}</small>
+                                            <strong class="tit">Marked by: </strong><span id="marked_by{{ $user->user_id }}"> {{ $user->marked_by ?: 'N/A' }}</span><br>
+                                            <strong class="tit">Graded by: </strong> <span id="grader{{ $user->user_id }}">{{ $user->grader ?: 'N/A'}}</span><br>
+                                            <small>Last updated on: <span id="updated_at{{ $user->user_id }}">{{ $user->updated_at ? \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA') : ''}}</span></small>
                                         </td>
                                     @endif
 
@@ -402,7 +326,7 @@
                                     </td>
 
                                     @if($permissions['view-total-score'])
-                                        <td>
+                                        <td id="total_score{{ $user->user_id }}">
                                             <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green' }}">{{ $total }}%</strong> 
                                         </td>
                                     @endif
@@ -447,6 +371,29 @@
                                                                     <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ URL::signedRoute('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id, 'p_id' => $user->program_id]) }}">
                                                                         <i class="fa fa-eye"> View/Update </i>
                                                                     </a>
+
+                                                                    <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
+                                                                        class="btn btn-info btn-sm open-result-modal" 
+                                                                        data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
+                                                                        href="javascript:void(0)">
+                                                                        <i class="fa fa-edit"></i>
+                                                                    </a>
+                                                                    
+                                                                    <!-- Result Modal -->
+                                                                    <div class="modal fade sidebarModal" id="editResultModal" tabindex="-1" role="dialog" aria-labelledby="editResultModalLabel" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
+                                                                            <div class="modal-content" style="padding: 0px!important">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title" id="editResultModalLabel">Update Test Scores</h5>
+                                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                                </div>
+                                                                                <div class="modal-body">
+                                                                                    <div id="modalContent">
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 @endif
                                                                 @if($permissions['results.destroy'])
                                                             
@@ -517,7 +464,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -550,6 +497,45 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.open-result-modal', function () {
+            const uid = $(this).data('uid'); 
+            const pid = $(this).data('pid'); 
+            const p_id = $(this).data('p_id'); 
+            const modalContent = $('#modalContent');
+            
+            modalContent.html(`
+                <div class="text-center my-3">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
+                </div>
+            `);
+
+            const url = `{!! URL::signedRoute('results.add', ['uid' => '__uid__', 'pid' => '__pid__', 'p_id' => '__p_id__']) !!}`
+                .replace('__uid__', uid)
+                .replace('__pid__', pid)
+                .replace('__p_id__', p_id);
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function (response) {
+                    modalContent.html(response);
+
+                    $('#editResultModal').modal('show');
+                },
+                error: function (xhr) {
+                    console.error('Error loading modal content:', xhr.responseText);
+                    modalContent.html(`
+                        <div class="text-danger text-center my-3">
+                            <i class="fas fa-exclamation-circle"></i> Failed to load data.
+                        </div>
+                    `);
+                }
+            });
+        });
+    });
+</script>
 <script>
     $(document).ready(function() {
         $('.select2').select2({

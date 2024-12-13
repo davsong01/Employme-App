@@ -12,51 +12,7 @@
 @endphp
 @extends('dashboard.admin.index')
 @section('css')
-<style>
-    #editSidebarModal .modal-body {
-        max-height: 80vh;
-        overflow-y: auto; 
-    }
-
-    @media (min-width: 576px) {
-        .modal-dialog-slideout {
-            position: fixed;
-            top: 0;
-            right: 0;
-            height: 100%;
-            max-width: 800px; 
-            margin: 0;
-            transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .modal.fade.show .modal-dialog-slideout {
-            transform: translateX(0);
-        }
-
-        .modal-dialog-slideout .modal-content {
-            height: 100%;
-            border-radius: 0;
-        }
-        ..modal-content{
-            width:100% !important
-        }
-    }
-
-    /* For small screens: modal behaves as fullscreen */
-    @media (max-width: 575.98px) {
-        .modal-dialog {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-        }
-
-        .modal-content {
-            height: 100%;
-            border-radius: 0;
-        }
-    }
-
+<style>  
     .select2-container--default .select2-selection--single {
         border: 1px solid #e9ecef;
         border-radius: 20px;
@@ -67,7 +23,7 @@
         background-color: #fff;
         line-height: 1.5;
     }
-
+    
     .select2.select2-container.select2-container--default {
         width: 100% !important;
     }
@@ -318,7 +274,7 @@
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             <!-- Sidebar Modal -->
-                                            <div class="modal fade" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
+                                            <div class="modal fade sidebarModal" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -417,43 +373,43 @@
 </div>
 
 <script>
-   $(document).ready(function () {
-    $(document).on('click', '.open-modal', function () {
-        const transactionId = $(this).data('id'); 
-        const modalContent = $('#modalContent');
+    $(document).ready(function () {
+        $(document).on('click', '.open-modal', function () {
+            const transactionId = $(this).data('id'); 
+            const modalContent = $('#modalContent');
 
-        // Show loading spinner
-        modalContent.html(`
-            <div class="text-center my-3">
-                <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
-            </div>
-        `);
-        
-        // Generate the dynamic URL using the transaction ID
-        const url = "{{ route('payments.edit', ':id') }}".replace(':id', transactionId);
-        // Make an AJAX request to fetch the data
-        $.ajax({
+            // Show loading spinner
+            modalContent.html(`
+                <div class="text-center my-3">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
+                </div>
+            `);
+            
+            // Generate the dynamic URL using the transaction ID
+            const url = "{{ route('payments.edit', ':id') }}".replace(':id', transactionId);
+            // Make an AJAX request to fetch the data
+            $.ajax({
 
-            url: url, // Use the dynamic URL here
-            method: 'GET',
-            success: function (response) {
-                // Inject the response HTML into the modal body
-                modalContent.html(response);
+                url: url, // Use the dynamic URL here
+                method: 'GET',
+                success: function (response) {
+                    // Inject the response HTML into the modal body
+                    modalContent.html(response);
 
-                // Show the modal
-                $('#editSidebarModal').modal('show');
-            },
-            error: function (xhr) {
-                console.error('Error loading modal content:', xhr.responseText);
-                modalContent.html(`
-                    <div class="text-danger text-center my-3">
-                        <i class="fas fa-exclamation-circle"></i> Failed to load data.
-                    </div>
-                `);
-            }
+                    // Show the modal
+                    $('#editSidebarModal').modal('show');
+                },
+                error: function (xhr) {
+                    console.error('Error loading modal content:', xhr.responseText);
+                    modalContent.html(`
+                        <div class="text-danger text-center my-3">
+                            <i class="fas fa-exclamation-circle"></i> Failed to load data.
+                        </div>
+                    `);
+                }
+            });
         });
     });
-});
 
 </script>
 <script>

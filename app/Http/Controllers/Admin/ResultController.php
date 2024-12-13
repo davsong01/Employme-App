@@ -285,11 +285,9 @@ class ResultController extends Controller
 
     public function add(Request $request, $uid, $modid)
     {
-        $result_id = $modid;
-
+        $result_id = $modid;        
         $program = Program::select('id', 'p_name')->with('scoresettings')->whereId($request->pid)->first();
 
-        // $user_results = Result::with(['user', 'module'])->where('user_id', $uid)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
         $user_results = Result::with(['user', 'module', 'threads'])->where('user_id', $uid)->whereProgramId($modid)->where('certification_test_details', '<>', NULL)->where('redo_test', 0)->get();
         $i = 1;
         $details['certification_score'] = 0;
@@ -300,7 +298,12 @@ class ResultController extends Controller
         $details['allow_editing'] = 0;
 
         if (!$user_results) {
-            return back()->with('error', 'Participant has not taken certification test');
+            return response()->json([
+                'success' => false,
+                'message' => 'Participant has not taken certification test',
+                'uid' => $uid,
+            ]);
+            // return back()->with('error', 'Participant has not taken certification test');
         }
         $results = [];
 
@@ -380,7 +383,7 @@ class ResultController extends Controller
             unset($results['email_test_score']);
         }
 
-        return view('dashboard.admin.results.edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results', 'history'));
+        return view('dashboard.admin.results.partial_edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results', 'history'));
     }
 
     public function enable($id)
@@ -457,6 +460,7 @@ class ResultController extends Controller
 
     public function update(Result $result, Request $request)
     {
+        // dd($request->all(), $result);
         try {
             $result->marked_by = Auth::user()->name;
             $result->role_play_score = $request->roleplayscore ?? $result->role_play_score;
@@ -478,31 +482,28 @@ class ResultController extends Controller
         } catch (PDOException $ex) {
             return back()->with('error', $ex->getMessage());
         }
-        return Redirect::to(route('results.getgrades', $result->program_id))->with('message', 'User Scores have been updated successfully');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Test Scores Updated Successfully',
+            'uid' => $result->user_id,
+            'certification_test_score' => $result->certification_test_score,
+            'role_play_score' => $result->role_play_score,
+            'email_test_score' => $result->email_test_score,
+            'crm_test_score' => $result->crm_test_score,
+            'marked_by' => $result->marked_by,
+            'grader' => $result->grader,
+            'total_score' => $result->certification_test_score + $result->role_play_score + $result->email_test_score + $result->crm_test_score + $result->class_test_score,
+            'updated_at' => $result->updated_at ? \Carbon\Carbon::parse($result->updated_at)->format('jS F, Y, h:iA') : ''
+        ]);
+
+        // return Redirect::to(route('results.getgrades', $result->program_id))->with('message', 'User Scores have been updated successfully');
     }
 
 
     public function destroy(Request $request, $result)
     {
-        dd(request()->all());
-        $check = [
-            'view-certification-score',
-            'view-roleplay-score',
-            'view-email-score',
-            'view-crm-score',
-            'view-class-score',
-            'result.export',
-            'stopredotest',
-            'results.destroy',
-            'results.add',
-            'view-total-score',
-            'mocks.add',
-            'mocks.destroy'
-        ];
-
-        $permissions = checkTrainingHasPermissions($request->p_id, $check);
-    
-        if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())){
+        if( checkRoleHas('Admin','Grader','Facilitator')){
             $results = Result::where('id', $request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
             
             if(empty($request->override_resit) || $request->override_resit == 'no'){

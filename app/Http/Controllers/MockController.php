@@ -33,8 +33,8 @@ class MockController extends Controller
     
     public function pretest()
     {
-        if (!empty(array_intersect(adminRoles(), auth()->user()->role()))) {
-            //Select only programs that have results
+        
+        if (checkRoleHas(['Admin'])) {
             $programs = Program::whereHas('mocks', function ($query) {
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
@@ -43,16 +43,15 @@ class MockController extends Controller
             return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitator'])) {
             //select all programs for this user
             $teacher_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
 
             //Select only programs that have results
             foreach ($teacher_programs as $programs) {
                 $programs['p_name'] = Program::whereId($programs->program_id)->wherehasmock(1)->value('p_name');
-                //  = Program::whereId($programs->program_id)->value('p_name');
             }
-
+            
             $i = 1;
             return view('dashboard.teacher.mocks.selecttraining', compact('teacher_programs', 'i'));
         }
