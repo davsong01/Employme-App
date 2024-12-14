@@ -238,12 +238,6 @@
             $(`#grader` + response.uid).text(response.grader);
             $(`#updated_at` + response.uid).text(response.updated_at);
 
-            // $(`#total_score${response.uid}`).html(`
-            //       <strong class="tit" style="color:${response.total_score < {{ $program->scoresettings->passmark }} ? 'red' : 'green'};">
-            //           ${response.total_score}%
-            //       </strong>
-            // `);
-
             window.location.href = window.location.href.split('#')[0] + '#result-row-' + response.uid;
                 
             $('#formSuccessSpan-' + response.uid).show();
