@@ -3,41 +3,6 @@
 @endphp
 @extends('dashboard.layouts.main')
 @section('title', 'Trainings')
-@section('css')
-<link rel="stylesheet" href="{{ asset('modal.css') }}" />
-<style>
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed;
-        z-index: 1050;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.7); /* Dim background */
-    }
-
-    .modal-dialog {
-        margin: 10% auto;
-        width: 80%; /* Adjust based on need */
-    }
-
-    .modal-content {
-        position: relative;
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Prevent modal close on click outside */
-    .modal-backdrop {
-        background-color: rgba(0, 0, 0, 0.7);
-        pointer-events: none;
-    }
-</style>
-@endsection
 @section('dashboard')
 <aside class="left-sidebar" data-sidebarbg="skin5">
     <!-- Sidebar scroll-->
@@ -94,7 +59,6 @@
                     ->where('user_id', auth()->user()->id)
                     ->where('program_id', $program->id)
                     ->first();
-                    
                     $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
                 @endphp
                 @if($show_certificate == 1 )
@@ -117,39 +81,41 @@
                 @endif
             </ul>
         </nav>
-        <!-- End Sidebar navigation -->
     </div>
-    <!-- End Sidebar scroll-->
-    <div id="trainingcatalogue" style="margin-top: 100px;" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-          <div class="card">
-            <div class="card-body">
-              <div class="card-title">
-                <div>
-                  <div class="card-content">
-                        <a class="pre-order-btn" href="{{ route('download.program.brochure',['p_id' => $program->id]) }}">DOWNLOAD TRAINING CATALOGUE</a>
-                  </div>
+
+    <div class="modal" id="trainingcatalogue" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                        <div class="card-title">
+                            <div>
+                                <div class="card-content">
+                                    <a class="pre-order-btn" href="{{ route('download.program.brochure',['p_id' => $program->id]) }}">DOWNLOAD TRAINING CATALOGUE</a>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-            
-          </div>
         </div>
     </div>
 </aside>
 
-@if($program->show_catalogue_popup == 'yes' && auth()->user()->downloaded_catalogue == 'no')
-<script>
-    $(document).ready(function(){       
-        $('#trainingcatalogue').modal({
-            backdrop: 'static',
-            keyboard: false 
-        });
-        $('#trainingcatalogue').modal('show');
+@endsection
+@section('extra-scripts')
+    @if($program->show_catalogue_popup == 'yes' && auth()->user()->downloaded_catalogue == 'no')
+    <script>
+        $(document).ready(function(){       
+            $('#trainingcatalogue').modal({
+                backdrop: 'static',
+                keyboard: false 
+            });
+            // $('#trainingcatalogue').modal('show');
 
-    }); 
-</script>
-@endif
-
+        }); 
+    </script>
+    @endif
 @endsection

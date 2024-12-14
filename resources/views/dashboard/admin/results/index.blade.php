@@ -368,15 +368,11 @@
                                                         @if($user->redotest == 0)
                                                             @if (!empty($user->certification_test_details))
                                                                 @if($permissions['results.add'])
-                                                                    <a class="btn btn-info btn-sm btn-sm w-100 mb-3" href="{{ URL::signedRoute('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id, 'p_id' => $user->program_id]) }}">
-                                                                        <i class="fa fa-eye"> View/Update </i>
-                                                                    </a>
-
                                                                     <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
                                                                         class="btn btn-info btn-sm open-result-modal" 
                                                                         data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
                                                                         href="javascript:void(0)">
-                                                                        <i class="fa fa-edit"></i>
+                                                                        <i class="fa fa-edit"> View/Update</i>
                                                                     </a>
                                                                     
                                                                     <!-- Result Modal -->
