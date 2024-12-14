@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Models\Module;
 use App\Models\Result;
 use App\Models\Program;
@@ -15,69 +16,184 @@ use Intervention\Image\Facades\Image;
             $result = Result::with('program', 'module', 'user')->where('user_id', $user_id)->whereProgramId($program_id)->get();
             $program = Program::with('scoresettings')->find($program_id);
             $details = [];
-
-            $class = $email = $roleplay = $crm = $certification = 0;
-
-            // Get the modules and calculate the total obtainable score
-            $modules = Module::with('questions')
-                ->where('type', 'Class Test')
-                ->where('program_id', $program_id)
-                ->where('computation_status', 1)
-                ->get();
-
             
-            if (empty($program->scoresettings) || $modules->count() < 1) {
-                return [
-                    'program' => $program,
-                    'status' => 'CERTIFIED'
-                ];
+            try {
+                if($result->count() > 0){
+
+                    //code...
+                    $class = $email = $roleplay = $crm = $certification = 0;
+        
+                    // Get the modules and calculate the total obtainable score
+                    $modules = Module::with('questions')
+                        ->where('type', 'Class Test')
+                        ->where('program_id', $program_id)
+                        ->where('computation_status', 1)
+                        ->get();
+        
+                    
+                    if (empty($program->scoresettings) || $modules->count() < 1) {
+                        return [
+                            'program' => $program,
+                            'status' => 'CERTIFIED'
+                        ];
+                    }
+        
+                    $obtainable = $modules->sum(fn($module) => $module->questions->count());
+                    
+                    foreach ($result as $t) {
+                        if(!empty($t->marked_by)){
+                            $details['certification_facilitator'] = $t->marked_by;
+                        }
+
+                        if (!empty($t->grader)) {
+                            $details['certification_grader'] = $t->grader;
+                        }
+
+                        if (!empty($t->facilitator_comment)) {
+                            $details['certification_facilitator_comment'] = $t->facilitator_comment;
+                        }
+
+                        if (!empty($t->grader_comment)) {
+                            $details['certification_grader_comment'] = $t->grader_comment;
+                        }
+
+                        // Accumulate test scores
+                        $class += $t['class_test_score'];
+                        $email += $t['email_test_score'];
+                        $roleplay += $t['role_play_score'];
+                        $crm += $t['crm_test_score'];
+                        $certification += $t['certification_test_score'];
+        
+                        // Add program and score settings to each result
+                        $t['program'] = $t->program->p_name;
+                        $t['passmark'] = $program->scoresettings->passmark;
+                        $t['ct_set_score'] = $program->scoresettings->class_test;
+                        $t['name'] = $t->user->name;
+                    }
+        
+                    // Calculate and round the class test score
+                    if (isset($t['ct_set_score'])) {
+                        $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
+                    }else{
+                        $details['class_test_score'] = 0;
+                    }
+                    
+                    // Add other test scores to the details array
+                    $details['email_test_score'] = $email;
+                    $details['role_play_score'] = $roleplay;
+                    $details['crm_test_score'] = $crm;
+                    $details['certification_test_score'] = $certification;
+                
+                    // Calculate the total score and add program details
+                    $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
+                    $details['passmark'] = $t['passmark'] ?? 0;
+                    $details['program'] = $t['program'] ?? 0;
+                    $details['name'] = $t['name'];
+                    $details['staffID'] = $t->user->staffID;
+        
+                    // Determine certification status
+                    $details['status'] = ($details['total_score'] >= $details['passmark']) ? 'CERTIFIED' : 'NOT CERTIFIED';
+                    
+                    $details['results'] = $result;
+                    $details['program'] = $program;
+
+                    // Extras for comparison with the new
+                    return $details;
+                }
+            } catch (\Throwable $th) {
+                dd($th->getMessage(),$th->getLine());
             }
-
-            $obtainable = $modules->sum(fn($module) => $module->questions->count());
-
-            foreach ($result as $t) {
-                // Accumulate test scores
-                $class += $t['class_test_score'];
-                $email += $t['email_test_score'];
-                $roleplay += $t['role_play_score'];
-                $crm += $t['crm_test_score'];
-                $certification += $t['certification_test_score'];
-
-                // Add program and score settings to each result
-                $t['program'] = $t->program->p_name;
-                $t['passmark'] = $program->scoresettings->passmark;
-                $t['ct_set_score'] = $program->scoresettings->class_test;
-                $t['name'] = $t->user->name;
-            }
-
-            // Calculate and round the class test score
-            if (isset($t['ct_set_score'])) {
-                $details['class_test_score'] = round(($class * $t['ct_set_score']) / $obtainable, 0);
-            }
-            
-            // Add other test scores to the details array
-            $details['email_test_score'] = $email;
-            $details['role_play_score'] = $roleplay;
-            $details['crm_test_score'] = $crm;
-            $details['certification_test_score'] = $certification;
-
-            // Calculate the total score and add program details
-            $details['total_score'] = $details['class_test_score'] + $email + $roleplay + $certification;
-            $details['passmark'] = $t['passmark'];
-            $details['program'] = $t['program'];
-            $details['name'] = $t['name'];
-            $details['staffID'] = $t->user->staffID;
-
-            // Determine certification status
-            $details['status'] = ($details['total_score'] >= $details['passmark']) ? 'CERTIFIED' : 'NOT CERTIFIED';
-            $details['results'] = $result;
-            $details['program'] = $program;
-
-            return $details;
         }
     }
-    
-    
+
+    if (!function_exists("certificationStatusNew")) {
+        function certificationStatusNew($training_result, $program, $user){
+
+            if($program instanceof Program){
+                $program = $program;
+            }else{
+                $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult')->with('scoresettings')->where('id', $program)->first();
+            }
+
+            if ($user instanceof User) {
+                $user = $user;
+            } else {
+                $user = User::where('id', $user)->first();
+            }
+            
+            $training_result->certification_status = $training_result->total_score > $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED';
+            $training_result->program = $program;
+            $training_result->scoresettings = $program->scoresettings;
+            $training_result->user = $user ?? null;
+
+            return $training_result;
+        }
+    }
+
+    if (!function_exists("udateTrainingResult")) {
+        function udateTrainingResult($program_id, $user_id, $data=[])
+        {
+            $transaction = Transaction::select('id', 'training_result', 'training_result_histories', 'user_id', 'program_id')
+            ->where('program_id', $program_id)
+            ->where('user_id', $user_id)
+            ->lockForUpdate()
+            ->first();
+            
+            $certificationStatus = certificationStatus($program_id, $user_id);
+
+            $result = [
+                "class_test_score" => $certificationStatus['class_test_score'] ?? ($transaction->training_result->class_test_score ?? 0),
+                "class_test_resit_status" => $data['class_test_resit_status'] ?? ($transaction->training_result->class_test_resit_status ?? 0),
+                "class_test_resit_expiry" => $data['class_test_resit_expiry'] ?? ($transaction->training_result->class_test_resit_expiry ?? NULL),
+
+                "email_test_score" => $certificationStatus['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0),
+                "email_test_resit_status" => $data['email_test_resit_status'] ?? ($transaction->training_result->email_test_resit_status ?? 0),
+                "email_test_resit_expiry" => $data['email_test_resit_expiry'] ?? ($transaction->training_result->email_test_resit_expiry ?? NULL),
+
+                "roleplay_test_score" => $certificationStatus['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0),
+                "roleplay_test_resit_status" => $data['roleplay_test_resit_status'] ?? ($transaction->training_result->roleplay_test_resit_status ?? 0),
+                "roleplay_test_resit_expiry" => $data['roleplay_test_resit_expiry'] ?? ($transaction->training_result->roleplay_test_resit_expiry ?? NULL),
+
+                "crm_test_score" => $certificationStatus['crm_test_score'] ?? ($transaction->training_result->crm_test_score ?? 0),
+                "crm_test_resit_status" => $data['crm_test_resit_status'] ?? ($transaction->training_result->crm_test_resit_status ?? 0),
+                "crm_test_resit_expiry" => $data['crm_test_resit_expiry'] ?? ($transaction->training_result->crm_test_resit_expiry ?? NULL),
+
+                "certification_test_score" => $certificationStatus['certification_test_score'] ?? ($transaction->training_result->certification_test_score ?? 0),
+                "certification_test_resit_status" => $data['certification_test_resit_status'] ?? ($transaction->training_result->certification_test_resit_status ?? 0),
+                "certification_test_resit_expiry" => $data['certification_test_resit_expiry'] ?? ($transaction->training_result->certification_test_resit_expiry ?? NULL),
+
+                "total_score" => $certificationStatus['total_score'] ?? 0,
+
+                "certification_facilitator" => $certificationStatus['certification_facilitator'] ?? null,
+                "certification_grader" => $certificationStatus['certification_grader'] ?? null,
+                "certification_facilitator_comment" => $certificationStatus['certification_facilitator_comment'] ?? null,
+                "certification_grader_comment" => $certificationStatus['certification_grader_comment'] ?? null,
+            ];
+            
+            // dd($transaction->training_result->email_test_score, $transaction->training_result->roleplay_test_score, $transaction->training_result->crm_test_score, $transaction->training_result->certification_test_score);
+            if(!empty($data)){
+                $result["class_test_score"] = (int) $transaction->training_result->class_test_score ?? 0;
+                $result["email_test_score"] = (int) $data['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0);
+                $result["roleplay_test_score"] = (int) $data['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0);
+                $result["crm_test_score"] = (int) $data['crm_test_score'] ?? ($transaction->training_result->crm_test_score ?? 0);
+                $result["certification_test_score"] = (int) $data['certification_test_score'] ?? ($transaction->training_result->certification_test_score ?? 0);
+                $result["total_score"] = (int) $result["class_test_score"] + $result["email_test_score"] + $result["roleplay_test_score"] + $result["crm_test_score"]+ $result["certification_test_score"];
+
+                $result["certification_facilitator"] = $data['certification_facilitator'] ?? ($transaction->training_result->certification_facilitator ?? null);
+                $result["certification_grader"] = $data['certification_grader'] ?? ($transaction->training_result->certification_grader ?? null);
+                $result["certification_facilitator_comment"] = $data['certification_facilitator_comment'] ?? ($transaction->training_result->certification_facilitator_comment ?? null);
+                $result["certification_grader_comment"] = $data['certification_grader_comment'] ?? ($transaction->training_result->certification_grader_comment ?? null);
+            }
+            
+            // \Log::info([$result["total_score"],$result["class_test_score"], $result["email_test_score"], $result["roleplay_test_score"], $result["crm_test_score"] , $result["certification_test_score"]]);
+            $transaction->update([
+                'training_result' => $result,
+            ]);
+        
+            return $transaction;
+        }
+    }
+
     if (!function_exists("buildResultExport")) {
         function buildResultExport($users, $data, $score_settings){
         $filteredUsers = $users->map(function ($user) use ($data, $score_settings) {

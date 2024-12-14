@@ -9,6 +9,7 @@ use App\Models\Result;
 use App\Models\Program;
 use App\Models\Question;
 use App\Models\Settings;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -79,7 +80,7 @@ class TestsController extends Controller
     public function store(Request $request)
     {
         $program = Program::find($request->p_id);
-
+        
         $class_test_details = $request->except(['_token', 'mod_id', 'id']);
 
         if (sizeof($class_test_details) < 2) {
@@ -99,15 +100,23 @@ class TestsController extends Controller
         }
 
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
-        // if (auth()->user()->redotest == 0) {
-        //     if ($check != NULL) {
-        //         return back()->with('error', 'You have already taken this test, Please click "My Tests" on the left navigation bar to take an available test!');
-        //     };
-        // }
+        $module = Module::findOrFail($request->mod_id);
+
+        $transaction = Transaction::select('id', 'training_result', 'training_result_histories', 'user_id', 'program_id')
+        ->where('program_id', $request->p_id)
+            ->where('user_id', auth()->user()->id)
+            ->first();
+
+        $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
         
-        if ($check != NULL && auth()->user()->redotest != 0) {
+        // Get Resit Status
+        if($check && $resitStatus['status'] == 0){
+            return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
+        }
+
+        if ($check != NULL && $resitStatus['status'] == 1) {
             $check->certification_test_details = json_encode($certification_test_details);
-            auth()->user()->update(['redotest' => 0]);
+            // auth()->user()->update(['redotest' => 0]); // deal with this later
             $check->save();
             $check->endRedoTest();
 
@@ -119,7 +128,6 @@ class TestsController extends Controller
             
             $this->sendGenericEmail($details);
         } else {
-            $module = Module::findOrFail($request->mod_id);
 
             $questions = $module->questions->toarray();
             $no_of_questions = count($questions);
@@ -127,14 +135,14 @@ class TestsController extends Controller
 
             if ($module->type == 'Certification Test') {
                 try {
-                    $results = Result::create([
+                    Result::create([
                         'program_id' => $module->program->id,
                         'user_id' => Auth::user()->id,
                         'module_id' => $module->id,
                         'certification_test_details' => json_encode($certification_test_details),
                     ]);
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $error = $ex->getMessage();
+                    $ex->getMessage();
                     return back()->with('error',  'Something went wrong, please try again');
                 }
             } elseif ($module->type == 'Class Test') {
@@ -149,7 +157,7 @@ class TestsController extends Controller
 
                 try {
                     if ($module->type == 'Class Test') {
-                        $result = Result::create([
+                        Result::create([
                             'program_id' => $module->program->id,
                             'user_id' => Auth::user()->id,
                             'module_id' => $module->id,
@@ -159,12 +167,39 @@ class TestsController extends Controller
 
                     }
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $error = $ex->getMessage();
+                    $ex->getMessage();
                     return back()->with('error', 'something went wrong, please take test again');
                 }
             }
         }
+
+        // Update training result
+        udateTrainingResult($request->p_id, auth()->user()->id);
+        
         return Redirect::to('userresults?p_id=' . $program->id);
+    }
+
+    public function getResitTrainingStatus($module_type, $transaction){
+        $status = 0;
+        $expiry = NULL;
+
+        if($module_type == 'Class Test'){
+            $status =  $transaction->training_result->class_test_resit_status ?? null;
+            if(!empty($status) && $status == 1){
+                $expiry = $transaction->training_result->class_test_resit_expiry;
+            }
+        }
+
+        if($module_type == 'Certification Test'){
+            $status =  $transaction->training_result->certification_test_resit_status ?? null;
+            if(!empty($status) && $status == 1){
+                $expiry = $transaction->training_result->certification_test_resit_expiry;
+            }
+        }
+        return [
+            'status' => $status,
+            'expiry' => $expiry,
+        ];
     }
 
     public function userresults(Request $request)

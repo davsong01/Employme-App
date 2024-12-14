@@ -19,6 +19,14 @@ return new class extends Migration
                 ->after('balance')->nullable();
             });
         }
+
+        if (!Schema::hasColumn('program_user', 'training_result_histories')) {
+            Schema::table('program_user', function (Blueprint $table) {
+                $table->json('training_result_histories')
+                ->after('training_result')->nullable();
+            });
+        }
+
     }
     
     /**

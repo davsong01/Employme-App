@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
 
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
+Route::get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
 // Route::get('decode-materials', [MaterialController::class, 'decode']);
 
 Route::get('/clear', function () {
@@ -190,7 +191,8 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
         Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
         Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
         
-        Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
+        Route::get('user/{id?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
+        // Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
         Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
         Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
         Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');

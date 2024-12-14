@@ -80,18 +80,17 @@
                             <div><img src="{{ asset('assets/images/logo-text.png') }}" />
                                 <h2 style="color:green">STATEMENT OF RESULT</h2>
                             </div>
-                
                             <div style="text-align:left; height:auto; width:900px">
                                 <div style="text-align:center; font-weight:bold; width:100%; font-size: large;"></div><br />
-                                <span id="LblName" style="font-size:Small;font-weight:bold;">{{strtoupper($details['name'])}}</span>
+                                <span id="LblName" style="font-size:Small;font-weight:bold;">{{strtoupper($details->user->name)}}</span>
                                 <br />
                                 <span id="LblMatricno2"
                                     {{-- style="font-size:Small;font-weight:bold;">R/{{strtoupper($details->program->p_abbr)}}/{{strtoupper($details->program_id)}}/{{strtoupper($details->user->id)}}</span> --}}
                                 <br/>
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details['program']->p_name )}}</span>
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;">{{strtoupper($details->program->p_name )}}</span>
                                 <br />
-                                @if(!empty($details['staffID']))
-                                <span id="LblDept" style="font-size:Small;font-weight:bold;">STAFF ID: <span style="color:blue">{{$details['staffID'] }}</span></span>
+                                @if(!empty($details->user->staffID))
+                                <span id="LblDept" style="font-size:Small;font-weight:bold;">STAFF ID: <span style="color:blue">{{$details->user->staffID }}</span></span>
                                 <br />
                                 @endif
                                 <hr />
@@ -108,31 +107,31 @@
                                         @if(!empty($program->scoresettings->class_test) && $program->scoresettings->class_test > 0)
                                         <tr>
                                             <td class="datacellone">Class Test</td>
-                                            <td class="datacellone">{{ $details['class_test_score'] }}</td>
+                                            <td class="datacellone">{{ $details->class_test_score }}</td>
                                         </tr>
                                         @endif
                                         @if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0)
                                         <tr>
                                             <td class="datacelltwo">Email Test</td>
-                                            <td class="datacelltwo">{{ $details['email_test_score'] }}</td>
+                                            <td class="datacelltwo">{{ $details->email_test_score }}</td>
                                         </tr>
                                         @endif
                                         @if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0)
                                         <tr>
                                             <td class="datacellone">Role Play</td>
-                                            <td class="datacellone">{{ $details['role_play_score'] }}</td>
+                                            <td class="datacellone">{{ $details->roleplay_test_score }}</td>
                                         </tr>
                                         @endif
                                         @if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0)
                                         <tr>
                                             <td class="datacelltwo">CRM Test</td>
-                                            <td class="datacelltwo">{{ $details['crm_test_score'] }}</td>
+                                            <td class="datacelltwo">{{ $details->crm_test_score }}</td>
                                         </tr>
                                         @endif
                                         @if(!empty($program->scoresettings->certification) && $program->scoresettings->certification > 0)
                                         <tr>
                                             <td class="datacelltwo">Certification Test</td>
-                                            <td class="datacelltwo">{{ $details['certification_test_score'] }}</td>
+                                            <td class="datacelltwo">{{ $details->certification_test_score }}</td>
                                         </tr>
                                         @endif
                                     </table>
@@ -156,23 +155,14 @@
                                                     <td class="fil">
                                                         Pass Mark</td>
                                                     <td>
-                                                        <span id="LblPoint1">{{ $details['passmark'] }}</span>
+                                                        <span id="LblPoint1">{{ $details->scoresettings->passmark }}</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fil">
                                                         Points Scored</td>
                                                     <td>
-                                                       <?php 
-                                                       $total = ((!empty($program->scoresettings->class_test) && $program->scoresettings->class_test > 0) ? $details['class_test_score'] : 0 )
-                                                       + ((!empty($program->scoresettings->certification) && $program->scoresettings->certification > 0 ) ? $details['certification_test_score'] : 0)
-                                                        + ((!empty($program->scoresettings->email) && $program->scoresettings->email > 0 ) ? $details['email_test_score'] : 0)
-                                                        + ((!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0) ? $details['role_play_score'] : 0) 
-                                                        + ((!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0) ?  $details['crm_test_score'] : 0);
-
-                                                        ?>
-
-                                                        <span id="Lblgpa1">{{$total}} </span>
+                                                        <span id="Lblgpa1">{{ $details->total_score }} </span>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -182,7 +172,7 @@
                                 {{-- {{dd($program->scoresettings)}} --}}
                                 <div style="text-align:left">
                                     <span style="">CERTIFICATION STATUS : </span>
-                                    <span id="lblRemark" style="color:{{ $total >= $program->scoresettings->passmark ? 'green' : 'red' }}"><b>{{ $total >= $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED' }}</b></span>
+                                    <span id="lblRemark" style="color:{{ $details->certification_status == 'CERTIFIED' ? 'green' : 'red' }}"><b>{{ $details->certification_status }}</b></span>
                                     <br />
                                     <br />
                                     <div style="width:100%; text-align:center"><br /><br />
@@ -191,7 +181,7 @@
                                         School Administrator
                                         <br /><br /><br />ANY ALTERATION WHATSOVER RENDERS THIS RESULT INVALID<br />
                                         <br /><span>Printed: {{now()}}</span><br /><br /><br />
-                                        <a id="lnkclose" href="/training/{{ $program->id }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a id="lnkclose" href="/training/{{ $details->program->id }}">BACK</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <a onclick="javascript:window.print();" id="LinkButton1"
                                             href="javascript:__doPostBack(&#39;LinkButton1&#39;,&#39;&#39;)">PRINT</a>
                                     </div>
