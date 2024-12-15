@@ -26,6 +26,10 @@
 @section('title', 'Test Results')
 @section('css')
 <style>
+    .certification-score {
+        background: #c3dbd8;
+        padding: 10px;
+    }
     body {
         background-color: #78909C;
     }
@@ -300,7 +304,13 @@
                                                 @endif
                                                 
                                                 @if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
-                                                    <strong>Certification: </strong><span id="certification_test_score{{ $user->id }}"> {{ $user->training_result->certification_test_score }}</span>% <br>
+                                                    <div class="certification-score">
+                                                        <strong>Certification: </strong><span id="certification_test_score{{ $user->id }}"> {{ $user->training_result->certification_test_score }}</span>% 
+
+                                                        @if( $user->training_result->certification_test_score < $score_settings->certification)
+                                                            @include('dashboard.admin.results.enable_resit')
+                                                        @endif
+                                                    </div>
                                                 @endif
 
                                                 @if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)

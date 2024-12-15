@@ -101,7 +101,7 @@ class TestsController extends Controller
 
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
         $module = Module::findOrFail($request->mod_id);
-
+       
         $transaction = Transaction::select('id', 'training_result', 'training_result_histories', 'user_id', 'program_id')
         ->where('program_id', $request->p_id)
             ->where('user_id', auth()->user()->id)
@@ -114,12 +114,25 @@ class TestsController extends Controller
             return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
         }
 
-        if ($check != NULL && $resitStatus['status'] == 1) {
+        if ($resitStatus['status'] == 1) {
+            if(isset($resitStatus['expiry'])){
+                $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
+
+                if(now() > $parsedDate){
+                    return back()->with('error', 'the resit period for this test elapsed on: ' .$parsedDate.'. Please contact an administrator!');
+                }
+            }
             $check->certification_test_details = json_encode($certification_test_details);
             // auth()->user()->update(['redotest' => 0]); // deal with this later
             $check->save();
-            $check->endRedoTest();
+            
+            // End redo test
+            $data["certification_test_resit_status"] = 0;
+            $data["certification_test_resit_expiry"] = NULL;
 
+            udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+
+            // $transaction->training_result->
             // Send email to Admin of succesful test re completion
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');

@@ -107,24 +107,23 @@ class Controller extends BaseController
     public function sendGenericEmail($data)
     {
         set_time_limit(360);
-
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
         
         if ($provider == 'default') {
-           
             try {
-                Mail::to($data['email'])->send(new Welcomemail($data, $data));
+                if(env('ENT') == 'local'){
+                    \Log::info(['email_data' => $data]);
+                }else{
+                    Mail::to($data['email'])->send(new Welcomemail($data, $data));
+                }
             } catch (\Exception $e) {
-                // Get error here
                 return false;
             }
         } else {
-            
             $this->sendEmailWithElastic($data);
         }
-        // info(['email'=> $data]);
-
+        
         return;
     }
 

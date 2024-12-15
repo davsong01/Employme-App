@@ -101,7 +101,7 @@ class UtilityTaskController extends Controller
                 "roleplay_test_resit_status" => 0,
                 "roleplay_test_resit_expiry" => NULL,
 
-                "certification_test_status" => $transaction->user->redotest != 0 ? 1 : 0,
+                "certification_test_resit_status" => $transaction->user->redotest != 0 ? 1 : 0,
                 "certification_test_resit_expiry" => NULL,
 
                 "crm_test_resit_status" => 0,

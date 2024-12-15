@@ -671,36 +671,40 @@ class ResultController extends Controller
     }
 
 
-    public function destroy(Request $request, $result)
+    public function destroy(Request $request, $id)
     {
-        if( checkRoleHas('Admin','Grader','Facilitator')){
-            $results = Result::where('id', $request->rid)->whereProgramId($request->pid)->where('user_id', $request->uid)->first();
+        // Clear certification Tests
+        $transaction = Transaction::with('program', 'user')->where('id', $id)->first();
+        
+        if( checkRoleHas(['Admin','Grader','Facilitator'])){
+            $results = Result::with('program','module')->where('program_id', $transaction->program_id)
+            ->whereHas('module', function ($query) {
+                $query->where('computation_status', 1)
+                ->where('type', 1);
+            })
+                ->where('user_id', $transaction->user_id)
+                ->first();
             
-            if(empty($request->override_resit) || $request->override_resit == 'no'){
-                if (empty($results->certification_test_details)) {
-                    return back()->with('error', 'User has not written this test or has a previous pending resit');
-                }
-            }
+            $data["certification_test_resit_status"] = 1;
+            $data["certification_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
+            
+            udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
             
             // Save result thread
             if(!empty($results->certification_test_details)){
                 $this->createResultThread($results);
             }
-            
-            $results->certification_test_details = NULL;
-            $results->certification_test_score = NULL;
-            $results->grader = NULL;
-            $results->redo_test = 1;
 
-            $results->save();
-
-            $user = User::find($request->uid);
-            $user->redotest = 1;
-            $user->save();
+            $results->delete();
 
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
         return back()->with('error', 'You are not allowed to perform this action');
+    }
+
+    public function getResitStatus($transaction){
+        if(isset($transaction->training_result->certification_test_resit_expiry))
+        dd($transaction);
     }
 
     public function createResultThread($results){

@@ -204,8 +204,7 @@ class UserController extends Controller
             // }
 
             User::whereId($user_id)->update(['redotest' => 0]);
-            $result->endRedoTest();
-
+            
             return back()->with('message', 'Update Successful');
 
         }else{

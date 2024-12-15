@@ -140,7 +140,7 @@ use Intervention\Image\Facades\Image;
             ->first();
             
             $certificationStatus = certificationStatus($program_id, $user_id);
-
+            
             $result = [
                 "class_test_score" => $certificationStatus['class_test_score'] ?? ($transaction->training_result->class_test_score ?? 0),
                 "class_test_resit_status" => $data['class_test_resit_status'] ?? ($transaction->training_result->class_test_resit_status ?? 0),
@@ -171,20 +171,22 @@ use Intervention\Image\Facades\Image;
             ];
             
             // dd($transaction->training_result->email_test_score, $transaction->training_result->roleplay_test_score, $transaction->training_result->crm_test_score, $transaction->training_result->certification_test_score);
+            
             if(!empty($data)){
-                $result["class_test_score"] = (int) $transaction->training_result->class_test_score ?? 0;
-                $result["email_test_score"] = (int) $data['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0);
-                $result["roleplay_test_score"] = (int) $data['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0);
-                $result["crm_test_score"] = (int) $data['crm_test_score'] ?? ($transaction->training_result->crm_test_score ?? 0);
-                $result["certification_test_score"] = (int) $data['certification_test_score'] ?? ($transaction->training_result->certification_test_score ?? 0);
-                $result["total_score"] = (int) $result["class_test_score"] + $result["email_test_score"] + $result["roleplay_test_score"] + $result["crm_test_score"]+ $result["certification_test_score"];
+                $result["email_test_score"] = (int) ($data['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0));
+                $result["roleplay_test_score"] = (int) ($data['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0));
+                $result["crm_test_score"] = (int) ($data['crm_test_score'] ?? ($transaction->training_result->crm_test_score ?? 0));
+                $result["certification_test_score"] = (int) ($data['certification_test_score'] ?? ($transaction->training_result->certification_test_score ?? 0));
+                $result["total_score"] = (int) ($result["class_test_score"] + $result["email_test_score"] + $result["roleplay_test_score"] + $result["crm_test_score"]+ $result["certification_test_score"]);
 
-                $result["certification_facilitator"] = $data['certification_facilitator'] ?? ($transaction->training_result->certification_facilitator ?? null);
-                $result["certification_grader"] = $data['certification_grader'] ?? ($transaction->training_result->certification_grader ?? null);
-                $result["certification_facilitator_comment"] = $data['certification_facilitator_comment'] ?? ($transaction->training_result->certification_facilitator_comment ?? null);
-                $result["certification_grader_comment"] = $data['certification_grader_comment'] ?? ($transaction->training_result->certification_grader_comment ?? null);
+                $result["certification_facilitator"] = ($data['certification_facilitator'] ?? ($transaction->training_result->certification_facilitator ?? null));
+                $result["certification_grader"] = ($data['certification_grader'] ?? ($transaction->training_result->certification_grader ?? null));
+                $result["certification_facilitator_comment"] = ($data['certification_facilitator_comment'] ?? ($transaction->training_result->certification_facilitator_comment ?? null));
+                $result["certification_grader_comment"] = ($data['certification_grader_comment'] ?? ($transaction->training_result->certification_grader_comment ?? null));
             }
             
+            // dd($result);
+
             // \Log::info([$result["total_score"],$result["class_test_score"], $result["email_test_score"], $result["roleplay_test_score"], $result["crm_test_score"] , $result["certification_test_score"]]);
             $transaction->update([
                 'training_result' => $result,
