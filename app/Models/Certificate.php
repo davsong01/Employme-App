@@ -7,6 +7,7 @@ use App\Models\Module;
 
 use App\Models\Result;
 use App\Models\Program;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 
 class Certificate extends Model
@@ -34,7 +35,18 @@ class Certificate extends Model
     }
 
     public function scores(){
-        $results = Result::where('user_id', $this->user_id)->where('program_id', $this->program_id)->get();
+        // $results = Result::where('user_id', $this->user_id)->where('program_id', $this->program_id)->get();
+        $results = Result::with('program', 'module', 'user')
+            ->where('user_id', $this->user_id)
+            ->where('program_id', $this->program_id)
+            ->whereIn(
+                'id',
+                Result::select(DB::raw('MIN(id)'))
+                ->where('user_id', $this->user_id)
+                    ->where('program_id', $this->program_id)
+                    ->groupBy('module_id')
+            )->get();
+
         $score_settings = ScoreSetting::whereProgramId($this->program_id)->first();
 
         $data['total'] = 0;
@@ -45,9 +57,10 @@ class Certificate extends Model
         $passmark = $score_settings->passmark ?? null;
         $class_test_score = 0;
         $obtainable  = 0;
+        
         foreach($results as $result){
             if ($result->module->type == 'Class Test') {
-                $u =  Module::where('type', 0)->where('program_id', $this->program_id)->get();
+                $u =  Module::where('type', 0)->where('program_id', $this->program_id)->where('computation_status', 1)->get();
                 $ob = [];
 
                 foreach ($u as $t) {
@@ -55,21 +68,18 @@ class Certificate extends Model
                 }
 
                 $obtainable = array_sum($ob);
-               
+                
                 if ($u->count() > 0) {
                     $class_test_score = $result->class_test_score + $class_test_score;
                 }
-
-                
             }  
 
-            
         }
         // dd($obtainable);
         $final_ct_score  = $obtainable > 0 ? round(($class_test_score * $program_ct_score_settings) / $obtainable, 0) : 0;
-         
+        
         $data['class_test_score'] = $final_ct_score;
-        $data['total'] = $results->sum('certification_test_score') +  $final_ct_score + $results->sum('role_play_score') + $results->sum('email_test_score');
+        $data['total'] = $results->sum('certification_test_score') +  $final_ct_score + $results->sum('role_play_score') + $results->sum('email_test_score') +  $results->sum('crm_test_score') ;
        
         return $data;
       

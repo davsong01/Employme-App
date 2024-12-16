@@ -583,8 +583,3 @@ use Intervention\Image\Facades\Image;
             return $result;
         }
     }
-
-
-
-
-    

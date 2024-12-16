@@ -21,7 +21,7 @@ class TestsController extends Controller
     public function index(Request $request)
     {
         $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-
+        
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
             $program = Program::find($request->p_id);
 

@@ -27,8 +27,9 @@
                             <th>Class Tests</th> 
                             <th>Role Play Score</th>
                             <th>Email Score</th>
-                            <th>Certification Score</th>
+                            <th>Cert. Score</th>
                             <th>CRM Score</th>
+                            <th>Passmark</th>
                             <th>Total</th>
                              <th>Actions</th>
                         </tr>
@@ -44,6 +45,7 @@
                             <td>{{ $score->email ?? 0}}%</td>
                             <td>{{ $score->certification ?? 0}}%</td>
                             <td>{{ $score->crm_test ?? 0 }}%</td>
+                            <td>{{ $score->passmark}}</td>
                             <td>{{ $score->total}}</td>
                             <td>
                                 <div class="btn-group">
