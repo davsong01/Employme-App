@@ -107,24 +107,23 @@ class Controller extends BaseController
     public function sendGenericEmail($data)
     {
         set_time_limit(360);
-
         // return view('emails.receipt', compact('data'));
         $provider = $this->emailProvider();
         
         if ($provider == 'default') {
-           
             try {
-                Mail::to($data['email'])->send(new Welcomemail($data, $data));
+                if(env('ENT') == 'local'){
+                    \Log::info(['email_data' => $data]);
+                }else{
+                    Mail::to($data['email'])->send(new Welcomemail($data, $data));
+                }
             } catch (\Exception $e) {
-                // Get error here
                 return false;
             }
         } else {
-            
             $this->sendEmailWithElastic($data);
         }
-        // info(['email'=> $data]);
-
+        
         return;
     }
 
@@ -806,133 +805,488 @@ class Controller extends BaseController
         return ['content'=>$content,'subject'=>$subject];
     }
 
-    public function adminMenus(){
+    public function adminMenus($type=null,$parent=null)
+    {
         $menus = [
-            [
-                'id' => 1,
-                'name' => 'Admin Dashboard',
-                'route' => 'dashboard',
-            ],
+            // Menus
+            // [
+            //     'id' => 1,
+            //     'name' => 'Admin Dashboard',
+            //     'route' => 'home',
+            //     'type' => 'menu',
+            //     'order' => 1,
+            //     'parentId' => null
+            // ],
             [
                 'id' => 2,
                 'name' => 'Student Management',
                 'route' => 'users.index',
+                'type' => 'menu',
+                'order' => 2,
+                'icon_class' => 'fa fa-users',
+                'parentId' => null
             ],
+            // Student Management
+                [
+                    'id' => 20,
+                    'name' => 'Add New Participant',
+                    'route' => 'users.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 21,
+                    'name' => 'View Participant',
+                    'route' => 'users.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 22,
+                    'name' => 'Update Participant',
+                    'route' => 'users.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 23,
+                    'name' => 'Peek Participant',
+                    'route' => 'impersonate',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 2
+                ],
+                [
+                    'id' => 24,
+                    'name' => 'Delete Participant',
+                    'route' => 'users.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 2
+                ],
             [
                 'id' => 3,
-                'name' => 'Facilitator Management',
+                'name' => 'Staff Management',
                 'route' => 'teachers.index',
+                'type' => 'menu',
+                'order' => 3,
+                'icon_class' => 'fas fas fa-user',
+                'parentId' => null
             ],
+                [
+                    'id' => 31,
+                    'name' => 'Add Staff',
+                    'route' => 'teachers.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 32,
+                    'name' => 'View Staff',
+                    'route' => 'teachers.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 33,
+                    'name' => 'Update Staff',
+                    'route' => 'teachers.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 34,
+                    'name' => 'Peek Staff',
+                    'route' => 'admin-impersonate',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 35,
+                    'name' => 'Delete Staff',
+                    'route' => 'teachers.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 36,
+                    'name' => 'Update Staff Menus',
+                    'route' => 'teachers.update.menu',
+                    'type' => 'access',
+                    'order' => 6,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 37,
+                    'name' => 'Update Staff Training Access',
+                    'route' => 'teachers.update.training.access',
+                    'type' => 'access',
+                    'order' => 7,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 38,
+                    'name' => 'View Staff Referral Details',
+                    'route' => 'teachers.view.referral.details',
+                    'type' => 'access',
+                    'order' => 8,
+                    'parentId' => 3
+                ],
+                [
+                    'id' => 39,
+                    'name' => 'Edit Role and status',
+                    'route' => 'teachers.role.status',
+                    'type' => 'access',
+                    'order' => 9,
+                    'parentId' => 3
+                ],
+            
             [
                 'id' => 4,
-                'name' => 'View all Trainings',
-                'route' => 'programs.index',
+                'name' => 'Company Admin Management',
+                'route' => 'companyuser.index',
+                'type' => 'menu',
+                'order' => 4,
+                'icon_class' => 'fa fa-solid fa-building',
+                'parentId' => null
             ],
+                [
+                    'id' => 41,
+                    'name' => 'Add Company Admin',
+                    'route' => 'companyuser.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 42,
+                    'name' => 'View Company Admin',
+                    'route' => 'companyuser.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 43,
+                    'name' => 'Update Company Admin',
+                    'route' => 'companyuser.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 4
+                ],
+                [
+                    'id' => 44,
+                    'name' => 'Delete Company Admin',
+                    'route' => 'companyuser.destroy',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 4
+                ],
             [
                 'id' => 5,
-                'name' => 'Trashed Trainings',
-                'route' => 'programs.trashed',
+                'name' => 'Training Management',
+                'route' => 'training.management',
+                'type' => 'menu',
+                'order' => 5,
+                'icon_class' => 'fas fa-chalkboard-teacher',
+                'parentId' => null
             ],
+                [
+                    'id' => 51,
+                    'name' => 'Add Training',
+                    'route' => 'programs.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 5
+                ],
             [
                 'id' => 6,
-                'name' => 'View All study Materials',
-                'route' => 'materials.index',
+                'name' => 'View all Trainings',
+                'route' => 'programs.index',
+                'type' => 'menu',
+                'parentId' => 5
             ],
             [
                 'id' => 7,
-                'name' => 'Coupons',
-                'route' => 'coupon.index',
+                'name' => 'Trashed Trainings',
+                'route' => 'programs.trashed',
+                'type' => 'menu',
+                'parentId' => 5
             ],
             [
                 'id' => 8,
-                'name' => 'Transactions',
-                'route' => 'payments.index',
+                'name' => 'Coupons',
+                'route' => 'coupon.index',
+                'type' => 'menu',
+                'order' => 6,
+                'icon_class' => 'fa fa-gift',
+                'parentId' => null
             ],
+                [
+                    'id' => 81,
+                    'name' => 'Add Coupon',
+                    'route' => 'coupon.create',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 82,
+                    'name' => 'View Coupon',
+                    'route' => 'coupon.edit',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 83,
+                    'name' => 'Update Coupon',
+                    'route' => 'coupon.update',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 84,
+                    'name' => 'View Coupon Usage',
+                    'route' => 'coupon.show',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 8
+                ],
+                [
+                    'id' => 85,
+                    'name' => 'Delete Coupon',
+                    'route' => 'coupon.destroy',
+                    'type' => 'access',
+                    'order' => 5,
+                    'parentId' => 8
+                ],
+                
             [
                 'id' => 9,
-                'name' => 'Attempted Payments',
-                'route' => 'pop.index',
+                'name' => 'Financials',
+                'route' => 'financials',
+                'type' => 'menu',
+                'order' => 7,
+                'icon_class' => 'far fa-money-bill-alt',
+                'parentId' => null
             ],
             [
                 'id' => 10,
-                'name' => 'CRM Tool',
-                'route' => 'complains.index',
+                'name' => 'Attempted Payments',
+                'route' => 'pop.index',
+                'type' => 'menu',
+                'parentId' => 9
             ],
             [
                 'id' => 11,
-                'name' => 'Modules',
-                'route' => 'modules.index',
+                'name' => 'Proof of Payment',
+                'route' => 'proof.payment',
+                'type' => 'menu',
+                'parentId' => 9
             ],
+                [
+                    'id' => 111,
+                    'name' => 'Edit/Update Proof of Payment',
+                    'route' => 'pop.edit',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 9
+                ],
+                
+                [
+                    'id' => 113,
+                    'name' => 'Approve Proof of Payment',
+                    'route' => 'pop.show',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 9
+                ],
+                [
+                    'id' => 114,
+                    'name' => 'Delete Proof of Payment',
+                    'route' => 'pop.destroy',
+                    'type' => 'access',
+                    'order' => 4,
+                    'parentId' => 9
+                ],
             [
                 'id' => 12,
-                'name' => 'Questions',
-                'route' => 'questions.index',
+                'name' => 'Transactions',
+                'route' => 'payments.index',
+                'type' => 'menu',
+                'parentId' => 9
             ],
+                [
+                    'id' => 121,
+                    'name' => 'Update Transaction',
+                    'route' => 'payments.edit',
+                    'type' => 'access',
+                    'order' => 1,
+                    'parentId' => 9
+                ],
+                [
+                    'id' => 122,
+                    'name' => 'Send Transaction Receipt',
+                    'route' => 'payments.show',
+                    'type' => 'access',
+                    'order' => 2,
+                    'parentId' => 9
+                ],
+                
+                [
+                    'id' => 123,
+                    'name' => 'Delete Transaction',
+                    'route' => 'payments.destroy',
+                    'type' => 'access',
+                    'order' => 3,
+                    'parentId' => 9
+                ],
             [
                 'id' => 13,
-                'name' => 'Pre Test Grades',
-                'route' => 'pretest.select',
+                'name' => 'CRM Tool',
+                'route' => 'complains.index',
+                'type' => 'menu',
+                'order' => 8,
+                'icon_class' => 'far fa-comments',
+                'parentId' => null
             ],
             [
                 'id' => 14,
-                'name' => 'Grades',
-                'route' => 'posttest.results',
+                'name' => 'LMS',
+                'route' => 'lms',
+                'type' => 'menu',
+                'order' => 9,
+                'icon_class' => 'far fa-comments',
+                'parentId' => null
             ],
             [
                 'id' => 15,
-                'name' => 'Certificates',
-                'route' => 'certificates.index',
+                'name' => 'Modules',
+                'route' => 'modules.index',
+                'type' => 'menu',
+                'parentId' => 14
             ],
             [
                 'id' => 16,
-                'name' => 'Score Settings',
-                'route' => 'scoreSettings.index',
+                'name' => 'Questions',
+                'route' => 'questions.index',
+                'type' => 'menu',
+                'parentId' => 14
             ],
             [
                 'id' => 17,
-                'name' => 'Email Participants',
-                'route' => 'users.mail',
+                'name' => 'Pre Test results',
+                'route' => 'pretest.select',
+                'type' => 'menu',
+                'parentId' => 14
             ],
             [
                 'id' => 18,
-                'name' => 'Payment modes',
-                'route' => 'payment-modes.index',
+                'name' => 'Post Test Results',
+                'route' => 'posttest.results',
+                'type' => 'menu',
+                'parentId' => 14
             ],
             [
                 'id' => 19,
-                'name' => 'Settings',
-                'route' => 'settings.edit',
+                'name' => 'Certificates',
+                'route' => 'certificates.index',
+                'type' => 'menu',
+                'parentId' => 14
             ],
-
             [
                 'id' => 20,
-                'name' => 'Update User',
-                'route' => 'users.update',
+                'name' => 'Score Settings',
+                'route' => 'scoreSettings.index',
+                'type' => 'menu',
+                'parentId' => 14
             ],
             [
                 'id' => 21,
-                'name' => 'Add Modules',
-                'route' => 'modules.create',
-            ],
-
-            [
-                'id' => 22,
-                'name' => 'Enable Resit for participants',
-                'route' => 'modules.create',
+                'name' => 'Email Participants',
+                'route' => 'users.mail',
+                'type' => 'menu',
+                'order' => 10,
+                'icon_class' => 'fa fa-envelope',
+                'parentId' => null
             ],
             [
                 'id' => 22,
-                'name' => 'Company Admin Management',
-                'route' => 'modules.create',
+                'name' => 'Payment modes',
+                'route' => 'payment-modes.index',
+                'type' => 'menu',
+                'order' => 11,
+                'icon_class' => 'fa fa-credit-card',
+                'parentId' => null
+            ],
+            [
+                'id' => 23,
+                'name' => 'General Settings',
+                'route' => 'settings.index',
+                'order' => 12,
+                'type' => 'menu',
+                'icon_class' => 'fa fa-cog',
+                'parentId' => null
             ],
         ];
 
-        return $menus;
+        $allmenus = collect($menus);
+
+        if ($parent) {
+            $allmenus = $allmenus->where('parentId', $parent);
+        }
+
+        if($type){
+            $allmenus = $allmenus->where('type', $type);
+            if($type == 'access'){
+                return $allmenus;
+            }
+        }
+
+        // Group children by parentId
+        $grouped = $allmenus->groupBy('parentId');
+        
+        // Map parents and attach children
+        $nestedMenus = $grouped->get(null, collect())->map(function ($parent) use ($grouped) {
+            return array_merge($parent, [
+                'children' => $grouped->get($parent['id'], collect())->toArray(),
+            ]);
+        });
+        
+        return $nestedMenus;
+    }
+
+    public function flattenedMenus($menus)
+    {
+        $routes = [];
+
+        foreach ($menus as $menu) {
+            if (isset($menu['route'])) {
+                $routes[] = $menu['route'];
+            }
+
+            if (!empty($menu['children'])) {
+                $routes = array_merge($routes, $this->flattenedMenus($menu['children']));
+            }
+        }
+
+        return $routes;
     }
 
     public function companyMenus()
     {
         $menus = [
+            // Categories
             [
                 'id' => 1,
                 'name' => 'Organization Dashboard',
@@ -976,7 +1330,424 @@ class Controller extends BaseController
         ];
 
         return $menus;
-    } 
+    }
+
+    public function adminTrainingPermissions($children=null)
+    {
+        $permissions = [
+            [
+                'id' => 1,
+                'name' => 'Training CRUD',
+                'order' => 1,
+            ],
+            [
+                'id' => 2,
+                'name' => 'Modules CRUD',
+                'order' => 2,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Questions CRUD',
+                'order' => 3,
+            ],
+
+            [
+                'id' => 4,
+                'name' => 'Certificate Actions',
+                'order' => 4,
+            ],
+            [
+                'id' => 5,
+                'name' => 'Tests Actions',
+                'order' => 5,
+            ],
+            [
+                'id' => 7,
+                'name' => 'Score Settings Actions',
+                'order' => 7,
+            ],
+            
+            // Children
+            [
+                'id' => 1,
+                'name' => 'Export Participant\'s details',
+                'route' => 'program.detailsexport',
+                'order' => 1,
+                'category_id' => 1
+            ],
+            [
+                'id' => 2,
+                'name' => 'Edit Training',
+                'route' => 'programs.edit',
+                'order' => 1,
+                'category_id' => 1
+            ],
+            [
+                'id' => 3,
+                'name' => 'Disable CRM',
+                'route' => 'crm.hide',
+                'order' => 3,
+                'category_id' => 1
+            ],
+            [
+                'id' => 4,
+                'name' => 'Enable CRM',
+                'route' => 'crm.show',
+                'order' => 4,
+                'category_id' => 1
+            ],
+            [
+                'id' => 5,
+                'name' => 'Disable Result',
+                'route' => 'results.disable',
+                'order' => 5,
+                'category_id' => 1
+            ],
+            [
+                'id' => 6,
+                'name' => 'Enable Result',
+                'route' => 'results.enable',
+                'order' => 6,
+                'category_id' => 1
+            ],
+            [
+                'id' => 7,
+                'name' => 'Reset Password',
+                'route' => 'password.reset',
+                'order' => 7,
+                'category_id' => 1
+            ],
+            [
+                'id' => 8,
+                'name' => 'Close Registration',
+                'route' => 'registration.close',
+                'order' => 8,
+                'category_id' => 1
+            ],
+            [
+                'id' => 9,
+                'name' => 'Extend Registration',
+                'route' => 'registration.open',
+                'order' => 9,
+                'category_id' => 1
+            ],
+            [
+                'id' => 10,
+                'name' => 'Open Earlybird',
+                'route' => 'earlybird.open',
+                'order' => 10,
+                'category_id' => 1
+            ],
+            [
+                'id' => 11,
+                'name' => 'Close Earlybird',
+                'route' => 'earlybird.close',
+                'order' => 11,
+                'category_id' => 1
+            ],
+            [
+                'id' => 12,
+                'name' => 'Clone Training',
+                'route' => 'training.clone',
+                'order' => 12,
+                'category_id' => 1
+            ],
+            [
+                'id' => 13,
+                'name' => 'Bulk Import',
+                'route' => 'training.import',
+                'order' => 13,
+                'category_id' => 1
+            ],
+            [
+                'id' => 14,
+                'name' => 'Trash Training',
+                'route' => 'programs.destroy',
+                'order' => 14,
+                'category_id' => 1
+            ],
+            [
+                'id' => 15,
+                'name' => 'View Modules',
+                'route' => 'modules.index',
+                'order' => 15,
+                'category_id' => 2
+            ],
+            [
+                'id' => 15,
+                'name' => 'Add Modules',
+                'route' => 'modules.create',
+                'order' => 15,
+                'category_id' => 2
+            ],
+            [
+                'id' => 16,
+                'name' => 'Edit Modules',
+                'route' => 'modules.edit',
+                'order' => 16,
+                'category_id' => 2
+            ],
+            [
+                'id' => 17,
+                'name' => 'Update Modules',
+                'route' => 'modules.update',
+                'order' => 17,
+                'category_id' => 2
+            ],
+            [
+                'id' => 18,
+                'name' => 'Clone Modules',
+                'route' => 'modules.show',
+                'order' => 18,
+                'category_id' => 2
+            ],
+            [
+                'id' => 18,
+                'name' => 'Enable Modules',
+                'route' => 'modules.enable',
+                'order' => 18,
+                'category_id' => 2
+            ],
+            [
+                'id' => 18,
+                'name' => 'Disable Modules',
+                'route' => 'modules.disable',
+                'order' => 18,
+                'category_id' => 2
+            ],
+            
+            [
+                'id' => 20,
+                'name' => 'Add Questions',
+                'route' => 'questions.store',
+                'order' => 20,
+                'category_id' => 3
+            ],
+            
+            [
+                'id' => 22,
+                'name' => 'Import Questions',
+                'route' => 'questions.import',
+                'order' => 22,
+                'category_id' => 3
+            ],
+            [
+                'id' => 23,
+                'name' => 'Edit Questions',
+                'route' => 'questions.edit',
+                'order' => 23,
+                'category_id' => 3
+            ],
+            [
+                'id' => 23,
+                'name' => 'Update Questions',
+                'route' => 'questions.update',
+                'order' => 23,
+                'category_id' => 3
+            ],
+            [
+                'id' => 24,
+                'name' => 'Delete Questions',
+                'route' => 'questions.destroy',
+                'order' => 24,
+                'category_id' => 3
+            ],
+            [
+                'id' => 25,
+                'name' => 'Perform Certificate Actions',
+                'route' => 'certificate-actions',
+                'order' => 25,
+                'category_id' => 4
+            ],
+            [
+                'id' => 26,
+                'name' => 'Download Certificate',
+                'route' => '',
+                'order' => 26,
+                'category_id' => 4
+            ],
+            [
+                'id' => 27,
+                'name' => 'Delete Certificate',
+                'route' => 'certificates.destroy',
+                'order' => 27,
+                'category_id' => 4
+            ],
+            [
+                'id' => 28,
+                'name' => 'Add New Score Setting',
+                'route' => 'scoreSettings.create',
+                'order' => 28,
+                'category_id' => 7
+            ],
+            [
+                'id' => 29,
+                'name' => 'Edit Score Setting',
+                'route' => 'scoreSettings.edit',
+                'order' => 29,
+                'category_id' => 7
+            ],
+            [
+                'id' => 29,
+                'name' => 'Update Score Setting',
+                'route' => 'scoreSettings.update',
+                'order' => 29,
+                'category_id' => 7
+            ],
+            [
+                'id' => 30,
+                'name' => 'Delete Score Setting',
+                'route' => 'scoreSettings.destroy',
+                'order' => 30,
+                'category_id' => 7
+            ],
+            [
+                'id' => 31,
+                'name' => 'Export Test Results',
+                'route' => 'result.export',
+                'order' => 31,
+                'category_id' => 5
+            ],
+            [
+                'id' => 32,
+                'name' => 'View Certification Score',
+                'route' => 'view-certification-score',
+                'order' => 32,
+                'category_id' => 5
+            ],
+            [
+                'id' => 33,
+                'name' => 'View Roleplay Score',
+                'route' => 'view-roleplay-score',
+                'order' => 33,
+                'category_id' => 5
+            ],
+            [
+                'id' => 34,
+                'name' => 'View Email Score',
+                'route' => 'view-email-score',
+                'order' => 34,
+                'category_id' => 5
+            ],
+            [
+                'id' => 35,
+                'name' => 'View CRM Score',
+                'route' => 'view-crm-score',
+                'order' => 35,
+                'category_id' => 5
+            ],
+            [
+                'id' => 36,
+                'name' => 'View Class Tests Score',
+                'route' => 'view-class-score',
+                'order' => 36,
+                'category_id' => 5
+            ],
+            [
+                'id' => 36,
+                'name' => 'View Total Scores',
+                'route' => 'view-total-score',
+                'order' => 36,
+                'category_id' => 5
+            ],
+            
+            [
+                'id' => 37,
+                'name' => 'Update Certification Score',
+                'route' => 'update-certification-score',
+                'order' => 37,
+                'category_id' => 5
+            ],
+            [
+                'id' => 38,
+                'name' => 'Update Roleplay Score',
+                'route' => 'update-roleplay-score',
+                'order' => 38,
+                'category_id' => 5
+            ],
+            [
+                'id' => 39,
+                'name' => 'Update Email Score',
+                'route' => 'update-email-score',
+                'order' => 39,
+                'category_id' => 5
+            ],
+            [
+                'id' => 40,
+                'name' => 'Update CRM Score',
+                'route' => 'update-crm-score',
+                'order' => 40,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'View Single Post Test Result',
+                'route' => 'results.add',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'Add/Update Grader\'s Comment',
+                'route' => 'results.grader',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'Add/Update Facilitator\'s Comment',
+                'route' => 'results.facilitator',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'Enable Post Test Resit',
+                'route' => 'results.destroy',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            
+            [
+                'id' => 42,
+                'name' => 'Stop Resit Process',
+                'route' => 'stopredotest',
+                'order' => 42,
+                'category_id' => 5
+            ],
+            [
+                'id' => 41,
+                'name' => 'View Single Pre Test Result',
+                'route' => 'mocks.add',
+                'order' => 41,
+                'category_id' => 5
+            ],
+            
+        ];
+
+        $permissions = collect($permissions)->sortBy('order');
+        
+        if($children){
+            $permissions = $permissions->whereNotNull('category_id');
+            return $permissions;
+        }else{
+            // Group children by parentId
+            $permissions = $permissions->groupBy('category_id');
+            
+            // Map parents and attach children
+            $permissions = $permissions->get(null, collect())->map(function ($parent) use ($permissions) {
+                return array_merge($parent, [
+                    'children' => $permissions->get($parent['id'], collect())
+                    ->sortBy('order')
+                    ->toArray(),
+                ]);
+            });
+
+            return $permissions;
+        }
+        
+    }
+
 
     public function printNameOnCertificate(){
         // Import the Intervention Image class

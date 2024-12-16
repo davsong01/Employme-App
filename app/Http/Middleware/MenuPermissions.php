@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
@@ -17,42 +18,62 @@ class MenuPermissions
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+    
     public function handle(Request $request, Closure $next)
     {
-        if (empty(array_intersect(adminRoles(), Auth::user()->role())) && empty(array_intersect(studentRoles(), Auth::user()->role()))) {
-            $i_menus = [];
-            $all_menus = app('App\Http\Controllers\Controller')->adminMenus();
+        $currentRouteName = Route::currentRouteName();
+        
+        // Get the authenticated or impersonated user
+        $user = session()->get('impersonate')
+            ? User::find(session()->get('impersonate'))
+            : Auth::user();
 
-            if (auth()->user()) {
-                $i_menus  = Auth::user()->menu_permissions ?? [];
-                if ($i_menus) {
-                    $i_menus  = explode(',', $i_menus);
-                } else {
-                    $i_menus = [];
+        if (!$user) {
+            return redirect(route('login'))->with('danger', 'Please log in to continue.');
+        }
+
+        $roles = $user->role();
+
+        // Allow students to bypass this middleware
+        if (in_array('Student', $roles)) {
+            return $next($request);
+        }
+
+        $excludedUserIds = [1]; // Add more user IDs as needed
+        if (in_array($user->id, $excludedUserIds)) {
+            return $next($request);
+        }
+
+        if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
+            $allMenus = allRoutes();
+            $allPermissions = allAccess();
+            $userMenus = $user->menu_permissions ?? []; 
+            
+            // Check for program-specific access
+            if (!empty($request->p_id)) {
+                if (in_array($currentRouteName, $allPermissions)) {
+                    if (!URL::hasValidSignature($request)) {
+                        return redirect()->route('home')->with('danger', 'Invalid or expired link.');
+                    }
+
+                    if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])[$currentRouteName]) {
+                        return $next($request);
+                    }
+                    return redirect(route('home'))->with('danger', 'Unauthorized access to program.');
                 }
             }
 
-            $allowed = [];
-
-            foreach ($all_menus as $menu) {
-                if (in_array($menu['id'], $i_menus)) {
-                    $allowed[] = $menu['route'];
-                }
-            }
-
-            // Check if user has access to page
-            $name = Route::currentRouteName();
-            if (in_array($name, array_column($all_menus, 'route'))) {
-                if (in_array($name, $allowed)) {
+            // Check for route-specific access
+            if (in_array($currentRouteName, $allMenus)) {
+                if (in_array($currentRouteName, $userMenus)) {
                     return $next($request);
-                } else {
-                    return back()->with('error', 'Unauthorised');
                 }
-            } else {
-                return $next($request);
+                return redirect(route('home'))->with('danger', 'Unauthorized access to menu.');
             }
         }
 
+        // Allow the request to proceed if no conditions block it
         return $next($request);
     }
+
 }

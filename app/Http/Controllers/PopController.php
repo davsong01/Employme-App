@@ -18,12 +18,11 @@ class PopController extends Controller
     public function index()
     {
         // Get attempted payments
-        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return abort(404);
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return route('home');
         }
 
-        $transactions =  TempTransaction::with(['coupon', 'program'])->orderBy('created_at', 'DESC')->get();
-        // $transactions = Pop::with('program','user','temp')->Ordered('date', 'DESC')->get();
+        $transactions =  TempTransaction::with(['coupon', 'program:id,p_amount,e_amount,created_at'])->orderBy('created_at', 'DESC')->get();
         $i = 1;
         $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
 

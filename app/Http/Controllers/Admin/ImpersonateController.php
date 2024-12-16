@@ -16,24 +16,24 @@ class ImpersonateController extends Controller
 {
     public function index(Request $request, $id)
     {
-        if(empty(array_intersect(adminRoles(), Auth::user()->role())))
-        {
+
+        if (!checkRoleHas(['Admin','Facilitator','Grader'])) {
             return redirect('/dashboard');
         }
 
         $user = User::find($id);
 
         Auth::user()->setImpersonating($user->id);
-
+        
         // Guard against administrator impersonate
-        if($user->role_id <> 'Admin')
-        {
-            return redirect(route('home'));
-        }
-        else
-        {
-            return back()->with('error', 'Impersonate disabled for this user');
-        }
+        return redirect(route('home'));
+        // if($user->id <> $id)
+        // {
+        // }
+        // else
+        // {
+        //     return back()->with('error', 'Impersonate disabled for this user');
+        // }
 
     }
 

@@ -1,3 +1,13 @@
+@php
+    $check = [
+        'teachers.create',
+        'teachers.edit',
+        'admin-impersonate',
+        'teachers.destroy',
+    ];
+
+    $permissions = canUserAccessPermission($check);
+@endphp
 @extends('dashboard.admin.index')
 @section('title', 'All Facilitators')
 @section('content')
@@ -8,11 +18,13 @@
             <div class="card-title">
                 @include('layouts.partials.alerts')
             </div>
+            @if($permissions['teachers.create'])
             <div class="card-header">
                 <div>
                     <h5 class="card-title">Facilitators $ Graders <a href="{{route('teachers.create')}}"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 
                 </div>
             </div>
+            @endif
             <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -52,18 +64,17 @@
                             </td>
                             
                             <td style="margin: auto;display: flex;border-bottom: none;display: grid;">
-                                @if(!empty(array_intersect(facilitatorRoles(), $user->role())))
+                                @if(checkRoleHas(['Facilitator'],$user))
                                 <button class="disabled btn btn-primary btn-sm">Facilitator</button> <br>
                                 @endif
 
-                                @if(!empty(array_intersect(graderRoles(), $user->role())))
+                                @if(checkRoleHas(['Grader'],$user))
                                 <button class="disabled btn btn-info btn-sm">Grader</button> <br>
                                 @endif
 
-                                @if(!empty(array_intersect(adminRoles(), $user->role())))
+                                @if(checkRoleHas(['Admin'],$user))
                                 <button class="disabled btn btn-success btn-sm" style="background-color: darkblue;border-color: darkblue;">Admin</button> <br>
                                 @endif
-                              
                             @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
                             </td>
                             <td>
@@ -82,17 +93,22 @@
                             </td>
                           
                             <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
-                                          
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit facilitator"
+                                    @if($permissions['teachers.edit'])
+                                    <a data-toggle="tooltip" data-placement="top" title="Edit Staff"
                                         class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
-                                    </a>                                   
+                                    </a>       
+                                    @endif  
+                                    @if($permissions['admin-impersonate'])
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>
                                     </a>
+                                    @endif
+
+                                    @if($permissions['teachers.destroy'])
                                     <form action="{{ route('teachers.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
@@ -102,6 +118,7 @@
                                             data-placement="top" title="Delete facilitator"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                             @endforeach

@@ -65,10 +65,21 @@ class Program extends Model
     }
 
     //Facilitator's relationship
+    // public function trainings()
+    // {
+    //     return $this->hasManyThrough(FacilitatorTraining::class);
+    // }
+
     public function trainings()
     {
-        return $this->hasManyThrough(FacilitatorTraining::class);
+        return $this->hasMany(FacilitatorTraining::class, 'program_id');
     }
+
+    public function training()
+    {
+        return $this->hasOne(FacilitatorTraining::class, 'program_id');
+    }
+
     
     public function checkBalance($p_id)
     {
@@ -144,6 +155,13 @@ class Program extends Model
                 ->where('p_end', '>=', date('Y-m-d'))
                     ->where('close_registration', 0)
                         ->orderBy('created_at', 'DESC');
+    }
+
+    public function scopeIsUserProgram($query)
+    {
+        return $query->where('id', '<>', 1)
+        // ->whereStatus(1)
+            ->where('program_lock', 0);
     }
 
     public function coupon()

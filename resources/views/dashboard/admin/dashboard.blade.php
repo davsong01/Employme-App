@@ -6,13 +6,9 @@
     <!-- ============================================================== -->
     <!-- Start Page Content -->
     <!-- ============================================================== -->
-    @if(Auth()->user()->role_id == "Admin")
-        <div class="row">
-            <div class="card-title">
-                @include('layouts.partials.alerts')
-            </div>
-        </div>
-        
+    @include('layouts.partials.alerts')
+    
+    @if(Auth()->user()->role_id == "Admin") 
         <div class="row">
             <!-- Column -->
             
@@ -104,7 +100,6 @@
     @endif   
     <div class="row">     
         <!-- Column -->
-       
         @if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('teachers.students', Auth()->user()->id) }}">

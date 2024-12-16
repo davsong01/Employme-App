@@ -22,7 +22,6 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-
         $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
             ->distinct()->with('trainings')
             ->where('role_id', '!=', 'Student')
@@ -50,10 +49,8 @@ class TeacherController extends Controller
 
             $user->p_names =  $names;
         }
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.teachers.index', compact('users', 'i'));
-        }
+        
+        return view('dashboard.admin.teachers.index', compact('users', 'i'));
     }
 
     public function showStudents($id)
@@ -204,8 +201,6 @@ class TeacherController extends Controller
     {
         $user = User::with('trainings')->where('id', $id)->first();
 
-        $programs = Program::whereIn('id', $user->trainings->pluck('program_id'))->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
-
         $allprograms = Program::where('id', '<>', 1)
             ->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
 
@@ -216,16 +211,34 @@ class TeacherController extends Controller
         $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/' . $user->profile_picture;
 
         $payment_modes = PaymentMode::whereStatus('active')->get();
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.teachers.edit', compact('programs', 'user', 'allprograms', 'payment_modes'));
+        
+        foreach($user->trainings as $training){
+            $program = Program::select('id','p_name')->where('programs.id', $training->program_id)->first();
+            $training->p_name = $program->p_name;
         }
-        return back();
+        
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return back();
+        }
+        
+        return view('dashboard.admin.teachers.edit', compact( 'user', 'allprograms', 'payment_modes'));
     }
     
     public function update(Request $request, $id)
     {
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return redirect('home');
+        }
+
         $user = User::findorFail($id);
+        $check = [
+            'teachers.update.menu',
+            'teachers.update.training.access',
+            'teachers.role.status'
+        ];
+
+        $allpermissions = canUserAccessPermission($check);
+        
         if ($request['password']) {
             $user->password = bcrypt($request['password']);
         };
@@ -236,13 +249,16 @@ class TeacherController extends Controller
             $picture->save('profiles/' . '/' . $imgName);
         }
 
-
         $request['role'] = implode(',', $request['role']);
-
+        
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->t_phone = $request['phone'];
-        $user->role_id = $request['role'];
+
+        if ($allpermissions['teachers.role.status']) {
+            $user->role_id = $request['role'];
+        }
+
         $user->profile = $request['profile'];
         $user->status = $request['status'];
         $user->profile_picture = $imgName ?? $user->profile_picture;
@@ -252,34 +268,33 @@ class TeacherController extends Controller
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            // if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $user->menu_permissions = implode(',', $request->menu_permissions ?? []);
+
+        if($allpermissions['teachers.update.menu']){
+            $user->menu_permissions = $request->menu_permissions;
         }
+
         //Delete corresponding Facilitator Program details
         $facilitator = FacilitatorTraining::whereUserId($user->id);
 
-        // if(!isset($facilitator) && !isset($request['training'])){
-        //     return back()->with('error', 'Facilitator is not attached to any training, please add a training to facilitator');
-        // }
-
         $facilitator->delete();
 
-        if (!empty($request['training'])) {
-            foreach ($request['training'] as $training) {
-                FacilitatorTraining::UpdateorCreate([
-                    'user_id' => $user->id,
-                    'program_id' => $training
-                ]);
+        if ($allpermissions['teachers.update.training.access']) {
+            if (!empty($request['training'])) {
+                foreach ($request['training'] as $training) {
+                    FacilitatorTraining::UpdateorCreate([
+                        'user_id' => $user->id,
+                        'program_id' => $training,
+                        'training_permissions' => $request->training_permissions[$training]
+                    ]);
+                }
             }
         }
+
         $user->save();
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return redirect('teachers')->with('message', 'Facilitator updated successfully');
-        }
-        return back();
+        return back()->with('message', 'Operation Successful');
     }
+
     public function destroy($id)
     {
         $user = User::findOrFail($id);

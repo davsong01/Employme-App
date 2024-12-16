@@ -1,3 +1,17 @@
+@php
+    $check = [
+      'update-certification-score',
+      'results.add',
+      'update-roleplay-score',
+      'update-email-score',
+      'update-crm-score',
+      'update-class-score',
+      'results.grader',
+      'results.facilitator'
+    ];
+
+    $permissions = checkTrainingHasPermissions($program->id, $check);
+@endphp
 @extends('dashboard.admin.index')
 @section('css')
 <style>
@@ -99,41 +113,42 @@
 
               <div class="col-md-6">
                 @if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0) 
-                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                <h6 style="color:red">Add Email score here</h6>
-                <div class="form-group">
-                  <label>Email Score* <span style="color:green">(Max score =
-                      {{$program->scoresettings->email }})</span></label>
-                  <input type="number" name="emailscore" value="{{ old('emailscore') ?? $details['email_test_score'] }}"
-                    class="form-control" min="0" max="{{$program->scoresettings->email }}">
-                </div>
-                @endif
-                <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
+                  @if($permissions['update-email-score'])
+                    <h6 style="color:red">Add Email score here</h6>
+                    <div class="form-group">
+                      <label>Email Score* <span style="color:green">(Max score =
+                          {{$program->scoresettings->email }})</span></label>
+                      <input type="number" name="emailscore" value="{{ old('emailscore') ?? $details['email_test_score'] }}"
+                        class="form-control" min="0" max="{{$program->scoresettings->email }}">
+                    </div>
+                    <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
+                  @endif
                 @endif
                 @if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0) 
-                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
-                <h6 style="color:red">Add Role play score here</h6>
-                <div class="form-group">
-                  <label>Role Play Score* <span style="color:green">(Max score =
-                      {{$program->scoresettings->role_play }})</span></label>
-                  <input type="number" name="roleplayscore"
-                    value="{{ old('roleplayscore') ?? $details['role_play_score'] }}" class="form-control" min="0"
-                    max="{{$program->scoresettings->role_play }}" required>
-                </div>
-                <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
-                @endif
-
+                  @if($permissions['update-roleplay-score'])
+                  <h6 style="color:red">Add Role play score here</h6>
+                  <div class="form-group">
+                    <label>Role Play Score* <span style="color:green">(Max score =
+                        {{$program->scoresettings->role_play }})</span></label>
+                    <input type="number" name="roleplayscore"
+                      value="{{ old('roleplayscore') ?? $details['role_play_score'] }}" class="form-control" min="0"
+                      max="{{$program->scoresettings->role_play }}" required>
+                  </div>
+                  <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
+                  @endif
                 @if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0) 
-                <h6 style="color:red">Add CRM test score here</h6>
-                <div class="form-group">
-                  <label>CRM Test Score* <span style="color:green">(Max score =
-                      {{$program->scoresettings->crm_test }})</span></label>
-                  <input type="number" name="crm_score"
-                    value="{{ old('crm_score') ?? $details['crm_test_score'] }}" class="form-control" min="0"
-                    max="{{$program->scoresettings->crm_test }}" required>
-                </div>
-                <div><small style="color:red">{{ $errors->first('crm_score')}}</small></div>
-                </div>
+                  @if($permissions['update-crm-score'])
+                  <h6 style="color:red">Add CRM test score here</h6>
+                  <div class="form-group">
+                    <label>CRM Test Score* <span style="color:green">(Max score =
+                        {{$program->scoresettings->crm_test }})</span></label>
+                    <input type="number" name="crm_score"
+                      value="{{ old('crm_score') ?? $details['crm_test_score'] }}" class="form-control" min="0"
+                      max="{{$program->scoresettings->crm_test }}" required>
+                  </div>
+                  <div><small style="color:red">{{ $errors->first('crm_score')}}</small></div>
+                  </div>
+                  @endif
                 @endif
               @endif
 
@@ -141,41 +156,38 @@
 
             <div class="row">
               <div class="col-md-12">
-                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
-                <h6 style="color:red">Certificate Test Submision</h6>
-                <p>Please go through this user's attempt and grade user with the grade box below</p>
+                @if($permissions['update-certification-score'])
+                  <h6 style="color:red">Certificate Test Submision</h6>
+                  <p>Please go through this user's attempt and grade user with the grade box below</p>
 
-                <div class="form-group">
-                  @foreach($user_results as $results)
-
-                  <label for="title"> <strong style="color:green">QUESTION {{ $i ++  }}</strong></label><br>
-                  <strong style="color:green">Module:</strong> {!! $results->module->title.'<br><br>' !!}</span>
-
-                  <strong style=:color:green>Question:</strong> {!! $results['title'] .'<br><br>' !!}</span>
-
-                  <strong>Answer:</strong> {!! $results['answer'] .'<br><br>' !!}
-
-                  @endforeach
                   <div class="form-group">
-                    {{-- <textarea style="max-width: 100%; padding:10px; text-align: justify;" name="answer" id="" rows="12" cols="100" readonly>{!! $results['submission'] !!}</textarea> --}}
-                  </div>
-                </div>
-                {{-- @endforeach --}}
+                    @foreach($user_results as $results)
 
-                <h6 style="color:red">Now, score this candidate's certification test (Result with score of 10 will be
-                  recorded as 'processing' on cadidate's dashboard): </h6>
-                <div class="form-group">
-                  <label><span style="color:green">(Max score =
-                      {{ $program->scoresettings->certification}})</span></label>
-                  <input type="number" name="certification_score"
-                    {{ (!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) ? "" : 'Readonly' }}
-                    value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"
-                    min="0" max="{{ $program->scoresettings->certification }}">
-                </div>
+                    <label for="title"> <strong style="color:green">QUESTION {{ $i ++  }}</strong></label><br>
+                    <strong style="color:green">Module:</strong> {!! $results->module->title.'<br><br>' !!}</span>
+
+                    <strong style=:color:green>Question:</strong> {!! $results['title'] .'<br><br>' !!}</span>
+
+                    <strong>Answer:</strong> {!! $results['answer'] .'<br><br>' !!}
+
+                    @endforeach
+                    
+                  </div>
+
+                  <h6 style="color:red">Now, score this candidate's certification test (Result with score of 10 will be
+                    recorded as 'processing' on cadidate's dashboard): </h6>
+                  <div class="form-group">
+                    <label><span style="color:green">(Max score =
+                        {{ $program->scoresettings->certification}})</span></label>
+                    <input type="number" name="certification_score"
+                      {{ (!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) ? "" : 'Readonly' }}
+                      value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"
+                      min="0" max="{{ $program->scoresettings->certification }}">
+                  </div>
                 @else
-                <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
+                  <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
                 @endif
-                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
+                @if($permissions['update-certification-score'] && $permissions['results.grader'])
                 <div class="form-group">
                   <label>Grader Comment(Optional) </label>
                   <textarea name="grader_comment" class="form-control" id="" cols="30" rows="10"
@@ -183,7 +195,7 @@
 
                 </div>
                 @endif
-                @if(!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role())))
+                @if($permissions['update-certification-score'] && $permissions['results.facilitator'])
                 <div class="form-group">
                   <label>Facilitator Comment(Optional) </label>
                   <textarea name="facilitator_comment" class="form-control" id="" cols="30" rows="10"
@@ -191,9 +203,11 @@
 
                 </div>
                 @endif
+                
                 <div class="row">
                   <button type="submit" class="btn btn-primary form-group" style="width:100%">Submit</button>
                 </div>
+                
               </div>
             </div>
 

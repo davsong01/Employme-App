@@ -123,7 +123,14 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $i = 1;
-        $users = User::withCount('programs')->orderBy('created_at', 'DESC');
+
+        if(checkRoleHas(['Admin'])){
+            $users = User::withCount('programs')->orderBy('created_at', 'DESC');
+        }
+
+        if (checkRoleHas(['Facilitator','Grader'])) {
+            $users = auth()->user()->trainerStudents();
+        }
 
         if (!empty($request->email)) {
             $users = $users->where('email',$request->email);
@@ -148,23 +155,20 @@ class UserController extends Controller
         }
 
         $records = $users->count();
-        $users = $users->paginate(50);
-
-        $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at','DESC')->get();
         
-        // dd($user->role());
-
-        // $filteredUsers = $users->filter(function ($user) {
-        //     return !empty(array_intersect(studentRoles(), $user->role()));
-        // });
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            return view('dashboard.admin.users.index', compact('users', 'i','records', 'allPrograms'));
-        } elseif (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-            $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
-            $users = $users->whereIn('program_id', $programs)->orderBy('created_at', 'DESC');
-            return view('dashboard.teacher.users.index', compact('users', 'i', 'programs', 'records', 'allPrograms'));
+        $users = $users->paginate(50);
+        
+        if (checkRoleHas(['Admin'])) {
+            $programs = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at','DESC')->get();
         }
+
+        if (checkRoleHas(['Facilitator', 'Grader'])) {
+            $programs = auth()->user()->userTrainings()->get();
+        }
+
+        $allPrograms = $programs;
+        
+        return view('dashboard.admin.users.index', compact('users', 'i','records', 'allPrograms'));
     }
 
     public function redotest($id)
@@ -200,8 +204,7 @@ class UserController extends Controller
             // }
 
             User::whereId($user_id)->update(['redotest' => 0]);
-            $result->endRedoTest();
-
+            
             return back()->with('message', 'Update Successful');
 
         }else{

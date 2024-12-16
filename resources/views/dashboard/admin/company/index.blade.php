@@ -1,3 +1,13 @@
+@php
+    $check = [
+        'companyuser.create',
+        'companyuser.edit',
+        'companyuser.destroy'
+    ];
+
+    $permissions = canUserAccessPermission($check);
+@endphp
+
 @extends('dashboard.admin.index')
 @section('title', 'All Company Users')
 @section('content')
@@ -8,11 +18,13 @@
             <div class="card-title">
                 @include('layouts.partials.alerts')
             </div>
+            @if($permissions['companyuser.create'])
             <div class="card-header">
                 <div>
                     <h5 class="card-title">Company Admins <a href="{{route('companyuser.create')}}"><button type="button" class="btn btn-outline-primary">Add New</button></a></h5> 
                 </div>
             </div>
+            @endif
             <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -59,11 +71,14 @@
                             
                             <td>
                                 <div class="btn-group">
+                                    @if($permissions['companyuser.edit'])
                                     <a data-toggle="tooltip" data-placement="top" title="Edit"
                                         class="btn btn-info" href="{{ route('companyuser.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>                                   
-                                    
+                                    @endif
+
+                                    @if($permissions['companyuser.destroy'])
                                     <form action="{{ route('companyuser.destroy', $user->id) }}" method="POST"
                                         onsubmit="return confirm('Are you really sure?');">
                                         {{ csrf_field() }}
@@ -73,6 +88,7 @@
                                             data-placement="top" title="Delete"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                             @endforeach

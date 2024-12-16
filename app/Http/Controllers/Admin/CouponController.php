@@ -21,17 +21,15 @@ class CouponController extends Controller
     public function index()
     {
         $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-
-            $coupons = Coupon::with(['coupon_users' => function ($query) {
-                return $query->where('status', 1)->get();
-            }])->orderBy('created_at', 'desc')->get();
-
-            return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
-        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-            $coupons = Coupon::where('facilitator_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
-            return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return route('home');
         }
+
+        $coupons = Coupon::with(['coupon_users' => function ($query) {
+            return $query->where('status', 1)->get();
+        }])->orderBy('created_at', 'desc')->get();
+
+        return view('dashboard.admin.coupons.index', compact('i', 'coupons'));
     }
 
     /**
@@ -173,7 +171,6 @@ class CouponController extends Controller
      */
     public function update(Request $request, Coupon $coupon)
     {
-
         $data = $this->validate($request, [
             "program_id" => 'required',
             "code" => 'required',

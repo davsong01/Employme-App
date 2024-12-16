@@ -25,12 +25,14 @@ class ProgramController extends Controller
     public function index(Program $program)
     {
         $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || in_array(4, Auth::user()->permissions())) {
-            //Get all programs
-            $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
-            
-            //Get all students
-            $users = User::where('role_id', 'Student')->get();
+    
+        if (checkRoleHas(['Admin','Grader','Facilitator'])) {
+            if(checkRoleHas(['Admin'])){
+                //Get all programs
+                $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+            }else{
+                $programs = auth()->user()->userTrainings()->get();
+            }
 
             //Get Users payment status
             foreach ($programs as $program) {
@@ -39,7 +41,9 @@ class ProgramController extends Controller
             }
 
             return view('dashboard.admin.programs.index', compact('programs', 'i'));
-        } else  return redirect('/');
+        }
+        
+        return redirect('/');
     }
 
     public function exportdetails($id)
@@ -190,7 +194,6 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password']);
-
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image

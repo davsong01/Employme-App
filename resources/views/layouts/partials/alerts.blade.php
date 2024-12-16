@@ -1,28 +1,35 @@
 
 @if(session()->get('message'))
 <div class="alert alert-success" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
     <strong>Success!</strong> {{ session()->get('message')}}
 </div>
 @endif
 @if(session()->get('error'))
 <div class="alert alert-warning" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
-    <strong>Error!</strong> {{ session()->get('error')}}
+    <strong>{{ session()->get('error')}}</strong> 
+</div>
+@endif
+@if(session()->get('danger'))
+<div class="alert alert-danger" role="alert">
+    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+    <strong>Error!</strong> {{ session()->get('danger')}}
 </div>
 @endif
 @if(session()->get('msg'))
 <div class="alert alert-warning" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
     <strong>Error!</strong> {{ session()->get('msg')}}
 </div>
 @endif
 @if(session()->get('fill'))
 <div class="alert alert-warning" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
     <strong>Error!</strong> {!! session()->get('fill')!!}
 </div>

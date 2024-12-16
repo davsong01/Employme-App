@@ -55,36 +55,22 @@ class ModuleController extends Controller
     {
         $i = 1;
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with(['program', 'questions'])->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();
-            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count');
-
-            return view('dashboard.admin.modules.show', compact('program_name', 'p_id', 'modules', 'i', 'questions_count'));
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return route('home');
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
+        $modules = Module::with(['program', 'questions'])->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();
+        $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count');
+        
+        return view('dashboard.admin.modules.show', compact('program_name', 'p_id', 'modules', 'i', 'questions_count'));
 
-            $program_name = Program::select('p_name', 'id')->whereId($p_id)->first();
-            $modules = Module::with(['program', 'questions'])->whereProgramId($p_id)->orderBy('created_at', 'desc')->get();
-            $questions_count = Module::withCount('questions')->whereProgramId($p_id)->get()->sum('questions_count');
-
-            return view('dashboard.teacher.modules.show', compact('program_name', 'modules', 'i', 'questions_count'));
-        }
     }
     public function create(Request $request)
     {
         $program = Program::select('id', 'p_name')->whereId($request->p_id)->first();
 
         return view('dashboard.admin.modules.create', compact('program'));
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-        }
-
-        // if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))|| !empty(array_intersect(graderRoles(), Auth::user()->role()))){
-
-        //     return view('dashboard.admin.modules.create', compact('programs'));
-        // }
-        // return back();
     }
 
     public function store(Request $request)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Mocks;
 use App\Models\Module;
@@ -9,6 +10,7 @@ use App\Models\Result;
 use App\Models\Program;
 use App\Models\Question;
 use App\Models\Settings;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +20,14 @@ class TestsController extends Controller
 {
     public function index(Request $request)
     {
+        $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+        
         if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
-            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
 
             if ($program->allow_payment_restrictions_for_post_class_tests == 'yes') {
-                if ($user_balance->balance > 0) {
-                    return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to tests');
+                if ($transaction->balance > 0) {
+                    return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to tests');
                 }
             }
 
@@ -50,14 +53,23 @@ class TestsController extends Controller
             foreach ($modules as $module) {
                 $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
 
-                $redo_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
+                // $redo_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
 
-                foreach ($redo_check as $check) {
-                    if ($check->certification_test_details != NULL) {
-                        $module['redo'] = 1;
-                    } else {
-                        $module['redo'] = 0;
-                    }
+                // foreach ($redo_check as $check) {
+                //     if($this->getResitTrainingStatus($module->type, $transaction)) {
+                //         $module['redo'] = 1;
+                //     } else {
+                //         $module['redo'] = 0;
+                //     }
+                // }
+                $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
+                $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
+                
+                if ($resitStatus['status'] == 1 && $expiry > now()) {
+                    $module['redo'] = 1;
+                    $module['expiry'] = $expiry;
+                } else {
+                    $module['redo'] = 0;
                 }
                 if ($module_check->count() > 0) {
                     $module['completed'] = 1;
@@ -65,8 +77,7 @@ class TestsController extends Controller
                     $module['completed'] = 0;
                 }
             }
-
-
+            
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program'));
         }
     }
@@ -99,13 +110,39 @@ class TestsController extends Controller
         }
 
         $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
+        $module = Module::findOrFail($request->mod_id);
         
-        if ($check->count() > 0 && auth()->user()->redotest != 0) {
-            $check->certification_test_details = json_encode($certification_test_details);
-            auth()->user()->update(['redotest' => 0]);
-            $check->save();
-            $check->endRedoTest();
+        $transaction = Transaction::select('id', 'training_result', 'training_result_histories', 'user_id', 'program_id')
+        ->where('program_id', $request->p_id)
+            ->where('user_id', auth()->user()->id)
+            ->first();
 
+        $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
+        
+        // Get Resit Status
+        if($check && $resitStatus['status'] == 0){
+            return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
+        }
+
+        if ($resitStatus['status'] == 1) {
+            if(isset($resitStatus['expiry'])){
+                $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
+
+                if(now() > $parsedDate){
+                    return back()->with('error', 'the resit period for this test elapsed on: ' .$parsedDate.'. Please contact an administrator!');
+                }
+            }
+
+            $check->certification_test_details = json_encode($certification_test_details);
+            $check->save();
+            
+            // End redo test
+            $data["certification_test_resit_status"] = 0;
+            $data["certification_test_resit_expiry"] = NULL;
+
+            udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+
+            // $transaction->training_result->
             // Send email to Admin of succesful test re completion
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
@@ -114,13 +151,6 @@ class TestsController extends Controller
             
             $this->sendGenericEmail($details);
         } else {
-            if (auth()->user()->redotest == 0) {
-                if ($check != NULL) {
-                    return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
-                };
-            }
-
-            $module = Module::findOrFail($request->mod_id);
 
             $questions = $module->questions->toarray();
             $no_of_questions = count($questions);
@@ -128,14 +158,14 @@ class TestsController extends Controller
 
             if ($module->type == 'Certification Test') {
                 try {
-                    $results = Result::create([
+                    Result::create([
                         'program_id' => $module->program->id,
                         'user_id' => Auth::user()->id,
                         'module_id' => $module->id,
                         'certification_test_details' => json_encode($certification_test_details),
                     ]);
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $error = $ex->getMessage();
+                    $ex->getMessage();
                     return back()->with('error',  'Something went wrong, please try again');
                 }
             } elseif ($module->type == 'Class Test') {
@@ -150,7 +180,7 @@ class TestsController extends Controller
 
                 try {
                     if ($module->type == 'Class Test') {
-                        $result = Result::create([
+                        Result::create([
                             'program_id' => $module->program->id,
                             'user_id' => Auth::user()->id,
                             'module_id' => $module->id,
@@ -160,12 +190,39 @@ class TestsController extends Controller
 
                     }
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $error = $ex->getMessage();
+                    $ex->getMessage();
                     return back()->with('error', 'something went wrong, please take test again');
                 }
             }
         }
+
+        // Update training result
+        udateTrainingResult($request->p_id, auth()->user()->id);
+        
         return Redirect::to('userresults?p_id=' . $program->id);
+    }
+
+    public function getResitTrainingStatus($module_type, $transaction){
+        $status = 0;
+        $expiry = NULL;
+
+        if($module_type == 'Class Test'){
+            $status =  $transaction->training_result->class_test_resit_status ?? null;
+            if(!empty($status) && $status == 1){
+                $expiry = $transaction->training_result->class_test_resit_expiry;
+            }
+        }
+
+        if($module_type == 'Certification Test'){
+            $status =  $transaction->training_result->certification_test_resit_status ?? null;
+            if(!empty($status) && $status == 1){
+                $expiry = $transaction->training_result->certification_test_resit_expiry;
+            }
+        }
+        return [
+            'status' => $status,
+            'expiry' => $expiry,
+        ];
     }
 
     public function userresults(Request $request)

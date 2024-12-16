@@ -1,3 +1,4 @@
+
 @extends('dashboard.admin.index')
 @section('title', 'Trainings')
 @section('content')

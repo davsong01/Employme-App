@@ -10,6 +10,7 @@ use App\Models\Complain;
 use App\Models\Material;
 use App\Models\Certificate;
 use App\Models\PaymentMode;
+use App\Models\Transaction;
 use App\Models\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Notifications\Notifiable;
@@ -18,7 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    protected $casts = ['metadata' => 'array'];
+    protected $casts = ['metadata' => 'array', 'menu_permissions' => 'array'];
     protected $guarded = [];
     protected $append = ['t_phone','account_balance'];
 
@@ -27,20 +28,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    public function startRedoStatus($pid){
-        $this->redotest = $pid;
-        return $this->save(); 
-    }
-    
-    public function endRedoTest($result_id){
-        $this->redotest = 0;
-        return $this->save();
-    }
-
-    public function getRedoStatus(){
-        return $this->redotest;
-    }
     
     public function getName(){
         return $this->name;
@@ -65,13 +52,64 @@ class User extends Authenticatable
 
     public function programs(){
         return $this->belongsToMany(Program::class);
-    } 
+    }
 
-    //Facilitator's relationship
     public function trainings()
     {
-        return $this->hasMany(FacilitatorTraining::class);
+        return $this->hasMany(FacilitatorTraining::class, 'user_id');
     }
+
+    public function scopeTrainingPermissions($query, $training_id = null)
+    {
+        $trainings = $this->trainings()->get();
+
+        if (!empty($training_id)) {
+            $trainingPermissions = $trainings->where('program_id', $training_id)->pluck('training_permissions')->first();
+            return $trainingPermissions;
+        }
+
+        return $trainings;
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'user_id');
+    }
+    
+    public function userTrainings()
+    {
+        if($this->role_id == 'Student'){
+            return Program::isUserProgram()->with(['subPrograms'])->whereHas('transactions', function ($query) {
+                $query->where('user_id', $this->id);
+            });
+        }else{
+            return Program::isUserProgram()->with(['subPrograms'])->whereHas('trainings', function ($query) {
+                $query->where('user_id', $this->id);
+            });
+        }
+    }
+
+    public function trainerStudents()
+    {
+        // Fetch program IDs linked to this facilitator
+        $programIds = $this->trainings()->pluck('program_id');
+        $programIds = $this->userTrainings()->pluck('id')->toArray();
+        
+        // Ensure program IDs are not empty
+        if (empty($programIds)) {
+            return collect(); // Return an empty collection if no programs are found
+        }
+
+        // Fetch students linked to these programs via transactions
+        $students = User::where('role_id', 'Student')
+        ->whereHas('transactions', function ($query) use ($programIds) {
+            $query->whereIn('program_id', $programIds);
+        });
+        
+        return $students;
+    }
+
+
 
     public function payment_modes(){
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
@@ -111,20 +149,12 @@ class User extends Authenticatable
         return $role_id;
     }
 
-    // protected function scopeRole($query)
-    // {
-    //     $role_ids = explode(',', $this->role_id);
-    //     return $query->whereIn('role_id', $role_ids);
-    // }
-
     public function scopePermissions(){
-        $a_menu = $this->menu_permissions ?? '';
-        $a_menu = explode(',', $a_menu);
+        // $a_menu = in_array($this->id, [1]) ? array_merge(allRoutes(), allAccess()) : ($this->menu_permissions ?? []);
+        $a_menu = in_array($this->id, [1]) ? allRoutes() : ($this->menu_permissions ?? []);            
 
-        $a_menu = !empty($a_menu) ? $a_menu : [];
-       
         return $a_menu; 
-    }    
+    }
+ 
 }
-   
 
