@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Mocks;
 use App\Models\Module;
@@ -49,18 +50,8 @@ class TestsController extends Controller
                 }
             }
 
-//             certification_test_resit_expiry": "2024-12-18T21:48:56.201792Z"
-//   +"certification_test_resit_status"
-
-            
             foreach ($modules as $module) {
-                dump($this->getResitTrainingStatus($module->type, $transaction), $module);
-                if ($this->getResitTrainingStatus($module->type, $transaction)) {
-                    $module['redo'] = 1;
-                } else {
-                    $module['redo'] = 0;
-                }
-                // $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
+                $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
 
                 // $redo_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
 
@@ -71,11 +62,20 @@ class TestsController extends Controller
                 //         $module['redo'] = 0;
                 //     }
                 // }
-                // if ($module_check->count() > 0) {
-                //     $module['completed'] = 1;
-                // } else {
-                //     $module['completed'] = 0;
-                // }
+                $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
+                $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
+                dump($expiry);
+                if ($resitStatus['status'] == 1 && $expiry < now()) {
+                    $module['redo'] = 1;
+                    $module['expiry'] = $expiry;
+                } else {
+                    $module['redo'] = 0;
+                }
+                if ($module_check->count() > 0) {
+                    $module['completed'] = 1;
+                } else {
+                    $module['completed'] = 0;
+                }
             }
 
             dd('sdsd');
