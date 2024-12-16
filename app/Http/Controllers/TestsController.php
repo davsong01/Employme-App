@@ -64,8 +64,8 @@ class TestsController extends Controller
                 // }
                 $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
                 $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
-                dump($expiry);
-                if ($resitStatus['status'] == 1 && $expiry < now()) {
+                
+                if ($resitStatus['status'] == 1 && $expiry > now()) {
                     $module['redo'] = 1;
                     $module['expiry'] = $expiry;
                 } else {
@@ -77,8 +77,7 @@ class TestsController extends Controller
                     $module['completed'] = 0;
                 }
             }
-
-            dd('sdsd');
+            
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program'));
         }
     }
