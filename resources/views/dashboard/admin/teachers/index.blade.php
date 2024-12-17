@@ -63,7 +63,7 @@
                                 </small>
                             </td>
                             
-                            <td style="margin: auto;display: flex;border-bottom: none;display: grid;">
+                            <td style="margin: auto;border-bottom: none;display: grid;">
                                 @if(checkRoleHas(['Facilitator'],$user))
                                 <button class="disabled btn btn-primary btn-sm">Facilitator</button> <br>
                                 @endif

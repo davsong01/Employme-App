@@ -17,7 +17,8 @@ class SettingsController extends Controller
     public function index()
     {
         $templates = \DB::table('frontend_templates')->get();
-
+        $setting = Settings::first();
+       
         return view('dashboard.admin.settings.edit', compact('setting', 'templates'));
     }
 

@@ -19,7 +19,7 @@
     $menuCheck = [
         'impersonate',
     ];
-
+    
     $menuPermissions = canUserAccessPermission($menuCheck);
 @endphp
 @extends('dashboard.admin.index')
@@ -512,7 +512,7 @@
 <script>
     $(document).ready(function () {
         $(document).on('click', '.open-result-modal', function () {
-            const uid = $(this).data('uid'); 
+            // const uid = $(this).data('uid'); 
             const id = $(this).data('id'); 
             const pid = $(this).data('pid'); 
             const p_id = $(this).data('p_id'); 
@@ -523,10 +523,8 @@
                     <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
                 </div>
             `);
-
-            const url = `{!! URL::signedRoute('results.add', ['id' => '__id__', 'pid' => '__pid__', 'p_id' => '__p_id__']) !!}`
+            const url = `{!! URL::signedRoute('results.add', ['id' => '__id__', 'p_id' => '__p_id__']) !!}`
                 .replace('__id__', id)
-                .replace('__pid__', pid)
                 .replace('__p_id__', p_id);
 
             $.ajax({

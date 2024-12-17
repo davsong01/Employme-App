@@ -82,6 +82,29 @@
                     @endif
                 @endforeach
 
+                <li class="sidebar-item">
+                    <a class="sidebar-link has-arrow waves-effect waves-dark"
+                    href="javascript:void(0)"
+                    aria-expanded="false">
+                        <i class="fa fa-cog"></i>
+                        <span class="hide-menu">Self Service</span>
+                    </a>
+                    <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
+                        <li class="sidebar-item">
+                            <a href="{{ route('profiles.edit', Auth::user()->id) }}" class="sidebar-link">
+                                <span class="hide-menu">- Account Settings</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-link">
+                                <span class="hide-menu">- Logout</span>
+                            </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                {{ csrf_field() }}
+                            </form>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </nav>
         <!-- End Sidebar navigation -->

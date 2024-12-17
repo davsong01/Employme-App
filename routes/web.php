@@ -191,7 +191,7 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
         Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
         Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
         
-        Route::get('user/{id?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
+        Route::get('user/{id}', [ResultController::class, 'add'])->name('results.add');
         // Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
         Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
         Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
