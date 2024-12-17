@@ -21,6 +21,7 @@ class MenuPermissions
     
     public function handle(Request $request, Closure $next)
     {
+
         $currentRouteName = Route::currentRouteName();
         
         // Get the authenticated or impersonated user
@@ -40,6 +41,7 @@ class MenuPermissions
         }
 
         $excludedUserIds = [1]; // Add more user IDs as needed
+        
         if (in_array($user->id, $excludedUserIds)) {
             return $next($request);
         }
@@ -47,14 +49,14 @@ class MenuPermissions
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $allMenus = allRoutes();
             $allPermissions = allAccess();
-            $userMenus = $user->menu_permissions ?? []; 
-            
+            $userMenus = $user->menu_permissions ?: [];
             // Check for program-specific access
             if (!empty($request->p_id)) {
                 if (in_array($currentRouteName, $allPermissions)) {
-                    if (!URL::hasValidSignature($request)) {
-                        return redirect()->route('home')->with('danger', 'Invalid or expired link.');
-                    }
+                    
+                    // if (!URL::hasValidSignature($request)) {
+                    //     return redirect()->route('home')->with('danger', 'Invalid or expired link.');
+                    // }
 
                     if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])[$currentRouteName]) {
                         return $next($request);
@@ -66,6 +68,7 @@ class MenuPermissions
             // Check for route-specific access
             if (in_array($currentRouteName, $allMenus)) {
                 if (in_array($currentRouteName, $userMenus)) {
+                    
                     return $next($request);
                 }
                 return redirect(route('home'))->with('danger', 'Unauthorized access to menu.');

@@ -376,10 +376,9 @@ class ResultController extends Controller
     {
     }
 
-    public function add(Request $request, $id, $modid)
+    public function add($id)
     {
         $transaction = Transaction::with('program:id,p_name')->with('program.scoresettings')->where('id', $id)->first();
-        
         $user_results = Result::with(['user', 'module', 'threads'])->where('user_id', $transaction->user_id)->whereProgramId($transaction->program_id)->where('certification_test_details', '<>', NULL)->get();
         
         $program = $transaction->program;
@@ -409,49 +408,6 @@ class ResultController extends Controller
         }
         $results = [];
 
-        // $history = ResultThread::with(['user', 'module'])->where('user_id', $transaction)->whereProgramId($program->id)->where('certification_test_details', '<>', NULL)->get();
-        // if ($history) {
-        //     $h_details['certification_score'] = 0;
-        //     $h_details['email_test_score'] = 0;
-        //     $h_details['role_play_score'] = 0;
-        //     $h_details['crm_test_score'] = 0;
-        //     $h_details['user_name'] = "";
-        //     $h_details['allow_editing'] = 0;
-        //     foreach ($history as $results) {
-
-        //         if ($results->module->type == 1) {
-        //             $h_details['c_result'] = $results;
-        //         }
-        //         $h_details['certification_score'] = $results->certification_test_score + $h_details['certification_score'];
-        //         $h_details['email_test_score'] = $results->email_test_score +  $h_details['email_test_score'];
-        //         $h_details['role_play_score'] = $results->role_play_score +  $h_details['role_play_score'];
-        //         $h_details['crm_test_score'] = $results->crm_test_score +  $h_details['crm_test_score'];
-        //         $results['module_title'] = $results->module->title;
-        //         $h_details['user_name'] = $results->user->name;
-        //         $h_details['grader_comment'] = $results->grader_comment;
-        //         $h_details['facilitator_comment'] = $results->facilitator_comment;
-        //         $h_details['allow_editing'] = 1;
-
-        //         $questions = json_decode($results->certification_test_details, true);
-
-        //         if (!$questions) {
-        //             $results['title'] = 'User is re-writing test';
-        //             $results['answer'] = 'User is re-writing test';
-        //         } else {
-        //             foreach ($questions as $key => $value) {
-        //                 $results['title'] = Question::whereId($key)->value('title');
-        //                 $results['answer'] = $value;
-        //             }
-        //         }
-
-        //         unset($results['certification_test_details']);
-        //         // unset($results['certification_test_score']);
-        //         unset($results['role_play_score']);
-        //         unset($results['crm_test_score']);
-        //         unset($results['email_test_score']);
-        //     }
-        // }
-
         foreach ($user_results as $results) {
             if ($results->module->type == 1) {
                 $details['c_result'] = $results;
@@ -473,7 +429,6 @@ class ResultController extends Controller
 
         $result_id = $transaction->id;
         
-        // dd($user_results, $results, $transaction);
         return view('dashboard.admin.results.partial_edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results'));
     }
 
