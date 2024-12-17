@@ -149,19 +149,23 @@ use Intervention\Image\Facades\Image;
                 "email_test_score" => $certificationStatus['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0),
                 "email_test_resit_status" => $data['email_test_resit_status'] ?? ($transaction->training_result->email_test_resit_status ?? 0),
                 "email_test_resit_expiry" => $data['email_test_resit_expiry'] ?? ($transaction->training_result->email_test_resit_expiry ?? NULL),
+                "email_test_resit_enabled_by_id" => $data['email_test_resit_enabled_by_id'] ?? ($transaction->training_result->email_test_resit_enabled_by_id ?? NULL),
 
                 "roleplay_test_score" => $certificationStatus['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0),
                 "roleplay_test_resit_status" => $data['roleplay_test_resit_status'] ?? ($transaction->training_result->roleplay_test_resit_status ?? 0),
                 "roleplay_test_resit_expiry" => $data['roleplay_test_resit_expiry'] ?? ($transaction->training_result->roleplay_test_resit_expiry ?? NULL),
+                "roleplay_test_resit_enabled_by_id" => $data['roleplay_test_resit_enabled_by_id'] ?? ($transaction->training_result->roleplay_test_resit_enabled_by_id ?? NULL),
 
                 "crm_test_score" => $certificationStatus['crm_test_score'] ?? ($transaction->training_result->crm_test_score ?? 0),
                 "crm_test_resit_status" => $data['crm_test_resit_status'] ?? ($transaction->training_result->crm_test_resit_status ?? 0),
                 "crm_test_resit_expiry" => $data['crm_test_resit_expiry'] ?? ($transaction->training_result->crm_test_resit_expiry ?? NULL),
+                "crm_test_resit_enabled_by_id" => $data['crm_test_resit_enabled_by_id'] ?? ($transaction->training_result->crm_test_resit_enabled_by_id ?? NULL),
 
                 "certification_test_score" => $certificationStatus['certification_test_score'] ?? ($transaction->training_result->certification_test_score ?? 0),
                 "certification_test_resit_status" => $data['certification_test_resit_status'] ?? ($transaction->training_result->certification_test_resit_status ?? 0),
                 "certification_test_resit_expiry" => $data['certification_test_resit_expiry'] ?? ($transaction->training_result->certification_test_resit_expiry ?? NULL),
-
+                "certification_test_resit_enabled_by_id" => $data['certification_test_resit_enabled_by_id'] ?? ($transaction->training_result->certification_test_resit_enabled_by_id ?? NULL),
+                
                 "total_score" => $certificationStatus['total_score'] ?? 0,
 
                 "certification_facilitator" => $certificationStatus['certification_facilitator'] ?? null,

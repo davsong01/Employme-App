@@ -394,10 +394,10 @@ class ResultController extends Controller
         $details['grader_comment'] = $trainingResults->certification_grader_comment;
         $details['facilitator_comment'] = $trainingResults->certification_facilitator_comment;
 
-        $details['certification_score'] = $trainingResults->certification_test_score ?? 0;
-        $details['email_test_score'] = $trainingResults->email_test_score ?? 0;
-        $details['role_play_score'] = $trainingResults->roleplay_test_score ?? 0;
-        $details['crm_test_score'] = $trainingResults->crm_test_score ?? 0;
+        // $details['certification_score'] = $trainingResults->certification_test_score ?? 0;
+        // $details['email_test_score'] = $trainingResults->email_test_score ?? 0;
+        // $details['role_play_score'] = $trainingResults->roleplay_test_score ?? 0;
+        // $details['crm_test_score'] = $trainingResults->crm_test_score ?? 0;
         
         if ($user_results->count() < 1) {
             return response()->json([
