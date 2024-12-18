@@ -139,6 +139,7 @@
 
 </style>
 @endsection
+@section('title', 'All Results')
 @section('content')
 <div class="container-fluid">
     <div class="card">
@@ -394,22 +395,7 @@
                                                                 href="javascript:void(0)">
                                                                 <i class="fa fa-edit"> View/Update</i>
                                                             </a>
-                                                            
-                                                            <!-- Result Modal -->
-                                                            <div class="modal fade sidebarModal" id="editResultModal" tabindex="-1" role="dialog" aria-labelledby="editResultModalLabel" aria-hidden="true">
-                                                                <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
-                                                                    <div class="modal-content" style="padding: 0px!important">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title" id="editResultModalLabel">Update Test Scores</h5>
-                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                        </div>
-                                                                        <div class="modal-body">
-                                                                            <div id="modalContent">
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                    
                                                         @endif
                                                         @if($permissions['results.destroy'])
                                                     
@@ -427,34 +413,6 @@
                                                         @endif
                                                     @else
                                                         <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
-                                                        {{-- @if($user->redotest != 0)
-                                                            @if($permissions['stopredotest'])
-                                                                <a onclick="return confirm('This will stop this user from access to take retest certification test. Are you sure you want to do this?');" 
-                                                                class="btn btn-warning btn-sm w-100 mb-3" href="{{ URL::signedRoute('stopredotest',['user_id'=>$user->user_id, 'result_id'=>$user->result_id,'p_id' => $user->program_id]) }}">
-                                                                    <i class="fa fa-stop"></i> End resit
-                                                                </a>
-                                                            @endif
-                                                            @endif --}}
-                                                            {{-- <button class="btn btn-danger btn-sm w-100 mb-3" style="display: block;" disabled>Resit In Progress!</button>
-                                                            @if($permissions['results.add'])
-                                                                <a class="btn btn-info btn-sm w-100 mb-3" href="{{ URL::signedRoute('results.add', ['uid' => $user->user_id, 'pid'=>$user->program_id,'p_id' => $user->program_id]) }}">
-                                                                    <i class="fa fa-eye"> View/Update </i>
-                                                                </a>
-                                                            @endif
-                                                            @if($permissions['results.destroy'])
-                                                                <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
-                                                                    action="{{ URL::signedRoute('results.destroy', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $user->program_id]) }}" method="POST">
-                                                                    {{ csrf_field() }}
-                                                                    {{method_field('DELETE')}}
-                                                                    <input type="hidden" name="uid" value="{{ $user->user_id }}">
-                                                                    <input type="hidden" name="rid" value="{{ $user->result_id }}">
-                                                                    <input type="hidden" name="pid" value="{{ $user->program_id }}">
-                                                                    <input type="hidden" name="override_resit" value="yes">
-                                                                    <button type="submit" class="btn btn-danger btn-sm w-100 mb-3"> 
-                                                                        <i class="fa fa-redo"> Enable Resit</i>
-                                                                    </button>
-                                                                </form>
-                                                            @endif --}}
                                                     @endif
                                                 </div>
                                             </td>
@@ -462,6 +420,7 @@
                                     @endif
                                 </tr>
                             {{-- @endif --}}
+                            
                         @endforeach
                     </tbody>
                 </table>
@@ -470,42 +429,57 @@
             {{$users->render()}}
         </div>
     </div>
-</div>
-<div class="modal fade" id="exportmodal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+    <!-- Result Modal -->
+    <div class="modal fade sidebarModal" id="editResultModal" tabindex="-1" role="dialog" aria-labelledby="editResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
+            <div class="modal-content" style="padding: 0px!important">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editResultModalLabel">Update Test Scores</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalContent">
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id])}}" method="POST" class="pb-2">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="columns">User Columns to Export</label>
-                                <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
-                                    <option value="all" selected>All</option>
-                                    <option value="name">Name</option>
-                                    <option value="email">Email</option>
-                                    <option value="phone">Phone</option>
-                                    <option value="gender">Gender</option>
-                                    <option value="staffID">StaffID</option>
-                                    <option value="metadata">Metadata</option>
-                                </select>
+        </div>
+    </div>
+    <div class="modal fade" id="exportmodal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id])}}" method="POST" class="pb-2">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="columns">User Columns to Export</label>
+                                    <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
+                                        <option value="all" selected>All</option>
+                                        <option value="name">Name</option>
+                                        <option value="email">Email</option>
+                                        <option value="phone">Phone</option>
+                                        <option value="gender">Gender</option>
+                                        <option value="staffID">StaffID</option>
+                                        <option value="metadata">Metadata</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <button type="submit" class="btn btn-primary" style="width:100%">
-                            Submit
-                        </button>
-                    </div>
-                    {{ csrf_field() }}
-                </form>
-            </div>     
+                        <div class="row">
+                            <button type="submit" class="btn btn-primary" style="width:100%">
+                                Submit
+                            </button>
+                        </div>
+                        {{ csrf_field() }}
+                    </form>
+                </div>     
+            </div>
         </div>
     </div>
 </div>

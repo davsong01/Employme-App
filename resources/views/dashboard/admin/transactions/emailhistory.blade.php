@@ -16,8 +16,6 @@
                     <h3>Email History</h3>
                 </div>
             </div>
-
-           
                 {{ csrf_field() }}
                 <div class="row">
                     <div class="col-md-12">
