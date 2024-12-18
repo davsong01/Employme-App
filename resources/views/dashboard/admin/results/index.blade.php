@@ -202,6 +202,10 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'] && !$permissions['mocks.add'])
+                            @else
+                            <th>Actions</th>
+                            @endif
                             <th>Date</th>
                             <th>Details</th>
 
@@ -221,10 +225,7 @@
                                 <th>Total</th>
                             @endif
 
-                            @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'] && !$permissions['mocks.add'])
-                            @else
-                            <th>Actions</th>
-                            @endif
+                           
                         </tr>
                     </thead>
                     <tbody>
@@ -232,6 +233,57 @@
                             {{-- @if($user->training_result->passmark) --}}
                                 <tr id="result-row-{{ $user->id }}">
                                     <td>{{ $i++ }}</td>
+                                     @if($page == 'mocks')
+                                        <td>
+                                            @if($user->result_id)
+                                                <div class="btn-group">
+                                                    @if($permissions['mocks.add'])
+                                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                                        class="btn btn-info" href="{{ URL::signedRoute('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
+                                                            <i class="fa fa-eye"></i>
+                                                        </a>]
+
+                                                    @endif
+                                                    @if($permissions['mocks.add'])
+                                                        <form action="{{ URL::signedRoute('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
+                                                            onsubmit="return confirm('Are you really sure?');">
+                                                            {{ csrf_field() }}
+                                                            {{method_field('DELETE')}}
+                                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
+                                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                                                    data-placement="top" title="Delete Result"> 
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                    @else 
+                                        @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'])
+                                        @else
+                                            <td>
+                                                <div class="button-container">
+                                                    @if (!empty($user->training_result))
+                                                        @if($permissions['results.add'])
+                                                            <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
+                                                                class="btn btn-info btn-sm open-result-modal" 
+                                                                data-id="{{ $user->id }}" data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
+                                                                href="javascript:void(0)">
+                                                                <i class="fa fa-edit"> View/Update</i>
+                                                            </a>
+                                                    
+                                                        @endif
+                                                        
+                                                    @else
+                                                        <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        @endif
+                                    @endif
                                     <td>
                                         @if($page == 'mocks')
                                             {{ $user->mocks->count() > 0 ? $user->mocks->last()->created_at->format('d/m/Y') : '' }}
@@ -354,70 +406,7 @@
                                         </td>
                                     @endif
 
-                                    @if($page == 'mocks')
-                                        <td>
-                                            @if($user->result_id)
-                                                <div class="btn-group">
-                                                    @if($permissions['mocks.add'])
-                                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
-                                                        class="btn btn-info" href="{{ URL::signedRoute('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
-                                                            <i class="fa fa-eye"></i>
-                                                        </a>]
-
-                                                    @endif
-                                                    @if($permissions['mocks.add'])
-                                                        <form action="{{ URL::signedRoute('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
-                                                            onsubmit="return confirm('Are you really sure?');">
-                                                            {{ csrf_field() }}
-                                                            {{method_field('DELETE')}}
-                                                            <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                                    data-placement="top" title="Delete Result"> 
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                N/A
-                                            @endif
-                                        </td>
-                                    @else 
-                                        @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'])
-                                        @else
-                                            <td>
-                                                <div class="button-container">
-                                                    @if (!empty($user->training_result))
-                                                        @if($permissions['results.add'])
-                                                            <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
-                                                                class="btn btn-info btn-sm open-result-modal" 
-                                                                data-id="{{ $user->id }}" data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
-                                                                href="javascript:void(0)">
-                                                                <i class="fa fa-edit"> View/Update</i>
-                                                            </a>
-                                                    
-                                                        @endif
-                                                        @if($permissions['results.destroy'])
-                                                    
-                                                            {{-- <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
-                                                                action="{{ URL::signedRoute('results.destroy', ['uid' => $user->user_id, 'result' => $user->result_id, 'p_id' => $user->program_id]) }}" method="POST">
-                                                                {{ csrf_field() }}
-                                                                {{method_field('DELETE')}}
-                                                                <input type="hidden" name="uid" value="{{ $user->user_id }}">
-                                                                <input type="hidden" name="rid" value="{{ $user->result_id }}">
-                                                                <input type="hidden" name="pid" value="{{ $user->program_id }}">
-                                                                <button type="submit" class="btn btn-danger btn-sm btn-sm w-100 mb-3"> 
-                                                                    <i class="fa fa-redo"> Enable Resit</i>
-                                                                </button>
-                                                            </form> --}}
-                                                        @endif
-                                                    @else
-                                                        <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        @endif
-                                    @endif
+                                   
                                 </tr>
                             {{-- @endif --}}
                             
