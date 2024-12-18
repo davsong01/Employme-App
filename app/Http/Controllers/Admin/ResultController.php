@@ -642,7 +642,8 @@ class ResultController extends Controller
             
             $data["certification_test_resit_status"] = 1;
             $data["certification_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
-            
+            $data["certification_test_resit_enabled_by_id"] = auth()->user()->id;
+
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
             
             // Save result thread
