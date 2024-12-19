@@ -651,19 +651,19 @@ class ResultController extends Controller
                 $this->createResultThread($results);
             }
 
-           
             // $results->delete();
             // Send resit email
 
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = $transaction->user->email;
             $details['content'] = 'Hello '.$transaction->user->name. ', <br><br>
-            This is to inform you that you are now cleared to Re-sit ' .$results->module->title. ' Test at the ongoing '.$transaction->program->p_name.'. You now have a '.env('CERTIFICATION_TEST_RESIT_EXIPIRY').' hour window to retake and submit for grading after which the portal will close for you to Resit. <br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
+            This is to inform you that you are now cleared to Re-sit ' .$results->module->title. ' Test at the ongoing '.$transaction->program->p_name.'. You now have a '.env('CERTIFICATION_TEST_RESIT_EXIPIRY').'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: '.now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')). '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
             $details['type'] = 'bulk';
             
             $this->sendGenericEmail($details);
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
+        
         return back()->with('error', 'You are not allowed to perform this action');
     }
 

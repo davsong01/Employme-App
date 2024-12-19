@@ -187,6 +187,7 @@ use Intervention\Image\Facades\Image;
                 $result["certification_grader"] = ($data['certification_grader'] ?? ($transaction->training_result->certification_grader ?? null));
                 $result["certification_facilitator_comment"] = ($data['certification_facilitator_comment'] ?? ($transaction->training_result->certification_facilitator_comment ?? null));
                 $result["certification_grader_comment"] = ($data['certification_grader_comment'] ?? ($transaction->training_result->certification_grader_comment ?? null));
+                $result["last_updated_at"] = ($data['last_updated_at'] ?? ($transaction->training_result->last_updated_at ?? 'N/A'));            
             }
             
             // dd($result);

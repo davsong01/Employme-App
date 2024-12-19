@@ -139,14 +139,26 @@ class TestsController extends Controller
             // End redo test
             $data["certification_test_resit_status"] = 0;
             $data["certification_test_resit_expiry"] = NULL;
+            $data["last_updated_at"] = now();
+
+            $email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+
+            if(!empty($transaction->training_result->certification_test_resit_enabled_by_id)){
+                $user = User::select('id','name','email')->where('id', $transaction->training_result->certification_test_resit_enabled_by_id )->first();
+                
+                if($user){
+                    $email = $user->email;
+                }
+            }
 
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
 
             // $transaction->training_result->
             // Send email to Admin of succesful test re completion
+
             $details['subject'] = 'Test Re-write successful';
-            $details['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-            $details['content'] = 'Dear Admin, <br><br>'.auth()->user()->name.'('.auth()->user()->email.') has completed a rewrite of certification test for <strong>'.$program->p_name.'</strong> training. <br><br>Please proceed to grade accordingly. <br><br>Thanks' ;
+            $details['email'] = $email;
+            $details['content'] = 'Hello, <br><br>'.auth()->user()->name.'('.auth()->user()->email.') has completed a rewrite of certification test for <strong>'.$program->p_name.'</strong> training. <br><br>Please proceed to grade accordingly. <br><br>Thanks' ;
             $details['type'] = 'bulk';
             
             $this->sendGenericEmail($details);
@@ -197,6 +209,7 @@ class TestsController extends Controller
         }
 
         // Update training result
+        $data["last_updated_at"] = now();
         udateTrainingResult($request->p_id, auth()->user()->id);
         
         return Redirect::to('userresults?p_id=' . $program->id);
