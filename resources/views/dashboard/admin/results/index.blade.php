@@ -29,7 +29,33 @@
     .certification-score {
         background: #c3dbd8;
         padding: 10px;
+        border-bottom: 1px solid black;
     }
+
+    .class-test-score {
+        background: #e0f7fa;  /* Light blue for class test */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .roleplay-score {
+        background: #fff9c4;  /* Light yellow for role play */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .crm-test-score {
+        background: #ffe082;  /* Light orange for CRM test */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .email-test-score {
+        background: #c8e6c9;  /* Light green for email */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
     body {
         background-color: #78909C;
     }
@@ -352,7 +378,7 @@
                                     @else
                                         <td>
                                             @if(isset($user->training_result))
-                                                @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                                {{-- @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
                                                     <strong class="tit">Class Tests:</strong><span id="class_test_score{{ $user->id }}"> {{ $user->training_result->class_test_score }}</span>% <br>
                                                 @endif
                                                 
@@ -376,7 +402,60 @@
 
                                                 @if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
                                                     <strong>Email: </strong> <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>% 
-                                                @endif
+                                                @endif --}}
+                                                @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
+    <div class="class-test-score">
+        <strong class="tit">Class Tests:</strong>
+        <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
+    </div>
+@endif
+
+@if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
+    <div class="certification-score">
+        <strong>Certification: </strong>
+        <span id="certification_test_score{{ $user->id }}">{{ $user->training_result->certification_test_score }}</span>%
+        @if($user->training_result->certification_test_score < $score_settings->certification)
+            @include('dashboard.admin.results.enable_resit')
+
+            @if(!empty($user->certification_resits))
+                @foreach($user->certification_resits as $history)
+                <span class="retake">RESITS</span>
+                <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
+                    {{ $history->count() }}
+                </span>
+                @if($history->count() > 0)
+                <a style="border-radius: 6px;" class="btn btn-info btn-sm" href="#resit" id="myBtn">
+                View Resit History
+                </a>
+                @endif
+                @endforeach
+            @endif
+
+            sdsd
+        @endif
+    </div>
+@endif
+
+@if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
+    <div class="roleplay-score">
+        <strong class="tit">Role Play: </strong>
+        <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
+    </div>
+@endif
+
+@if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
+    <div class="crm-test-score">
+        <strong class="tit">CRM Test: </strong>
+        <span id="crm_test_score{{ $user->id }}">{{ $user->training_result->crm_test_score }}</span>% <br>
+    </div>
+@endif
+
+@if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
+    <div class="email-test-score">
+        <strong>Email: </strong>
+        <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>%
+    </div>
+@endif
                                             @endif
                                         </td>
                                     @endif

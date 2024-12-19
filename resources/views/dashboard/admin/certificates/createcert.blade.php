@@ -2,56 +2,7 @@
 @section('css')
 <style>
     /* The Modal (background) */
-    .modal {
-        display: none;
-        /* Hidden by default */
-        position: fixed;
-        /* Stay in place */
-        z-index: 1;
-        /* Sit on top */
-        padding-top: 100px;
-        /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%;
-        /* Full width */
-        height: 100%;
-        /* Full height */
-        overflow: auto;
-        /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0);
-        /* Fallback color */
-        background-color: rgba(0, 0, 0, 0.4);
-        /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        border-radius: 50%;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .modal-backdrop {
-    position: relative;
-    }
+    
     a.pre-order-btn { 
         color:#000;
         background-color:gold;
@@ -85,7 +36,7 @@
                         <h4 class="card-title">Add new Certificate in {{$p_name}}</h4>
                         @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
                         {{-- <a href="{{route('certificates.generate', $p_id )}}" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates (40/batch)</a> --}}
-                        <a href="javascript:void(0)" class="btn btn-info" data-toggle="modal" data-target="#batchModal">Auto Generate Certificates</a>
+                        <a href="javascript:void(0)" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#batchModal">Auto Generate Certificates</a>
 
                         <a href="{{ route('certificate.clear.duplicates', $p_id)}}" class="btn btn-danger">Clear Duplicates</a>
                         @endif
@@ -188,8 +139,7 @@
                                 @if(isset($score_settings->email) && $score_settings->email > 0)
                                     <strong>Email: </strong>{{ isset($results['email_test_score'] ) ? $results['email_test_score'] : '' }}%
                                 @endif
-                                
-                                {{-- <strong class="tit" style="color:blue">Passmark</strong>{{ $score_settings->passmark }}% <br> --}}
+
                                 <br>
                                 <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
                             </td>
@@ -264,7 +214,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Select Action</h5>
-                <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -288,7 +238,7 @@
             </div>
             
             <div class="modal-footer">
-                <button id="close" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button id="close" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -299,7 +249,7 @@
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="batchModalLabel">Auto Certificate Options</h5>
-            <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -328,7 +278,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary" id="generate-button">
                 <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 Generate

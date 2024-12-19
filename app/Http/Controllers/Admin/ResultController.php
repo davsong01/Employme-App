@@ -246,8 +246,8 @@ class ResultController extends Controller
         $users = Transaction::where('program_id', $request->pid)
             ->with(['user', 'results' => function ($query) use ($request) {
                 $query->where('program_id', $request->pid);
-            }]);
-
+            }, 'certification_resits']);
+        
         if (!empty($request->status)) {
             if ($request->status == 'yes') {
                 $users = $users->has('results');
@@ -292,6 +292,7 @@ class ResultController extends Controller
         $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play', 'crm_test', 'email'])
         ->where('program_id', $request->pid)
             ->first();
+        
         
         // Execute query
         if (empty($request->columns)) {
@@ -399,13 +400,13 @@ class ResultController extends Controller
         // $details['role_play_score'] = $trainingResults->roleplay_test_score ?? 0;
         // $details['crm_test_score'] = $trainingResults->crm_test_score ?? 0;
         
-        if ($user_results->count() < 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Participant has not taken certification test',
-                'id' => $id,
-            ]);
-        }
+        // if ($user_results->count() < 1) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Participant has not taken certification test',
+        //         'id' => $id,
+        //     ]);
+        // }
         $results = [];
 
         foreach ($user_results as $results) {

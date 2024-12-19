@@ -7,6 +7,7 @@ use App\Models\Mocks;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\Certificate;
+use App\Models\ResultThread;
 use App\Models\PaymentThread;
 use Illuminate\Database\Eloquent\Model;
 
@@ -53,5 +54,9 @@ class Transaction extends Model
     {
         return $this->hasOne(Certificate::class, 'user_id', 'user_id')
         ->whereColumn('program_id', 'program_id');
+    }
+
+    public function certification_resits(){
+        return $this->hasMany(ResultThread::class, 'program_id', 'program_id')->where('user_id', $this->user_id)->where('program_id', $this->user_id)->whereNotNull('certification_test_details');
     }
 }
