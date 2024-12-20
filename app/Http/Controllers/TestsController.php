@@ -63,21 +63,26 @@ class TestsController extends Controller
                 //     }
                 // }
                 $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
-                $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
+                
+                $expiry = $resitStatus['expiry'];
+                // $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
                 
                 if ($resitStatus['status'] == 1 && $expiry > now()) {
                     $module['redo'] = 1;
+                    $module['completed'] = 0;
                     $module['expiry'] = $expiry;
                 } else {
                     $module['redo'] = 0;
-                }
-                if ($module_check->count() > 0) {
                     $module['completed'] = 1;
-                } else {
-                    $module['completed'] = 0;
+                    $module['expiry'] = $expiry;
                 }
+                // if ($module_check->count() > 0) {
+                //     $module['completed'] = 1;
+
+                // } else {
+                //     $module['completed'] = 0;
+                // }
             }
-            
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program'));
         }
     }
@@ -120,11 +125,11 @@ class TestsController extends Controller
         $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
         
         // Get Resit Status
-        if($check && $resitStatus['status'] == 0){
+        if($check && ($resitStatus['status'] == 0 || $resitStatus['status'] == 2)){
             return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
         }
 
-        if ($resitStatus['status'] == 1) {
+        if ($resitStatus['status'] == 1 ) {
             if(isset($resitStatus['expiry'])){
                 $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
 
@@ -137,7 +142,7 @@ class TestsController extends Controller
             $check->save();
             
             // End redo test
-            $data["certification_test_resit_status"] = 0;
+            $data["certification_test_resit_status"] = 2;
             $data["certification_test_resit_expiry"] = NULL;
             $data["last_updated_at"] = now();
 

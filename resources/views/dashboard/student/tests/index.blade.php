@@ -38,31 +38,41 @@
 
     <!-- Test Modules Section -->
     <div class="row">
-        @foreach($modules as $module)
-            <div class="col-md-4 col-lg-4 mb-3">
-                <div class="card bg-light" style="border-radius: 8px;">
-                    <div class="box bg-white text-center p-3" style="border: 1px solid blue; border-radius: 5px;">
-                        <h1 class="font-light text-primary">
-                            <i class="fa fa-list-alt"></i>
-                        </h1>
-                        <div class="card-title">
-                            <h5>{{ $module->title }}</h5>
-                            @if($module->redotest == 1)
+    @foreach($modules as $module)
+        <div class="col-md-4 col-lg-4 mb-3">
+            <div class="card bg-light h-100" style="border-radius: 8px;border: 1px solid blue; border-radius: 5px;">
+                <div class="box bg-white text-center p-3 d-flex flex-column">
+                    <!-- Icon -->
+                    <h1 class="font-light text-primary mb-3">
+                        <i class="fa fa-list-alt"></i>
+                    </h1>
+                    <!-- Title and Badge -->
+                    <div class="card-title">
+                        <h5 style="display: inline-flex; align-items: center; justify-content: center; gap: 10px;">
+                            {{ $module->title }}
+                            @if($module->redo == 1)
                                 <span class="badge bg-danger text-white">RETAKE</span>
-                                @if(!empty($module->expiry))
-                                    <br>
-                                    <small>
-                                        <span class="badge bg-danger text-white">Expiry: {{ $module->expiry }}</span>
-                                    </small>
-                                @endif
                             @endif
-                        </div>
-                        <h6 class="text-primary">Type: {{ $module->type }}</h6>
-                        <p class="text-primary">No. of Questions: {{ $module->questions->count() }}</p>
-                        <p class="text-primary">Time: {{ $module->time }} minutes</p>
+                        </h5>
+                    </div>
                     
-                        <!-- Action Buttons -->
-                        @if($module->completed == 0 ||$module->redo == 1)
+                    <!-- Expiry -->
+                    <small class="mb-1" style="color:red">
+                        @if(!empty($module->expiry))
+                            <span style="font-weight: bold;">Expiry: {{ \Carbon\Carbon::parse($module->expiry) }}</span>
+                        @else
+                            <span style="visibility: hidden;">No Expiry</span>
+                        @endif
+                    </small>
+                    
+                    <!-- Details -->
+                    <h6 class="text-primary mb-2">Type: {{ $module->type }}</h6>
+                    <p class="text-primary mb-2">No. of Questions: {{ $module->questions->count() }}</p>
+                    <p class="text-primary mb-3">Time: {{ $module->time }} minutes</p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-auto">
+                        @if($module->completed == 0 || $module->redo == 1)
                             <a href="{{ route('tests.show', ['test' => $module->id, 'p_id' => $program->id]) }}">
                                 <button type="button" class="btn btn-outline-primary w-100" onclick="return confirm('Have you read the instructions above?');">Start Now!</button>
                             </a>
@@ -74,7 +84,9 @@
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
+        </div>
+    @endforeach
+</div>
+
 </div>
 @endsection

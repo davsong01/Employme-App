@@ -62,34 +62,34 @@
        
        
             @foreach($results as $result)
-            @if($result->module->type == 'Certification Test')      
-            <div class="col-md-4 col-lg-4">
-                <div class="card card-hover">
-                    <div class="box bg-success text-center">
-                        <h1 class="font-light text-white"><i class="fa fa-list-alt"></i></h1>
-                        <div class="card-title">
-                           
-                        <h5 class="font-light text-white"> <b>Training: </b>  {{ $program->p_name }}</h5>
-                        <h5 class="font-light text-white"> <b>Module: </b>{{ $result->module->title}}</h5>
-                            <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
-                            <p class="text-white" style="font-weight: bold">Post Class Test Score: 
-                                @if($result->module->type == 'Certification Test')
-                                    {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
-                                    @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
-                                        <br>
-                                        <a style="width: auto;" href="{{ route('tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
-                                            class="btn m-t-20 btn-info btn-block waves-effect waves-light">
-                                            <i class="fa fa-eye"></i>View Comments
-                                        </a>
-                                    @else
-                                    <p class="text-white" style="font-style:italic;padding-bottom: 40px;">&nbsp </p>
+                @if($result->module->type == 'Certification Test')      
+                <div class="col-md-4 col-lg-4">
+                    <div class="card card-hover">
+                        <div class="box bg-success text-center">
+                            <h1 class="font-light text-white"><i class="fa fa-list-alt"></i></h1>
+                            <div class="card-title">
+                            
+                            <h5 class="font-light text-white"> <b>Training: </b>  {{ $program->p_name }}</h5>
+                            <h5 class="font-light text-white"> <b>Module: </b>{{ $result->module->title}}</h5>
+                                <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
+                                <p class="text-white" style="font-weight: bold">Post Class Test Score: 
+                                    @if($result->module->type == 'Certification Test')
+                                        {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                        @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
+                                            <br>
+                                            <a style="width: auto;" href="{{ route('tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
+                                                class="btn m-t-20 btn-info btn-block waves-effect waves-light">
+                                                <i class="fa fa-eye"></i>View Comments
+                                            </a>
+                                        @else
+                                        <p class="text-white" style="font-style:italic;padding-bottom: 40px;">&nbsp </p>
+                                        @endif
                                     @endif
-                                @endif
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div> 
-            @endif  
+                </div> 
+                @endif  
             @endforeach
     
         </div>

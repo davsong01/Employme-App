@@ -56,7 +56,12 @@ class Transaction extends Model
         ->whereColumn('program_id', 'program_id');
     }
 
-    public function certification_resits(){
-        return $this->hasMany(ResultThread::class, 'program_id', 'program_id')->where('user_id', $this->user_id)->where('program_id', $this->user_id)->whereNotNull('certification_test_details');
+    public function certification_resits($program_id=null, $user_id=null){
+        $histories = null;
+        if($program_id && $user_id){
+            $histories = ResultThread::where('program_id', $program_id)->where('user_id', $user_id)->get();
+        }
+
+        return $histories;
     }
 }

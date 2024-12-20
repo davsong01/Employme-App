@@ -140,10 +140,10 @@ class ApiController extends Controller
         $details = [
             'certificate_number' => $certificate->certificate_number,
             'training' => $certificate->program->p_name,
-            'participant' => $certificate->user->name,
+            'Graduate' => $certificate->user->name,
         ];
-        $response = ['success' => true,'message' => 'Success', 'data' => $details,];
-
+        $response = ['success' => true,'message' => 'Verified Certificate', 'data' => $details];
+        
         return response()->json($response, 200);
     }
 }

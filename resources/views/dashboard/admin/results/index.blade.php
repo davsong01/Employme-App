@@ -378,84 +378,57 @@
                                     @else
                                         <td>
                                             @if(isset($user->training_result))
-                                                {{-- @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                                    <strong class="tit">Class Tests:</strong><span id="class_test_score{{ $user->id }}"> {{ $user->training_result->class_test_score }}</span>% <br>
+                                                @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                                    <div class="class-test-score">
+                                                        <strong class="tit">Class Tests:</strong>
+                                                        <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
+                                                    </div>
                                                 @endif
-                                                
+
                                                 @if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
                                                     <div class="certification-score">
-                                                        <strong>Certification: </strong><span id="certification_test_score{{ $user->id }}"> {{ $user->training_result->certification_test_score }}</span>% 
-
-                                                        @if( $user->training_result->certification_test_score < $score_settings->certification)
+                                                        <strong>Certification: </strong>
+                                                        <span id="certification_test_score{{ $user->id }}">{{ $user->training_result->certification_test_score }}</span>%
+                                                        @if($user->training_result->certification_test_score < $score_settings->certification)
                                                             @include('dashboard.admin.results.enable_resit')
+                                                            @php
+                                                                $histories = $user->certification_resits($user->program_id, $user->user_id);
+                                                            @endphp
+                                                            @if($histories->count() > 0)
+                                                            {{-- <br> --}}
+                                                            <span class="retake">RESITS</span>
+                                                                <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
+                                                                    {{ $histories->count() }}
+                                                                </span>
+                                                                <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#resitModal{{$user->id}}">
+                                                                View  History
+                                                                </a>
+                                                            @endif
+                                                            
                                                         @endif
                                                     </div>
                                                 @endif
 
                                                 @if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                                    <strong class="tit">Role Play: </strong> <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
+                                                    <div class="roleplay-score">
+                                                        <strong class="tit">Role Play: </strong>
+                                                        <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
+                                                    </div>
                                                 @endif
 
                                                 @if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
-                                                    <strong class="tit">CRM Test: </strong><span id="crm_test_score{{ $user->id }}"> {{ $user->training_result->crm_test_score }}</span>% <br>
+                                                    <div class="crm-test-score">
+                                                        <strong class="tit">CRM Test: </strong>
+                                                        <span id="crm_test_score{{ $user->id }}">{{ $user->training_result->crm_test_score }}</span>% <br>
+                                                    </div>
                                                 @endif
 
                                                 @if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
-                                                    <strong>Email: </strong> <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>% 
-                                                @endif --}}
-                                                @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
-    <div class="class-test-score">
-        <strong class="tit">Class Tests:</strong>
-        <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
-    </div>
-@endif
-
-@if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
-    <div class="certification-score">
-        <strong>Certification: </strong>
-        <span id="certification_test_score{{ $user->id }}">{{ $user->training_result->certification_test_score }}</span>%
-        @if($user->training_result->certification_test_score < $score_settings->certification)
-            @include('dashboard.admin.results.enable_resit')
-
-            @if(!empty($user->certification_resits))
-                @foreach($user->certification_resits as $history)
-                <span class="retake">RESITS</span>
-                <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
-                    {{ $history->count() }}
-                </span>
-                @if($history->count() > 0)
-                <a style="border-radius: 6px;" class="btn btn-info btn-sm" href="#resit" id="myBtn">
-                View Resit History
-                </a>
-                @endif
-                @endforeach
-            @endif
-
-            sdsd
-        @endif
-    </div>
-@endif
-
-@if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
-    <div class="roleplay-score">
-        <strong class="tit">Role Play: </strong>
-        <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
-    </div>
-@endif
-
-@if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
-    <div class="crm-test-score">
-        <strong class="tit">CRM Test: </strong>
-        <span id="crm_test_score{{ $user->id }}">{{ $user->training_result->crm_test_score }}</span>% <br>
-    </div>
-@endif
-
-@if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
-    <div class="email-test-score">
-        <strong>Email: </strong>
-        <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>%
-    </div>
-@endif
+                                                    <div class="email-test-score">
+                                                        <strong>Email: </strong>
+                                                        <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>%
+                                                    </div>
+                                                @endif
                                             @endif
                                         </td>
                                     @endif
@@ -488,7 +461,74 @@
                                    
                                 </tr>
                             {{-- @endif --}}
-                            
+                            <div class="modal fade" id="resitModal{{$user->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h5>Resit History for: {{ $user->user->name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Modal Body -->
+                                    <div class="modal-body">
+                                        @if(isset($histories) && !empty($histories))
+                                            <div class="accordion" id="historyAccordion">
+                                            @foreach($histories as $key => $result)
+                                                @php
+                                                $testDetails = $result->certification_test_details;
+                                                $testDetails = json_decode($testDetails, true);
+                                                $allDetails = array_keys($testDetails);
+                                                $questions = App\Models\Question::whereIn('id', $allDetails)->get();
+                                                @endphp
+
+                                                @if($questions)
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading-{{ $key }}">
+                                                    <button 
+                                                        class="accordion-button {{ $key == 0 ? '' : 'collapsed' }}" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#collapse-{{ $key }}" 
+                                                        aria-expanded="{{ $key == 0 ? 'true' : 'false' }}" 
+                                                        aria-controls="collapse-{{ $key }}">
+                                                        Submitted on: {{ $result->submitted_on }}
+                                                    </button>
+                                                    </h2>
+                                                    <div 
+                                                    id="collapse-{{ $key }}" 
+                                                    class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" 
+                                                    aria-labelledby="heading-{{ $key }}" 
+                                                    data-bs-parent="#historyAccordion">
+                                                    <div class="accordion-body">
+                                                        @foreach($questions as $question)
+                                                        <div class="mb-3">
+                                                            <p><strong style="color:green">QUESTION {{ $loop->iteration }}:</strong></p>
+                                                            <p><strong style="color:green">Module:</strong> {{ $result->module->title }}</p>
+                                                            <p><strong style="color:green">Question:</strong> {!! $question->title !!}</p>
+                                                            <p><strong>Answer:</strong> {!! $testDetails[$question->id] !!}</p>
+                                                        </div>
+                                                        @endforeach
+                                                        <p><strong style="color:green">Facilitator's Comment</strong> ({{ $result->marked_by }}): {!! $result->facilitator_comment !!}</p>
+                                                        <p><strong style="color:green">Grader's Comment:</strong> ({{ $result->grader_comment }}): {!! $result->grader_comment !!}</p>
+                                                        <p><strong style="color:green">Score:</strong> {{ $result->certification_test_score }}</p>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                            </div>
+                                        @else
+                                            <p>No histories found.</p>
+                                        @endif
+                                    </div>
+                                    <!-- Modal Footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
                         @endforeach
                     </tbody>
                 </table>
