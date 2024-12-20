@@ -495,9 +495,7 @@
                                                         Submitted on: {{ $result->submitted_on }}
                                                     </button>
                                                     </h2>
-                                                    <div 
-                                                    id="collapse-{{ $key }}" 
-                                                    class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" 
+                                                    <div id="collapse-{{ $key }}" class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" 
                                                     aria-labelledby="heading-{{ $key }}" 
                                                     data-bs-parent="#historyAccordion">
                                                     <div class="accordion-body">
@@ -506,7 +504,8 @@
                                                             <p><strong style="color:green">QUESTION {{ $loop->iteration }}:</strong></p>
                                                             <p><strong style="color:green">Module:</strong> {{ $result->module->title }}</p>
                                                             <p><strong style="color:green">Question:</strong> {!! $question->title !!}</p>
-                                                            <p><strong>Answer:</strong> {!! $testDetails[$question->id] !!}</p>
+                                                            <hr>
+                                                            <p><strong><h5 style="color:#0056b3">Participant's Answer:</h5></strong>{!! $testDetails[$question->id] !!}</p>
                                                         </div>
                                                         @endforeach
                                                         <p><strong style="color:green">Facilitator's Comment</strong> ({{ $result->marked_by }}): {!! $result->facilitator_comment !!}</p>
