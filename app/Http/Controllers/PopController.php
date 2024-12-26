@@ -146,7 +146,7 @@ class PopController extends Controller
 
     public function show(Pop $pop)
     {
-        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitaor','Grader'])) {
             return abort(404);
         }
 
@@ -387,7 +387,7 @@ class PopController extends Controller
 
     public function getfile($filename)
     {
-        if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin', 'Facilitaor', 'Grader'])) {
             return abort(404);
         }
 

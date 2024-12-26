@@ -408,9 +408,9 @@ class UserController extends Controller
         } else $password = $user->password;
 
         try {
-            if (empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-                $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
-                $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
+            if (checkRoleHas(['Facilitaor','Grader'])) {
+                $user_trainings = auth()->user()->trainings->pluck('id')->toArray();
+                $count = Transaction::whereUserId($user->id)->whereIn('program_id', $user_trainings)->count();
 
                 if ($count < 1) {
                     return back();

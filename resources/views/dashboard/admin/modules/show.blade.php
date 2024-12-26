@@ -144,7 +144,7 @@
                                     
                                     @if($module->status == 0 && $module->questions->count() < 1)
                                     @if($allPermissions['modules.destroy'])
-                                    <form action="{{ URL::signedRoute('modules.destroy', ['p_id' => $p_id, 'id' => $module->id]) }}" method="POST"
+                                    <form action="{{ URL::signedRoute('modules.destroy', ['p_id' => $p_id, 'module' => $module->id]) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}

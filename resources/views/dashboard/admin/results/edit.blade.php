@@ -180,7 +180,7 @@
                     <label><span style="color:green">(Max score =
                         {{ $program->scoresettings->certification}})</span></label>
                     <input type="number" name="certification_score"
-                      {{ (!empty(array_intersect(adminRoles(), auth()->user()->role())) || !empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) ? "" : 'Readonly' }}
+                      {{ (checkRoleHas(['Admin','Facilitator'])) ? "" : 'Readonly' }}
                       value="{{ old('certification_score') ?? $details['certification_score'] }}" class="form-control"
                       min="0" max="{{ $program->scoresettings->certification }}">
                   </div>

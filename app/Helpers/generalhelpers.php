@@ -405,39 +405,6 @@ use Intervention\Image\Facades\Image;
         }
     }
 
-    
-
-    // if (!function_exists("adminRoles")) {
-    //     function adminRoles(){
-    //         return [
-    //             'Admin',
-    //         ];
-    //     }
-    // }
-
-    // if (!function_exists("facilitatorRoles")) {
-    //     function facilitatorRoles(){
-    //         return [
-    //             'Facilitator',
-    //         ];
-    //     }
-    // }
-
-    if (!function_exists("studentRoles")) {
-        function studentRoles(){
-            return [
-                'Student',
-            ];
-        }
-    }
-
-    // if (!function_exists("teacherRoles")) {
-    //     function teacherRoles(){
-    //         return [
-    //             'Teacher',
-    //         ];
-    //     }
-    // }
 
     if (!function_exists("getAccounts")) {
         function getAccounts($program_id = null)
