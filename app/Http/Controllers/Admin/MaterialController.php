@@ -30,7 +30,7 @@ class MaterialController extends Controller
         
         if (checkRoleHas(['Admin','Facilitator'])){
             if(checkRoleHas(['Admin'])) {
-                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->get();
+                $programs = Program::withCount('materials')->whereHas('materials')->orderBy('created_at', 'desc')->get();
             }
     
             if(checkRoleHas(['Facilitator','Grader'])) {
