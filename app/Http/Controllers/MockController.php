@@ -35,7 +35,7 @@ class MockController extends Controller
     {
         $i = 1;
         if (checkRoleHas(['Admin'])) {
-            $programs = Program::whereHas('mocks', function ($query) {
+            $trainings = Program::whereHas('mocks', function ($query) {
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
 
@@ -44,11 +44,11 @@ class MockController extends Controller
 
         else if (checkRoleHas(['Admin', 'Facilitator'])) {
             $user_trainings = auth()->user()->trainings()->pluck('program_id')->toArray();
-            $programs = Program::whereIn('id', $user_trainings)->whereHas('mocks', function ($query) {
+            $trainings = Program::whereIn('id', $user_trainings)->whereHas('mocks', function ($query) {
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
 
-            return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
+            return view('dashboard.admin.mocks.selecttraining', compact('trainings', 'i'));
 
         }else{
             return back();

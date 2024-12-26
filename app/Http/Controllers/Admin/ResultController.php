@@ -32,31 +32,27 @@ class ResultController extends Controller
         $i = 1;
         
         if (checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
-            $programs = Program::whereHas('results', function ($query) {
-                return $query;
-            })->orderby('created_at', 'DESC')->get();
-
-            foreach ($programs as $program) {
-                $program['result_count'] = Result::whereProgramId($program->id)->count();
+            if (checkRoleHas(['Admin'])) {
+                $trainings = Program::whereHas('results', function ($query) {
+                    return $query;
+                })->orderby('created_at', 'DESC')->get();
+            }elseif (checkRoleHas(['Facilitator', 'Grader'])){
+                $user_trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                
+                $trainings = Program::whereIn('id', $user_trainings)->whereHas('results', function ($query) {
+                    return $query;
+                })->orderby('created_at', 'DESC')->get();
+            }else{
+                return back();
             }
-            
-            return view('dashboard.admin.results.selecttraining', compact('programs', 'i'));
-        }
 
-         if(checkRoleHas(['Facilitator','Grader'])) {
-
-            $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
-
-            if ($programs->count() > 0) {
-                foreach ($programs as $program) {
-                    $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
-
-                    $program['result_count'] = Result::whereProgramId($program->program_id)->count();
-                }
+            foreach ($trainings as $training) {
+                $training['result_count'] = Result::whereProgramId($training->id)->count();
             }
-        }
 
-        return view('dashboard.teacher.results.selecttraining', compact('programs', 'i'));
+            return view('dashboard.admin.results.selecttraining', compact('trainings', 'i'));
+        }
+        
     }
 
    

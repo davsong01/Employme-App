@@ -54,26 +54,20 @@ class QuestionController extends Controller
     {
         $i = 1;
 
-        if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $programs_with_questions = Program::withCount('questions')->orderBy('id', 'desc')->get();
-            return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
-        }
+        if (checkRoleHas(['Admin', 'Facilitator','Grader'])) {
 
-         if(checkRoleHas(['Facilitator','Grader'])) {
+            if (checkRoleHas(['Admin'])) {
+                $programs_with_questions = Program::withCount('questions')->orderBy('id', 'desc')->get();
+                return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
+            }else if(checkRoleHas(['Facilitator', 'Grader'])){
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $programs_with_questions = Program::withCount('questions')->whereIn('id', $trainings)->orderBy('id', 'desc')->get();
+                return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
+            }else{
 
-            $programs_with_questions = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-
-            if ($programs_with_questions->count() > 0) {
-                foreach ($programs_with_questions as $modules) {
-                    $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
-                    $modules['program_id'] = Program::whereId($modules->program_id)->value('id');
-                    $modules['questions_count'] = Module::withCount('questions')->whereProgramId($modules->program_id)->get()->sum('questions_count');
-                }
             }
-
-            // dd($programs_with_modules);
-            return view('dashboard.teacher.questions.index', compact('i', 'programs_with_questions'));
         }
+        
         return back();
     }
 

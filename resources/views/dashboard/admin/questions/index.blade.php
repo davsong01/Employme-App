@@ -25,14 +25,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                         @foreach($programs_with_questions as $programs)
-                         @if($programs->questions_count >0)
+                        @foreach($programs_with_questions as $programs)
+                            <?php 
+                                $permissionsToCheck = ['single.program.questions.index'];
+                                $permissions = checkTrainingHasPermissions($programs->id, $permissionsToCheck);
+                            ?>
+                            @if($programs->questions_count >0)
                             <tr>
                                 <td>{{  $i++ }}</td>
-                                <td><a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training"
-                                    class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}">
-                                    {{ $programs->p_name }}
-                                </a>
+                                <td>
+                                    @if($permissions['single.program.questions.index'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training" class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}"></a>
+                                        {{ $programs->p_name }}
+                                    @else 
+                                        <a data-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
+                                        {{ $programs->p_name }}
+                                        </a>
+                                    @endif
+                                
                                 </td>
                                 <td>{{ $programs->questions_count}}</td>
                             </tr>

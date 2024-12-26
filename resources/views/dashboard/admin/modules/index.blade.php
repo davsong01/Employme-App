@@ -73,14 +73,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                         @foreach($programs_with_modules as $programs)
+                        @foreach($programs_with_modules as $programs)
+                            <?php
+                                $permissionsToCheck = ['modules.index'];
+                                $permissions = checkTrainingHasPermissions($programs->id, $permissionsToCheck);
+                            ?>
                             <tr>
                                 <td>{{  $i++ }}</td>
-                                
-                                <td><a data-toggle="tooltip" data-placement="top" title="Click to view modules for this training"
-                                    class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
-                                    {{ $programs->p_name }}
-                                </a>
+                                <td>
+                                    @if($permissions['modules.index'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Click to view modules for this training" class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
+                                        {{ $programs->p_name }}
+                                        </a>
+                                    @else
+                                        <a data-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
+                                        {{ $programs->p_name }}
+                                        </a>
+                                    @endif
                                 </td>
                                 <td>{{ $programs->modules->count() }}</td>
                                 <td>{{ $programs->questions->count() }}</td>

@@ -21,15 +21,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($programs as $program)
+                        @foreach($trainings as $training)
+                        <?php
+                            $permissionsToCheck = ['view.tests'];
+                            $permissions = checkTrainingHasPermissions($training->id, $permissionsToCheck);
+                        ?>
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td>{{ $program->p_name }}</td>
+                            <td>{{ $training->p_name }}</td>
                             <td>
                                 <div class="btn-group">
+                                    @if($permissions['view.tests'])
                                     <a data-toggle="tooltip" data-placement="top" title="View Grades"
-                                        class="btn btn-info" href="{{ route('mocks.getgrades', $program->id)}}"><i class="fa fa-eye"></i>
+                                        class="btn btn-info" href="{{ route('mocks.getgrades', ['id'=>$training->id, 'p_id'=>$training->id])}}"><i class="fa fa-eye"></i>
                                     </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

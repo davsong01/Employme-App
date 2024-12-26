@@ -6,29 +6,35 @@
     <div class="card">
         <div class="card-body">
             <div class="card-title">
-                 <h5 class="card-title" style="color:green"> Click the eye icon to View grades for respective trainings </h5><br>
+                <h5 class="card-title" style="color:green"> Click the eye icon to View grades for respective trainings </h5><br>
                 @include('layouts.partials.alerts')
-             </div>
-           
+            </div>
+        
             <div class="responsive">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Program Title</th>
+                            <th>training Title</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($programs as $program)
+                        @foreach($trainings as $training)
+                        <?php
+                            $permissionsToCheck = ['view.tests'];
+                            $permissions = checkTrainingHasPermissions($training->id, $permissionsToCheck);
+                        ?>
                         <tr>
                             <td>{{  $i++ }}</td>
-                            <td>{{ $program->p_name }}</td>
+                            <td>{{ $training->p_name }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="View Grades"
-                                        class="btn btn-info" href="{{ route('results.getgrades', $program->id)}}"><i class="fa fa-eye"></i>
-                                    </a>
+                                    @if($permissions['view.tests'])
+                                        <a data-toggle="tooltip" data-placement="top" title="View Grades"
+                                            class="btn btn-info" href="{{ route('results.getgrades', ['id' => $training->id, 'p_id' => $training->id])}}"><i class="fa fa-eye"></i>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

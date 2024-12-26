@@ -1571,6 +1571,13 @@ class Controller extends BaseController
                 'category_id' => 3
             ],
             [
+                'id' => 25,
+                'name' => 'View Questions',
+                'route' => 'single.program.questions.index',
+                'order' => 25,
+                'category_id' => 3
+            ],
+            [
                 'id' => 80,
                 'name' => 'View Materials',
                 'route' => 'material.program.select',
@@ -1653,6 +1660,13 @@ class Controller extends BaseController
                 'route' => 'scoreSettings.destroy',
                 'order' => 30,
                 'category_id' => 7
+            ],
+            [
+                'id' => 30,
+                'name' => 'View Test Results',
+                'route' => 'view.tests',
+                'order' => 30,
+                'category_id' => 5
             ],
             [
                 'id' => 31,

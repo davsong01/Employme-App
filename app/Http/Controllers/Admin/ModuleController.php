@@ -147,12 +147,6 @@ class ModuleController extends Controller
         return redirect(route('facilitatormodules', $request->program_id))->with('message', 'Module and associated questions succesfully cloned');
     }
 
-    public function show(Module $module)
-    {
-        $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
-        return view('dashboard.teacher.modules.showclone', compact('module', 'programs'));
-    }
-
     public function enablemodule($id)
     {
         $module = Module::findOrFail($id);
@@ -176,20 +170,12 @@ class ModuleController extends Controller
     public function edit(Module $module)
     {
        
-        if(checkRoleHas(['Admin'])) {
-
+        if(checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             $program = Program::whereId($module->program_id)->first();
-
             return view('dashboard.admin.modules.edit', compact('module', 'program'));
+        }else{
+            return back();
         }
-
-         if(checkRoleHas(['Facilitator','Grader'])) {
-
-            $program = Program::whereId($module->program_id)->first();
-
-            return view('dashboard.teacher.modules.edit', compact('module', 'program'));
-        }
-        return back();
     }
 
     public function update(Request $request, Module $module)
