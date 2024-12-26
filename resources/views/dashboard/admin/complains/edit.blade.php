@@ -178,7 +178,7 @@
                                     <label for="class">Status</label>
                                     <select name="status" id="status" class="form-control">
                                         <option value="{{ $complain->status }}" selected="selected">{{ $complain->status }}</option>
-                                        @if(checkRoleHas(['Admin']) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                                        @if(checkRoleHas(['Admin','Facilitator']))
                                         <option value="Resolved" {{ $complain->status == 'Resolved' ? 'selected' : ''}}>
                                             Resolved</option>
                                         @endif
@@ -228,7 +228,7 @@
                                 </div>
                             </div> 
                         </div>
-                        @if(checkRoleHas(['Admin']) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) )
+                        @if(checkRoleHas(['Admin','Facilitator','Grader']))
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group{{ $errors->has('notes') ? ' has-error' : '' }}">
@@ -244,8 +244,8 @@
                             </div>
                         </div>
                         @endif
-
-                        @if(!empty(array_intersect(studentRoles(), Auth::user()->role())))
+                       
+                        @if(checkRoleHas(['Student']))
                         @if($complain->notes)
                         <div class="row">
                             <div class="col-md-12">
@@ -290,7 +290,7 @@
                
                 $('#status').append('<option value="Pending">Pending</option>');
                 $('#status').append('<option value="In Progress">In Progress</option>');
-                @if(checkRoleHas(['Admin']) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                @if(checkRoleHas(['Admin','Facilitator','Grader']))
                     $('#status').append('<option value="Resolved">Resolved</option>');
                 @endif
             }if($('#type').val()=='Enquiry'){
@@ -311,7 +311,7 @@
                 $("#status").html("");
                 $('#status').append('<option value="Pending" selected>Pending</option>');
                 $('#status').append('<option value="In Progress">In Progress</option>');
-                @if(checkRoleHas(['Admin']) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                @if(checkRoleHas(['Admin','Facilitator','Grader']))
                     $('#status').append('<option value="Resolved">Resolved</option>');
                 @endif
             }

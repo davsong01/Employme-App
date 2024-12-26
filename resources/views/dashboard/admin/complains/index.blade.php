@@ -52,7 +52,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Queries <a href="{{route('complains.create')}}"><button type="button" class="btn btn-outline-primary">Add New Query</button></a></h5> 
+                    <h5 class="card-title"> All Queries <a href="{{route('complains.create', ['p_id' => $training->id])}}"><button type="button" class="btn btn-outline-primary">Add New Query</button></a></h5> 
                 </div>
             </div>
             

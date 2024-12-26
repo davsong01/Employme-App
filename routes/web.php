@@ -168,6 +168,8 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
     Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
 
     Route::resource('complains', ComplainController::class);
+     
+    Route::get('crm-program-select/{p_id}', [ComplainController::class, 'getTrainingCrm'])->name('complain.program.select');
     Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
    
     Route::resource('users', UserController::class);

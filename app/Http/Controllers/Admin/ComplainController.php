@@ -19,21 +19,15 @@ class ComplainController extends Controller
 
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             if (checkRoleHas(['Admin'])) {
-                $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
-            }else{
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
-                $complains = Complain::with('user')->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
+                $trainings = Program::withCount('crm')->orderBy('created_at', 'desc')->get();
             }
 
-            $complainCounts = Complain::selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-                ->pluck('count', 'status');
-
-            $resolvedComplains = $complainCounts->get('Resolved', 0);
-            $pendingComplains = $complainCounts->get('Pending', 0);
-            $InProgressComplains = $complainCounts->get('In Progress', 0);
-            
-            return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
+            if (checkRoleHas(['Facilitator', 'Grader'])) {
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = Program::withCount('crm')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
+            }
+        
+            return view('dashboard.admin.complains.selecttraining', compact('trainings','i'));
         } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
 
@@ -41,32 +35,52 @@ class ComplainController extends Controller
             $pendingComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Pending', 'program_id' => $request->p_id])->count();
             $InProgressComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'In Progress', 'program_id' => $request->p_id])->count();
             $complains = Complain::where(['user_id' => Auth::user()->id, 'program_id' => $request->p_id])->orderBy('created_at', 'DESC')->get();
-
+            
             return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains', 'program'));
         } else return back();
     }
 
+    public function getTrainingCrm(Program $p_id){
+        $i = 1;
+
+        if (checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            if (checkRoleHas(['Admin'])) {
+                $complains = Complain::where('program_id', $p_id->id)->with('user')->orderBy('user_id', 'DESC')->get();
+            }
+
+            if (checkRoleHas(['Facilitator', 'Grader'])) {
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $complains = Complain::with('user')->where('program_id', $p_id->id)->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
+            }
+
+            $complainCounts = Complain::selectRaw('status, COUNT(*) as count')
+                ->groupBy('status')
+                ->pluck('count', 'status');
+
+            $resolvedComplains = $complainCounts->get('Resolved', 0);
+            $pendingComplains = $complainCounts->get('Pending', 0);
+            $InProgressComplains = $complainCounts->get('In Progress', 0);
+
+            $training = $p_id;
+            return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains', 'training'));
+        } else {
+            return back();
+        }
+    }
+
+    
     public function create(Request $request)
     {
+        $training = Program::where('id', request()->p_id)->first();
         if (checkRoleHas(['Admin','Facilitator'])) {
-            if(checkRoleHas(['Facilitator'])) {
-                $programs = Auth::user()->trainings;
-                $programs = $programs->map(function ($q) {
-                    $q->p_name = Program::where('id', $q->program_id)->value('p_name');
-                    return $q;
-                });
-            } else {
-                $programs = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
-            }
-            $program = '';
-
             return view('dashboard.admin.complains.create')
                 ->with('extend', 'dashboard.admin.index')
-                ->with('programs', $programs);
+                ->with('training', $training);
         } elseif (checkRoleHas(['Student'])){
-            $program = Program::find($request->p_id);
 
-            return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
+            return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')
+            ->with( 'training', $training)
+                ->with('program', $training);
         }
         return back();
     }
@@ -93,7 +107,12 @@ class ComplainController extends Controller
             'notes' => 'nullable',
             'program_id' => 'nullable',
         ]);
-        // dd($data);
+        
+        $training = Program::where('id', $data['program_id'])->first();
+        if($training->hascrm == 0){
+            return back()->with('error', 'CRM not enabled for: '.$training->p_name);
+        }
+
         if (!empty($data['notes'])) {
             $data['notes'] =  $data['notes'];
         } else {
@@ -103,33 +122,33 @@ class ComplainController extends Controller
         if ($data['type'] == "Enquiry") {
             $sla = 0;
         } else $sla = rand(4, 6);
-        // dd($request->all(), $request->program_id);
 
-        $query = Complain::create([
+        Complain::create([
             'user_id' => Auth::user()->id,
-            'name' => $data['name'],
-            'address' => $data['address'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'state' => $data['state'],
-            'lga' => $data['lga'],
-            'other' => $data['other'],
-            'mode' => $data['mode'],
-            'type' => $data['type'],
-            'issues' => $data['issues'],
-            'priority' => $data['priority'],
-            'status' => $data['status'],
-            'gender' => $data['gender'],
-            'teamlead' => $data['teamlead'],
-            'notes' => $data['notes'],
-            'content' => $data['complain'],
-            'response' => $data['response'],
-            'program_id' => $data['response'],
+            'name' => $data['name'] ?? null,
+            'address' => $data['address'] ?? null,
+            'email' => $data['email'] ?? null,
+            'phone' => $data['phone'] ?? null,
+            'state' => $data['state'] ?? null,
+            'lga' => $data['lga'] ?? null,
+            'other' => $data['other'] ?? null,
+            'mode' => $data['mode'] ?? null,
+            'type' => $data['type'] ?? null,
+            'issues' => $data['issues'] ?? null,
+            'priority' => $data['priority'] ?? null,
+            'status' => $data['status'] ?? null,
+            'gender' => $data['gender'] ?? null,
+            'teamlead' => $data['teamlead'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'content' => $data['complain'] ?? null,
+            'response' => $data['response'] ?? null,
+            'program_id' => $data['response'] ?? null,
             'sla' => $sla,
-            'program_id' =>  $data['program_id'],
+            'program_id' => $data['program_id'] ?? null,
 
         ]);
-        return back()->with('message', 'CRM has been created succesfully');
+
+        return back()->with('message', 'Query Logged succesfully');
     }
 
     public function show(Complain $complain)
@@ -138,11 +157,11 @@ class ComplainController extends Controller
 
     public function edit(Complain $complain, Request $request)
     {
-
         if (checkRoleHas(['Admin','Facilitator'])) {
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.admin.index');
         } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
+            
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
         }
         return back();

@@ -341,6 +341,22 @@
             overflow: scroll;
             height: 150px;
         }
+
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 0.375rem 0.75rem;
+            height: calc(2.25rem + 2px);
+            font-size: 0.875rem;
+            color: #4F5467;
+            background-color: #fff;
+            line-height: 1.5;
+        }
+    
+        .select2.select2-container.select2-container--default {
+            width: 100% !important;
+        }
+
         .view {
             margin: 0 10px;
             border-radius: 10%;

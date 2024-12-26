@@ -1,21 +1,22 @@
 <?php
 
 namespace App\Models;
-use App\Models\User;
 use DateTime;
+use DatePeriod;
+use DateInterval;
+use App\Models\User;
 use App\Models\Mocks;
 use App\Models\Coupon;
 use App\Models\Module;
 use App\Models\Result;
-use DatePeriod;
+use App\Models\Complain;
 use App\Models\Location;
 use App\Models\Material;
-use DateInterval;
 use App\Models\Certificate;
 use App\Models\ScoreSetting;
-use App\Models\FacilitatorTraining;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Models\FacilitatorTraining;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -73,6 +74,11 @@ class Program extends Model
     public function trainings()
     {
         return $this->hasMany(FacilitatorTraining::class, 'program_id');
+    }
+
+    public function crm()
+    {
+        return $this->hasMany(Complain::class, 'program_id');
     }
 
     public function training()
