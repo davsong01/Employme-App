@@ -1171,6 +1171,13 @@ class Controller extends BaseController
             ],
             [
                 'id' => 15,
+                'name' => 'Materials',
+                'route' => 'materials.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 15,
                 'name' => 'Modules',
                 'route' => 'modules.index',
                 'type' => 'menu',
@@ -1343,6 +1350,11 @@ class Controller extends BaseController
             [
                 'id' => 2,
                 'name' => 'Modules CRUD',
+                'order' => 3,
+            ],
+            [
+                'id' => 8,
+                'name' => 'Materials CRUD',
                 'order' => 2,
             ],
             [
@@ -1515,7 +1527,13 @@ class Controller extends BaseController
                 'order' => 18,
                 'category_id' => 2
             ],
-            
+            [
+                'id' => 19,
+                'name' => 'Delete Modules',
+                'route' => 'modules.destroy',
+                'order' => 18,
+                'category_id' => 2
+            ],
             [
                 'id' => 20,
                 'name' => 'Add Questions',
@@ -1551,6 +1569,41 @@ class Controller extends BaseController
                 'route' => 'questions.destroy',
                 'order' => 24,
                 'category_id' => 3
+            ],
+            [
+                'id' => 80,
+                'name' => 'View Materials',
+                'route' => 'material.program.select',
+                'order' => 1,
+                'category_id' => 8
+            ],
+            [
+                'id' => 81,
+                'name' => 'Add Materials',
+                'route' => 'materials.store',
+                'order' => 2,
+                'category_id' => 8
+            ],
+            [
+                'id' => 22,
+                'name' => 'Download Materials',
+                'route' => 'getmaterial',
+                'order' => 3,
+                'category_id' => 8
+            ],
+            [
+                'id' => 23,
+                'name' => 'Clone Materials',
+                'route' => 'material.clone',
+                'order' => 4,
+                'category_id' => 8
+            ],
+            [
+                'id' => 23,
+                'name' => 'Delete Materials',
+                'route' => 'materials.destroy',
+                'order' => 5,
+                'category_id' => 8
             ],
             [
                 'id' => 25,

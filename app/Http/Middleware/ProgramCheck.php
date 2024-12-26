@@ -18,7 +18,7 @@ class ProgramCheck
     {
 
 
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             $programs = DB::table('program_user')->where('user_id', Auth::user()->id)->whereProgram_id($request->p_id)->first();
             
             if (empty($programs)) {
@@ -49,7 +49,7 @@ class ProgramCheck
             return $next($request);
         }
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin']) || checkRoleHas(['Facilitator','Grader'])) {
             return $next($request);
         }
     }

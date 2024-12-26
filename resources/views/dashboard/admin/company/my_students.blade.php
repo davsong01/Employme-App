@@ -21,7 +21,7 @@
                             <th>Date Joined</th>
                             <th>Avatar</th>
                             <th>Name</th>
-                            @if(!empty(array_intersect(adminRoles(), auth()->user()->role())))
+                            @if(checkRoleHas(['Admin']))
                             <th>Email</th>
                             @endif
                             <th>Phone</th>

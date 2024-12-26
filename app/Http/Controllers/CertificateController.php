@@ -23,11 +23,13 @@ class CertificateController extends Controller
     {
         $userid = Auth::user()->id;
         $i = 1;
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-            // $programs = Program::whereHas('certificates', function ($query) {
-            //     return $query;
-            // })->withCount('certificates')->orderby('created_at', 'DESC')->get();
-            if(!empty(array_intersect(graderRoles(), Auth::user()->role()))){
+        if (checkRoleHas(['Admin','Grader','Facilitator'])) {
+            if(checkRoleHas(['Admin'])){
+                $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+
+                return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
+
+            }else{
                 $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
                 if ($programs->count() > 0) {
                     foreach ($programs as $program) {
@@ -37,14 +39,13 @@ class CertificateController extends Controller
                         $program['certificates_count'] = Certificate::whereProgramId($program->program_id)->count();
                     }
                 }
-            }else{
-                $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+
+                return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
             }
 
-            return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
         }
 
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])) {
             $details = certificationStatus($request->p_id, auth()->user()->id);
             $program = $details['program'] ?? collect([]);
 
@@ -85,9 +86,8 @@ class CertificateController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             $programs = Program::withCount('users')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-
             return view('dashboard.admin.certificates.create', compact('programs'));
         }
     }
@@ -101,8 +101,7 @@ class CertificateController extends Controller
     }
     public function selectUser(Request $request, $program_id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-
+        if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $i = 1;
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
             $certificates = Certificate::with(['user', 'program'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
@@ -126,7 +125,7 @@ class CertificateController extends Controller
 
     public function save(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             $data = $this->validate($request, [
                 'user_id' => 'required',
                 'certificate' => 'required | max:3048 | mimes:pdf,doc,docx,jpg,jpeg,png',
@@ -205,7 +204,7 @@ class CertificateController extends Controller
         }
         
         if($request->action == 'regenerate-certificate'){
-            if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+            if (checkRoleHas(['Admin','Grader','Facilitator'])) {
                 foreach ($transactions->get() as $transaction) {
                     $location = base_path('uploads/certificates');
 
@@ -233,7 +232,7 @@ class CertificateController extends Controller
         }
 
         if ($request->action == 'delete-certificate') {
-            if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+            if (checkRoleHas(['Admin','Grader','Facilitator'])) {
                 $certificates = Certificate::whereIn('user_id', $request->data)->where('program_id', $request->program_id)->get();
                 
                 foreach ($certificates as $certificate) {
@@ -275,7 +274,7 @@ class CertificateController extends Controller
         if ($internal) {
             $check = true;
         } else {
-            $check = !empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+            $check = checkRoleHas(['Admin','Grader','Facilitator']);
         }
 
         if ($check) {

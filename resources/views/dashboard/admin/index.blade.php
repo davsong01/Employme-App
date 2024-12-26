@@ -29,7 +29,7 @@
                             href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                                 class="hide-menu">Dashboard</span></a></li>
                 {{-- Grader and Facilitator Dashboard only --}}
-                {{-- @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                {{-- @if(checkRoleHas(['Facilitator']))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ route('teachers.students', auth()->user()->id) }}" aria-expanded="false"><i
                                 class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>

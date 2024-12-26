@@ -36,9 +36,9 @@ class ProfileController extends Controller
     public function edit($id)
     {
         $user = User::with('trainings')->whereId($id)->first();
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) && $id == Auth::user()->id) {
+        if (checkRoleHas(['Admin']) && $id == Auth::user()->id) {
             return view('dashboard.admin.profiles.edit', compact('user'));
-        } elseif (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        } else if(checkRoleHas(['Facilitator','Grader'])) {
 
             $other_details = DB::table('program_user')->where('facilitator_id', $user->id);
             $user->students_count = $other_details->count();
@@ -55,7 +55,7 @@ class ProfileController extends Controller
             $user->earnings = $transactions->sum('facilitator_earning');
 
             return view('dashboard.admin.profiles.edit_facilitator', compact('programs', 'user'));
-        } elseif (!empty(array_intersect(studentRoles(), Auth::user()->role())) && $id == Auth::user()->id) {
+        } elseif (checkRoleHas(['Student']) && $id == Auth::user()->id) {
 
             return view('dashboard.student.profiles.edit', compact('user'));
         }
@@ -76,7 +76,8 @@ class ProfileController extends Controller
             $user->email = $request->email;
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        
+        if (checkRoleHas(['Facilitator', 'Grader'])) {
             $user->off_season_availability = $request->off_season;
             $user->profile = $request->profile;
         }

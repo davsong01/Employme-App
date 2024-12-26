@@ -20,14 +20,14 @@
                         href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i
                             class="fa fa-arrow-left"></i><span class="hide-menu">BACK TO ADMIN</span></a></li>
                 @endif
-                @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
+                @ if(checkRoleHas(['Facilitator','Grader']))
                     @if(in_array(1, $menus))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                                 class="hide-menu">Staff Dashboard</span></a></li>
                     @endif
                 @endif
-                @if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())))
+                @if(checkRoleHas(['Facilitator']))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{ route('teachers.students', auth()->user()->id) }}" aria-expanded="false"><i
                                 class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>
@@ -41,7 +41,7 @@
                                 class="fas fa-wallet"></i><span class="hide-menu">My Earnings</span></a></li>
                 @endif
                         
-                @if (!empty(array_intersect(adminRoles(), Auth::user()->role())) )
+                @if (checkRoleHas(['Admin']) )
                 @if(in_array(1, $menus))
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
@@ -156,7 +156,7 @@
                         @endif
                     </ul>
                     
-                    @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
+                    @if(checkRoleHas(['Admin']))
                     @if(in_array(17, $menus))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                             href="{{route('users.mail')}}" aria-expanded="false"><i class="fa fa-envelope"></i><span

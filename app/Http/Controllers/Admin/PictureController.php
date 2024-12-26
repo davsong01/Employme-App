@@ -27,7 +27,7 @@ class PictureController extends Controller
      */
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             return view('dashboard.admin.pictures.create');
         } else {
             return redirect('/pictures');

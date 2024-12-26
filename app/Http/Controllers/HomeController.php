@@ -36,8 +36,9 @@ class HomeController extends Controller
     {
         //Get calendar details
         $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
-        
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+
+
+        if (checkRoleHas(['Admin'])) {
 
             $events = [];
             $data = Program::all();
@@ -72,7 +73,8 @@ class HomeController extends Controller
             return view('dashboard.admin.dashboard', compact('programCount', 'calendar', 'requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+
+        if (checkRoleHas(['Facilitator', 'Grader'])) {
 
             $events = [];
             $data = Program::all();
@@ -104,7 +106,8 @@ class HomeController extends Controller
             return view('dashboard.admin.dashboard', compact('calendar', 'requests',  'i', 'user', 'materialCount'));
         }
         
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        
+        if (checkRoleHas(['Student'])) {
             //get enabled module Tests for this user
             $thisusertransactions = Transaction::whereHas('program', function($query){
                 $query->where('program_lock', 0);
@@ -157,7 +160,7 @@ class HomeController extends Controller
 
         $calendar = [];
 
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             //Get Length of training
             $program = Program::findOrFail($id);
 

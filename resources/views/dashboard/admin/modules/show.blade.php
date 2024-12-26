@@ -6,7 +6,8 @@
         'module.clone',
         'modules.enable',
         'modules.disable',
-        'modules.show'
+        'modules.show',
+        'modules.destroy'
     ];
 
     $allPermissions = checkTrainingHasPermissions($p_id, $checks);
@@ -140,6 +141,7 @@
                                         </a>
                                         @endif
                                     @endif
+                                    
                                     @if($module->status == 0 && $module->questions->count() < 1)
                                     @if($allPermissions['modules.destroy'])
                                     <form action="{{ URL::signedRoute('modules.destroy', ['p_id' => $p_id, 'id' => $module->id]) }}" method="POST"

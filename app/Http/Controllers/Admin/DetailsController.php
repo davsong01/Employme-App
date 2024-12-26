@@ -18,7 +18,7 @@ class DetailsController extends Controller
      */
     public function index()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->get();
             return view('dashboard.admin.details.index', compact('programs'));
         }
@@ -43,7 +43,7 @@ class DetailsController extends Controller
      */
     public function store(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $type = $request->type;
             $training = $request->program_id;
             $programs = Program::where('id', '<>', 1)->get();

@@ -17,41 +17,24 @@ class ComplainController extends Controller
     {
         $i = 1;
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-            $i = 1;
-            if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-                $trainings = auth()->user()->trainings;
-
-                if (isset($trainings) && !empty($trainings)) {
-                    $trainings = array_column($trainings->toArray(), 'program_id');
-                } else {
-                    $trainings = [];
-                }
-                
-                $complains = Complain::with('user')->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
-                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->whereIn('program_id', $trainings)->count();
-                $pendingComplains =  Complain::where('status', '=', 'Pending')->whereIn('program_id', $trainings)->count();
-                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->whereIn('program_id', $trainings)->count();
-            } else {
+        if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
+            if (checkRoleHas(['Admin'])) {
                 $complains = Complain::with('user')->orderBy('user_id', 'DESC')->get();
-
-                // foreach($complains as $c){
-                //     $check = \DB::table('program_user')->where('user_id', $c->user_id)->first();
-                //     if($check){
-                //         $c->update([
-                //             'program_id'=> $check->program_id,
-                //         ]);
-                //     }
-
-                // }
-                $resolvedComplains =  Complain::where('status', '=', 'Resolved')->count();
-                $pendingComplains =  Complain::where('status', '=', 'Pending')->count();
-                $InProgressComplains =  Complain::where('status', '=', 'In Progress')->count();
+            }else{
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $complains = Complain::with('user')->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
             }
 
-            return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
-        } elseif (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+            $complainCounts = Complain::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+                ->pluck('count', 'status');
 
+            $resolvedComplains = $complainCounts->get('Resolved', 0);
+            $pendingComplains = $complainCounts->get('Pending', 0);
+            $InProgressComplains = $complainCounts->get('In Progress', 0);
+            
+            return view('dashboard.admin.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains'));
+        } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
 
             $resolvedComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Resolved', 'program_id' => $request->p_id])->count();
@@ -65,8 +48,8 @@ class ComplainController extends Controller
 
     public function create(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-            if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitator'])) {
+            if(checkRoleHas(['Facilitator'])) {
                 $programs = Auth::user()->trainings;
                 $programs = $programs->map(function ($q) {
                     $q->p_name = Program::where('id', $q->program_id)->value('p_name');
@@ -80,7 +63,7 @@ class ComplainController extends Controller
             return view('dashboard.admin.complains.create')
                 ->with('extend', 'dashboard.admin.index')
                 ->with('programs', $programs);
-        } elseif (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
 
             return view('dashboard.admin.complains.create')->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
@@ -156,9 +139,9 @@ class ComplainController extends Controller
     public function edit(Complain $complain, Request $request)
     {
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitator'])) {
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.admin.index');
-        } elseif (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
             return view('dashboard.admin.complains.edit')->with('complain', $complain)->with('extend', 'dashboard.student.trainingsindex')->with('program', $program);
         }

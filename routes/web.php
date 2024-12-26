@@ -261,9 +261,10 @@ Route::middleware(['auth', 'impersonate','permission'])->group(function () {
 
         Route::controller(MaterialController::class)->group(function () {
             Route::get('materialscreate/{p_id}', 'add')->name('creatematerials');
-            Route::get('facilitatormaterials/{p_id}', 'all')->name('facilitatormaterials');
+            // Route::get('facilitatormaterials/{p_id}', 'all')->name('facilitatormaterials');
             Route::post('cloneMaterial/{material_id}', 'clone')->name('material.clone');
             Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('getmaterial');
+            Route::get('program-material/{training}', 'getTrainingMaterials')->name('material.program.select');
         });
     });
 

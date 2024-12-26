@@ -43,7 +43,7 @@ class ResultController extends Controller
             return view('dashboard.admin.results.selecttraining', compact('programs', 'i'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+         if(checkRoleHas(['Facilitator','Grader'])) {
 
             $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
 
@@ -184,11 +184,11 @@ class ResultController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->get();
             $users = User::where('role_id', '<>', "Admin")->where('role_id', '<>', "Teacher")->where('role_id', '<>', "Grader")->where('hasResult', '<>', 1)->orderBy('created_at', 'DESC')->get();
             return view('dashboard.admin.results.create', compact('users', 'programs'));
-        } elseif (!empty(array_intersect(teacherRoles(), Auth::user()->role()))) {
+        } elseif (checkRoleHas(['Facilitator'])) {
             $programs = Program::where('id', '=', Auth::user()->program_id)->get();
             $users = User::where('role_id', '=', "Student")->where('hasResult', '<>', 1)->where('program_id', '=', Auth::user()->program_id)->orderBy('created_at', 'DESC')->get();
             //return view('dashboard.admin.results.create', compact('users', 'programs'));
@@ -362,7 +362,7 @@ class ResultController extends Controller
     public function enable($id)
     {
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
 
             $program = Program::findorfail($id);
 
@@ -377,7 +377,7 @@ class ResultController extends Controller
 
     public function disable($id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
 
             $program = Program::findorfail($id);
 
@@ -392,7 +392,7 @@ class ResultController extends Controller
 
     public function show($id, Request $request)
     {
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role())) || Auth::user()->id == $id) {
+        if (checkRoleHas(['Student']) || Auth::user()->id == $id) {
             $transaction = Transaction::select('id', 'training_result','balance','user_id','program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::select('id', 'allow_payment_restrictions_for_results','p_name', 'hasresult')->with('scoresettings')->find($transaction->program_id);
 

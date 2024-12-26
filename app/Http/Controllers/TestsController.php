@@ -22,7 +22,7 @@ class TestsController extends Controller
     {
         $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
         
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
 
             if ($program->allow_payment_restrictions_for_post_class_tests == 'yes') {
@@ -246,7 +246,7 @@ class TestsController extends Controller
     public function userresults(Request $request)
     {
 
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
 
             $i = 1;
             $program = Program::find($request->p_id);

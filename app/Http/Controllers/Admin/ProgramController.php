@@ -25,7 +25,7 @@ class ProgramController extends Controller
     public function index(Program $program)
     {
         $i = 1;
-    
+        
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
                 //Get all programs
@@ -55,7 +55,7 @@ class ProgramController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->get();
             $materials = Material::all();
             return view('dashboard.admin.programs.create', compact('programs'));

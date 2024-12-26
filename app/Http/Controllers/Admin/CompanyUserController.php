@@ -35,7 +35,7 @@ class CompanyUserController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
             $menus = app('app\Http\Controllers\Controller')->companyMenus();
 

@@ -100,7 +100,7 @@
     @endif   
     <div class="row">     
         <!-- Column -->
-        @if(!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role())))
+        @if(checkRoleHas(['Facilitator','Grader']))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('teachers.students', Auth()->user()->id) }}">
                 <div class="card card-hover">

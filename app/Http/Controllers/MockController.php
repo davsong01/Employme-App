@@ -33,33 +33,32 @@ class MockController extends Controller
     
     public function pretest()
     {
-        
+        $i = 1;
         if (checkRoleHas(['Admin'])) {
             $programs = Program::whereHas('mocks', function ($query) {
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
 
-            $i = 1;
             return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
         }
 
-        if (checkRoleHas(['Admin','Facilitator'])) {
-            //select all programs for this user
-            $teacher_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
+        else if (checkRoleHas(['Admin', 'Facilitator'])) {
+            $user_trainings = auth()->user()->trainings()->pluck('program_id')->toArray();
+            $programs = Program::whereIn('id', $user_trainings)->whereHas('mocks', function ($query) {
+                return $query->orderby('created_at', 'DESC');
+            })->orderby('created_at', 'DESC')->get();
 
-            //Select only programs that have results
-            foreach ($teacher_programs as $programs) {
-                $programs['p_name'] = Program::whereId($programs->program_id)->wherehasmock(1)->value('p_name');
-            }
-            
-            $i = 1;
-            return view('dashboard.teacher.mocks.selecttraining', compact('teacher_programs', 'i'));
+            return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
+
+        }else{
+            return back();
         }
+        
     }
 
     public function index(Request $request)
     {
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
 
             $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
             $program = Program::find($request->p_id);
@@ -157,8 +156,9 @@ class MockController extends Controller
         if($internal){
             $isAdmin = true;
         }else{
-            $isAdmin = !empty(array_intersect(adminRoles(), Auth::user()->role()));
-            $isFacilitatorOrGrader = !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()));
+            
+            $isAdmin = checkRoleHas(['Admin']);
+            $isFacilitatorOrGrader = checkRoleHas(['Facilitator', 'Grader']);
         }
         
         $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play','crm_test', 'email'])
@@ -436,7 +436,8 @@ class MockController extends Controller
     {
 
         try {
-            if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+            
+            if (checkRoleHas(['Facilitator'])) {
                 $marked_by = Auth::user()->name;
                 $roleplayscore = $request->roleplayscore;
                 $grader = $mock->grader;
@@ -444,7 +445,7 @@ class MockController extends Controller
                 $certification_score = $mock->certification_test_score;
             }
 
-            if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            if(checkRoleHas(['Admin'])) {
                 $marked_by = $mock->marked_by;
                 $roleplayscore = $request->roleplayscore;
                 $grader = 'Admin';
@@ -452,7 +453,7 @@ class MockController extends Controller
                 $certification_score = $request->certification_score;
             }
 
-            if (!empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+            if (checkRoleHas(['Grader'])) {
                 $marked_by = $mock->marked_by;
                 $roleplayscore = $mock->role_play_score;
                 $grader = Auth::user()->name;
@@ -477,7 +478,7 @@ class MockController extends Controller
 
     public function destroy(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $users_results = Mocks::where('user_id', $request->id)->get();
 
             //delete all user results

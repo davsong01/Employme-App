@@ -36,7 +36,7 @@ class ScoreSettingController extends Controller
             return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Facilitator'])) {
             $scores = ScoreSetting::where('program_id', auth()->user()->program->id)->orderBy('program_id', 'DESC')->get();
 
             foreach ($scores as $score) {
@@ -67,7 +67,7 @@ class ScoreSettingController extends Controller
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Facilitator'])) {
             $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
             foreach ($programs as $program) {
                 $program['counter'] = 0;

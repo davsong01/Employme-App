@@ -74,7 +74,7 @@
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Student" {{ !empty(array_intersect(studentRoles(), $user->role())) ? 'selected' : ''}}>Student</option>
-                                        @if(!empty(array_intersect(adminRoles(), Auth::user()->role())))
+                                        @if(checkRoleHas(['Admin']))
                                         <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
                                         <option value="Grader" {{ !empty(array_intersect(graderRoles(), $user->role())) ? 'selected' : ''}}>Grader</option>
                                         @endif

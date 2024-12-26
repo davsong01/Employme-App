@@ -21,34 +21,28 @@ class ModuleController extends Controller
     public function index()
     {
         $i = 1;
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-
+        
+        if (checkRoleHas(['Admin'])) {
             $modules = Module::with(['program', 'questions'])->orderBy('created_at', 'desc')->get();
             $questions_count = Question::all()->count();
-
-            // $programs_with_modules = Program::whereHas('modules', function ($query) {
-            //     return $query;
-            // })->orderby('created_at', 'DESC')->get();
             $programs_with_modules = Program::orderby('created_at', 'DESC')->get();
+        }elseif (checkRoleHas(['Facilitator','Grader'])){
+            $user_trainings = auth()->user()->trainings->pluck('program_id')->toArray();
 
-            return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
+            $modules = Module::with(['program', 'questions'])
+            ->orderBy('created_at', 'desc')
+            ->whereHas('program', function ($query) use ($user_trainings) {
+                $query->whereIn('id', $user_trainings);
+            })->get();
+
+            $programs_with_modules = Program::orderby('created_at', 'DESC')->whereIn('id', $user_trainings)->get();
+            $questions_count = Question::whereIn('id', $modules->pluck('id')->toArray())->count();
+
+        } else{
+            return back();
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-
-            $programs_with_modules = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-            if ($programs_with_modules->count() > 0) {
-                foreach ($programs_with_modules as $modules) {
-                    $modules['p_name'] = Program::whereId($modules->program_id)->value('p_name');
-                    $modules['modules_count'] = Program::withCount('modules')->whereId($modules->program_id)->get()->sum('modules_count');
-                    $modules['questions_count'] = Module::withCount('questions')->whereProgramId($modules->program_id)->get()->sum('questions_count');
-                }
-            }
-
-            return view('dashboard.teacher.modules.index', compact('i', 'programs_with_modules'));
-        }
-        return back();
+        return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
     }
 
     public function all($p_id)
@@ -79,7 +73,7 @@ class ModuleController extends Controller
             'title' => 'required|min:5',
             'program' => 'required',
             'status' => 'required|numeric',
-            'time' => 'required|numeric|min:0',
+            'time' => 'nullable|numeric|min:0',
             'type' => 'required|numeric',
             'noofquestions' => 'required|numeric',
             'allow_test_retake' => 'required|numeric'
@@ -181,14 +175,15 @@ class ModuleController extends Controller
 
     public function edit(Module $module)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+       
+        if(checkRoleHas(['Admin'])) {
 
             $program = Program::whereId($module->program_id)->first();
 
             return view('dashboard.admin.modules.edit', compact('module', 'program'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+         if(checkRoleHas(['Facilitator','Grader'])) {
 
             $program = Program::whereId($module->program_id)->first();
 

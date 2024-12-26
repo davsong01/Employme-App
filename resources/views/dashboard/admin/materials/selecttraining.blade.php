@@ -6,8 +6,7 @@
     <div class="card">
         <div class="card-body">
             <div class="card-title">
-                 <h5 class="card-title" style="color:red"> Click the eye icon to View pre test for respective trainings </h5><br>
-                 <p>Trainings that do not have Pre Class Tests enabled do not show up here</p>
+                 <h5 class="card-title" style="color:green"> Click the eye icon to Select Materials for respective trainings </h5><br>
                 @include('layouts.partials.alerts')
              </div>
            
@@ -17,24 +16,29 @@
                         <tr>
                             <th>#</th>
                             <th>Program Title</th>
+                            <th>Materials Count</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($teacher_programs as $program)
-                        @if(isset($program->p_name))
+                        @foreach($programs as $program)
+                        <?php
+                            $permissionsToCheck = ['material.program.select'];
+                            $permissions = checkTrainingHasPermissions($program->id, $permissionsToCheck);
+                        ?>
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td>{{ $program->p_name }}</td>
+                            <td>{{ $program->materials_count }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a 
-                                        class="btn btn-info" href="{{ route('mocks.getgrades', $program->program_id)}}"><i class="fa fa-eye"></i>
+                                    @if($permissions['material.program.select'])
+                                    <a class="btn btn-info" href="{{ route('material.program.select', ['training'=>$program->id, 'p_id' => $program->id])}}"><i class="fa fa-eye"></i> View
                                     </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
-                        @endif
                         @endforeach
                     </tbody>
                 </table>

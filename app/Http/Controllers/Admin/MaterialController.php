@@ -20,47 +20,28 @@ use Illuminate\Support\Facades\Redirect;
 class MaterialController extends Controller
 {
     public function decode(){
-        // $materials = Material::all();
-        // foreach($materials as $material){
-        //     $material->update([
-        //         'file' => base64_encode($material->file)
-        //     ]);
-        // }
 
-        // return response()->json('Operation successful');
     }
 
     public function index(Request $request)
     {
         $userid = Auth::user()->id;
         $i = 1;
-
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-
-            $materials = Material::with('program')->orderBy('created_at', 'desc')->get();
-
-            return view('dashboard.admin.materials.index', compact('i', 'materials'));
-        }
-
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
-
-            $facilitator_programs = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
-
-            $materialCount = 0;
-
-            if ($facilitator_programs->count() > 0) {
-                foreach ($facilitator_programs as $trainings) {
-                    $trainings['p_name'] = Program::whereId($trainings->program_id)->value('p_name');
-                    $trainings['materialCount'] = Material::whereProgramId($trainings->program_id)->count();
-                }
+        
+        if (checkRoleHas(['Admin','Facilitator'])){
+            if(checkRoleHas(['Admin'])) {
+                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->get();
+            }
+    
+            if(checkRoleHas(['Facilitator','Grader'])) {
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
             }
 
-            $programs = Program::where('id', '<>', 1)->get();
+            return view('dashboard.admin.materials.selecttraining', compact('i', 'programs'));
+        } 
 
-            return view('dashboard.teacher.materials.show', compact('i', 'facilitator_programs'));
-        }
-
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             $i = 1;
             $program = Program::find($request->p_id);
 
@@ -90,94 +71,61 @@ class MaterialController extends Controller
         }
     }
 
+    public function getTrainingMaterials(Program $training){
+        $i = 1;
 
-    public function all($p_id)
-    {
-        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $i = 1;
+        if (checkRoleHas(['Admin','Facilitator', 'Grader'])) {
+            if (checkRoleHas(['Admin'])) {
+                $training = Program::withCount('materials')->where('id', $training->id)->first();
+            }
 
-            $materials = Material::with('program')->where('program_id', $p_id)->orderBy('created_at', 'DESC')->get();
-
-            return view('dashboard.teacher.materials.index', compact('i', 'materials', 'p_id'));
+            if (checkRoleHas(['Facilitator', 'Grader'])) {
+                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $training = Program::withCount('materials')->where('id', $training->id)->whereIn('id', $trainings)->first();
+            } 
+        }else {
+            return back();
         }
-        return abort(404);
+        
+        $materials = Material::with('program')->where('program_id', $training->id)->orderBy('created_at', 'desc')->get();
+        
+        return view('dashboard.admin.materials.index', compact('i', 'materials','training')); 
     }
-
+    
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-            $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-            // $materials = Material::with('program')->all();
 
-            return view('dashboard.admin.materials.create', compact('programs'));
-        }
-        return back();
-    }
-
-    public function add($p_id)
-    {
-
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-            $program = Program::select('id', 'p_name')->whereId($p_id)->first();
-            return view('dashboard.teacher.materials.create', compact('p_id', 'program'));
-        }
     }
 
     public function store(Request $request)
     {
-        if ($request->has('p_id')) {
-            //$imagePath = request('booking_form')->store('/uploads', 'public');
-            foreach ($request->file('file') as $file) {
+        if (request()->has('p_id')) {
+            foreach (request()->file('file') as $file) {
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $filename = Str::slug($fileName);
-                $path = base64_encode($request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension());
+                $path = base64_encode(request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension());
 
                 $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $filename = Str::slug($fileName);
-                $preferredName = $request->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
+                $preferredName = request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
                 
                 $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
                 
                 Material::create([
                     'title' => $file->getClientOriginalName(),
-                    'program_id' =>  $request->p_id,
+                    'program_id' =>  request()->p_id,
                     'file' => $path,
                 ]);
             }
-
-            return redirect(url('/facilitatormaterials/' . $request->p_id))->with('message', 'Study material succesfully added');
-        } else {
-            $data = request()->validate([
-                'program_id' => 'nullable',
-                'file' => 'required',
-                'file.*' => 'mimes:doc,pdf,docx',
-            ]);
-
-            $program_id = $data['program_id'];
-
-            foreach ($request->file('file') as $file) {
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $filename = Str::slug($fileName);
-                $preferredName = $program_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
-                
-                $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
-                //
-                Material::create([
-                    'title' => $file->getClientOriginalName(),
-                    'program_id' =>  $program_id,
-                    'file' => $path,
-                ]);
-            }
-        }
-
-        return redirect('materials')->with('message', 'Study material succesfully added');
+            
+            return back()->with('message', 'Study material succesfully added');
+        } 
     }
 
     public function show(Material $material)
     {
 
         $programs = Program::orderBy('created_at', 'desc')->where('id', '<>', $material->program_id)->where('id', '<>', 1)->get();
-
         return view('dashboard.admin.materials.edit')->with('material', $material)->with('programs', $programs);
     }
 
@@ -202,7 +150,7 @@ class MaterialController extends Controller
         }
 
         $material->delete();
-        if (!empty(array_intersect(facilitatorRoles(), auth()->user()->role()))) {
+        if (checkRoleHas(['Facilitator'])) {
             return back()->with('message', 'Material has been deleted forever');
         }
         return redirect('materials')->with('message', 'Study material succesfully deleted');

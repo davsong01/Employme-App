@@ -19,7 +19,7 @@ class QuestionController extends Controller
 
     public function importExport($p_id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitator'])) {
 
             return view('dashboard.admin.questions.import', compact('p_id'));
         }
@@ -29,8 +29,8 @@ class QuestionController extends Controller
     public function import(Request $request)
     {
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
-
+        if (checkRoleHas(['Admin','Facilitator'])) {
+            
             $this->validate(request(), [
                 'file' => 'required|
 				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
@@ -54,15 +54,12 @@ class QuestionController extends Controller
     {
         $i = 1;
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
-
+        if (checkRoleHas(['Admin', 'Facilitator'])) {
             $programs_with_questions = Program::withCount('questions')->orderBy('id', 'desc')->get();
-
             return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
         }
 
-
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+         if(checkRoleHas(['Facilitator','Grader'])) {
 
             $programs_with_questions = FacilitatorTraining::whereUser_id(auth()->user()->id)->get();
 
@@ -87,13 +84,13 @@ class QuestionController extends Controller
 
     public function add($p_id)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
 
             return view('dashboard.admin.questions.create', compact('modules'));
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+         if(checkRoleHas(['Facilitator','Grader'])) {
             $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
             return view('dashboard.admin.questions.create', compact('modules'));
         }
@@ -145,7 +142,7 @@ class QuestionController extends Controller
     public function show($p_id)
     {
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role())) || !empty(array_intersect(graderRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin']) || checkRoleHas(['Facilitator','Grader'])) {
             $i = 1;
 
             $questions = Question::whereHas('module', function ($query) use ($p_id) {

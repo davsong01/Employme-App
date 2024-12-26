@@ -84,7 +84,7 @@ class CompanyUserControllerold extends Controller
         //     $user->p_names =  $names;
         // }
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             return view('dashboard.admin.company.index', compact('users', 'i'));
         }
     }

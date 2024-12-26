@@ -14,7 +14,7 @@ class Impersonate
      */
     public function handle($request, Closure $next)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin'])) {
             if ($request->session()->has('impersonate')) {
                 Auth::onceUsingId($request->session()->get('impersonate'));
             }

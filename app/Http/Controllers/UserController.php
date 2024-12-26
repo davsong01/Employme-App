@@ -26,9 +26,9 @@ class UserController extends Controller
         $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
         //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
         $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             return view('dashboard.admin.users.index', compact('users', 'i', 'programs'));
-        } else if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        } else if (checkRoleHas(['Facilitator'])) {
             $users = User::where([
                 'role_id' => "Student",
                 'program_id' => Auth::user()->program_id,
@@ -41,7 +41,7 @@ class UserController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $users = User::orderBy('created_at', 'DESC');
             $user = User::all();
             $programs = Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
@@ -154,7 +154,7 @@ class UserController extends Controller
     {
         $user = User::findorFail($id);
         $programs = Program::where('id', '<>', 1)->get();
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
 
             return view('dashboard.admin.users.edit', compact('programs', 'user'));
         }
@@ -199,7 +199,7 @@ class UserController extends Controller
 
         $user->save();
         //I used return redirect so as to avoid creating new instances of the user and program class
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             return redirect('users')->with('message', 'user updated successfully');
         }
         return back();

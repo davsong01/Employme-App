@@ -79,7 +79,7 @@ class PaymentController extends Controller
             return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops','records','allPrograms','types'));
         }
         
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             $transactiondetails = Transaction::with('paymentthreads')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
 
             foreach ($transactiondetails as $details) {
@@ -114,7 +114,7 @@ class PaymentController extends Controller
     
     public function paymentHistory()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $wallets = app('App\Http\Controllers\WalletController')->getWalletHistory();
             $balance = app('App\Http\Controllers\WalletController')->getGlobalWalletBalance();
         }else{
@@ -174,7 +174,7 @@ class PaymentController extends Controller
     {
         $transaction = Transaction::where('id', $id)->first();
         
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             //get user details
             $user = User::findorFail($transaction->user_id);
 
@@ -235,7 +235,7 @@ class PaymentController extends Controller
     {
         $transaction = Transaction::with(['coupon', 'program'])->where('id', $id)->first();
 
-        if (!empty(array_intersect(studentRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Student'])){
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
             }

@@ -13,7 +13,7 @@ class LocationController extends Controller
 
     public function index()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $i = 1;
 
             $locations = Location::orderBy('created_at', 'desc')->get();

@@ -12,7 +12,6 @@
                 <div class="box bg-info text-center">
                     <h1 class="font-light text-white"><i class=" fa fa-list-alt"></i></h1>
                     <h6 class="text-white"><b></b> {{$complains->count()}} Query(s)</h6>
-
                 </div>
             </div>
         </div>
@@ -73,45 +72,45 @@
                         @foreach($complains as $complain)
                         <tr>
                             <td>EMPL000{{ $complain->id}} <br>
-                               
                             </td>
                             <td>{{ $complain->user->name ?? 'NOT SET'}} <span style="color:blue">({{ $complain->user->responseStatus ?? '0' }}% Response Rate)</span> <br>
                                 @if(isset($complain->program))
-                                 <small style="color:green"><strong>Training:</strong> {{ $complain->program->p_name ?? '' }}</small>
-                                 @endif
+                                    <small style="color:green"><strong>Training:</strong> {{ $complain->program->p_name ?? '' }}</small>
+                                @endif
                             </td>
                             <td>{{ $complain->created_at->format('d/m/Y') }}</td>
                             <td>{{$complain->status}}</td>
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                             <td>
-                                <div class="btn-group">
+                                <div class="btn-group" role="group" aria-label="Actions">
+                                    <a class="btn btn-info btn-sm" href="{{ route('complains.edit', $complain->id) }}" data-toggle="tooltip" data-placement="top" title="View">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
 
-                                    <a class="btn btn-info" href="{{route('complains.edit', $complain->id)}}"><i
-                                            class="fa fa-eye"></i> View</a>
-                                    @if($complain->status <> 'Resolved')
-                                        <a 
-                                            class="btn btn-success" href="{{route('crm.resolved', $complain->id)}}"><i
-                                                class="fa fa-check"></i> Resolve</a>
+                                    @if($complain->status !== 'Resolved')
+                                        <a class="btn btn-success btn-sm" href="{{ route('crm.resolved', $complain->id) }}" data-toggle="tooltip" data-placement="top" title="Mark as Resolved">
+                                            <i class="fa fa-check"></i> Resolve
+                                        </a>
                                     @endif
-                                     @if (!empty(array_intersect(adminRoles(), Auth::user()->role())))
-                                        <form action="{{ route('complains.destroy', $complain->id)}}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                            {{ csrf_field() }}
-                                            {{method_field('DELETE')}}
 
-                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
-                                                data-placement="top" title="Delete Query"> <i
-                                                    class="fa fa-trash"></i>
+                                    @if(checkRoleHas(['Admin']))
+                                        <form action="{{ route('complains.destroy', $complain->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');" style="display:inline;">
+                                            {{ csrf_field() }}
+                                            {{ method_field('DELETE') }}
+
+                                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Delete Complaint">
+                                                <i class="fa fa-trash"></i> Delete
                                             </button>
                                         </form>
                                     @endif
                                 </div>
+
                             </td>
-                        </tr> @endforeach
+                        </tr> 
+                        @endforeach
                     </tbody>
-                    
                 </table>
             </div>
-
         </div>
     </div>
 </div>

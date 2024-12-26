@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         $program =  Program::select('id','p_name','p_amount')->where('id', $p_id)->first();
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin', 'Facilitator'])) {
             $programs = Program::select('id','p_name','p_amount')->where('id', '<>', $p_id)->AllMainPrograms()->get();
             
             return view('dashboard.admin.users.import', compact('program','programs'));
@@ -46,7 +46,7 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Admin','Facilitator'])) {
             
             $this->validate(request(), [
                 'file' => 'sometimes|
@@ -195,10 +195,9 @@ class UserController extends Controller
 
     public function stopredotest($user_id, $result_id)
     {
-        if (!empty(array_intersect(adminRoles(), auth()->user()->role())) || in_array(22, Auth::user()->Permissions())) {
-
+        if (checkRoleHas(['Admin']) || in_array(22, Auth::user()->Permissions())) {
             $result = Result::whereId($result_id)->first();
-        
+    
             // if(is_null($result->certification_test_details)){
             //     return back()->with('error', 'User has not written certification test');
             // }
@@ -215,7 +214,7 @@ class UserController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
 
             $users = User::orderBy('created_at', 'DESC');
             $locations = Location::select('title')->orderBy('created_at', 'DESC')->get();
@@ -339,7 +338,7 @@ class UserController extends Controller
     //tweaked this to send mails
     {
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $user = User::findorFail($id);
             $program = Program::all();
 
@@ -379,14 +378,14 @@ class UserController extends Controller
     {
         $user = User::findorFail($id);
         $programs = Program::where('id', '<>', 1)->get();
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
             $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
 
             return view('dashboard.admin.users.edit', compact('programs', 'user', 'associated'));
         }
 
-        if (!empty(array_intersect(graderRoles(), Auth::user()->role())) || !empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if (checkRoleHas(['Facilitator', 'Grader'])) {
             $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
             $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
 
@@ -426,7 +425,7 @@ class UserController extends Controller
                 'gender' => $request->gender,
             ]);
 
-            if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+            if(checkRoleHas(['Admin'])) {
                 // Get User programs and pop out of array
                 $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
                 $newTrainings = $request['training'];
@@ -463,7 +462,7 @@ class UserController extends Controller
         }
 
 
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             return back()->with('message', 'Update successfully');
         }
         return back();

@@ -39,14 +39,14 @@ class CouponController extends Controller
      */
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs =  Program::whereStatus(1)
                 ->where('p_end', '>=', date('Y-m-d'))
                 ->where('close_registration', 0)
                 ->orderBy('created_at', 'DESC')
                 // $programs = Program::mainActivePrograms()
                 ->get();
-        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        } else  if(checkRoleHas(['Facilitator'])) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
@@ -90,7 +90,7 @@ class CouponController extends Controller
                     return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
                 }
 
-                if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+                if(checkRoleHas(['Facilitator'])) {
                     // Check that this facilitator can create the coupon
                     $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
 
@@ -147,10 +147,10 @@ class CouponController extends Controller
      */
     public function edit(Coupon $coupon)
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
 
             $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
-        } else  if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        } else  if(checkRoleHas(['Facilitator'])) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
@@ -184,7 +184,7 @@ class CouponController extends Controller
             return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
         }
 
-        if (!empty(array_intersect(facilitatorRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Facilitator'])) {
             // Check that this facilitator can create the coupon
             $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
 

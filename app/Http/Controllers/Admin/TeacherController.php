@@ -96,7 +96,7 @@ class TeacherController extends Controller
 
     public function create()
     {
-        if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+        if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
             $payment_modes = PaymentMode::whereStatus('active')->get();
             return view('dashboard.admin.teachers.create', compact('programs', 'payment_modes'));

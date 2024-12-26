@@ -72,7 +72,7 @@ class CompanyUserController extends Controller
     //         ->distinct()->with('trainings')
     //         ->orderBy('created_at', 'DESC')->get();
         
-    //     if (!empty(array_intersect(adminRoles(), Auth::user()->role()))) {
+    //     if(checkRoleHas(['Admin'])) {
     //         return view('dashboard.admin.company.index', compact('users', 'i'));
     //     }
     // }
