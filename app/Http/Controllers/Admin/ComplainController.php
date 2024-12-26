@@ -19,7 +19,7 @@ class ComplainController extends Controller
 
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             if (checkRoleHas(['Admin'])) {
-                $trainings = Program::withCount('crm')->orderBy('created_at', 'desc')->get();
+                $trainings = Program::withCount('crm')->whereHas('crm')->orderBy('created_at', 'desc')->get();
             }
 
             if (checkRoleHas(['Facilitator', 'Grader'])) {
