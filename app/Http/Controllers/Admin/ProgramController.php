@@ -306,15 +306,12 @@ class ProgramController extends Controller
         $auto_certificate_settings = array_filter($auto_certificate_settings, function ($value) {
             return !is_null($value);
         });
-
         
-        if(count($auto_certificate_settings) < 1 ){
-            return;
-        }
-
-        foreach ($auto_certificate_settings as $key => $req) {
-            foreach ($req as $index => $value) {
-                $final_array[$index][$key] = $value;
+        if($request->auto_certificate_status == 'yes' && count($auto_certificate_settings) > 0){
+            foreach ($auto_certificate_settings as $key => $req) {
+                foreach ($req as $index => $value) {
+                    $final_array[$index][$key] = $value;
+                }
             }
         }
 
