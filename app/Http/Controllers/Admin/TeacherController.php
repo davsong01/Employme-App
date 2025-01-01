@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use PDF;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Program;
 use App\Models\Material;
-use App\Models\PaymentMode;
 use App\Mail\Welcomemail;
-use App\Models\FacilitatorTraining;
+use App\Models\PaymentMode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -22,22 +23,26 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-        $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
-            ->distinct()->with('trainings')
-            ->where('role_id', '!=', 'Student')
-            ->orderBy('created_at', 'DESC')->get();
+        $users = Admin::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'roles', 'created_at', 'phone', 'license', 'status')
+            ->distinct()->with('trainings');
+
+        if(checkRoleHas(['Facilitator', 'Grader'])){
+            $users = $users->whereNotIn('id', [1, resolveAuthUser()->id]);
+        }
+
+        $users = $users->orderBy('created_at', 'DESC')->get();
         
-        $users->map(function ($users) {
-            $details = DB::table('facilitator_trainings')->where('user_id', $users->id);
-            $users->program_count = $details->distinct()->count();
-            $transactions = DB::table('program_user')->where('facilitator_id', $users->id);
-            $users->students_count = $transactions->count();
-            $users->earnings = $transactions->sum('facilitator_earning');
-            $users->image = (filter_var($users->profile_picture, FILTER_VALIDATE_URL) !== false) ? $users->profile_picture : url('/') . '/avatars' . '/' . $users->profile_picture;
+        $users->map(function ($user) {
+            $details = DB::table('facilitator_trainings')->where('user_id', $user->id);
+            $user->program_count = $details->distinct()->count();
+            $transactions = DB::table('program_user')->where('facilitator_id', $user->id);
+            $user->students_count = $transactions->count();
+            $user->earnings = $transactions->sum('facilitator_earning');
+            $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/avatars' . '/' . $user->profile_picture;
 
-            return $users;
+            return $user;
         });
-
+        
         foreach ($users as $user) {
             $names = [];
             foreach ($user->trainings as $trainings) {
@@ -84,12 +89,12 @@ class TeacherController extends Controller
         $earnings = DB::table('program_user')->where('facilitator_id', $id)->where('facilitator_earning', '>', 0)
             ->join('users', 'users.id', '=', 'program_user.user_id')
             ->join('programs', 'programs.id', '=', 'program_user.program_id')
-            ->select('p_name', 'name', 'program_user.id', 'program_user.facilitator_id', 'currency', 'paymenttype', 't_amount', 'invoice_id', 'p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code', 'facilitator_earning', 'profile_picture', 'program_user.created_at', 'currency_symbol')
+            ->select('p_name', 'name', 'program_user.id', 'program_user.facilitator_id', 'currency', 'paymenttype', 'amount', 'invoice_id', 'p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code', 'facilitator_earning', 'profile_picture', 'program_user.created_at', 'currency_symbol')
             ->orderBy('program_user.created_at')
             ->get();
 
         $i = 1;
-        $currency = User::whereId($id)->first()->payment_modes->currency_symbol;
+        $currency = Admin::whereId($id)->first()->payment_modes->currency_symbol;
 
         return view('dashboard.admin.teachers.my_student_earnings', compact('earnings', 'i', 'id', 'currency'));
     }
@@ -140,16 +145,16 @@ class TeacherController extends Controller
 
         // try {
             if (!empty(array_intersect($data['role'], ["Facilitator", "Grader"]))) {
-                $facilitator = User::create([
+                $facilitator = Admin::create([
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'profile' => $data['profile'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'off_season_availability' => $data['off_season_availability'],
                     'profile_picture' => $data['picture'] ?? $imgName,
                     'license' => $data['license'],
                     'password' => bcrypt($password),
-                    'role_id' => implode(',', $data['role']),
+                    'roles' => implode(',', $data['role']),
                     'status' => $data['status'],
                     'payment_mode' => $data['payment_mode'],
                     'waacsp_url' => $data['waacsp_url'] ?? null,
@@ -175,13 +180,13 @@ class TeacherController extends Controller
                     'menu_permissions' => 'required',
                 ]);
 
-                User::create([
+                Admin::create([
                     'name' => $data['name'],
                     'profile' => $data['profile'],
                     'email' => $data['email'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
-                    'role_id' => implode(',', $data['role']),
+                    'roles' => implode(',', $data['role']),
                     'menu_permissions' => $data['menu_permissions'],
                 ]);
 
@@ -199,8 +204,8 @@ class TeacherController extends Controller
 
     public function edit($id)
     {
-        $user = User::with('trainings')->where('id', $id)->first();
-
+        $user = Admin::with('trainings')->where('id', $id)->first();
+        
         $allprograms = Program::where('id', '<>', 1)
             ->select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
 
@@ -217,20 +222,12 @@ class TeacherController extends Controller
             $training->p_name = $program->p_name;
         }
         
-        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
-            return back();
-        }
-        
         return view('dashboard.admin.teachers.edit', compact( 'user', 'allprograms', 'payment_modes'));
     }
     
     public function update(Request $request, $id)
     {
-        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
-            return redirect('home');
-        }
-
-        $user = User::findorFail($id);
+        $user = Admin::findorFail($id);
         $check = [
             'teachers.update.menu',
             'teachers.update.training.access',
@@ -248,58 +245,55 @@ class TeacherController extends Controller
             $picture = Image::make($request->file)->resize(400, 400);
             $picture->save('profiles/' . '/' . $imgName);
         }
-
-        $request['role'] = implode(',', $request['role']);
+        
         
         $user->name = $request['name'];
         $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
-
+        $user->phone = $request['phone'];
+        
         if ($allpermissions['teachers.role.status']) {
-            $user->role_id = $request['role'];
+            $user->roles = $request['role'];
         }
 
         $user->profile = $request['profile'];
         $user->status = $request['status'];
         $user->profile_picture = $imgName ?? $user->profile_picture;
-        // $user->earning_per_head = $request['earning_per_head'];
         $user->status = $request['status'];
+
         $user->payment_mode = $request['payment_mode'];
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
 
-
         if($allpermissions['teachers.update.menu']){
             $user->menu_permissions = $request->menu_permissions;
         }
-
+        
         //Delete corresponding Facilitator Program details
-        $facilitator = FacilitatorTraining::whereUserId($user->id);
-
-        $facilitator->delete();
-
         if ($allpermissions['teachers.update.training.access']) {
             if (!empty($request['training'])) {
                 foreach ($request['training'] as $training) {
-                    FacilitatorTraining::UpdateorCreate([
-                        'user_id' => $user->id,
-                        'program_id' => $training,
-                        'training_permissions' => $request->training_permissions[$training]
-                    ]);
+                    if(isset($request->training_permissions[$training])){
+                        FacilitatorTraining::UpdateOrCreate([
+                            'user_id' => $user->id,
+                            'program_id' => $training],[
+                            'user_id' => $user->id,
+                            'program_id' => $training,
+                            'training_permissions' => $request->training_permissions[$training]
+                        ]);
+                    }
                 }
             }
         }
-
+        
         $user->save();
-
         return back()->with('message', 'Operation Successful');
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
+        $user = Admin::findOrFail($id);
         //Delete corresponding programs
-        $programs = FacilitatorTraining::whereUserId($user->id)->delete();
+        FacilitatorTraining::whereUserId($user->id)->delete();
 
         $user->delete();
         return redirect('teachers')->with('message', 'Facilitator deleted successfully');

@@ -28,23 +28,23 @@
                 <p id="ct" style="margin-top:20px; margin-left:5px"></p>
         </li>
         <li class="navbar-nav d-inline-block" style="color:white; margin-left:5px;">
-        <b style="color:yellow">| </b>Welcome, {{ Auth::user()->name }} <b style="color:yellow"> |</b>
+        <b style="color:yellow">| </b>Welcome, {{ resolveAuthUser()->name }} <b style="color:yellow"> |</b>
     </li>
     <li class="nav-item dropdown" style="list-style: none;">
         <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic" href="#" 
             id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ (filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) 
-                ? Auth::user()->profile_picture 
-                : asset('/avatars/'.Auth::user()->profile_picture) }}" 
+            <img src="{{ (filter_var(resolveAuthUser()->profile_picture, FILTER_VALIDATE_URL) !== false) 
+                ? resolveAuthUser()->profile_picture 
+                : asset('/avatars/'.resolveAuthUser()->profile_picture) }}" 
                 alt="avatar" class="rounded-circle" width="50" height="50">
         </a>
 
-        <ul class="dropdown-menu dropdown-menu-end user-dd animated" aria-labelledby="navbarDropdown">
+        {{-- <ul class="dropdown-menu dropdown-menu-end user-dd animated" aria-labelledby="navbarDropdown">
             @guest
                 <li><a class="dropdown-item" href="{{ route('login') }}"><i class="ti-user m-r-5 m-l-5"></i> Login</a></li>
                 <li><a class="dropdown-item" href="{{ route('register') }}"><i class="ti-wallet m-r-5 m-l-5"></i> Register</a></li>
             @else
-                <li><a class="dropdown-item" href="{{ route('profiles.edit', Auth::user()->id) }}"><i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a></li>
+                <li><a class="dropdown-item" href="{{ route('profiles.edit', resolveAuthUser()->id) }}"><i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a></li>
                 <li>
                     <a class="dropdown-item" href="{{ route('logout') }}" 
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -55,7 +55,7 @@
                     </form>
                 </li>
             @endguest
-        </ul>
+        </ul> --}}
     </li>
 
     </div>

@@ -156,8 +156,48 @@
                                 </div>
                             </div>
                         </div>  
+                        {{-- {{dd($setting->site_access_settings)}} --}}
+                       <div class="row" style="background-color:red;padding:10px;color:white">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Web Access</label>
+                                    <select name="site_access_settings[web_access]" class="form-control" id="site_access_settings[web_access]" required>
+                                        <option value="enabled" {{ $setting?->site_access_settings?->web_access == 'enabled' ? 'selected' : '' }}>Enabled</option>
+                                        <option value="disabled" {{ $setting?->site_access_settings?->web_access == 'disabled' ? 'selected' : '' }}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Admin Access</label>
+                                    <select name="site_access_settings[admin_access]" class="form-control" id="site_access_settings[admin_access]" required>
+                                        <option value="enabled" {{ $setting?->site_access_settings?->admin_access == 'enabled' ? 'selected' : '' }}>Enabled</option>
+                                        <option value="disabled" {{ $setting?->site_access_settings?->admin_access == 'disabled' ? 'selected' : '' }}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Company Access</label>
+                                    <select name="site_access_settings[company_access]" class="form-control" id="site_access_settings[company_access]" required>
+                                        <option value="enabled" {{ $setting?->site_access_settings?->company_access == 'enabled' ? 'selected' : '' }}>Enabled</option>
+                                        <option value="disabled" {{ $setting?->site_access_settings?->company_access == 'disabled' ? 'selected' : '' }}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Mobile App Access</label>
+                                    <select name="site_access_settings[mobile_access]" class="form-control" id="site_access_settings[mobile_access]" required>
+                                        <option value="enabled" {{ $setting?->site_access_settings?->mobile_access == 'enabled' ? 'selected' : '' }}>Enabled</option>
+                                        <option value="disabled" {{ $setting?->site_access_settings?->mobile_access == 'disabled' ? 'selected' : '' }}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="col-12">
-                             <button class="btn btn-primary" style="width:100%">Update Settings</button>
+                            <button class="btn btn-primary" style="width:100%">Update Settings</button>
                         </div>
 
                     </form>

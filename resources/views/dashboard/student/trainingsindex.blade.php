@@ -10,7 +10,7 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
-                @if(Auth::user()->isImpersonating() )
+                @if(resolveAuthUser()->isImpersonating() )
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                     style="color:yellow !important; font-weight:bolder" href="{{ route('stop.impersonate') }}" aria-expanded="false"><i class="fa fa-arrow-left"></i><span
                         class="hide-menu">BACK TO ADMIN</span></a></li>
@@ -48,7 +48,7 @@
                 </li>
                 
                 @if($program->hasresult == 1 )
-                <li class="sidebar-item"><a href="{{ route('results.show', ['result' => Auth::user()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
+                <li class="sidebar-item"><a href="{{ route('results.show', ['result' => resolveAuthUser()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
                 @endif
@@ -56,7 +56,7 @@
                 @php
                     $trans = Transaction::query()
                     ->select('id', 'show_certificate', 'program_id', 'user_id')
-                    ->where('user_id', auth()->user()->id)
+                    ->where('user_id', resolveAuthUser()->id)
                     ->where('program_id', $program->id)
                     ->first();
                     $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
@@ -106,7 +106,7 @@
 
 @endsection
 @section('extra-scripts')
-    @if($program->show_catalogue_popup == 'yes' && auth()->user()->downloaded_catalogue == 'no')
+    @if($program->show_catalogue_popup == 'yes' && resolveAuthUser()->downloaded_catalogue == 'no')
     <script>
         $(document).ready(function(){       
             $('#trainingcatalogue').modal({

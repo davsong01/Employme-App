@@ -3,20 +3,15 @@
 namespace App\Http\Controllers;
 
 use DB;
-use Auth;
 use App\Models\Pop;
 use App\Models\User;
-use Calendar;
 use App\Models\Module;
-use App\Models\Picture;
 
 use App\Models\Program;
 use App\Models\Material;
 use Carbon\Carbon;
 use App\Models\PaymentMode;
 use App\Models\Transaction;
-use App\Models\Models\Wallet;
-use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -34,23 +29,17 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        //Get calendar details
-        $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
-
-
+        $currentUser = User::findOrFail(resolveAuthUser()->id)->programs()->get();
+        
         if (checkRoleHas(['Admin'])) {
 
-            $events = [];
             $data = Program::all();
             
-            // $calendar = Calendar::addEvents($events);
-            $calendar = [];
-
             //Get all Programs
             $programCount = Program::where('id', '<>', 1)->count();
 
             //Get all students
-            $users = User::where('role_id', 'Student')->get();
+            $users = User::where('roles', 'Student')->get();
             $userCount = $users->count();
 
             //Get pending payments
@@ -70,7 +59,7 @@ class HomeController extends Controller
 
             $requests = $request;
 
-            return view('dashboard.admin.dashboard', compact('programCount', 'calendar', 'requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
+            return view('dashboard.admin.dashboard', compact('programCount', 'requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
         }
 
 
@@ -79,11 +68,8 @@ class HomeController extends Controller
             $events = [];
             $data = Program::all();
             
-
-            $calendar = [];
-
             //get number of users and materials for this faciliator/grader
-            $user = Auth::user();
+            $user = resolveAuthUser();
             $details = DB::table('facilitator_trainings')->where('user_id', $user->id);
             $user->programCount = $details->distinct()->count();
             $transactions = DB::table('program_user')->where('facilitator_id', $user->id);
@@ -103,7 +89,7 @@ class HomeController extends Controller
             $requests = $request;
             $i = 1;
 
-            return view('dashboard.admin.dashboard', compact('calendar', 'requests',  'i', 'user', 'materialCount'));
+            return view('dashboard.admin.dashboard', compact('requests',  'i', 'user', 'materialCount'));
         }
         
         
@@ -111,7 +97,7 @@ class HomeController extends Controller
             //get enabled module Tests for this user
             $thisusertransactions = Transaction::whereHas('program', function($query){
                 $query->where('program_lock', 0);
-            })->where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+            })->where('user_id', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
             foreach ($thisusertransactions as $transactions) {
                 $transactions->modules = Module::where('program_id', $transactions->program_id)->where('status', 1)->count();
                 $transactions->materials = Material::where('program_id', $transactions->program_id)->count();
@@ -119,7 +105,7 @@ class HomeController extends Controller
                 $transactions->p_id =  Program::where('id', $transactions->program_id)->value('id');
             }
 
-            $account_balance = app('App\Http\Controllers\WalletController')->getWalletBalance(auth()->user()->id);
+            $account_balance = app('App\Http\Controllers\WalletController')->getWalletBalance(resolveAuthUser()->id);
             
             $topup_programs = Program::where('allow_preferred_timing', 'yes')->where('p_end', '>', Carbon::now())->get();
             
@@ -131,7 +117,7 @@ class HomeController extends Controller
     {
         $data = DB::table('program_user')
             ->where('program_id', $request->p_id)
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', resolveAuthUser()->id)
             ->where('balance', '>', 0)
             ->first();
         // dd($data);
@@ -144,21 +130,7 @@ class HomeController extends Controller
 
     public function trainings($id)
     {
-        //Get calendar details
-        $events = [];
         $data = Program::all();
-        // if($data->count()){
-        // foreach ($data as $key => $value) {
-        //     $events[] = Calendar::event(
-        //         $value->p_name,
-        //         true,
-        //         new \DateTime($value->p_start),
-        //         new \DateTime($value->p_end.' +1 day')
-        //     );
-        // }
-        // }
-
-        $calendar = [];
 
         if (checkRoleHas(['Student'])){
             //Get Length of training
@@ -198,8 +170,8 @@ class HomeController extends Controller
 
             //get materials count
             $materialsCount = Material::where('program_id', $program->id)->count();
-            $data = DB::table('program_user')->where('program_id', $program->id)->where('user_id', auth()->user()->id);
-            $paid = $data->value('currency_symbol') . number_format($data->value('t_amount'));
+            $data = DB::table('program_user')->where('program_id', $program->id)->where('user_id', resolveAuthUser()->id);
+            $paid = $data->value('currency_symbol') . number_format($data->value('amount'));
             $balance = $data->value('balance');
             $currency_symbol = $data->value('currency_symbol');
             $facilitator = $data->value('facilitator_id');
@@ -210,13 +182,13 @@ class HomeController extends Controller
                 $facilitaor = null;
             }
 
-            return view('dashboard.student.trainings', compact('currency_symbol', 'facilitator', 'calendar', 'materialsCount',  'trainingProgress', 'paid', 'balance', 'program'));
+            return view('dashboard.student.trainings', compact('currency_symbol', 'facilitator', 'materialsCount',  'trainingProgress', 'paid', 'balance', 'program'));
         } else return abort(404);
     }
 
     public function downloadProgramBrochure()
     {
-        auth()->user()->update([
+        resolveAuthUser()->update([
             'downloaded_catalogue' => 1
         ]);
 

@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'company_users',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
     ],
 
     /*
@@ -76,6 +80,10 @@ return [
         'company_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\CompanyUser::class, // Model for the company_users table
+        ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
         ],
     ],
 

@@ -48,7 +48,7 @@
                         <h1 class="font-light text-blue"><i class=" fa fa-list-alt"></i></h1>
                         <div class="card-title">
                             {{ $module->title }}
-                            @if(auth()->user()->redotest == 1 && $module->type == 'Certification Test')
+                            @if(resolveAuthUser()->redotest == 1 && $module->type == 'Certification Test')
                                 <span class="redo" style="background: red;color: white;padding: 4px;">RETAKE</span>
                             @endif
                         </div>
@@ -60,13 +60,13 @@
                             <a href="{{route('tests.show', ['test' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
                        
-                        @if($module->completed == 1 && auth()->user()->redotest == 0)
+                        @if($module->completed == 1 && resolveAuthUser()->redotest == 0)
                             <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details </b></button></a>
                         @endif
-                        @if(auth()->user()->redotest != 0 && $module->redo != 0)
+                        @if(resolveAuthUser()->redotest != 0 && $module->redo != 0)
                             <a href="{{route('tests.results', ['p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-success"><b>Test Completed! View Details </b></button></a>
                         @endif
-                        @if($module->type == 'Certification Test' && auth()->user()->redotest != 0 && $module->redo == 0) 
+                        @if($module->type == 'Certification Test' && resolveAuthUser()->redotest != 0 && $module->redo == 0) 
                             <a href="{{route('tests.show', ['test' => $module->id, 'p_id' => $program->id])}}"><button style="width:100%" type="button" class="btn btn-outline-primary" onclick="return confirm('I have read the instructions above?');">Start Now!</button></a>
                         @endif
                     </div>

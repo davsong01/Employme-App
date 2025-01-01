@@ -33,11 +33,11 @@
     <div class="row">
         <!-- Column -->
         <div class="col-md-6 col-lg-6">
-            <a href="{{ route('profiles.edit', Auth::user()->id) }}">
+            <a href="{{ route('profiles.edit', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
                     <div class="box bg-cyan text-center">
                         <h1 class="font-light text-white"><i class="fas fa-user-edit"></i></h1>
-                        <h6 class="text-white">Welcome, {{ Auth::user()->name }}</h6>
+                        <h6 class="text-white">Welcome, {{ resolveAuthUser()->name }}</h6>
                         <p class="text-white">Edit my profile</p>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
                 <h2 style="text-align: center; color:green">My Trainings (Click to Access)</h2>
                 @foreach($thisusertransactions as $details)
                     <div class="col-md-12 col-lg-12">
-                        <a href="{{ route('trainings.show', ['p_id' => $details->p_id]) }}">
+                        <a href="{{ route('participant.trainings.show', ['p_id' => $details->p_id]) }}">
                             <div class="card card-hover">
                                 <div class="box bg-success text-center">
                                     <h1 class="font-light text-white"><i class="fas fa-chalkboard-teacher"></i></h1>

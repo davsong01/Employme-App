@@ -51,7 +51,7 @@
                                 <small>
                                 <strong>Name: </strong> {{ $user->name }}<br>
                                 <strong>Email: </strong> {{ $user->email }}<br>
-                                <strong>Phone: </strong> {{ $user->t_phone }}<br>
+                                <strong>Phone: </strong> {{ $user->phone }}<br>
                                 
                                 <strong>Assigned trainings: </strong>{{ $user->trainings->count() }} <br>
                                 @if($user->license)

@@ -86,7 +86,7 @@ class UserController extends Controller
 
                         // Normalize data before processing
                         $row['staffID'] = $user->staffID;
-                        $row['phone'] = $user->t_phone;
+                        $row['phone'] = $user->phone;
                         $row['email'] = $user->email;
                         $row['name'] = $user->name;
                         $row['gender'] = $user->gender;
@@ -129,7 +129,7 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator','Grader'])) {
-            $users = auth()->user()->trainerStudents();
+            $users = resolveAuthUser()->trainerStudents();
         }
 
         if (!empty($request->email)) {
@@ -141,7 +141,7 @@ class UserController extends Controller
         }
 
         if (!empty($request->phone)) {
-            $users = $users->where('t_phone', $request->phone);
+            $users = $users->where('phone', $request->phone);
         }
 
         if (!empty($request->staffID)) {
@@ -163,7 +163,7 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
-            $programs = auth()->user()->userTrainings()->get();
+            $programs = resolveAuthUser()->userTrainings()->get();
         }
 
         $allPrograms = $programs;
@@ -290,23 +290,23 @@ class UserController extends Controller
                 'transaction_id' => 'nullable',
                 'invoice_id' => '',
             ]);
-
+            
             //Check if email exists in the system and attach it to the new pregram to that email
             if (!$user) {
                 //save to database
                 $user = User::Create([
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
-                    'role_id' => $data['role'],
+                    'roles' => $data['role'],
                     'gender' => $data['gender'],
                 ]);
             }
 
             $user->programs()->attach($request->training, [
                 'created_at' =>  date("Y-m-d H:i:s"),
-                't_amount' => $data['amount'],
+                'amount' => $data['amount'],
                 't_type' => $data['bank'],
                 't_location' => $data['location'],
                 'transid' => $data['transaction_id'],
@@ -342,7 +342,7 @@ class UserController extends Controller
             $user = User::findorFail($id);
             $program = Program::all();
 
-            if ($user->t_amount == $user->program->e_amount) {
+            if ($user->amount == $user->program->e_amount) {
                 $message = $this->dosubscript2($user->balance);
             } else {
                 $message = $this->dosubscript1($user->balance);
@@ -363,7 +363,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'bank' => $user->t_type,
-                'amount' => $user->t_amount,
+                'amount' => $user->amount,
             ];
             //generate pdf from receipt view
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
@@ -378,6 +378,7 @@ class UserController extends Controller
     {
         $user = User::findorFail($id);
         $programs = Program::where('id', '<>', 1)->get();
+
         if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
             $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
@@ -386,7 +387,8 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
-            $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
+            $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->pluck('program_id');
+            
             $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
 
             if ($count < 1) {
@@ -403,28 +405,30 @@ class UserController extends Controller
     {
         date_default_timezone_set("Africa/Lagos");
         $user = User::findorFail($id);
+        
         if ($request['password']) {
             $password = bcrypt($request['password']);
         } else $password = $user->password;
 
         try {
             if (checkRoleHas(['Facilitaor','Grader'])) {
-                $user_trainings = auth()->user()->trainings->pluck('id')->toArray();
+                $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $count = Transaction::whereUserId($user->id)->whereIn('program_id', $user_trainings)->count();
 
                 if ($count < 1) {
                     return back();
                 }
             }
+            
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
-                't_phone' => $request->phone,
+                'phone' => $request->phone,
                 'password' => $password,
-                'role_id' => $request->role,
+                'roles' => $request->role,
                 'gender' => $request->gender,
             ]);
-
+            
             if(checkRoleHas(['Admin'])) {
                 // Get User programs and pop out of array
                 $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
@@ -440,8 +444,8 @@ class UserController extends Controller
                                 'created_at' =>  date("Y-m-d H:i:s"),
                                 'invoice_id' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
                                 'transid' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
-                                't_amount' => $training->p_amount,
-                                't_amount' => $training->p_amount,
+                                'amount' => $training->p_amount,
+                                'amount' => $training->p_amount,
                                 't_type' => 'System Admin',
                                 't_location' => null,
                                 'paymentStatus' => 1,
@@ -515,7 +519,7 @@ class UserController extends Controller
 
         $data = $request->content;
         $subject = $request->subject;
-        $name = auth()->user()->name;
+        $name = resolveAuthUser()->name;
 
         if ($request->has('bulkrecipients') && $request->program == NULL && $request->type == 'bulkrecipients') {
             $recipients = preg_replace('#\s+#', ',', trim($request->bulkrecipients));

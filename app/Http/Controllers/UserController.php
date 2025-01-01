@@ -22,18 +22,16 @@ class UserController extends Controller
     {
 
         $i = 1;
-        //$users = User::all();
-        $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
-        //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
+        $users = User::where('roles', '=', "Student")->orderBy('created_at', 'DESC')->get();
         $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
+        
         if(checkRoleHas(['Admin'])) {
             return view('dashboard.admin.users.index', compact('users', 'i', 'programs'));
         } else if (checkRoleHas(['Facilitator'])) {
             $users = User::where([
-                'role_id' => "Student",
-                'program_id' => Auth::user()->program_id,
+                'roles' => "Student",
+                'program_id' => resolveAuthUser()->program_id,
             ])->orderBy('created_at', 'DESC')
-
                 ->get();
             return view('dashboard.teacher.users.index', compact('users', 'i', 'programs'));
         }
@@ -103,13 +101,13 @@ class UserController extends Controller
             User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                't_phone' => $data['phone'],
+                'phone' => $data['phone'],
                 'password' => bcrypt($data['password']),
                 'program_id' => $data['training'],
-                't_amount' => $data['amount'],
+                'amount' => $data['amount'],
                 't_type' => $data['bank'],
                 't_location' => $data['location'],
-                'role_id' => $data['role'],
+                'roles' => $data['role'],
                 'gender' => $data['gender'],
                 'transid' => $data['transaction_id'],
                 'paymenttype' => $payment_type,
@@ -172,7 +170,7 @@ class UserController extends Controller
         //check amount against payment
         $programFee = Program::findorFail($request['training'])->p_amount;
 
-        $newamount = $user->t_amount + $request['amount'];
+        $newamount = $user->amount + $request['amount'];
         if ($newamount > $programFee) {
             return back()->with('warning', 'Student cannot pay more than program fee');
         } else
@@ -185,13 +183,13 @@ class UserController extends Controller
 
         $user->name = $request['name'];
         $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
+        $user->phone = $request['phone'];
         $user->program_id = $request['training'];
-        $user->t_amount = $newamount;
+        $user->amount = $newamount;
         $user->balance = $balance;
         $user->t_type = $request['bank'];
         $user->t_location = $request['location'];
-        $user->role_id = $request['role'];
+        $user->roles = $request['role'];
         $user->gender = $request['gender'];
         // $user->bank = $request['bank'];
         $user->transid = $request['transaction_id'];

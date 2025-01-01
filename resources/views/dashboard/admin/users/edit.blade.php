@@ -45,7 +45,7 @@
                                 </div>
                                 <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
                                     <label for="phone">Phone</label>
-                                    <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone }}"
+                                    <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone }}"
                                         autofocus>
                                     @if ($errors->has('phone'))
                                     <span class="help-block">
@@ -75,7 +75,7 @@
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Student" {{ checkRoleHas(['Student']) ? 'selected' : ''}}>Student</option>
                                         @if(checkRoleHas(['Admin']))
-                                        <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
+                                        <option value="Teacher" {{ $user->roles == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
                                         <option value="Grader" {{ checkRoleHas(['Grader']) ? 'selected' : ''}}>Grader</option>
                                         @endif
                                     </select>

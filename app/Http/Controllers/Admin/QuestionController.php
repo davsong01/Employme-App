@@ -60,7 +60,7 @@ class QuestionController extends Controller
                 $programs_with_questions = Program::withCount('questions')->orderBy('id', 'desc')->get();
                 return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
             }else if(checkRoleHas(['Facilitator', 'Grader'])){
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $programs_with_questions = Program::withCount('questions')->whereIn('id', $trainings)->orderBy('id', 'desc')->get();
                 return view('dashboard.admin.questions.index', compact('programs_with_questions', 'i'));
             }else{

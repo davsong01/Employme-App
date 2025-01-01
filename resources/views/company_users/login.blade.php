@@ -2,7 +2,13 @@
 @section('title')
     {{ config('app.name') }} - Login
 @endsection
-@section('pagetitle', 'Company Admin Login')
+@section('pagetitle')
+@if(request()->prefix__ == '/admin')
+Admin Login
+@else
+Company Admin Login
+@endif
+@endsection
 @section('content')
 <section class="checkout spad" style="padding-top: 20px;">
     <div class="container">
@@ -12,8 +18,19 @@
             </div>
         </div>
         <div class="checkout__form">
-            <h4>Company Admin Login</h4>
+            <h4>
+                @if(request()->prefix__ == '/admin')
+                Admin Login
+                @else
+                Company Admin Login
+                @endif
+            </h4>
+            @if(request()->prefix__ == '/admin')
+            <form action="{{ route('admin.login.post') }}" method="POST" enctype="multipart/form-data">
+            @else
+            Company Admin Login
             <form action="{{ route('company_user.login.post') }}" method="POST" enctype="multipart/form-data">
+            @endif
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">
                 <div class="row">

@@ -48,7 +48,7 @@ class DetailsController extends Controller
             $training = $request->program_id;
             $programs = Program::where('id', '<>', 1)->get();
             $count = 0;
-            $results = DB::table('users')->where('program_id', '=', $training)->where('role_id', '<>', "Admin")->get();
+            $results = DB::table('users')->where('program_id', '=', $training)->where('roles', '<>', "Admin")->get();
             $count = count($results);
             return view('dashboard.admin.details.show', compact('programs', 'results', 'count', 'type'));
         }

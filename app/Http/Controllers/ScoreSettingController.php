@@ -12,63 +12,43 @@ class ScoreSettingController extends Controller
     public function index()
     {
         $i = 1;
-
-        if (Auth()->user()->role_id == "Admin") {
+        if (checkRoleHas(['Admin'])) {
             $scores = ScoreSetting::orderBy('program_id', 'DESC')->get();
-
-            foreach ($scores as $score) {
-                $score['module_count'] = 0;
-                $score['module_status_count'] = 0;
-
-                if (!isset($score->program->module)) {
-                    $score['module_count'] = 0;
-                };
-
-                if(isset($score->program->modules)){
-                    foreach ($score->program->modules as $modules) {
-                        if ($modules->status == 1) {
-                            $score['module_status_count'] += 1;
-                        }
-                    }
-                }
-            }
-
-            return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
+        }else{
+            $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
+            $scores = ScoreSetting::orderBy('program_id', 'DESC')->whereIn('program_id', $trainings)->orderBy('id', 'desc')->get();
         }
 
-        if (checkRoleHas(['Facilitator'])) {
-            $scores = ScoreSetting::where('program_id', auth()->user()->program->id)->orderBy('program_id', 'DESC')->get();
+        foreach ($scores as $score) {
+            $score['module_count'] = 0;
+            $score['module_status_count'] = 0;
 
-            foreach ($scores as $score) {
+            if (!isset($score->program->module)) {
                 $score['module_count'] = 0;
-                $score['module_status_count'] = 0;
+            };
 
-                if (!isset($score->program->module)) {
-                    $score['module_count'] = 0;
-                };
-
+            if (isset($score->program->modules)) {
                 foreach ($score->program->modules as $modules) {
                     if ($modules->status == 1) {
                         $score['module_status_count'] += 1;
                     }
                 }
             }
-
-            return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
         }
-        return redirect('/dashboard');
+
+        return view('dashboard.admin.scoresettings.index', compact('scores', 'i'));
     }
 
     public function create()
     {
-        if (auth()->user()->role_id == "Admin") {
+        if (resolveAuthUser()->roles == "Admin") {
             $programs = Program::withCount(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('created_at', 'DESC')->get();
 
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
         if (checkRoleHas(['Facilitator'])) {
-            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', auth()->user()->program->id)->orderBy('created_at', 'DESC')->get();
+            $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', resolveAuthUser()->program->id)->orderBy('created_at', 'DESC')->get();
             foreach ($programs as $program) {
                 $program['counter'] = 0;
                 if (isset($program->scoresettings)) {
@@ -103,7 +83,7 @@ class ScoreSettingController extends Controller
             // 'passmark' => 'required|numeric|min:1|max:100',
         ]);
 
-        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit']), function ($value) {
+        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit', 'prefix__']), function ($value) {
             return $value !== null;
         })));
         
@@ -155,7 +135,7 @@ class ScoreSettingController extends Controller
             // 'certificationscore' => 'sometimes|numeric|min:1|max:100',
         ]);
        
-        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit']), function ($value) {
+        $total = array_sum(array_map('intval', array_filter($request->except(['passmark', 'program', '_token', 'submit', 'prefix__']), function ($value) {
             return $value !== null;
         })));
         

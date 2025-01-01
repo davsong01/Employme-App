@@ -20,7 +20,7 @@ class TestsController extends Controller
 {
     public function index(Request $request)
     {
-        $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+        $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
         
         if (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
@@ -35,7 +35,7 @@ class TestsController extends Controller
 
             $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
 
-            if (Auth::user()->redotest == $program->id) {
+            if (resolveAuthUser()->redotest == $program->id) {
                 $modules = Module::with('questions')->where('program_id', $program->id)->get();
             }
 
@@ -44,16 +44,16 @@ class TestsController extends Controller
 
                 $expected_pre_class_tests = Module::ClassTests($program->id)->count();
 
-                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', resolveAuthUser()->id)->count();
                 if ($completed_pre_class_tests < $expected_pre_class_tests) {
                     return Redirect::to('mocks?p_id=' . $program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
                 }
             }
 
             foreach ($modules as $module) {
-                $module_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
+                $module_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->get();
 
-                // $redo_check = Result::where('module_id', $module->id)->where('user_id', auth()->user()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
+                // $redo_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
 
                 // foreach ($redo_check as $check) {
                 //     if($this->getResitTrainingStatus($module->type, $transaction)) {
@@ -96,13 +96,13 @@ class TestsController extends Controller
     {
         $program = Program::find($request->p_id);
         
-        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
+        $class_test_details = $request->except(['_token', 'mod_id', 'id', 'prefix__']);
 
         if (sizeof($class_test_details) < 2) {
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id', 'prefix__']);
 
         foreach ($certification_test_details as $key => $value) {
             if ((!isset($certification_test_details[$key]))) {
@@ -114,12 +114,12 @@ class TestsController extends Controller
             };
         }
 
-        $check = Result::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->first();
+        $check = Result::where('user_id', resolveAuthUser()->id)->where('module_id', $request->mod_id)->first();
         $module = Module::findOrFail($request->mod_id);
         
         $transaction = Transaction::select('id', 'training_result', 'training_result_histories', 'user_id', 'program_id')
         ->where('program_id', $request->p_id)
-            ->where('user_id', auth()->user()->id)
+            ->where('user_id', resolveAuthUser()->id)
             ->first();
 
         $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
@@ -163,7 +163,7 @@ class TestsController extends Controller
 
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = $email;
-            $details['content'] = 'Hello, <br><br>'.auth()->user()->name.'('.auth()->user()->email.') has completed a rewrite of certification test for <strong>'.$program->p_name.'</strong> training. <br><br>Please proceed to grade accordingly. <br><br>Thanks' ;
+            $details['content'] = 'Hello, <br><br>'.resolveAuthUser()->name.'('.resolveAuthUser()->email.') has completed a rewrite of certification test for <strong>'.$program->p_name.'</strong> training. <br><br>Please proceed to grade accordingly. <br><br>Thanks' ;
             $details['type'] = 'bulk';
             
             $this->sendGenericEmail($details);
@@ -177,7 +177,7 @@ class TestsController extends Controller
                 try {
                     Result::create([
                         'program_id' => $module->program->id,
-                        'user_id' => Auth::user()->id,
+                        'user_id' => resolveAuthUser()->id,
                         'module_id' => $module->id,
                         'certification_test_details' => json_encode($certification_test_details),
                     ]);
@@ -199,7 +199,7 @@ class TestsController extends Controller
                     if ($module->type == 'Class Test') {
                         Result::create([
                             'program_id' => $module->program->id,
-                            'user_id' => Auth::user()->id,
+                            'user_id' => resolveAuthUser()->id,
                             'module_id' => $module->id,
                             'class_test_score' => $score,
                             'class_test_details' => json_encode($class_test_details),
@@ -215,7 +215,7 @@ class TestsController extends Controller
 
         // Update training result
         $data["last_updated_at"] = now();
-        udateTrainingResult($request->p_id, auth()->user()->id);
+        udateTrainingResult($request->p_id, resolveAuthUser()->id);
         
         return Redirect::to('userresults?p_id=' . $program->id);
     }
@@ -253,7 +253,7 @@ class TestsController extends Controller
             $hasmock = $program->hasmock;
 
             if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {
-                $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', auth()->user()->id)->first();
+                $user_balance = DB::table('program_user')->where('program_id',  $program->id)->where('user_id', resolveAuthUser()->id)->first();
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to access tests');
                 }
@@ -262,16 +262,16 @@ class TestsController extends Controller
             //Check if user has taken pre tests and return back if otherwise
             if ($program->hasmock == 1) {
                 $expected_pre_class_tests = Module::ClassTests($program->id)->count();
-                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', resolveAuthUser()->id)->count();
 
                 if ($completed_pre_class_tests < $expected_pre_class_tests) {
                     return Redirect::to('mocks?p_id=' . $program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Post Class Tests');
                 }
             }
 
-            $results = Result::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();
+            $results = Result::with('module')->where('user_id', resolveAuthUser()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();
 
-            $cert_score = Result::where('user_id', auth()->user()->id)->whereProgramId($program->id)->sum('certification_test_score');
+            $cert_score = Result::where('user_id', resolveAuthUser()->id)->whereProgramId($program->id)->sum('certification_test_score');
 
             //If cert score is 0 or less, it is recorded as processing
 
@@ -279,7 +279,7 @@ class TestsController extends Controller
                 $result['certification_test_score'] =  $cert_score;
             }
 
-            $mock_results = Mocks::with('module')->where('user_id', auth()->user()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();
+            $mock_results = Mocks::with('module')->where('user_id', resolveAuthUser()->id)->whereProgramId($program->id)->orderBy('module_id', 'DESC')->get();
 
             return view('dashboard.student.tests.result', compact('results', 'i', 'program', 'mock_results', 'hasmock'));
         }
@@ -322,8 +322,8 @@ class TestsController extends Controller
     }
 
     public function retakeTest(Request $request, Module $module){
-        // $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', auth()->user()->id)->get();
-        $details = certificationStatus(request()->get('p_id'), auth()->user()->id);
+        // $results = Result::where('module_id', $module->id)->whereProgramId(request()->get('p_id'))->where('user_id', resolveAuthUser()->id)->get();
+        $details = certificationStatus(request()->get('p_id'), resolveAuthUser()->id);
         $results = $details['results'];
         
         if (!$details || $details['status'] == 'CERTIFIED') {

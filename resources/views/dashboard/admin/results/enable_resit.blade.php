@@ -1,7 +1,6 @@
 @if(isset($user->training_result->certification_test_resit_status))
 <br> 
     @if($user->training_result->certification_test_resit_status == 0)
-        
         <small class="resit-status">
             @if($permissions['results.destroy'])
                 <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 

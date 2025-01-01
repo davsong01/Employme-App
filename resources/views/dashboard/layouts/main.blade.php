@@ -23,8 +23,6 @@
 
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset(\App\Models\Settings::value('favicon')) }}">
     <title>{{ config('app.name') }}</title>
-    <link href="{{ asset('assets/libs/fullcalendar/dist/fullcalendar.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/extra-libs/calendar/calendar.css') }}" rel="stylesheet" />
     <link href="{{ asset('dist/css/style.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/libs/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('modal.css') }}" />

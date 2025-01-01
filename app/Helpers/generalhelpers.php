@@ -56,7 +56,7 @@ use Intervention\Image\Facades\Image;
                         if (!empty($t->grader_comment)) {
                             $details['certification_grader_comment'] = $t->grader_comment;
                         }
-
+                        
                         // Accumulate test scores
                         $class += $t['class_test_score'];
                         $email += $t['email_test_score'];
@@ -499,9 +499,22 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("checkRoleHas")) {
         function checkRoleHas($roles_to_check, $user=null)
         {
-            $user = $user ?? Auth::user();
+            $user = $user ?? resolveAuthUser();
             $user_roles = $user->role();
+            
             return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
+        }
+    }
+
+    if (!function_exists("resolveAuthUser")) {
+        function resolveAuthUser()
+        {
+            if (request()->prefix__ == '/admin') {
+                $user = $user ?? Auth::guard('admin')->user();
+            } else {
+                $user = $user ?? Auth::user();
+            }
+            return $user;
         }
     }
 
@@ -509,15 +522,15 @@ use Intervention\Image\Facades\Image;
         function checkTrainingHasPermissions($training_id, $permissionsToCheck = null)
         {
             $result = [];
-
-            $userPermissions = auth()->user()->trainingPermissions();
+            $userPermissions = resolveAuthUser()->trainingPermissions();
+           
             $userTrainingPermissions = $userPermissions->where('program_id', $training_id)->first();
             $trainingPermissions = $userTrainingPermissions->training_permissions ?? [];
             
             // If specific permissions are provided, check them
             if (!empty($permissionsToCheck)) {
                 foreach ($permissionsToCheck as $permission) {
-                    if (in_array(auth()->user()->id, [1])) {
+                    if (in_array(resolveAuthUser()->id, [1])) {
                         $result[$permission] = true;
                     }else{
                         $result[$permission] = in_array($permission, $trainingPermissions);
@@ -537,7 +550,7 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("canUserAccessPermission")) {
         function canUserAccessPermission($routes, $user=null)
         {
-            $user = $user ??  auth()->user();
+            $user = $user ??  resolveAuthUser();
             $allMenus = allRoutes('access'); 
             $userMenus = $user->permissions();
             $result = [];

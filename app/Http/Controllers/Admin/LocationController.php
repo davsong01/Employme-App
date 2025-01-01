@@ -58,7 +58,7 @@ class LocationController extends Controller
 
     public function update(Request $request, Location $location)
     {
-        $request = $request->except(['_token', '_method']);
+        $request = $request->except(['_token', '_method', 'prefix__']);
 
         $location->updateorcreate($request);
 

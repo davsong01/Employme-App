@@ -46,27 +46,51 @@
                                     </div>
                                 </div>
                                 <div class="col-md-10">
-                                    <div class="form-group">
-                                        <label for="name">Name</label>
-                                        <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus>
-                                        @error('name')
-                                        <span class="text-danger">{{ $message }}</span>
-                                        @enderror
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="name">Name</label>
+                                                <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus>
+                                                @error('name')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="email">E-Mail Address</label>
+                                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email }}">
+                                                @error('email')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="phone">Phone</label>
+                                                <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone }}">
+                                                @error('phone')
+                                                <span class="text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                                <label for="password">Password: </label><span class="help-block">
+                                                   <small> <strong>Default: 12345</strong> (Leave blank to keep the default password)</small>
+                                                </span>
+                                                <input id="password" type="text" class="form-control" name="password"
+                                                    value="{{ old('password') ?? '' }}" autofocus>
+                                                @if ($errors->has('password'))
+                                                <span class="help-block">
+                                                    <strong>{{ $errors->first('password') }}</strong>
+                                                </span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="email">E-Mail Address</label>
-                                        <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email }}">
-                                        @error('email')
-                                        <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="phone">Phone</label>
-                                        <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone }}">
-                                        @error('phone')
-                                        <span class="text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
+                                    
                                 </div>
                             </div>
                         </fieldset>
@@ -75,7 +99,7 @@
                         @if($allpermissions['teachers.role.status'])
                         <fieldset>
                             <legend>Role and Status</legend>
-                            
+                            {{-- {{dd($user->roles)}} --}}
                             <div class="form-group">
                                 <label>Role*</label>
                                 <div class="row">
@@ -83,7 +107,7 @@
                                     <div class="col-md-4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="role[]" value="Admin" 
-                                                {{ in_array('Admin', $user->role()) ? 'checked' : '' }} id="role-admin">
+                                                {{ in_array('Admin', $user->roles) ? 'checked' : '' }} id="role-admin">
                                             <label class="form-check-label" for="role-admin">
                                                 Admin
                                             </label>
@@ -214,110 +238,109 @@
                         </fieldset>
                         @endif
                         
-                        @if(!checkRoleHas(['Admin'], $user))
-                            @if ($allpermissions['teachers.update.training.access'])
-                            <fieldset>
-                                <legend>Trainings and Permissions</legend>
-                                
-                                <div id="trainingContainer">
-                                    @if(!empty($user->trainings))
-                                    <div class="accordion" id="trainingAccordion">
-                                        @foreach($user->trainings as $index => $program)
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header" id="heading-{{ $index }}">
-                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $index }}" aria-expanded="false" aria-controls="collapse-{{ $index }}">
-                                                    {{ $program->p_name ?? 'Unnamed Program' }}
-                                                </button>
-                                            </h2>
-                                            <div id="collapse-{{ $index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ $index }}" data-bs-parent="#trainingAccordion">
-                                                <div class="accordion-body">
-                                                    <div class="training-row row mt-3">
-                                                        <div class="col-md-6">
-                                                            <label>Select Training</label>
-                                                            <select class="form-control training-dropdown" name="training[]" required>
-                                                                <option value="">Select a program</option>
-                                                                @foreach($allprograms as $programOption)
-                                                                    <option value="{{ $programOption->id }}" {{ $programOption->id == $program->program_id ? 'selected' : '' }}>
-                                                                        {{ $programOption->p_name }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
+                        @if ($allpermissions['teachers.update.training.access'])
+                        <fieldset>
+                            <legend>Trainings and Permissions</legend>
+                            
+                            <div id="trainingContainer">
+                                @if(!empty($user->trainings))
+                                <div class="accordion" id="trainingAccordion">
+                                    @foreach($user->trainings as $index => $program)
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="heading-{{ $index }}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ $index }}" aria-expanded="false" aria-controls="collapse-{{ $index }}">
+                                                {{ $program->p_name ?? 'Unnamed Program' }}
+                                            </button>
+                                        </h2>
+                                        <div id="collapse-{{ $index }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ $index }}" data-bs-parent="#trainingAccordion">
+                                            <div class="accordion-body">
+                                                <div class="training-row row mt-3">
+                                                    <div class="col-md-6">
+                                                        <label>Select Training</label>
+                                                        <select class="form-control training-dropdown" name="training[]" required>
+                                                            <option value="">Select a program</option>
+                                                            @foreach($allprograms as $programOption)
+                                                                <option value="{{ $programOption->id }}" {{ $programOption->id == $program->program_id ? 'selected' : '' }}>
+                                                                    {{ $programOption->p_name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
 
-                                                        <div class="col-md-12 mt-4">
-                                                            <!-- Permissions Section Title -->
-                                                            <label class="d-flex justify-content-between align-items-center mb-3">
-                                                                <span class="h5 mb-0">Permissions</span>
-                                                                <span>
-                                                                    <input type="checkbox" class="select-all-permissions" id="selectAll-{{ $program->program_id }}">
-                                                                    <label for="selectAll-{{ $program->program_id }}" class="mb-0 text-muted">Select All</label>
-                                                                </span>
-                                                            </label>
+                                                    <div class="col-md-12 mt-4">
+                                                        <!-- Permissions Section Title -->
+                                                        <label class="d-flex justify-content-between align-items-center mb-3">
+                                                            <span class="h5 mb-0">Permissions</span>
+                                                            <span>
+                                                                <input type="checkbox" class="select-all-permissions" id="selectAll-{{ $program->program_id }}">
+                                                                <label for="selectAll-{{ $program->program_id }}" class="mb-0 text-muted">Select All</label>
+                                                            </span>
+                                                        </label>
 
-                                                            @php
-                                                                $permissions = app('app\Http\Controllers\Controller')->adminTrainingPermissions();
-                                                                $programPermissions = $program->training_permissions;
-                                                            @endphp
+                                                        @php
+                                                            $permissions = app('app\Http\Controllers\Controller')->adminTrainingPermissions();
+                                                            $programPermissions = $program->training_permissions;
+                                                        @endphp
 
-                                                            <!-- Permissions Container -->
-                                                            <div class="row permissions-container border p-4 rounded2 shadow-sm bg-light">
-                                                                @foreach($permissions as $menu)
-                                                                    @if($menu['children'] && count($menu['children']) > 0)
-                                                                    <!-- Parent Group -->
-                                                                    <div class="col-md-12 mb-4">
-                                                                        <!-- Parent Name -->
-                                                                        <h5 class="text-primary">{{ $menu['name'] }}</h5>
-                                                                        <div class="row ml-3">
-                                                                            @foreach($menu['children'] as $children)
-                                                                                @php
-                                                                                    $checkboxId = "permission-{$program->program_id}-{$children['route']}";
-                                                                                @endphp
-                                                                                <!-- Child Permission Checkbox -->
-                                                                                <div class="col-md-3">
-                                                                                    <div class="form-check">
-                                                                                        <input class="form-check-input permission-checkbox" 
-                                                                                            type="checkbox" 
-                                                                                            name="training_permissions[{{ $program->program_id }}][]" 
-                                                                                            value="{{ $children['route'] }}"
-                                                                                            id="{{ $checkboxId }}"
-                                                                                            @if(in_array($children['route'], $programPermissions ?? [])) checked @endif>
-                                                                                        <label class="form-check-label" for="{{ $checkboxId }}">
-                                                                                            {{ $children['name'] }}
-                                                                                        </label>
-                                                                                    </div>
+                                                        <!-- Permissions Container -->
+                                                        <div class="row permissions-container border p-4 rounded2 shadow-sm bg-light">
+                                                            @foreach($permissions as $menu)
+                                                                @if($menu['children'] && count($menu['children']) > 0)
+                                                                <!-- Parent Group -->
+                                                                <div class="col-md-12 mb-4">
+                                                                    <!-- Parent Name -->
+                                                                    <h5 class="text-primary">{{ $menu['name'] }}</h5>
+                                                                    <div class="row ml-3">
+                                                                        @foreach($menu['children'] as $children)
+                                                                            @php
+                                                                                $checkboxId = "permission-{$program->program_id}-{$children['route']}";
+                                                                            @endphp
+                                                                            <!-- Child Permission Checkbox -->
+                                                                            <div class="col-md-3">
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input permission-checkbox" 
+                                                                                        type="checkbox" 
+                                                                                        name="training_permissions[{{ $program->program_id }}][]" 
+                                                                                        value="{{ $children['route'] }}"
+                                                                                        id="{{ $checkboxId }}"
+                                                                                        @if(in_array($children['route'], $programPermissions ?? [])) checked @endif>
+                                                                                    <label class="form-check-label" for="{{ $checkboxId }}">
+                                                                                        {{ $children['name'] }}
+                                                                                    </label>
                                                                                 </div>
-                                                                            @endforeach
-                                                                        </div>
+                                                                            </div>
+                                                                        @endforeach
                                                                     </div>
-                                                                    @endif
-                                                                @endforeach
-                                                            </div>
-
-                                                            <!-- Error Message for Validation -->
-                                                            <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
+                                                                </div>
+                                                                @endif
+                                                            @endforeach
                                                         </div>
 
-                                                        <div class="col-md-12 mt-2 text-end">
-                                                            <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
-                                                        </div>
+                                                        <!-- Error Message for Validation -->
+                                                        <span class="text-danger d-none permission-error">At least one permission must be selected.</span>
+                                                    </div>
+
+                                                    <div class="col-md-12 mt-2 text-end">
+                                                        <button type="button" class="btn btn-danger btn-sm removeRowButton">Remove</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        @endforeach
                                     </div>
-                                    @endif
+                                    @endforeach
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-12 text-end">
-                                        <button type="button" id="addRowButton" class="btn btn-success btn-sm">
-                                            <i class="fa fa-plus"></i> Add New Row
-                                        </button>
-                                    </div>
+                                @endif
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12 text-end">
+                                    <button type="button" id="addRowButton" class="btn btn-success btn-sm">
+                                        <i class="fa fa-plus"></i> Add New Row
+                                    </button>
                                 </div>
-                            </fieldset>
-                            @endif
+                            </div>
+                        </fieldset>
                         @endif
+
                         @if ($allpermissions['teachers.update'])
                         <div class="row">
                             <button type="submit" class="btn btn-primary w-100">Submit</button>

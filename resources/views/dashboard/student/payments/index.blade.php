@@ -47,7 +47,7 @@
                             <td>
                                 <strong>Training: </strong>{{ $details->p_name }} <br>
                                 <strong>Training Fee: </strong>{{ $details->p_amount }} <br>
-                                <strong>Amount Paid: </strong>{{ config('custom.default_currency') }}{{ $details->t_amount }} <br>
+                                <strong>Amount Paid: </strong>{{ config('custom.default_currency') }}{{ $details->amount }} <br>
                                 @if(!empty($details->paymenttype))
                                 <strong>Type: </strong>{{ $details->paymenttype }} <br>
                                 @endif

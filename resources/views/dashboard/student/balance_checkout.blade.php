@@ -1,6 +1,6 @@
 <?php 
     use App\Models\Settings;
-    $balance = app('App\Http\Controllers\WalletController')->getWalletBalance(auth()->user()->id);
+    $balance = app('App\Http\Controllers\WalletController')->getWalletBalance(resolveAuthUser()->id);
     $currency = Settings::value('DEFAULT_CURRENCY');
 ?>
 @extends('dashboard.student.trainingsindex')
@@ -44,9 +44,9 @@
             <form action="{{route('pay')}}" method="POST" enctype="multipart/form-data" class="pb-2">
                 <input type="hidden" name="type" value="balance">
                 <input type="hidden" name="user_program" value={{ $data->id }}>
-                <input type="hidden" name="email" value="{{ auth()->user()->email }}">
-                <input type="hidden" name="name" value="{{ auth()->user()->name }}">
-                <input type="hidden" name="phone" value="{{ auth()->user()->t_phone }}">
+                <input type="hidden" name="email" value="{{ resolveAuthUser()->email }}">
+                <input type="hidden" name="name" value="{{ resolveAuthUser()->name }}">
+                <input type="hidden" name="phone" value="{{ resolveAuthUser()->phone }}">
                 <input type="hidden" name="quantity" value="1">
                                
             {{ csrf_field() }}

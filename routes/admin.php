@@ -1,19 +1,13 @@
 <?php
 
-use App\Models\Transaction;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PopController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MockController;
-use App\Http\Controllers\TestsController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\UtilityTaskController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ResultController;
@@ -29,108 +23,57 @@ use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\PaymentModeController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
 
+Route::middleware(['admin.access'])->group(function () {
+    Route::get('/', [AdminController::class, 'showLoginForm'])->name('admin.login');
+    Route::get('/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/login', [AdminController::class, 'login'])->name('admin.login.post');
+    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+    
+    Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
+    Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
+    Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
+    
+    Route::middleware(['auth.admin', 'impersonate', 'permission'])->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.home');
+        Route::resource('users', UserController::class);
 
-Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
-Route::get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
-// Route::get('decode-materials', [MaterialController::class, 'decode']);
+        Route::resource('teachers', TeacherController::class);
+        Route::resource('companyuser', AdminCompanyUserController::class);
+        Route::resource('coupon', CouponController::class);
+        Route::get('teachers_students/{id}', [TeacherController::class, 'showStudents'])->name('teachers.students');
+        Route::get('teachers_programs/{id}', [TeacherController::class, 'showPrograms'])->name('teachers.programs');
+        Route::get('teachers_earnings/{id}', [TeacherController::class, 'showEarnings'])->name('teachers.earnings');
+    
 
-Route::get('/clear', function () {
-    Artisan::call('cache:clear');
-    Artisan::call('view:clear');
-    Artisan::call('config:clear');
-    echo "<p>Fully optimized.</p>";
-});
+        Route::resource('payment-modes', PaymentModeController::class);
+        Route::resource('paymentmethod', PaymentMethodController::class);
+        Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
+        Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
+        Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');
+    
 
-Route::get('/reset', [FrontendController::class, 'reset'])->name('reset');
-Route::get('/correcttransid', function () {
-    $transactions = Transaction::whereNull('transid')->get();
-    foreach ($transactions as $transaction) {
-        $transaction->update([
-            'transid' => $transaction->invoice_id,
-        ]);
-    }
-});
-
-Route::middleware(['web.access'])->group(function () {
-    Auth::routes();
-    
-    // Guest users
-    Route::middleware(['template'])->group(function () {
-        Route::controller(FrontendController::class)->group(function () {
-            Route::get('/', 'index')->name('welcome');
-            Route::get('/thankyou', 'thankyou')->name('thankyou');
-            Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
-            Route::get('/trainings/{id?}', 'show')->name('trainings');
-            Route::post('/get-mode-payment-types', 'getModePaymentTypes');
-        });
-    
-        Route::controller(PaymentController::class)->group(function () {
-            Route::post('/checkout', 'checkout')->name('checkout');
-            Route::post('/validate-coupon', 'validateCoupon');
-            Route::post('/pay', 'redirectToGateway')->name('pay');
-            Route::get('/payment/callback', 'handleGatewayCallback');
-        });
-    
-        // Upload proof of payment (POP)
-        Route::get('upload-proof-of-payment', [PopController::class, 'create'])->name('upload-proof-of-payment');
-        Route::get('/temp-destroy/{id}', [PopController::class, 'tempDestroy'])->name('temp.destroy');
-    });
-    
-    //Get Booking form Link
-    Route::get('bookingforms/{filename}', function($filename){
-        $realpath = base_path() . '/uploads'. '/' .$filename;
-        return $realpath;    
-    });
-    
-    Route::get('uploads/certificate_previews/{filename}', function ($filename) {
-        $realpath = base_path() . '/uploads' . '/' . $filename;
-        return $realpath;
-    });
+        //Send Mails
+        Route::get('usermail', [UserController::class, 'mails'])->name('users.mail');
+        Route::post('sendmail', [UserController::class, 'sendmail'])->name('user.sendmail');
     
     
-    Route::get('uploads/{filename}', function ($filename) {
-        $decodedFilename = base64_decode($filename);
-        $realpath = base_path('uploads') . '/' . $decodedFilename;
-    
-        if (!File::exists($realpath)) {
-            abort(404, 'File not found');
-        }
-    
-        $mimeType = File::mimeType($realpath);
-    
-        return response()->file($realpath, [
-            'Content-Type' => $mimeType
-        ]);
-    });
-    
-    Route::get('/thanks', function() {
-        return view('emails.thankyou');
-    })->name('thankyou');
-    
-    // Auth routes
-    // Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
-    // Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
-    // Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
-    
-    Route::middleware(['auth', 'impersonate','permission'])->group(function () {
-
         //Export Routes
-        Route::namespace('Admin')->middleware(['auth'])->group(function () {
+        Route::namespace('Admin')->group(function () {
             Route::get('export/users', [UserController::class, 'export'])->name('user.export');
             Route::get('export/participantdetails/{id}', [ProgramController::class, 'exportdetails'])->name('program.detailsexport');
             //Show email history
             Route::get('updateemails/{id}', [UserController::class, 'emailHistory'])->name('updateemails.show');
         });
-    
+
+        Route::resource('pop', PopController::class);
+        Route::get('/temp-destroy/{id}', [PopController::class, 'tempDestroy'])->name('temp.destroy');
         //View proofofpayment
         Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
     
         Route::resource('settings', SettingsController::class);
     
-        Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
-        Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
-        Route::get('/home', [HomeController::class, 'index'])->name('home2');
     
         Route::resource('tests', TestsController::class)->middleware(['programCheck']);
         Route::resource('mocks', MockController::class)->middleware(['programCheck']);
@@ -151,39 +94,34 @@ Route::middleware(['web.access'])->group(function () {
     
         Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['programCheck'])->name('training.instructor');
     
-        Route::get('mockresults', [MockController::class, 'mockresults'])->middleware(['auth'])->name('mocks.results');
+        Route::get('mockresults', [MockController::class, 'mockresults'])->name('mocks.results');
         Route::resource('profiles', ProfileController::class);
-        Route::resource('scoreSettings', ScoreSettingController::class)->middleware(['auth']);
+        Route::resource('scoreSettings', ScoreSettingController::class);
     
         Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
         Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
     
         Route::resource('complains', ComplainController::class);
-         
+    
         Route::get('crm-program-select/{p_id}', [ComplainController::class, 'getTrainingCrm'])->name('complain.program.select');
         Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
-       
-        Route::resource('users', UserController::class);
-        Route::resource('payment-modes', PaymentModeController::class);
-        Route::resource('paymentmethod', PaymentMethodController::class);
-        Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
-        Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
-        Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');
-        
-        // Route::resource('teachers', TeacherController::class);
-        // Route::resource('companyuser', AdminCompanyUserController::class);
-        // Route::resource('coupon', CouponController::class);
-        // Route::get('teachers_students/{id}', [TeacherController::class, 'showStudents'])->name('teachers.students');
-        // Route::get('teachers_programs/{id}', [TeacherController::class, 'showPrograms'])->name('teachers.programs');
-        // Route::get('teachers_earnings/{id}', [TeacherController::class, 'showEarnings'])->name('teachers.earnings');
     
-        Route::middleware(['programCheck'])->group(function(){
+        
+        Route::resource('teachers', TeacherController::class);
+        Route::resource('companyuser', AdminCompanyUserController::class);
+        
+        Route::resource('coupon', CouponController::class);
+        Route::get('teachers_students/{id}', [TeacherController::class, 'showStudents'])->name('teachers.students');
+        Route::get('teachers_programs/{id}', [TeacherController::class, 'showPrograms'])->name('teachers.programs');
+        Route::get('teachers_earnings/{id}', [TeacherController::class, 'showEarnings'])->name('teachers.earnings');
+    
+        Route::middleware(['programCheck'])->group(function () {
             Route::resource('results', ResultController::class);
     
             Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
             Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
             Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
-            
+    
             Route::get('user/{id}', [ResultController::class, 'add'])->name('results.add');
             // Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
             Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
@@ -191,12 +129,11 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
         });
     
-            // Programs Routes
+        // Programs Routes
     
-        Route::middleware(['signed'])->group(function (){
-    
+        Route::middleware(['signed'])->group(function () {
             Route::resource('programs', ProgramController::class);
-            
+    
             Route::controller(ProgramController::class)->group(function () {
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
                 Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
@@ -215,7 +152,7 @@ Route::middleware(['web.access'])->group(function () {
                 Route::get('download-bulk-user-sample/{filename}', 'downloadBulkSample')->middleware(['programCheck'])->name('user-bulk-sample');
             });
         });
-        
+    
         Route::controller(ProgramController::class)->group(function () {
             Route::get('trashed-programs', 'trashed')->name('programs.trashed');
         });
@@ -233,7 +170,7 @@ Route::middleware(['web.access'])->group(function () {
         });
     
         // Participants Routes
-        
+    
     
         // Modules Routes
         Route::resource('modules', ModuleController::class);
@@ -274,7 +211,7 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'certificateStatus')->name('certificate.status');
             Route::get('certificate-clear-duplicate/{program_id}', 'clearDuplicates')->name('certificate.clear.duplicates');
         });
-        
+    
         //route for payments history
         Route::resource('payments', AdminPaymentController::class);
     
@@ -283,7 +220,7 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('approve-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'approveWalletTransaction'])->name('approve.wallet.history');
         Route::get('delete-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'deleteWalletTransaction'])->name('delete.wallet.history');
         Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('payments.print');
-        
+    
         Route::resource('pictures', PictureController::class);
         Route::resource('details', DetailsController::class);
     

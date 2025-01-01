@@ -24,7 +24,7 @@
                                 <select name="type" id="type" class="form-control" required>
                                         <option value="email">Email</option>
                                         <option value="name">Name</option>
-                                    <option value="t_phone">Phone Number</option>
+                                    <option value="phone">Phone Number</option>
                                     
                                 </select>
                                 <div><small style="color:red">{{ $errors->first('type')}}</small></div>

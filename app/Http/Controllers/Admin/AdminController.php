@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Company;
+namespace App\Http\Controllers\Admin;
 
+use App\Models\Pop;
 use App\Models\User;
 use App\Models\Program;
+use App\Models\Material;
 use App\Models\Transaction;
-use App\Models\CompanyUser;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -18,7 +19,7 @@ use Rap2hpoutre\FastExcel\Facades\FastExcel;
 use App\Http\Controllers\Admin\ResultController;
 
 
-class CompanyUserController extends Controller
+class AdminController extends Controller
 {
     public function showLoginForm()
     {
@@ -27,18 +28,96 @@ class CompanyUserController extends Controller
 
     public function login(Request $request){
         $credentials = $request->only('email', 'password');
-
-        if (Auth::guard('company_user')->attempt($credentials)) {
-            $user = Auth::guard('company_user')->user();
-
+        
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $user = Auth::guard('admin')->user();
             $user->update(['last_login' => now()]);
-
-            return redirect()->route('company_user.dashboard');
+            
+            return redirect()->route('admin.home');
         }
-
+        
         return redirect()->back()->with('error', 'Invalid credentials');
     }
 
+    public function index(Request $request)
+    {
+        if (checkRoleHas(['Admin'])) {
+            $data = Program::all();
+
+            $programCount = Program::where('id', '<>', 1)->count();
+
+            //Get all students
+            $users = User::where('roles', 'Student')->get();
+            $userCount = $users->count();
+
+            //Get pending payments
+            $pending_payments = Pop::all()->count();
+
+            //Get Users owing
+            foreach ($users as $user) {
+                $users['userowing'] = Transaction::where('balance', '>', 0)->count();
+            }
+            if (isset($users['userowing']))
+            $userowing = ($users['userowing']);
+            else
+                $userowing = null;
+
+            $materialCount = Material::count();
+            $i = 0;
+
+            $requests = $request;
+
+            return view('dashboard.admin.dashboard', compact('programCount',  'requests', 'userowing', 'userCount', 'i', 'materialCount', 'pending_payments'));
+        }
+
+
+        if (checkRoleHas(['Facilitator', 'Grader'])) {
+            // $data = Program::all();
+            $user = resolveAuthUser();
+            $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
+
+            //get number of users and materials for this faciliator/grader
+            $user->programCount =  count($user_trainings);
+
+            $transactions = Transaction::where('facilitator_id', $user->id);
+            $user->students_count = $transactions->count();
+            $user->earnings = $transactions->sum('facilitator_earning');
+
+            $user->trainings->map(function ($q) {
+                $q->p_name = Program::whereId($q->program_id)->value('p_name');
+                $q->materials = Material::where('program_id', $q->program_id)->count();
+                $user['materials'] = $q->materials;
+                return $q;
+            });
+
+            $materialCount = $user->trainings->sum('materials');
+
+            $requests = $request;
+            $i = 1;
+
+            return view('dashboard.admin.dashboard', compact('requests',  'i', 'user', 'materialCount'));
+        }
+
+
+        if (checkRoleHas(['Student'])) {
+            //get enabled module Tests for this user
+            $thisusertransactions = Transaction::whereHas('program', function ($query) {
+                $query->where('program_lock', 0);
+            })->where('user_id', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
+            foreach ($thisusertransactions as $transactions) {
+                $transactions->modules = Module::where('program_id', $transactions->program_id)->where('status', 1)->count();
+                $transactions->materials = Material::where('program_id', $transactions->program_id)->count();
+                $transactions->p_name =  Program::where('id', $transactions->program_id)->value('p_name');
+                $transactions->p_id =  Program::where('id', $transactions->program_id)->value('id');
+            }
+
+            $account_balance = app('App\Http\Controllers\WalletController')->getWalletBalance(resolveAuthUser()->id);
+
+            $topup_programs = Program::where('allow_preferred_timing', 'yes')->where('p_end', '>', Carbon::now())->get();
+
+            return view('dashboard.student.dashboard', compact('thisusertransactions', 'account_balance', 'topup_programs'));
+        }
+    }
 
     public function dashboard()
     {
@@ -60,22 +139,14 @@ class CompanyUserController extends Controller
 
     public function logout()
     {
-        Auth::guard('company_user')->logout();
-        return redirect()->route('company_user.login');
+        if(request()->prefix__ == '/admin'){
+            Auth::guard('admin')->logout();
+            return redirect()->route('admin.login');
+        }else{
+            Auth::guard('company_user')->logout();
+            return redirect()->route('company_user.login');
+        }
     }
-
-    // public function index()
-    // {
-    //     $i = 1;
-
-    //     $users = CompanyUser::select('id', 'name', 'email', 'created_at', 'phone', 'permissions', 'status')
-    //         ->distinct()->with('trainings')
-    //         ->orderBy('created_at', 'DESC')->get();
-        
-    //     if(checkRoleHas(['Admin'])) {
-    //         return view('dashboard.admin.company.index', compact('users', 'i'));
-    //     }
-    // }
 
     public function participants(Request $request){
         $i = 1;

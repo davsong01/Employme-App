@@ -21,7 +21,7 @@ class CertificateController extends Controller
 {
     public function index(Request $request)
     {
-        $userid = Auth::user()->id;
+        $userid = resolveAuthUser()->id;
         $i = 1;
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
@@ -30,7 +30,7 @@ class CertificateController extends Controller
                 return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
 
             }else{
-                $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
+                $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->get();
                 if ($programs->count() > 0) {
                     foreach ($programs as $program) {
                         $program['id'] = $program->program_id;
@@ -46,12 +46,12 @@ class CertificateController extends Controller
         }
 
         if (checkRoleHas(['Student'])) {
-            $details = certificationStatus($request->p_id, auth()->user()->id);
+            $details = certificationStatus($request->p_id, resolveAuthUser()->id);
             $program = $details['program'] ?? collect([]);
 
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+                $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
                 }
@@ -65,7 +65,7 @@ class CertificateController extends Controller
                 }
             }
             
-            $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
+            $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
 
             if (!isset($certificate)) {
                 return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
@@ -257,7 +257,7 @@ class CertificateController extends Controller
 
         if (!empty($cron_task) && $cron_task == 'yes') {
             // Cron
-            $payload = $request->except('use_cron');
+            $payload = $request->except(['use_cron', 'prefix__']);
             $payload['program_id'] = $program_id;
 
             UtilityCronTask::updateOrcreate([

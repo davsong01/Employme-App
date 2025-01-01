@@ -19,7 +19,7 @@ class ProgramCheck
 
 
         if (checkRoleHas(['Student'])){
-            $programs = DB::table('program_user')->where('user_id', Auth::user()->id)->whereProgram_id($request->p_id)->first();
+            $programs = DB::table('program_user')->where('user_id', resolveAuthUser()->id)->whereProgram_id($request->p_id)->first();
             
             if (empty($programs)) {
                 return abort(404);
@@ -32,9 +32,9 @@ class ProgramCheck
                 return redirect(route('home'));
             }
 
-            if ($program->off_season && is_null(Auth::user()->facilitator_id) ) {
+            if ($program->off_season && is_null(resolveAuthUser()->facilitator_id) ) {
                 // Select instructor mode disabled for now
-                // $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', auth::user()->id)->first();
+                // $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
                 // dd($programs);
                 // $facilitator = !empty($instructor) ? User::find($instructor->facilitator_id) : null;
 

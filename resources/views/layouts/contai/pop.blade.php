@@ -70,7 +70,7 @@
                                     <p>Name<span>*</span></p>
                                      <input type="text" class="form-control" id="name" name="name" 
                                         @auth
-                                        value="{{ auth()->user()->name }}"  
+                                        value="{{ resolveAuthUser()->name }}"  
                                         placeholder="Full Name"
                                         @endauth
                                         @guest 
@@ -85,7 +85,7 @@
                                     <p>Email<span>*</span></p>
                                     <input type="email" id="email" name="email" 
                                         @auth
-                                        value="{{ auth()->user()->email }}"  
+                                        value="{{ resolveAuthUser()->email }}"  
                                         @endauth
                                         @guest 
                                         value="{{ session()->get('data')['email'] ?? old('email') }}" placeholder="Enter email"  
@@ -99,7 +99,7 @@
                                     <p>Phone<span>*</span></p>
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         @auth
-                                        value="{{ auth()->user()->t_phone }}"  
+                                        value="{{ resolveAuthUser()->phone }}"  
                                         
                                         @endauth
 

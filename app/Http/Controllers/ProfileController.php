@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Admin;
 use App\Models\Program;
 use App\Models\Material;
-use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -16,7 +17,7 @@ class ProfileController extends Controller
 {
     public function showFacilitator(Request $request)
     {
-        $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', auth::user()->id)->first();
+        $instructor = DB::table('program_user')->where('program_id', $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
         $facilitator = !empty($instructor) ? User::find($instructor->facilitator_id) : null;
 
         if (!$instructor || !$facilitator) {
@@ -35,10 +36,13 @@ class ProfileController extends Controller
 
     public function edit($id)
     {
-        $user = User::with('trainings')->whereId($id)->first();
-        if (checkRoleHas(['Admin']) && $id == Auth::user()->id) {
+        
+        if (checkRoleHas(['Admin']) && $id == resolveAuthUser()->id) {
+            $user = Admin::with('trainings')->whereId($id)->first();
+
             return view('dashboard.admin.profiles.edit', compact('user'));
         } else if(checkRoleHas(['Facilitator','Grader'])) {
+            $user = Admin::with('trainings')->whereId($id)->first();
 
             $other_details = DB::table('program_user')->where('facilitator_id', $user->id);
             $user->students_count = $other_details->count();
@@ -47,7 +51,7 @@ class ProfileController extends Controller
             $programs = FacilitatorTraining::count();
 
             //get number of users and materials for this faciliator/grader
-            $user = Auth::user();
+            $user = resolveAuthUser();
             $details = DB::table('facilitator_trainings')->where('user_id', $user->id);
             $user->programCount = $details->distinct()->count();
             $transactions = DB::table('program_user')->where('facilitator_id', $user->id);
@@ -55,7 +59,8 @@ class ProfileController extends Controller
             $user->earnings = $transactions->sum('facilitator_earning');
 
             return view('dashboard.admin.profiles.edit_facilitator', compact('programs', 'user'));
-        } elseif (checkRoleHas(['Student']) && $id == Auth::user()->id) {
+        } elseif (checkRoleHas(['Student']) && $id == resolveAuthUser()->id) {
+            $user = User::with('trainings')->whereId($id)->first();
 
             return view('dashboard.student.profiles.edit', compact('user'));
         }
@@ -64,22 +69,24 @@ class ProfileController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = auth()->user();
+        $user = resolveAuthUser();
 
         $user->name = $request->name;
-        $user->t_phone = $request->t_phone;
         $user->gender = $request->gender;
-        $user->job_title = $request->job_title;
-        $user->staffID = $request->staffID;
-
+        
         if(empty($user->email)){
             $user->email = $request->email;
         }
 
-        
-        if (checkRoleHas(['Facilitator', 'Grader'])) {
+        if (checkRoleHas(['Facilitator', 'Grader','Admin'])) {
             $user->off_season_availability = $request->off_season;
             $user->profile = $request->profile;
+            $user->phone = $request->phone;
+
+        }else{
+            $user->job_title = $request->job_title;
+            $user->staffID = $request->staffID;
+            $user->phone = $request->phone;
         }
 
         if (!empty($request->password)) {
@@ -102,7 +109,7 @@ class ProfileController extends Controller
     {
         return tap(request()->validate([
             'name' => 'required',
-            't_phone' => 'required | numeric | min:9',
+            'phone' => 'required | numeric | min:9',
             'gender' => 'required',
         ]), function () {
             if (request()->hasFile('profile_picture')) {
@@ -116,14 +123,14 @@ class ProfileController extends Controller
     public function saveFacilitator(Request $request)
     {
         // Check if user already has facilitator
-        if (auth()->user()->facilitator_id) {
+        if (resolveAuthUser()->facilitator_id) {
             return redirect(route('trainings.show', $request['program_id']))->with('error', 'You have already selected a facilitator');
         }
         // Update user with selected facilitator and update facilitator points
         $facilitator = User::find($request['facilitator_id']);
         $program = Program::find($request['program_id']);
 
-        auth()->user()->update(['facilitator_id' => $request['facilitator_id']]);
+        resolveAuthUser()->update(['facilitator_id' => $request['facilitator_id']]);
 
         $this->creditFacilitator($facilitator, $program);
 
@@ -143,9 +150,9 @@ class ProfileController extends Controller
             'type' => 'notify_facilitator',
             'name' => $facilitator->name,
             'email' => $facilitator->email,
-            'student_name' => auth()->user()->name,
-            'student_email' => auth()->user()->email,
-            'student_phone' => auth()->user()->t_phone,
+            'student_name' => resolveAuthUser()->name,
+            'student_email' => resolveAuthUser()->email,
+            'studenphone' => resolveAuthUser()->phone,
             'program_name' => $program->p_name,
             'date' => now(),
         ];

@@ -33,7 +33,7 @@ class CompanyUserControllerold extends Controller
 
     public function dashboard()
     {
-        $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
+        $programs = resolveAuthUser()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->get();
 

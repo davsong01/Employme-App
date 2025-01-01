@@ -88,7 +88,7 @@
         </div>
     </div>
     @endif
-    @if(auth()->user()->facilitator_id)
+    @if(resolveAuthUser()->facilitator_id)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -97,7 +97,7 @@
                     <div class="row pt-2">
                         <div class="col-md-2">
                             <div class="d-flex no-block align-items-center">
-                                <img src="{{ asset('profiles/'. auth()->user()->facilitator->profile_picture )}}" alt="{{ auth()->user()->facilitator->profile_picture }}" class="rounded-circle" width="150"
+                                <img src="{{ asset('profiles/'. resolveAuthUser()->facilitator->profile_picture )}}" alt="{{ resolveAuthUser()->facilitator->profile_picture }}" class="rounded-circle" width="150"
                                 height="150" style="margin: auto;">
                                
                             </div>
@@ -105,10 +105,10 @@
                         <div class="col-md-10">
                             <div>
                                
-                                    <b>Name: </b>{{ auth()->user()->facilitator->name }} <br>
-                                    <b>Email: </b>{{ auth()->user()->facilitator->email }} <br>
-                                    <b>Phone: </b>{{ auth()->user()->facilitator->t_phone }} <br>
-                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! auth()->user()->facilitator->profile !!}</span> 
+                                    <b>Name: </b>{{ resolveAuthUser()->facilitator->name }} <br>
+                                    <b>Email: </b>{{ resolveAuthUser()->facilitator->email }} <br>
+                                    <b>Phone: </b>{{ resolveAuthUser()->facilitator->phone }} <br>
+                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! resolveAuthUser()->facilitator->profile !!}</span> 
                                 
                             </div>
                         </div>

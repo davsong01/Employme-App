@@ -39,11 +39,11 @@ class MockController extends Controller
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
 
-            return view('dashboard.admin.mocks.selecttraining', compact('programs', 'i'));
+            return view('dashboard.admin.mocks.selecttraining', compact('trainings', 'i'));
         }
 
         else if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $user_trainings = auth()->user()->trainings()->pluck('program_id')->toArray();
+            $user_trainings = resolveAuthUser()->trainings()->pluck('program_id')->toArray();
             $trainings = Program::whereIn('id', $user_trainings)->whereHas('mocks', function ($query) {
                 return $query->orderby('created_at', 'DESC');
             })->orderby('created_at', 'DESC')->get();
@@ -60,7 +60,7 @@ class MockController extends Controller
     {
         if (checkRoleHas(['Student'])){
 
-            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
             $program = Program::find($request->p_id);
 
             if ($program->allow_payment_restrictions_for_pre_class_tests == 'yes') {
@@ -74,7 +74,7 @@ class MockController extends Controller
             $modules = Module::with('questions')->where('program_id', $request->p_id)->whereType(0)->get();
 
             foreach ($modules as $module) {
-                $module_check = Mocks::where('module_id', $module->id)->where('user_id', auth()->user()->id)->get();
+                $module_check = Mocks::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->get();
 
                 if ($module_check->count() > 0) {
                     $module['completed'] = 1;
@@ -141,7 +141,7 @@ class MockController extends Controller
 
         if (!empty($request->phone)) {
             $users = $users->whereHas('user', function ($query) use ($request) {
-                $query->where('t_phone', $request->phone);
+                $query->where('phone', $request->phone);
             });
         }
         
@@ -203,7 +203,7 @@ class MockController extends Controller
                 $user->name = $user->user->name;
                 $user->email = $user->user->email;
                 $user->staffID = $user->user->staffID;
-                $user->phone = $user->user->t_phone;
+                $user->phone = $user->user->phone;
                 $user->metadata = $user->user->metadata;
                 $user->gender = $user->user->gender;
 
@@ -325,13 +325,13 @@ class MockController extends Controller
     {
         $program = Program::find($request->p_id);
 
-        $class_test_details = $request->except(['_token', 'mod_id', 'id']);
+        $class_test_details = $request->except(['_token', 'mod_id', 'id', 'prefix__']);
 
         if (sizeof($class_test_details) < 2) {
             return back()->with('error', 'You must answer at least 1 question');
         };
 
-        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id']);
+        $certification_test_details = $request->except(['_token', 'mod_id', 'id', 'p_id', 'prefix__']);
 
         foreach ($certification_test_details as $key => $value) {
             if ((!isset($certification_test_details[$key]))) {
@@ -343,7 +343,7 @@ class MockController extends Controller
             };
         }
 
-        $check = Mocks::where('user_id', auth()->user()->id)->where('module_id', $request->mod_id)->count();
+        $check = Mocks::where('user_id', resolveAuthUser()->id)->where('module_id', $request->mod_id)->count();
 
         if ($check > 0) {
             return back()->with('error', 'You have already taken this test, Please click "Pre Class Tests" on the left navigation bar to take an available test!');
@@ -359,7 +359,7 @@ class MockController extends Controller
             try {
                 $results = Mocks::create([
                     'program_id' => $module->program->id,
-                    'user_id' => Auth::user()->id,
+                    'user_id' => resolveAuthUser()->id,
                     'module_id' => $module->id,
                     'certification_test_details' => json_encode($certification_test_details),
                 ]);
@@ -381,7 +381,7 @@ class MockController extends Controller
                 if ($module->type == 'Class Test') {
                     $results = Mocks::create([
                         'program_id' => $module->program->id,
-                        'user_id' => Auth::user()->id,
+                        'user_id' => resolveAuthUser()->id,
                         'module_id' => $module->id,
                         'class_test_score' => $score,
                         'class_test_details' =>  json_encode($class_test_details),
@@ -438,7 +438,7 @@ class MockController extends Controller
         try {
             
             if (checkRoleHas(['Facilitator'])) {
-                $marked_by = Auth::user()->name;
+                $marked_by = resolveAuthUser()->name;
                 $roleplayscore = $request->roleplayscore;
                 $grader = $mock->grader;
                 $email_test_score = $mock->email_test_score;
@@ -456,7 +456,7 @@ class MockController extends Controller
             if (checkRoleHas(['Grader'])) {
                 $marked_by = $mock->marked_by;
                 $roleplayscore = $mock->role_play_score;
-                $grader = Auth::user()->name;
+                $grader = resolveAuthUser()->name;
                 $email_test_score = $request->emailscore;
                 $certification_score = $request->certification_score;
             }

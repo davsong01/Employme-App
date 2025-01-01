@@ -1,5 +1,5 @@
 <?php 
-    $user =  Auth::user();
+    $user =  resolveAuthUser();
     $menus = $user->permissions();            
 
     $role = $user->role();
@@ -19,7 +19,7 @@
         <!-- Sidebar navigation-->
         <nav class="sidebar-nav">
             <ul id="sidebarnav" class="p-t-30">
-                @if((Auth::user()->isImpersonating()) )
+                @if((resolveAuthUser()->isImpersonating()) )
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         style="color:yellow !important; font-weight:bolder"
                         href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i
@@ -31,15 +31,15 @@
                 {{-- Grader and Facilitator Dashboard only --}}
                 {{-- @if(checkRoleHas(['Facilitator']))
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.students', auth()->user()->id) }}" aria-expanded="false"><i
+                            href="{{ route('teachers.students', resolveAuthUser()->id) }}" aria-expanded="false"><i
                                 class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>
 
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.programs', auth()->user()->id) }}" aria-expanded="false"><i
+                            href="{{ route('teachers.programs', resolveAuthUser()->id) }}" aria-expanded="false"><i
                                 class="fas fa-chalkboard-teacher"></i><span class="hide-menu">My Programs</span></a></li>
 
                     <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.earnings', auth()->user()->id) }}" aria-expanded="false"><i
+                            href="{{ route('teachers.earnings', resolveAuthUser()->id) }}" aria-expanded="false"><i
                                 class="fas fa-wallet"></i><span class="hide-menu">My Earnings</span></a></li>
                 @endif --}}
                 {{-- End grader and facilitator menu --}}
@@ -91,15 +91,15 @@
                     </a>
                     <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
                         <li class="sidebar-item">
-                            <a href="{{ route('profiles.edit', Auth::user()->id) }}" class="sidebar-link">
+                            <a href="{{ route('profiles.edit', resolveAuthUser()->id) }}" class="sidebar-link">
                                 <span class="hide-menu">- Account Settings</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-link">
+                            <a href="{{ route('admin.logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-link">
                                 <span class="hide-menu">- Logout</span>
                             </a>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                                 {{ csrf_field() }}
                             </form>
                         </li>

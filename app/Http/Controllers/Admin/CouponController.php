@@ -47,7 +47,7 @@ class CouponController extends Controller
                 // $programs = Program::mainActivePrograms()
                 ->get();
         } else  if(checkRoleHas(['Facilitator'])) {
-            $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
+            $programs = DB::table('facilitator_trainings')->where(['user_id' => resolveAuthUser()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
                 ->orderBy('facilitator_trainings.created_at')
@@ -106,7 +106,7 @@ class CouponController extends Controller
                         return back()->with('error', 'You cannot add coupon of more than ' . $maxAmt . ' for the selected training');
                     }
 
-                    $data['facilitator_id'] = Auth::user()->id;
+                    $data['facilitator_id'] = resolveAuthUser()->id;
                 } else {
                     $data['facilitator_id'] = 0;
                 }
@@ -151,7 +151,7 @@ class CouponController extends Controller
 
             $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
         } else  if(checkRoleHas(['Facilitator'])) {
-            $programs = DB::table('facilitator_trainings')->where(['user_id' => auth::user()->id, 'status' => 1])
+            $programs = DB::table('facilitator_trainings')->where(['user_id' => resolveAuthUser()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
                 ->orderBy('facilitator_trainings.created_at')
@@ -200,7 +200,7 @@ class CouponController extends Controller
                 return back()->with('error', 'You cannot add copon of more than ' . $maxAmt . ' for the selected training');
             }
 
-            $data['facilitator_id'] = Auth::user()->id;
+            $data['facilitator_id'] = resolveAuthUser()->id;
         } else {
             $data['facilitator_id'] = 0;
         }

@@ -27,7 +27,7 @@ class ModuleController extends Controller
             $questions_count = Question::all()->count();
             $programs_with_modules = Program::orderby('created_at', 'DESC')->get();
         }elseif (checkRoleHas(['Facilitator','Grader'])){
-            $user_trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+            $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
 
             $modules = Module::with(['program', 'questions'])
             ->orderBy('created_at', 'desc')

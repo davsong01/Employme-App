@@ -33,7 +33,7 @@
                             <label for="name"><strong>Name of Participant:</strong> {{ $transaction->name }}</label> <br>
                             <strong>Account Balance:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->user->account_balance) }} <br>
                             <strong>Bank:</strong> {{ $transaction->t_type }} <br>
-                            <strong>Paid:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->t_amount) }}
+                            <strong>Paid:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->amount) }}
                             
                             <br>
                             <strong>Balance:</strong> <span class="font-weight-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->balance) }}</span>

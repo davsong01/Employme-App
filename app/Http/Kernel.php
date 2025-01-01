@@ -62,7 +62,10 @@ class Kernel extends HttpKernel
         'template' => \App\Http\Middleware\TemplateCheck::class,
         'permission' => \App\Http\Middleware\MenuPermissions::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'auth.admin' => \App\Http\Middleware\AdminAuth::class,
+        'web.access' => \App\Http\Middleware\WebAccessMiddleware::class,
+        'admin.access' => \App\Http\Middleware\AdminAccessMiddleware::class,
+        'company.access' => \App\Http\Middleware\CompanyAccessMiddleware::class,
         //register custom middleware
-       
     ];
 }

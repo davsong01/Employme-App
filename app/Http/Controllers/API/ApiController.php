@@ -16,7 +16,7 @@ class ApiController extends Controller
     { 
         if($request->ref == md5('PASSWACSP_#12345')){
 
-            $users = User::with('program', 'certificate', 'results')->select('id','name', 'email', 'program_id', 'balance', 'created_at')->where('program_id', '<>', 3)->where('email', $request->email)->where('role_id', 'Student')->get();
+            $users = User::with('program', 'certificate', 'results')->select('id','name', 'email', 'program_id', 'balance', 'created_at')->where('program_id', '<>', 3)->where('email', $request->email)->where('roles', 'Student')->get();
         
             foreach($users as $user){
             
