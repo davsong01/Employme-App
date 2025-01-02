@@ -22,16 +22,16 @@
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">My Trainings</span></a></li>
                 @if($program->hasmock == 1)
-                    <li class="sidebar-item"><a href="{{ route('mocks.index', ['p_id' => $program->id])}}" class="sidebar-link"><i
+                    <li class="sidebar-item"><a href="{{ route('participants.mocks.index', ['p_id' => $program->id])}}" class="sidebar-link"><i
                         class="fa fa-chalkboard"></i><span class="hide-menu">Pre Class Tests</span></a>
                     </li>    
                 @endif
-                <li class="sidebar-item"><a href="{{ route('materials.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
+                <li class="sidebar-item"><a href="{{ route('participants.materials.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                     class="fas fa-download"></i><span class="hide-menu">My Study Materials
                 </span></a>
                 </li>
                 @if($program->hascrm == 1)
-                <li class="sidebar-item"><a href="{{ route('complains.index', ['p_id' => $program->id])}}" class="sidebar-link"><i
+                <li class="sidebar-item"><a href="{{ route('participants.complains.index', ['p_id' => $program->id])}}" class="sidebar-link"><i
                     class="fas fa-comments"></i><span class="hide-menu">CRM Tool</span></a>
                 </li>
                 @endif
@@ -40,7 +40,7 @@
                     class="fas fa-chalkboard-teacher"></i><span class="hide-menu">Program Instructor</span></a>
                 </li>
                 @endif
-                <li class="sidebar-item"><a href="{{ route('tests.index', ['p_id'=>$program->id])}}" class="sidebar-link"><i
+                <li class="sidebar-item"><a href="{{ route('participants.tests.index', ['p_id'=>$program->id])}}" class="sidebar-link"><i
                     class="fas fa-question"></i><span class="hide-menu">Post Class Tests</span></a>
                 </li>
                 <li class="sidebar-item"><a href="{{ route('tests.results', ['p_id' => $program->id])}}" class="sidebar-link"><i
@@ -48,7 +48,7 @@
                 </li>
                 
                 @if($program->hasresult == 1 )
-                <li class="sidebar-item"><a href="{{ route('results.show', ['result' => resolveAuthUser()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
+                <li class="sidebar-item"><a href="{{ route('participants.results.show', ['result' => resolveAuthUser()->id, 'p_id' => $program->id]) }}" class="sidebar-link"><i class="fas fa-star-half-alt"></i><span class="hide-menu">My Result
                         </span></a>
                 </li>
                 @endif

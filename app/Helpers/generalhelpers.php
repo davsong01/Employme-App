@@ -509,11 +509,15 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("resolveAuthUser")) {
         function resolveAuthUser()
         {
-            if (request()->prefix__ == '/admin') {
+            $currentRouteName = Route::currentRouteName();
+            $routes = ['impersonate', 'topimpersonating'];
+
+            if (request()->prefix__ == '/admin' || in_array($currentRouteName, $routes)) {
                 $user = $user ?? Auth::guard('admin')->user();
             } else {
                 $user = $user ?? Auth::user();
             }
+
             return $user;
         }
     }

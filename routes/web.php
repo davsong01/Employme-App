@@ -109,26 +109,30 @@ Route::middleware(['web.access'])->group(function () {
     })->name('thankyou');
     
     // Auth routes
-    // Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
-    // Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
-    // Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
+    Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
+    Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
+    Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
     
     Route::middleware(['auth', 'impersonate','permission'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
         Route::get('/home', [HomeController::class, 'index'])->name('home2');
     
-        Route::resource('tests', TestsController::class)->middleware(['programCheck']);
-        Route::resource('mocks', MockController::class)->middleware(['programCheck']);
-    
+        Route::get('tests', [TestsController::class, 'index'])->middleware(['programCheck'])->name('participants.tests.index');
+        Route::post('tests', [TestsController::class, 'store'])->middleware(['programCheck'])->name('participants.tests.store');
+        
+        Route::get('mocks', [MockController::class, 'index'])->middleware(['programCheck'])->name('participants.mocks.index');
+        Route::get('mocks/{mock}', [MockController::class, 'show'])->middleware(['programCheck'])->name('participants.mocks.show');
+        Route::post('mocks', [MockController::class, 'store'])->middleware(['programCheck'])->name('participants.mocks.store');
+        
         Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('participant.trainings.show')->middleware(['programCheck']);
         Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet');
         Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
         Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
     
-        Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
-        Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
-        Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
+        // Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
+        // Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
+        // Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
         Route::get('userresults', [TestsController::class, 'userresults'])->middleware(['programCheck'])->name('tests.results');
         Route::get('retake-test/{module}', [TestsController::class, 'retakeTest'])->middleware(['programCheck'])->name('user.retake.module.test');
     
@@ -144,7 +148,7 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
         Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
     
-        Route::resource('complains', ComplainController::class);
+        Route::get('complains', [ComplainController::class, 'index'])->name('participants.complains.index');
         
         Route::get('crm-program-select/{p_id}', [ComplainController::class, 'getTrainingCrm'])->name('complain.program.select');
         Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
@@ -157,8 +161,9 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');
         
         Route::middleware(['programCheck'])->group(function(){
-            Route::resource('results', ResultController::class);
-    
+            // Route::resource('results', ResultController::class);
+            Route::get('participants-results-show/{result}', [ResultController::class,'show'])->name('participants.results.show');
+            
             Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
             Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
             Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
@@ -172,16 +177,19 @@ Route::middleware(['web.access'])->group(function () {
 
         
         Route::middleware(['programCheck'])->group(function () {
-            Route::resource('materials', MaterialController::class);
+            Route::get('materials', [MaterialController::class, 'index'])->name('participants.materials.index');
     
             Route::controller(MaterialController::class)->group(function () {
-                Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('getmaterial');
+                Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('participants.getmaterial');
                 Route::get('program-material/{training}', 'getTrainingMaterials')->name('material.program.select');
             });
         });
-    
+        
         Route::controller(CertificateController::class)->group(function () {
             Route::get('certificates', 'index')->name('certificates.index');
         });
+
+        Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('participants.payments.print');
+
     });
 });

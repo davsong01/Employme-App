@@ -6,6 +6,7 @@ use Closure;
 use session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class Impersonate
 {

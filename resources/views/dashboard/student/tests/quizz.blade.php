@@ -17,7 +17,7 @@
                 Select the correct answer
             </p>
             <form name="quiz" id="quiz_form"
-                action="{{ route('tests.store', ['p_id' => $program->id]) }}"
+                action="{{ route('participants.tests.store', ['p_id' => $program->id]) }}"
                 method="POST" class="pb-2">
                 {{ csrf_field() }}
                 @foreach($questions as $question)
