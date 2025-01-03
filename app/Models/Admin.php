@@ -73,13 +73,15 @@ class Admin extends Authenticatable
 
     public function setImpersonating($id)
     {
-        Session::put('impersonate', $id);
+        // Session::put('impersonate', $id);
+        Session::put('impersonate_admin', $id);
     }
 
     public function stopImpersonating()
     {
         if (session()->has('impersonate_o')) {
-            Session::forget('impersonate');
+            // Session::forget('impersonate');
+            Session::forget('impersonate_admin');
             Auth::guard('admin')->logout($this);
             Auth::guard('admin')->loginUsingId(session()->get('impersonate_o'));
         }
@@ -87,7 +89,7 @@ class Admin extends Authenticatable
 
     public function isImpersonating()
     {
-        return Session::has('impersonate');
+        return Session::has('impersonate_admin');
     }
 
 
