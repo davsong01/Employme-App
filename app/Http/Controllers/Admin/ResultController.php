@@ -62,7 +62,7 @@ class ResultController extends Controller
                 $query->where('program_id', $request->p_id);
             }]);
             
-        
+       
         if (!empty($request->status)) {
             if ($request->status == 'yes') {
                 $users = $users->has('results');
@@ -134,7 +134,7 @@ class ResultController extends Controller
                 } else {
                     $data = $request->columns;
                 }
-
+                
                 $finalBuild = buildResultExport($users, $data, $score_settings);
                 return (new FastExcel($finalBuild))->download('Post-test Report for ' . $program->p_name . '.xlsx');
             }
@@ -144,7 +144,7 @@ class ResultController extends Controller
             $title = '<b>Post Test Results for: </b>' . $program->p_name;
             
             if ($internal) {
-                return view('dashboard.company.pretests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
+                return view('dashboard.company.posttests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
             }
 
             return view('dashboard.admin.results.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));

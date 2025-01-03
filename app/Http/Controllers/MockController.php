@@ -275,7 +275,7 @@ class MockController extends Controller
             $title = '<b>Pre Test Results for: </b>'.$program->p_name;
 
             if ($internal) {
-                return view('dashboard.company.pretests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
+                return view('dashboard.company.posttests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
             }
 
             return view('dashboard.admin.results.index', compact('users', 'i', 'program','records', 'score_settings','page','title'));
