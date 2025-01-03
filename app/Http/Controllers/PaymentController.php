@@ -265,7 +265,7 @@ class PaymentController extends Controller
                 $data = $request->all();
                 
                 \Session::put('data', $data);
-                return redirect('pop/create');
+                return redirect(route('upload-proof-of-payment'));
                 
             }
 
