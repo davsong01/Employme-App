@@ -121,9 +121,6 @@ Route::middleware(['web.access'])->group(function () {
         Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
         Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
     
-        // Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
-        // Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
-        // Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
         Route::get('userresults', [TestsController::class, 'userresults'])->middleware(['programCheck'])->name('tests.results');
         Route::get('retake-test/{module}', [TestsController::class, 'retakeTest'])->middleware(['programCheck'])->name('user.retake.module.test');
     
@@ -153,7 +150,6 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');
         
         Route::middleware(['programCheck'])->group(function(){
-            // Route::resource('results', ResultController::class);
             Route::get('participants-results-show/{result}', [ResultController::class,'show'])->name('participants.results.show');
             
             Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
@@ -161,7 +157,6 @@ Route::middleware(['web.access'])->group(function () {
             Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
             
             Route::get('user/{id}', [ResultController::class, 'add'])->name('results.add');
-            // Route::get('user/{uid?}/{pid?}', [ResultController::class, 'add'])->name('results.add');
             Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
             Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
             Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');

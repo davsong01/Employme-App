@@ -5,8 +5,10 @@
 @section('pagetitle')
 @if(request()->prefix__ == '/admin')
 Admin Login
-@else
+@elseif(request()->prefix__ == '/company')
 Company Admin Login
+@else
+Login
 @endif
 @endsection
 @section('content')
@@ -21,15 +23,18 @@ Company Admin Login
             <h4>
                 @if(request()->prefix__ == '/admin')
                 Admin Login
-                @else
+                @elseif(request()->prefix__ == '/company')
                 Company Admin Login
+                @else
+                Login
                 @endif
             </h4>
             @if(request()->prefix__ == '/admin')
             <form action="{{ route('admin.login.post') }}" method="POST" enctype="multipart/form-data">
-            @else
-            Company Admin Login
+            @elseif(request()->prefix__ == '/company')
             <form action="{{ route('company_user.login.post') }}" method="POST" enctype="multipart/form-data">
+            @else
+            <form action="{{ route('login') }}" method="POST" enctype="multipart/form-data">
             @endif
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">

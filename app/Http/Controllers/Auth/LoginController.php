@@ -50,6 +50,11 @@ class LoginController extends Controller
         return $fieldType;
     }
 
+    // public function showLoginForm()
+    // {
+    //     return view('company_users.login');
+    // }
+
     protected function attemptLogin(Request $request)
     {
         $username = $request->input('login');

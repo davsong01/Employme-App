@@ -16,6 +16,7 @@ class CompanyUserMiddleware
      */
     public function handle($request, Closure $next)
     {
+        
         if (!Auth::guard('company_user')->check()) {
             return redirect()->route('company_users.login');
         }
