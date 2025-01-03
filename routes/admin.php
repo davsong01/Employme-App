@@ -30,12 +30,12 @@ Route::middleware(['admin.access'])->group(function () {
     Route::get('/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/login', [AdminController::class, 'login'])->name('admin.login.post');
     Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+
+    Route::get('impersonate-staff/{id}', [ImpersonateController::class, 'indexStaff'])->name('admin.impersonate')->middleware('impersonate.admin');
+    Route::get('stopimpersonating-staff', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.admin');
     
-    // Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
-    // Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
-    // Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
-    
-    Route::middleware(['auth.admin', 'impersonate', 'permission'])->group(function () {
+
+    Route::middleware(['auth.admin', 'impersonate.admin', 'permission'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.home');
         Route::resource('users', UserController::class);
 
@@ -78,17 +78,17 @@ Route::middleware(['admin.access'])->group(function () {
         Route::resource('tests', TestsController::class)->middleware(['programCheck']);
         Route::resource('mocks', MockController::class)->middleware(['programCheck']);
     
-        Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('trainings.show')->middleware(['programCheck']);
-        Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet');
-        Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
-        Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
+        // Route::get('/training/{p_id}', [HomeController::class, 'trainings'])->name('trainings.show')->middleware(['programCheck']);
+        // Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet');
+        // Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
+        // Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
     
         Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
         Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
         Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
-       
+        
         Route::get('userresultscomments/{id}', [TestsController::class, 'userResultComments'])->middleware(['programCheck'])->name('tests.results.comment');
-        Route::get('balance-checkout', [HomeController::class, 'balanceCheckout'])->name('balance.checkout')->middleware(['programCheck']);
+        // Route::get('balance-checkout', [HomeController::class, 'balanceCheckout'])->name('balance.checkout')->middleware(['programCheck']);
     
         Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['programCheck'])->name('training.instructor');
     

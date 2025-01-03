@@ -10,25 +10,17 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\UtilityTaskController;
-use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\ScoreSettingController;
-use App\Http\Controllers\Admin\DetailsController;
-use App\Http\Controllers\Admin\PictureController;
-use App\Http\Controllers\Admin\ProgramController;
-use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\ComplainController;
-use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MaterialController;
-use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\PaymentModeController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+
 
 
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
@@ -111,9 +103,8 @@ Route::middleware(['web.access'])->group(function () {
     // Auth routes
     Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
     Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
-    Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
     
-    Route::middleware(['auth', 'impersonate','permission'])->group(function () {
+    Route::middleware(['auth', 'impersonate'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
         Route::get('/home', [HomeController::class, 'index'])->name('home2');
@@ -142,7 +133,8 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['programCheck'])->name('training.instructor');
     
         Route::get('mockresults', [MockController::class, 'mockresults'])->middleware(['auth'])->name('mocks.results');
-        Route::resource('profiles', ProfileController::class);
+        Route::get('participant-profile/edit/{id}', [ProfileController::class, 'edit'])->name('participants.profiles.edit');
+        Route::patch('participant-profile/edit/{id}', [ProfileController::class, 'update'])->name('participants.profiles.update');
         Route::resource('scoreSettings', ScoreSettingController::class)->middleware(['auth']);
     
         Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
@@ -186,10 +178,10 @@ Route::middleware(['web.access'])->group(function () {
         });
         
         Route::controller(CertificateController::class)->group(function () {
-            Route::get('certificates', 'index')->name('certificates.index');
+            Route::get('participant-certificates', 'index')->name('participants.certificates.index');
         });
 
         Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('participants.payments.print');
-
+        Route::get('payments', [AdminPaymentController::class, 'index'])->name('participants.payments.index');
     });
 });

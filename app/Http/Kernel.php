@@ -58,6 +58,7 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'impersonate' => \App\Http\Middleware\Impersonate::class,
+        'impersonate.admin' => \App\Http\Middleware\ImpersonateAdmin::class,
         'programCheck' => \App\Http\Middleware\ProgramCheck::class,
         'template' => \App\Http\Middleware\TemplateCheck::class,
         'permission' => \App\Http\Middleware\MenuPermissions::class,

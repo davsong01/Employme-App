@@ -48,7 +48,7 @@ class CertificateController extends Controller
         if (checkRoleHas(['Student'])) {
             $details = certificationStatus($request->p_id, resolveAuthUser()->id);
             $program = $details['program'] ?? collect([]);
-
+            
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
                 $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();

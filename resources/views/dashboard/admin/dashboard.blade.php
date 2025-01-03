@@ -7,6 +7,7 @@
     <!-- Start Page Content -->
     <!-- ============================================================== -->
     @include('layouts.partials.alerts')
+
     @if(checkRoleHas(['Admin'])) 
         <div class="row">
             <!-- Column -->
@@ -110,8 +111,8 @@
                 </div>
                 </a>
             </div>
-             <div class="col-md-3 col-lg-3">
-                <a href="{{ route('teachers.programs', resolveAuthUser()->id) }}"">
+            <div class="col-md-3 col-lg-3">
+                <a href="{{ route('programs.index', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
                     <div class="box bg-primary text-center">
                         <h1 class="font-light text-white"><i class="fa fa-link"></i></h1>
@@ -154,5 +155,18 @@
         <!-- Column -->
         
     </div>
+ 
+    {{-- <div class="row">
+        <div class="card">
+            <div class="card-title"><h2 style="text-align: center;; color:green">All {{config('app.name')}} Training Schedules<hr></h2></div>
+            <div class="card-body">
+                    {!! $calendar->calendar() !!}
+                    {!! $calendar->script() !!}
+            </div>
+        </div>
+    </div> --}}
 </div>
+    <!-- BEGIN MODAL -->
+
+
 @endsection

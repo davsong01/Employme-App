@@ -28,7 +28,8 @@ class AdminController extends Controller
 
     public function login(Request $request){
         $credentials = $request->only('email', 'password');
-        
+        session()->flush();
+
         if (Auth::guard('admin')->attempt($credentials)) {
             $user = Auth::guard('admin')->user();
             $user->update(['last_login' => now()]);
@@ -75,7 +76,7 @@ class AdminController extends Controller
             // $data = Program::all();
             $user = resolveAuthUser();
             $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
-
+            
             //get number of users and materials for this faciliator/grader
             $user->programCount =  count($user_trainings);
 

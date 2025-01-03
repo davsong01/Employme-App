@@ -104,10 +104,10 @@ class User extends Authenticatable
     //     return $students;
     // }
 
-    // public function trainings()
-    // {
-    //     return $this->hasMany(FacilitatorTraining::class, 'user_id');
-    // }
+    public function trainings()
+    {
+        return $this->hasMany(FacilitatorTraining::class, 'user_id');
+    }
 
     // public function payment_modes(){
     //     return $this->belongsTo(PaymentMode::class, 'payment_mode');

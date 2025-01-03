@@ -28,8 +28,7 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $i = 1;
-
-        if (canUserAccessPermission(['payments.index'])) {
+        if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
             $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
             
             $i = 1;

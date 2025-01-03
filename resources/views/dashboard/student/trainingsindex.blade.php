@@ -17,7 +17,7 @@
                 @endif
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"  style="color:yellow !important; font-weight:bolder"
                         href="{{ url('/') }}" aria-expanded="false"><i class="fa fa-home"></i><span
-                            class="hide-menu">All Trainings</span></a></li>
+                            class="hide-menu">Home</span></a></li>
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                             class="hide-menu">My Trainings</span></a></li>
@@ -62,7 +62,7 @@
                     $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
                 @endphp
                 @if($show_certificate == 1 )
-                <li class="sidebar-item"><a href="{{ route('certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
+                <li class="sidebar-item"><a href="{{ route('participants.certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                             class="fas fa-certificate"></i><span class="hide-menu">My Certificate
                     </span></a>
                 </li>
@@ -79,6 +79,30 @@
                     </li>
                     @endif
                 @endif
+
+                <li class="sidebar-item">
+                    <a class="sidebar-link has-arrow waves-effect waves-dark"
+                    href="javascript:void(0)"
+                    aria-expanded="false">
+                        <i class="fa fa-cog"></i>
+                        <span class="hide-menu">Self Service</span>
+                    </a>
+                    <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
+                        <li class="sidebar-item">
+                            <a href="{{ route('participants.profiles.edit', resolveAuthUser()->id) }}" class="sidebar-link">
+                                <span class="hide-menu">- Account Settings</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-link">
+                                <span class="hide-menu">- Logout</span>
+                            </a>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                {{ csrf_field() }}
+                            </form>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </nav>
     </div>

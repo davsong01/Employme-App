@@ -19,7 +19,6 @@ use Intervention\Image\Facades\Image;
             
             try {
                 if($result->count() > 0){
-
                     //code...
                     $class = $email = $roleplay = $crm = $certification = 0;
         
@@ -30,7 +29,6 @@ use Intervention\Image\Facades\Image;
                         ->where('computation_status', 1)
                         ->get();
         
-                    
                     if (empty($program->scoresettings) || $modules->count() < 1) {
                         return [
                             'program' => $program,
@@ -99,6 +97,10 @@ use Intervention\Image\Facades\Image;
 
                     // Extras for comparison with the new
                     return $details;
+                }else{
+                    return [
+                        'program' => $program,
+                    ];
                 }
             } catch (\Throwable $th) {
                 dd($th->getMessage(),$th->getLine());
@@ -500,6 +502,7 @@ use Intervention\Image\Facades\Image;
         function checkRoleHas($roles_to_check, $user=null)
         {
             $user = $user ?? resolveAuthUser();
+            
             $user_roles = $user->role();
             
             return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
@@ -511,7 +514,7 @@ use Intervention\Image\Facades\Image;
         {
             $currentRouteName = Route::currentRouteName();
             $routes = ['impersonate', 'topimpersonating'];
-
+            
             if (request()->prefix__ == '/admin' || in_array($currentRouteName, $routes)) {
                 $user = $user ?? Auth::guard('admin')->user();
             } else {

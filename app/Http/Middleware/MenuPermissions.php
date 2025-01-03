@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
@@ -23,12 +24,16 @@ class MenuPermissions
     {
 
         $currentRouteName = Route::currentRouteName();
-        
         // Get the authenticated or impersonated user
-
-        $user = session()->get('impersonate')
-            ? User::find(session()->get('impersonate'))
-            : resolveAuthUser();
+        if(session()->get('impersonate')){
+            if(request()->prefix__ == '/admin'){
+                $user = Admin::find(session()->get('impersonate'));
+            }else{
+                $user = User::find(session()->get('impersonate'));
+            }
+        }else{
+            $user = resolveAuthUser();
+        }
         
         if (!$user) {
             return redirect(route('login'))->with('danger', 'Please log in to continue.');
@@ -63,6 +68,7 @@ class MenuPermissions
                     if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])[$currentRouteName]) {
                         return $next($request);
                     }
+                    
                     return redirect(route('home'))->with('danger', 'Unauthorized access to program.');
                 }
             }

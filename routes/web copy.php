@@ -111,7 +111,7 @@ Route::middleware(['web.access'])->group(function () {
     // Auth routes
     // Route::get('/impersonate/{id}', [ImpersonateController::class, 'index'])->name('impersonate')->middleware('impersonate');
     // Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
-    // Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.facilitator');
+    // Route::get('/stopimpersonatingfacilitator', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.admin');
     
     Route::middleware(['auth', 'impersonate','permission'])->group(function () {
 

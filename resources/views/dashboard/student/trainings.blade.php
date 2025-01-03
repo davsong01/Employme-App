@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('payments.index') }}">
+            <a href="{{ route('participants.payments.index') }}">
                 <div class="card card-hover">
                     <div
                         class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
@@ -27,7 +27,7 @@
             </a>
         </div>
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('materials.index', ['p_id'=> $program->id]) }}">
+            <a href="{{ route('participants.materials.index', ['p_id'=> $program->id]) }}">
                 <div class="card card-hover">
                     <div class="box bg-info text-center">
                         <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
@@ -39,7 +39,7 @@
         </div>
         @if($program->hasmock == 1)
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('mocks.index', ['p_id' => $program->id])}}">
+            <a href="{{ route('participants.mocks.index', ['p_id' => $program->id])}}">
                 <div class="card card-hover">
                     <div class="box bg-warning text-center">
                         <h1 class="font-light text-white"><i class="fa fa-chalkboard"></i></h1>
@@ -51,7 +51,7 @@
         </div>
         @endif
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('tests.index', ['p_id'=>$program->id])}}">
+            <a href="{{ route('participants.tests.index', ['p_id'=>$program->id])}}">
                 <div class="card card-hover">
                     <div class="box bg-success text-center">
                         <h1 class="font-light text-white"><i class="fas fa-question"></i></h1>

@@ -70,7 +70,7 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $user = resolveAuthUser();
-
+        
         $user->name = $request->name;
         $user->gender = $request->gender;
         
@@ -99,7 +99,7 @@ class ProfileController extends Controller
             $imgName = $this->uploadImage($request->image, 'avatars', 100, 100);
             $user->profile_picture = $imgName;
         }
-
+        
         $user->save();
 
         return back()->with('message', 'Profile update successful');

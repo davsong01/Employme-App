@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\PaymentMode;
 use App\Models\CompanyUserTraining;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -77,7 +78,11 @@ class Admin extends Authenticatable
 
     public function stopImpersonating()
     {
-        Session::forget('impersonate');
+        if (session()->has('impersonate_o')) {
+            Session::forget('impersonate');
+            Auth::guard('admin')->logout($this);
+            Auth::guard('admin')->loginUsingId(session()->get('impersonate_o'));
+        }
     }
 
     public function isImpersonating()

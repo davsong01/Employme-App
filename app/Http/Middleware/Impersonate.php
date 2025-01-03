@@ -6,7 +6,6 @@ use Closure;
 use session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class Impersonate
 {
@@ -15,7 +14,7 @@ class Impersonate
      */
     public function handle($request, Closure $next)
     {
-        if (checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin','Facilitator','Grader'])) {
             if ($request->session()->has('impersonate')) {
                 Auth::onceUsingId($request->session()->get('impersonate'));
             }

@@ -22,27 +22,13 @@
                 @if((resolveAuthUser()->isImpersonating()) )
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
                         style="color:yellow !important; font-weight:bolder"
-                        href="{{ route('stop.impersonate.facilitator') }}" aria-expanded="false"><i
+                        href="{{ route('stop.impersonate.admin') }}" aria-expanded="false"><i
                             class="fa fa-arrow-left"></i><span class="hide-menu">BACK TO ADMIN</span></a></li>
                 @endif
                 <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ url('dashboard') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
-                                class="hide-menu">Dashboard</span></a></li>
-                {{-- Grader and Facilitator Dashboard only --}}
-                {{-- @if(checkRoleHas(['Facilitator']))
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.students', resolveAuthUser()->id) }}" aria-expanded="false"><i
-                                class="fa fa-users"></i><span class="hide-menu">My Students</span></a></li>
-
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.programs', resolveAuthUser()->id) }}" aria-expanded="false"><i
-                                class="fas fa-chalkboard-teacher"></i><span class="hide-menu">My Programs</span></a></li>
-
-                    <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                            href="{{ route('teachers.earnings', resolveAuthUser()->id) }}" aria-expanded="false"><i
-                                class="fas fa-wallet"></i><span class="hide-menu">My Earnings</span></a></li>
-                @endif --}}
-                {{-- End grader and facilitator menu --}}
+                            href="{{ route('admin.home') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
+                                class="hide-menu">Dashboard</span></a>
+                </li>
                 @foreach($allmenus as $allmenu)
                     {{-- Without children --}}
                     @if(empty($allmenu['children']))
