@@ -210,7 +210,7 @@ class Controller extends BaseController
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){
         $user->programs()->attach($program_id, [
             'created_at' =>  date("Y-m-d H:i:s"),
-            't_amount' => $amount,
+            'amount' => $amount,
             't_type' => $t_type,
             't_location' => $location,
             'transid' => $transid,
@@ -584,7 +584,7 @@ class Controller extends BaseController
             // Attach program
             $user->programs()->attach( $data['program_id'], [
                 'created_at' =>  date("Y-m-d H:i:s"),
-                't_amount' => $data['amount'], 
+                'amount' => $data['amount'], 
                 't_type' => $data['t_type'], 
                 't_location' => $data['location'], 
                 'training_mode' => $data['training_mode'],
@@ -1853,7 +1853,7 @@ class Controller extends BaseController
         if (isset($allDetails['existingTransaction'])) {
             $existingTransaction = DB::table('program_user')->where('id', $allDetails['existingTransaction']->id)
                 ->update([
-                    't_amount' => $allDetails['amount'],
+                    'amount' => $allDetails['amount'],
                     't_type' => $allDetails['t_type'],
                     't_location' => $allDetails['location'],
                     'paymentStatus' => $allDetails['paymentStatus'],
@@ -1873,7 +1873,7 @@ class Controller extends BaseController
         } else {
 
             $programUser = $user->programs()->attach($allDetails['program_id'], [
-                't_amount' => $allDetails['amount'],
+                'amount' => $allDetails['amount'],
                 't_type' => $allDetails['t_type'],
                 't_location' => $allDetails['location'],
                 'paymentStatus' => $allDetails['paymentStatus'],

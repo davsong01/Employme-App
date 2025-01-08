@@ -84,7 +84,7 @@ class TeacherController extends Controller
         $earnings = DB::table('program_user')->where('facilitator_id', $id)->where('facilitator_earning', '>', 0)
             ->join('users', 'users.id', '=', 'program_user.user_id')
             ->join('programs', 'programs.id', '=', 'program_user.program_id')
-            ->select('p_name', 'name', 'program_user.id', 'program_user.facilitator_id', 'currency', 'paymenttype', 't_amount', 'invoice_id', 'p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code', 'facilitator_earning', 'profile_picture', 'program_user.created_at', 'currency_symbol')
+            ->select('p_name', 'name', 'program_user.id', 'program_user.facilitator_id', 'currency', 'paymenttype', 'amount', 'invoice_id', 'p_abbr', 'coupon_amount', 'coupon_id', 'coupon_code', 'facilitator_earning', 'profile_picture', 'program_user.created_at', 'currency_symbol')
             ->orderBy('program_user.created_at')
             ->get();
 

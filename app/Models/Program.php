@@ -36,7 +36,7 @@ class Program extends Model
     }
 
     public function users(){
-        return $this->belongsToMany(User::class)->withPivot('t_amount', 'invoice_id', 'balance', 'transid');
+        return $this->belongsToMany(User::class)->withPivot('amount', 'invoice_id', 'balance', 'transid');
     }
 
     //Create relationship between this model and the materials model

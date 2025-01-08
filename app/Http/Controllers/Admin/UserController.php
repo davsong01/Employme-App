@@ -306,7 +306,7 @@ class UserController extends Controller
 
             $user->programs()->attach($request->training, [
                 'created_at' =>  date("Y-m-d H:i:s"),
-                't_amount' => $data['amount'],
+                'amount' => $data['amount'],
                 't_type' => $data['bank'],
                 't_location' => $data['location'],
                 'transid' => $data['transaction_id'],
@@ -342,7 +342,7 @@ class UserController extends Controller
             $user = User::findorFail($id);
             $program = Program::all();
 
-            if ($user->t_amount == $user->program->e_amount) {
+            if ($user->amount == $user->program->e_amount) {
                 $message = $this->dosubscript2($user->balance);
             } else {
                 $message = $this->dosubscript1($user->balance);
@@ -363,7 +363,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'bank' => $user->t_type,
-                'amount' => $user->t_amount,
+                'amount' => $user->amount,
             ];
             //generate pdf from receipt view
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
@@ -440,8 +440,8 @@ class UserController extends Controller
                                 'created_at' =>  date("Y-m-d H:i:s"),
                                 'invoice_id' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
                                 'transid' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
-                                't_amount' => $training->p_amount,
-                                't_amount' => $training->p_amount,
+                                'amount' => $training->p_amount,
+                                'amount' => $training->p_amount,
                                 't_type' => 'System Admin',
                                 't_location' => null,
                                 'paymentStatus' => 1,

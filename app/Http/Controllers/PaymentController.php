@@ -421,7 +421,7 @@ class PaymentController extends Controller
                     'balance' => 0,
                     'paymentStatus' => 1,
                     'paymentType' => 'Full',
-                    't_amount' => $balance_payment->t_amount + $balance_payment->balance,
+                    'amount' => $balance_payment->amount + $balance_payment->balance,
                     'balance_paid' => $balance_payment->balance,
                     'balance_amount_paid' => now(),
                 ]);
@@ -603,7 +603,7 @@ class PaymentController extends Controller
         
         $old = Transaction::where('user_id',$user->id)->where('program_id', $request->p_id)->get();
         
-        $existing = $old->sum('t_amount');
+        $existing = $old->sum('amount');
         $existingTransaction = $old->first();
         $program = Program::where('id', $request->p_id)->first();
         $training_fee = $program->p_amount;
@@ -728,7 +728,7 @@ class PaymentController extends Controller
         
         if($request['type'] == 'balance'){
             $existingTransaction->update([
-                't_amount' => $total_amount_paid,
+                'amount' => $total_amount_paid,
                 'paymentStatus' => $allDetails['paymentStatus'],
                 'balance' => $allDetails['balance']
             ]);
@@ -751,7 +751,7 @@ class PaymentController extends Controller
             $data['email'] = auth()->user()->email;
             $data['programName'] = $program->p_name;
             $data['programAbbr'] = $program->p_abbr;
-            $data['programFee'] = $existingTransaction->t_amount + $existingTransaction->balance;
+            $data['programFee'] = $existingTransaction->amount + $existingTransaction->balance;
             $data['amount'] = $allDetails['amount'];
             $data['total_amount_paid'] = $total_amount_paid;
             $data['balance'] = $allDetails['balance'];
@@ -761,7 +761,7 @@ class PaymentController extends Controller
             $this->sendWelcomeMail($data);
         }else{
             $user->programs()->attach($allDetails['program_id'], [
-                't_amount' => $allDetails['amount'],
+                'amount' => $allDetails['amount'],
                 't_type' => 'wallet',
                 't_location' => $allDetails['location'] ?? null,
                 'paymentStatus' => $allDetails['paymentStatus'],

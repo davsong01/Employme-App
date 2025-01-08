@@ -26,7 +26,7 @@
 
                                     <label>Bank: {{ $transaction->t_type }} </label> <br>
                                     <label for="transaction_id">Program Amount: {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->p_amount) }}</label> <br>
-                                    <label for="transaction_id">Paid: {{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($transaction->t_amount) }} @if($transaction->paymentthreads->count() > 0)
+                                    <label for="transaction_id">Paid: {{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($transaction->amount) }} @if($transaction->paymentthreads->count() > 0)
                                    
                                         <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-bs-target="#exampleModal{{$transaction->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
                                     @endif</label> <br> <br>

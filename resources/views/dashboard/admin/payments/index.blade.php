@@ -160,7 +160,7 @@
                                     @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> @endif
                                         @if($permissions['payments.edit'])
                                         
-                                            <strong>Paid:</strong> {{ $transaction->currency }} <span  id="transaction-amount-{{ $transaction->id }}">{{ number_format($transaction->t_amount) }}</span>
+                                            <strong>Paid:</strong> {{ $transaction->currency }} <span  id="transaction-amount-{{ $transaction->id }}">{{ number_format($transaction->amount) }}</span>
                 
                                             @if(!is_null($transaction->coupon_code))
                                             <span style="color:blue">
