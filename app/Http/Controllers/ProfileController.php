@@ -145,7 +145,7 @@ class ProfileController extends Controller
             'email' => $facilitator->email,
             'student_name' => auth()->user()->name,
             'student_email' => auth()->user()->email,
-            'studenphone' => auth()->user()->phone,
+            'student_phone' => auth()->user()->phone,
             'program_name' => $program->p_name,
             'date' => now(),
         ];

@@ -6,7 +6,7 @@ You have been selected as a facilitator for <b>{{ $data['program_name'] }}</b> b
 <b>Name: </b>{{ $data['name'] }} <br>
 <b>Student name: </b>{{ $data['student_name'] }} <br>
 <b>Student email: </b>{{ $data['student_email'] }} <br>
-<b>Student phone: </b>{{ $data['studenphone'] }} <br>
+<b>Student phone: </b>{{ $data['student_phone'] }} <br>
 <b>Training: </b>{{ $data['program_name'] }} <br>
 <b>Date: </b>{{ $data['date'] }} <br> <br>
 
