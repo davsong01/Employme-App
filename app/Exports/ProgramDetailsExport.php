@@ -30,7 +30,7 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
         //     ->join("users", "program_user.user_id", "=", "users.id")
         //         ->join("programs", "program_user.program_id", "=", "programs.id")
         //         ->join("certificates", "certificates.program_id", "=", "programs.id" AND certificates.user_id = "users.id")
-        //             ->select(['program_user.created_at AS date', 'programs.p_name AS program', 'users.name','users.email','users.t_phone AS phone','program_user.t_amount as paid', 'program_user.balance as outstanding', 'program_user.t_type as paymentmode', 'program_user.invoice_id AS invoice', 'program_user.t_location as venue','certificates.certificate_number'])
+        //             ->select(['program_user.created_at AS date', 'programs.p_name AS program', 'users.name','users.email','users.phone AS phone','program_user.t_amount as paid', 'program_user.balance as outstanding', 'program_user.t_type as paymentmode', 'program_user.invoice_id AS invoice', 'program_user.t_location as venue','certificates.certificate_number'])
         //             ->get();
         $participants = Transaction::orderBy('program_user.created_at', 'DESC')
         ->where('program_user.program_id', $this->id)
@@ -47,7 +47,7 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
             'users.name',
             'certificates.certificate_number',
             'users.email',
-            'users.t_phone AS phone',
+            'users.phone AS phone',
             'program_user.t_amount as paid',
             'program_user.balance as outstanding',
             'program_user.t_type as paymentmode',

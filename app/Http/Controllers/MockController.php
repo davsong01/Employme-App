@@ -141,7 +141,7 @@ class MockController extends Controller
 
         if (!empty($request->phone)) {
             $users = $users->whereHas('user', function ($query) use ($request) {
-                $query->where('t_phone', $request->phone);
+                $query->where('phone', $request->phone);
             });
         }
         
@@ -203,7 +203,7 @@ class MockController extends Controller
                 $user->name = $user->user->name;
                 $user->email = $user->user->email;
                 $user->staffID = $user->user->staffID;
-                $user->phone = $user->user->t_phone;
+                $user->phone = $user->user->phone;
                 $user->metadata = $user->user->metadata;
                 $user->gender = $user->user->gender;
 

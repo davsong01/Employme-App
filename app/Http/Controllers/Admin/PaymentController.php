@@ -30,7 +30,7 @@ class PaymentController extends Controller
         $i = 1;
 
         if (canUserAccessPermission(['payments.index'])) {
-            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,t_phone,last_login')->orderBy('created_at', 'DESC');
+            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
             
             $i = 1;
             
@@ -48,7 +48,7 @@ class PaymentController extends Controller
 
             if (!empty($request->phone)) {
                 $transactions = $transactions->whereHas('user', function ($query) use ($request) {
-                    $query->where('t_phone', $request->phone);
+                    $query->where('phone', $request->phone);
                 });
             }
 

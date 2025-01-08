@@ -91,12 +91,12 @@
                             </div>
                             <div class="col-md-6">
                                
-                                <div class="form-group{{ $errors->has('t_phone') ? ' has-error' : '' }}">
-                                    <label for="t_phone">t_Phone</label>
-                                    <input id="t_phone" type="t_phone" class="form-control" name="t_phone" value="{{ old('t_phone') ?? $user->t_phone}}">
-                                    @if ($errors->has('t_phone'))
+                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                    <label for="phone">phone</label>
+                                    <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone}}">
+                                    @if ($errors->has('phone'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('t_phone') }}</strong>
+                                        <strong>{{ $errors->first('phone') }}</strong>
                                     </span>
                                     @endif
                                 </div>

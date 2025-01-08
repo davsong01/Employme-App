@@ -103,7 +103,7 @@ class UserController extends Controller
             User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                't_phone' => $data['phone'],
+                'phone' => $data['phone'],
                 'password' => bcrypt($data['password']),
                 'program_id' => $data['training'],
                 't_amount' => $data['amount'],
@@ -185,7 +185,7 @@ class UserController extends Controller
 
         $user->name = $request['name'];
         $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
+        $user->phone = $request['phone'];
         $user->program_id = $request['training'];
         $user->t_amount = $newamount;
         $user->balance = $balance;

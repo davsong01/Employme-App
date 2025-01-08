@@ -67,7 +67,7 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         $user->name = $request->name;
-        $user->t_phone = $request->t_phone;
+        $user->phone = $request->phone;
         $user->gender = $request->gender;
         $user->job_title = $request->job_title;
         $user->staffID = $request->staffID;
@@ -102,7 +102,7 @@ class ProfileController extends Controller
     {
         return tap(request()->validate([
             'name' => 'required',
-            't_phone' => 'required | numeric | min:9',
+            'phone' => 'required | numeric | min:9',
             'gender' => 'required',
         ]), function () {
             if (request()->hasFile('profile_picture')) {
@@ -145,7 +145,7 @@ class ProfileController extends Controller
             'email' => $facilitator->email,
             'student_name' => auth()->user()->name,
             'student_email' => auth()->user()->email,
-            'student_phone' => auth()->user()->t_phone,
+            'studenphone' => auth()->user()->phone,
             'program_name' => $program->p_name,
             'date' => now(),
         ];

@@ -668,7 +668,7 @@ class PaymentController extends Controller
         $allDetails['programEarlyBird'] = $program->e_amount;
         $allDetails['name'] = $user->name;
         $allDetails['email'] = $user->email;
-        $allDetails['phone'] = $user->t_phone;
+        $allDetails['phone'] = $user->phone;
         $allDetails['t_type'] = 'wallet';
         $allDetails['currency'] = $existingTransaction->currency ?? \Session::get('currency');
         $allDetails['currency_symbol'] = $existingTransaction->currency_symbol ?? \Session::get('currency_symbol');

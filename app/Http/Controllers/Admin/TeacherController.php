@@ -22,7 +22,7 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
-        $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 't_phone', 'license', 'status')
+        $users = User::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'role_id', 'created_at', 'phone', 'license', 'status')
             ->distinct()->with('trainings')
             ->where('role_id', '!=', 'Student')
             ->orderBy('created_at', 'DESC')->get();
@@ -144,7 +144,7 @@ class TeacherController extends Controller
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'profile' => $data['profile'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'off_season_availability' => $data['off_season_availability'],
                     'profile_picture' => $data['picture'] ?? $imgName,
                     'license' => $data['license'],
@@ -179,7 +179,7 @@ class TeacherController extends Controller
                     'name' => $data['name'],
                     'profile' => $data['profile'],
                     'email' => $data['email'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
                     'role_id' => implode(',', $data['role']),
                     'menu_permissions' => $data['menu_permissions'],
@@ -253,7 +253,7 @@ class TeacherController extends Controller
         
         $user->name = $request['name'];
         $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
+        $user->phone = $request['phone'];
 
         if ($allpermissions['teachers.role.status']) {
             $user->role_id = $request['role'];

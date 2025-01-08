@@ -86,7 +86,7 @@ class UserController extends Controller
 
                         // Normalize data before processing
                         $row['staffID'] = $user->staffID;
-                        $row['phone'] = $user->t_phone;
+                        $row['phone'] = $user->phone;
                         $row['email'] = $user->email;
                         $row['name'] = $user->name;
                         $row['gender'] = $user->gender;
@@ -141,7 +141,7 @@ class UserController extends Controller
         }
 
         if (!empty($request->phone)) {
-            $users = $users->where('t_phone', $request->phone);
+            $users = $users->where('phone', $request->phone);
         }
 
         if (!empty($request->staffID)) {
@@ -297,7 +297,7 @@ class UserController extends Controller
                 $user = User::Create([
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    't_phone' => $data['phone'],
+                    'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
                     'role_id' => $data['role'],
                     'gender' => $data['gender'],
@@ -419,7 +419,7 @@ class UserController extends Controller
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
-                't_phone' => $request->phone,
+                'phone' => $request->phone,
                 'password' => $password,
                 'role_id' => $request->role,
                 'gender' => $request->gender,

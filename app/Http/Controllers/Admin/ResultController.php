@@ -89,7 +89,7 @@ class ResultController extends Controller
 
         if (!empty($request->phone)) {
             $users = $users->whereHas('user', function ($query) use ($request) {
-                $query->where('t_phone', $request->phone);
+                $query->where('phone', $request->phone);
             });
         }
 

@@ -132,7 +132,7 @@
                             <td><strong>Name: </strong>
                                 @if($permissions['users.edit'])
                                 <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-                                <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
+                                <br> <strong>Phone: </strong>{{ $transaction->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
                                 @endif
                                 @if($transaction->user->last_login) <br>
                                 <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>

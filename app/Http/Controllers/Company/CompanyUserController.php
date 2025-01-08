@@ -97,7 +97,7 @@ class CompanyUserController extends Controller
         }
 
         if (!empty($request->phone)) {
-            $users = $users->where('t_phone', $request->phone);
+            $users = $users->where('phone', $request->phone);
         }
 
         $users = User::withCount('programs')->orderBy('created_at', 'DESC')->whereHas('programs', function ($query) use ($programs) {

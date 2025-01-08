@@ -46,7 +46,7 @@
                 <input type="hidden" name="user_program" value={{ $data->id }}>
                 <input type="hidden" name="email" value="{{ auth()->user()->email }}">
                 <input type="hidden" name="name" value="{{ auth()->user()->name }}">
-                <input type="hidden" name="phone" value="{{ auth()->user()->t_phone }}">
+                <input type="hidden" name="phone" value="{{ auth()->user()->phone }}">
                 <input type="hidden" name="quantity" value="1">
                                
             {{ csrf_field() }}
