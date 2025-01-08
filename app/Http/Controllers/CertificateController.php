@@ -26,9 +26,7 @@ class CertificateController extends Controller
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
                 $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
-
                 return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
-
             }else{
                 $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
                 if ($programs->count() > 0) {
@@ -46,19 +44,19 @@ class CertificateController extends Controller
         }
 
         if (checkRoleHas(['Student'])) {
-            $details = certificationStatus($request->p_id, auth()->user()->id);
-            $program = $details['program'] ?? collect([]);
+            $user_balance = $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+            $details = certificationStatusNew($transaction->training_result, $transaction->program, auth()->user());
+            $program = $transaction->program;
 
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
                 }
             }
 
             if ($program->only_certified_should_see_certificate == 'yes') {
-                $details = $details['status'] ?? collect([]);
+                $details = $details->certification_status;
                 
                 if (!$details || $details == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
