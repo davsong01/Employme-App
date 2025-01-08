@@ -55,10 +55,10 @@ class LoginController extends Controller
         $username = $request->input('login');
 
         $user = User::where('email', $username)->orWhere('staffID', $username)->first();
-
+        
         if ($user) {
             $programIds = Program::where(['login_without_password' => 1, 'program_lock' => 0])->pluck('id')->toArray();
-
+            
             $hasProgram = Transaction::where('user_id', $user->id)
                 ->whereIn('program_id', $programIds)
                 ->exists();
@@ -75,7 +75,7 @@ class LoginController extends Controller
 
         $credentials = $this->credentials($request);
         $attemptLogin = Auth::attempt($credentials, $request->filled('remember'));
-
+        
         // If login is successful, update last_login
         if ($attemptLogin) {
             $user = Auth::user();

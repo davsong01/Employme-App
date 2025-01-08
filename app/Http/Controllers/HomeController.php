@@ -36,10 +36,8 @@ class HomeController extends Controller
     {
         //Get calendar details
         $currentUser = User::findOrFail(Auth::user()->id)->programs()->get();
-
-
+        
         if (checkRoleHas(['Admin'])) {
-
             $events = [];
             $data = Program::all();
             
