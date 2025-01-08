@@ -103,10 +103,10 @@ class UserController extends Controller
             User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
-                't_phone' => $data['phone'],
+                'phone' => $data['phone'],
                 'password' => bcrypt($data['password']),
                 'program_id' => $data['training'],
-                't_amount' => $data['amount'],
+                'amount' => $data['amount'],
                 't_type' => $data['bank'],
                 't_location' => $data['location'],
                 'role_id' => $data['role'],
@@ -172,7 +172,7 @@ class UserController extends Controller
         //check amount against payment
         $programFee = Program::findorFail($request['training'])->p_amount;
 
-        $newamount = $user->t_amount + $request['amount'];
+        $newamount = $user->amount + $request['amount'];
         if ($newamount > $programFee) {
             return back()->with('warning', 'Student cannot pay more than program fee');
         } else
@@ -185,9 +185,9 @@ class UserController extends Controller
 
         $user->name = $request['name'];
         $user->email = $request['email'];
-        $user->t_phone = $request['phone'];
+        $user->phone = $request['phone'];
         $user->program_id = $request['training'];
-        $user->t_amount = $newamount;
+        $user->amount = $newamount;
         $user->balance = $balance;
         $user->t_type = $request['bank'];
         $user->t_location = $request['location'];

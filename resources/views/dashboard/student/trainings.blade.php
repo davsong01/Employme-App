@@ -107,7 +107,7 @@
                                
                                     <b>Name: </b>{{ auth()->user()->facilitator->name }} <br>
                                     <b>Email: </b>{{ auth()->user()->facilitator->email }} <br>
-                                    <b>Phone: </b>{{ auth()->user()->facilitator->t_phone }} <br>
+                                    <b>Phone: </b>{{ auth()->user()->facilitator->phone }} <br>
                                     <b>Profile: </b> <br> <span style="padding-right:20px">{!! auth()->user()->facilitator->profile !!}</span> 
                                 
                             </div>

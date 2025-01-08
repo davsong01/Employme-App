@@ -26,13 +26,13 @@
                                     @endif
                                 </div>
                                
-                                <div class="form-group{{ $errors->has('t_phone') ? ' has-error' : '' }}">
-                                    <label for="t_phone">Phone</label>
-                                    <input id="t_phone" type="text" class="form-control" name="t_phone"
-                                        value="{{ old('t_phone') ?? $user->t_phone }}" autofocus>
-                                    @if ($errors->has('t_phone'))
+                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                    <label for="phone">Phone</label>
+                                    <input id="phone" type="text" class="form-control" name="phone"
+                                        value="{{ old('phone') ?? $user->phone }}" autofocus>
+                                    @if ($errors->has('phone'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('t_phone') }}</strong>
+                                        <strong>{{ $errors->first('phone') }}</strong>
                                     </span>
                                     @endif
                                 </div>

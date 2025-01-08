@@ -36,7 +36,7 @@
                             <td>{{  $i++ }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
                             <td><a href="#">{{ $user->name }}</a></td> 
-                            <td>{{ $user->t_phone}}</td>
+                            <td>{{ $user->phone}}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->programs()->count() }}</td>
                            

@@ -30,7 +30,7 @@ class PaymentController extends Controller
         $i = 1;
 
         if (canUserAccessPermission(['payments.index'])) {
-            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,t_phone,last_login')->orderBy('created_at', 'DESC');
+            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
             
             $i = 1;
             
@@ -48,7 +48,7 @@ class PaymentController extends Controller
 
             if (!empty($request->phone)) {
                 $transactions = $transactions->whereHas('user', function ($query) use ($request) {
-                    $query->where('t_phone', $request->phone);
+                    $query->where('phone', $request->phone);
                 });
             }
 
@@ -178,7 +178,7 @@ class PaymentController extends Controller
             //get user details
             $user = User::findorFail($transaction->user_id);
 
-            if ($transaction->t_amount == $user->programs[0]['e_amount']) {
+            if ($transaction->amount == $user->programs[0]['e_amount']) {
                 $message = $this->dosubscript2($transaction->balance);
             } else {
                 $message = $this->dosubscript1($user->balance);
@@ -203,7 +203,7 @@ class PaymentController extends Controller
                 'email' => $user->email,
                 'bank' => $user->t_type,
                 'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
-                'amount' => $transaction->t_amount,
+                'amount' => $transaction->amount,
                 'training_mode' => $transaction->training_mode ?? null,
                 'location' => $transaction->t_location ?? null,
                 'currency_symbol' => $transaction->currency ?? null,
@@ -246,7 +246,7 @@ class PaymentController extends Controller
         //get user details
         $user = User::findorFail($transaction->user_id);
 
-        if ($transaction->t_amount == $user->programs[0]['e_amount']) {
+        if ($transaction->amount == $user->programs[0]['e_amount']) {
             $message = $this->dosubscript2($transaction->balance);
         } else {
             $message = $this->dosubscript1($user->balance);
@@ -265,7 +265,7 @@ class PaymentController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'bank' => $user->t_type,
-            'amount' => $transaction->t_amount,
+            'amount' => $transaction->amount,
             'programFee' => $user->programs[0]['p_amount'],
             'programName' => $user->programs[0]['p_name'],
             'programAbbr' => $user->programs[0]['p_abbr'],
@@ -343,7 +343,7 @@ class PaymentController extends Controller
             }
         }
 
-        $newamount = $transaction->t_amount + $request->amount;
+        $newamount = $transaction->amount + $request->amount;
         $balance = $programFee - $newamount;
         
         // Checks for coupon code
@@ -359,7 +359,7 @@ class PaymentController extends Controller
 
             if (isset($response['amount'])) {
                 // make this amount already paid for the student
-                $amount = $transaction->t_amount + $response['amount'];
+                $amount = $transaction->amount + $response['amount'];
                 $balance = $programFee - $amount;
 
                 $transaction->update([
@@ -435,7 +435,7 @@ class PaymentController extends Controller
 
         //update the program table here @ column fully paid or partly paid
         $transaction->update([
-            't_amount' => $newamount,
+            'amount' => $newamount,
             'balance' => $balance,
             't_type' => $request['bank'] ?? null,
             't_location' => $request['location'],
@@ -460,7 +460,7 @@ class PaymentController extends Controller
             'success' => true,
             'message' => 'Transaction updated successfully',
             'transaction_id' => $id,
-            'new_amount' => $transaction->t_amount,
+            'new_amount' => $transaction->amount,
             'new_balance' => $transaction->balance
         ]);
         // return back()->with('message', '');

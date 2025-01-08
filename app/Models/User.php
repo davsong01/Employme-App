@@ -21,7 +21,7 @@ class User extends Authenticatable
 {
     protected $casts = ['metadata' => 'array', 'menu_permissions' => 'array'];
     protected $guarded = [];
-    protected $append = ['t_phone','account_balance'];
+    protected $append = ['phone','account_balance'];
 
     use Notifiable;
 
@@ -132,10 +132,10 @@ class User extends Authenticatable
 
     public function getPhoneAttribute()
     {
-        if ($this->attributes['t_phone'][0] != "0") {
-            return "0" . $this->attributes['t_phone'];
+        if ($this->attributes['phone'][0] != "0") {
+            return "0" . $this->attributes['phone'];
         }
-        return $this->attributes['t_phone'];
+        return $this->attributes['phone'];
     }
 
     public function getAccountBalanceAttribute()

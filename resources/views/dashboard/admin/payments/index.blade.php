@@ -132,7 +132,7 @@
                             <td><strong>Name: </strong>
                                 @if($permissions['users.edit'])
                                 <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-                                <br> <strong>Phone: </strong>{{ $transaction->user->t_phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
+                                <br> <strong>Phone: </strong>{{ $transaction->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
                                 @endif
                                 @if($transaction->user->last_login) <br>
                                 <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
@@ -160,7 +160,7 @@
                                     @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> @endif
                                         @if($permissions['payments.edit'])
                                         
-                                            <strong>Paid:</strong> {{ $transaction->currency }} <span  id="transaction-amount-{{ $transaction->id }}">{{ number_format($transaction->t_amount) }}</span>
+                                            <strong>Paid:</strong> {{ $transaction->currency }} <span  id="transaction-amount-{{ $transaction->id }}">{{ number_format($transaction->amount) }}</span>
                 
                                             @if(!is_null($transaction->coupon_code))
                                             <span style="color:blue">

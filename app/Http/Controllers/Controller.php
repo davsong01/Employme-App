@@ -210,7 +210,7 @@ class Controller extends BaseController
     protected function attachProgram($user, $program_id, $amount, $t_type, $location, $transid, $payment_type, $paymentStatus, $balance, $invoice_id, $payload){
         $user->programs()->attach($program_id, [
             'created_at' =>  date("Y-m-d H:i:s"),
-            't_amount' => $amount,
+            'amount' => $amount,
             't_type' => $t_type,
             't_location' => $location,
             'transid' => $transid,
@@ -449,8 +449,7 @@ class Controller extends BaseController
         $data['name'] = $paymentDetails->name;
         $data['email'] = $paymentDetails->email;
         $data['phone'] = $paymentDetails->phone;
-        $data['t_phone'] = $paymentDetails->phone;
-
+        
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $amount;
@@ -496,7 +495,7 @@ class Controller extends BaseController
         $data['email'] = isset($request->email) ? $request->email : $request['email'];
         $data['staffID'] = isset($request->staffID) ? $request->staffID : $request['staffID'];
         $data['phone'] = isset($request->phone) ? $request->phone : $request['phone'];
-        $data['t_phone'] = isset($request->phone) ? $request->phone : $request['phone'];
+        $data['phone'] = isset($request->phone) ? $request->phone : $request['phone'];
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $training->p_amount;
@@ -555,7 +554,7 @@ class Controller extends BaseController
         $user->staffID = $data['staffID'] ?? null;
         $user->metadata = $data['metadata'] ?? null;
 
-        $user->t_phone = $data['t_phone'];
+        $user->phone = $data['phone'];
         $user->save();
         
         $data['coupon_amount'] = NULL;
@@ -584,7 +583,7 @@ class Controller extends BaseController
             // Attach program
             $user->programs()->attach( $data['program_id'], [
                 'created_at' =>  date("Y-m-d H:i:s"),
-                't_amount' => $data['amount'], 
+                'amount' => $data['amount'], 
                 't_type' => $data['t_type'], 
                 't_location' => $data['location'], 
                 'training_mode' => $data['training_mode'],
@@ -640,7 +639,7 @@ class Controller extends BaseController
     }
 
     public function getUserDetails($user_id){
-        $user = User::where('id', $user_id)->select('name', 'email', 't_phone')->first();
+        $user = User::where('id', $user_id)->select('name', 'email', 'phone')->first();
         return $user;
     }
 
@@ -1853,7 +1852,7 @@ class Controller extends BaseController
         if (isset($allDetails['existingTransaction'])) {
             $existingTransaction = DB::table('program_user')->where('id', $allDetails['existingTransaction']->id)
                 ->update([
-                    't_amount' => $allDetails['amount'],
+                    'amount' => $allDetails['amount'],
                     't_type' => $allDetails['t_type'],
                     't_location' => $allDetails['location'],
                     'paymentStatus' => $allDetails['paymentStatus'],
@@ -1873,7 +1872,7 @@ class Controller extends BaseController
         } else {
 
             $programUser = $user->programs()->attach($allDetails['program_id'], [
-                't_amount' => $allDetails['amount'],
+                'amount' => $allDetails['amount'],
                 't_type' => $allDetails['t_type'],
                 't_location' => $allDetails['location'],
                 'paymentStatus' => $allDetails['paymentStatus'],
@@ -1903,14 +1902,14 @@ class Controller extends BaseController
             $user = User::Create([
                 'name' => $allDetails['name'],
                 'email' => $allDetails['email'],
-                't_phone' => $allDetails['phone'],
+                'phone' => $allDetails['phone'],
                 'password' => bcrypt('12345'),
                 'role_id' => $allDetails['role_id'],
             ]);
         } else {
             $user->update([
                 'name' => $allDetails['name'],
-                't_phone' => $allDetails['phone'],
+                'phone' => $allDetails['phone'],
             ]);
         }
 

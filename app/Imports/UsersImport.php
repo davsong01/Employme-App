@@ -89,7 +89,7 @@ class UsersImport implements ToCollection, WithHeadingRow
             $row->forget(['staffid']);
 
             // Exclude unnecessary metadata
-            $row['metadata'] = Arr::except($row->toArray(), ['name', 'staffID', 'phone', 'gender', 'location', 'email', 'staffid', 't_phone']);
+            $row['metadata'] = Arr::except($row->toArray(), ['name', 'staffID', 'phone', 'gender', 'location', 'email', 'staffid', 'phone']);
 
             // Prepare training details and attach program
             $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);

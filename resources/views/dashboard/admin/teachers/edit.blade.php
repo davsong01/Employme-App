@@ -62,7 +62,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="phone">Phone</label>
-                                        <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->t_phone }}">
+                                        <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone }}">
                                         @error('phone')
                                         <span class="text-danger">{{ $message }}</span>
                                         @enderror

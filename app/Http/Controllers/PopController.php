@@ -171,9 +171,9 @@ class PopController extends Controller
             $allDetails['programFee'] = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;
 
             if ($pop->amount > $existingTransaction['balance']) {
-                return back()->with('error', 'User has already paid: ' . $existingTransaction['transaction']->t_amount . '; Balance payment should be ' . $existingTransaction['balance']);
+                return back()->with('error', 'User has already paid: ' . $existingTransaction['transaction']->amount . '; Balance payment should be ' . $existingTransaction['balance']);
             }
-            $allDetails['amount'] = $existingTransaction['transaction']->t_amount + $pop->amount;
+            $allDetails['amount'] = $existingTransaction['transaction']->amount + $pop->amount;
 
             if ($pop->amount >= $existingTransaction['balance']) {
                 $balance = 0;
@@ -181,7 +181,7 @@ class PopController extends Controller
                 $balance = $existingTransaction['balance'] - $pop->amount;
             }
 
-            $allDetails['programFee'] = $pop->program->t_amount;
+            $allDetails['programFee'] = $pop->program->amount;
             $allDetails['program_id'] = $pop->program_id;
             $allDetails['programName'] = $pop->program->p_name;
             $allDetails['programAbbr'] = $pop->program->p_abbr;
@@ -348,7 +348,7 @@ class PopController extends Controller
         $programAmount = $pop->program->e_amount > 0 ? $pop->program->e_amount : $pop->program->p_amount;
 
         if (isset($existingTransactions) && !empty($existingTransactions)) {
-            // $balance = $programAmount - $existingTransactions->t_amount;
+            // $balance = $programAmount - $existingTransactions->amount;
             $balance = $existingTransactions->balance;
         } else {
             $balance = 0;
@@ -374,7 +374,7 @@ class PopController extends Controller
             //get user extra details
             $user->programs()->attach($user->program_id, [
                 'created_at' =>  $user->created_at,
-                't_amount' => $user->t_amount,
+                'amount' => $user->amount,
                 't_type' => $user->t_type,
                 't_location' => $user->location,
                 'paymentStatus' => $user->paymentStatus,

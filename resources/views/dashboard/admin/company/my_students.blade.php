@@ -39,7 +39,7 @@
                             @if(!empty(checkRoleHas(['Admin']), auth()->user()->role())))
                             <td>{{ $user->email ?? NULL }}</td>
                             @endif
-                            <td>{{ $user->t_phone ?? NULL}}</td>
+                            <td>{{ $user->phone ?? NULL}}</td>
                             
                             <td>{{ $user->p_name ?? NULL}}</td>
                             @endforeach
