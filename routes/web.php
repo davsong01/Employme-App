@@ -51,7 +51,7 @@ Route::middleware(['web.access'])->group(function () {
     Route::post('password/email', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('password.email');
     Route::get('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.reset');
     Route::post('reset-password', [ResetPasswordController::class, 'processResetPassword'])->name('password.reset.process');
-
+    
     Route::get('/register', function () {
         abort(403, 'Registration is disabled, please purchase a course first.');
     });
@@ -63,6 +63,8 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
             Route::get('/trainings/{id?}', 'show')->name('trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
+
+            Route::get('verify-certificate', [CertificateController::class, 'verifyCertificate'])->name('verify.certificate');
         });
     
         Route::controller(PaymentController::class)->group(function () {

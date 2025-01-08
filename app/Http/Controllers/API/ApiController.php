@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Certificate;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\Result;
+use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Services\CertificateService;
 
 class ApiController extends Controller
 {
@@ -120,29 +121,10 @@ class ApiController extends Controller
            return $rating;
     }
 
-    public function verifyCertificateNumber(Request $request){
+    public function verifyCertificateNumber(Request $request, CertificateService $certificate ){
         $certificate_number = request()->get('certificate_number');
 
-        if(!$certificate_number){
-            return response()->json(['status' => false, 'message' => 'Certificate number is required!',], 422);
-        }
-
-        $certificate = Certificate::where('certificate_number', $certificate_number)->first();
-        
-        if(!$certificate){
-            return response()->json(['status' => false,'message' => 'Certificate not found!','data' => null], 401);
-        }
-        
-        if ($certificate->show_certificate() == 'Disabled') {
-            return response()->json(['status' => false, 'message' => 'Certificate not found!', 'data' => null], 401);
-        }
-        
-        $details = [
-            'certificate_number' => $certificate->certificate_number,
-            'training' => $certificate->program->p_name,
-            'Graduate' => $certificate->user->name,
-        ];
-        $response = ['success' => true,'message' => 'Verified Certificate', 'data' => $details];
+        $service = $certificate->verify($certificate_number);
         
         return response()->json($response, 200);
     }

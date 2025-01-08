@@ -387,7 +387,7 @@ class ResultController extends Controller
     {
         if (checkRoleHas(['Student']) || resolveAuthUser()->id == $id) {
             $transaction = Transaction::select('id', 'training_result','balance','user_id','program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
-            $program = Program::select('id', 'allow_payment_restrictions_for_results','p_name', 'hasresult')->with('scoresettings')->find($transaction->program_id);
+            $program = Program::select('id', 'allow_payment_restrictions_for_results','p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($transaction->program_id);
 
             $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
             

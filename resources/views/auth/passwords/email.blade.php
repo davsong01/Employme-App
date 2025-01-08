@@ -19,7 +19,7 @@ Reset Password
             </div>
         @else
             <div class="checkout__form">
-                <h4>Enter your email address and we will send you a Password reset link</h4>
+                <h4>Enter your email address and we will send you a Password reset link if that email exists on our system</h4>
                 <form action="{{ route('password.email') }}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <div class="row">
@@ -27,7 +27,10 @@ Reset Password
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="checkout__input">
-                                        <p>Email<span>*</span></p>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <label for="email" style="margin: 0;">Email<span>*</span></label>
+                                            <a href="{{ route('login') }}" style="font-size: 0.875rem;">Login</a>
+                                        </div>
                                         <input type="text" class="form-control" id="email" name="email" required>
                                     </div>
                                 </div>

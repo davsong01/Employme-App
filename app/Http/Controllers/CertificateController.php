@@ -14,6 +14,7 @@ use App\Models\UtilityTracker;
 use App\Models\UtilityCronTask;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
+use App\Services\CertificateService;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
@@ -99,6 +100,7 @@ class CertificateController extends Controller
 
         return back()->with('message', 'Status updated successfully');
     }
+
     public function selectUser(Request $request, $program_id)
     {
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
@@ -162,7 +164,6 @@ class CertificateController extends Controller
 
     public function destroy(certificate $certificate, $internal=false)
     {
-
         $certificate_count = certificate::where('file', $certificate->file)->count();
 
         if ($certificate_count <= 1) {
@@ -353,7 +354,6 @@ class CertificateController extends Controller
         return back()->with('error', 'You do not have permission to perform this action.');
     }
 
-
     public function generateCertificatePreview(Request $request, $program_id)
     {
         try {
@@ -391,5 +391,17 @@ class CertificateController extends Controller
         ->delete();
 
         return back()->with('message', count($duplicateIds).' Duplicates removed successfully');
+    }
+
+
+    public function verifyCertificate(Request $request, CertificateService $certificate){
+        if(!empty($request->certificate_number)){
+            $response = $certificate->verify($request->certificate_number);
+        }else{
+            $response = null;
+        }
+        
+        return view('verify-certificate', compact('response'));
+
     }
 }
