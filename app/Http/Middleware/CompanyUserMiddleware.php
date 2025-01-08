@@ -18,7 +18,7 @@ class CompanyUserMiddleware
     {
         
         if (!Auth::guard('company_user')->check()) {
-            return redirect()->route('company_users.login');
+            return redirect()->route('auth.login');
         }
 
         // If authenticated, allow the request to proceed

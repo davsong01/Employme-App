@@ -50,10 +50,10 @@ class LoginController extends Controller
         return $fieldType;
     }
 
-    // public function showLoginForm()
-    // {
-    //     return view('company_users.login');
-    // }
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
 
     protected function attemptLogin(Request $request)
     {

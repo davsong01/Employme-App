@@ -46,7 +46,9 @@ Route::get('/correcttransid', function () {
 
 Route::middleware(['web.access'])->group(function () {
     Auth::routes();
-    
+    Route::get('/register', function () {
+        abort(403, 'Registration is disabled, please purchase a course first.');
+    });
     // Guest users
     Route::middleware(['template'])->group(function () {
         Route::controller(FrontendController::class)->group(function () {

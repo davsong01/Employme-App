@@ -15,7 +15,8 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1>Closed for Maintenance</h1>
-                        <p>We are currently performing scheduled maintenance. Please check back soon</p>
+                        <p>{!! $exception->getMessage() ?: 'We are currently performing scheduled maintenance. Please check back soon<.' !!}</p>
+                        <p>
                         {{-- <a href="{{ url()->previous() }}" class="btn btn-primary">REFRESH</a> --}}
                     </div>
                 </div>

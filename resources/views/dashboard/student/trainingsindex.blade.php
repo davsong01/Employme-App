@@ -61,7 +61,7 @@
                     ->first();
                     $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
                 @endphp
-                @if($show_certificate == 1 )
+                @if($show_certificate == 1 && !empty($trans->certificate) )
                 <li class="sidebar-item"><a href="{{ route('participants.certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
                             class="fas fa-certificate"></i><span class="hide-menu">My Certificate
                     </span></a>
