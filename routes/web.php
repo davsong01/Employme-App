@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\ComplainController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\PaymentModeController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 
 
@@ -46,6 +48,10 @@ Route::get('/correcttransid', function () {
 
 Route::middleware(['web.access'])->group(function () {
     Auth::routes();
+    Route::post('password/email', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('password.email');
+    Route::get('reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.reset');
+    Route::post('reset-password', [ResetPasswordController::class, 'processResetPassword'])->name('password.reset.process');
+
     Route::get('/register', function () {
         abort(403, 'Registration is disabled, please purchase a course first.');
     });

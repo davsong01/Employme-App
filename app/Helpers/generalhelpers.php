@@ -509,6 +509,24 @@ use Intervention\Image\Facades\Image;
         }
     }
 
+    if (!function_exists("getUserByGuard")) {
+        function getUserByGuard($email, $columns=null)
+        {
+            // Check the route prefix to determine guard type
+            $isAdmin = request()->is('admin*');
+
+            $query = $isAdmin ? Admin::query() : User::query();
+
+            $query->where('email', $email)->orwhere('id',$email);
+            
+            if(!empty($columns)){
+                $query->select($columns);
+            }
+
+            return $query->first();
+        }
+    }
+
     if (!function_exists("resolveAuthUser")) {
         function resolveAuthUser()
         {

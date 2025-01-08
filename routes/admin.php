@@ -27,9 +27,9 @@ use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserControll
 
 Route::middleware(['admin.access'])->group(function () {
     Route::get('/', [AdminController::class, 'showLoginForm'])->name('admin.login');
-    Route::get('/login', [AdminController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/login', [AdminController::class, 'login'])->name('admin.login.post');
-    Route::post('/logout', [AdminController::class, 'logout'])->name('admin.logout');
+    Route::get('/admin-login', [AdminController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/admin-login', [AdminController::class, 'login'])->name('admin.login.post');
+    Route::post('/admin-logout', [AdminController::class, 'logout'])->name('admin.logout');
 
     Route::get('impersonate-staff/{id}', [ImpersonateController::class, 'indexStaff'])->name('admin.impersonate')->middleware('impersonate.admin');
     Route::get('stopimpersonating-staff', [ImpersonateController::class, 'stopImpersonateFacilitator'])->name('stop.impersonate.admin');
@@ -139,7 +139,7 @@ Route::middleware(['admin.access'])->group(function () {
                 Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
                 Route::get('close/{id}', 'closeRegistration')->name('registration.close');
                 Route::get('open/{id}', 'openRegistration')->name('registration.open');
-                Route::get('password-reset/{id}', 'passwordReset')->name('password.reset');
+                Route::get('password-reset/{id}', 'passwordReset')->name('admin.password.reset');
                 Route::get('earlybirdopen/{id}', 'openEarlyBird')->name('earlybird.open');
                 Route::get('earlybirdclose/{id}', 'closeEarlyBird')->name('earlybird.close');
             });
