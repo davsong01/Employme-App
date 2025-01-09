@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-md-10">
                             <div>
-                               
+                        
                                     <b>Name: </b>{{ resolveAuthUser()->facilitator->name }} <br>
                                     <b>Email: </b>{{ resolveAuthUser()->facilitator->email }} <br>
                                     <b>Phone: </b>{{ resolveAuthUser()->facilitator->phone }} <br>

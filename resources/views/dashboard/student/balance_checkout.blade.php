@@ -44,6 +44,7 @@
             <form action="{{route('pay')}}" method="POST" enctype="multipart/form-data" class="pb-2">
                 <input type="hidden" name="type" value="balance">
                 <input type="hidden" name="user_program" value={{ $data->id }}>
+
                 <input type="hidden" name="email" value="{{ resolveAuthUser()->email }}">
                 <input type="hidden" name="name" value="{{ resolveAuthUser()->name }}">
                 <input type="hidden" name="phone" value="{{ resolveAuthUser()->phone }}">

@@ -170,6 +170,7 @@ class HomeController extends Controller
 
             //get materials count
             $materialsCount = Material::where('program_id', $program->id)->count();
+
             $data = DB::table('program_user')->where('program_id', $program->id)->where('user_id', resolveAuthUser()->id);
             $paid = $data->value('currency_symbol') . number_format($data->value('amount'));
             $balance = $data->value('balance');

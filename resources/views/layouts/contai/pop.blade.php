@@ -99,8 +99,9 @@
                                     <p>Phone<span>*</span></p>
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         @auth
+
                                         value="{{ resolveAuthUser()->phone }}"  
-                                        
+                     
                                         @endauth
 
                                         @guest 

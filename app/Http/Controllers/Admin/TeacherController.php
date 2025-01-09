@@ -23,6 +23,7 @@ class TeacherController extends Controller
     public function index()
     {
         $i = 1;
+
         $users = Admin::select('id', 'last_login','off_season_availability', 'name', 'earnings', 'email', 'profile_picture', 'roles', 'created_at', 'phone', 'license', 'status')
             ->distinct()->with('trainings');
 
@@ -31,6 +32,7 @@ class TeacherController extends Controller
         }
 
         $users = $users->orderBy('created_at', 'DESC')->get();
+
         
         $users->map(function ($user) {
             $details = DB::table('facilitator_trainings')->where('user_id', $user->id);
@@ -250,7 +252,7 @@ class TeacherController extends Controller
         $user->name = $request['name'];
         $user->email = $request['email'];
         $user->phone = $request['phone'];
-        
+
         if ($allpermissions['teachers.role.status']) {
             $user->roles = $request['role'];
         }

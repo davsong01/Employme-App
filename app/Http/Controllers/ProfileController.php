@@ -72,6 +72,7 @@ class ProfileController extends Controller
         $user = resolveAuthUser();
         
         $user->name = $request->name;
+        $user->phone = $request->phone;
         $user->gender = $request->gender;
         
         if(empty($user->email)){
@@ -152,7 +153,7 @@ class ProfileController extends Controller
             'email' => $facilitator->email,
             'student_name' => resolveAuthUser()->name,
             'student_email' => resolveAuthUser()->email,
-            'studenphone' => resolveAuthUser()->phone,
+            'student_phone' => resolveAuthUser()->phone,
             'program_name' => $program->p_name,
             'date' => now(),
         ];

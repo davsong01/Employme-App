@@ -128,13 +128,14 @@ class User extends Authenticatable
         return Session::has('impersonate');
     }
 
-    // public function getPhoneAttribute()
-    // {
-    //     if ($this->attributes['phone'][0] != "0") {
-    //         return "0" . $this->attributes['phone'];
-    //     }
-    //     return $this->attributes['phone'];
-    // }
+    public function getPhoneAttribute()
+    {
+        if ($this->attributes['phone'][0] != "0") {
+            return "0" . $this->attributes['phone'];
+        }
+        return $this->attributes['phone'];
+    }
+
 
     public function getAccountBalanceAttribute()
     {

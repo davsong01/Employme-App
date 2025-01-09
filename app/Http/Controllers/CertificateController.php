@@ -27,9 +27,7 @@ class CertificateController extends Controller
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
                 $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
-
                 return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
-
             }else{
                 $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->get();
                 if ($programs->count() > 0) {
@@ -48,6 +46,7 @@ class CertificateController extends Controller
 
         if (checkRoleHas(['Student'])) {
             $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
+
             $program = $transaction->program;
 
             $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
@@ -61,7 +60,6 @@ class CertificateController extends Controller
 
             if ($program->only_certified_should_see_certificate == 'yes') {
                 $certification_status = $details->certification_status ?? NULL;
-                
                 if (!$certification_status || $certification_status == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }

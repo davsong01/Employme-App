@@ -100,7 +100,6 @@
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         @auth
                                         value="{{ resolveAuthUser()->phone }}"  
-                                        
                                         @endauth
 
                                         @guest 

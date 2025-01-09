@@ -454,7 +454,6 @@ class Controller extends BaseController
         $data['name'] = $paymentDetails->name;
         $data['email'] = $paymentDetails->email;
         $data['phone'] = $paymentDetails->phone;
-        $data['phone'] = $paymentDetails->phone;
 
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
