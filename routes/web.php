@@ -91,7 +91,11 @@ Route::middleware(['web.access'])->group(function () {
     });
 
     Route::get('download-certificate/{filename}', function ($filename) {
-        $realpath = base_path() . '/uploads' . '/certificates' . $filename;
+        $realpath = base_path() . '/uploads' . '/certificates/' . $filename;
+        
+        if (!file_exists($realpath)) {
+            abort(404, 'File not found.');
+        }
         return response()->download($realpath);
     });
     
