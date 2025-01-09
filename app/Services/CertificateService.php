@@ -103,7 +103,7 @@ class CertificateService
             'certified_on' => $certificate->created_at,
             'score_obtainable' => $details->scoresettings->passmark ?? 'N/A',
             'score_obtained' => $details->total_score ?? 'N/A',
-            'image' => url('/certificate/'.$certificate->file),
+            'image' => url('/download-certificate/'.$certificate->file),
         ];
         
         return $details;
