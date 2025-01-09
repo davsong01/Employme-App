@@ -33,7 +33,7 @@
                                     </button>
                                     <small id="copy-status{{$certificate->id}}" style="color: green; display: none;"></small>
                                 </div>
-                                <input type="text" id="verification-link{{$certificate->id}}" value="{{ env('WAACSP_URL').'verify-certificate'.'?certificate_number='.$certificate->certificate_number }}" hidden>
+                                <input type="text" id="verification-link{{$certificate->id}}" value="{{ env('WAACSP_CERTIFICATE_VERIFICATION_LINK').'?certificate_number='.$certificate->certificate_number }}" hidden>
 
                                 <script>
                                     $('#copy-btn{{$certificate->id}}').click(function() {
