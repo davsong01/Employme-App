@@ -111,11 +111,8 @@
                             <td>{{ $i++ }}</td>
                             <td style="text-align:center;">
                                 @if($certificate->file)
-                                    {{-- <a class="btn btn-info btn-sm" href="#" 
-                                    onclick="loadCertificateImage({{ $certificate->id }}, '/certificate/{{ $certificate->file }}')">
-                                        Preview
-                                    </a> --}}
-                                    <a class="btn btn-info btn-sm" href="#" onclick="loadCertificateImage(event, {{ $certificate->id }}, '/certificate/{{ $certificate->file }}')">Preview
+                                    
+                                    <a class="btn btn-info btn-sm" href="#" onclick="loadCertificateImage(event, {{ $certificate->id }}, '/download-certificate/{{ $certificate->file }}')">Preview
                                     </a>
                                 @else
                                     <span>No Preview Available</span>
@@ -187,7 +184,7 @@
                                     </a>
                                     @endif
                                     <a data-toggle="tooltip" data-placement="top" title="Download certificate"
-                                        class="btn btn-info" href="/certificate/{{ $certificate->file }}"><i
+                                        class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
                                             class="fa fa-download"></i>
                                     </a>
                                     
