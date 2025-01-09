@@ -12,9 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // if (Schema::hasColumn('users', 'role_id')) {
-        //     DB::statement("ALTER TABLE users CHANGE role_id roles VARCHAR(255) NULL");
-        // }
+        if (Schema::hasColumn('users', 'role_id')) {
+            DB::statement("ALTER TABLE users CHANGE role_id roles VARCHAR(255) NULL");
+        }
+
 
         if (Schema::hasColumn('users', 't_phone')) {
             DB::statement("ALTER TABLE users CHANGE t_phone phone VARCHAR(255) NULL");

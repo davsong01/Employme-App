@@ -11,9 +11,8 @@ class UsersExport implements FromCollection, WithHeadings
    
     public function collection()
     {
-        // $users = User::with('program')->where('role_id', 'Student')->get();
-        $users = User::select('updated_at', 'name', 'email', 'phone', 'amount', 'balance', 'bank', 'role_id', 'program_id')->with('program')->where('role_id', 'Student')->orderBy('program_id', 'DESC')->get();
-
+        // $users = User::with('program')->where('roles', 'Student')->get();
+        $users = User::select('updated_at', 'name', 'email', 'phone', 'amount', 'balance', 'bank', 'roles', 'program_id')->with('program')->where('roles', 'Student')->orderBy('program_id', 'DESC')->get();
         foreach($users as $user){
             $user['program'] =  $user->program->p_name;
         }

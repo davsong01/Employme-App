@@ -231,7 +231,7 @@ class PaymentController extends Controller
                     // handle gateway call back normally
                     $req = new \App\Http\Controllers\PaymentController();
                     $response = $req->handleGatewayCallback($request, 'zero-amount');
-                    if(Auth::user()){
+                    if(resolveAuthUser()){
                         return redirect(url('/dashboard'));
                     }
                 }
@@ -240,7 +240,7 @@ class PaymentController extends Controller
 
             // Pay from wallet
             if ($request->payment_mode == 'wallet') {
-                $request['user_id'] = auth()->user()->id;
+                $request['user_id'] = resolveAuthUser()->id;
                 $request['p_id'] = $pid;
                 $response = $this->payFromAccount($request, 'frontent-wallet');
 
@@ -265,7 +265,7 @@ class PaymentController extends Controller
                 $data = $request->all();
                 
                 \Session::put('data', $data);
-                return redirect('pop/create');
+                return redirect(route('upload-proof-of-payment'));
                 
             }
 
@@ -565,7 +565,7 @@ class PaymentController extends Controller
                 //     "amount" => 25000,
                 //     "t_type" => "PAYSTACK",
                 //     "location" => " ",
-                //     "role_id" => "Student",
+                //     "roles" => "Student",
                 //     "transid" => "87UYe0GnRRukil9zbQwEYo3UA",
                 //     "balance" => 0,
                 //     "payment_type" => "Full",
@@ -598,7 +598,7 @@ class PaymentController extends Controller
 
     public function payFromAccount(Request $request, $source=null){
        
-        $user_id = $request->user_id ?? auth()->user()->id;
+        $user_id = $request->user_id ?? resolveAuthUser()->id;
         $user = User::where('id', $user_id)->first();
         
         $old = Transaction::where('user_id',$user->id)->where('program_id', $request->p_id)->get();
@@ -748,14 +748,14 @@ class PaymentController extends Controller
             $data['transid'] = $existingTransaction->transid;
             $data['type'] = 'payment.from.toup';
             $data['t_type'] = 'wallet';
-            $data['email'] = auth()->user()->email;
+            $data['email'] = resolveAuthUser()->email;
             $data['programName'] = $program->p_name;
             $data['programAbbr'] = $program->p_abbr;
             $data['programFee'] = $existingTransaction->amount + $existingTransaction->balance;
             $data['amount'] = $allDetails['amount'];
             $data['total_amount_paid'] = $total_amount_paid;
             $data['balance'] = $allDetails['balance'];
-            $data['name'] = auth()->user()->name;
+            $data['name'] = resolveAuthUser()->name;
             $data['currency_symbol'] = $existingTransaction->currency_symbol;
             
             $this->sendWelcomeMail($data);
@@ -794,8 +794,8 @@ class PaymentController extends Controller
             $data['transid'] = $allDetails['transid'];
             $data['type'] = 'initial';
             $data['t_type'] = 'wallet';
-            $data['email'] = auth()->user()->email;
-            $data['name'] = auth()->user()->name;
+            $data['email'] = resolveAuthUser()->email;
+            $data['name'] = resolveAuthUser()->name;
             $data['programName'] = $program->p_name;
             $data['total_amount_paid'] = $total_amount_paid;
             $data['programAbbr'] = $program->p_abbr;
@@ -830,7 +830,7 @@ class PaymentController extends Controller
                 'amount' => 'required',
             ]);
             $request['provider'] = $request->payment_mode;
-            $request['email'] = auth()->user()->email;
+            $request['email'] = resolveAuthUser()->email;
             
             $response = $this->queryProcessor($request, [],'query-only');
             
@@ -841,7 +841,7 @@ class PaymentController extends Controller
                     'type' => 'credit',
                     'method' => 'virtual',
                     'provider' => $request->payment_mode,
-                    'user_id' => auth()->user()->id,
+                    'user_id' => resolveAuthUser()->id,
                 ];
 
                 app('App\Http\Controllers\WalletController')->logWallet($data);
@@ -870,7 +870,7 @@ class PaymentController extends Controller
                 'type' => 'credit',
                 'method' => 'manual',
                 'provider' => 'SYSTEM',
-                'user_id' => auth()->user()->id,
+                'user_id' => resolveAuthUser()->id,
             ];
 
             app('App\Http\Controllers\WalletController')->logWallet($data);
@@ -878,9 +878,9 @@ class PaymentController extends Controller
             $data['pop'] = public_path() .  '/pops/' . $pop;
             $data['type'] = 'manual.wallet.topup';
             $data['email'] = 'davsong16@gmail.com';
-            $data['name'] = auth()->user()->name;
+            $data['name'] = resolveAuthUser()->name;
             // Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-            $data['participant_email'] = auth()->user()->email;
+            $data['participant_email'] = resolveAuthUser()->email;
             $data['realfilename'] = $pop;
 
             $this->sendWelcomeMail($data);

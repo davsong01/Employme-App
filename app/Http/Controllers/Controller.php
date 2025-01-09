@@ -62,7 +62,11 @@ class Controller extends BaseController
             } else $pdf = null;
             
             try {
-                Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+                if(env('ENT') == 'local'){
+                    \Log::info(['email' => $data]);
+                }else{
+                    Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+                }
             } catch(\Exception $e){
                 // Get error here
                 return false;
@@ -87,7 +91,7 @@ class Controller extends BaseController
                     'file' => $file,
                 ];
             }
-           
+            
             if(isset($data['type']) && $data['type'] == 'pop'){
                 // $data['attachments'] = $data['pop'];
                 $data['attachments'] = [
@@ -148,58 +152,59 @@ class Controller extends BaseController
         // if($setting->elastic_email_count == 100){
         //     return back()->with('error', '100 emails have been sent with Elastic today');
         // }
-        
-        
-        $url = 'https://api.elasticemail.com/v2/email/send';
-        // dd($data);
+        if (env('ENT') == 'local') {
+            \Log::info(['email' => $data]);
+        } else {
+            $url = 'https://api.elasticemail.com/v2/email/send';
+            // dd($data);
     
-        if(isset($data['attachments']) && !empty($data['attachments'])){
-            $filename = $data['attachments']['filename'] ?? null;
-            $file_name_with_full_path = $data['attachments']['filepath'] ?? null;
-            $filetype = "application/pdf"; // Change correspondingly to the file type  
-        }
-        try{
-            $post = [
-                'from' => 'training.employme@gmail.com',
-                'fromName' => env('APP_NAME'),
-                'apikey' => env('ELASTIC_KEY'),
-                'subject' => $this->emailContent($data)['subject'],
-                'to' => $data['email'],
-                'bodyHtml' => $this->emailContent($data)['content'],
-                'isTransactional' => false,
-               
-                // 'attachments' => $data['attachments'],
-            ];
-           
-            if (isset($data['attachments']) && !empty($data['attachments'])) {
-                $post['file_1'] = new \CurlFile($file_name_with_full_path, $filetype, $filename);
+            if(isset($data['attachments']) && !empty($data['attachments'])){
+                $filename = $data['attachments']['filename'] ?? null;
+                $file_name_with_full_path = $data['attachments']['filepath'] ?? null;
+                $filetype = "application/pdf"; // Change correspondingly to the file type  
             }
-           
-            // get the file name and send in attachment
-            $ch = curl_init();
-            curl_setopt_array($ch, array(
-                CURLOPT_URL => $url,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $post,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HEADER => false,
-                CURLOPT_SSL_VERIFYPEER => false
-            ));
+            try{
+                $post = [
+                    'from' => 'training.employme@gmail.com',
+                    'fromName' => env('APP_NAME'),
+                    'apikey' => env('ELASTIC_KEY'),
+                    'subject' => $this->emailContent($data)['subject'],
+                    'to' => $data['email'],
+                    'bodyHtml' => $this->emailContent($data)['content'],
+                    'isTransactional' => false,
+                
+                    // 'attachments' => $data['attachments'],
+                ];
             
-            $result=curl_exec ($ch);
-            curl_close ($ch);
-            \Log::info(['Elasticemail response' => $result]);
-            // Delete the attachment
-            if (isset($data['attachments']) && !empty($data['attachments'])) {
-                $this->deleteImage($data['attachments']['file']);
-            }
+                if (isset($data['attachments']) && !empty($data['attachments'])) {
+                    $post['file_1'] = new \CurlFile($file_name_with_full_path, $filetype, $filename);
+                }
+            
+                // get the file name and send in attachment
+                $ch = curl_init();
+                curl_setopt_array($ch, array(
+                    CURLOPT_URL => $url,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $post,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_HEADER => false,
+                    CURLOPT_SSL_VERIFYPEER => false
+                ));
+                
+                $result=curl_exec ($ch);
+                curl_close ($ch);
+                
+                // Delete the attachment
+                if (isset($data['attachments']) && !empty($data['attachments'])) {
+                    $this->deleteImage($data['attachments']['file']);
+                }
 
-            return;
-    
-        }catch(Exception $ex){
-            \Log::info(['email sending error' => $ex->getMessage()]);
+                return;
+        
+            }catch(Exception $ex){
+                \Log::info(['email sending error' => $ex->getMessage()]);
+            }
         }
-  
     }
 
     public function emailProvider(){
@@ -449,7 +454,7 @@ class Controller extends BaseController
         $data['name'] = $paymentDetails->name;
         $data['email'] = $paymentDetails->email;
         $data['phone'] = $paymentDetails->phone;
-        
+
         $data['password'] = bcrypt('12345');
         $data['program_id'] = $training->id;
         $data['amount'] = $amount;
@@ -475,7 +480,7 @@ class Controller extends BaseController
             'exchange_rate' => $payment_mode->exchange_rate ?? 1,
         ];
 
-        $data['role_id'] = "Student";
+        $data['roles'] = "Student";
         $data['transid'] = $paymentDetails->transid;
         $data['t_location'] = $paymentDetails->location;
         $data['training_mode'] = $paymentDetails->training_mode;
@@ -520,7 +525,7 @@ class Controller extends BaseController
             'exchange_rate' => 1,
         ];
 
-        $data['role_id'] = "Student";
+        $data['roles'] = "Student";
         $data['transid'] = $this->getInvoiceId();
         $data['t_location'] = $data['location'] ?? '';
         $data['training_mode'] = isset($request->training_mode) ? $request->training_mode : $request['training_mode'] ?? '';
@@ -533,7 +538,7 @@ class Controller extends BaseController
         //Check if email exists in the system and attach it to the new program to that email
         // $user = User::where('email', $data['email'])->first();
         if(Auth::check() && empty($data['new'])){
-            $user = auth()->user();
+            $user = resolveAuthUser();
         }else{
             // Check if user exists previously
             $existingUser = User::where(['email' => $data['email']])->first();
@@ -544,7 +549,7 @@ class Controller extends BaseController
                 $user = User::updateOrCreate(['email' => $data['email']], [
                     'name' => $data['name'] ?? 'N/A',
                     'password' => $data['password'],
-                    'role_id' => $data['role_id'],
+                    'roles' => $data['roles'],
                 ]); 
             }
         }
@@ -729,7 +734,7 @@ class Controller extends BaseController
     public function showCatalogue($program){
         // Check program
         $status = false;
-        if($program->show_catalogue_popup =='yes' && auth()->user()->downloaded_catalogue == 'no'){
+        if($program->show_catalogue_popup =='yes' && resolveAuthUser()->downloaded_catalogue == 'no'){
             $status = true;
         }
 
@@ -1904,7 +1909,7 @@ class Controller extends BaseController
                 'email' => $allDetails['email'],
                 'phone' => $allDetails['phone'],
                 'password' => bcrypt('12345'),
-                'role_id' => $allDetails['role_id'],
+                'roles' => $allDetails['roles'],
             ]);
         } else {
             $user->update([

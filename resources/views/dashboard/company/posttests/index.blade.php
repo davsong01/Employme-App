@@ -7,6 +7,36 @@
 @include('dashboard.company.partials.company_extra_css')
 <link rel="stylesheet" href="{{ asset('modal.css') }}" />
 <style>
+    .certification-score {
+        background: #c3dbd8;
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .class-test-score {
+        background: #e0f7fa;  /* Light blue for class test */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .roleplay-score {
+        background: #fff9c4;  /* Light yellow for role play */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .crm-test-score {
+        background: #ffe082;  /* Light orange for CRM test */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
+    .email-test-score {
+        background: #c8e6c9;  /* Light green for email */
+        padding: 10px;
+        border-bottom: 1px solid black;
+    }
+
     .select2-container--default .select2-selection--multiple {
         width: 100% !important;
     }
@@ -130,21 +160,21 @@
                                 </div>
                                 <!-- All Tests Button -->
                                 <div class="col-md-3 col-lg-2 mb-2">
-                                    <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
+                                    <a href="{{ route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}">
                                         <button class="btn btn-dark w-100 {{ is_null($currentStatus) ? 'active' : '' }}">All</button>
                                     </a>
                                 </div>
 
                                 <!-- Has Tests Button -->
                                 <div class="col-md-3 col-lg-2 mb-2">
-                                    <a href="{{ route($page == 'results' ? 'results.getgrades' : 'company.mocks.getgrades', ['id' => $program->id]) }}?{{ http_build_query(array_merge(request()->query(), ['status' => 'yes'])) }}">
+                                    <a href="{{ route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id' => $program->id,'p_id' => $program->id, 'status' => 'yes']) }}">
                                         <button class="btn btn-success w-100 {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</button>
                                     </a>
                                 </div>
 
                                 <!-- Pending Tests Button -->
                                 <div class="col-md-3 col-lg-2 mb-2">
-                                    <a href="{{ route($page == 'results' ? 'results.getgrades' : 'company.mocks.getgrades', ['id' => $program->id]) }}?{{ http_build_query(array_merge(request()->query(), ['status' => 'no'])) }}">
+                                    <a href="{{ route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id' => $program->id,'p_id' => $program->id, 'status' => 'no']) }}">
                                         <button class="btn btn-danger w-100 {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</button>
                                     </a>
                                 </div>
@@ -198,7 +228,7 @@
                     </thead>
                     <tbody>
                         @foreach($users as $user)
-                        @if($user->passmark)
+                        {{-- @if($user->passmark) --}}
                         <tr>
                             <td>{{ $i++ }}</td>
                             <td>
@@ -208,77 +238,110 @@
                                 {{(($user->results->count() > 0)) ? $user->results->last()->created_at->format('d/m/Y') : ''}}
                                 @endif
                             </td>
-                            <td>{{ $user->name }}
+                            <td>
+                                {{ $user->user->name }}
+                                @if(isset($user->user->staffID))
+                                    <br><b>StaffID</b>: <i>{{ $user->user->staffID }}</i>
+                                @endif
                             </td>
                             
                             <td>
-                                <?php
-                                    $total = ((!empty($score_settings->certification) && $score_settings->certification > 0) ? $user->total_cert_score : 0 )
-                                    + ((!empty($score_settings->class_test) && $score_settings->class_test > 0 ) ? $user->final_ct_score : 0)
-                                    + ((!empty($score_settings->email) && $score_settings->email > 0 ) ? $user->total_email_test_score : 0)
-                                    + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0) 
-                                    + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ?  $user->total_crm_test_score : 0);
-                                ?>
+                                @php
+                                    $total = ((!empty($score_settings->certification) && $score_settings->certification > 0) ? $user->total_cert_score : 0)
+                                            + ((!empty($score_settings->class_test) && $score_settings->class_test > 0) ? $user->final_ct_score : 0)
+                                            + ((!empty($score_settings->email) && $score_settings->email > 0) ? $user->total_email_test_score : 0)
+                                            + ((!empty($score_settings->role_play) && $score_settings->role_play > 0) ? $user->total_role_play_score : 0)
+                                            + ((!empty($score_settings->crm_test) && $score_settings->crm_test > 0) ? $user->total_crm_test_score : 0);
+                                @endphp
+                                @if(isset($user->training_result))
+                                    @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                        <div class="class-test-score">
+                                            <strong class="tit">Class Tests:</strong>
+                                            <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
+                                        </div>
+                                    @endif
 
-                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
-                                    <strong class="tit">Class Tests:</strong> {{ $user->final_ct_score }}% <br> @endif
-                                @endif
-                                @if(isset($score_settings->certification) && $score_settings->certification > 0)
-                                <strong>Certification: </strong> {{ isset($user->total_cert_score ) ? $user->total_cert_score : '' }}% <br>
-                                @endif
-                                @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                <strong class="tit">Role Play: </strong> {{ $user->total_role_play_score }}%  <br> 
-                                @endif
-                                @if(isset($score_settings->crm_test) && $score_settings->crm_test > 0)
-                                <strong class="tit">CRM Test: </strong> {{ $user->total_crm_test_score }}%  <br> 
-                                @endif
-                                @if(isset($score_settings->email) && $score_settings->email > 0)
-                                    <strong>Email: </strong> {{ $user->total_email_test_score }}% 
+                                    @if(isset($score_settings->certification) && $score_settings->certification > 0)
+                                        <div class="certification-score">
+                                            <strong>Certification: </strong>
+                                            <span id="certification_test_score{{ $user->id }}">{{ $user->training_result->certification_test_score }}</span>%
+                                            
+                                        </div>
+                                    @endif
+
+                                    @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
+                                        <div class="roleplay-score">
+                                            <strong class="tit">Role Play: </strong>
+                                            <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
+                                        </div>
+                                    @endif
+
+                                    @if(isset($score_settings->crm_test) && $score_settings->crm_test > 0)
+                                        <div class="crm-test-score">
+                                            <strong class="tit">CRM Test: </strong>
+                                            <span id="crm_test_score{{ $user->id }}">{{ $user->training_result->crm_test_score }}</span>% <br>
+                                        </div>
+                                    @endif
+
+                                    @if(isset($score_settings->email) && $score_settings->email > 0)
+                                        <div class="email-test-score">
+                                            <strong>Email: </strong>
+                                            <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>%
+                                        </div>
+                                    @endif
                                 @endif
                             </td>
-                            <td><strong class="tit" style="color:blue">{{ $user->passmark }}%</strong> </td>
                             <td>
-                                <strong class="tit" style="color:{{ $total < $user->passmark ? 'red' : 'green'}}">{{ $total }}%</strong> 
+                                <strong class="tit" style="color:blue">{{ $score_settings->passmark }}%</strong> 
+                            </td>
+                            <td>
+                                @if(isset($user->training_result))
+                                <strong class="tit" id="total_score{{ $user->id }}" style="color:{{ $user->training_result->total_score < $score_settings->passmark ? 'red' : 'green' }}">{{ $user->training_result->total_score }}%</strong> 
+                                @else   
+                                0%
+                                @endif
                             </td>
                         </tr>
+                        {{-- @endif --}}
                         @endforeach
                     </tbody>
                 </table>
             </div>
-            {{$users->render()}}
+            {{ $users->appends(request()->all())->links() }}
         </div>
     </div>
 </div>
-<div class="modal fade" id="exportmodal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="{{route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id'=>$program->id])}}" method="POST" class="pb-2">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="columns">User Data to Export</label>
-                                <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
-                                    <option value="name">Name</option>
-                                    <option value="metadata">Metadata</option>
-                                </select>
+    <div class="modal fade" id="exportmodal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id'=>$program->id, 'p_id'=>$program->id])}}" method="POST" class="pb-2">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="columns">User Data to Export</label>
+                                    <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
+                                        <option value="name">Name</option>
+                                        <option value="metadata">Metadata</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <button type="submit" class="btn btn-primary" style="width:100%">
-                            Submit
-                        </button>
-                    </div>
-                    {{ csrf_field() }}
-                </form>
-            </div>     
+                        <div class="row">
+                            <button type="submit" class="btn btn-primary" style="width:100%">
+                                Submit
+                            </button>
+                        </div>
+                        {{ csrf_field() }}
+                    </form>
+                </div>     
+            </div>
         </div>
     </div>
     @endsection

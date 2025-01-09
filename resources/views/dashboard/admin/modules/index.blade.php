@@ -38,7 +38,7 @@
                 </div>
             </a>
             </div>
-        @if(Auth()->user()->role_id == "Admin")
+        @if(resolveAuthUser()->roles == "Admin")
         <div class="col-md-3 col-lg-3">
         <a href="{{ route('scoreSettings.index')}}">
             <div class="card card-hover">

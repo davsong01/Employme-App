@@ -75,7 +75,7 @@
                                         <option value="" disabled>Assign Role</option>
                                         <option value="Student" {{ checkRoleHas(['Student']) ? 'selected' : ''}}>Student</option>
                                         @if(checkRoleHas(['Admin']))
-                                        <option value="Teacher" {{ $user->role_id == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
+                                        <option value="Teacher" {{ $user->roles == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
                                         <option value="Grader" {{ checkRoleHas(['Grader']) ? 'selected' : ''}}>Grader</option>
                                         @endif
                                     </select>

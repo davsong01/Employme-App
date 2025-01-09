@@ -1,5 +1,5 @@
 <?php 
-    $menus = Auth::user()->permissions ?? [];
+    $menus = resolveAuthUser()->permissions ?? [];
 ?>
 @extends('dashboard.layouts.main')
 @section('css')

@@ -27,7 +27,6 @@ class FrontendController extends Controller
 
     public function index(Request $request)
     {
-
         if($request->has('search')){
             if (Session::get('facilitator')) {
                 $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
@@ -110,7 +109,6 @@ class FrontendController extends Controller
     }  
 
     public function thankyou(Request $request){
-      
         return view('thankyou');
     }
 }

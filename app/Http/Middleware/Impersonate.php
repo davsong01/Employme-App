@@ -14,7 +14,7 @@ class Impersonate
      */
     public function handle($request, Closure $next)
     {
-        if (checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin','Facilitator','Grader'])) {
             if ($request->session()->has('impersonate')) {
                 Auth::onceUsingId($request->session()->get('impersonate'));
             }

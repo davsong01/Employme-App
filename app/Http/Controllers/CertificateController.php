@@ -14,6 +14,7 @@ use App\Models\UtilityTracker;
 use App\Models\UtilityCronTask;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
+use App\Services\CertificateService;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
@@ -21,14 +22,14 @@ class CertificateController extends Controller
 {
     public function index(Request $request)
     {
-        $userid = Auth::user()->id;
+        $userid = resolveAuthUser()->id;
         $i = 1;
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
                 $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
                 return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
             }else{
-                $programs = FacilitatorTraining::whereUserId(auth()->user()->id)->get();
+                $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->get();
                 if ($programs->count() > 0) {
                     foreach ($programs as $program) {
                         $program['id'] = $program->program_id;
@@ -44,27 +45,28 @@ class CertificateController extends Controller
         }
 
         if (checkRoleHas(['Student'])) {
-            $user_balance = $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
-            $details = certificationStatusNew($transaction->training_result, $transaction->program, auth()->user());
+            $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
+
             $program = $transaction->program;
 
+            $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
+            
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                if ($user_balance->balance > 0) {
+                if ($transaction->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
                 }
             }
 
             if ($program->only_certified_should_see_certificate == 'yes') {
-                $details = $details->certification_status;
-                
-                if (!$details || $details == 'NOT CERTIFIED') {
+                $certification_status = $details->certification_status ?? NULL;
+                if (!$certification_status || $certification_status == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
             }
             
-            $certificate = Certificate::with(['user'])->where('user_id', Auth::user()->id)->whereProgramId($request->p_id)->first();
-
+            $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
+            
             if (!isset($certificate)) {
                 return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
             }
@@ -97,6 +99,7 @@ class CertificateController extends Controller
 
         return back()->with('message', 'Status updated successfully');
     }
+
     public function selectUser(Request $request, $program_id)
     {
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
@@ -160,7 +163,6 @@ class CertificateController extends Controller
 
     public function destroy(certificate $certificate, $internal=false)
     {
-
         $certificate_count = certificate::where('file', $certificate->file)->count();
 
         if ($certificate_count <= 1) {
@@ -255,7 +257,7 @@ class CertificateController extends Controller
 
         if (!empty($cron_task) && $cron_task == 'yes') {
             // Cron
-            $payload = $request->except('use_cron');
+            $payload = $request->except(['use_cron', 'prefix__']);
             $payload['program_id'] = $program_id;
 
             UtilityCronTask::updateOrcreate([
@@ -351,7 +353,6 @@ class CertificateController extends Controller
         return back()->with('error', 'You do not have permission to perform this action.');
     }
 
-
     public function generateCertificatePreview(Request $request, $program_id)
     {
         try {
@@ -389,5 +390,16 @@ class CertificateController extends Controller
         ->delete();
 
         return back()->with('message', count($duplicateIds).' Duplicates removed successfully');
+    }
+
+
+    public function verifyCertificate(Request $request, CertificateService $certificate){
+        if(!empty($request->certificate_number)){
+            $response = $certificate->verify($request->certificate_number);
+        }else{
+            $response = null;
+        }
+        
+        return view('verify-certificate', compact('response'));
     }
 }

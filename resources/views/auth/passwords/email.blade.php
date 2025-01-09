@@ -1,32 +1,50 @@
-@extends('layouts.app')
-
+@extends('layouts.contai.app')
+@section('title')
+    {{ config('app.name') }} - Reset Password
+@endsection
+@section('pagetitle')
+Reset Password
+@endsection
 @section('content')
-<div class="col-md-7">
-    <div class="card-body">
-        <div class="brand-wrapper">
-            <img src="{{ asset('login_files/assets/images/logo.png') }}" alt="logo"
-                style="width: 230px !important">
-        </div>
-        <p>Enter your email address and we will send you a Password reset link</p>
-        <form class="form-horizontal" method="POST" action="{{ route('password.email') }}">
-            {{ csrf_field() }}
-            <div class="form-group mb-4{{ $errors->has('email') ? ' has-error' : '' }}">
-                <label for="email" class="sr-only">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}"  id="email" class="form-control"
-                    placeholder="Email address">
+<section class="checkout spad" style="padding-top: 20px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                @include('layouts.partials.alerts')
             </div>
-            @if ($errors->has('email'))
-                <span class="help-block" style="font-weight: 50 !important;">
-                    <strong>{{ $errors->first('email') }}</strong>
-                </span>
-            @endif
-            <button type="submit" class="btn btn-block login-btn mb-4">
-                Send Password Reset Link
-            </button>
-        </form>
-       <br><br>
-        <span>Designed by <a href="https://techdaves.com" target="_blank">Techdaves</a></span>
+        </div>
+        @if (session('status'))
+            <div class="alert alert-success">
+                {{ session('status') }}
+            </div>
+        @else
+            <div class="checkout__form">
+                <h4>Enter your email address and we will send you a Password reset link if that email exists on our system</h4>
+                <form action="{{ route('password.email') }}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <label for="email" style="margin: 0;">Email<span>*</span></label>
+                                            <a href="{{ route('login') }}" style="font-size: 0.875rem;">Login</a>
+                                        </div>
+                                        <input type="text" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="site-btn checkout-button">Send Password Reset Link</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        @endif
     </div>
-</div>
-
+</section>
 @endsection

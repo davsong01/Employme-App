@@ -22,18 +22,16 @@ class UserController extends Controller
     {
 
         $i = 1;
-        //$users = User::all();
-        $users = User::where('role_id', '=', "Student")->orderBy('created_at', 'DESC')->get();
-        //$users = DB::table('users')->where('role_id', '<>', "Admin")->get();
+        $users = User::where('roles', '=', "Student")->orderBy('created_at', 'DESC')->get();
         $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC');
+        
         if(checkRoleHas(['Admin'])) {
             return view('dashboard.admin.users.index', compact('users', 'i', 'programs'));
         } else if (checkRoleHas(['Facilitator'])) {
             $users = User::where([
-                'role_id' => "Student",
-                'program_id' => Auth::user()->program_id,
+                'roles' => "Student",
+                'program_id' => resolveAuthUser()->program_id,
             ])->orderBy('created_at', 'DESC')
-
                 ->get();
             return view('dashboard.teacher.users.index', compact('users', 'i', 'programs'));
         }
@@ -109,7 +107,7 @@ class UserController extends Controller
                 'amount' => $data['amount'],
                 't_type' => $data['bank'],
                 't_location' => $data['location'],
-                'role_id' => $data['role'],
+                'roles' => $data['role'],
                 'gender' => $data['gender'],
                 'transid' => $data['transaction_id'],
                 'paymenttype' => $payment_type,
@@ -191,7 +189,7 @@ class UserController extends Controller
         $user->balance = $balance;
         $user->t_type = $request['bank'];
         $user->t_location = $request['location'];
-        $user->role_id = $request['role'];
+        $user->roles = $request['role'];
         $user->gender = $request['gender'];
         // $user->bank = $request['bank'];
         $user->transid = $request['transaction_id'];

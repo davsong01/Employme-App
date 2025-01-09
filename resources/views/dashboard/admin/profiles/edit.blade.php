@@ -29,7 +29,8 @@
                                 <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone"
-                                        value="{{ old('phone') ?? $user->phone }}" autofocus>
+                                        value="{{ old('phone') ?? ($user->phone ?? $user->phone) }}" autofocus>
+
                                     @if ($errors->has('phone'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('phone') }}</strong>

@@ -146,12 +146,6 @@ class PopController extends Controller
 
     public function show(Pop $pop)
     {
-        if (checkRoleHas(['Admin','Facilitaor','Grader'])) {
-            return abort(404);
-        }
-
-        //Check if program exist for the incoming training
-        // $user = User::whereEmail($data['email'])->value('id');
         if (isset($pop->user) && !empty($pop->user)) {
             $check = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->where('balance', '<', 1)->count();
 
@@ -160,7 +154,6 @@ class PopController extends Controller
             }
         }
 
-        // If balance
         // Try to see if this is balance payment
         $existingTransaction = $this->getExistingTransactionAndBalance($pop);
         
@@ -197,7 +190,7 @@ class PopController extends Controller
             $allDetails['currency'] = $pop->currency;
             $allDetails['currency_symbol'] = $pop->currency_symbol;
             $allDetails['date'] = $pop->date;
-            $allDetails['role_id'] = 'Student';
+            $allDetails['roles'] = 'Student';
             $allDetails['message'] = $this->dosubscript1($balance);
             $allDetails['paymentStatus'] = $this->paymentStatus($balance);
             $allDetails['balance'] = $balance;
@@ -265,7 +258,7 @@ class PopController extends Controller
             $allDetails['currency'] = $pop->currency;
             $allDetails['currency_symbol'] = $pop->currency_symbol;
             $allDetails['date'] = $pop->date;
-            $allDetails['role_id'] = 'Student';
+            $allDetails['roles'] = 'Student';
             $allDetails['message'] = $pop->program->e_amount > 0 ?  $this->dosubscript2($balance) : $this->dosubscript1($balance);
             $allDetails['paymentStatus'] = $this->paymentStatus($balance);
             $allDetails['paymenttype'] = $this->paymentStatus(0);
@@ -330,7 +323,7 @@ class PopController extends Controller
     }
 
     public function update(Pop $pop, Request $request){
-        $pop->update($request->except(['template', '_token', '_method', 'template']));
+        $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__']));
         return back()->with('message', 'Update Successful');
     }
     
@@ -369,7 +362,7 @@ class PopController extends Controller
 
     public function reconcile()
     {
-        $users = User::where('role_id', 'Student')->get();
+        $users = User::where('roles', 'Student')->get();
         foreach ($users as $user) {
             //get user extra details
             $user->programs()->attach($user->program_id, [

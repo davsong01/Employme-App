@@ -138,7 +138,7 @@
 @endsection
 @section('title', 'Facilitator' )
 @section('content')
-@if(is_null(auth()->user()->facilitator_id))
+@if(is_null(resolveAuthUser()->facilitator_id))
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">

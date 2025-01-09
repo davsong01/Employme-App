@@ -7,8 +7,8 @@
     <!-- Start Page Content -->
     <!-- ============================================================== -->
     @include('layouts.partials.alerts')
-    
-    @if(Auth()->user()->role_id == "Admin") 
+
+    @if(checkRoleHas(['Admin'])) 
         <div class="row">
             <!-- Column -->
             
@@ -102,7 +102,7 @@
         <!-- Column -->
         @if(checkRoleHas(['Facilitator','Grader']))
             <div class="col-md-3 col-lg-3">
-                <a href="{{ route('teachers.students', Auth()->user()->id) }}">
+                <a href="{{ route('teachers.students', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
                     <div class="box bg-warning text-center">
                         <h1 class="font-light text-white"><i class="fa fa-users"></i></h1>
@@ -111,8 +111,8 @@
                 </div>
                 </a>
             </div>
-             <div class="col-md-3 col-lg-3">
-                <a href="{{ route('teachers.programs', Auth()->user()->id) }}"">
+            <div class="col-md-3 col-lg-3">
+                <a href="{{ route('programs.index', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
                     <div class="box bg-primary text-center">
                         <h1 class="font-light text-white"><i class="fa fa-link"></i></h1>

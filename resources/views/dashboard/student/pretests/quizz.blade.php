@@ -19,7 +19,7 @@
                 <strong>Module: {{ $module_title }}</strong><br><br>
                 Select the correct answer
             </p>
-                <form name="quiz" id="quiz_form" action="{{route('mocks.store', ['p_id' => $program->id])}}" method="POST"  class="pb-2">
+                <form name="quiz" id="quiz_form" action="{{route('participants.mocks.store', ['p_id' => $program->id])}}" method="POST"  class="pb-2">
                     {{ csrf_field() }}
                     @foreach($questions as $question)
                     <div class="form-group">

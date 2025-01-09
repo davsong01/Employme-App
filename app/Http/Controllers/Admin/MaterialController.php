@@ -25,7 +25,7 @@ class MaterialController extends Controller
 
     public function index(Request $request)
     {
-        $userid = Auth::user()->id;
+        $userid = resolveAuthUser()->id;
         $i = 1;
         
         if (checkRoleHas(['Admin','Facilitator'])){
@@ -34,7 +34,7 @@ class MaterialController extends Controller
             }
     
             if(checkRoleHas(['Facilitator','Grader'])) {
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
             }
 
@@ -46,7 +46,7 @@ class MaterialController extends Controller
             $program = Program::find($request->p_id);
 
             if ($program->allow_payment_restrictions_for_materials == 'yes') {
-                $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', auth()->user()->id)->first();
+                $user_balance = DB::table('program_user')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
                 if ($user_balance->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to materials');
                 }
@@ -57,7 +57,7 @@ class MaterialController extends Controller
                 //Check if user has taken pre tests and return back if otherwise
                 $expected_pre_class_tests = Module::ClassTests($program->id)->count();
 
-                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', auth()->user()->id)->count();
+                $completed_pre_class_tests = Mocks::where('program_id', $program->id)->where('user_id', resolveAuthUser()->id)->count();
 
                 if ($completed_pre_class_tests < $expected_pre_class_tests) {
                     return Redirect::to('mocks?p_id=' . $program->id)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
@@ -80,7 +80,7 @@ class MaterialController extends Controller
             }
 
             if (checkRoleHas(['Facilitator', 'Grader'])) {
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $training = Program::withCount('materials')->where('id', $training->id)->whereIn('id', $trainings)->first();
             } 
         }else {

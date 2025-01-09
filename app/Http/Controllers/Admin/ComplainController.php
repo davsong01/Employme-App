@@ -23,7 +23,7 @@ class ComplainController extends Controller
             }
 
             if (checkRoleHas(['Facilitator', 'Grader'])) {
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $trainings = Program::withCount('crm')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
             }
         
@@ -31,10 +31,10 @@ class ComplainController extends Controller
         } elseif (checkRoleHas(['Student'])){
             $program = Program::find($request->p_id);
 
-            $resolvedComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Resolved', 'program_id' => $request->p_id])->count();
-            $pendingComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'Pending', 'program_id' => $request->p_id])->count();
-            $InProgressComplains =  Complain::where(['user_id' => Auth::user()->id, 'status' => 'In Progress', 'program_id' => $request->p_id])->count();
-            $complains = Complain::where(['user_id' => Auth::user()->id, 'program_id' => $request->p_id])->orderBy('created_at', 'DESC')->get();
+            $resolvedComplains =  Complain::where(['user_id' => resolveAuthUser()->id, 'status' => 'Resolved', 'program_id' => $request->p_id])->count();
+            $pendingComplains =  Complain::where(['user_id' => resolveAuthUser()->id, 'status' => 'Pending', 'program_id' => $request->p_id])->count();
+            $InProgressComplains =  Complain::where(['user_id' => resolveAuthUser()->id, 'status' => 'In Progress', 'program_id' => $request->p_id])->count();
+            $complains = Complain::where(['user_id' => resolveAuthUser()->id, 'program_id' => $request->p_id])->orderBy('created_at', 'DESC')->get();
             
             return view('dashboard.student.complains.index', compact('complains', 'i', 'resolvedComplains', 'InProgressComplains', 'pendingComplains', 'program'));
         } else return back();
@@ -49,7 +49,7 @@ class ComplainController extends Controller
             }
 
             if (checkRoleHas(['Facilitator', 'Grader'])) {
-                $trainings = auth()->user()->trainings->pluck('program_id')->toArray();
+                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $complains = Complain::with('user')->where('program_id', $p_id->id)->whereIn('program_id', $trainings)->orderBy('user_id', 'DESC')->get();
             }
 
@@ -124,7 +124,7 @@ class ComplainController extends Controller
         } else $sla = rand(4, 6);
 
         Complain::create([
-            'user_id' => Auth::user()->id,
+            'user_id' => resolveAuthUser()->id,
             'name' => $data['name'] ?? null,
             'address' => $data['address'] ?? null,
             'email' => $data['email'] ?? null,
@@ -170,7 +170,7 @@ class ComplainController extends Controller
     public function update(Complain $complain, Request $request)
     {
         // dd($request->all());
-        $data = $request->except(['p_id']);
+        $data = $request->except(['p_id', 'prefix__']);
         $complain->update($data);
 
         //Update User Percentage Response

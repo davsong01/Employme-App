@@ -23,7 +23,7 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
     public function collection()
     {
        
-        // $users = User::with('program')->where('role_id', 'Student')->get();
+        // $users = User::with('program')->where('roles', 'Student')->get();
         $participants = DB::table('program_user')->select(['id','created_at', 'program_id','user_id'])->whereProgramId($this->id)->orderBy('created_at', 'DESC')->get();
         // $participants = Transaction::orderBy('program_user.created_at', 'DESC')
         // ->whereProgramId($this->id)

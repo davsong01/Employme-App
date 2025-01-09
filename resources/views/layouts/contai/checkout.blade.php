@@ -28,7 +28,7 @@
                                     <p>Name<span>*</span></p>
                                      <input type="text" class="form-control" id="name" name="name" 
                                     @auth
-                                    value="{{ auth()->user()->name }}"  
+                                    value="{{ resolveAuthUser()->name }}"  
                                     placeholder="Full Name"
                                     @endauth
 
@@ -44,7 +44,7 @@
                                     <p>Email<span>*</span></p>
                                     <input type="email" id="email" name="email" 
                                         @auth
-                                        value="{{ auth()->user()->email }}"  
+                                        value="{{ resolveAuthUser()->email }}"  
                                         @endauth
                                         @guest 
                                         value="{{ old('email') }}" placeholder="Enter email"  
@@ -58,7 +58,7 @@
                                     <p>Phone<span>*</span></p>
                                     <input type="text" class="form-control" id="phone" name="phone" 
                                         @auth
-                                        value="{{ auth()->user()->phone }}"
+                                        value="{{ resolveAuthUser()->phone }}"
                                         @endauth
 
                                         @guest 
@@ -137,7 +137,7 @@
                             @if($amount > 0)
                                 <h4 class="">Choose payment method</h4>
                                 <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                                    @if(auth()->user())
+                                    @if(resolveAuthUser())
                                     <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
                                     @endif
                                     @if($settings->allow_transfer_button == 'yes' || in_array($training['id'], [68]))

@@ -182,13 +182,13 @@
                             @php
                                 $currentStatus = request('status');
                             @endphp
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
+                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}">
                                 <button class="btn btn-dark rounded {{ is_null($currentStatus) ? 'active' : '' }}">All</button>
                             </a>
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}?{{ http_build_query(array_merge(request()->query(), ['status' => 'yes'])) }}">
+                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}">
                                 <button class="btn btn-success rounded {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</button>
                             </a>
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}?{{ http_build_query(array_merge(request()->query(), ['status' => 'no'])) }}">
+                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}">
                                 <button class="btn btn-danger rounded {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</button>
                             </a>
 
@@ -454,8 +454,6 @@
                                         @endif
                                     </td>
                                 @endif
-
-                                
                             </tr>
                             
                             <div class="modal fade" id="resitModal{{$user->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -529,8 +527,7 @@
                     </tbody>
                 </table>
             </div>
-
-            {{$users->render()}}
+            {{ $users->appends(request()->all())->links() }}
         </div>
     </div>
     <!-- Result Modal -->
@@ -558,7 +555,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id])}}" method="POST" class="pb-2">
+                    <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id, 'id'=>$program->id])}}" method="POST" class="pb-2">
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">

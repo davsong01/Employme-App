@@ -29,7 +29,7 @@ class PaymentController extends Controller
     {
         $i = 1;
 
-        if (canUserAccessPermission(['payments.index'])) {
+        if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
             $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
             
             $i = 1;
@@ -80,7 +80,7 @@ class PaymentController extends Controller
         }
         
         if (checkRoleHas(['Student'])){
-            $transactiondetails = Transaction::with('paymentthreads')->where('user_id', '=', Auth::user()->id)->orderBy('created_at', 'DESC')->get();
+            $transactiondetails = Transaction::with('paymentthreads')->where('user_id', '=', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
 
             foreach ($transactiondetails as $details) {
                 $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();
@@ -127,7 +127,7 @@ class PaymentController extends Controller
     public function approveWalletTransaction($wallet_id){
         $wallet = Wallet::where('id', $wallet_id)->update([
             'status' => 'approved',
-            'admin_id' => auth()->user()->id
+            'admin_id' => resolveAuthUser()->id
         ]);
 
         return back()->with('message', 'TopUp successfully Approved');
@@ -239,7 +239,7 @@ class PaymentController extends Controller
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
             }
-            if ($transaction->user_id <> auth()->user()->id) {
+            if ($transaction->user_id <> resolveAuthUser()->id) {
                 return back()->with('warning', 'Unauthorized Action');
             }
         }
@@ -403,7 +403,7 @@ class PaymentController extends Controller
             $wallet['provider'] = 'ADMIN TOPUP';
             $wallet['status'] = 'approved';
             $wallet['user_id'] = $user->id;
-            $wallet['admin_id'] = auth()->user()->id;
+            $wallet['admin_id'] = resolveAuthUser()->id;
 
             app('App\Http\Controllers\WalletController')->logWallet($wallet);
         }else{
@@ -416,7 +416,7 @@ class PaymentController extends Controller
             $wallet['provider'] = 'ADMIN TOPUP';
             $wallet['status'] = 'approved';
             $wallet['user_id'] = $user->id;
-            $wallet['admin_id'] = auth()->user()->id;
+            $wallet['admin_id'] = resolveAuthUser()->id;
 
             app('App\Http\Controllers\WalletController')->logWallet($wallet);
 
@@ -428,7 +428,7 @@ class PaymentController extends Controller
             $wallet['provider'] = 'ADMIN TOPUP';
             $wallet['status'] = 'approved';
             $wallet['user_id'] = $user->id;
-            $wallet['admin_id'] = auth()->user()->id;
+            $wallet['admin_id'] = resolveAuthUser()->id;
 
             app('App\Http\Controllers\WalletController')->logWallet($wallet);
         }
@@ -440,7 +440,7 @@ class PaymentController extends Controller
             't_type' => $request['bank'] ?? null,
             't_location' => $request['location'],
             'training_mode' => $request['training_mode'],
-            'admin_id' => auth()->user()->id,
+            'admin_id' => resolveAuthUser()->id,
             'paymentStatus' =>  $paymentStatus,
         ]);
         $reference = $this->getReference('ADMIN_TOP_UP_WALLET');
@@ -451,7 +451,7 @@ class PaymentController extends Controller
             'payment_id' => $transaction->id,
             'transaction_id' => $reference,
             't_type' => $t_type,
-            'admin_id' => auth()->user()->id,
+            'admin_id' => resolveAuthUser()->id,
             'parent_transaction_id' => $transaction->transid ?? $transaction->invoice_id,
             'amount' => abs($request->amount),
         ]);

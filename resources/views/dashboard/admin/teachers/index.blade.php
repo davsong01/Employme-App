@@ -103,7 +103,7 @@
                                     @endif  
                                     @if($permissions['admin-impersonate'])
                                     <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                    class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
+                                    class="btn btn-warning" href="{{ route('admin.impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>
                                     </a>
                                     @endif

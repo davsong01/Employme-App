@@ -126,7 +126,7 @@ class PaymentModeController extends Controller
             $imageFile = Image::make($request->image)->resize(200, 150);
             $imageName = rand(111111111, 999999999);
             $imageFile->save('paymentmodes/' . $imageName . '.jpg');
-            $data = $request->except(['image', '_method', '_token']);
+            $data = $request->except(['image', '_method', '_token', 'prefix__']);
             $data['image'] = $imageName . '.jpg';
         }
         

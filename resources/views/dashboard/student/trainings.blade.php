@@ -14,7 +14,7 @@
     </div>
     <div class="row">
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('payments.index') }}">
+            <a href="{{ route('participants.payments.index') }}">
                 <div class="card card-hover">
                     <div
                         class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
@@ -27,7 +27,7 @@
             </a>
         </div>
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('materials.index', ['p_id'=> $program->id]) }}">
+            <a href="{{ route('participants.materials.index', ['p_id'=> $program->id]) }}">
                 <div class="card card-hover">
                     <div class="box bg-info text-center">
                         <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
@@ -39,7 +39,7 @@
         </div>
         @if($program->hasmock == 1)
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('mocks.index', ['p_id' => $program->id])}}">
+            <a href="{{ route('participants.mocks.index', ['p_id' => $program->id])}}">
                 <div class="card card-hover">
                     <div class="box bg-warning text-center">
                         <h1 class="font-light text-white"><i class="fa fa-chalkboard"></i></h1>
@@ -51,7 +51,7 @@
         </div>
         @endif
         <div class="col-md-3 col-lg-3">
-            <a href="{{ route('tests.index', ['p_id'=>$program->id])}}">
+            <a href="{{ route('participants.tests.index', ['p_id'=>$program->id])}}">
                 <div class="card card-hover">
                     <div class="box bg-success text-center">
                         <h1 class="font-light text-white"><i class="fas fa-question"></i></h1>
@@ -88,7 +88,7 @@
         </div>
     </div>
     @endif
-    @if(auth()->user()->facilitator_id)
+    @if(resolveAuthUser()->facilitator_id)
     <div class="row">
         <div class="col-md-12">
             <div class="card">
@@ -97,18 +97,18 @@
                     <div class="row pt-2">
                         <div class="col-md-2">
                             <div class="d-flex no-block align-items-center">
-                                <img src="{{ asset('profiles/'. auth()->user()->facilitator->profile_picture )}}" alt="{{ auth()->user()->facilitator->profile_picture }}" class="rounded-circle" width="150"
+                                <img src="{{ asset('profiles/'. resolveAuthUser()->facilitator->profile_picture )}}" alt="{{ resolveAuthUser()->facilitator->profile_picture }}" class="rounded-circle" width="150"
                                 height="150" style="margin: auto;">
                                
                             </div>
                         </div>
                         <div class="col-md-10">
                             <div>
-                               
-                                    <b>Name: </b>{{ auth()->user()->facilitator->name }} <br>
-                                    <b>Email: </b>{{ auth()->user()->facilitator->email }} <br>
-                                    <b>Phone: </b>{{ auth()->user()->facilitator->phone }} <br>
-                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! auth()->user()->facilitator->profile !!}</span> 
+                        
+                                    <b>Name: </b>{{ resolveAuthUser()->facilitator->name }} <br>
+                                    <b>Email: </b>{{ resolveAuthUser()->facilitator->email }} <br>
+                                    <b>Phone: </b>{{ resolveAuthUser()->facilitator->phone }} <br>
+                                    <b>Profile: </b> <br> <span style="padding-right:20px">{!! resolveAuthUser()->facilitator->profile !!}</span> 
                                 
                             </div>
                         </div>

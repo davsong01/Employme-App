@@ -30,7 +30,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    // protected $redirectTo = '';
+    protected $redirectTo = 'home';
 
     /**
      * Create a new controller instance.
@@ -48,6 +48,11 @@ class LoginController extends Controller
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'staffID';
         request()->merge([$fieldType => $login]);
         return $fieldType;
+    }
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
     }
 
     protected function attemptLogin(Request $request)
@@ -78,7 +83,7 @@ class LoginController extends Controller
         
         // If login is successful, update last_login
         if ($attemptLogin) {
-            $user = Auth::user();
+            $user = resolveAuthUser();
             $user->update(['last_login' => now()]);
         }
 

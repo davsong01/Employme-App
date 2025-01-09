@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-2">
                                 <div class="form-group">
-                                    <img src="{{ (filter_var(Auth::user()->profile_picture, FILTER_VALIDATE_URL) !== false) ? Auth::user()->profile_picture : url('/'). '/avatars'.'/'.Auth::user()->profile_picture }}" class="rounded-circle" width="100"
+                                    <img src="{{ (filter_var(resolveAuthUser()->profile_picture, FILTER_VALIDATE_URL) !== false) ? resolveAuthUser()->profile_picture : url('/'). '/avatars'.'/'.resolveAuthUser()->profile_picture }}" class="rounded-circle" width="100"
                                     height="100">
                                 </div>
                             </div>
@@ -40,14 +40,14 @@
                                 <div class="form-group">
                                     <table class="table table-bordered">
                                         <th><strong>Trainings</strong><a href="{{ route('teachers.programs', $user->id) }}" target="_blank" class="btn btn-info btn-sm view"> View</a></th>
-                                        <th><strong>Students</strong><a href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
+                                        <th><strong>Students</strong><a href="{{ route('users.index') }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
                                         <th><strong>WTN License</strong></th>
                                         <th><strong>Off season</strong></th>
                                         <th><strong>Total Earnings</strong> <a href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-sm view" target="_blank"> View</a> </th>
                                         
                                         <tr>
                                            <td>{{ $user->programCount }}</td>
-                                           <td>{{  $user->students_count }} </td>
+                                           <td>{{ $user->students_count }} </td>
                                            <td>{{ $user->license }}</td>
                                            <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No'}}</td>
                                            <td>{{ \App\Models\Settings::first()->value('DEFAULT_CURRENCY') }}{{ $user->earnings }}</td>

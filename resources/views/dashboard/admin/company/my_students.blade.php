@@ -36,7 +36,7 @@
                             <td><img src="{{ asset('profiles/'. $user->profile_picture  )}}" alt="{{ $user->profile_picture }}" class="rounded-circle" width="50"
                                 height="50"></td>
                             <td>{{ $user->name ?? NULL }}</td>
-                            @if(!empty(checkRoleHas(['Admin']), auth()->user()->role())))
+                            @if(!empty(checkRoleHas(['Admin']), resolveAuthUser()->role())))
                             <td>{{ $user->email ?? NULL }}</td>
                             @endif
                             <td>{{ $user->phone ?? NULL}}</td>

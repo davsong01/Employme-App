@@ -35,8 +35,8 @@
                                 <td>{{  $i++ }}</td>
                                 <td>
                                     @if($permissions['single.program.questions.index'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training" class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}"></a>
-                                        {{ $programs->p_name }}
+                                        <a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training" class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}">
+                                        {{ $programs->p_name }}</a>
                                     @else 
                                         <a data-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
                                         {{ $programs->p_name }}

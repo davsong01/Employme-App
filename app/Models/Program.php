@@ -89,7 +89,7 @@ class Program extends Model
     
     public function checkBalance($p_id)
     {
-        $balance = DB::table('program_user')->where('user_id', auth()->user()->id)->where('program_id', $p_id)->value('balance');
+        $balance = DB::table('program_user')->where('user_id', resolveAuthUser()->id)->where('program_id', $p_id)->value('balance');
         return $balance;
     }
     

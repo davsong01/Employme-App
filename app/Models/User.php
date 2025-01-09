@@ -54,22 +54,17 @@ class User extends Authenticatable
         return $this->belongsToMany(Program::class);
     }
 
-    public function trainings()
-    {
-        return $this->hasMany(FacilitatorTraining::class, 'user_id');
-    }
+    // public function scopeTrainingPermissions($query, $training_id = null)
+    // {
+    //     $trainings = $this->trainings()->get();
 
-    public function scopeTrainingPermissions($query, $training_id = null)
-    {
-        $trainings = $this->trainings()->get();
+    //     if (!empty($training_id)) {
+    //         $trainingPermissions = $trainings->where('program_id', $training_id)->pluck('training_permissions')->first();
+    //         return $trainingPermissions;
+    //     }
 
-        if (!empty($training_id)) {
-            $trainingPermissions = $trainings->where('program_id', $training_id)->pluck('training_permissions')->first();
-            return $trainingPermissions;
-        }
-
-        return $trainings;
-    }
+    //     return $trainings;
+    // }
 
     public function transactions()
     {
@@ -78,7 +73,7 @@ class User extends Authenticatable
     
     public function userTrainings()
     {
-        if($this->role_id == 'Student'){
+        if($this->roles == 'Student'){
             return Program::isUserProgram()->with(['subPrograms'])->whereHas('transactions', function ($query) {
                 $query->where('user_id', $this->id);
             });
@@ -89,31 +84,34 @@ class User extends Authenticatable
         }
     }
 
-    public function trainerStudents()
+    // public function trainerStudents()
+    // {
+    //     // Fetch program IDs linked to this facilitator
+    //     $programIds = $this->trainings()->pluck('program_id');
+    //     $programIds = $this->userTrainings()->pluck('id')->toArray();
+        
+    //     // Ensure program IDs are not empty
+    //     if (empty($programIds)) {
+    //         return collect(); // Return an empty collection if no programs are found
+    //     }
+
+    //     // Fetch students linked to these programs via transactions
+    //     $students = User::where('roles', 'Student')
+    //     ->whereHas('transactions', function ($query) use ($programIds) {
+    //         $query->whereIn('program_id', $programIds);
+    //     });
+        
+    //     return $students;
+    // }
+
+    public function trainings()
     {
-        // Fetch program IDs linked to this facilitator
-        $programIds = $this->trainings()->pluck('program_id');
-        $programIds = $this->userTrainings()->pluck('id')->toArray();
-        
-        // Ensure program IDs are not empty
-        if (empty($programIds)) {
-            return collect(); // Return an empty collection if no programs are found
-        }
-
-        // Fetch students linked to these programs via transactions
-        $students = User::where('role_id', 'Student')
-        ->whereHas('transactions', function ($query) use ($programIds) {
-            $query->whereIn('program_id', $programIds);
-        });
-        
-        return $students;
+        return $this->hasMany(FacilitatorTraining::class, 'user_id');
     }
 
-
-
-    public function payment_modes(){
-        return $this->belongsTo(PaymentMode::class, 'payment_mode');
-    }
+    // public function payment_modes(){
+    //     return $this->belongsTo(PaymentMode::class, 'payment_mode');
+    // }
 
     public function setImpersonating($id)
     {
@@ -138,6 +136,7 @@ class User extends Authenticatable
         return $this->attributes['phone'];
     }
 
+
     public function getAccountBalanceAttribute()
     {
         return app('App\Http\Controllers\WalletController')->getWalletBalance($this->id);
@@ -145,8 +144,8 @@ class User extends Authenticatable
 
     protected function scopeRole()
     {
-        $role_id = explode(',',$this->role_id);
-        return $role_id;
+        $roles = explode(',',$this->roles);
+        return $roles;
     }
 
     public function scopePermissions(){

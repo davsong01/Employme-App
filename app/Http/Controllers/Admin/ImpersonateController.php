@@ -3,44 +3,49 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
-use App\Models\Module;
-use App\Models\Program;
-use App\Models\Material;
+use App\Models\Admin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use MaddHatter\LaravelFullcalendar\Facades\Calendar;
+use Illuminate\Support\Facades\Session;
 
 class ImpersonateController extends Controller
 {
     public function index(Request $request, $id)
     {
-
         if (!checkRoleHas(['Admin','Facilitator','Grader'])) {
             return redirect('/dashboard');
         }
 
         $user = User::find($id);
-
-        Auth::user()->setImpersonating($user->id);
+        Auth::login($user);
+        resolveAuthUser()->setImpersonating($user->id);
         
-        // Guard against administrator impersonate
         return redirect(route('home'));
-        // if($user->id <> $id)
-        // {
-        // }
-        // else
-        // {
-        //     return back()->with('error', 'Impersonate disabled for this user');
-        // }
+    }
 
+    public function indexStaff(Request $request, $id)
+    {
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return redirect('/dashboard');
+        }
+        
+        Session::put('impersonate_o', Auth::guard('admin')->user()->id);
+
+        $user = Admin::find($id);
+        Auth::guard('admin')->login($user);
+        $user->setImpersonating($user->id);
+        
+        return redirect(route('admin.home'));
     }
 
     public function stopImpersonate()
     {
+        $user = resolveAuthUser();
+        
         if(Auth::check()){
-            Auth::user()->stopImpersonating();
+            Auth::logout($user);
+            $user->stopImpersonating();
         }else{
             return redirect(route('login'));
         }
@@ -51,10 +56,10 @@ class ImpersonateController extends Controller
 
     public function stopImpersonateFacilitator()
     {
-        if (Auth::check()) {
-            Auth::user()->stopImpersonating();
+        if (Auth::guard('admin')->check()) {
+            resolveAuthUser()->stopImpersonating();
         }else{
-            return redirect(route('login'));
+            return redirect(route('admin.login'));
         }
         
         return redirect(route('teachers.index'))->with('message', 'Welcome back!');   

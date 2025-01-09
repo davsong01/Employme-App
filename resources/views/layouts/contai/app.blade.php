@@ -89,7 +89,24 @@
               font-size: 22px;
           }
       }
-
+        .verification-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+        }
+        .status-certified {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-not-certified {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .certificate-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -211,8 +228,8 @@
                             @if(isset($setting->tac_link) && !empty($setting->tac_link))
                             <li><a href="{{ $setting->tac_link }}">Terms and Conditions</a></li>
                             @endif
+                            <li><a href="{{ route('verify.certificate') }}">Verify Certificate</a></li>
                         </ul>
-                       
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-12">

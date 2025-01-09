@@ -10,7 +10,7 @@
                         @include('layouts.partials.alerts')
                         <h4>Edit Profile</h4>
                     </div>
-                    <form action="{{route('profiles.update', $user->id)}}" method="POST" enctype="multipart/form-data"
+                    <form action="{{route('participants.profiles.update', $user->id)}}" method="POST" enctype="multipart/form-data"
                         class="pb-2">
                         {{ method_field('PATCH') }}
                         <div class="row">

@@ -129,7 +129,7 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator','Grader'])) {
-            $users = auth()->user()->trainerStudents();
+            $users = resolveAuthUser()->trainerStudents();
         }
 
         if (!empty($request->email)) {
@@ -163,7 +163,7 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
-            $programs = auth()->user()->userTrainings()->get();
+            $programs = resolveAuthUser()->userTrainings()->get();
         }
 
         $allPrograms = $programs;
@@ -290,7 +290,7 @@ class UserController extends Controller
                 'transaction_id' => 'nullable',
                 'invoice_id' => '',
             ]);
-
+            
             //Check if email exists in the system and attach it to the new pregram to that email
             if (!$user) {
                 //save to database
@@ -299,7 +299,7 @@ class UserController extends Controller
                     'email' => $data['email'],
                     'phone' => $data['phone'],
                     'password' => bcrypt($data['password']),
-                    'role_id' => $data['role'],
+                    'roles' => $data['role'],
                     'gender' => $data['gender'],
                 ]);
             }
@@ -378,6 +378,7 @@ class UserController extends Controller
     {
         $user = User::findorFail($id);
         $programs = Program::where('id', '<>', 1)->get();
+
         if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
             $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
@@ -386,7 +387,8 @@ class UserController extends Controller
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
-            $programs = FacilitatorTraining::whereUserId(Auth::user()->id)->pluck('program_id');
+            $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->pluck('program_id');
+            
             $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
 
             if ($count < 1) {
@@ -403,28 +405,30 @@ class UserController extends Controller
     {
         date_default_timezone_set("Africa/Lagos");
         $user = User::findorFail($id);
+        
         if ($request['password']) {
             $password = bcrypt($request['password']);
         } else $password = $user->password;
 
         try {
             if (checkRoleHas(['Facilitaor','Grader'])) {
-                $user_trainings = auth()->user()->trainings->pluck('id')->toArray();
+                $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $count = Transaction::whereUserId($user->id)->whereIn('program_id', $user_trainings)->count();
 
                 if ($count < 1) {
                     return back();
                 }
             }
+            
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => $password,
-                'role_id' => $request->role,
+                'roles' => $request->role,
                 'gender' => $request->gender,
             ]);
-
+            
             if(checkRoleHas(['Admin'])) {
                 // Get User programs and pop out of array
                 $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
@@ -515,7 +519,7 @@ class UserController extends Controller
 
         $data = $request->content;
         $subject = $request->subject;
-        $name = auth()->user()->name;
+        $name = resolveAuthUser()->name;
 
         if ($request->has('bulkrecipients') && $request->program == NULL && $request->type == 'bulkrecipients') {
             $recipients = preg_replace('#\s+#', ',', trim($request->bulkrecipients));

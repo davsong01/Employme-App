@@ -102,7 +102,7 @@
                             <div class="col-md-12 mb-3">
                                 <input type="text" class="form-control" id="name" name="name" 
                                 @auth
-                                value="{{ auth()->user()->name }}"  
+                                value="{{ resolveAuthUser()->name }}"  
                                 placeholder="Full Name"
                                 @endauth
 
@@ -122,7 +122,7 @@
                             <div class="col-md-12 mb-3">
                                 <input type="email" name="email" class="form-control" id="email" 
                                 @auth
-                                value="{{ auth()->user()->email }}"  
+                                value="{{ resolveAuthUser()->email }}"  
                                 placeholder="Email"
                                 @endauth
 
@@ -142,7 +142,7 @@
                             <div class="col-md-12 mb-3">
                                 <input type="text" class="form-control" name="phone" id="phone" 
                                 @auth
-                                value="{{ auth()->user()->phone }}"  
+                                value="{{ resolveAuthUser()->phone }}"  
                                 placeholder="Phone Number"
                                 @endauth
 

@@ -22,7 +22,7 @@ class CompanyUserController extends Controller
 {
     public function showLoginForm()
     {
-        return view('company_users.login');
+        return view('auth.login');
     }
 
     public function login(Request $request){
@@ -42,7 +42,7 @@ class CompanyUserController extends Controller
 
     public function dashboard()
     {
-        $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
+        $programs = resolveAuthUser()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->get();
         
@@ -80,7 +80,7 @@ class CompanyUserController extends Controller
     public function participants(Request $request){
         $i = 1;
 
-        $programs = auth()->user()->trainings()->whereHas('program', function ($query) {
+        $programs = resolveAuthUser()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->pluck('program_id')->toArray();
 
@@ -121,7 +121,7 @@ class CompanyUserController extends Controller
 
     public function pretest()
     {
-        $trainings = auth()->user()->trainings()->whereHas('program', function ($query) {
+        $trainings = resolveAuthUser()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->pluck('program_id')->toArray();
 
@@ -143,7 +143,7 @@ class CompanyUserController extends Controller
 
     public function postTest()
     {
-        $trainings = auth()->user()->trainings()->whereHas('program', function ($query) {
+        $trainings = resolveAuthUser()->trainings()->whereHas('program', function ($query) {
             $query->where('program_lock', 0);
         })->pluck('program_id')->toArray();
         

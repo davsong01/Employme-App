@@ -7,7 +7,6 @@
 ?>
 @extends('dashboard.student.index')
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="" crossorigin="anonymous">
 <style>
     a{
         text-decoration: none !important;
@@ -17,7 +16,6 @@
         min-height: 270px;
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
 @endsection
 @section('content')
@@ -33,11 +31,11 @@
     <div class="row">
         <!-- Column -->
         <div class="col-md-6 col-lg-6">
-            <a href="{{ route('profiles.edit', Auth::user()->id) }}">
+            <a href="{{ route('participants.profiles.edit', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
                     <div class="box bg-cyan text-center">
                         <h1 class="font-light text-white"><i class="fas fa-user-edit"></i></h1>
-                        <h6 class="text-white">Welcome, {{ Auth::user()->name }}</h6>
+                        <h6 class="text-white">Welcome, {{ resolveAuthUser()->name }}</h6>
                         <p class="text-white">Edit my profile</p>
                     </div>
                 </div>
@@ -218,7 +216,7 @@
                 <h2 style="text-align: center; color:green">My Trainings (Click to Access)</h2>
                 @foreach($thisusertransactions as $details)
                     <div class="col-md-12 col-lg-12">
-                        <a href="{{ route('trainings.show', ['p_id' => $details->p_id]) }}">
+                        <a href="{{ route('participant.trainings.show', ['p_id' => $details->p_id]) }}">
                             <div class="card card-hover">
                                 <div class="box bg-success text-center">
                                     <h1 class="font-light text-white"><i class="fas fa-chalkboard-teacher"></i></h1>

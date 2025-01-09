@@ -31,9 +31,9 @@ class ProgramController extends Controller
                 //Get all programs
                 $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
             }else{
-                $programs = auth()->user()->userTrainings()->get();
+                $programs = resolveAuthUser()->userTrainings()->get();
             }
-
+            
             //Get Users payment status
             foreach ($programs as $program) {
                 $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
@@ -225,16 +225,18 @@ class ProgramController extends Controller
 
             $data['booking_form'] = 'bookingforms/' . $filePath;
         }
-
+       
         if (!empty($request->show_locations) && $request->show_locations == 'yes') {
-            for ($i = 0; $i < count($request->location_name); $i++) {
-                $l[] = array_column($request->only(['location_name', 'location_address']), $i);
+            if(isset($request->location_name) && count($request->location_name) > 0){
+                for ($i = 0; $i < count($request->location_name); $i++) {
+                    $l[] = array_column($request->only(['location_name', 'location_address']), $i);
+                }
+    
+                foreach ($l as $test) {
+                    $locations[$test[0]] = $test[1];
+                }
+                $data['locations'] = json_encode($locations);
             }
-
-            foreach ($l as $test) {
-                $locations[$test[0]] = $test[1];
-            }
-            $data['locations'] = json_encode($locations);
         }
 
         if (!empty($request->show_modes) && $request->show_modes == 'yes') {
@@ -306,7 +308,7 @@ class ProgramController extends Controller
         $auto_certificate_settings = array_filter($auto_certificate_settings, function ($value) {
             return !is_null($value);
         });
-        
+
         if($request->auto_certificate_status == 'yes' && count($auto_certificate_settings) > 0){
             foreach ($auto_certificate_settings as $key => $req) {
                 foreach ($req as $index => $value) {
@@ -360,7 +362,7 @@ class ProgramController extends Controller
         $programs = Program::with('users')->onlyTrashed()->get();
 
         //Get all students
-        $users = User::where('role_id', 'Student')->get();
+        $users = User::where('roles', 'Student')->get();
 
         //Get Users payment status
         foreach ($programs as $program) {

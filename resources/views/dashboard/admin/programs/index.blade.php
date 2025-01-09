@@ -274,7 +274,7 @@
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
                                     @if($program->permissions['password.reset'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ URL::signedRoute('password.reset', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password </a>
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ URL::signedRoute('admin.password.reset', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password </a>
                                     @endif
                                     @if($program->close_registration == 0)
                                         @if($program->permissions['registration.close'])
