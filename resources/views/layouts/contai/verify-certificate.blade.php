@@ -61,7 +61,7 @@ Verify Certificate
             </div>
         @else  
             <div class="checkout__form">
-                <h4>Please Enter the Certificate Number</h4>
+                <h4>Please Enter a Certificate Number</h4>
                 <form action="{{ route('verify.certificate') }}" method="GET">
                     <div class="row">
                         <div class="col-lg-12 col-md-12">

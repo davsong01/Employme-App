@@ -47,27 +47,28 @@ class CertificateController extends Controller
         }
 
         if (checkRoleHas(['Student'])) {
-            $details = certificationStatus($request->p_id, resolveAuthUser()->id);
-            $program = $details['program'] ?? collect([]);
+            $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
+            $program = $transaction->program;
+
+            $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
             
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                $user_balance = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
-                if ($user_balance->balance > 0) {
+                if ($transaction->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
                 }
             }
 
             if ($program->only_certified_should_see_certificate == 'yes') {
-                $details = $details['status'] ?? collect([]);
+                $certification_status = $details->certification_status ?? NULL;
                 
-                if (!$details || $details == 'NOT CERTIFIED') {
+                if (!$certification_status || $certification_status == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
             }
             
             $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
-
+            
             if (!isset($certificate)) {
                 return back()->with('error', 'Certificate for selected program is not ready at this time, please try again or consult admin');
             }
@@ -402,6 +403,5 @@ class CertificateController extends Controller
         }
         
         return view('verify-certificate', compact('response'));
-
     }
 }

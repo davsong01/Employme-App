@@ -27,7 +27,7 @@ use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserControll
 
 Route::middleware(['admin.access'])->group(function () {
     Route::get('/', [AdminController::class, 'showLoginForm'])->name('admin.login');
-    Route::get('/admin-login', [AdminController::class, 'showLoginForm'])->name('admin.login');
+    Route::get('/ad-login', [AdminController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin-login', [AdminController::class, 'login'])->name('admin.login.post');
     Route::post('/admin-logout', [AdminController::class, 'logout'])->name('admin.logout');
 
