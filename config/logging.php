@@ -19,7 +19,6 @@ return [
     */
 
     'default' => env('LOG_CHANNEL', 'stack'),
-
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel
@@ -80,6 +79,12 @@ return [
             'emoji' => ':boom:',
             'level' => env('LOG_LEVEL', 'critical'),
             'replace_placeholders' => true,
+        ],
+
+        'certificate' => [
+            'driver' => 'single',
+            'path' => base_path('certificate_updates.log'),
+            'level' => 'info',
         ],
 
         'papertrail' => [

@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\UtilityCronTask;
+use Illuminate\Support\Facades\File;
 
 class UtilityTaskController extends Controller
 {
@@ -116,5 +117,42 @@ class UtilityTaskController extends Controller
         }
         
         dd($count . ' Transactions Updated');
+    }
+
+    public function renameCertificatesWithSpaceInFilename(){
+        $certificates = Certificate::where('file', 'like', '% %')->get();
+        $count = 0;
+
+        foreach ($certificates as $certificate) {
+            $oldFileName = $certificate->file;
+            $extension = File::extension($oldFileName);
+            
+            if(empty($certificate->certificate_number)){
+                $randomFileName = generateCertificateNumber($certificate->program, $certificate->user).'.'.$extension;
+            }else{
+                $randomFileName = $certificate-> certificate_number . '.' . $extension;
+            }
+            
+            $oldFilePath = base_path('uploads/certificates/' . $oldFileName);
+            $newFilePath = base_path('uploads/certificates/' . $randomFileName);
+            
+            if (File::exists($oldFilePath)) {
+                File::move($oldFilePath, $newFilePath);
+
+                $certificate->file = $randomFileName;
+                $certificate->save();
+
+                \Log::channel('certificate')->info([
+                    'Action' => 'Certificate Renaming',
+                    'Old name' => $oldFileName,
+                    'New name' => $randomFileName,
+                    'ID' => $certificate->id,
+                ]);
+
+                $count ++;
+            }
+        }
+
+        dd($count . ' Files renamed');
     }
 }
