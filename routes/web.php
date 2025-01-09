@@ -92,7 +92,7 @@ Route::middleware(['web.access'])->group(function () {
 
     Route::get('download-certificate/{filename}', function ($filename) {
         $realpath = base_path() . '/uploads' . '/certificates' . $filename;
-        return $realpath;
+        return response()->download($realpath);
     });
     
     Route::get('uploads/{filename}', function ($filename) {
