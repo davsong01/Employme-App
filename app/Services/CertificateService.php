@@ -17,6 +17,7 @@ class CertificateService
         return $details;
     }
 
+    
     public function logCertificateVerificationCheck($certificate_number, $details){
         $log = CertificateStatusLog::create([
             'ip' => request()->getClientIp(),
