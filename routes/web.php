@@ -89,7 +89,11 @@ Route::middleware(['web.access'])->group(function () {
         $realpath = base_path() . '/uploads' . '/' . $filename;
         return $realpath;
     });
-    
+
+    Route::get('download-certificate/{filename}', function ($filename) {
+        $realpath = base_path() . '/uploads' . '/certificates' . $filename;
+        return $realpath;
+    });
     
     Route::get('uploads/{filename}', function ($filename) {
         $decodedFilename = base64_decode($filename);

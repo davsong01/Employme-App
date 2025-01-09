@@ -17,7 +17,6 @@ class CertificateService
         return $details;
     }
 
-    
     public function logCertificateVerificationCheck($certificate_number, $details){
         $log = CertificateStatusLog::create([
             'ip' => request()->getClientIp(),
@@ -32,6 +31,7 @@ class CertificateService
             'message' => 'ERR01: Certificate not Found!',
             'status_code' => 401,
         ];
+
 
         if (!$certificate_number) {
             $details = [
@@ -51,7 +51,15 @@ class CertificateService
 
         $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')->where('program_id',  $certificate->program_id)->where('user_id', $certificate->user_id)->first();
         $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($certificate->program_id);
-
+        
+        if(!$transaction){
+            $details = [
+                'status' => false,
+                'message' => 'ERR04: Associated Training not found!',
+                'status_code' => 201,
+                'error' => 'Invalid Transaction'
+            ];
+        }
         $details = certificationStatusNew($transaction->training_result, $program, $certificate->user_id);
 
         // Checks
@@ -94,7 +102,8 @@ class CertificateService
             'owner' => $certificate->user->name,
             'certified_on' => $certificate->created_at,
             'score_obtainable' => $details->scoresettings->passmark ?? 'N/A',
-            'score_obtained' => $details->total_score ?? 'N/A'
+            'score_obtained' => $details->total_score ?? 'N/A',
+            'image' => url('/certificate/'.$certificate->file),
         ];
         
         return $details;

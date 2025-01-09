@@ -44,7 +44,7 @@
                                     </a>
                                     @endif
                                     <a data-toggle="tooltip" data-placement="top" title="Download certificate"
-                                        class="btn btn-info" href="certificate/{{ $certificate->file }}"><i
+                                        class="btn btn-info" href="download-certificate/{{ $certificate->file }}"><i
                                             class="fa fa-download"></i>
                                     </a>
                                     
