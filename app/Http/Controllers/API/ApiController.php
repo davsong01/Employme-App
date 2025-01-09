@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Setting;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\Result;
+use App\Models\Settings;
 use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,38 +96,47 @@ class ApiController extends Controller
 
     private function calculateRating($score){
 
-            if($score < 74 ){
-                $rating = 'NULL';
-            }
+        if($score < 74 ){
+            $rating = 'NULL';
+        }
 
-            if($score >= 75 && $score <= 85 ){
-                $rating = 1;
-            }
+        if($score >= 75 && $score <= 85 ){
+            $rating = 1;
+        }
 
-            if($score >= 86 && $score <= 94 ){
-                $rating = 2;
-            }
+        if($score >= 86 && $score <= 94 ){
+            $rating = 2;
+        }
 
-            if($score >= 86 && $score <= 94 ){
-                $rating = 3;
-            }
+        if($score >= 86 && $score <= 94 ){
+            $rating = 3;
+        }
 
-            if($score >= 95 && $score <= 99 ){
-                $rating = 4;
-            }
+        if($score >= 95 && $score <= 99 ){
+            $rating = 4;
+        }
 
-            if($score == 100){
-                $rating = 5;
-            }
-           
-           return $rating;
+        if($score == 100){
+            $rating = 5;
+        }
+
+        return $rating;
     }
 
     public function verifyCertificateNumber(Request $request, CertificateService $certificate ){
-        $certificate_number = request()->get('certificate_number');
+        // check if server has token
+        $app_token = Settings::value('token');
+        $token = $request->header('token');
 
+        if(base64_decode(base64_decode($token)) != $app_token){
+            return response()->json([
+                'error' => 'Could not honour request, Invalid Credentials',
+            ], 401);
+        }
+        
+        $certificate_number = request()->get('certificate_number');
         $service = $certificate->verify($certificate_number);
         
-        return response()->json($response, 200);
+        return response()->json($service, 200);
     }
 }

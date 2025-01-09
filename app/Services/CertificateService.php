@@ -19,7 +19,7 @@ class CertificateService
 
     public function logCertificateVerificationCheck($certificate_number, $details){
         $log = CertificateStatusLog::create([
-            'ip' => request()->ip(),
+            'ip' => request()->getClientIp(),
             'certificate_number' => $certificate_number,
             'response' => $details
         ]);
@@ -29,14 +29,14 @@ class CertificateService
         $details = [
             'status' => false,
             'message' => 'ERR01: Certificate not Found!',
-            'code' => 401,
+            'status_code' => 401,
         ];
 
         if (!$certificate_number) {
             $details = [
                 'status' => false,
                 'message' => 'ERR02: Certificate number required',
-                'code' => 412,
+                'status_code' => 412,
             ];
 
             return $details;
@@ -60,7 +60,7 @@ class CertificateService
                 $details = [
                     'status' => false,
                     'message' => 'ERR03: Certificate is not available at the moment!',
-                    'code' => 201,
+                    'status_code' => 201,
                     'error' => 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate'
                 ];
 
@@ -76,7 +76,7 @@ class CertificateService
                 $details = [
                     'status' => false,
                     'message' => 'ERR04: Certificate is not available at the moment!',
-                    'code' => 201,
+                    'status_code' => 201,
                     'error' => 'You must be certified before you can view certificate'
                 ];
 
@@ -88,7 +88,7 @@ class CertificateService
             'status' => true,
             'status_code' => 200,
             'certificate_number' => $certificate->certificate_number,
-            'certification_status' => $certification_status,
+            'certification_status' => $certification_status == 'CERTIFIED' ? 'VERIFIED' : 'NOT VERIFIED',
             'training' => $certificate->program->p_name,
             'owner' => $certificate->user->name,
             'certified_on' => $certificate->created_at,
