@@ -405,9 +405,18 @@ class CertificateController extends Controller
 
     public function certificateVerificationLogs(Request $request)
     {
-        $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
-        $i = 1;
-        $logs = CertificateStatusLog::where('created_at', '>=', $startOfWeek)->get();
+        $logs = CertificateStatusLog::latest();
+
+        if (!empty($request->certificate_number)) {
+            $logs = $logs->where('certificate_number', $request->certificate_number);
+        }else{
+            $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+            $i = 1;
+    
+            $logs = $logs->where('created_at', '>=', $startOfWeek);
+        }
+
+        $logs = $logs->paginate(50);
 
         return view('dashboard.admin.certificates.certificate-verification-logs', compact('logs','i'));
     }

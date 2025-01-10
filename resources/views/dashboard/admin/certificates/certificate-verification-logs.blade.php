@@ -162,7 +162,7 @@
                             <td> {{ $log->created_at->format('d/m/Y') }}</td>
                             <td>
                                 @foreach($log->response as $key=>$value)
-                                    <strong>{{$key}}:</strong>{{ $value }}
+                                    <strong>{{$key}}:</strong>{{ $value }} <br>
                                 @endforeach
                             </td>
                         </tr>
