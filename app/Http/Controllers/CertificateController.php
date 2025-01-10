@@ -11,9 +11,11 @@ use App\Models\Transaction;
 use App\Models\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Models\UtilityTracker;
+use Illuminate\Support\Carbon;
 use App\Models\UtilityCronTask;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
+use App\Models\CertificateStatusLog;
 use App\Services\CertificateService;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -367,8 +369,6 @@ class CertificateController extends Controller
                 'error' => $th->getMessage(),
             ]);
         }
-       
-        
     }
 
     public function clearAllPreviews(){
@@ -401,5 +401,14 @@ class CertificateController extends Controller
         }
         
         return view('verify-certificate', compact('response'));
+    }
+
+    public function certificateVerificationLogs(Request $request)
+    {
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+        $i = 1;
+        $logs = CertificateStatusLog::where('created_at', '>=', $startOfWeek)->get();
+
+        return view('dashboard.admin.certificates.certificate-verification-logs', compact('logs','i'));
     }
 }

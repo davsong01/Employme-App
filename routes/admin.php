@@ -208,6 +208,8 @@ Route::middleware(['admin.access'])->group(function () {
             Route::delete('certificates/{certificate}', 'destroy')->name('certificates.destroy');
             Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'certificateStatus')->name('certificate.status');
             Route::get('certificate-clear-duplicate/{program_id}', 'clearDuplicates')->name('certificate.clear.duplicates');
+            
+            Route::get('certificate-verification-logs', 'certificateVerificationLogs')->name('certificate.verification.logs');
         });
     
         //route for payments history

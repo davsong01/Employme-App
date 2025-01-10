@@ -1170,7 +1170,7 @@ class Controller extends BaseController
                 'route' => 'lms',
                 'type' => 'menu',
                 'order' => 9,
-                'icon_class' => 'far fa-comments',
+                'icon_class' => 'fa fa-clipboard-list',
                 'parentId' => null
             ],
             [
@@ -1222,12 +1222,22 @@ class Controller extends BaseController
                 'type' => 'menu',
                 'parentId' => 14
             ],
+            
             [
                 'id' => 21,
                 'name' => 'Email Participants',
                 'route' => 'users.mail',
                 'type' => 'menu',
-                'order' => 10,
+                'order' => 12,
+                'icon_class' => 'fa fa-envelope',
+                'parentId' => null
+            ],
+            [
+                'id' => 21,
+                'name' => 'Email Participants',
+                'route' => 'users.mail',
+                'type' => 'menu',
+                'order' => 13,
                 'icon_class' => 'fa fa-envelope',
                 'parentId' => null
             ],
@@ -1236,17 +1246,27 @@ class Controller extends BaseController
                 'name' => 'Payment modes',
                 'route' => 'payment-modes.index',
                 'type' => 'menu',
-                'order' => 11,
+                'order' => 15,
                 'icon_class' => 'fa fa-credit-card',
                 'parentId' => null
             ],
+            
             [
-                'id' => 23,
+                'id' => 43,
                 'name' => 'General Settings',
                 'route' => 'settings.index',
-                'order' => 12,
+                'order' => 20,
                 'type' => 'menu',
                 'icon_class' => 'fa fa-cog',
+                'parentId' => null
+            ],
+            [
+                'id' => 25,
+                'name' => 'Certificate Verification Logs',
+                'route' => 'certificate.verification.logs',
+                'type' => 'menu',
+                'order' => 10,
+                'icon_class' => 'fa fa-certificate',
                 'parentId' => null
             ],
         ];
