@@ -1233,15 +1233,6 @@ class Controller extends BaseController
                 'parentId' => null
             ],
             [
-                'id' => 21,
-                'name' => 'Email Participants',
-                'route' => 'users.mail',
-                'type' => 'menu',
-                'order' => 13,
-                'icon_class' => 'fa fa-envelope',
-                'parentId' => null
-            ],
-            [
                 'id' => 22,
                 'name' => 'Payment modes',
                 'route' => 'payment-modes.index',
@@ -1250,7 +1241,6 @@ class Controller extends BaseController
                 'icon_class' => 'fa fa-credit-card',
                 'parentId' => null
             ],
-            
             [
                 'id' => 43,
                 'name' => 'General Settings',
@@ -1261,13 +1251,21 @@ class Controller extends BaseController
                 'parentId' => null
             ],
             [
-                'id' => 25,
+                'id' => 53,
                 'name' => 'Certificate Verification Logs',
                 'route' => 'certificate.verification.logs',
                 'type' => 'menu',
                 'order' => 10,
                 'icon_class' => 'fa fa-certificate',
                 'parentId' => null
+            ],
+            [
+                'id' => 54,
+                'name' => 'Truncate Verification Logs',
+                'route' => 'truncate.verification.log',
+                'type' => 'access',
+                'order' => 1,
+                'parentId' => 53
             ],
         ];
 
