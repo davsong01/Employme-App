@@ -210,6 +210,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::get('certificate-clear-duplicate/{program_id}', 'clearDuplicates')->name('certificate.clear.duplicates');
             
             Route::get('certificate-verification-logs', 'certificateVerificationLogs')->name('certificate.verification.logs');
+            Route::get('truncate-verification-logs', 'truncateVerificationLogs')->name('truncate.verification.log');
         });
     
         //route for payments history

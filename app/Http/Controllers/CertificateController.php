@@ -406,12 +406,12 @@ class CertificateController extends Controller
     public function certificateVerificationLogs(Request $request)
     {
         $logs = CertificateStatusLog::latest();
+        $i = 1;
 
         if (!empty($request->certificate_number)) {
             $logs = $logs->where('certificate_number', $request->certificate_number);
         }else{
             $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
-            $i = 1;
     
             $logs = $logs->where('created_at', '>=', $startOfWeek);
         }
@@ -419,5 +419,11 @@ class CertificateController extends Controller
         $logs = $logs->paginate(50);
 
         return view('dashboard.admin.certificates.certificate-verification-logs', compact('logs','i'));
+    }
+
+    public function truncateVerificationLogs(){
+        CertificateStatusLog::truncate();
+
+        return back()->with('message', 'All records Truncated!');
     }
 }

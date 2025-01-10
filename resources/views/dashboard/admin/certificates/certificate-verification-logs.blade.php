@@ -1,3 +1,10 @@
+@php
+    $check = [
+        'truncate.verification.log',
+    ];
+
+    $permissions = canUserAccessPermission($check);
+@endphp
 @extends('dashboard.admin.index')
 @section('css')
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
@@ -119,13 +126,12 @@
                     <div>
                         <h5 class="card-title">All Logs</h5>
                         </h5>
+                        @if( $permissions['truncate.verification.log'])
                         <br>
-                        
                         <div class="card-body">
-                            <button class="btn btn-danger float-right rounded" id="csv">Truncate Logs</button>
-                            
+                            <a onclick="return confirm('Are you really sure?');" href="{{ route('truncate.verification.log')}}" class="btn btn-danger float-right">Truncate Logs</a>
                         </div>
-                        
+                        @endif
                         <div class="mt-4">
                             <form class="row" method="GET" action="">
                                 <div class="col-md-4 mb-2">
@@ -159,7 +165,8 @@
                             
                             <td>{{ $i++ }}</td>
                             <td>{{ $log->certificate_number}}</td>
-                            <td> {{ $log->created_at->format('d/m/Y') }}</td>
+                            <td>{{ $log->created_at->format('d/m/Y h:i:sa') }}</td>
+
                             <td>
                                 @foreach($log->response as $key=>$value)
                                     <strong>{{$key}}:</strong>{{ $value }} <br>
