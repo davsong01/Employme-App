@@ -78,6 +78,7 @@ Route::middleware(['web.access'])->group(function () {
     
         // Upload proof of payment (POP)
         Route::get('upload-proof-of-payment', [PopController::class, 'create'])->name('upload-proof-of-payment');
+        Route::post('upload-proof-of-payment', [PopController::class, 'store'])->name('store-proof-of-payment');
         Route::get('/temp-destroy/{id}', [PopController::class, 'tempDestroy'])->name('temp.destroy');
     });
     

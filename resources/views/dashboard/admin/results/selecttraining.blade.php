@@ -15,7 +15,8 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>training Title</th>
+                            <th>Training Title</th>
+                            <th>Count</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -28,6 +29,7 @@
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td>{{ $training->p_name }}</td>
+                            <td>{{ number_format($training->result_count) }}</td>
                             <td>
                                 <div class="btn-group">
                                     @if($permissions['view.tests'])

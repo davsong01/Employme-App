@@ -180,7 +180,7 @@ class MockController extends Controller
             // Apply mapping logic to modify each user
             $modifiedUsers = $users->map(function ($user) use ($request, $score_settings) {
                 $results = $user->mocks;
-
+                
                 // Initialize user scores and attributes
                 $user->total_cert_score = 0;
                 $user->total_class_test_score = 0;
@@ -231,6 +231,7 @@ class MockController extends Controller
                             $user->grader = $result->grader;
                         }
                     }
+                    
                     // Calculate final class test score
                     $user->final_ct_score = $this->calculateFinalCtScore($user);
                 }
@@ -278,7 +279,7 @@ class MockController extends Controller
                 return view('dashboard.company.posttests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
             }
 
-            return view('dashboard.admin.results.index', compact('users', 'i', 'program','records', 'score_settings','page','title'));
+            return view('dashboard.admin.mocks.index', compact('users', 'i', 'program','records', 'score_settings','page','title'));
         }
 
     }

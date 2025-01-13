@@ -61,8 +61,7 @@ class ResultController extends Controller
             ->with(['user', 'results' => function ($query) use ($request) {
                 $query->where('program_id', $request->p_id);
             }]);
-            
-       
+        
         if (!empty($request->status)) {
             if ($request->status == 'yes') {
                 $users = $users->has('results');

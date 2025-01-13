@@ -58,7 +58,7 @@
         @endif
         <div class="checkout__form">
             <h4>Upload Proof of Payment</h4>
-            <form action="{{ route('pop.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('store-proof-of-payment') }}" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">
                 <div class="row">
