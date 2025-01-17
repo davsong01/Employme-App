@@ -12,7 +12,7 @@ class PaymentThread extends Model
     protected $guarded = [];
 
     public function admin(){
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(Admin::class, 'admin_id');
     }
 
     public function user()
