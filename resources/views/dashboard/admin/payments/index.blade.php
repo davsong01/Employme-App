@@ -239,12 +239,12 @@
                                                                     @if(!empty($thread->admin_id))
                                                                         <div style="background: #18006f38;padding: 10px;border-radius: 10px;">
                                                                             Transaction added by<br>
-                                                                            <strong>{{ $thread->admin->name }}</strong>
+                                                                            <strong>{{ $thread->admin?->name }}</strong>
                                                                         </div>
                                                                     @else 
                                                                         <div style="background: #006f3138;padding: 10px;border-radius: 10px;">
                                                                             Transaction added by<br>
-                                                                            <strong>{{ $thread->user->name }}</strong>
+                                                                            <strong>{{ $thread->user?->name }}</strong>
                                                                         </div>
                                                                     @endif
                                                                 </div>
