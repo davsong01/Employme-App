@@ -42,11 +42,12 @@
                                             $string =  "*Name:* " . $pop->name . "
                                             *Phone:* " . $pop->phone . "
                                             *Email:* " . $pop->email . "
-                                            *Training:* " . $pop->program?->p_name;
+                                            *Training:* " . $pop->program?->p_name . "
+                                            *Amount Paid:* " . $pop->amount;
                                         ?>
                                         
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2348037067223&text={{ urlencode($string) }}" target="_blank">
+                                            <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2347038378085&text={{ urlencode($string) }}" target="_blank">
                                                 <i class="fab fa-whatsapp"></i> Send via WhatsApp
                                             </a>
                                             @if($permissions['pop.edit'])

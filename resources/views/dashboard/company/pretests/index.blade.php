@@ -283,8 +283,7 @@
             </div>     
         </div>
     </div>
-    @endsection
-    
+@endsection
 <script>
     $(document).ready(function() {
         $('.select2').select2({
@@ -293,5 +292,3 @@
         });
     });
 </script>
-
-
