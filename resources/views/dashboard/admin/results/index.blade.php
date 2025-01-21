@@ -379,6 +379,23 @@
                                                 <div class="class-test-score">
                                                     <strong class="tit">Class Tests:</strong>
                                                     <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
+                                                    @if($user->training_result->class_test_score < $score_settings->class_test)
+                                                        @include('dashboard.admin.results.enable_class_test_resit')
+                                                        @php
+                                                            // $histories = $user->certification_resits($user->program_id, $user->user_id);
+                                                            $histories = collect([]);
+                                                        @endphp
+                                                        @if($histories->count() > 0)
+                                                        <span class="retake">RESITS</span>
+                                                            {{-- <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
+                                                                {{ $histories->count() }}
+                                                            </span>
+                                                            <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#resitModal{{$user->id}}">
+                                                            View  History
+                                                            </a> --}}
+                                                        @endif
+                                                        
+                                                    @endif
                                                 </div>
                                             @endif
 

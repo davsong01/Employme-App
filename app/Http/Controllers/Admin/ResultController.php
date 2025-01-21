@@ -467,9 +467,10 @@ class ResultController extends Controller
                 $this->createResultThread($results);
             }
 
-            // $results->delete();
+            $results->update([
+                'redo_status' => 1
+            ]);
             // Send resit email
-
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = $transaction->user->email;
             $details['content'] = 'Hello '.$transaction->user->name. ', <br><br>
@@ -482,6 +483,53 @@ class ResultController extends Controller
         
         return back()->with('error', 'You are not allowed to perform this action');
     }
+
+    public function destroyClassTests(Request $request, $id)
+    {
+        // Clear certification Tests
+        $transaction = Transaction::with('program', 'user')->where('id', $id)->first();
+        
+        if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
+            $results = Result::with('program', 'module')->where('program_id', $transaction->program_id)
+                ->whereHas('module', function ($query) {
+                    $query->where('computation_status', 1)
+                    ->where('type', 0);
+                })
+                ->where('user_id', $transaction->user_id)
+                ->first();
+
+            $data["class_test_resit_status"] = 1;
+            $data["class_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
+            $data["class_test_resit_enabled_by_id"] = resolveAuthUser()->id;
+            
+            udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+
+            // Save result thread
+            if (!empty($results->certification_test_details)) {
+                $this->createResultThread($results);
+            }
+
+            // $results->delete();
+            // Send resit email
+
+            $details['subject'] = 'Test Re-write successful';
+            $details['email'] = $transaction->user->email;
+            $details['content'] = 'Hello ' . $transaction->user->name . ', <br><br>
+            This is to inform you that you are now cleared to Re-sit ' . $results->module->title . ' Test at the ongoing ' . $transaction->program->p_name . '. You now have a ' . env('CERTIFICATION_TEST_RESIT_EXIPIRY') . 'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: ' . now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')) . '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
+            $details['type'] = 'bulk';
+
+            $this->sendGenericEmail($details);
+            return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
+        }
+
+        return back()->with('error', 'You are not allowed to perform this action');
+    }
+
+    public function destroyCrmTests(Request $request, $id){
+
+    }
+
+    public function destroyRoleplayTests(Request $request, $id) {}
 
     public function getResitStatus($transaction){
         if(isset($transaction->training_result->certification_test_resit_expiry))

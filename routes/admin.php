@@ -115,7 +115,10 @@ Route::middleware(['admin.access'])->group(function () {
     
         Route::middleware(['programCheck'])->group(function () {
             Route::resource('results', ResultController::class);
-    
+            Route::delete('class-tests-destroy/{id}', [ResultController::class, 'destroyClassTests'])->name('classtests.results.destroy');
+            Route::delete('crm-tests-destroy/{id}', [ResultController::class, 'destroyCrmTests'])->name('crmtests.results.destroy');
+            Route::delete('roleplay-tests-destroy/{id}', [ResultController::class, 'destroyRoleplayTests'])->name('roleplaytests.results.destroy');
+            
             Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
             Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
             Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');

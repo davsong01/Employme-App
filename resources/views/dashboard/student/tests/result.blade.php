@@ -22,6 +22,7 @@
                 <h5> <strong>OVERALL TEST RESULTS</strong></h5>
             </div>
         </div>
+        
         @if($hasmock == 1)
         <div class="row">
             @foreach($results as $result)
@@ -37,14 +38,16 @@
                             <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                             <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                 @if($result->module->type == 'Class Test')
+                                    @if(in_array($result->redo_test, [0,2]))
                                     {{$result->class_test_score .'/'.$result->module->noofquestions}} 
+                                    @endif
                                     @php
                                         $details = certificationStatus($program->id, resolveAuthUser()->id);
                                     @endphp
                                     @if($result->module->allow_test_retake == 1 && $details['status'] == 'NOT CERTIFIED')<a onclick="return confirm('This will clear all your scores for this module. Are you sure you want to do this?');" href="{{ route('user.retake.module.test', ['module' => $result->module_id, 'p_id'=>$result->program_id])}}" style="border-radius: 10px;" class="btn btn-danger btn-sm"><i class="fas fa-redo"></i> Retake</a>@endif
                                 @endif
                                 @if($result->module->type == 'Certification Test')
-                                    {{ ($result->certification_test_score > 0) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing' }}
+                                    {{ ($result->certification_test_score > 0 && in_array($result->redo_test, [0,2])) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing' }}
                                 @endif
                             </p>
                             <p class="text-white" style="font-style:italic">Pre Class Test Score: 
@@ -59,8 +62,7 @@
             @endif  
             @endforeach
             @endforeach
-       
-       
+
             @foreach($results as $result)
                 @if($result->module->type == 'Certification Test')      
                 <div class="col-md-4 col-lg-4">
@@ -74,7 +76,7 @@
                                 <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                                 <p class="text-white" style="font-weight: bold">Post Class Test Score: 
                                     @if($result->module->type == 'Certification Test')
-                                        {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                        {{($result->certification_test_score > 0  && in_array($result->redo_test, [0,2] )) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
                                         @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
                                             <br>
                                             <a style="width: auto;" href="{{ route('tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
@@ -94,6 +96,7 @@
     
         </div>
         @endif
+
         @if($hasmock == 0)
         <div class="row">
             @foreach($results as $result)          
@@ -108,10 +111,10 @@
                             <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                             <b class="text-white">My Score: 
                                 @if($result->module->type == 'Class Test')
-                                    {{$result->class_test_score .'/'.$result->module->noofquestions}}
+                                    {{ in_array($result->redo_test, [0,2]) ? $result->class_test_score .'/'.$result->module->noofquestions  : 'Processing'}}
                                 @endif
                                 @if($result->module->type == 'Certification Test')
-                                    {{isset($result->certification_test_score) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
+                                    {{ isset($result->certification_test_score) && in_array($result->redo_test, [0,2]) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
                                 @endif</b>
                         </div>
                     </div>
