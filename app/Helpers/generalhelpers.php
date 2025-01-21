@@ -147,6 +147,7 @@ use Intervention\Image\Facades\Image;
                 "class_test_score" => $certificationStatus['class_test_score'] ?? ($transaction->training_result->class_test_score ?? 0),
                 "class_test_resit_status" => $data['class_test_resit_status'] ?? ($transaction->training_result->class_test_resit_status ?? 0),
                 "class_test_resit_expiry" => $data['class_test_resit_expiry'] ?? ($transaction->training_result->class_test_resit_expiry ?? NULL),
+                "class_test_resit_enabled_by_id" => $data['class_test_resit_enabled_by_id'] ?? ($transaction->training_result->class_test_resit_enabled_by_id ?? NULL),
 
                 "email_test_score" => $certificationStatus['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0),
                 "email_test_resit_status" => $data['email_test_resit_status'] ?? ($transaction->training_result->email_test_resit_status ?? 0),

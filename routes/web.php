@@ -132,6 +132,7 @@ Route::middleware(['web.access'])->group(function () {
     
         Route::get('tests', [TestsController::class, 'index'])->middleware(['programCheck'])->name('participants.tests.index');
         Route::post('tests', [TestsController::class, 'store'])->middleware(['programCheck'])->name('participants.tests.store');
+        Route::get('tests/{test}', [TestsController::class, 'show'])->middleware(['programCheck'])->name('participants.tests.show');
         
         Route::get('mocks', [MockController::class, 'index'])->middleware(['programCheck'])->name('participants.mocks.index');
         Route::get('mocks/{mock}', [MockController::class, 'show'])->middleware(['programCheck'])->name('participants.mocks.show');

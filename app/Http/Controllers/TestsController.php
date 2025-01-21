@@ -33,7 +33,12 @@ class TestsController extends Controller
 
             $i = 1;
 
-            $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
+            // $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
+
+            $modules = Module::with('questions')->where('program_id', $program->id)
+                // ->where('status', 1)
+                ->where('computation_status', 1)
+                ->get();
 
             if (resolveAuthUser()->redotest == $program->id) {
                 $modules = Module::with('questions')->where('program_id', $program->id)->get();
@@ -129,7 +134,7 @@ class TestsController extends Controller
             return back()->with('error', 'You have already taken this test, Please click "Post Class Tests" on the left navigation bar to take an available test!');
         }
 
-        if ($resitStatus['status'] == 1 ) {
+        if ($resitStatus['status'] == 1 && $module->type == 'Certification Test') {
             if(isset($resitStatus['expiry'])){
                 $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
 
@@ -168,6 +173,22 @@ class TestsController extends Controller
             
             $this->sendGenericEmail($details);
         } else {
+            if($resitStatus['status'] == 1 && $module->type == 'Class Test'){
+                if (isset($resitStatus['expiry'])) {
+                    $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
+    
+                    if (now() > $parsedDate) {
+                        return back()->with('error', 'the resit period for this test elapsed on: ' . $parsedDate . '. Please contact an administrator!');
+                    }
+
+                    $data["class_test_resit_status"] = 2;
+                    $data["class_test_resit_expiry"] = NULL;
+                    $data["last_updated_at"] = now();
+
+                    udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+    
+                }
+            }
 
             $questions = $module->questions->toarray();
             $no_of_questions = count($questions);
