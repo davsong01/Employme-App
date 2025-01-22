@@ -57,6 +57,7 @@ class ResultController extends Controller
 
     public function getgrades(Request $request, $id, $internal = false)
     {
+        $request->p_id = $request->p_id ?? $id;
         $users = Transaction::where('program_id', $request->p_id)
             ->with(['user', 'results' => function ($query) use ($request) {
                 $query->where('program_id', $request->p_id);
