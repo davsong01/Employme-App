@@ -244,8 +244,9 @@ class ResultController extends Controller
         }
 
         $result_id = $transaction->id;
+        $real_result_id = request()->r_id;
         
-        return view('dashboard.admin.results.partial_edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results'));
+        return view('dashboard.admin.results.partial_edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results', 'real_result_id'));
     }
 
     // public function add(Request $request, $uid, $modid)
@@ -409,6 +410,7 @@ class ResultController extends Controller
     public function update($id, Request $request)
     {
         $result = Transaction::with('program','program.scoresettings')->where('id',$id)->first();
+        $realResult = Result::where('id', $request->real_result_id)->first();
         
         $request["email_test_score"] = $request->emailscore;
         $request["roleplay_test_score"] = $request->roleplayscore;
@@ -420,8 +422,19 @@ class ResultController extends Controller
 
         $request["certification_grader"] = resolveAuthUser()->name;
         $request["certification_grader_comment"] = $request->grader_comment;
-
+        
         $transaction = udateTrainingResult($result->program_id, $result->user_id, $request->all());
+        
+        $realResult->update([
+            "email_test_score" => $request->emailscore,
+            "role_play_score" => $request->roleplayscore,
+            "certification_test_score" => $request->certification_score,
+            "crm_test_score" => $request->crm_score,
+            "grader_comment" => $request->grader_comment,
+            "facilitator_comment" => $request->facilitator_comment,
+            "grader" => resolveAuthUser()->name,
+            "marked_by" => resolveAuthUser()->name,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -455,13 +468,13 @@ class ResultController extends Controller
             })
                 ->where('user_id', $transaction->user_id)
                 ->first();
-            
+
             $data["certification_test_resit_status"] = 1;
             $data["certification_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
             $data["certification_test_resit_enabled_by_id"] = resolveAuthUser()->id;
 
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
-            
+            $results->update(['redo_test' => 1]);
             // Save result thread
             if(!empty($results->certification_test_details)){
                 $this->createResultThread($results);
@@ -487,6 +500,7 @@ class ResultController extends Controller
     {
         // Clear certification Tests
         $transaction = Transaction::with('program', 'user')->where('id', $id)->first();
+        $modulesCount = Module::where('program_id', $transaction->program_id)->where('computation_status',1)->where('type',0)->count();
 
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             // all class tests
@@ -502,15 +516,7 @@ class ResultController extends Controller
             $data["class_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
             $data["class_test_resit_enabled_by_id"] = resolveAuthUser()->id;
             
-            $threads = ResultThread::where('program_id', $transaction->program_id)
-                ->where('user_id', $transaction->user_id)
-                ->whereNotNull('class_test_details')
-                ->delete();
-
-            foreach($results as $result){
-                $this->createResultThread($result);
-                $result->delete();
-            } 
+            $this->createClassTestsResultThread($results);
             
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
             // Save result thread
@@ -556,8 +562,43 @@ class ResultController extends Controller
             "facilitator_comment" => $results->facilitator_comment,
             "grader_comment" => $results->grader_comment
         ]);
-      
+        
         return $thread;
+    }
+
+    public function createClassTestsResultThread($results)
+    {
+        $metaData = [];
+
+        if (!$results->isEmpty()) {
+            $firstResult = $results->first();
+
+            $metaData = [
+                'program_id' => $firstResult->program_id,
+                'user_id' => $firstResult->user_id,
+                'result_id' => $firstResult->id,
+                'module_id' => $firstResult->module_id,
+                'submitted_on' => $firstResult->created_at,
+                'class_test_details' => json_encode($results->map(function ($result) {
+                    return [
+                        'module_id' => $result->module_id,
+                        'submitted_on' => $result->created_at,
+                        'marked_by' => $result->marked_by,
+                        'class_test_score' => $result->class_test_score,
+                        'class_test_details' => $result->class_test_details,
+                    ];
+                })->toArray()),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            $thread = ResultThread::create($metaData);
+            Result::whereIn('id', $results->pluck('id'))->delete();
+            
+            return $thread;
+        }
+        
+        return false;
     }
 
     public function verify(Request $request)

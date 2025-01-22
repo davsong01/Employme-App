@@ -77,7 +77,7 @@
                                         {{($result->certification_test_score > 0 ) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
                                         @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
                                             <br>
-                                            <a style="width: auto;" href="{{ route('tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
+                                            <a style="width: auto;" href="{{ route('participants.tests.results.comment', ['id'=>$result->id, 'p_id'=>$program->id]) }}"
                                                 class="btn m-t-20 btn-info btn-block waves-effect waves-light">
                                                 <i class="fa fa-eye"></i>View Comments
                                             </a>

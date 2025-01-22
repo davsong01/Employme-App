@@ -51,20 +51,20 @@
                         <h5 style="display: inline-flex; align-items: center; justify-content: center; gap: 10px;">
                             {{ $module->title }}
                             @if($module->redo == 1)
-                                <span class="badge bg-danger text-white">RETAKE</span>
+                                <span class="badge bg-danger text-white">RETAKE</span> 
                             @endif
                         </h5>
                     </div>
                     
                     <!-- Expiry -->
-                    <small class="mb-1" style="color:red">
+                    <small class="mb-1" style="color: {{ !empty($module->expiry) && \Carbon\Carbon::parse($module->expiry)->isPast() ? 'red' : 'orange' }};">
                         @if(!empty($module->expiry))
-                            <span style="font-weight: bold;">Expiry: {{ \Carbon\Carbon::parse($module->expiry) }}</span>
+                            <span style="font-weight: bold;">Expiry: {{ \Carbon\Carbon::parse($module->expiry)->format('Y-m-d H:i') }}</span>
                         @else
                             <span style="visibility: hidden;">No Expiry</span>
                         @endif
                     </small>
-                    
+
                     <!-- Details -->
                     <h6 class="text-primary mb-2">Type: {{ $module->type }}</h6>
                     <p class="text-primary mb-2">No. of Questions: {{ $module->questions->count() }}</p>

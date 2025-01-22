@@ -133,7 +133,7 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('tests', [TestsController::class, 'index'])->middleware(['programCheck'])->name('participants.tests.index');
         Route::post('tests', [TestsController::class, 'store'])->middleware(['programCheck'])->name('participants.tests.store');
         Route::get('tests/{test}', [TestsController::class, 'show'])->middleware(['programCheck'])->name('participants.tests.show');
-        
+
         Route::get('mocks', [MockController::class, 'index'])->middleware(['programCheck'])->name('participants.mocks.index');
         Route::get('mocks/{mock}', [MockController::class, 'show'])->middleware(['programCheck'])->name('participants.mocks.show');
         Route::post('mocks', [MockController::class, 'store'])->middleware(['programCheck'])->name('participants.mocks.store');
@@ -146,7 +146,7 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('userresults', [TestsController::class, 'userresults'])->middleware(['programCheck'])->name('tests.results');
         Route::get('retake-test/{module}', [TestsController::class, 'retakeTest'])->middleware(['programCheck'])->name('user.retake.module.test');
     
-        Route::get('userresultscomments/{id}', [TestsController::class, 'userResultComments'])->middleware(['programCheck'])->name('tests.results.comment');
+        Route::get('userresultscomments/{id}', [TestsController::class, 'userResultComments'])->middleware(['programCheck'])->name('participants.tests.results.comment');
         Route::get('balance-checkout', [HomeController::class, 'balanceCheckout'])->name('balance.checkout')->middleware(['programCheck']);
     
         Route::get('training.instructor', [ProfileController::class, 'showFacilitator'])->middleware(['programCheck'])->name('training.instructor');
