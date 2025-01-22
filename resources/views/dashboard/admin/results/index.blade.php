@@ -198,7 +198,7 @@
                             </div>
                         </div>
                         <div class="mt-4">
-                            <form class="search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
+                            <form class="search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}">
                                 <input type="hidden" name="status" value="{{ request('status') }}">
                                 <div class="row">
                                     <div class="col-12 col-md-6 mb-2">
