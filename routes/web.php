@@ -129,8 +129,9 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
         Route::get('/home', [HomeController::class, 'index'])->name('home2');
-    
         Route::get('tests', [TestsController::class, 'index'])->middleware(['programCheck'])->name('participants.tests.index');
+
+        Route::get('tests/{test}', [TestsController::class, 'show'])->middleware(['programCheck'])->name('participants.tests.show');
         Route::post('tests', [TestsController::class, 'store'])->middleware(['programCheck'])->name('participants.tests.store');
         Route::get('tests/{test}', [TestsController::class, 'show'])->middleware(['programCheck'])->name('participants.tests.show');
 

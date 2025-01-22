@@ -178,7 +178,6 @@ use Intervention\Image\Facades\Image;
             ];
             
             // dd($transaction->training_result->email_test_score, $transaction->training_result->roleplay_test_score, $transaction->training_result->crm_test_score, $transaction->training_result->certification_test_score);
-            
             if(!empty($data)){
                 $result["email_test_score"] = (int) ($data['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0));
                 $result["roleplay_test_score"] = (int) ($data['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0));
