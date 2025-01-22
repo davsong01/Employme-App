@@ -1,6 +1,6 @@
 @if(isset($user->training_result->certification_test_resit_status))
 <br> 
-    @if($user->training_result->certification_test_resit_status == 0)
+    @if(in_array($user->training_result->certification_test_resit_status, [0,2]))
         <small class="resit-status">
             @if($permissions['results.destroy'])
                 <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
@@ -22,7 +22,6 @@
             @php
                 $parsedDate = \Carbon\Carbon::parse($user->training_result->certification_test_resit_expiry);
             @endphp
-
             @if($parsedDate >= now())
                 <small class="resit-status">
                     <button class="btn btn-danger btn-sm w-100" style="display: block;" disabled>Resit In Progress!</button>

@@ -11,6 +11,7 @@ use App\Models\Program;
 use App\Models\Question;
 use App\Models\Settings;
 use App\Models\Transaction;
+use App\Models\ResultThread;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -56,8 +57,8 @@ class TestsController extends Controller
             }
 
             foreach ($modules as $module) {
-                $module_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->get();
-
+                $module_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->first();
+                
                 // $redo_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
 
                 // foreach ($redo_check as $check) {
@@ -70,24 +71,19 @@ class TestsController extends Controller
                 $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
                 
                 $expiry = $resitStatus['expiry'];
-                // $expiry = !empty($resitStatus['expiry']) ? Carbon::parse($resitStatus['expiry']) : now();
                 
                 if ($resitStatus['status'] == 1 && $expiry > now()) {
-                    $module['redo'] = 1;
+                    $module['redo'] = !empty($module_check) ? $module_check->redo_test : 1;
+
                     $module['completed'] = 0;
                     $module['expiry'] = $expiry;
                 } else {
-                    $module['redo'] = 0;
                     $module['completed'] = 1;
+                    $module['redo'] = !empty($module_check) ? $module_check->redo_test : 1;
                     $module['expiry'] = $expiry;
                 }
-                // if ($module_check->count() > 0) {
-                //     $module['completed'] = 1;
-
-                // } else {
-                //     $module['completed'] = 0;
-                // }
             }
+
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program'));
         }
     }
@@ -100,8 +96,8 @@ class TestsController extends Controller
     public function store(Request $request)
     {
         $program = Program::find($request->p_id);
-        
         $class_test_details = $request->except(['_token', 'mod_id', 'id', 'prefix__']);
+        $resit = false;
 
         if (sizeof($class_test_details) < 2) {
             return back()->with('error', 'You must answer at least 1 question');
@@ -173,6 +169,7 @@ class TestsController extends Controller
             
             $this->sendGenericEmail($details);
         } else {
+
             if($resitStatus['status'] == 1 && $module->type == 'Class Test'){
                 if (isset($resitStatus['expiry'])) {
                     $parsedDate = \Carbon\Carbon::parse($resitStatus['expiry']);
@@ -181,12 +178,7 @@ class TestsController extends Controller
                         return back()->with('error', 'the resit period for this test elapsed on: ' . $parsedDate . '. Please contact an administrator!');
                     }
 
-                    $data["class_test_resit_status"] = 2;
-                    $data["class_test_resit_expiry"] = NULL;
-                    $data["last_updated_at"] = now();
-
-                    udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
-    
+                    $resit = true;
                 }
             }
 
@@ -196,7 +188,7 @@ class TestsController extends Controller
 
             if ($module->type == 'Certification Test') {
                 try {
-                    Result::create([
+                    $result = Result::create([
                         'program_id' => $module->program->id,
                         'user_id' => resolveAuthUser()->id,
                         'module_id' => $module->id,
@@ -218,7 +210,7 @@ class TestsController extends Controller
 
                 try {
                     if ($module->type == 'Class Test') {
-                        Result::create([
+                        $result = Result::create([
                             'program_id' => $module->program->id,
                             'user_id' => resolveAuthUser()->id,
                             'module_id' => $module->id,
@@ -236,8 +228,26 @@ class TestsController extends Controller
 
         // Update training result
         $data["last_updated_at"] = now();
-        udateTrainingResult($request->p_id, resolveAuthUser()->id);
-        
+
+        if($resit){
+            
+            $expectedResultCount = ResultThread::where('program_id', $transaction->program_id)->where('user_id', $transaction->user_id)->whereNotNull('class_test_details')->groupBy('module_id')->count();
+
+            $resultCount = Result::where('program_id', $transaction->program_id)->where('user_id', $transaction->user_id)->whereNotNull('class_test_details')->groupBy('module_id')->count();
+
+            if ($expectedResultCount == $resultCount) {
+                $data["class_test_resit_status"] = 2;
+                $data["class_test_resit_expiry"] = NULL;
+            }
+
+            if($result){
+                $result->update(['redo_test' => 2]);
+            }
+        }
+
+        udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+        // udateTrainingResult($request->p_id, resolveAuthUser()->id);
+
         return Redirect::to('userresults?p_id=' . $program->id);
     }
 

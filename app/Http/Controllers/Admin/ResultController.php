@@ -496,11 +496,16 @@ class ResultController extends Controller
                     ->where('type', 0);
                 })
                 ->where('user_id', $transaction->user_id)
+                ->whereNotNull('class_test_details')
                 ->get();
-
             $data["class_test_resit_status"] = 1;
             $data["class_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
             $data["class_test_resit_enabled_by_id"] = resolveAuthUser()->id;
+            
+            $threads = ResultThread::where('program_id', $transaction->program_id)
+                ->where('user_id', $transaction->user_id)
+                ->whereNotNull('class_test_details')
+                ->delete();
 
             foreach($results as $result){
                 $this->createResultThread($result);
@@ -517,6 +522,7 @@ class ResultController extends Controller
             This is to inform you that you are now cleared to Re-sit Class Tests at the training: ' . $transaction->program->p_name . '. You now have a ' . env('CERTIFICATION_TEST_RESIT_EXIPIRY') . 'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: ' . now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')) . '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
             $details['type'] = 'bulk';
             $this->sendGenericEmail($details);
+
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
         return back()->with('error', 'You are not allowed to perform this action');
@@ -550,7 +556,7 @@ class ResultController extends Controller
             "facilitator_comment" => $results->facilitator_comment,
             "grader_comment" => $results->grader_comment
         ]);
-
+      
         return $thread;
     }
 

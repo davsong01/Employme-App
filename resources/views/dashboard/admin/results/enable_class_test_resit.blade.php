@@ -1,7 +1,7 @@
 {{-- @if(isset($user->training_result->class_test_resit_status))
 <br>  --}}
 
-    @if($user->training_result->class_test_resit_status == 0)
+    @if(in_array($user->training_result->class_test_resit_status, [0,2]))
         <small class="resit-status">
             @if($permissions['results.destroy'])
                 <form onsubmit="return confirm('This will delete this user class test details and enable tests to be re-taken. Are you sure you want to do this?');" 
