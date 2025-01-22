@@ -59,9 +59,18 @@ class Transaction extends Model
     public function certification_resits($program_id=null, $user_id=null){
         $histories = null;
         if($program_id && $user_id){
-            $histories = ResultThread::where('program_id', $program_id)->where('user_id', $user_id)->get();
+            $histories = ResultThread::where('program_id', $program_id)->where('user_id', $user_id)->whereNull('class_test_details')->orderBy('id','desc')->get();
         }
+        return $histories;
+    }
 
+    public function classtests_resits($program_id = null, $user_id = null)
+    {
+        $histories = null;
+        if ($program_id && $user_id) {
+            $histories = ResultThread::where('program_id', $program_id)->where('user_id', $user_id)->whereNotNull('class_test_details')->orderBy('id', 'desc')->get();
+        }
+        
         return $histories;
     }
 }

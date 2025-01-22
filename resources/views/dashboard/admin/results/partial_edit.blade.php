@@ -145,6 +145,7 @@
               </div>
             </div>
           @endif
+          <input type="hidden" name="real_result_id" value="{{ $real_result_id }}">
           <div class="row">
               <button type="submit" class="btn btn-primary form-group" style="width:100%">Submit</button>
             </div>

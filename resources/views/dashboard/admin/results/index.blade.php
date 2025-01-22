@@ -293,13 +293,12 @@
                                                     @if($permissions['results.add'])
                                                         <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
                                                             class="btn btn-info btn-sm open-result-modal" 
-                                                            data-id="{{ $user->id }}" data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
+                                                            data-id="{{ $user->id }}" data-r_id="{{$user->results->whereNotNull('certification_test_details')->first()?->id }}" data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id ="{{ $user->program_id }}"
                                                             href="javascript:void(0)">
                                                             <i class="fa fa-edit"> View/Update</i>
                                                         </a>
                                                 
                                                     @endif
-                                                    
                                                 @else
                                                     <button class="btn btn-danger btn-sm w-100 mb-3" disabled>No Test Taken!</button>
                                                 @endif
@@ -379,23 +378,23 @@
                                                 <div class="class-test-score">
                                                     <strong class="tit">Class Tests:</strong>
                                                     <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
-                                                    @if($user->training_result->class_test_score < $score_settings->class_test)
-                                                        @include('dashboard.admin.results.enable_class_test_resit')
-                                                        @php
-                                                            // $histories = $user->certification_resits($user->program_id, $user->user_id);
-                                                            $histories = collect([]);
-                                                        @endphp
-                                                        @if($histories->count() > 0)
-                                                        <span class="retake">RESITS</span>
-                                                            {{-- <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
-                                                                {{ $histories->count() }}
-                                                            </span>
-                                                            <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#resitModal{{$user->id}}">
-                                                            View  History
-                                                            </a> --}}
+                                                        @if($user->training_result->class_test_score < $score_settings->class_test)
+                                                            @include('dashboard.admin.results.enable_class_test_resit')
+                                                            @php
+                                                                $classtest_histories = $user->classtests_resits($user->program_id, $user->user_id);
+                                                            @endphp
+                                                            @if($classtest_histories->count() > 0) 
+                                                            <span class="retake">RESITS</span>
+                                                                {{-- <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
+                                                                    {{ $classtest_histories->count() }}
+                                                                </span> --}}
+                                                                <br>
+
+                                                                <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#classTestResitModal{{$user->id}}">
+                                                                View  History  <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="">{{$classtest_histories->count()}}
+                                                                </a>
+                                                            @endif
                                                         @endif
-                                                        
-                                                    @endif
                                                 </div>
                                             @endif
 
@@ -409,13 +408,12 @@
                                                             $histories = $user->certification_resits($user->program_id, $user->user_id);
                                                         @endphp
                                                         @if($histories->count() > 0)
-                                                        {{-- <br> --}}
-                                                        <span class="retake">RESITS</span>
-                                                            <span style="background: aqua; padding: 5px 10px; border-radius: 50%; display: inline-block; text-align: center; width: 30px; height: 30px; line-height: 20px;" class="thread-count">
-                                                                {{ $histories->count() }}
-                                                            </span>
+                                                            <br>
+                                                            
                                                             <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#resitModal{{$user->id}}">
-                                                            View  History
+                                                            View  History <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="thread-count">
+                                                                {{ $histories->count() }}
+                                                            </span> 
                                                             </a>
                                                         @endif
                                                         
@@ -475,7 +473,7 @@
                             
                             <div class="modal fade" id="resitModal{{$user->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
-                                    <div class="modal-content">
+                                    <div class="modal-content" style="max-height: 70vh; overflow-y: auto;">
                                     <!-- Modal Header -->
                                     <div class="modal-header">
                                         <h5>Resit History for: {{ $user->user->name }}</h5>
@@ -527,6 +525,81 @@
                                                     </div>
                                                 </div>
                                                 @endif
+                                            @endforeach
+                                            </div>
+                                        @else
+                                            <p>No histories found.</p>
+                                        @endif
+                                    </div>
+                                    <!-- Modal Footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal fade" id="classTestResitModal{{$user->id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+                                    <div class="modal-content" style="max-height: 70vh; overflow-y: auto;">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h5>Resit History for: {{ $user->user->name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <!-- Modal Body -->
+                                    <div class="modal-body">
+                                        @if(isset($classtest_histories) && !empty($classtest_histories))
+                                            <div class="accordion" id="classhistoryAccordion">
+                                            @foreach($classtest_histories as $result)
+                                                @php
+                                                    $childrenDetails = json_decode($result->class_test_details, true);
+                                                @endphp
+                                                
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading-{{ $result->id }}">
+                                                    <button 
+                                                        class="accordion-button {{ $result->id == 0 ? '' : 'collapsed' }}" 
+                                                        type="button" 
+                                                        data-bs-toggle="collapse" 
+                                                        data-bs-target="#collapse-{{ $result->id }}" 
+                                                        aria-expanded="{{ $result->id == 0 ? 'true' : 'false' }}" 
+                                                        aria-controls="collapse-{{ $result->id }}">
+                                                        Submitted on: {{ $result->submitted_on }}
+                                                    </button>
+                                                    </h2>
+                                                    <div id="collapse-{{ $result->id }}" class="accordion-collapse collapse {{ $result->id == 0 ? 'show' : '' }}" 
+                                                    aria-labelledby="heading-{{ $result->id }}" 
+                                                    data-bs-parent="#classhistoryAccordion">
+                                                        <div class="accordion-body">
+                                                            @if(!empty($childrenDetails) && count($childrenDetails) > 0 )
+                                                                @foreach($childrenDetails as $child)
+                                                                    @php
+                                                                        if(!empty($child['module_id'])){
+                                                                            $module = App\Models\Module::find($child['module_id']);
+                                                                        }
+                                                                    @endphp
+
+                                                                    <div class="mb-3">
+                                                                        <p>
+                                                                            <strong style="color:green">Module:</strong> {{ $module->title }}
+                                                                            @if(!empty($child['class_test_score']))
+                                                                            <br>
+                                                                            <strong style="color:green">Score:</strong> {{ $child['class_test_score'] ?? ''}}
+                                                                            @endif
+                                                                            @if(!empty($child['submitted_on']))
+                                                                            <br>
+                                                                            <strong style="color:green">Completed On:</strong> {{ Carbon\Carbon::parse($child['submitted_on'])->format('F j, Y, g:i A')}}
+                                                                            @endif
+                                                                        </p>
+                                                                    </div>
+                                                                    <hr>
+                                                                @endforeach  
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endforeach
                                             </div>
                                         @else
@@ -608,6 +681,7 @@
             const id = $(this).data('id'); 
             const pid = $(this).data('pid'); 
             const p_id = $(this).data('p_id'); 
+            const r_id = $(this).data('r_id'); 
             const modalContent = $('#modalContent');
             
             modalContent.html(`
@@ -615,16 +689,16 @@
                     <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
                 </div>
             `);
-            const url = `{!! URL::signedRoute('results.add', ['id' => '__id__', 'p_id' => '__p_id__']) !!}`
+            const url = `{!! URL::signedRoute('results.add', ['id' => '__id__', 'p_id' => '__p_id__','r_id' => '__r_id__']) !!}`
                 .replace('__id__', id)
-                .replace('__p_id__', p_id);
+                .replace('__p_id__', p_id)
+                .replace('__r_id__', r_id);
 
             $.ajax({
                 url: url,
                 method: 'GET',
                 success: function (response) {
                     modalContent.html(response);
-
                     $('#editResultModal').modal('show');
                 },
                 error: function (xhr) {

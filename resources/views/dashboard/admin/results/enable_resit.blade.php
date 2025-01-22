@@ -1,6 +1,6 @@
 @if(isset($user->training_result->certification_test_resit_status))
 <br> 
-    @if($user->training_result->certification_test_resit_status == 0)
+    @if(in_array($user->training_result->certification_test_resit_status, [0,2]))
         <small class="resit-status">
             @if($permissions['results.destroy'])
                 <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
@@ -22,15 +22,14 @@
             @php
                 $parsedDate = \Carbon\Carbon::parse($user->training_result->certification_test_resit_expiry);
             @endphp
-
             @if($parsedDate >= now())
                 <small class="resit-status">
-                    <button class="btn btn-danger btn-sm w-100" style="display: block;" disabled>Resit In Progress!</button>
+                    <span class="" style="display: block;color:red" disabled><strong>Resit In Progress!</strong></span>
                 </small>
                 <small class="resit-status">
-                    <strong>Resit Expires on:</strong> {{$parsedDate}} <br>
+                    <strong style="color:red">Resit Expires on:</strong> {{$parsedDate}} <br>
                 </small>
-            @else   
+            {{-- @else    --}}
                 <small class="resit-status">
                     @if($permissions['results.destroy'])
                         <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
@@ -41,8 +40,8 @@
                             <input type="hidden" name="rid" value="{{ $user->result_id }}">
                             <input type="hidden" name="pid" value="{{ $user->program_id }}">
                             <input type="hidden" name="override_resit" value="yes">
-                            <button type="submit" class="btn btn-danger btn-sm w-100"> 
-                                <i class="fa fa-redo"> Enable Resit</i>
+                            <button type="submit" class="btn btn-dark btn-sm w-100"> 
+                                <i class="fa fa-redo"> Re Enable Resit</i>
                             </button>
                         </form>
                     @endif
