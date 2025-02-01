@@ -49,6 +49,7 @@ class ProgramController extends Controller
     public function exportdetails($id)
     {
         $programname = Program::whereId($id)->value('p_name');
+        
         $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);
         return Excel::download(new ProgramDetailsExport($id), $programname . ' participants.xlsx');
     }

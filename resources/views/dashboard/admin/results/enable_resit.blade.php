@@ -47,7 +47,7 @@
                     @endif
                 </small>
                 <small class="resit-status">
-                    <strong>Resit Expired on:</strong> {{$parsedDate}}
+                    <strong>Resit Expired on:</strong> {{$parsedDate}} <br>
                 </small>
             @endif
         @endif

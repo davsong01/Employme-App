@@ -371,7 +371,8 @@
                                             @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
                                                 <div class="class-test-score">
                                                     <strong class="tit">Class Tests:</strong>
-                                                    <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}</span>% <br>
+                                                    <span id="class_test_score{{ $user->id }}" style="font-weight: bold; color: #007BFF;">{{ $user->training_result->class_test_score }}</span> / <span style="font-weight: bold; color: #000;">{{ $score_settings->class_test }}</span>% <br>
+                                                    {{-- <span id="class_test_score{{ $user->id }}">{{ $user->training_result->class_test_score }}/{{$score_settings->class_test}}</span>% <br> --}}
                                                         @if($user->training_result->class_test_score < $score_settings->class_test)
                                                             @include('dashboard.admin.results.enable_class_test_resit')
                                                             @php
@@ -383,7 +384,6 @@
                                                                     {{ $classtest_histories->count() }}
                                                                 </span> --}}
                                                                 <br>
-
                                                                 <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#classTestResitModal{{$user->id}}">
                                                                 View  History  <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="">{{$classtest_histories->count()}}
                                                                 </a>
@@ -395,14 +395,15 @@
                                             @if($permissions['view-certification-score'] && isset($score_settings->certification) && $score_settings->certification > 0)
                                                 <div class="certification-score">
                                                     <strong>Certification: </strong>
-                                                    <span id="certification_test_score{{ $user->id }}">{{ $user->training_result->certification_test_score }}</span>%
+                                                    <span id="certification_test_score{{ $user->id }}" style="font-weight: bold; color: #007BFF;">{{ $user->training_result->certification_test_score }}</span> / <span style="font-weight: bold; color: #000;">{{ $score_settings->certification }}</span>%
+
                                                     @if($user->training_result->certification_test_score < $score_settings->certification)
                                                         @include('dashboard.admin.results.enable_resit')
                                                         @php
                                                             $histories = $user->certification_resits($user->program_id, $user->user_id);
+
                                                         @endphp
                                                         @if($histories->count() > 0)
-                                                            <br>
                                                             
                                                             <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#resitModal{{$user->id}}">
                                                             View  History <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="thread-count">
@@ -418,21 +419,23 @@
                                             @if($permissions['view-roleplay-score'] && isset($score_settings->role_play) && $score_settings->role_play > 0)
                                                 <div class="roleplay-score">
                                                     <strong class="tit">Role Play: </strong>
-                                                    <span id="role_play_score{{ $user->id }}">{{ $user->training_result->roleplay_test_score }}</span>% <br>
+                                                    <span id="role_play_score{{ $user->id }}"  style="font-weight: bold; color: #007BFF;">{{ $user->training_result->roleplay_test_score }}</span> / <span style="font-weight: bold; color: #000;">{{ $score_settings->role_play }}</span>%
                                                 </div>
                                             @endif
 
                                             @if($permissions['view-crm-score'] && isset($score_settings->crm_test) && $score_settings->crm_test > 0)
                                                 <div class="crm-test-score">
                                                     <strong class="tit">CRM Test: </strong>
-                                                    <span id="crm_test_score{{ $user->id }}">{{ $user->training_result->crm_test_score }}</span>% <br>
+                                                    
+                                                    <span id="crm_test_score{{ $user->id }}" style="font-weight: bold; color: #007BFF;">{{ $user->training_result->crm_test_score }}</span> / <span style="font-weight: bold; color: #000;">{{ $score_settings->crm_test }}</span>%
                                                 </div>
                                             @endif
 
                                             @if($permissions['view-email-score'] && isset($score_settings->email) && $score_settings->email > 0)
                                                 <div class="email-test-score">
                                                     <strong>Email: </strong>
-                                                    <span id="email_test_score{{ $user->id }}">{{ $user->training_result->email_test_score }}</span>%
+                                                    
+                                                    <span id="email_test_score{{ $user->id }}" style="font-weight: bold; color: #007BFF;">{{ $user->training_result->email_test_score }}</span> / <span style="font-weight: bold; color: #000;">{{ $score_settings->email }}</span>%
                                                 </div>
                                             @endif
                                         @endif

@@ -36,7 +36,7 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
         ->where('program_user.program_id', $this->id)
         ->join("users", "program_user.user_id", "=", "users.id")
         ->join("programs", "program_user.program_id", "=", "programs.id")
-        ->join("certificates", function ($join) {
+        ->leftjoin("certificates", function ($join) {
             $join->on("certificates.program_id", "=", "programs.id")
             ->on("certificates.user_id", "=", "users.id");
         })
@@ -56,7 +56,7 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
         ])
         ->get();
 
-
+        
         return $participants;
     }
 
