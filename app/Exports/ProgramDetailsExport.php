@@ -56,7 +56,6 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
         ])
         ->get();
 
-        
         return $participants;
     }
 

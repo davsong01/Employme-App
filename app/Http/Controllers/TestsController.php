@@ -34,13 +34,6 @@ class TestsController extends Controller
 
             $i = 1;
 
-            // $modules = Module::with('questions')->where('program_id', $program->id)->where('status', 1)->get();
-
-            $modules = Module::with('questions')->where('program_id', $program->id)
-                // ->where('status', 1)
-                ->where('computation_status', 1)
-                ->get();
-
             if (resolveAuthUser()->redotest == $program->id) {
                 $modules = Module::with('questions')->where('program_id', $program->id)->get();
             }
@@ -56,32 +49,27 @@ class TestsController extends Controller
                 }
             }
 
-            foreach ($modules as $module) {
-                $module_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->where('program_id', $program->id)->first();
-                
-                // $redo_check = Result::where('module_id', $module->id)->where('user_id', resolveAuthUser()->id)->where('role_play_score', '<>', NULL)->where('email_test_score', '<>', NULL)->get();
+            $modules = Module::with('questions')
+            ->where('program_id', $program->id)
+            ->where('computation_status', 1)
+            ->get() // Fetch the data before using reject()
+                ->reject(function ($module) use ($transaction) {
+                    $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
+                    return $resitStatus['status'] != 1 && $module->status == 0;
+                });
 
-                // foreach ($redo_check as $check) {
-                //     if($this->getResitTrainingStatus($module->type, $transaction)) {
-                //         $module['redo'] = 1;
-                //     } else {
-                //         $module['redo'] = 0;
-                //     }
-                // }
+            foreach ($modules as $module) {
+                $module_check = Result::where('module_id', $module->id)
+                ->where('user_id', resolveAuthUser()->id)
+                ->where('program_id', $program->id)
+                ->first();
                 
                 $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
-                
                 $expiry = $resitStatus['expiry'];
-                
-                if ($resitStatus['status'] == 1 && $expiry > now()) {
-                    $module['redo'] = !empty($module_check) ? $module_check->redo_test : 1;
-                    $module['completed'] = 1;
-                    $module['expiry'] = $expiry;
-                } else {
-                    $module['completed'] = 1;
-                    $module['redo'] = !empty($module_check) ? $module_check->redo_test : 1;
-                    $module['expiry'] = $expiry;
-                }
+
+                $module['completed'] = !empty($module_check) ? 1 : 0;
+                $module['redo'] = (!empty($module_check) && $resitStatus['status'] == 1 && $expiry > now()) ? $module_check->redo_test : 0;
+                $module['expiry'] = $expiry;
             }
             
             return view('dashboard.student.tests.index', compact('modules', 'i', 'program'));
