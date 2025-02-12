@@ -293,7 +293,7 @@
                                 
                                 <div class="" style="margin-bottom: 5px;">
                                     @if($program->permissions['training.clone'])
-                                        <a href="javascript:void(0)" data-toggle="modal" data-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
+                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
                                             class="btn btn-success btn-xs" style="background:#183153"><i class="fa fa-copy"></i> Clone Training
                                         </a>
                                     @endif
@@ -341,7 +341,7 @@
                                 <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="batchModalLabel">Clone {{ $program->p_name }}</h5>
-                                    <button type="button" class="close btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -360,7 +360,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-success" id="generate-button">
                                         Clone
                                     </button>
