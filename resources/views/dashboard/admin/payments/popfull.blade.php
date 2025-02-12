@@ -87,9 +87,7 @@
                                                 alt="{{ $pop->name }}" 
                                                 class="img-thumbnail" style="width: 60px;">
                                         </a>
-                                
                                     </td>
-
                                 </tr>
                                 <div class="modal fade mt-5" id="myModal{{ $pop->id }}" tabindex="-1" aria-labelledby="imageModal{{ $pop->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">

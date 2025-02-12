@@ -213,52 +213,6 @@
                                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModals{{$transaction->transid }}">
                                             <i class="fa fa-eye"></i> View Payment Trail
                                         </button>
-
-                                        <!-- Modal -->
-                                        <div class="modal fade" id="exampleModals{{$transaction->transid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        @foreach($transaction->paymentthreads->sortByDESC('created_at') as $thread)
-                                                            <div class="row">
-                                                                <div class="col-md-8">
-                                                                    Transaction Id :
-                                                                    <strong>{{ $thread->transaction_id}}</strong>
-                                                                    <br>
-                                                                    Date: 
-                                                                    <strong>{{ $thread->created_at->format('d/m/Y H:i:s') }}</strong> <br>
-                                                                    Amount: 
-                                                                    <strong>{{ number_format($thread->amount) }}</strong>
-                                                                </div>
-                                                                
-                                                                <div class="col-md-4">
-                                                                    @if(!empty($thread->admin_id))
-                                                                        <div style="background: #18006f38;padding: 10px;border-radius: 10px;">
-                                                                            Transaction added by<br>
-                                                                            <strong>{{ $thread->admin?->name }}</strong>
-                                                                        </div>
-                                                                    @else 
-                                                                        <div style="background: #006f3138;padding: 10px;border-radius: 10px;">
-                                                                            Transaction added by<br>
-                                                                            <strong>{{ $thread->user?->name }}</strong>
-                                                                        </div>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            <hr>
-                                                        @endforeach
-                                                    </div>
-
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     @endif
 
                                 </small>
@@ -355,11 +309,54 @@
                                     <hr>
                                     @endforeach
                                 </div>
-                                
-                                </div>
                             </div>
                         </div>
 
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModals{{$transaction->transid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @foreach($transaction->paymentthreads->sortByDESC('created_at') as $thread)
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    Transaction Id :
+                                                    <strong>{{ $thread->transaction_id}}</strong>
+                                                    <br>
+                                                    Date: 
+                                                    <strong>{{ $thread->created_at->format('d/m/Y H:i:s') }}</strong> <br>
+                                                    Amount: 
+                                                    <strong>{{ number_format($thread->amount) }}</strong>
+                                                </div>
+                                                
+                                                <div class="col-md-4">
+                                                    @if(!empty($thread->admin_id))
+                                                        <div style="background: #18006f38;padding: 10px;border-radius: 10px;">
+                                                            Transaction added by<br>
+                                                            <strong>{{ $thread->admin?->name }}</strong>
+                                                        </div>
+                                                    @else 
+                                                        <div style="background: #006f3138;padding: 10px;border-radius: 10px;">
+                                                            Transaction added by<br>
+                                                            <strong>{{ $thread->user?->name }}</strong>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <hr>
+                                        @endforeach
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
                     </tbody>
                     
