@@ -21,12 +21,28 @@ use App\Http\Controllers\Admin\ResultController;
 
 class AdminController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        $request['prefix__'] = request()->route()->getPrefix();
+
         return view('auth.login');
     }
 
-    public function login(Request $request){
+    // public function login(Request $request){
+    //     $credentials = $request->only('email', 'password');
+    //     session()->flush();
+
+    //     if (Auth::guard('admin')->attempt($credentials)) {
+    //         $user = Auth::guard('admin')->user();
+    //         $user->update(['last_login' => now()]);
+
+    //         return redirect()->route('admin.home');
+    //     }
+
+    //     return redirect()->back()->with('error', 'Invalid credentials');
+    // }
+    public function login(Request $request)
+    {
         $credentials = $request->only('email', 'password');
         session()->flush();
 
@@ -34,11 +50,12 @@ class AdminController extends Controller
             $user = Auth::guard('admin')->user();
             $user->update(['last_login' => now()]);
             
-            return redirect()->route('admin.home');
+            return redirect()->intended(route('admin.home'));
         }
-        
+
         return redirect()->back()->with('error', 'Invalid credentials');
     }
+
 
     public function index(Request $request)
     {

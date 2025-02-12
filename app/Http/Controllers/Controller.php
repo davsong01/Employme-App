@@ -60,14 +60,19 @@ class Controller extends BaseController
             if (isset($data['invoice_id'])) {
                 $pdf = PDF::loadView('emails.printreceipt', compact('data'));
             } else $pdf = null;
-            
+                
             try {
                 if(env('ENT') == 'local'){
                     \Log::info(['email' => $data]);
                 }else{
+                    $data[
+                    'subject'] = $this->emailContent($data)['subject'];
+                    $data['content'] = $this->emailContent($data)['content'];
+                    
                     Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
                 }
             } catch(\Exception $e){
+                dd($e->getMessage());
                 // Get error here
                 return false;
             }

@@ -67,7 +67,7 @@ class Welcomemail extends Mailable
                     ->subject('Balance Payment Received');
             } else{
                 return $this->markdown('emails.bulk_email')
-                ->subject($this->data['subject']);
+                ->subject($this->data['subject'] ?? 'Welcome To '.config('app.name'));
             }
         }
 

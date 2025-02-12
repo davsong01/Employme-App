@@ -48,7 +48,7 @@ class ProgramCheck
             
             return $next($request);
         }
-
+        
         if (checkRoleHas(['Admin']) || checkRoleHas(['Facilitator','Grader'])) {
             return $next($request);
         }

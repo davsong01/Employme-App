@@ -214,41 +214,41 @@
                                 </span>
                                 
                                 @if($program->permissions['program.detailsexport'])
-                                <br> <a href="{{ URL::signedRoute('program.detailsexport', ['p_id'=> $program->id, 'id'=> $program->id]) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
+                                <br> <a href="{{ route('program.detailsexport', ['p_id'=> $program->id, 'id'=> $program->id]) }}"><span style="color:brown;"><i class="fa fa-download"></i> Export Participant's details</span></a>
                                 @endif
 
                                 @if($program->status == 1) <br>
                                 <a  href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Training</a> @endif  <br>
                                 @if($program->permissions['programs.edit'])
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
-                                    class="btn btn-info btn-xs" href="{{ URL::signedRoute('programs.edit', ['p_id'=> $program->id, 'program'=> $program->id])}}"><i
+                                    class="btn btn-info btn-xs" href="{{ route('programs.edit', ['p_id'=> $program->id, 'program'=> $program->id])}}"><i
                                         class="fa fa-edit"></i> Edit
                                 </a> 
                                 @endif
                                 @if($program->hascrm == 0)
                                     @if($program->permissions['crm.show'])
                                     <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');" data-placement="top" title="Enable CRM"
-                                        class="btn btn-primary btn-xs" href="{{ URL::signedRoute('crm.show', ['p_id'=> $program->id, 'crm'=> $program->id])}}" ><i
+                                        class="btn btn-primary btn-xs" href="{{ route('crm.show', ['p_id'=> $program->id, 'crm'=> $program->id])}}" ><i
                                             class="far fa-comments"></i> Enable CRM
                                     </a>
                                     @endif
                                 @else
                                     @if($program->permissions['crm.hide'])
                                     <a data-toggle="tooltip" onclick="return confirm('Are you really sure?');"  data-placement="top" title="Disable CRM"
-                                        class="btn btn-primary btn-xs" href="{{ URL::signedRoute('crm.hide', ['p_id'=> $program->id, 'crm'=> $program->id])}}" ><i class="fa fa-ban"> Disable CRM</i>
+                                        class="btn btn-primary btn-xs" href="{{ route('crm.hide', ['p_id'=> $program->id, 'crm'=> $program->id])}}" ><i class="fa fa-ban"> Disable CRM</i>
                                     </a>
                                     @endif
                                 @endif
                                 @if($program->hasresult == 0)
                                     @if($program->permissions['results.enable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
-                                        class="btn btn-success btn-xs" href="{{ URL::signedRoute('results.enable', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable result
+                                        class="btn btn-success btn-xs" href="{{ route('results.enable', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable result
                                     </a>
                                     @endif
                                 @else
                                     @if($program->permissions['results.disable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Disable User Results"
-                                        class="btn btn-info btn-xs" href="{{ URL::signedRoute('results.disable', ['p_id'=> $program->id, 'id'=> $program->id])}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Result
+                                        class="btn btn-info btn-xs" href="{{ route('results.disable', ['p_id'=> $program->id, 'id'=> $program->id])}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Result
                                     </a>
                                     @endif
                                 @endif
@@ -274,17 +274,17 @@
                             <td style="vertical-align: unset;">
                                 <div class="" style="margin-bottom: 5px;">
                                     @if($program->permissions['password.reset'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ URL::signedRoute('admin.password.reset', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password </a>
+                                    <a data-toggle="tooltip" data-placement="top" title="Reset Participant's password" class="btn btn-dark btn-xs" href="{{ route('admin.password.reset', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Reset Password </a>
                                     @endif
                                     @if($program->close_registration == 0)
                                         @if($program->permissions['registration.close'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="{{ URL::signedRoute('registration.close', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
+                                        <a data-toggle="tooltip" data-placement="top" title="Close registration" class="btn btn-danger btn-xs" href="{{ route('registration.close', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-window-close"></i> Close registration
                                         </a>
                                         @endif
                                     @else
                                         @if($program->permissions['registration.open'])
                                         <a data-toggle="tooltip" data-placement="top" title="Extend Registration"
-                                            class="btn btn-success btn-xs" href="{{ URL::signedRoute('registration.open', ['p_id'=> $program->id, 'id'=> $program->id])}}"><i
+                                            class="btn btn-success btn-xs" href="{{ route('registration.open', ['p_id'=> $program->id, 'id'=> $program->id])}}"><i
                                             onclick="return confirm('Are you really sure?');" class="fa fa-window-restore"></i> Extend Registration
                                         </a>
                                         @endif
@@ -300,10 +300,10 @@
 
                                     @if($program->permissions['training.import'])
                                         <a data-toggle="tooltip" data-placement="top" title="Import Participants"
-                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ URL::signedRoute('training.import', ['p_id'=> $program->id])}}"><i class="fa fa-upload"></i> Bulk Import
+                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('training.import', ['p_id'=> $program->id, 'program'=> $program->id])}}"><i class="fa fa-upload"></i> Bulk Import
                                         </a>
                                     @endif
-                                    <form action="{{ URL::signedRoute('programs.destroy', ['p_id'=> $program->id, 'program' => $program->id]) }}" method="POST"
+                                    <form action="{{ route('programs.destroy', ['p_id'=> $program->id, 'program' => $program->id]) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to trash?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
@@ -319,14 +319,14 @@
                                     <div class="extra-actions" style="padding-top:0px">
                                         @if($program->close_earlybird == 1)
                                             @if($program->permissions['earlybird.close'])
-                                                <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment" class="btn btn-info btn-xs" href="{{ URL::signedRoute('earlybird.close', ['id' => $program->id])}}"><i
+                                                <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment" class="btn btn-info btn-xs" href="{{ route('earlybird.close', ['id' => $program->id])}}"><i
                                                         onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i> Close Earlybird
                                                 </a>
                                             @endif
                                         @else
                                             @if($program->permissions['earlybird.open'])
                                             <a data-toggle="tooltip" data-placement="top" title="Extend Early Bird Payment"
-                                                    class="btn btn-info btn-xs" href="{{ URL::signedRoute('earlybird.open', ['id' => $program->id])}}" ><i
+                                                    class="btn btn-info btn-xs" href="{{ route('earlybird.open', ['id' => $program->id])}}" ><i
                                                     onclick="return confirm('Are you really sure?');" class="fa fa-folder"></i> Extend Earlybird
                                             </a>
                                             @endif
@@ -345,7 +345,7 @@
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form onsubmit="return confirm('This will clone training');" action="{{ URL::signedRoute('training.clone', ['p_id'=> $program->id, 'training'=> $program->id]) }}" method="POST">
+                                <form onsubmit="return confirm('This will clone training');" action="{{ route('training.clone', ['p_id'=> $program->id, 'training'=> $program->id]) }}" method="POST">
                                     @csrf
                                     <div class="modal-body">
                                         <div class="mb-3">

@@ -10,7 +10,7 @@
                         <h5>Import Participants for {{ $program->p_name }}</h5>
                         @include('layouts.partials.alerts')
                     </div>
-                    <form action="{{ route('users.import') }}" method="POST" name="importform" class="pb-4" enctype="multipart/form-data">
+                    <form action="{{ route('users.import.new') }}" method="POST" name="importform" class="pb-4" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row mb-4">
@@ -34,29 +34,36 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="row mb-4">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="import_from" class="font-weight-bold">Select Program</label>
                                     <small class="text-muted d-block mb-2">
                                         All participants for the selected program will be imported.
                                     </small>
-                                   
                                     <select name="import_from" id="import_from" class="form-control">
                                         <option value="">-- Select Program --</option>
                                         @foreach ($programs as $training)
-                                            @if($training->id != $program->id )
-                                            <option value="{{ $training->id }}" {{ old('import_from') == $training->id ? 'selected' : '' }}>
-                                                {{ $training->p_name }} | <strong>({{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</strong>
-                                            </option>
+                                            @if($training->id != $program->id)
+                                                <option value="{{ $training->id }}" {{ old('import_from') == $training->id ? 'selected' : '' }}>
+                                                    {{ $training->p_name }} | <strong>({{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</strong>
+                                                </option>
                                             @endif
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="start_date" class="font-weight-bold">Start Date</label>
+                                    <small class="text-muted d-block mb-2"> <br>
+                                    </small>
+                                    <input type="date" id="start_date" class="form-control" name="start_date">
+                                </div>
+                            </div>
                         </div>
-        
+
                         <input type="hidden" value="{{ $program->id }}" name="p_id">
 
                         <div class="row">

@@ -33,7 +33,7 @@
                 <div class="card-body">
                     <div class="card-title">
                         @include('layouts.partials.alerts')
-                        <h4 class="card-title">Add new Certificate in {{$p_name}}</h4>
+                        <h4 class="card-title">{{$p_name}} Certificate Management</h4>
                         @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
                         {{-- <a href="{{route('certificates.generate', $p_id )}}" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates (40/batch)</a> --}}
                         <a href="javascript:void(0)" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#batchModal">Auto Generate Certificates</a>
@@ -99,7 +99,6 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
                         @foreach($certificates as $certificate)
                         <?php 
                             $results = $certificate->scores();
@@ -111,23 +110,55 @@
                             <td>{{ $i++ }}</td>
                             <td style="text-align:center;">
                                 @if($certificate->file)
-                                    
                                     <a class="btn btn-info btn-sm" href="#" onclick="loadCertificateImage(event, {{ $certificate->id }}, '/download-certificate/{{ $certificate->file }}')">Preview
                                     </a>
                                 @else
                                     <span>No Preview Available</span>
                                 @endif
                             </td>
-                            <td>{{ isset($certificate->user->name) ? $certificate->user->name : 'N/A' }} <br>
-                                <span style="font-style: italic">{{ $certificate->user->email }}</span> <br>
-                                <span style="font-style: bold"> <strong>{{ $certificate->user->staffID }}</strong></span> <br>
+                            
+                            <td>
+                                <div style="margin-bottom: 10px;">
+                                    <strong>{{ $certificate->user->name ?? 'N/A' }}</strong><br>
+                                    <span style="font-style: italic; color: gray;">{{ $certificate->user->email }}</span><br>
+                                    <span style="font-weight: bold; color: #333;">{{ $certificate->user->staffID }}</span>
+                                </div>
+
+                                <!-- ReGenCert Section -->
+                                <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; display: inline-block;">
+                                    <strong style="color: #940798;">ReGenCert</strong>
+
+                                    @if($certificate->allow_new_certificate_request)
+                                        <a data-toggle="tooltip" data-placement="top" title="Disable new certificate generation"
+                                        class="btn btn-danger btn-sm"
+                                        href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 0]) }}"
+                                        onclick="return confirm('Are you sure you want to disable new certificate generation?');">
+                                            <i class="fa fa-toggle-on"></i> Disable
+                                        </a>
+                                    @else
+                                        <a data-toggle="tooltip" data-placement="top" title="Enable new certificate generation"
+                                        class="btn btn-success btn-sm"
+                                        href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 1]) }}"
+                                        onclick="return confirm('Are you sure you want to enable new certificate generation?');">
+                                            <i class="fa fa-toggle-off"></i> Enable
+                                        </a>
+                                    @endif
+                                </div>
+                                @if($certificate->certificateHistory->count() > 0)
+                                <!-- Regeneration History Button (Triggers Modal) -->
+                                <br>
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#historyModal-{{ $certificate->id }}">
+                                    <i class="fa fa-history"></i> View Regeneration History ({{$certificate->certificateHistory->count()}})
+                                </button>
+                                @endif
                             </td>
+
                             @if(isset($score_settings) && !empty($score_settings))
                             <td style="width: 115px;">
                                 @if(isset($score_settings->certification) && $score_settings->certification > 0)
                                     <strong>Certification: </strong> {{ isset($results['certification_test_score'] ) ? $results['certification_test_score'] : '' }}% 
                                 @endif
-                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0)
+                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0) <br>
                                     <strong class="tit">Class Tests:</strong> {{ isset($results['class_test_score'] ) ? $results['class_test_score'] : '' }}% <br>
                                 @endif
                                 @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
@@ -183,6 +214,8 @@
                                             class="fa fa-toggle-off"></i>
                                     </a>
                                     @endif
+
+                                    
                                     <a data-toggle="tooltip" data-placement="top" title="Download certificate"
                                         class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
                                             class="fa fa-download"></i>
@@ -200,8 +233,35 @@
                                 </div>
                             </td>
                         </tr>
+                        <!-- Modal for Regeneration History -->
+                        <div class="modal fade" id="historyModal-{{ $certificate->id }}" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="historyModalLabel">Certificate Regeneration History</h5>
+                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @foreach($certificate->certificateHistory as $history)
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>Date:</strong> {{ \Carbon\Carbon::parse($history->created_at)->format('jS F, Y h:i A') }} <br>
+                                                </div>
+                                                <a href="{{ url('download-certificate/' . $history->file) }}" class="btn btn-primary btn-sm" download>
+                                                    <i class="fa fa-download"></i> Download
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @endforeach
-                    </tbody>
                 </table>
             </div>
         </div>

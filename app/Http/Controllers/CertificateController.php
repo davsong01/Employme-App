@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use App\Models\UtilityCronTask;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
+use App\Models\CertificateGenerationHistory;
 use App\Models\CertificateStatusLog;
 use App\Services\CertificateService;
 use Illuminate\Support\Facades\Auth;
@@ -107,8 +108,8 @@ class CertificateController extends Controller
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $i = 1;
             $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
-            $certificates = Certificate::with(['user', 'program'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
-
+            $certificates = Certificate::with(['user', 'program','certificateHistory'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
+            
             foreach ($users as $user) {
                 $user->name = User::whereId($user->user_id)->value('name');
                 $user->certificates_count = Certificate::whereUserId($user->user_id)->whereProgramId($request->program_id)->count();
@@ -355,6 +356,26 @@ class CertificateController extends Controller
         return back()->with('error', 'You do not have permission to perform this action.');
     }
 
+    public function newCertificateGeneration(Certificate $certificate_id, $status){
+        $program = Program::select('id', 'auto_certificate_settings')->find($certificate_id->program_id);
+        if(empty($program->auto_certificate_settings)){
+            return back()->with('error', 'No Auto Certificate settings for this program!');
+        }
+        
+        $certificate_id->update([
+            'allow_new_certificate_request' => $status
+        ]);
+
+        return back()->with('message', 'Enabled succesfully');
+    }
+
+    public function createCertificateHistory($certificate){
+        CertificateGenerationHistory::create([
+            'certificate_id'=> $certificate->id,
+            'file' => $certificate->file
+        ]);
+    }
+
     public function generateCertificatePreview(Request $request, $program_id)
     {
         try {
@@ -425,5 +446,27 @@ class CertificateController extends Controller
         CertificateStatusLog::truncate();
 
         return back()->with('message', 'All records Truncated!');
+    }
+
+    public function generateNewCertificate(Request $request, Certificate $certificate){
+        if($certificate->allow_new_certificate_request != 0){
+            return back()->with('error', 'It seems this certificate has already been regenerated. Please use the download button below to obtain a copy.');
+        }
+        $location = base_path('uploads/certificates');
+        $newCertificate = generateCertificate($request, $certificate->program_id, $location, null, $certificate);
+        
+        $this->createCertificateHistory($certificate);
+        $certificate->update([
+            'allow_new_certificate_request' => 0,
+            'file' => $newCertificate['name'],
+        ]);
+
+        $realpath = base_path() . '/uploads' . '/certificates/' . $newCertificate['name'];
+        
+        if (!file_exists($realpath)) {
+            return back()->with('error', 'There was an error generating a new certificate.');
+        }
+
+        return response()->download($realpath);
     }
 }

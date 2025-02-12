@@ -6,11 +6,7 @@ use Closure;
 use App\Models\User;
 use App\Models\Admin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Session;
-use Symfony\Component\HttpFoundation\Response;
 
 class MenuPermissions
 {
@@ -47,10 +43,10 @@ class MenuPermissions
         }
 
         $excludedUserIds = [1]; // Add more user IDs as needed
-        
         if (in_array($user->id, $excludedUserIds)) {
             return $next($request);
         }
+        dd('sdds', $next($request));
         
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $allMenus = allRoutes();
@@ -61,9 +57,6 @@ class MenuPermissions
             if (!empty($request->p_id)) {
                 if (in_array($currentRouteName, $allPermissions)) {
                     
-                    // if (!URL::hasValidSignature($request)) {
-                    //     return redirect()->route('home')->with('danger', 'Invalid or expired link.');
-                    // }
 
                     if (checkTrainingHasPermissions($request->p_id, [$currentRouteName])[$currentRouteName]) {
                         return $next($request);

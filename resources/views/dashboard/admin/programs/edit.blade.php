@@ -478,6 +478,7 @@
                                                         <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
                                                         <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
                                                         <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
+                                                        <option value="text" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -635,6 +636,7 @@
                                 <option value="name">Name</option>
                                 <option value="email">Email</option>
                                 <option value="staffID">Staff ID</option>
+                                <option value="date_issued">Date Issued</option>
                             </select>
                         </div>
                     </div>
@@ -734,7 +736,7 @@
             }
 
             $.ajax({
-                url: '/generate-certificate-preview/' + '{{$program->id}}',
+                url: '/admin/generate-certificate-preview/' + '{{$program->id}}',
                 type: 'POST',
                 data: formData,
                 contentType: false,

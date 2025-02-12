@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\Result;
@@ -265,7 +266,7 @@ use Intervention\Image\Facades\Image;
         }
 
         if (!function_exists("generateCertificate")) {
-            function generateCertificate($request, $program_id, $location, $user=null)
+            function generateCertificate($request, $program_id, $location, $user=null, $certificate=null)
             {
                 $program = Program::find($program_id);
                 
@@ -281,7 +282,9 @@ use Intervention\Image\Facades\Image;
                 } else {
                     $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
                 }
-                            
+                
+                // Create a history for the previous certificate
+
                 $image = Image::make($inputImagePath);
                 
                 if(!empty($request['auto_certificate_name_font_weight'])){
@@ -312,11 +315,17 @@ use Intervention\Image\Facades\Image;
                     if($text_type == 'name') $text = $user->name ?? $text;
                     if($text_type == 'email') $text = $user->email;
                     if($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
-
-                    $certificate_number = generateCertificateNumber($program, $user);
+                    
                     
                     if($text_type == 'certificate_number'){
+                        $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
                         $text = $certificate_number;
+                    }
+                    if ($text_type == 'date_issued'){
+                        $date_issued = !empty($request['date_issued'])
+                        ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+                        : '';
+                        $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
                     }
                     
                     // End text

@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\PaymentModeController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
 
+
 Route::middleware(['admin.access'])->group(function () {
     Route::get('/', [AdminController::class, 'showLoginForm'])->name('admin.login');
     Route::get('/ad-login', [AdminController::class, 'showLoginForm'])->name('admin.login');
@@ -149,7 +150,7 @@ Route::middleware(['admin.access'])->group(function () {
     
             Route::controller(UserController::class)->group(function () {
                 Route::get('participantsimport/{p_id}', 'importExport')->middleware(['programCheck'])->name('training.import');
-                Route::post('import-training-participant', 'import')->middleware(['programCheck'])->name('users.import');
+                Route::post('import-training-participant', 'import')->middleware(['programCheck'])->name('users.import.new');
                 Route::get('download-bulk-user-sample/{filename}', 'downloadBulkSample')->middleware(['programCheck'])->name('user-bulk-sample');
             });
         });
@@ -210,6 +211,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::post('certificate/save', 'save')->name('certificates.save');
             Route::delete('certificates/{certificate}', 'destroy')->name('certificates.destroy');
             Route::get('certificate-status/{user_id}/{program_id}/{status}/{certificate_id}', 'certificateStatus')->name('certificate.status');
+            Route::get('new-certificate-gen/{certificate_id}/{status}', 'newCertificateGeneration')->name('new.certificate.generation');
             Route::get('certificate-clear-duplicate/{program_id}', 'clearDuplicates')->name('certificate.clear.duplicates');
             
             Route::get('certificate-verification-logs', 'certificateVerificationLogs')->name('certificate.verification.logs');

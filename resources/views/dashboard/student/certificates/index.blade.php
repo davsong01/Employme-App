@@ -5,9 +5,44 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <div class="">
+            <div class="pb-2">
+                @if($certificate->allow_new_certificate_request)
+                <!-- Button to Open Modal -->
+                <a class="btn btn-info" style="color:white" data-bs-toggle="modal" data-bs-target="#dateIssuedModal">
+                    Generate New Certificate
+                </a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="dateIssuedModal" tabindex="-1" aria-labelledby="dateIssuedModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dateIssuedModalLabel">Enter Date Issued</h5>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="{{ route('participants.certificates.new', $certificate->id) }}" method="POST">
+                                @csrf
+                                <div class="modal-body">
+                                    <label for="date_issued">Date Issued</label>
+                                    <input type="date" class="form-control" name="date_issued" required>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Generate Certificate</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                @endif
+                <h5 class="card-title">Please Download your certificate below</h5>
+            </div>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto; overflow-x: auto;">
                 <table id="" class="table table-striped table-bordered">
-                    <thead>
+                    <thead class="thead-dark">
                         <tr>
                             <th>Name</th>
                             <th>Training</th>
@@ -16,9 +51,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <div class="text-center">
-                            <h5 class="card-title">Please Download your certificate below</h5>
-                        </div>
                         <tr>
                             <td>{{ $certificate->user->name }} <br>
                             </td>

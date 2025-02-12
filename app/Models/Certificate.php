@@ -9,6 +9,7 @@ use App\Models\Result;
 use App\Models\Program;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CertificateGenerationHistory;
 
 class Certificate extends Model
 {
@@ -32,6 +33,11 @@ class Certificate extends Model
         }
         
         return $access;
+    }
+
+    public function certificateHistory()
+    {
+        return $this->hasMany(CertificateGenerationHistory::class)->orderBy('created_at','DESC');
     }
 
     public function scores(){

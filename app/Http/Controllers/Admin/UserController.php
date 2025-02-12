@@ -53,6 +53,7 @@ class UserController extends Controller
 				mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
 				application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv',
                 'import_from' => 'sometimes',
+                'start_date' => 'sometimes'
             ], [
                 'file.mimetypes' => 'The file must be a file of type: xlsx'
             ]);
@@ -67,8 +68,13 @@ class UserController extends Controller
                     // Get old partiicipants
                     set_time_limit(3600);
 
-                    $participants = Transaction::with('user')->where('program_id', $request->import_from)->where('balance', '<=', 0)
-                    ->get();
+                    $participants = Transaction::with('user')->where('program_id', $request->import_from)->where('balance', '<=', 0);
+
+                    if (!empty($request->start_date)) {
+                        $participants = $participants->whereDate('created_at', '>=', $request->start_date);
+                    }
+                    
+                    $participants = $participants->get();
                     $count = 0;
                     $program = Program::where('id', $request->p_id)->first();
                     $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();

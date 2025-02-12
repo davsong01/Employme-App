@@ -197,6 +197,7 @@ Route::middleware(['web.access'])->group(function () {
         
         Route::controller(CertificateController::class)->group(function () {
             Route::get('participant-certificates', 'index')->name('participants.certificates.index');
+            Route::post('regenerate-new-certificate/{certificate}', 'generateNewCertificate')->name('participants.certificates.new');
         });
 
         Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('participants.payments.print');
