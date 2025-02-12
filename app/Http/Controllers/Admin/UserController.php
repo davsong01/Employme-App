@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use DB;
 use PDF;
+use App\Mail\Email;
 use App\Models\User;
 use App\Models\Result;
 use App\Models\Program;
 use App\Models\Location;
 use App\Models\Settings;
-use App\Mail\Email;
+use App\Mail\Welcomemail;
 use App\Models\Transaction;
 use App\Models\UpdateMails;
-use App\Mail\Welcomemail;
 use App\Exports\UsersExport;
-use App\Models\FacilitatorTraining;
 use App\Imports\UsersImport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -29,9 +30,8 @@ class UserController extends Controller
     public function importExport($p_id)
     {
         $program =  Program::select('id','p_name','p_amount')->where('id', $p_id)->first();
-
         if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $programs = Program::select('id','p_name','p_amount')->where('id', '<>', $p_id)->AllMainPrograms()->get();
+            $programs = Program::withCount('fullyPaid')->where('id', '<>', $p_id)->AllMainPrograms()->get();
             
             return view('dashboard.admin.users.import', compact('program','programs'));
         }
@@ -69,12 +69,13 @@ class UserController extends Controller
                     set_time_limit(3600);
 
                     $participants = Transaction::with('user')->where('program_id', $request->import_from)->where('balance', '<=', 0);
-
                     if (!empty($request->start_date)) {
+                        $request->start_date = Carbon::parse($request->start_date);
                         $participants = $participants->whereDate('created_at', '>=', $request->start_date);
                     }
                     
                     $participants = $participants->get();
+                    
                     $count = 0;
                     $program = Program::where('id', $request->p_id)->first();
                     $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();
@@ -89,7 +90,7 @@ class UserController extends Controller
                         }
                         $count++;
                         $user = $participant->user;
-
+                        
                         // Normalize data before processing
                         $row['staffID'] = $user->staffID;
                         $row['phone'] = $user->phone;

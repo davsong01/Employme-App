@@ -13,6 +13,7 @@ use App\Models\Complain;
 use App\Models\Location;
 use App\Models\Material;
 use App\Models\Certificate;
+use App\Models\Transaction;
 use App\Models\ScoreSetting;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -190,4 +191,9 @@ class Program extends Model
         }
         return $months;
     }
+
+    public function fullyPaid()
+    {
+        return $this->hasMany(Transaction::class, 'program_id')->where('balance', '<=', 0);
+    } 
 }

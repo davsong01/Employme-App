@@ -262,13 +262,13 @@
                                             <div class="btn-group">
                                                 @if($permissions['mocks.add'])
                                                     <a data-toggle="tooltip" data-placement="top" title="Update user scores"
-                                                    class="btn btn-info" href="{{ URL::signedRoute('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
+                                                    class="btn btn-info" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
                                                         <i class="fa fa-eye"></i>
                                                     </a>]
 
                                                 @endif
                                                 @if($permissions['mocks.add'])
-                                                    <form action="{{ URL::signedRoute('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
+                                                    <form action="{{route('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
                                                         onsubmit="return confirm('Are you really sure?');">
                                                         {{ csrf_field() }}
                                                         {{method_field('DELETE')}}
@@ -598,7 +598,7 @@
                     <i class="fas fa-spinner fa-spin fa-2x"></i> Loading...
                 </div>
             `);
-            const url = `{!! URL::signedRoute('results.add', ['id' => '__id__', 'p_id' => '__p_id__']) !!}`
+            const url = `{!!route('results.add', ['id' => '__id__', 'p_id' => '__p_id__']) !!}`
                 .replace('__id__', id)
                 .replace('__p_id__', p_id);
 

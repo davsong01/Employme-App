@@ -133,7 +133,8 @@ Route::middleware(['admin.access'])->group(function () {
     
         // Programs Routes
     
-        Route::middleware(['signed'])->group(function () {
+        // Route::middleware(['signed'])->group(function () {
+        Route::middleware([])->group(function () {
             Route::resource('programs', ProgramController::class);
     
             Route::controller(ProgramController::class)->group(function () {

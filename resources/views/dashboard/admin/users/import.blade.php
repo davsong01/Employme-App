@@ -46,7 +46,7 @@
                                         @foreach ($programs as $training)
                                             @if($training->id != $program->id)
                                                 <option value="{{ $training->id }}" {{ old('import_from') == $training->id ? 'selected' : '' }}>
-                                                    {{ $training->p_name }} | <strong>({{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</strong>
+                                                    {{ $training->p_name }} | <strong>({{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($training->p_amount) }}) - {{ $training->fully_paid_count }} Participants</strong>
                                                 </option>
                                             @endif
                                         @endforeach

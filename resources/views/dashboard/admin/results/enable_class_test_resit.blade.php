@@ -5,7 +5,7 @@
         <small class="resit-status">
             @if($permissions['results.destroy'])
                 <form onsubmit="return confirm('This will delete this user class test details and enable tests to be re-taken. Are you sure you want to do this?');" 
-                    action="{{ URL::signedRoute('classtests.results.destroy', ['id' => $user->id, 'result' => $user->id,'p_id' => $user->program_id]) }}" method="POST">
+                    action="{{route('classtests.results.destroy', ['id' => $user->id, 'result' => $user->id,'p_id' => $user->program_id]) }}" method="POST">
                     {{ csrf_field() }}
                     {{method_field('DELETE')}}
                     <input type="hidden" name="uid" value="{{ $user->user_id }}">
@@ -35,7 +35,7 @@
                 <small class="resit-status">
                     @if($permissions['results.destroy'])
                         <form onsubmit="return confirm('This will delete this user certification test details and enable test to be re-taken. Are you sure you want to do this?');" 
-                            action="{{ URL::signedRoute('classtests.results.destroy', ['id' => $user->id, 'result' => $user->id,'p_id' => $user->program_id]) }}" method="POST">
+                            action="{{route('classtests.results.destroy', ['id' => $user->id, 'result' => $user->id,'p_id' => $user->program_id]) }}" method="POST">
                             {{ csrf_field() }}
                             {{method_field('DELETE')}}
                             <input type="hidden" name="uid" value="{{ $user->user_id }}">

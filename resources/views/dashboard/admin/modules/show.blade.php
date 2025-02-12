@@ -71,7 +71,7 @@
             @if($allPermissions['modules.create'])
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Modules&nbsp;<a href="{{ URL::signedRoute('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a></h5> 
+                    <h5 class="card-title"> All Modules&nbsp;<a href="{{route('modules.create', ['p_id' => $program_name->id] )}}"><button type="button" class="btn btn-outline-primary">Add New Module </button></a></h5> 
                 </div>
             </div>
             @endif
@@ -113,7 +113,7 @@
                                 <div class="btn-group">
                                     @if($allPermissions['modules.edit'])
                                     <a data-toggle="tooltip" data-placement="top" title="Edit Module"
-                                        class="btn btn-info" href="{{ URL::signedRoute('modules.edit', ['p_id' => $p_id, 'module' => $module->id])}}" onclick="return confirm('Are you really sure?');"><i
+                                        class="btn btn-info" href="{{route('modules.edit', ['p_id' => $p_id, 'module' => $module->id])}}" onclick="return confirm('Are you really sure?');"><i
                                             class="fa fa-edit"></i>
                                     </a>
                                     @endif
@@ -121,14 +121,14 @@
                                     @if($module->status == 0)
                                         @if($allPermissions['modules.enable'])
                                         <a data-toggle="tooltip" data-placement="top" title="Enable Module Questions"
-                                            class="btn btn-secondary" href="{{ URL::signedRoute('modules.enable', ['p_id' => $p_id, 'id' => $module->id])}}" onclick="return confirm('Are you really sure?');"><i
+                                            class="btn btn-secondary" href="{{route('modules.enable', ['p_id' => $p_id, 'id' => $module->id])}}" onclick="return confirm('Are you really sure?');"><i
                                                 class="fa fa-check"></i>
                                         </a>
                                         @endif
                                     @else
                                         @if($allPermissions['modules.disable'])
                                         <a data-toggle="tooltip" data-placement="top" title="Disable Module Questions"
-                                            class="btn btn-info" href="{{ URL::signedRoute('modules.disable', ['p_id' => $p_id, 'id' => $module->id])}}" ><i
+                                            class="btn btn-info" href="{{route('modules.disable', ['p_id' => $p_id, 'id' => $module->id])}}" ><i
                                             onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i>
                                         </a>
                                         @endif
@@ -136,7 +136,7 @@
                                     @if($allPermissions['module.clone'])
                                         @if($module->questions->count() > 0)
                                         <a data-toggle="tooltip" data-placement="top" title="Clone Module"
-                                            class="btn btn-info" href="{{ URL::signedRoute('module.clone', ['p_id' => $p_id, 'module' => $module->id]) }}"><i
+                                            class="btn btn-info" href="{{route('module.clone', ['p_id' => $p_id, 'module' => $module->id]) }}"><i
                                                 class="fa fa-clone"></i>
                                         </a>
                                         @endif
@@ -144,7 +144,7 @@
                                     
                                     @if($module->status == 0 && $module->questions->count() < 1)
                                     @if($allPermissions['modules.destroy'])
-                                    <form action="{{ URL::signedRoute('modules.destroy', ['p_id' => $p_id, 'module' => $module->id]) }}" method="POST"
+                                    <form action="{{route('modules.destroy', ['p_id' => $p_id, 'module' => $module->id]) }}" method="POST"
                                         onsubmit="return confirm('Do you really want to Delete?');">
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
