@@ -350,7 +350,7 @@
                                     <div class="modal-body">
                                         <div class="mb-3">
                                             <label for="clone_options" class="form-label">Select Clone Options</label> <br>
-                                            <select name="clone_options[]" class="form-control select2" multiple="multiple" required id="clone_options" style="width: 100%;">
+                                            <select name="clone_options[]" class="form-control" multiple="multiple" required id="clone_options" style="width: 100%;">
                                                 <option value="training_materials">Training Materials</option>
                                                 <option value="modules">Modules</option>
                                                 <option value="score_settings">Score Settings</option>
@@ -386,7 +386,7 @@
 
     <script>
         $(document).ready(function() {
-            $('#clone_options').select2({
+            $('.select2').select2({
                 dropdownParent: $('body'), // Ensures the dropdown is appended to the body
                 width: '100%' // Makes the select box full width
             });
