@@ -9,7 +9,11 @@
                     <div class="card-title">
                         @include('layouts.partials.alerts')
                     </div>
+                    @if(request()->prefix__ == 'admin')
                     <form action="{{route('complains.update',  ['complain'=>$complain->id] ) }}" method="POST" class="pb-2">
+                    @else
+                    <form action="{{route('participant.complains.update',  ['complain'=>$complain->id] ) }}" method="POST" class="pb-2">
+                    @endif
                         {{ method_field('PATCH') }}
 
                         <div class="row">

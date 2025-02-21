@@ -9,8 +9,11 @@
                         <div class="card-title">
                             @include('layouts.partials.alerts')
                         </div>
-                        
+                        @if(request()->prefix__ == 'admin')
                         <form action="{{ route('complains.store') }}" method="POST">
+                        @else
+                        <form action="{{ route('participant.complains.store') }}" method="POST">
+                        @endif
                             @csrf
                             <!-- Section 1: Customer Personal Details -->
                             <fieldset class="border p-3 mb-4">

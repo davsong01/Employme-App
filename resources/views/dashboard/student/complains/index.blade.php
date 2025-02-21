@@ -65,7 +65,7 @@
              </div>
             <div class="card-header">
                 <div>
-                    <h5 class="card-title"> All Queries <a href="{{route('complains.create', ['p_id'=>$program])}}"><button type="button" class="btn btn-outline-primary">Add New Query</button></a></h5> 
+                    <h5 class="card-title"> All Queries <a href="{{route('participant.complains.create', ['p_id'=>$program])}}"><button type="button" class="btn btn-outline-primary">Add New Query</button></a></h5> 
                 </div>
             </div>
             
@@ -94,7 +94,7 @@
                             <td>{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                             <td>
                                 <div class="btn-group">
-                                <a class="btn btn-info" href="{{route('complains.edit', ['complain' =>$complain->id, 'p_id'=>$program])}}"><i class="fa fa-eye"> View</i></a>             
+                                <a class="btn btn-info" href="{{route('participant.complains.edit', ['complain' =>$complain->id, 'p_id'=>$program])}}"><i class="fa fa-eye"> View</i></a>             
                                 </div>
                             </td>
                         </tr>

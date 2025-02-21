@@ -161,7 +161,12 @@ Route::middleware(['web.access'])->group(function () {
         Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
     
         Route::get('complains', [ComplainController::class, 'index'])->name('participants.complains.index');
-        
+        Route::get('complains/create', [ComplainController::class, 'create'])->name('participant.complains.create');
+        Route::post('complains/store', [ComplainController::class, 'store'])->name('participant.complains.store');
+        Route::get('complains/edit/{complain}', [ComplainController::class, 'edit'])->name('participant.complains.edit');
+        Route::patch('complains/{complain}', [ComplainController::class, 'update'])->name('participant.complains.update');
+
+    
         Route::get('crm-program-select/{p_id}', [ComplainController::class, 'getTrainingCrm'])->name('complain.program.select');
         Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
     
