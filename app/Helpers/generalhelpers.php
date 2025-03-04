@@ -124,7 +124,7 @@ use Intervention\Image\Facades\Image;
                 $user = User::where('id', $user)->first();
             }
             
-            $training_result->certification_status = $training_result->total_score > $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED';
+            $training_result->certification_status = $training_result->total_score >= $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED';
             $training_result->program = $program;
             $training_result->scoresettings = $program->scoresettings;
             $training_result->user = $user ?? null;
