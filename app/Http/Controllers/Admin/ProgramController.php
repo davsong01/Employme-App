@@ -452,6 +452,7 @@ class ProgramController extends Controller
         $questions = $training->questions;
 
         $training->p_name = 'copy_' . $training->p_name;
+        $training->parent_id = null;
 
         // Create new program
         $newT = Arr::except($training->toArray(), ['id','created_at','updated_at','deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);

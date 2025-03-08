@@ -111,7 +111,7 @@ use Intervention\Image\Facades\Image;
 
     if (!function_exists("certificationStatusNew")) {
         function certificationStatusNew($training_result, $program, $user){
-
+            
             if($program instanceof Program){
                 $program = $program;
             }else{

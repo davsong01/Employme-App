@@ -51,8 +51,6 @@ class CertificateController extends Controller
             $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
 
             $program = $transaction->program;
-
-            $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
             
             // Checks
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
@@ -61,12 +59,18 @@ class CertificateController extends Controller
                 }
             }
 
+            // if (!empty($program->scoreSettings)) {
+                
             if ($program->only_certified_should_see_certificate == 'yes') {
+                $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
+                
                 $certification_status = $details->certification_status ?? NULL;
                 if (!$certification_status || $certification_status == 'NOT CERTIFIED') {
                     return back()->with('error', 'You must be certified before you can view certificate');
                 }
             }
+
+            // }
             
             $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
             
