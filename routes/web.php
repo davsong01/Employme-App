@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\UtilityTaskController;
 use App\Http\Controllers\Admin\ResultController;
-use App\Http\Controllers\ScoreSettingController;
 use App\Http\Controllers\Admin\ComplainController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\ImpersonateController;
@@ -155,7 +154,6 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('mockresults', [MockController::class, 'mockresults'])->middleware(['auth'])->name('mocks.results');
         Route::get('participant-profile/edit/{id}', [ProfileController::class, 'edit'])->name('participants.profiles.edit');
         Route::patch('participant-profile/edit/{id}', [ProfileController::class, 'update'])->name('participants.profiles.update');
-        // Route::resource('scoreSettings', ScoreSettingController::class)->middleware(['auth']);
     
         Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
         Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');

@@ -41,13 +41,13 @@ class ScoreSettingController extends Controller
 
     public function create()
     {
-        if (resolveAuthUser()->roles == "Admin") {
+        if (checkRoleHas(['Facilitator', 'Admin'])) {
             $programs = Program::withCount(['scoresettings', 'modules'])->where('id', '<>', '1')->orderBy('created_at', 'DESC')->get();
-
+            
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
 
-        if (checkRoleHas(['Facilitator'])) {
+        if (checkRoleHas(['Facilitator','Admin'])) {
             $programs = Program::with(['scoresettings', 'modules'])->where('id', '<>', '1')->where('id', resolveAuthUser()->program->id)->orderBy('created_at', 'DESC')->get();
             foreach ($programs as $program) {
                 $program['counter'] = 0;
@@ -66,6 +66,7 @@ class ScoreSettingController extends Controller
 
             return view('dashboard.admin.scoresettings.create', compact('programs'));
         }
+        
         return redirect('/dashboard');
     }
 
