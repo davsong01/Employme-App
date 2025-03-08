@@ -72,7 +72,7 @@ class UsersImport implements ToCollection, WithHeadingRow
 
             // Validate the row data
             Validator::make($row->toArray(), [
-                'email' => 'required|unique:users,email',
+                'email' => 'required',
                 'name' => 'required',
                 'phone' => 'nullable',
                 'gender' => 'nullable',
