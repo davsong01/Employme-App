@@ -23,26 +23,24 @@ use Illuminate\Support\Facades\Redirect;
 
 class ResultController extends Controller
 {
-    public function index()
-    {
-    }
+    public function index() {}
 
     public function posttest()
     {
         $i = 1;
-        
+
         if (checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             if (checkRoleHas(['Admin'])) {
                 $trainings = Program::whereHas('results', function ($query) {
                     return $query;
                 })->orderby('created_at', 'DESC')->get();
-            }elseif (checkRoleHas(['Facilitator', 'Grader'])){
+            } elseif (checkRoleHas(['Facilitator', 'Grader'])) {
                 $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
-                
+
                 $trainings = Program::whereIn('id', $user_trainings)->whereHas('results', function ($query) {
                     return $query;
                 })->orderby('created_at', 'DESC')->get();
-            }else{
+            } else {
                 return back();
             }
 
@@ -52,7 +50,6 @@ class ResultController extends Controller
 
             return view('dashboard.admin.results.selecttraining', compact('trainings', 'i'));
         }
-        
     }
 
     public function getgrades(Request $request, $id, $internal = false)
@@ -62,7 +59,7 @@ class ResultController extends Controller
             ->with(['user', 'results' => function ($query) use ($request) {
                 $query->where('program_id', $request->p_id);
             }]);
-        
+
         if (!empty($request->status)) {
             if ($request->status == 'yes') {
                 $users = $users->has('results');
@@ -96,19 +93,19 @@ class ResultController extends Controller
         }
 
         $records = $users->count();
-        
+
         if ($internal) {
             $isAdmin = true;
         } else {
             $isAdmin = checkRoleHas(['Admin']);
-            $isFacilitatorOrGrader = checkRoleHas(['Facilitator','Grader']);
+            $isFacilitatorOrGrader = checkRoleHas(['Facilitator', 'Grader']);
         }
 
         $score_settings = ScoreSetting::select(['class_test', 'passmark', 'certification', 'role_play', 'crm_test', 'email'])
-        ->where('program_id', $request->p_id)
+            ->where('program_id', $request->p_id)
             ->first();
-        
-        
+
+
         // Execute query
         if (empty($request->columns)) {
             $users = $users->paginate(30);
@@ -120,7 +117,7 @@ class ResultController extends Controller
             $i = 1;
 
             $program = Program::whereId($request->p_id)->first();
-            
+
             if (!empty($request->columns)) {
                 if (in_array('all', $request->columns)) {
                     $data = [
@@ -134,15 +131,15 @@ class ResultController extends Controller
                 } else {
                     $data = $request->columns;
                 }
-                
+
                 $finalBuild = buildResultExport($users, $data, $score_settings);
                 return (new FastExcel($finalBuild))->download('Post-test Report for ' . $program->p_name . '.xlsx');
             }
 
             $page = 'results';
-            
+
             $title = '<b>Post Test Results for: </b>' . $program->p_name;
-            
+
             if ($internal) {
                 return view('dashboard.company.posttests.index', compact('users', 'i', 'program', 'records', 'score_settings', 'page', 'title'));
             }
@@ -154,7 +151,7 @@ class ResultController extends Controller
 
     private function calculateClassTestScore($result, &$user, $programId)
     {
-        $modules = Module::where('type', 0)->where('program_id', $programId)->where('computation_status',1)->get();
+        $modules = Module::where('type', 0)->where('program_id', $programId)->where('computation_status', 1)->get();
         $obtainable = array();
 
         foreach ($modules as $module) {
@@ -177,7 +174,7 @@ class ResultController extends Controller
 
     public function create()
     {
-        if(checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->get();
             $users = User::where('roles', '<>', "Admin")->where('roles', '<>', "Teacher")->where('roles', '<>', "Grader")->where('hasResult', '<>', 1)->orderBy('created_at', 'DESC')->get();
             return view('dashboard.admin.results.create', compact('users', 'programs'));
@@ -189,18 +186,16 @@ class ResultController extends Controller
             return redirect('/dashboard');
     }
 
-    public function store(Request $request)
-    {
-    }
+    public function store(Request $request) {}
 
     public function add($id)
     {
         $transaction = Transaction::with('program:id,p_name')->with('program.scoresettings')->where('id', $id)->first();
         $user_results = Result::with(['user', 'module', 'threads'])->where('user_id', $transaction->user_id)->whereProgramId($transaction->program_id)->where('certification_test_details', '<>', NULL)->get();
-        
+
         $program = $transaction->program;
         $i = 1;
-        
+
         $trainingResults = $transaction->training_result;
 
         $details['certification_score'] = $trainingResults->certification_test_score;
@@ -215,7 +210,7 @@ class ResultController extends Controller
         // $details['email_test_score'] = $trainingResults->email_test_score ?? 0;
         // $details['role_play_score'] = $trainingResults->roleplay_test_score ?? 0;
         // $details['crm_test_score'] = $trainingResults->crm_test_score ?? 0;
-        
+
         // if ($user_results->count() < 1) {
         //     return response()->json([
         //         'success' => false,
@@ -229,7 +224,7 @@ class ResultController extends Controller
             if ($results->module->type == 1) {
                 $details['c_result'] = $results;
             }
-            
+
             $results['module_title'] = $results->module->title;
             $questions = json_decode($results->certification_test_details, true);
 
@@ -246,7 +241,7 @@ class ResultController extends Controller
 
         $result_id = $transaction->id;
         $real_result_id = request()->r_id;
-        
+
         return view('dashboard.admin.results.partial_edit', compact('user_results', 'i', 'result_id', 'program', 'details', 'results', 'real_result_id'));
     }
 
@@ -356,7 +351,7 @@ class ResultController extends Controller
     public function enable($id)
     {
 
-        if(checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin'])) {
 
             $program = Program::findorfail($id);
 
@@ -371,7 +366,7 @@ class ResultController extends Controller
 
     public function disable($id)
     {
-        if(checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin'])) {
 
             $program = Program::findorfail($id);
 
@@ -387,11 +382,11 @@ class ResultController extends Controller
     public function show($id, Request $request)
     {
         if (checkRoleHas(['Student']) || resolveAuthUser()->id == $id) {
-            $transaction = Transaction::select('id', 'training_result','balance','user_id','program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
-            $program = Program::select('id', 'allow_payment_restrictions_for_results','p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($transaction->program_id);
+            $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
+            $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($transaction->program_id);
 
             $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
-            
+
             if ($program->allow_payment_restrictions_for_results == 'yes') {
                 if ($transaction->balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to view results');
@@ -401,31 +396,31 @@ class ResultController extends Controller
             if ($program->hasresult == 0) {
                 return back()->with('error', 'Results for this program have not been enabled, Please check back!');
             }
-            
+
             return view('dashboard.admin.results.show', compact('details', 'program'));
-        } 
+        }
 
         return redirect('/');
     }
 
     public function update($id, Request $request)
     {
-        $result = Transaction::with('program','program.scoresettings')->where('id',$id)->first();
+        $result = Transaction::with('program', 'program.scoresettings')->where('id', $id)->first();
         $realResult = Result::where('id', $request->real_result_id)->first();
-        
+
         $request["email_test_score"] = $request->emailscore;
         $request["roleplay_test_score"] = $request->roleplayscore;
         $request["crm_test_score"] = $request->crm_score;
         $request["certification_test_score"] = $request->certification_score;
-        
+
         $request["certification_facilitator"] = resolveAuthUser()->name;
         $request["certification_facilitator_comment"] = $request->facilitator_comment;
 
         $request["certification_grader"] = resolveAuthUser()->name;
         $request["certification_grader_comment"] = $request->grader_comment;
-        
+
         $transaction = udateTrainingResult($result->program_id, $result->user_id, $request->all());
-        
+
         $realResult->update([
             "email_test_score" => $request->emailscore,
             "role_play_score" => $request->roleplayscore,
@@ -460,13 +455,13 @@ class ResultController extends Controller
     {
         // Clear certification Tests
         $transaction = Transaction::with('program', 'user')->where('id', $id)->first();
-        
-        if( checkRoleHas(['Admin','Grader','Facilitator'])){
-            $results = Result::with('program','module')->where('program_id', $transaction->program_id)
-            ->whereHas('module', function ($query) {
-                $query->where('computation_status', 1)
-                ->where('type', 1);
-            })
+
+        if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
+            $results = Result::with('program', 'module')->where('program_id', $transaction->program_id)
+                ->whereHas('module', function ($query) {
+                    $query->where('computation_status', 1)
+                        ->where('type', 1);
+                })
                 ->where('user_id', $transaction->user_id)
                 ->first();
 
@@ -477,7 +472,7 @@ class ResultController extends Controller
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
             $results->update(['redo_test' => 1]);
             // Save result thread
-            if(!empty($results->certification_test_details)){
+            if (!empty($results->certification_test_details)) {
                 $this->createResultThread($results);
             }
 
@@ -486,14 +481,14 @@ class ResultController extends Controller
 
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = $transaction->user->email;
-            $details['content'] = 'Hello '.$transaction->user->name. ', <br><br>
-            This is to inform you that you are now cleared to Re-sit ' .$results->module->title. ' Test at the ongoing '.$transaction->program->p_name.'. You now have a '.env('CERTIFICATION_TEST_RESIT_EXIPIRY').'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: '.now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')). '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
+            $details['content'] = 'Hello ' . $transaction->user->name . ', <br><br>
+            This is to inform you that you are now cleared to Re-sit ' . $results->module->title . ' Test at the ongoing ' . $transaction->program->p_name . '. You now have a ' . env('CERTIFICATION_TEST_RESIT_EXIPIRY') . 'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: ' . now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')) . '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
             $details['type'] = 'bulk';
-            
+
             $this->sendGenericEmail($details);
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }
-        
+
         return back()->with('error', 'You are not allowed to perform this action');
     }
 
@@ -501,14 +496,14 @@ class ResultController extends Controller
     {
         // Clear certification Tests
         $transaction = Transaction::with('program', 'user')->where('id', $id)->first();
-        $modulesCount = Module::where('program_id', $transaction->program_id)->where('computation_status',1)->where('type',0)->count();
+        $modulesCount = Module::where('program_id', $transaction->program_id)->where('computation_status', 1)->where('type', 0)->count();
 
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             // all class tests
             $results = Result::with('program', 'module')->where('program_id', $transaction->program_id)
                 ->whereHas('module', function ($query) {
                     $query->where('computation_status', 1)
-                    ->where('type', 0);
+                        ->where('type', 0);
                 })
                 ->where('user_id', $transaction->user_id)
                 ->whereNotNull('class_test_details')
@@ -516,9 +511,9 @@ class ResultController extends Controller
             $data["class_test_resit_status"] = 1;
             $data["class_test_resit_expiry"] = now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY'));
             $data["class_test_resit_enabled_by_id"] = resolveAuthUser()->id;
-            
+
             $this->createClassTestsResultThread($results);
-            
+
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
             // Save result thread
 
@@ -539,12 +534,14 @@ class ResultController extends Controller
 
     public function destroyRoleplayTests(Request $request, $id) {}
 
-    public function getResitStatus($transaction){
-        if(isset($transaction->training_result->certification_test_resit_expiry))
-        dd($transaction);
+    public function getResitStatus($transaction)
+    {
+        if (isset($transaction->training_result->certification_test_resit_expiry))
+            dd($transaction);
     }
 
-    public function createResultThread($results){
+    public function createResultThread($results)
+    {
         $thread = ResultThread::create([
             'result_id' => $results->id,
             'submitted_on' => $results->created_at,
@@ -563,7 +560,7 @@ class ResultController extends Controller
             "facilitator_comment" => $results->facilitator_comment,
             "grader_comment" => $results->grader_comment
         ]);
-        
+
         return $thread;
     }
 
@@ -592,13 +589,13 @@ class ResultController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-            
+
             $thread = ResultThread::create($metaData);
             Result::whereIn('id', $results->pluck('id'))->delete();
-            
+
             return $thread;
         }
-        
+
         return false;
     }
 
@@ -637,16 +634,20 @@ class ResultController extends Controller
     public function clearDuplicates($program_id)
     {
         $programs = Program::select('id')->get();
+
         $count = 0;
-        foreach($programs as $id){
+        foreach ($programs as $program) {
             $duplicates = DB::table('results')
                 ->select('module_id', 'user_id', 'program_id', DB::raw('COUNT(*) as count'))
-                ->where('program_id', $id)
+                ->where('program_id', 32)
                 ->groupBy('module_id', 'user_id', 'program_id')
-                ->havingRaw('COUNT(*) > 1') // Only keep duplicates
+                ->havingRaw('COUNT(*) > 1')
                 ->get();
-            
+
             // Loop through duplicates and delete the second/latest one (keep the first occurrence)
+            if (empty($duplicates)) {
+                continue;
+            }
             foreach ($duplicates as $duplicate) {
                 // Find all the rows with the same `module_id`, `user_id`, and `program_id`, ordered by `created_at`
                 $duplicat = [
@@ -655,22 +656,22 @@ class ResultController extends Controller
                     'module' => Module::where('id', $duplicate->module_id)->first()->title,
                     'count' => $duplicate->count
                 ];
-                
+
                 \Log::info(['duplicates' => $duplicat]);
-                
+
                 $entries = DB::table('results')
                     ->where('program_id', $program_id)
                     ->where('module_id', $duplicate->module_id)
                     ->where('user_id', $duplicate->user_id)
                     ->orderBy('created_at')
                     ->get();
-    
+
                 if ($entries->count() > 1) {
                     $latest = $entries->last();
+                    $count = $count + 1;
                     DB::table('results')->where('id', $latest->id)->delete();
-                    $count += 1;
                 }
-    
+
                 $newResult = udateTrainingResult($duplicate->program_id, $duplicate->user_id);
                 \Log::info(['new result' => $newResult->training_result]);
             }
