@@ -193,6 +193,10 @@
                             </a>
 
                             <a class="btn btn-info rounded" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal"><i class="fa fa-download"></i> Export {{ $page == 'results' ? 'Post' : 'Pre'}} Test Results</a>
+
+                            <a onclick="return confirm('Are you really sure?');" href="{{ route('result.clear.duplicates', ['id' => $program->id, 'p_id' => $program->id, 'program_id' => $program->id])}}" class="btn btn-danger rounded">Clear Duplicates</a>
+
+
                             <div class="badge float-right">
                                 <span class="transaction-count">{{ $records }}</span> <!-- Number of transactions -->
                             </div>

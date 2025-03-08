@@ -633,4 +633,51 @@ class ResultController extends Controller
         }
         return 'NOT CERTIFIED';
     }
+
+    public function clearDuplicates($program_id)
+    {
+        $programs = Program::select('id')->get();
+        $count = 0;
+        foreach($programs as $id){
+            $duplicates = DB::table('results')
+                ->select('module_id', 'user_id', 'program_id', DB::raw('COUNT(*) as count'))
+                ->where('program_id', $id)
+                ->groupBy('module_id', 'user_id', 'program_id')
+                ->havingRaw('COUNT(*) > 1') // Only keep duplicates
+                ->get();
+            
+            // Loop through duplicates and delete the second/latest one (keep the first occurrence)
+            foreach ($duplicates as $duplicate) {
+                // Find all the rows with the same `module_id`, `user_id`, and `program_id`, ordered by `created_at`
+                $duplicat = [
+                    'email' => User::where('id', $duplicate->user_id)->first()->email,
+                    'program' => Program::where('id', $duplicate->program_id)->first()->p_name,
+                    'module' => Module::where('id', $duplicate->module_id)->first()->title,
+                    'count' => $duplicate->count
+                ];
+                
+                \Log::info(['duplicates' => $duplicat]);
+                
+                $entries = DB::table('results')
+                    ->where('program_id', $program_id)
+                    ->where('module_id', $duplicate->module_id)
+                    ->where('user_id', $duplicate->user_id)
+                    ->orderBy('created_at')
+                    ->get();
+    
+                if ($entries->count() > 1) {
+                    $latest = $entries->last();
+                    DB::table('results')->where('id', $latest->id)->delete();
+                    $count += 1;
+                }
+    
+                $newResult = udateTrainingResult($duplicate->program_id, $duplicate->user_id);
+                \Log::info(['new result' => $newResult->training_result]);
+            }
+        }
+
+
+
+        return back()->with('message', $duplicates->count() . ' Duplicates removed successfully');
+    }
 }

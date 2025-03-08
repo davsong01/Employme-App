@@ -96,7 +96,8 @@ Route::middleware(['admin.access'])->group(function () {
         Route::get('mockresults', [MockController::class, 'mockresults'])->name('mocks.results');
         Route::resource('profiles', ProfileController::class);
         Route::resource('scoreSettings', ScoreSettingController::class);
-    
+
+
         Route::get('selectfacilitator/{id}', [ProfileController::class, 'showFacilitator']);
         Route::POST('savefacilitator', [ProfileController::class, 'saveFacilitator'])->name('savefacilitator');
     
@@ -119,7 +120,8 @@ Route::middleware(['admin.access'])->group(function () {
             Route::delete('class-tests-destroy/{id}', [ResultController::class, 'destroyClassTests'])->name('classtests.results.destroy');
             Route::delete('crm-tests-destroy/{id}', [ResultController::class, 'destroyCrmTests'])->name('crmtests.results.destroy');
             Route::delete('roleplay-tests-destroy/{id}', [ResultController::class, 'destroyRoleplayTests'])->name('roleplaytests.results.destroy');
-            
+            Route::get('result-clear-duplicate/{program_id}', [ResultController::class, 'clearDuplicates'])->name('result.clear.duplicates');
+
             Route::get('postclassresults', [ResultController::class, 'posttest'])->name('posttest.results');
             Route::any('postclassresults/{id?}', [ResultController::class, 'getgrades'])->name('results.getgrades');
             Route::post('waacsp', [ResultController::class, 'verify'])->name('send.waacsp');
