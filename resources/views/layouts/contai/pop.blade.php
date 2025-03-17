@@ -19,7 +19,7 @@
                     <h4 style="">Nigeria (Naira Payment)</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Nigeria')
-                            @if($training_id && $training_id == 91)
+                            @if($training_id && in_array($training_id, [94,95,96,97]))
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5 - N7,500 <br>
                                     $8 - N12,000
@@ -38,7 +38,7 @@
                     <h4 style="">Ghana (Cedes Payment)</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Ghana')
-                            @if($training_id && $training_id == 91)
+                            @if($training_id && in_array($training_id, [94,95,96,97]))
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5  - GHc 75 <br>
                                     $8  - GHc 120
@@ -57,7 +57,7 @@
                     <h4 style="">Gambia</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Gambia')
-                            @if($training_id && $training_id == 91)
+                            @if($training_id && in_array($training_id, [94,95,96,97]))
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5  - GMD 350 <br>
                                     $8 - GMD 560
@@ -77,7 +77,7 @@
                     <h4 style="">Benin Rep & Togo</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Benin Rep & Togo')
-                            @if($training_id && $training_id == 91)
+                            @if($training_id && in_array($training_id, [94,95,96,97]))
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5 - 2500 CFA <br>
                                     $8 - 4000 CFA
@@ -97,7 +97,7 @@
                     <h4 style="">Cameroon</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Cameroon')
-                            @if($training_id && $training_id == 91)
+                            @if($training_id && in_array($training_id, [94,95,96,97])
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5 - 2500 CFA <br>
                                     $8 - 4000 CFA
