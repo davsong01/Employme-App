@@ -465,10 +465,34 @@ use Intervention\Image\Facades\Image;
 
                     [
                         'bank' =>  'Mobile Money (MoMo)',
-                        'number' => '0557963331',
-                        'name' => '3y publicity limited (Frank Asiedu)',
+                        'number' => '0500720400',
+                        'name' => 'Frank Asiedu Trainings',
                         'status' => 1,
                         'country' => 'Ghana'
+                    ],
+
+                    [
+                        'bank' => 'GT Bank',
+                        'number' => '0227187719',
+                        'name' => 'Dimbars Academy',
+                        'status' => 1,
+                        'country' => 'Gambia'
+                    ],
+
+                    [
+                        'bank' => 'Momo',
+                        'number' => '02290190007233',
+                        'name' => 'Robert O.',
+                        'status' => 1,
+                        'country' => 'Benin Rep & Togo'
+                    ],
+
+                    [
+                        'bank' => 'Momo',
+                        'number' => '673524445',
+                        'name' => 'Ndoiwong Comfort',
+                        'status' => 1,
+                        'country' => 'Cameroon'
                     ],
                 ];
             }
