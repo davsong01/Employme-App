@@ -97,7 +97,7 @@
                     <h4 style="">Cameroon</h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Cameroon')
-                            @if($training_id && in_array($training_id, [94,95,96,97])
+                            @if($training_id && in_array($training_id, [94,95,96,97]))
                                 <div class="inner" style="margin-bottom: 15px;">
                                     $5 - 2500 CFA <br>
                                     $8 - 4000 CFA
