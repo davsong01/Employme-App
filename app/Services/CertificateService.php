@@ -60,7 +60,6 @@ class CertificateService
                 'error' => 'Invalid Transaction'
             ];
         }
-        $details = certificationStatusNew($transaction->training_result, $program, $certificate->user_id);
 
         // Checks
         if ($program->allow_payment_restrictions_for_certificates == 'yes') {
@@ -77,9 +76,10 @@ class CertificateService
             }
         }
 
-        $certification_status = $details->certification_status;
-
+        
         if ($program->only_certified_should_see_certificate == 'yes') {
+            $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
+            $certification_status = $details->certification_status ?? NULL;
 
             if (!$certification_status || $certification_status == 'NOT CERTIFIED') {
                 $details = [
