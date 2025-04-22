@@ -31,7 +31,6 @@
                                     <label for="symbol">Symbol</label>
                                     <input type="text" class="form-control" name="symbol" value="{{ old('symbol')  ?? $currency->symbol }}">
                                 </div>
-
                                 <div class="form-group">
                                     <label for="symbol_native">Symbol Native</label>
                                     <input type="text" class="form-control" name="symbol_native" value="{{ old('symbol_native')  ?? $currency->symbol_native }}">
