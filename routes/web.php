@@ -9,6 +9,7 @@ use App\Http\Controllers\TestsController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CertificateController;
@@ -164,7 +165,6 @@ Route::middleware(['web.access'])->group(function () {
         Route::get('complains/edit/{complain}', [ComplainController::class, 'edit'])->name('participant.complains.edit');
         Route::patch('complains/{complain}', [ComplainController::class, 'update'])->name('participant.complains.update');
 
-    
         Route::get('crm-program-select/{p_id}', [ComplainController::class, 'getTrainingCrm'])->name('complain.program.select');
         Route::get('complainresolved/{complain}', [ComplainController::class, 'resolve'])->name('crm.resolved');
     

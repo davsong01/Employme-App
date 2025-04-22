@@ -56,7 +56,7 @@
                         {{ method_field('PATCH') }}
                         {{ csrf_field() }}
                         <fieldset class="field">
-                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Core Settings</legend>
+                            <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Core Settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -182,6 +182,7 @@
                                 
                             </div>
                         </fieldset>
+                        
                         <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Payment settings</legend>
                             <div class="row">
@@ -211,6 +212,28 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="currencies">Currencies to Display *</label>
+                                        <div>
+                                            @foreach($currencies as $currency)
+                                                <div class="form-check form-check-inline">
+                                                    <input 
+                                                        type="checkbox"
+                                                        class="form-check-input"
+                                                        id="currency_{{ $currency->id }}"
+                                                        name="currencies[]"
+                                                        value="{{ $currency->id }}"
+                                                        {{ in_array($currency->id, old('currencies', $program->currencies ?? [])) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="currency_{{ $currency->id }}">
+                                                        {{ $currency->name }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label>Enable Flexible payment?</label>
                                         <select name="allow_flexible_payment" class="form-control" id="allow_flexible_payment" required>
                                             <option value="no" {{ $program->allow_flexible_payment == 'no' ? 'selected' : '' }}>No</option>
@@ -218,6 +241,8 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                
                             </div>
                             
                             <div class="row" style="margin-top: 20px;">  
@@ -601,7 +626,6 @@
                         </section>
                         </fieldset>
                         
-                       
                         <div class="col-12">
                             <input type="submit" name="submit" value="Update" class="btn btn-primary" style="width:100%">
                         </div>

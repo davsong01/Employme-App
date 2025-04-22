@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PopController;
 use App\Http\Controllers\MockController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminController;
@@ -50,6 +51,8 @@ Route::middleware(['admin.access'])->group(function () {
 
         Route::resource('payment-modes', PaymentModeController::class);
         Route::resource('paymentmethod', PaymentMethodController::class);
+        Route::resource('currency', CurrencyController::class);
+
         Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
         Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
         Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');

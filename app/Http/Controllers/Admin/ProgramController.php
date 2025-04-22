@@ -6,11 +6,12 @@ use DB;
 use App\Models\User;
 use App\Models\Module;
 use App\Models\Program;
+use App\Models\Currency;
 use App\Models\Material;
 use App\Models\Question;
 use App\Models\Transaction;
-use App\Models\ScoreSetting;
 use Illuminate\Support\Arr;
+use App\Models\ScoreSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -63,7 +64,6 @@ class ProgramController extends Controller
         } else {
             return redirect('/programs');
         }
-        // return view('dashboard.admin.programs.create', compact('programs', 'program'));
     }
 
 
@@ -189,12 +189,15 @@ class ProgramController extends Controller
             'Online',
             'Offline'
         ];
-        return view('dashboard.admin.programs.edit', compact('program', 'modes'));
+
+        $currencies = Currency::where('status', 1)->orderBy('name')->get();
+        
+        return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies'));
     }
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies']);
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image

@@ -1247,6 +1247,15 @@ class Controller extends BaseController
                 'parentId' => null
             ],
             [
+                'id' => 23,
+                'name' => 'Currency Management',
+                'route' => 'currency.index',
+                'type' => 'menu',
+                'order' => 16,
+                'icon_class' => 'fa fa-usd',
+                'parentId' => null
+            ],
+            [
                 'id' => 43,
                 'name' => 'General Settings',
                 'route' => 'settings.index',

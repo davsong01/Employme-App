@@ -111,7 +111,10 @@
                                 
                                 <tr class="bor-bottom">
                                     <th class="col1">Sub total</th>
-                                    <td class="col2">{{ $currency_symbol. number_format($amount) }}</td>
+                                    <td class="col2">
+                                        {{ $currency_symbol . number_format($amount) }} 
+                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $amount)['string'] !!}
+                                    </td>
                                 </tr>
 
                                 <tr class="bor-bottom" id="show-coupon" style="display:none">
@@ -120,7 +123,7 @@
                                 </tr>
                                 <tr class="bor-bottom">
                                     <th class="col1">Total</th>
-                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}</span> </td>
+                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}  {!! getAmountExtraCurrencies($trainingObject ?? [], $amount)['string'] !!}</span> </td>
                                 </tr>
                             </table>
                             

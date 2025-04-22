@@ -11,20 +11,20 @@
             </div>
         </div>
         @if(session()->get('data'))
+        <?php
+            $extraCurrencies = session()->get('data')['extraCurrencies']['array'] ?? [];
+        ?>
         <div class="checkout__form transfer">
-            <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">Please pay &#8358;{{ number_format(session()->get('data')['amount']) }} (or its equivalent in your local currency) into an account below: <br>
+            <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">
+                Please pay &#8358;{{ number_format(session()->get('data')['amount']) }} (or the appropraite amount in your local currency) into the appropraite account below: <br>
+                {{-- Please pay intothe appropraite account number below: <br> --}}
                 <?php $training_id = session()->get('data')['metadata']['pid']; ?>
-
                 <div id="nigeria" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Nigeria (Naira Payment)</h4>
+                    <h4 style="">Nigeria (Naira Payment) - <span style="color:red">&#8358;{{ number_format(session()->get('data')['amount'])}}</span> 
+
+                    </h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Nigeria')
-                            @if($training_id && in_array($training_id, [94,95,96,97]))
-                                <div class="inner" style="margin-bottom: 15px;">
-                                    $5 - N7,500 <br>
-                                    $8 - N12,000
-                                </div>
-                            @endif
                             <div class="inner" style="margin-bottom: 15px;">
                                 <strong>Bank: </strong>{{$account['bank']}} <br>
                                 <strong>Account Number: </strong>{{$account['number']}} <br>
@@ -35,15 +35,15 @@
                     @endforeach
                 </div>
                 <div id="ghana" style="border-radius: 5px;background: #ffff7e;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Ghana (Cedes Payment)</h4>
+                    <h4 style="">Ghana (Cedes Payment)
+                        @if(isset($extraCurrencies['Ghana']))  - 
+                            <span style="color:red">
+                                {{$extraCurrencies['Ghana']['symbol']}}{{$extraCurrencies['Ghana']['amount']}}
+                            </span>
+                        @endif
+                    </h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Ghana')
-                            @if($training_id && in_array($training_id, [94,95,96,97]))
-                                <div class="inner" style="margin-bottom: 15px;">
-                                    $5  - GHc 75 <br>
-                                    $8  - GHc 120
-                                </div>
-                            @endif
                             <div class="inner" style="margin-bottom: 15px;">
                                 <strong>Bank: </strong>{{$account['bank']}} <br>
                                 <strong>Account Number: </strong>{{$account['number']}} <br>
@@ -54,15 +54,15 @@
                     @endforeach
                 </div>
                 <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Gambia</h4>
+                    <h4 style="">Gambia
+                        @if(isset($extraCurrencies['Gambia']))  - 
+                            <span style="color:red">
+                                {{ $extraCurrencies['Gambia']['symbol'] }}{{ $extraCurrencies['Gambia']['amount'] }}
+                            </span>
+                        @endif
+                    </h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Gambia')
-                            @if($training_id && in_array($training_id, [94,95,96,97]))
-                                <div class="inner" style="margin-bottom: 15px;">
-                                    $5  - GMD 350 <br>
-                                    $8 - GMD 560
-                                </div>
-                            @endif
                             <div class="inner" style="margin-bottom: 15px;">
                                 <strong>Bank: </strong>{{$account['bank']}} <br>
                                 <strong>Account Number: </strong>{{$account['number']}} <br>
@@ -74,15 +74,15 @@
                 </div>
 
                 <div id="gambia" style="border-radius: 5px;background: #c4f502;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Benin Rep & Togo</h4>
+                    <h4 style="">Benin Rep & Togo
+                        @if(isset($extraCurrencies['Benin Rep & Togo']))  - 
+                            <span style="color:red">
+                                {{ $extraCurrencies['Benin Rep & Togo']['symbol'] }}{{ $extraCurrencies['Benin Rep & Togo']['amount'] }}
+                            </span>
+                        @endif
+                    </h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Benin Rep & Togo')
-                            @if($training_id && in_array($training_id, [94,95,96,97]))
-                                <div class="inner" style="margin-bottom: 15px;">
-                                    $5 - 2500 CFA <br>
-                                    $8 - 4000 CFA
-                                </div>
-                            @endif
                             <div class="inner" style="margin-bottom: 15px;">
                                 <strong>Bank: </strong>{{$account['bank']}} <br>
                                 <strong>Account Number: </strong>{{$account['number']}} <br>
@@ -94,15 +94,15 @@
                 </div>
 
                 <div id="gambia" style="border-radius: 5px;background: #3d5de9;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Cameroon</h4>
+                    <h4 style="">Cameroon
+                        @if(isset($extraCurrencies['Cameroon']))  - 
+                            <span style="color:red">
+                                {{ $extraCurrencies['Cameroon']['symbol'] }}{{ $extraCurrencies['Cameroon']['amount'] }}
+                            </span>
+                        @endif  
+                    </h4>
                     @foreach($accounts as $account)
                         @if ($account['country'] == 'Cameroon')
-                            @if($training_id && in_array($training_id, [94,95,96,97]))
-                                <div class="inner" style="margin-bottom: 15px;">
-                                    $5 - 2500 CFA <br>
-                                    $8 - 4000 CFA
-                                </div>
-                            @endif
                             <div class="inner" style="margin-bottom: 15px;">
                                 <strong>Bank: </strong>{{$account['bank']}} <br>
                                 <strong>Account Number: </strong>{{$account['number']}} <br>

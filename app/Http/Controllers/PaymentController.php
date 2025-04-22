@@ -25,6 +25,9 @@ class PaymentController extends Controller
 {
     public function checkout(Request $request){
         $training = json_decode($request->training, true);
+
+        $trainingObject = json_decode(json_encode(json_decode($request->training)));
+        
         $modes = null;
         $location = $request->location ?? null;
         $preferred_timing = $request->preferred_timing ?? null;
@@ -59,7 +62,7 @@ class PaymentController extends Controller
 
         $payment_modes = $this->getPaymentModes();
        
-        return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location', 'preferred_timing'));
+        return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location', 'preferred_timing', 'trainingObject'));
     }
 
     public function getModeAmount($mode,$type,$program){
@@ -262,6 +265,8 @@ class PaymentController extends Controller
                 $metadata['coupon_id'] = $response['id'] ?? null;
                 $request['metadata'] = $metadata;
                 $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
+                $request['extraCurrencies'] = getAmountExtraCurrencies($training, null, $request->amount);
+                
                 $data = $request->all();
                 
                 \Session::put('data', $data);
@@ -269,7 +274,6 @@ class PaymentController extends Controller
                 
             }
 
-        
             // Create temp user and redirect
             $request['metadata'] = $type;
             
