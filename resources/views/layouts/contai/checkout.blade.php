@@ -105,7 +105,13 @@
                             <div class="checkout__order__products">Order details</div>
                             <table style="width: 100%;">
                                 <tr class="bor-bottom">
-                                    <th class="col1">Course</th>
+                                    <th class="col1">Payment Type</th>
+                                    <td class="col2">
+                                        {{ ucfirst($type) }} Payment 
+                                    </td>
+                                </tr>
+                                <tr class="bor-bottom">
+                                    <th class="col1">Training</th>
                                     <td class="col2">{{ $training['p_name'] }}</td>
                                 </tr>
                                 
@@ -113,7 +119,7 @@
                                     <th class="col1">Sub total</th>
                                     <td class="col2">
                                         {{ $currency_symbol . number_format($amount) }} 
-                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $amount)['string'] !!}
+                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
                                     </td>
                                 </tr>
 
@@ -123,7 +129,7 @@
                                 </tr>
                                 <tr class="bor-bottom">
                                     <th class="col1">Total</th>
-                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}  {!! getAmountExtraCurrencies($trainingObject ?? [], $amount)['string'] !!}</span> </td>
+                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}   {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}</span> </td>
                                 </tr>
                             </table>
                             

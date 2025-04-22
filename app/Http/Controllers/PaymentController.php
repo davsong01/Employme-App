@@ -27,6 +27,7 @@ class PaymentController extends Controller
         $training = json_decode($request->training, true);
 
         $trainingObject = json_decode(json_encode(json_decode($request->training)));
+        $trainingObject->currencies = json_decode(json_encode($trainingObject->currencies), true);
         
         $modes = null;
         $location = $request->location ?? null;
@@ -51,7 +52,7 @@ class PaymentController extends Controller
         }
         
         $type = $request->type;
-     
+        
         // inject facilitator details
         if($request->has('facilitator')){
             Session::put('facilitator', $request->facilitator);
@@ -264,8 +265,9 @@ class PaymentController extends Controller
                 $metadata = json_decode($request->metadata, true);
                 $metadata['coupon_id'] = $response['id'] ?? null;
                 $request['metadata'] = $metadata;
+                
                 $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
-                $request['extraCurrencies'] = getAmountExtraCurrencies($training, null, $request->amount);
+                $request['extraCurrencies'] = getAmountExtraCurrencies($training, $request->payment_type, $training->amount);
                 
                 $data = $request->all();
                 

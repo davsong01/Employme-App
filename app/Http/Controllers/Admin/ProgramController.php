@@ -197,11 +197,32 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values']);
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image
         
+        if(!empty($data['currencies']) && !empty($data['currency_values'])){
+            $selectedCurrencyIds = $request->input('currencies', []);
+            $currencyValues = $request->input('currency_values', []);
+
+            $currencyData = [];
+
+            foreach ($selectedCurrencyIds as $currencyId) {
+                $currencyData[] = [
+                    'id' => (int) $currencyId,
+                    'amount' => isset($currencyValues[$currencyId]) && $currencyValues[$currencyId] !== ''
+                        ? (float) $currencyValues[$currencyId]
+                        : null,
+                ];
+            }
+
+            $data['currencies'] = $currencyData;
+        }else{
+            $data['currencies'] = $program->currencies;
+        }
+        unset($data['currency_values']);
+
         if(!empty($request->auto_certificate_template)){
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
             $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');

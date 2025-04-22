@@ -210,27 +210,8 @@
                                             class="form-control" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="currencies">Currencies to Display *</label>
-                                        <div>
-                                            @foreach($currencies as $currency)
-                                                <div class="form-check form-check-inline">
-                                                    <input 
-                                                        type="checkbox"
-                                                        class="form-check-input"
-                                                        id="currency_{{ $currency->id }}"
-                                                        name="currencies[]"
-                                                        value="{{ $currency->id }}"
-                                                        {{ in_array($currency->id, old('currencies', $program->currencies ?? [])) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="currency_{{ $currency->id }}">
-                                                        {{ $currency->name }}
-                                                    </label>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
+                                
+
 
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -242,7 +223,66 @@
                                     </div>
                                 </div>
 
-                                
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="currencies">Currencies to Display *</label>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            @foreach($currencies as $currency)
+                                                @php
+                                                    // Extract currency IDs from $program->currencies array of objects
+                                                    $existingCurrencyIds = collect(old('currencies') ?? collect($program->currencies)->pluck('id')->toArray());
+                                                    $isChecked = $existingCurrencyIds->contains($currency->id);
+
+                                                    $value = old(
+                                                        'currency_values.' . $currency->id,
+                                                        collect($program->currencies)->firstWhere('id', $currency->id)['amount'] ?? ''
+                                                    );
+                                                    
+                                                @endphp
+                                                <div class="d-flex align-items-center border rounded px-3 py-2" style="min-width: 250px;">
+                                                    <input 
+                                                        type="checkbox"
+                                                        class="form-check-input me-2"
+                                                        id="currency_{{ $currency->id }}"
+                                                        name="currencies[]"
+                                                        value="{{ $currency->id }}"
+                                                        {{ $isChecked ? 'checked' : '' }}
+                                                        onchange="toggleCurrencyInput(this)">
+                                                    
+                                                    <label class="form-check-label me-2" for="currency_{{ $currency->id }}">
+                                                        {{ $currency->name }}
+                                                    </label>
+
+                                                    <input 
+                                                        type="number" 
+                                                        step="0.000001" 
+                                                        name="currency_values[{{ $currency->id }}]" 
+                                                        class="form-control form-control-sm"
+                                                        style="width: 100px;"
+                                                        placeholder="Rate"
+                                                        value="{{ $value }}"
+                                                        {{ $isChecked ? '' : 'disabled' }}>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    <script>
+                                        function toggleCurrencyInput(checkbox) {
+                                            const input = checkbox.closest('div').querySelector('input[type="number"]');
+                                            if (checkbox.checked) {
+                                                input.removeAttribute('disabled');
+                                            } else {
+                                                input.setAttribute('disabled', true);
+                                                input.value = ''; 
+                                            }
+                                        }
+
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            document.querySelectorAll('input[type="checkbox"][name="currencies[]"]').forEach(toggleCurrencyInput);
+                                        });
+                                    </script>
+
+                                </div>
                             </div>
                             
                             <div class="row" style="margin-top: 20px;">  

@@ -618,44 +618,55 @@ if (!function_exists("getPackageAccess")) {
         }
     }
 
-    if (!function_exists("getAmountExtraCurrencies")) {
-        function getAmountExtraCurrencies($training, $type = null, $amount = null)
-        {
-            $string = '';
-            $array = [];
-            $amountToUse = $amount ?? $training->p_amount;
-            
-            if (!empty($training->currencies) && is_array($training->currencies)) {
-                $currencyIds = array_map('intval', $training->currencies);
+if (!function_exists("getAmountExtraCurrencies")) {
+    function getAmountExtraCurrencies($training, $type = null, $amount = null)
+    {
+        $string = '';
+        $array = [];
+        $amountToUse = $amount ?? $training->p_amount;
+        
+        if (!empty($training->currencies) && is_array($training->currencies)) {
+            $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
+                return [intval($c['id']) => $c['amount'] ?? null];
+            })->all();
 
-                $allCurrencies = Currency::where('status', 1)
-                    ->whereIn('id', $currencyIds)
-                    ->get();
+            $currencyIds = array_keys($customAmounts);
 
-                if ($type === 'part') {
-                    $amountToUse /= 2;
+            $allCurrencies = Currency::where('status', 1)
+                ->whereIn('id', $currencyIds)
+                ->get();
+
+            foreach ($allCurrencies as $cur) {
+                $currencyId = $cur->id;
+                
+                if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
+                    $finalAmount = $customAmounts[$currencyId];
+                    $finalAmount = ($type === 'part') ? $customAmounts[$currencyId] / 2 : $customAmounts[$currencyId];
+                } else {
+                    // Fallback: calculate via conversion
+                    $converted = $cur->conversion_rate * $amountToUse;
+
+                    // Now apply 'part' rule
+                    $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
                 }
 
-                foreach ($allCurrencies as $cur) {
-                    $convertedAmount = $cur->conversion_rate * $amountToUse;
+                $string .= ' <span style="color:black">|</span> <strong>'
+                    . $cur->symbol . '</strong>'
+                    . number_format($finalAmount, 0);
 
-                    $string .= ' <span style="color:black">|</span> <strong>'
-                        . $cur->symbol . '</strong>'
-                        . number_format($convertedAmount, 0);
+                $key = $cur->country_name ?: ($cur->code ?? $cur->id);
 
-                    $key = $cur->country_name ?: ($cur->code ?? $cur->id);
-
-                    $array[$key] = [
-                        'symbol' => $cur->symbol,
-                        'name' => $cur->name,
-                        'amount' => number_format($convertedAmount, 0)
-                    ];
-                }
+                $array[$key] = [
+                    'symbol' => $cur->symbol,
+                    'name' => $cur->name,
+                    'amount' => number_format($finalAmount, 0)
+                ];
             }
-
-            return [
-                'string' => $string,
-                'array' => $array
-            ];
         }
+
+        return [
+            'string' => $string,
+            'array' => $array
+        ];
     }
+}
