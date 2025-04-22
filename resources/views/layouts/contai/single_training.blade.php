@@ -35,7 +35,7 @@
                                     <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                                 @else
                                     @if($training->p_amount > 0)
-                                    {{-- {{ $currency_symbol }}{{ number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training)['string'] !!} --}}
+                                    {{ $currency_symbol }}{{ number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training)['string'] !!}
                                     @else
                                     <span style="color:green">FREE TRAINING</span>
                                     @endif
