@@ -24,7 +24,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="conversion_rate">Conversion Rate</label>
-                                    <input type="number" step="0.1"  class="form-control" name="conversion_rate" value="{{ old('conversion_rate') }}" required>
+                                    <input type="number" step="0.01"  class="form-control" name="conversion_rate" value="{{ old('conversion_rate') }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="symbol">Symbol</label>
