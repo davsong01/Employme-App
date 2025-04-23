@@ -452,7 +452,7 @@ class ProgramController extends Controller
     {
         $program = Program::findorfail($id);
         $programName = Program::where('id', $id)->pluck('p_name');
-        $program->close_earlybird = 1;
+        $program->early_bird_status = 1;
         $program->save();
 
         return redirect('programs')->with('message', 'Early is now extended for ' . $programName);
@@ -462,7 +462,7 @@ class ProgramController extends Controller
     {
         $program = Program::findorfail($id);
         $programName = Program::where('id', $id)->pluck('p_name');
-        $program->close_earlybird = 0;
+        $program->early_bird_status = 0;
         $program->save();
 
         return redirect('programs')->with('message', 'EarlyBird payment is now closed for ' . $programName);

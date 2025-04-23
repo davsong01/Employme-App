@@ -61,7 +61,7 @@
                                 <select name="amount" id="amount" class="form-control" required>
                                     <option value="">Select Payment Type</option>
                                     <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</option>
-                                    @if($training->close_earlybird == 0 && $training->e_amount > 0)
+                                    @if($training->early_bird_status == 0 && $training->e_amount > 0)
                                     <option value="{{ $training->e_amount * 100}}">Earlybird ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->e_amount) }})</option>
                                     @endif
                                     @if($training->haspartpayment == 1)

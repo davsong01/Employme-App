@@ -29,16 +29,7 @@
                         @if(isset($modes) && count($modes) > 0)
                             {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
                         @else
-                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
-                                {{ $currency_symbol }}{{ number_format($training->e_amount) }}
-                                <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
-                            @else
-                                @if(!empty($training->price_range))
-                                    <span style="color:red;font-size:27px">{!! $priceRange !!}
-                                @else
-                                    {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
-                                @endif
-                            @endif
+                            <span style="color:red;font-size:27px">{!! getPriceRangeStringAcrossPrograms($training, null) !!}
                         @endif
                     </div>
                     @if(isset($training->description) && !empty($training->description))

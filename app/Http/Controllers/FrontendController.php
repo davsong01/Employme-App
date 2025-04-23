@@ -44,12 +44,12 @@ class FrontendController extends Controller
             $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
             // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
             $trainings = Program::allMainPrograms()->whereIn('id', $programs)->simplePaginate(16);
-            $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
+            $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('early_bird_status', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }else{
             // $trainings = Program::where('id', '<>', 1)->whereNULL('parent_id')->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
             $trainings = Program::allMainPrograms()->simplePaginate(16);
             
-            $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('close_earlybird', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
+            $discounts = Program::where('e_amount', '!=', 0)->whereNULL('parent_id')->where('early_bird_status', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
         }
         
         return view('welcome', compact('trainings', 'discounts'));
@@ -70,14 +70,12 @@ class FrontendController extends Controller
 
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
-        $formatter = app(CurrencyAmountFormatter::class);
-        $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
-
+        
         if (isset($training->subPrograms) && $training->subPrograms->count() > 0) {
-            return view('early_bird_single_training_with_children', compact('training', 'locations', 'modes', 'priceRange'));
+            return view('early_bird_single_training_with_children', compact('training', 'locations', 'modes'));
         }
-
-        return view('early_bird_single_training', compact('training', 'locations', 'modes', 'priceRange'));
+        
+        return view('early_bird_single_training', compact('training', 'locations', 'modes'));
     }
 
 
@@ -91,14 +89,12 @@ class FrontendController extends Controller
         }
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
-        $formatter = app(CurrencyAmountFormatter::class);
-        $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
         
         if(isset($training->subPrograms) && $training->subPrograms->count() > 0){
-            return view('single_training_with_children', compact('training', 'locations', 'modes','priceRange'));
+            return view('single_training_with_children', compact('training', 'locations', 'modes'));
         }
         
-        return view('single_training', compact('training', 'locations','modes', 'priceRange'));
+        return view('single_training', compact('training', 'locations','modes'));
     }
 
     public function getModePaymentTypes(Request $request){
@@ -116,7 +112,7 @@ class FrontendController extends Controller
         }else{
             $options .= "<option value='full'>Full Payment (".$request->currency_symbol.number_format($program->p_amount).")</option>";
 
-            if(($program->e_amount > 0 ) && $program->close_earlybird == 0 || $program->e_amount > 0){
+            if(($program->e_amount > 0 ) && $program->early_bird_status == 0 || $program->e_amount > 0){
                 $options .= "<option value='earlybird'>Earlybird (".$request->currency_symbol.number_format($program->e_amount).")</option>";
             }
           

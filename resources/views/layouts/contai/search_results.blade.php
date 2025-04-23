@@ -44,7 +44,7 @@
                                 </h6>
                                 <h5>
                                     @if ($training->is_closed == 'no')
-                                        @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                        @if(($training->e_amount > 0 ) && $training->early_bird_status == 0 || $training->e_amount != 0)
                                             {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
                                             <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
                                         @else
@@ -117,7 +117,7 @@ class="active"
             <div class="details">
                 <p class="detailsp">{{ mb_strimwidth($training->p_name, 0, 46, "...") }}<br>
                 {{ config('custom.default_currency') }}{{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }}
-                    @if($training->close_earlybird == 1)
+                    @if($training->early_bird_status == 1)
                         @if($training->e_amount > 0)<strong> |  Early Bird:</strong> {{ config('custom.default_currency') }}{{ $training->e_amount }}@endif
                     @endif
                 <br>

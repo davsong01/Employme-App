@@ -29,16 +29,12 @@
                         @if(isset($modes) && count($modes) > 0)
                             {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
                         @else
-                            @if(($training->e_amount > 0 ) && $training->close_earlybird == 0)
-                                {{ $currency_symbol }}{{ number_format($training->e_amount) }} 
-                                {{-- {!! getAmountExtraCurrencies($tranining, null, $training->e_amount)['string'] !!} --}}
-                                <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
-                            @else
-                                @if(!empty($training->price_range))
-                                    <span style="color:red;font-size:27px">{!! $priceRange !!}
-                                @else
-                                    {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
-                                @endif
+                            @if(($training->e_amount > 0 ) && $training->early_bird_status == 1)
+                                {!! getPriceRangeStringAcrossPrograms($training, null, 'yes') !!}
+                                <br>
+                                {{-- <span class="discount-color"><span class="linethrough discount-color">
+                                    {!! getPriceRangeStringAcrossPrograms($training, null) !!}
+                                </span> --}}
                             @endif
                         @endif
                     </div>
@@ -46,7 +42,7 @@
                     <p>{{ $training->description }}</p>
                     @endif
                     <div class="checkout__form">
-                        <form action="{{ route('trainings') }}" method="GET">
+                        <form action="{{ route('earlybird.trainings') }}" method="GET">
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
                                     @if(isset($training->subPrograms) && $training->subPrograms->count() > 0)
@@ -55,7 +51,9 @@
                                             <select name="training" id="training" class="training-select" style="font-size: 12px !important" required>
                                                 <option value="">Select</option>
                                                 @foreach($training->subPrograms->sortBy('p_amount') as $tran)
-                                                <option value="{{ $tran->id }}">{{ $tran->p_name }} ({{$currency_symbol.number_format($exchange_rate * $tran->p_amount)}}{!! getAmountExtraCurrencies($tran)['string'] !!})</option>
+                                                <option value="{{ $tran->id }}">{{ $tran->p_name }} (
+                                                    {{$currency_symbol.number_format($exchange_rate * $tran->e_amount)}}{!! getAmountExtraCurrencies($tran, null, $tran->e_amount, 'yes')['string'] !!}
+                                                    )</option>
                                                 @endforeach
                                             </select>
                                         </div>

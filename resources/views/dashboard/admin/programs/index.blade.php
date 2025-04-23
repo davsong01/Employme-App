@@ -317,7 +317,7 @@
                                 </div>
                                 @if($program->e_amount > 0)
                                     <div class="extra-actions" style="padding-top:0px">
-                                        @if($program->close_earlybird == 1)
+                                        @if($program->early_bird_status == 1)
                                             @if($program->permissions['earlybird.close'])
                                                 <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment" class="btn btn-info btn-xs" href="{{ route('earlybird.close', ['id' => $program->id])}}"><i
                                                         onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i> Close Earlybird
