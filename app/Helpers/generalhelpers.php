@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\Currency;
 use App\Models\Settings;
 use App\Models\Transaction;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
@@ -618,55 +619,184 @@ if (!function_exists("getPackageAccess")) {
         }
     }
 
-if (!function_exists("getAmountExtraCurrencies")) {
-    function getAmountExtraCurrencies($training, $type = null, $amount = null)
-    {
-        $string = '';
-        $array = [];
-        $amountToUse = $amount ?? $training->p_amount;
-        
-        if (!empty($training->currencies) && is_array($training->currencies)) {
-            $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
-                return [intval($c['id']) => $c['amount'] ?? null];
-            })->all();
+    if (!function_exists("getAmountExtraCurrencies")) {
+        function getAmountExtraCurrencies($training, $type = null, $amount = null, $earlybird='no')
+        {
+            $string = '';
+            $array = [];
+            $amountToUse = $amount ?? ($earlybird == 'yes' ? $training->e_amount : $training->p_amount);
+            
+            if (!empty($training->currencies) && is_array($training->currencies)) {
+                $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
+                    return [intval($c['id']) => $c['amount'] ?? null];
+                })->all();
 
-            $currencyIds = array_keys($customAmounts);
+                $currencyIds = array_keys($customAmounts);
 
-            $allCurrencies = Currency::where('status', 1)
-                ->whereIn('id', $currencyIds)
-                ->get();
+                $allCurrencies = Currency::where('status', 1)
+                    ->whereIn('id', $currencyIds)
+                    ->get();
 
-            foreach ($allCurrencies as $cur) {
-                $currencyId = $cur->id;
-                
-                if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
-                    $finalAmount = $customAmounts[$currencyId];
-                    $finalAmount = ($type === 'part') ? $customAmounts[$currencyId] / 2 : $customAmounts[$currencyId];
-                } else {
-                    // Fallback: calculate via conversion
-                    $converted = $cur->conversion_rate * $amountToUse;
+                foreach ($allCurrencies as $cur) {
+                    $currencyId = $cur->id;
+                    
+                    if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
+                        $converted = $customAmounts[$currencyId] * $amountToUse;
+                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                    } else {
+                        $converted = $cur->conversion_rate * $amountToUse;
 
-                    // Now apply 'part' rule
-                    $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                        // Now apply 'part' rule
+                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                    }
+
+                    $string .= ' <span style="color:black">|</span> <strong>'
+                        . $cur->symbol . '</strong>'
+                        . number_format($finalAmount, 0);
+
+                    $key = $cur->country_name ?: ($cur->code ?? $cur->id);
+
+                    $array[$key] = [
+                        'symbol' => $cur->symbol,
+                        'name' => $cur->name,
+                        'amount' => number_format($finalAmount, 0)
+                    ];
                 }
+            }
 
-                $string .= ' <span style="color:black">|</span> <strong>'
-                    . $cur->symbol . '</strong>'
-                    . number_format($finalAmount, 0);
+            return [
+                'string' => $string,
+                'array' => $array
+            ];
+        }
+    }
 
-                $key = $cur->country_name ?: ($cur->code ?? $cur->id);
 
-                $array[$key] = [
-                    'symbol' => $cur->symbol,
-                    'name' => $cur->name,
-                    'amount' => number_format($finalAmount, 0)
-                ];
+if (!function_exists('getPriceRangeMultiCurrency')) {
+    function getPriceRangeMultiCurrency($training, $type = null)
+    {
+        $subPrograms = $training->subPrograms ?? collect();
+
+        if ($subPrograms->isEmpty()) {
+            return [];
+        }
+
+        $mainFrom = $subPrograms->min('p_amount');
+        $mainTo = $subPrograms->max('p_amount');
+
+        $mainCurrency = $training->currencies[0] ?? null;
+
+        $output = [];
+
+        if ($mainCurrency && isset($mainCurrency->symbol)) {
+            $output[] = 'From ' . $mainCurrency->symbol . number_format($mainFrom, 0)
+                . ' to ' . $mainCurrency->symbol . number_format($mainTo, 0);
+        } else {
+            $output[] = 'From ' . number_format($mainFrom, 0) . ' to ' . number_format($mainTo, 0);
+        }
+
+        $extraRates = [];
+
+        foreach ($subPrograms as $program) {
+            $converted = getAmountExtraCurrenciesWithMainCurrency($program, $type);
+
+            foreach ($converted['array'] as $key => $info) {
+                $amountRaw = preg_replace('/[^\d]/', '', $info['amount']);
+                $extraRates[$key]['from'] ??= (int)$amountRaw;
+                $extraRates[$key]['to'] = max($extraRates[$key]['to'] ?? 0, (int)$amountRaw);
+                $extraRates[$key]['symbol'] = $info['symbol'];
             }
         }
 
-        return [
-            'string' => $string,
-            'array' => $array
-        ];
+        foreach ($extraRates as $key => $data) {
+            $output[] = 'From ' . $data['symbol'] . number_format($data['from'], 0)
+                . ' to ' . $data['symbol'] . number_format($data['to'], 0);
+        }
+        
+        return $output;
     }
+}
+
+
+function getPriceRangeAcrossPrograms($training, $type = null, $earlybird='no'): array
+{
+    $allPrograms = collect([$training])->merge($training->subPrograms);
+    $pluck = $earlybird == 'yes' ? 'e_amount' : 'p_amount';
+    // Main currency (₦) range
+    $nairaAmounts = $allPrograms->pluck($pluck)->map(function ($amount) use ($type) {
+        return $type === 'part' ? $amount / 2 : $amount;
+    });
+    
+    $range = [
+        'main' => [
+            'symbol' => '₦',
+            'from' => number_format($nairaAmounts->min(), 0),
+            'to' => number_format($nairaAmounts->max(), 0),
+        ]
+    ];
+    
+    // Track currency amounts grouped by currency ID
+    $currencyGroups = [];
+
+    foreach ($allPrograms as $prog) {
+        $baseAmount = $earlybird == 'yes' ? $prog->e_amount : $prog->p_amount;
+        
+        foreach ($prog->currencies ?? [] as $currency) {
+            $currencyId = is_object($currency) ? $currency->id : $currency['id'];
+            $currencyAmount = is_object($currency) ? $currency->amount ?? null : $currency['amount'] ?? null;
+            $currencyAmount = $currencyAmount * $baseAmount;
+            
+            // Fallback to conversion if no manual amount
+            if ($currencyAmount === null) {
+                $model = Currency::find($currencyId);
+                $currencyAmount = $model ? $model->conversion_rate * $baseAmount : null;
+            }
+
+            if ($currencyAmount !== null) {
+                if ($type === 'part') {
+                    $currencyAmount /= 2;
+                }
+                $currencyGroups[$currencyId][] = $currencyAmount;
+            }
+        }
+    }
+
+    // Get all currencies used
+    $currencyModels = Currency::whereIn('id', array_keys($currencyGroups))->get();
+
+    foreach ($currencyGroups as $id => $amounts) {
+        $cur = $currencyModels->firstWhere('id', $id);
+        if ($cur) {
+            $key = $cur->country_name ?: ($cur->code ?? $cur->id);
+            $range[$key] = [
+                'symbol' => $cur->symbol,
+                'from' => number_format(min($amounts), 0),
+                'to' => number_format(max($amounts), 0),
+            ];
+        }
+    }
+  
+    return $range;
+}
+
+function getPriceRangeStringAcrossPrograms($training, $type = null, $earlybird = 'no'): string
+{
+    $ranges = getPriceRangeAcrossPrograms($training, $type, $earlybird);
+    
+    $mainLine = '';
+    $extraParts = [];
+
+    foreach ($ranges as $key => $range) {
+        $part = "{$range['symbol']}" . $range['from'] . " – {$range['symbol']}" . $range['to'];
+        
+        if ($key === 'main') {
+            $mainLine = $part;
+        } else {
+            $extraParts[] = $part;
+        }
+    }
+
+    $extraLine = implode(' | ', $extraParts);
+
+    return $mainLine . ($extraLine ? '<br> ' . $extraLine : '');
 }

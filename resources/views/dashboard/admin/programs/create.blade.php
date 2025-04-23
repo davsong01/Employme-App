@@ -27,10 +27,19 @@
                                     <input type="number" name="p_amount" value="{{ old('p_amount') }}" min="0"
                                         class="form-control" required>
                                 </div>
-                                 <div class="form-group">
+                                <div class="form-group">
                                     <label>Early Bird Fee *</label>
                                     <input type="number" name="e_amount" value="{{ old('e_amount') ?? 0}}" min="0"
                                         class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Early Bird Status</label>
+                                        <select name="early_bird_status" class="form-control" id="early_bird_status" required>
+                                            <option value="1" {{ old('early_bird_status') == 1 ? 'selected' : '' }}>Active</option>
+                                            <option value="0" {{ old('early_bird_status') == 0 ? 'selected' : '' }}>In Active</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Off Season Program?</label>

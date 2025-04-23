@@ -62,7 +62,7 @@ class PaymentController extends Controller
         }
 
         $payment_modes = $this->getPaymentModes();
-       
+        
         return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location', 'preferred_timing', 'trainingObject'));
     }
 
@@ -267,7 +267,13 @@ class PaymentController extends Controller
                 $request['metadata'] = $metadata;
                 
                 $tempDetails = app('app\Http\Controllers\Controller')->createTempDetails($request, $request->payment_mode);
-                $request['extraCurrencies'] = getAmountExtraCurrencies($training, $request->payment_type, $training->amount);
+                
+                if($request->payment_type == 'earlybird'){
+                    $request['extraCurrencies'] = getAmountExtraCurrencies($training, $type, $training->e_amount, 'yes');
+                    // $request['extraCurrencies'] = getAmountExtraCurrencies($training, $request->payment_type, $training->amount);
+                }else{
+                    $request['extraCurrencies'] = getAmountExtraCurrencies($training, $request->payment_type, $training->amount);
+                }
                 
                 $data = $request->all();
                 

@@ -85,7 +85,7 @@
                             </h6>
                             <h5>
                                 @if ($training->is_closed == 'no')
-                                    @if(($training->e_amount > 0 ) && $training->close_earlybird == 0 || $training->e_amount != 0)
+                                    @if(($training->e_amount > 0 ) && $training->early_bird_status == 0 || $training->e_amount != 0)
                                         {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
                                         <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
                                     @else

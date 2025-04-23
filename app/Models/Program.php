@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\FacilitatorTraining;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\CurrencyAmountFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
@@ -99,27 +100,27 @@ class Program extends Model
         return $this->hasMany(Program::class, 'parent_id');
     }
 
-    public function getPriceRangeAttribute()
-    {
-        if ($this->subPrograms->isEmpty()) {
-            return [];
-        }
+    // public function getPriceRangeAttribute()
+    // {
+    //     if ($this->subPrograms->isEmpty()) {
+    //         return [];
+    //     }
+        
+    //     $amounts = new Collection([$this->p_amount]);
 
-        $amounts = new Collection([$this->p_amount]);
+    //     if ($this->subPrograms->isNotEmpty()) {
+    //         $amounts = $this->subPrograms->pluck('p_amount');
+    //         // $amounts = $amounts->merge($this->subPrograms->pluck('p_amount'));
+    //     }
 
-        if ($this->subPrograms->isNotEmpty()) {
-            $amounts = $this->subPrograms->pluck('p_amount');
-            // $amounts = $amounts->merge($this->subPrograms->pluck('p_amount'));
-        }
-
-        $from = $amounts->min();
-        $to = $amounts->max();
-
-        return [
-            'from' => $from,
-            'to' => $to
-        ];
-    }
+    //     $from = $amounts->min();
+    //     $to = $amounts->max();
+        
+    //     return [
+    //         'from' => $from,
+    //         'to' => $to
+    //     ];
+    // }
 
     public function parent()
     {

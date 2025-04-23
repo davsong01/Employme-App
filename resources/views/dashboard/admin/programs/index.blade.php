@@ -196,7 +196,7 @@
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td><strong>{{ $program->p_name }}</strong><br>
                                 <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif 
-                                @if($program->e_amount > 0) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
+                                @if($program->early_bird_status == 1) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
                                     @if($program->parent)
                                     <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->parent->id)}}">{{ $program->parent->p_name }}</span></a><br>
@@ -317,7 +317,7 @@
                                 </div>
                                 @if($program->e_amount > 0)
                                     <div class="extra-actions" style="padding-top:0px">
-                                        @if($program->close_earlybird == 1)
+                                        @if($program->early_bird_status == 1)
                                             @if($program->permissions['earlybird.close'])
                                                 <a data-toggle="tooltip" data-placement="top" title="Close Early Bird Payment" class="btn btn-info btn-xs" href="{{ route('earlybird.close', ['id' => $program->id])}}"><i
                                                         onclick="return confirm('Are you really sure?');" class="fa fa-folder-open"></i> Close Earlybird

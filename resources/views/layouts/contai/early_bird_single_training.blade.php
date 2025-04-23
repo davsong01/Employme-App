@@ -28,13 +28,9 @@
                         @if($training->is_closed == 'no')
                             @if(isset($modes) && count($modes) > 0)
                                 {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
-                                {{-- {{ number_format($modes['Online'] > $modes['Offline'] ? ) }} / {{ $currency_symbol }} {{ number_format($modes['Offline']) }} --}}
                             @else
-                                @if($training->p_amount > 0)
-                                {{ $currency_symbol }}{{ number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training, null, $training->p_amount)['string'] !!}
-                                @else
-                                <span style="color:green">FREE TRAINING</span>
-                                @endif
+                                {{ $currency_symbol }}{{ number_format($training->e_amount) }}{!! getAmountExtraCurrencies($training, null, $training->e_amount)['string'] !!} <br>
+                                <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training, null, $training->p_amount)['string'] !!}</span></span>
                             @endif
                         @else
                         <span style="color:red">Closed Group Training</span>
@@ -110,20 +106,14 @@
                                             </div> 
                                         @endif
                                         
-                                        @if($training->p_amount > 0)
-                                        <div class="checkout__input">
-                                            <p>Select payment type<span>*</span></p>
-                                            <select name="type" id="" required>
-                                                <option value="">Select</option>
-                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training)['string'] !!})</option>
-                                                
-                                                @if($training->haspartpayment == 1)
-                                                <option value="part" {{ old('amount') == ($training->p_amount / 2) ? 'selected' : '' }}>
-                                                    Part Payment ({{ $currency_symbol . number_format($training->p_amount / 2) }} {!! getAmountExtraCurrencies($training, 'part')['string'] !!})
-                                                </option>
-                                                @endif
-                                            </select>
-                                        </div>
+                                        @if($training->e_amount > 0)
+                                            <div class="checkout__input">
+                                                <p>Select payment type<span>*</span></p>
+                                                <select name="type" id="" required>
+                                                    <option value="">Select</option>
+                                                    <option value="earlybird" {{ old('amount') == $training->e_amount ? 'selected' : '' }}>Earlybird ({{ $currency_symbol.number_format($training->e_amount) }} {!! getAmountExtraCurrencies($training, null, $training->e_amount)['string'] !!})</option>
+                                                </select>
+                                            </div>
                                         @else
                                         <input type="hidden" value="full" name="type">
                                         @endif
