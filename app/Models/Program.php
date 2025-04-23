@@ -19,6 +19,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\FacilitatorTraining;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\CurrencyAmountFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
@@ -104,7 +105,7 @@ class Program extends Model
         if ($this->subPrograms->isEmpty()) {
             return [];
         }
-
+        
         $amounts = new Collection([$this->p_amount]);
 
         if ($this->subPrograms->isNotEmpty()) {
@@ -114,7 +115,7 @@ class Program extends Model
 
         $from = $amounts->min();
         $to = $amounts->max();
-
+        
         return [
             'from' => $from,
             'to' => $to

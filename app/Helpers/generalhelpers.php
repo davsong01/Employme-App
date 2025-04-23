@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\Currency;
 use App\Models\Settings;
 use App\Models\Transaction;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 
@@ -618,55 +619,162 @@ if (!function_exists("getPackageAccess")) {
         }
     }
 
-if (!function_exists("getAmountExtraCurrencies")) {
-    function getAmountExtraCurrencies($training, $type = null, $amount = null)
-    {
-        $string = '';
-        $array = [];
-        $amountToUse = $amount ?? $training->p_amount;
-        
-        if (!empty($training->currencies) && is_array($training->currencies)) {
-            $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
-                return [intval($c['id']) => $c['amount'] ?? null];
-            })->all();
+    if (!function_exists("getAmountExtraCurrencies")) {
+        function getAmountExtraCurrencies($training, $type = null, $amount = null)
+        {
+            $string = '';
+            $array = [];
+            $amountToUse = $amount ?? $training->p_amount;
+            
+            if (!empty($training->currencies) && is_array($training->currencies)) {
+                $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
+                    return [intval($c['id']) => $c['amount'] ?? null];
+                })->all();
 
-            $currencyIds = array_keys($customAmounts);
+                $currencyIds = array_keys($customAmounts);
 
-            $allCurrencies = Currency::where('status', 1)
-                ->whereIn('id', $currencyIds)
-                ->get();
+                $allCurrencies = Currency::where('status', 1)
+                    ->whereIn('id', $currencyIds)
+                    ->get();
 
-            foreach ($allCurrencies as $cur) {
-                $currencyId = $cur->id;
-                
-                if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
-                    $finalAmount = $customAmounts[$currencyId];
-                    $finalAmount = ($type === 'part') ? $customAmounts[$currencyId] / 2 : $customAmounts[$currencyId];
-                } else {
-                    // Fallback: calculate via conversion
-                    $converted = $cur->conversion_rate * $amountToUse;
+                foreach ($allCurrencies as $cur) {
+                    $currencyId = $cur->id;
+                    
+                    if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
+                        $finalAmount = $customAmounts[$currencyId];
+                        $finalAmount = ($type === 'part') ? $customAmounts[$currencyId] / 2 : $customAmounts[$currencyId];
+                    } else {
+                        // Fallback: calculate via conversion
+                        $converted = $cur->conversion_rate * $amountToUse;
 
-                    // Now apply 'part' rule
-                    $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                        // Now apply 'part' rule
+                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                    }
+
+                    $string .= ' <span style="color:black">|</span> <strong>'
+                        . $cur->symbol . '</strong>'
+                        . number_format($finalAmount, 0);
+
+                    $key = $cur->country_name ?: ($cur->code ?? $cur->id);
+
+                    $array[$key] = [
+                        'symbol' => $cur->symbol,
+                        'name' => $cur->name,
+                        'amount' => number_format($finalAmount, 0)
+                    ];
                 }
+            }
 
-                $string .= ' <span style="color:black">|</span> <strong>'
-                    . $cur->symbol . '</strong>'
-                    . number_format($finalAmount, 0);
+            return [
+                'string' => $string,
+                'array' => $array
+            ];
+        }
+    }
 
-                $key = $cur->country_name ?: ($cur->code ?? $cur->id);
 
-                $array[$key] = [
-                    'symbol' => $cur->symbol,
-                    'name' => $cur->name,
-                    'amount' => number_format($finalAmount, 0)
-                ];
+if (!function_exists('getPriceRangeMultiCurrency')) {
+    function getPriceRangeMultiCurrency($training, $type = null)
+    {
+        $subPrograms = $training->subPrograms ?? collect();
+
+        if ($subPrograms->isEmpty()) {
+            return [];
+        }
+
+        $mainFrom = $subPrograms->min('p_amount');
+        $mainTo = $subPrograms->max('p_amount');
+
+        $mainCurrency = $training->currencies[0] ?? null;
+
+        $output = [];
+
+        if ($mainCurrency && isset($mainCurrency->symbol)) {
+            $output[] = 'From ' . $mainCurrency->symbol . number_format($mainFrom, 0)
+                . ' to ' . $mainCurrency->symbol . number_format($mainTo, 0);
+        } else {
+            $output[] = 'From ' . number_format($mainFrom, 0) . ' to ' . number_format($mainTo, 0);
+        }
+
+        $extraRates = [];
+
+        foreach ($subPrograms as $program) {
+            $converted = getAmountExtraCurrenciesWithMainCurrency($program, $type);
+
+            foreach ($converted['array'] as $key => $info) {
+                $amountRaw = preg_replace('/[^\d]/', '', $info['amount']); // remove symbol, commas
+                $extraRates[$key]['from'] ??= (int)$amountRaw;
+                $extraRates[$key]['to'] = max($extraRates[$key]['to'] ?? 0, (int)$amountRaw);
+                $extraRates[$key]['symbol'] = $info['symbol'];
             }
         }
 
-        return [
-            'string' => $string,
-            'array' => $array
-        ];
+        foreach ($extraRates as $key => $data) {
+            $output[] = 'From ' . $data['symbol'] . number_format($data['from'], 0)
+                . ' to ' . $data['symbol'] . number_format($data['to'], 0);
+        }
+
+        return $output;
     }
 }
+
+
+
+if (!function_exists('getTrainingPriceRanges')) {
+        function getTrainingPriceRanges($mainTraining, $subPrograms)
+        {
+            $amounts = collect();
+
+            // Main training
+            $mainResult = getAmountExtraCurrencies((object)[
+                'p_amount' => $mainTraining->p_amount,
+                'currencies' => $mainTraining->currencies ?? []
+            ]);
+            
+            foreach ($mainResult['array'] as $key => $data) {
+                $symbol = $data['symbol'];
+                $rawAmount = (float) str_replace(',', '', $data['amount']);
+                $amounts[$key][] = [
+                    'raw' => $rawAmount,
+                    'formatted' => $symbol . number_format($rawAmount, 0)
+                ];
+            }
+
+            // Subprograms
+            foreach ($subPrograms as $sub) {
+                $subResult = getAmountExtraCurrencies((object)[
+                    'p_amount' => $sub->p_amount,
+                    'currencies' => $sub->currencies ?? []
+                ]);
+
+                foreach ($subResult['array'] as $key => $data) {
+                    $symbol = $data['symbol'];
+                    $rawAmount = (float) str_replace(',', '', $data['amount']);
+                    $amounts[$key][] = [
+                        'raw' => $rawAmount,
+                        'formatted' => $symbol . number_format($rawAmount, 0)
+                    ];
+                }
+            }
+
+            // Format range output
+            $priceRanges = [];
+            foreach ($amounts as $currencyKey => $values) {
+                $raws = collect($values)->pluck('raw');
+                $symbol = preg_replace('/[\d,\.]/', '', collect($values)->first()['formatted']);
+
+                $fromRaw = $raws->min();
+                $toRaw = $raws->max();
+
+                $priceRanges[$currencyKey] = [
+                    'raw' => [
+                        'from' => $fromRaw,
+                        'to' => $toRaw,
+                    ],
+                    'formatted' => $symbol . number_format($fromRaw, 0) . ' - ' . $symbol . number_format($toRaw, 0)
+                ];
+            }
+
+            return $priceRanges;
+        }
+    }

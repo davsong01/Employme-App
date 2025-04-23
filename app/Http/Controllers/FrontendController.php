@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Program;
 use App\Models\Location;
 use App\Models\Settings;
-use App\Models\FacilitatorTraining;
+use App\Models\Program;
 use Illuminate\Http\Request;
+use App\Models\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
+use App\Services\CurrencyAmountFormatter;
 
 class FrontendController extends Controller
 {
@@ -67,7 +68,10 @@ class FrontendController extends Controller
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
         
         if(isset($training->subPrograms) && $training->subPrograms->count() > 0){
-            return view('single_training_with_children', compact('training', 'locations', 'modes'));
+            $formatter = new CurrencyAmountFormatter();
+            $priceRange = $formatter->getPriceRangeWithCurrencies($training, null);
+            
+            return view('single_training_with_children', compact('training', 'locations', 'modes','priceRange'));
         }
         
         return view('single_training', compact('training', 'locations','modes'));

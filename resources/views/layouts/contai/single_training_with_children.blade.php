@@ -34,7 +34,8 @@
                                 <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($training->p_amount) }}</span></span>
                             @else
                                 @if(!empty($training->price_range))
-                                    From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }}
+                                    {{-- From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }} <br> --}}
+                                    <span style="color:black">From:</span> {!! $priceRange['from']['formatted'] !!} <br><span style="color:black">To: </span> {!! $priceRange['to']['formatted'] !!}
                                 @else
                                     {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
                                 @endif
@@ -54,7 +55,7 @@
                                             <select name="training" id="training" class="training-select" style="font-size: 12px !important" required>
                                                 <option value="">Select</option>
                                                 @foreach($training->subPrograms->sortBy('p_amount') as $tran)
-                                                <option value="{{ $tran->id }}">{{ $tran->p_name }} ({{$currency_symbol.number_format($exchange_rate * $tran->p_amount)}})</option>
+                                                <option value="{{ $tran->id }}">{{ $tran->p_name }} ({{$currency_symbol.number_format($exchange_rate * $tran->p_amount)}} {!! getAmountExtraCurrencies($training)['string'] !!})</option>
                                                 @endforeach
                                             </select>
                                         </div>
