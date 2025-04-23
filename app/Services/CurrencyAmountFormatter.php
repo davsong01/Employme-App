@@ -28,11 +28,10 @@ class CurrencyAmountFormatter
             foreach ($training->currencies as $currency) {
                 $currencyId = is_object($currency) ? $currency->id : $currency['id'];
                 $currencyAmount = is_object($currency) ? $currency->amount ?? null : $currency['amount'] ?? null;
-
                 $customAmounts[(int) $currencyId] = $currencyAmount;
             }
         }
-
+        
         // Directly use Naira (₦) for the main currency, based on training's p_amount
         $nairaSymbol = '₦';
         $mainAmount = ($type === 'part') ? $amountToUse / 2 : $amountToUse;
@@ -55,7 +54,7 @@ class CurrencyAmountFormatter
             
             foreach ($currencies as $cur) {
                 $id = $cur->id;
-
+                
                 if (isset($customAmounts[$id]) && $customAmounts[$id] !== null) {
                     $finalAmount = $customAmounts[$id];
                 } else {
@@ -121,5 +120,86 @@ class CurrencyAmountFormatter
                 'raw' => $maxFormatted['array']
             ]
         ];
+    }
+
+    public function getPriceRangeAcrossPrograms($training, $type = null): array
+    {
+        $allPrograms = collect([$training])->merge($training->subPrograms);
+
+        // Main currency (₦) range
+        $nairaAmounts = $allPrograms->pluck('p_amount')->map(function ($amount) use ($type) {
+            return $type === 'part' ? $amount / 2 : $amount;
+        });
+
+        $range = [
+            'main' => [
+                'symbol' => '₦',
+                'from' => number_format($nairaAmounts->min(), 0),
+                'to' => number_format($nairaAmounts->max(), 0),
+            ]
+        ];
+
+        // Track currency amounts grouped by currency ID
+        $currencyGroups = [];
+
+        foreach ($allPrograms as $prog) {
+            $baseAmount = $prog->p_amount;
+            foreach ($prog->currencies ?? [] as $currency) {
+                $currencyId = is_object($currency) ? $currency->id : $currency['id'];
+                $currencyAmount = is_object($currency) ? $currency->amount ?? null : $currency['amount'] ?? null;
+
+                // Fallback to conversion if no manual amount
+                if ($currencyAmount === null) {
+                    $model = Currency::find($currencyId);
+                    $currencyAmount = $model ? $model->conversion_rate * $baseAmount : null;
+                }
+
+                if ($currencyAmount !== null) {
+                    if ($type === 'part') {
+                        $currencyAmount /= 2;
+                    }
+                    $currencyGroups[$currencyId][] = $currencyAmount;
+                }
+            }
+        }
+
+        // Get all currencies used
+        $currencyModels = Currency::whereIn('id', array_keys($currencyGroups))->get();
+
+        foreach ($currencyGroups as $id => $amounts) {
+            $cur = $currencyModels->firstWhere('id', $id);
+            if ($cur) {
+                $key = $cur->country_name ?: ($cur->code ?? $cur->id);
+                $range[$key] = [
+                    'symbol' => $cur->symbol,
+                    'from' => number_format(min($amounts), 0),
+                    'to' => number_format(max($amounts), 0),
+                ];
+            }
+        }
+
+        return $range;
+    }
+
+    public function getPriceRangeStringAcrossPrograms($training, $type = null): string
+    {
+        $ranges = $this->getPriceRangeAcrossPrograms($training, $type);
+
+        $mainLine = '';
+        $extraParts = [];
+
+        foreach ($ranges as $key => $range) {
+            $part = "{$range['symbol']}" . $range['from'] . " – {$range['symbol']}" . $range['to'];
+            
+            if ($key === 'main') {
+                $mainLine = $part;
+            } else {
+                $extraParts[] = $part;
+            }
+        }
+
+        $extraLine = implode(' | ', $extraParts);
+
+        return $mainLine . ($extraLine ? '<br> ' . $extraLine : '');
     }
 }

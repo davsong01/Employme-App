@@ -702,7 +702,7 @@ if (!function_exists('getPriceRangeMultiCurrency')) {
             $converted = getAmountExtraCurrenciesWithMainCurrency($program, $type);
 
             foreach ($converted['array'] as $key => $info) {
-                $amountRaw = preg_replace('/[^\d]/', '', $info['amount']); // remove symbol, commas
+                $amountRaw = preg_replace('/[^\d]/', '', $info['amount']);
                 $extraRates[$key]['from'] ??= (int)$amountRaw;
                 $extraRates[$key]['to'] = max($extraRates[$key]['to'] ?? 0, (int)$amountRaw);
                 $extraRates[$key]['symbol'] = $info['symbol'];
@@ -713,7 +713,7 @@ if (!function_exists('getPriceRangeMultiCurrency')) {
             $output[] = 'From ' . $data['symbol'] . number_format($data['from'], 0)
                 . ' to ' . $data['symbol'] . number_format($data['to'], 0);
         }
-
+        
         return $output;
     }
 }

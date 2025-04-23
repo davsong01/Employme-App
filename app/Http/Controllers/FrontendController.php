@@ -68,8 +68,8 @@ class FrontendController extends Controller
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
         
         if(isset($training->subPrograms) && $training->subPrograms->count() > 0){
-            $formatter = new CurrencyAmountFormatter();
-            $priceRange = $formatter->getPriceRangeWithCurrencies($training, null);
+            $formatter = app(CurrencyAmountFormatter::class);
+            $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
             
             return view('single_training_with_children', compact('training', 'locations', 'modes','priceRange'));
         }
