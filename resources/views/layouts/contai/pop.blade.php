@@ -16,7 +16,7 @@
         ?>
         <div class="checkout__form transfer">
             <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">
-                Please pay &#8358;{{ number_format(session()->get('data')['amount']) }} (or the appropraite amount in your local currency) into the appropraite account below: <br>
+                Please pay &#8358;{{ number_format(session()->get('data')['amount']) }} (or the appropriate amount in your local currency) into the appropraite account below: <br>
                 {{-- Please pay intothe appropraite account number below: <br> --}}
                 <?php $training_id = session()->get('data')['metadata']['pid']; ?>
                 <div id="nigeria" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
@@ -34,6 +34,13 @@
                         @endif
                     @endforeach
                 </div>
+
+                {{-- @if($type == 'earlybird')
+                {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                @else
+                {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                @endif --}}
+
                 @if(isset($extraCurrencies['Ghana']))
                 <div id="ghana" style="border-radius: 5px;background: #ffff7e;color: black;padding: 15px;margin: 5px;">
                     <h4 style="">Ghana (Cedes Payment)

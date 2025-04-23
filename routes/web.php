@@ -64,6 +64,7 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('/thankyou', 'thankyou')->name('thankyou');
             Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
             Route::get('/trainings/{id?}', 'show')->name('trainings');
+            Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
 
             Route::get('verify-certificate', [CertificateController::class, 'verifyCertificate'])->name('verify.certificate');

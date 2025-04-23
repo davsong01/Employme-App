@@ -55,6 +55,31 @@ class FrontendController extends Controller
         return view('welcome', compact('trainings', 'discounts'));
     }
 
+    public function earlyBird($id = null)
+    {
+        $id = \Request::get('training') ?? $id;
+        $training = Program::with('subPrograms')->where('id', $id)->first();
+
+        if ($training->p_end < date('Y-m-d') || $training->close_registration == 1) {
+            return redirect(route('welcome'));
+        }
+
+        if($training->early_bird_status != 1 && $training->e_amount < 1){
+            return redirect(route('welcome'));
+        }
+
+        $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
+        $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
+        $formatter = app(CurrencyAmountFormatter::class);
+        $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
+
+        if (isset($training->subPrograms) && $training->subPrograms->count() > 0) {
+            return view('early_bird_single_training_with_children', compact('training', 'locations', 'modes', 'priceRange'));
+        }
+
+        return view('early_bird_single_training', compact('training', 'locations', 'modes', 'priceRange'));
+    }
+
 
     public function show($id = null)
     {
@@ -66,15 +91,14 @@ class FrontendController extends Controller
         }
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
+        $formatter = app(CurrencyAmountFormatter::class);
+        $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
         
         if(isset($training->subPrograms) && $training->subPrograms->count() > 0){
-            $formatter = app(CurrencyAmountFormatter::class);
-            $priceRange = $formatter->getPriceRangeStringAcrossPrograms($training);
-            
             return view('single_training_with_children', compact('training', 'locations', 'modes','priceRange'));
         }
         
-        return view('single_training', compact('training', 'locations','modes'));
+        return view('single_training', compact('training', 'locations','modes', 'priceRange'));
     }
 
     public function getModePaymentTypes(Request $request){

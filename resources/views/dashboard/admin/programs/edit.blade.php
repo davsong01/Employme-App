@@ -210,9 +210,15 @@
                                             class="form-control" required>
                                     </div>
                                 </div>
-                                
-
-
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Early Bird Status</label>
+                                        <select name="early_bird_status" class="form-control" id="early_bird_status" required>
+                                            <option value="1" {{ $program->early_bird_status == 1 ? 'selected' : '' }}>Active</option>
+                                            <option value="0" {{ $program->early_bird_status == 0 ? 'selected' : '' }}>In Active</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Enable Flexible payment?</label>

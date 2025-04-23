@@ -196,7 +196,7 @@
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
                             <td><strong>{{ $program->p_name }}</strong><br>
                                 <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif 
-                                @if($program->e_amount > 0) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
+                                @if($program->early_bird_status == 1) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
                                     @if($program->parent)
                                     <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->parent->id)}}">{{ $program->parent->p_name }}</span></a><br>

@@ -620,11 +620,11 @@ if (!function_exists("getPackageAccess")) {
     }
 
     if (!function_exists("getAmountExtraCurrencies")) {
-        function getAmountExtraCurrencies($training, $type = null, $amount = null)
+        function getAmountExtraCurrencies($training, $type = null, $amount = null, $earlybird='no')
         {
             $string = '';
             $array = [];
-            $amountToUse = $amount ?? $training->p_amount;
+            $amountToUse = $amount ?? ($earlybird == 'yes' ? $training->e_amount : $training->p_amount);
             
             if (!empty($training->currencies) && is_array($training->currencies)) {
                 $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
@@ -641,10 +641,9 @@ if (!function_exists("getPackageAccess")) {
                     $currencyId = $cur->id;
                     
                     if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
-                        $finalAmount = $customAmounts[$currencyId];
-                        $finalAmount = ($type === 'part') ? $customAmounts[$currencyId] / 2 : $customAmounts[$currencyId];
+                        $converted = $customAmounts[$currencyId] * $amountToUse;
+                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
                     } else {
-                        // Fallback: calculate via conversion
                         $converted = $cur->conversion_rate * $amountToUse;
 
                         // Now apply 'part' rule

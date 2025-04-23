@@ -119,7 +119,12 @@
                                     <th class="col1">Sub total</th>
                                     <td class="col2">
                                         {{ $currency_symbol . number_format($amount) }} 
+                                        
+                                        @if($type == 'earlybird')
+                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                                        @else
                                         {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                                        @endif
                                     </td>
                                 </tr>
 
@@ -129,7 +134,16 @@
                                 </tr>
                                 <tr class="bor-bottom">
                                     <th class="col1">Total</th>
-                                    <td class="col2">{{ $currency_symbol}}<span id="total">{{ number_format($amount) }}   {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}</span> </td>
+                                    <td class="col2">
+                                        {{ $currency_symbol}}
+                                        <span id="total">{{ number_format($amount) }}
+                                            @if($type == 'earlybird')
+                                            {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                                            @else
+                                            {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                                            @endif
+                                        </span> 
+                                    </td>
                                 </tr>
                             </table>
                             
