@@ -34,6 +34,7 @@
                         @endif
                     @endforeach
                 </div>
+                @if(isset($extraCurrencies['Ghana']))
                 <div id="ghana" style="border-radius: 5px;background: #ffff7e;color: black;padding: 15px;margin: 5px;">
                     <h4 style="">Ghana (Cedes Payment)
                         @if(isset($extraCurrencies['Ghana']))  - 
@@ -53,6 +54,9 @@
                         @endif
                     @endforeach
                 </div>
+                @endif
+
+                @if(isset($extraCurrencies['Gambia']))
                 <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
                     <h4 style="">Gambia
                         @if(isset($extraCurrencies['Gambia']))  - 
@@ -72,7 +76,9 @@
                         @endif
                     @endforeach
                 </div>
+                @endif
 
+                @if(isset($extraCurrencies['Benin Rep & Togo']))
                 <div id="gambia" style="border-radius: 5px;background: #c4f502;color: black;padding: 15px;margin: 5px;">
                     <h4 style="">Benin Rep & Togo
                         @if(isset($extraCurrencies['Benin Rep & Togo']))  - 
@@ -92,7 +98,9 @@
                         @endif
                     @endforeach
                 </div>
+                @endif
 
+                @if(isset($extraCurrencies['Cameroon']))
                 <div id="gambia" style="border-radius: 5px;background: #3d5de9;color: black;padding: 15px;margin: 5px;">
                     <h4 style="">Cameroon
                         @if(isset($extraCurrencies['Cameroon']))  - 
@@ -112,8 +120,8 @@
                         @endif
                     @endforeach
                 </div>
+                @endif
 
-                
                 And then Upload your proof of payment using the form below
             </div>
         </div>
@@ -130,7 +138,7 @@
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Name<span>*</span></p>
-                                     <input type="text" class="form-control" id="name" name="name" 
+                                    <input type="text" class="form-control" id="name" name="name" 
                                         @auth
                                         value="{{ resolveAuthUser()->name }}"  
                                         placeholder="Full Name"
