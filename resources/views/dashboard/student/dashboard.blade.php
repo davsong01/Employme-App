@@ -94,17 +94,22 @@
                                     <div class="col-md-6">
                                         <div id="nigeria" class="accounts" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
                                             <h6 style="">Nigeria (Naira Payment)</h6>
-                                            @foreach($accounts as $key=>$account)
-                                                @if ($account['country'] == 'Nigeria')
-                                                    <div class="inner" style="margin-bottom: 15px;">
-                                                        <strong>Bank: </strong>{{$account['bank']}} <br>
-                                                        <strong>Account Number: </strong>{{$account['number']}} <br>
-                                                        <strong>Name: </strong>{{$account['name']}} <br>
-                                                    </div> 
-                                                    @if(count($accounts) > 1 && $key+1 < count($accounts)) <hr> @endif
-                                                   
+                                            @php
+                                                $nigerianAccounts = collect($accounts)->where('country', 'Nigeria')->values();
+                                            @endphp
+
+                                            @foreach($nigerianAccounts as $index => $account)
+                                                <div class="inner" style="margin-bottom: 15px;">
+                                                    <strong>Bank: </strong>{{ $account['bank'] }} <br>
+                                                    <strong>Account Number: </strong>{{ $account['number'] }} <br>
+                                                    <strong>Name: </strong>{{ $account['name'] }} <br>
+                                                </div> 
+
+                                                @if($nigerianAccounts->count() > 1 && $index + 1 < $nigerianAccounts->count())
+                                                    <hr>
                                                 @endif
                                             @endforeach
+
                                         </div>
                                     </div>
                                     <div class="col-md-6">
