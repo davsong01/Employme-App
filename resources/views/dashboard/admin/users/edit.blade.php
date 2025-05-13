@@ -21,7 +21,7 @@
                     <form action="{{route('users.update', $user->id)}}" method="POST" enctype="multipart/form-data"
                         class="pb-2">
                         {{ method_field('PATCH') }}
-                          {{ csrf_field() }}
+                        {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
@@ -52,7 +52,17 @@
                                         <strong>{{ $errors->first('phone') }}</strong>
                                     </span>
                                     @endif
-                                </div>   
+                                </div> 
+                                <div class="form-group{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                    <label for="job_title">Job Title</label>
+                                    <input id="job_title" type="text" class="form-control" name="job_title" value="{{ old('job_title') ?? $user->job_title }}"
+                                        autofocus>
+                                    @if ($errors->has('job_title'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('job_title') }}</strong>
+                                    </span>
+                                    @endif
+                                </div>  
                             </div>
                             <div class="col-md-6">
                                  <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
@@ -91,6 +101,17 @@
                         
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
+                                </div>
+                                
+                                <div class="form-group{{ $errors->has('staffID') ? ' has-error' : '' }}">
+                                    <label for="staffID">Staff Id</label>
+                                    <input id="staffID" type="text" class="form-control" name="staffID" value="{{ old('staffID') ?? $user->staffID }}"
+                                        autofocus>
+                                    @if ($errors->has('staffID'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('staffID') }}</strong>
+                                    </span>
+                                    @endif
                                 </div>
                             </div>
                             @if(isset($associated))

@@ -559,6 +559,91 @@ class ProgramController extends Controller
         
         return back()->with('message', 'Training cloned successfully');
     }
+    
+    public function importDataFromTraining(Request $request, Program $training)
+    {
+        $import_options = $request->import_options;
+        $import_from_training = Program::find($request->import_from);
+        $import_into_training = $training;
+        // Create new program
+        $newT = Arr::except($training->toArray(), ['id', 'created_at', 'updated_at', 'deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
+
+        if (empty(array_intersect(['certificate_settings', 'all'], $import_options))) {
+            unset($newT['auto_certificate_settings']);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            if (array_intersect(['score_settings', 'all'], $import_options)) {
+                // Create scoresettings
+                if (isset($import_from_training->scoresettings) && !empty($import_from_training->scoresettings)) {
+                    ScoreSetting::create([
+                        'program_id' => $import_into_training->id,
+                        'certification' => $import_from_training->scoresettings->certification,
+                        'class_test' => $import_from_training->scoresettings->class_test,
+                        'role_play' => $import_from_training->scoresettings->role_play,
+                        'crm_test' => $import_from_training->scoresettings->crm_test,
+                        'email' => $import_from_training->scoresettings->email,
+                        'passmark' => $import_from_training->scoresettings->passmark,
+                        'total' => $import_from_training->scoresettings->total,
+                    ]);
+                }
+            }
+
+            if (array_intersect(['training_materials', 'all'], $import_options)) {
+                // Material
+                if (isset($import_from_training->materials) && !empty($import_from_training->materials)) {
+                    foreach ($import_from_training->materials as $material) {
+                        $file = base64_decode($material->file);
+                        Material::create([
+                            "program_id" => $import_into_training->id,
+                            "title" => $material->title,
+                            "file" => $material->file,
+                        ]);
+                    }
+                }
+            }
+
+            if (array_intersect(['modules', 'all'], $import_options)) {
+                // Modules
+                if (isset($import_from_training->modules) && !empty($import_from_training->modules)) {
+                    foreach ($import_from_training->modules as $module) {
+                        $new_module =  Module::create([
+                            "program_id" => $import_into_training->id,
+                            "title" => $module->title,
+                            "time" => $module->time,
+                            "noofquestions" => $module->noofquestions,
+                            "status" => 0,
+                            "type" => $module->type == 'Class Test' ? 0 : 1,
+                        ]);
+
+                        //Get Module questions 
+                        $module_questions = Question::whereModuleId($module->id)->get();
+
+                        //Duplicate module questions for newly created module       
+                        foreach ($module_questions as $question) {
+                            Question::create([
+                                'title' => $question->title,
+                                'optionA' => $question->optionA,
+                                'optionB' => $question->optionB,
+                                'optionC' => $question->optionC,
+                                'optionD' => $question->optionD,
+                                'correct' => $question->correct,
+                                'module_id' => $new_module->id,
+                            ]);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('message', 'Training Data successfully');
+    }
 
     public function passwordReset($id)
     {

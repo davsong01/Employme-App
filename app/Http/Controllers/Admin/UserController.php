@@ -442,6 +442,12 @@ class UserController extends Controller
                 $newTrainings = $request['training'];
                 $trainings = array_unique(array_merge($user_programs, $newTrainings));
                 $toBeDeleted = array_diff($user_programs, $newTrainings);
+                
+                $user->update([
+                    'job_title' => $request->job_title,
+                    'staffID' => $request->staffID,
+                ]);
+
                 // dd($user_programs, $toBeDeleted, $trainings, $newTrainings);
                 foreach ($trainings as $value) {
                     if (!in_array($value, $user_programs)) {

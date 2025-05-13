@@ -261,8 +261,11 @@
                             <td> <strong>Start:</strong> {{ $program->p_start }} <br>
                                 <strong>End: </strong>{{ $program->p_end }}
                             </td>
+                            
                             <td>Part: {{ $program->part_paid }} <br>
-                                Full: {{ $program->fully_paid }}
+                                Full: {{ $program->fully_paid }} <br>
+                                Materials: {{ $program->materials->count() }} <br>
+                                Modules: {{ $program->modules->count() }}
                             </td>
                             <td>
                                 @if( $program->status == 1 )
@@ -296,6 +299,11 @@
                                         <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#cloneTraining{{ $program->id }}" data-placement="top" title="Clone Training"
                                             class="btn btn-success btn-xs" style="background:#183153"><i class="fa fa-copy"></i> Clone Training
                                         </a>
+
+                                        <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#importData{{ $program->id }}" data-placement="top" title="Import Data from another training"
+                                            class="btn btn-success btn-xs"><i class="fa fa-aplace"></i> Import Data
+                                        </a>
+                                        
                                     @endif
 
                                     @if($program->permissions['training.import'])
@@ -349,8 +357,8 @@
                                     @csrf
                                     <div class="modal-body">
                                         <div class="mb-3">
-                                            <label for="clone_options" class="form-label">Select Clone Options</label> <br>
-                                            <select name="clone_options[]" class="form-control" multiple="multiple" required id="clone_options" style="width: 100%;">
+                                            <label for="clone_options{{$program->id}}" class="form-label">Select Clone Options</label> <br>
+                                            <select name="clone_options[]" class="select2 form-control m-t-15" multiple="multiple" required id="clone_options{{$program->id}}" style="width: 100%;">
                                                 <option value="training_materials">Training Materials</option>
                                                 <option value="modules">Modules</option>
                                                 <option value="score_settings">Score Settings</option>
@@ -363,6 +371,52 @@
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                     <button type="submit" class="btn btn-success" id="generate-button">
                                         Clone
+                                    </button>
+                                    </div>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="importData{{ $program->id }}" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="batchModalLabel">Import Data</h5>
+                                    <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form onsubmit="return confirm('This will import data from another training');" action="{{ route('training.import.data', ['p_id'=> $program->id, 'training'=> $program->id]) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="import_options{{$program->id}}" class="form-label">Select Clone Options</label> <br>
+                                            <select name="import_options[]" class="select3 form-control m-t-15" multiple="multiple" required id="import_options{{$program->id}}" style="width: 100%;">
+                                                <option value="training_materials">Training Materials</option>
+                                                <option value="modules">Modules</option>
+                                                <option value="score_settings">Score Settings</option>
+                                                <option value="certificate_settings">Certificate Settings</option>
+                                                <option value="all">All</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            {{-- {{dd($programs)}} --}}
+                                            <label for="" class="form-label">Select Training to Import from</label> <br>
+                                            <select name="import_from" class="select4 form-control m-t-15" required style="width: 100%;">
+                                                <option value="">Select</option>
+                                                @foreach ($programs as $prog)
+                                                    @if($prog->id != $program->id)
+                                                        <option value="{{ $prog->id }}">{{ $prog->p_name }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success" id="import-button">
+                                        Import
                                     </button>
                                     </div>
                                 </form>
@@ -382,15 +436,20 @@
 
 @endsection
 @section('extra-scripts')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <script>
         $(document).ready(function() {
-            $('.select2').select2({
-                dropdownParent: $('body'), // Ensures the dropdown is appended to the body
-                width: '100%' // Makes the select box full width
+            $('.select3').select2({
+                dropdownParent: $('body'),
+                width: '100%'
+            });
+
+            $('.select4').select2({
+                dropdownParent: $('body'),
+                width: '100%',
+                minimumResultsForSearch: 0
             });
         });
+        
         document.querySelector('.dropdown-button').addEventListener('click', function() {
             const dropdownContent = document.querySelector('.dropdown-content');
             dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
