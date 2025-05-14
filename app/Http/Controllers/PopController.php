@@ -213,8 +213,8 @@ class PopController extends Controller
                 $allDetails['programFee'] = $pop->program->p_amount;
             }
 
-            if ($pop->amount > $allDetails['programFee']) {
-                return back()->with('error', 'User cannot pay more than program fee, you may need to check early bird payment');
+            if ($pop->amount > $pop->program->e_amount && $pop->amount > $pop->program->p_amount) {
+                return back()->with('error', 'User cannot pay more than program fee');
             }
 
             // dd($allDetails['programFee'], 'fd', $pop->program);
