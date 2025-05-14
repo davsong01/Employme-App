@@ -74,7 +74,7 @@
                   <tbody>
                     <tr>
                       <td>Training</td>
-                      <td class="value"> {{ $data['programAbbr'] }}</td>
+                      <td class="value"> {{ $data['p_name'] }}</td>
                     </tr>
                     <tr>
                       <td>Email</td>

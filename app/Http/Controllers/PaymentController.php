@@ -104,13 +104,12 @@ class PaymentController extends Controller
     }
 
     public function validateCoupon(Request $request){
-       
         $verifyCoupon = $this->getCouponValue($request->code, $request->pid);
         $response = null;
         if(!is_null($verifyCoupon)){
             $response = $this->getCouponUsage($request->code, $request->email, $request->pid, $request->price);
         }
-       
+
         return response()->json($response);
     }
 
@@ -174,27 +173,31 @@ class PaymentController extends Controller
             $training = Program::where('id', $type['pid'])->first();
             $response = $this->verifyCoupon($request, $type['pid']);
 
+            $resolve_to_ids = $training->resolve_to_ids ?? [$training->id];
+            $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
+            
             // Free training
             if ($request->payment_type == 'full' && $training->p_amount == 0) {
-                $data = $this->prepareFreeTrainingDetails($training, $request);
-                // $data['balance'] = $balance;
-                // $data['payment_type'] = $payment_type;
-                $data['payment_type'] = 'Full';
-                $data['message'] = 'Full payment';
-                $data['paymentStatus'] = 1;
-                $data['currency_symbol'] = '&#x20A6;';
-                $data['balance'] = 0;
-               
-                // $c = $c ?? NULL; // Coupon
-                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
-                // $this->deleteFromTemp($temp);
+                foreach ($trainingsToResolveTo as $singleTraining) {
+                    $data = $this->prepareFreeTrainingDetails($singleTraining, $request);
+                    $data['payment_type'] = 'Full';
+                    $data['message'] = 'Full payment';
+                    $data['paymentStatus'] = 1;
+                    $data['currency_symbol'] = '&#x20A6;';
+                    $data['balance'] = 0;
+                    
+                    $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
+                }
+            }
 
+            if ($request->payment_type == 'full' && $training->p_amount == 0) {
                 $this->sendWelcomeMail($data);
 
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
                 return view('thankyou', compact('data'));
             }
+            
 
             if(is_null($response)){
                 // Modify amount to suit program
@@ -293,7 +296,7 @@ class PaymentController extends Controller
                     return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try again!');
                 }
             }catch(\Exception $e) {
-                dd($e->getMessage());
+                // dd($e->getMessage(), $e->getFile(), $e->getLine());
                 \Log::info($e->getMessage());
                 
                 return redirect(url('trainings/' . $pid))->with('error', 'Something went while verifying payment, Kindly contact admin!');
@@ -530,24 +533,29 @@ class PaymentController extends Controller
                 }
                 // process data
                 // Get training details
-                $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
-            
-                $data['balance'] = $balance;
-                $data['payment_type'] = $payment_type;
-                $data['message'] = $message;
-                $data['paymentStatus'] =  $paymentStatus;
-                $c = $c ?? NULL; // Coupon
-            
-                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-                
+                $resolve_to_ids = $training->resolve_to_ids ?? [$training->id];
+                $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
+
+                foreach ($trainingsToResolveTo as $singleTraining) {
+                    $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
+                    $data['balance'] = $balance;
+                    $data['payment_type'] = $payment_type;
+                    $data['message'] = $message;
+                    $data['paymentStatus'] =  $paymentStatus;
+                    $c = $c ?? NULL; // Coupon
+    
+                    $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
+                }
+
                 if(isset($c) && !empty($c)){
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
                 } 
+
                 $this->deleteFromTemp($temp);
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
-               
+                
                 PaymentThread::create([
                     'program_id' => $data['program_id'],
                     'user_id' => $data['user_id'],

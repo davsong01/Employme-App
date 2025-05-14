@@ -40,7 +40,7 @@
                   <tbody>
                     <tr>
                       <td>Training</td>
-                      <td class="value">{{ $data['programAbbr'] ?? null}}</td>
+                      <td class="value">{{ $data['p_name'] ?? null}}</td>
                     </tr>
                     <tr>
                       <td>Email</td>
