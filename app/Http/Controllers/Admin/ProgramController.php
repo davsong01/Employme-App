@@ -26,7 +26,8 @@ class ProgramController extends Controller
     public function index(Program $program)
     {
         $i = 1;
-        
+        $this->populateResolveToIdsWithParentProgram();
+
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
                 //Get all programs
@@ -45,6 +46,22 @@ class ProgramController extends Controller
         }
         
         return redirect('/');
+    }
+
+    private function populateResolveToIdsWithParentProgram(){
+        $programs = Program::select('id', 'resolve_to_ids','parent_id')->whereNull('resolve_to_ids')->whereNull('parent_id')->whereDoesntHave('children')->get();
+        
+        if($programs->isEmpty()){
+            return;
+        }
+        
+        foreach($programs as $program){
+            $program->update([
+                'resolve_to_ids' => [$program->id]
+            ]);
+        }
+
+        return;
     }
 
     public function exportdetails($id)
@@ -191,13 +208,18 @@ class ProgramController extends Controller
         ];
 
         $currencies = Currency::where('status', 1)->orderBy('name')->get();
-        
-        return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies'));
+
+        $programs = Program::select('id', 'p_name')
+            ->activePrograms()
+            ->orWhere('id', $program->id)
+            ->get();
+
+        return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies','programs'));
     }
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status']);
+        $data = $request->only(['resolve_to_ids','show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status']);
         // Clear all certificate previews
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
         //check if new featured image
@@ -250,7 +272,7 @@ class ProgramController extends Controller
 
             $data['booking_form'] = 'bookingforms/' . $filePath;
         }
-       
+        
         if (!empty($request->show_locations) && $request->show_locations == 'yes') {
             if(isset($request->location_name) && count($request->location_name) > 0){
                 for ($i = 0; $i < count($request->location_name); $i++) {
@@ -274,7 +296,7 @@ class ProgramController extends Controller
             }
             $data['modes'] = json_encode($modes);
         }
-        
+
         $program->update($data);
         
         if ($request->sub_name && $request->show_sub == 'yes') {

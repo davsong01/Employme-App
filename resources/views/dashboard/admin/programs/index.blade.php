@@ -74,38 +74,25 @@
         display: block;
     }
 
-    /* Change color of dropdown links on hover */
     .dropdown-content a:hover {
         background-color: #f1f1f1;
     }
 
-    /* Show the dropdown content when the button is clicked */
     .dropdown:hover .dropdown-content {
         display: block;
     }
-
-    /* The Modal (background) */
     .modal {
         display: none;
-        /* Hidden by default */
         position: fixed;
-        /* Stay in place */
         z-index: 1;
-        /* Sit on top */
         padding-top: 100px;
-        /* Location of the box */
         left: 0;
         top: 0;
         width: 100%;
-        /* Full width */
         height: 100%;
-        /* Full height */
         overflow: auto;
-        /* Enable scroll if needed */
         background-color: rgb(0, 0, 0);
-        /* Fallback color */
         background-color: rgba(0, 0, 0, 0.4);
-        /* Black w/ opacity */
     }
 
     /* Modal Content */
@@ -134,6 +121,18 @@
     }
     .modal-backdrop {
         position: relative;
+    }
+
+    .flashing-red {
+        color: red;
+        font-weight: bold;
+        animation: flashRed 1s infinite;
+    }
+
+    @keyframes flashRed {
+        0%   { opacity: 1; }
+        50%  { opacity: 0; }
+        100% { opacity: 1; }
     }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -194,13 +193,27 @@
                         <tr>
                             <td>{{  $i++ }}</td>
                             <td> <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 85px;"> </td> 
-                            <td><strong>{{ $program->p_name }}</strong><br>
+                            <td><strong>{{ $program->p_name }}</strong> <br> 
+                                @if($program->parent)
+                                    <span style="color:#d97000"><strong>Parent: </strong>
+                                        <a target="_blank" href="{{ route('programs.edit', $program->parent->id) }}">
+                                            {{ $program->parent->p_name }} </a> </span>
+                                @endif
+                                
+                                @if(empty($program->resolve_to_ids))
+                                    <span class="flashing-red">(No resolve)</span>
+                                @else
+                                    <span style="font-size:10px;color:#004d2b">Resolves to: 
+                                        @foreach($program->resolve_to_programs as $index => $prog)
+                                            {{ $prog->p_name }}@if(!$loop->last), @endif
+                                        @endforeach
+                                    </span>
+                                @endif
+                                <br>
                                 <strong>Type:</strong> @if($program->off_season)Off Season @else Normal @endif 
                                 @if($program->early_bird_status == 1) <br> <button class="btn btn-danger btn-xs">Discounted</button> @endif
                                 <span class="child-parent-details" style="font-size:10px">
-                                    @if($program->parent)
-                                    <span style="color:blue"> <strong>Parent:</strong><a target="_blank" href="{{ route('programs.edit', $program->parent->id)}}">{{ $program->parent->p_name }}</span></a><br>
-                                    @endif
+                                    
                                     @if($program->subPrograms->count() > 0)
                                     <div class="dropdown">
                                         <button class="dropdown-button">View Children</button>

@@ -27,7 +27,7 @@ class Program extends Model
     use SoftDeletes;
     
     protected $guarded = [];
-    protected $casts = ['auto_certificate_settings' => 'array', 'currencies' => 'array'];
+    protected $casts = ['auto_certificate_settings' => 'array', 'currencies' => 'array', 'resolve_to_ids' => 'array'];
     
     public function scoresettings(){
         return $this->hasOne(ScoreSetting::class, 'program_id');
@@ -96,31 +96,13 @@ class Program extends Model
     }
     
     public function subPrograms(){
-        
         return $this->hasMany(Program::class, 'parent_id');
     }
 
-    // public function getPriceRangeAttribute()
-    // {
-    //     if ($this->subPrograms->isEmpty()) {
-    //         return [];
-    //     }
-        
-    //     $amounts = new Collection([$this->p_amount]);
-
-    //     if ($this->subPrograms->isNotEmpty()) {
-    //         $amounts = $this->subPrograms->pluck('p_amount');
-    //         // $amounts = $amounts->merge($this->subPrograms->pluck('p_amount'));
-    //     }
-
-    //     $from = $amounts->min();
-    //     $to = $amounts->max();
-        
-    //     return [
-    //         'from' => $from,
-    //         'to' => $to
-    //     ];
-    // }
+    public function getResolveToProgramsAttribute()
+    {
+        return Program::whereIn('id', $this->resolve_to_ids ?? [])->get();
+    }
 
     public function parent()
     {

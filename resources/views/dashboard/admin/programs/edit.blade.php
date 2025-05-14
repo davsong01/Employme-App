@@ -5,24 +5,24 @@
 @section('css')
     <style>
         #previewModal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1000;
             left: 50%;
             top: 50%;
-            transform: translate(-50%, -50%); /* Center the modal */
-            background-color: white; /* White background */
-            padding: 20px; /* Some padding */
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Add a shadow */
-            border-radius: 10px; /* Optional: Rounded corners */
-            max-width: 90%; /* Responsive width */
-            max-height: 90%; /* Responsive height */
-            overflow: auto; /* Add scroll if needed */
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
         }
 
         #certificatePreviewImage {
-            width: 100%; /* Make image fit the modal */
-            height: auto; /* Maintain aspect ratio */
+            width: 100%;
+            height: auto;
         }
 
         .holder{
@@ -179,7 +179,21 @@
                                         <small style="color:red">{{ $errors->first('login_without_password')}}</small>
                                     </div>
                                 </div>
+                                {{-- @if($program->parent) --}}
                                 
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label style="color:">Participants of this program should have access to:</label>
+                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple required>
+                                            @foreach($programs as $pro)
+                                                <option value="{{ $pro->id }}" {{ in_array($pro->id, $program->resolve_to_ids ?? []) ? 'selected' : '' }}>
+                                                    {{ $pro->p_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                {{-- @endif --}}
                             </div>
                         </fieldset>
                         
