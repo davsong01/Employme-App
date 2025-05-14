@@ -144,6 +144,7 @@ Route::middleware(['admin.access'])->group(function () {
     
             Route::controller(ProgramController::class)->group(function () {
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
+                Route::post('training-import-data/{training}', 'importDataFromTraining')->name('training.import.data');
                 Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
                 Route::get('restore/{id}', 'restore')->name('programs.restore');
                 Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
