@@ -173,7 +173,12 @@ class PaymentController extends Controller
             $training = Program::where('id', $type['pid'])->first();
             $response = $this->verifyCoupon($request, $type['pid']);
 
-            $resolve_to_ids = $training->resolve_to_ids ?? [$training->id];
+            $resolve_to_ids = collect($training->resolve_to_ids ?? [])
+                ->push($training->id)
+                ->unique()
+                ->values()
+                ->all();
+
             $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
             
             // Free training
@@ -533,19 +538,33 @@ class PaymentController extends Controller
                 }
                 // process data
                 // Get training details
-                $resolve_to_ids = $training->resolve_to_ids ?? [$training->id];
-                $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
+                // $resolve_to_ids = collect($training->resolve_to_ids ?? [])
+                //     ->push($training->id)
+                //     ->unique()
+                //     ->values()
+                //     ->all();
 
-                foreach ($trainingsToResolveTo as $singleTraining) {
-                    $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
-                    $data['balance'] = $balance;
-                    $data['payment_type'] = $payment_type;
-                    $data['message'] = $message;
-                    $data['paymentStatus'] =  $paymentStatus;
-                    $c = $c ?? NULL; // Coupon
-    
-                    $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-                }
+                // $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
+
+                // foreach ($trainingsToResolveTo as $singleTraining) {
+                //     $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
+                //     $data['balance'] = $balance;
+                //     $data['payment_type'] = $payment_type;
+                //     $data['message'] = $message;
+                //     $data['paymentStatus'] =  $paymentStatus;
+                //     $c = $c ?? NULL; // Coupon
+
+                //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
+                // }
+
+                $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
+                $data['balance'] = $balance;
+                $data['payment_type'] = $payment_type;
+                $data['message'] = $message;
+                $data['paymentStatus'] =  $paymentStatus;
+                $c = $c ?? NULL; // Coupon
+
+                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
 
                 if(isset($c) && !empty($c)){
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
