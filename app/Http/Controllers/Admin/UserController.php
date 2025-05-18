@@ -31,7 +31,7 @@ class UserController extends Controller
     {
         $program =  Program::select('id','p_name','p_amount')->where('id', $p_id)->first();
         if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $programs = Program::withCount('fullyPaid')->where('id', '<>', $p_id)->AllMainPrograms()->get();
+            $programs = Program::withCount('fullyPaid')->where('id', '<>', $p_id)->get();
             
             return view('dashboard.admin.users.import', compact('program','programs'));
         }

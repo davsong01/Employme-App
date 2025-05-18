@@ -41,7 +41,7 @@
                                     <small class="text-muted d-block mb-2">
                                         All participants for the selected program will be imported.
                                     </small>
-                                    <select name="import_from" id="import_from" class="form-control">
+                                    <select name="import_from" id="import_from" class="form-control select2">
                                         <option value="">-- Select Program --</option>
                                         @foreach ($programs as $training)
                                             @if($training->id != $program->id)
