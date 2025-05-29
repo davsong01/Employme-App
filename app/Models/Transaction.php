@@ -15,7 +15,7 @@ class Transaction extends Model
 {
     protected $guarded = [];
     protected $table = 'program_user';
-    protected $casts = ['training_result' => 'object'];
+    protected $casts = ['training_result' => 'object','meta' => 'array'];
     
     public function user(){
         return $this->belongsTo(User::class, 'user_id');

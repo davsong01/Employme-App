@@ -38,7 +38,7 @@ class Controller extends BaseController
         date_default_timezone_set("Africa/Lagos");
         return $prefix.'-'.date('YmdHi') . '-' . rand(11111111, 99999999);
     }
-
+    
     public function getInvoiceId($id = null)
     {
         date_default_timezone_set("Africa/Lagos");
@@ -390,66 +390,13 @@ class Controller extends BaseController
         return $temp;
     }
 
-    public function confirmProgramAmount($pid, $type){
-        $program_amount = Program::where('id', $pid)->first()->$type;
-       
-        return $program_amount;
-    }
-
-    public function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL){
-        // Admin created coupon
-        if(is_null($coupon)){
-            return [
-                'facilitator' => $data['facilitator_percent'] ?? 0,
-                'admin' => $data['admin_percent'] ?? 0,
-                'tech' => $data['tech_percent'] ?? 0,
-                'faculty' =>  $data['faculty_percent'] ?? 0,
-                'other' => $data['other_percent'] ?? 0,
-            ];
-        }
-       
-        if($coupon > 0){
-            $coupon = $coupon;
-        }else{
-            $coupon = 0;
-        }
-       
-        if($createdBy == 0){
-            $toShare = $amount - $coupon;
-        }else{
-            $toShare = $amount;
-        }
-        
-        $data['tech_percent'] = ($toShare * $program->tech_percent) /100;
-        $data['faculty_percent'] =($toShare * $program->faculty_percent) /100;
-        $data['admin_percent'] =($toShare * $program->admin_percent) /100;
-        $data['other_percent'] = ($toShare * $program->other_percent) /100;
-
-        if(isset($programFacilitator)){
-            if($createdBy == $programFacilitator){
-                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) /100) - $coupon;
-            }else{
-                $data[ 'facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100);
-            }
-        }else{
-            $data['facilitator_percent'] = 0;
-        }
     
-        return [
-            'facilitator' => $data['facilitator_percent'] ?? 0,
-            'admin' => $data['admin_percent'] ?? 0,
-            'tech' => $data['tech_percent'] ?? 0,
-            'faculty' =>  $data['faculty_percent'] ?? 0,
-            'other' => $data['other_percent'] ?? 0,
-        ];
-    }
-
-    protected function prepareTrainingDetails($program, $paymentDetails, $amount){
+    protected function prepareTrainingDetails($training, $paymentDetails, $amount){
 
         $payment_mode = PaymentMode::find($paymentDetails->payment_mode);
         
         $processor = $payment_mode->processor ?? null;
-        $training = $program;
+        
         $data['programFee'] = $training->p_amount;
         $data['programName'] = $training->p_name;
         $data['programAbbr'] = $training->p_abbr;
@@ -471,7 +418,7 @@ class Controller extends BaseController
             $data['facilitator_id'] = $paymentDetails->facilitator_id;
             $data['facilitator_name'] = User::where('id', $paymentDetails->facilitator_id)->value('name');
         }
-          
+        
         if(isset($paymentDetails->location)){
             $data['location'] = $paymentDetails->location; 
         }else $data['location'] = ' ' ;
@@ -639,9 +586,10 @@ class Controller extends BaseController
         } catch (\Throwable $th) {
             
         }
-       
+
         return;
     }
+    
     public function deleteFromTemp($temp){
         $temp->delete();
 

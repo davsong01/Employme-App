@@ -88,11 +88,13 @@ class PaystackController extends Controller
         $err = curl_error($curl);
 
         curl_close($curl);
+        
         if ($err) {
             return "cURL Error #:" . $err;
         } else {
-            $response = json_decode($response);
-            return $response->data->status;
+            $response = json_decode($response, true);
+
+            return $response;
         }
     }
 }

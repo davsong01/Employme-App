@@ -1,110 +1,109 @@
 <html>
-	<head><meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
-		<title></title>
-		
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" rel="stylesheet" /><script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script><script src='https://code.jquery.com/jquery-1.11.1.min.js'></script>
-	</head>
-
+<head>
+    <meta charset="utf-8">
+    <title>E-Receipt</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .receipt-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .receipt-header img { max-width: 180px; }
+        .receipt-title { text-align: right; }
+        .receipt-title h4 { margin: 0; }
+        .customer-details p { margin: 5px 0; }
+        .table td, .table th { vertical-align: middle !important; }
+        .coupon-line { font-size: 11px; color: #666; font-style: italic; }
+    </style>
+</head>
 <body>
 <div class="container">
+    <div class="receipt-header">
+        <div><img src="{{ asset('assets/images/logo-text.png') }}" alt="Logo"></div>
+        <div class="receipt-title">
+            <h4><strong><span style="font-size:28px;">E - RECEIPT</span></strong></h4>
+            <p><b style="color:blue">TRANSACTION ID:</b><br><span style="color:green; font-size:16px;">{{ $allData['transid'] }}</span></p>
+            @php $date = $allData['created_at'] ?? now(); @endphp
+            <p><em>{{ \Carbon\Carbon::parse($date)->format('jS F, Y, h:iA') }}</em></p>
+        </div>
+    </div>
 
-	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width:100%" /></div>
+    <div class="row">
+        <div class="col-sm-12"><strong>School Address:</strong> {!! \App\Models\Settings::value('ADDRESS_ON_RECEIPT') !!}</div>
+    </div>
 
-	<div style="float:right">
-		<h4></h4>
+    <br>
+    <div class="row customer-details">
+        <div class="col-sm-4">
+            <p><b style="color:red">NAME</b><br>{{ $allData['participant_name'] }}</p>
+        </div>
+        <div class="col-sm-4">
+            <p><b style="color:red">EMAIL ADDRESS</b><br>{{ $allData['participant_email'] }}</p>
+        </div>
+        <div class="col-sm-4">
+            <p><b style="color:red">PHONE</b><br>{{ $allData['participant_phone'] }}</p>
+        </div>
+    </div>
 
-		<h4><strong><span style="font-size:36px;">E - RECEIPT</span></strong></h4>
+    <br>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Invoice ID</th>
+                <th>Program</th>
+                <th>Payment Mode</th>
+                <th>Amount Due</th>
+                <th>Amount Paid</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $grandTotal = 0;
+                $totalBalance = 0;
+                $totalProgramFee = 0;
+                $currency = $allDetails['paymentModeDetails']['currency_symbol'] ?? '₦';
+            @endphp
+            @foreach($allDetails as $index => $data)
+                @php
+                    $amount = $data['amountDetails']['amount_paid'] ?? 0;
+                    $fee = $data['programFee'] ?? 0;
+                    $balance = $data['amountDetails']['balance'];
+                    $grandTotal += $amount;
+                    $totalProgramFee += $data['programFee'];
+                    $totalBalance += $balance;
+                @endphp
+                <tr>
+                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td>{{ $data['invoice_id'] }}</td>
+                    <td>
+                        <strong>{{ $data['programName'] ?? '-' }}</strong><br>
+                        @if(!empty($data['couponData']))
+                            <span class="coupon-line">
+                                Coupon applied: {{ $data['couponData']['coupon_code'] ?? '' }}, Value:  {{  $currency.$data['couponData']['coupon_amount'] ?? '' }}
+                                {{-- {{ $data['coupon']['discount'] ?? '0' }}{{ $data['coupon']['type'] === 'percentage' ? '%' : $currency }} --}}
+                            </span>
+                        @endif
+                    </td>
+                    <td>{{ $data['t_type'] ?? '-' }}</td>
+                    <td class="text-right">{{ $currency }}{{ number_format($fee) }}</td>
+                    <td class="text-right">{{ $currency }}{{ number_format($amount) }}</td>
+                    <td class="text-right">{{ $currency }}{{ number_format($balance) }}</td>
+                </tr>
+            @endforeach
+            <tr>
+                <td colspan="4" class="text-right"><strong>Grand Total:</strong></td>
+                <td class="text-right"><strong>{{ $currency }}{{ number_format($totalProgramFee) }}</strong></td>
+                <td class="text-right"><strong>{{ $currency }}{{ number_format($grandTotal) }}</strong></td>
+                <td class="text-right"><strong>{{ $currency }}{{ number_format($totalBalance) }}</strong></td>
+            </tr>
+            {{-- {{dd($data)}} --}}
 
-		<p></p>
-		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['transid']}}</span>  </b></p>
-		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['invoice_id']}}</span> </b></p>
-		<?php 
-		$date =  $data['created_at'] ?? now()
-		?>
-		<p><em>{{ \Carbon\Carbon::parse($date)->format('jS F, Y, h:iA')  }}</em></p>
-		
-	</div>
+        </tbody>
+    </table>
+    
 
-	<div class="row">
-		<div class="col-4"></div>
-	</div>
-
-	<div class="row">&nbsp;
-		<div class="col-8"><strong>School Address: </strong>{!! \App\Models\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
-		</div>
-	</div>
-
-	<div class="row">
-		<p><b style="color:red">PARTICIPANT</b><br />
-		{{ $data['name']}}</p>
-
-		<p><b style="color:red">CONTACT EMAIL</b><br />
-		{{ $data['email']}}</p>
-	</div>
-
-	<div class="row">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Program</th>
-					<th>Payment Mode</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em></td>
-					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? null}}</td>
-				</tr>
-			</tbody>
-		</table>
-		&nbsp;
-
-		<table class="table table-bordered">
-			<thead>
-				<tr>
-					<th>#</th>
-					<th>DESCRIPTION</th>
-					<th>FEE</th>
-					<th>AMOUNT PAID</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $data['programName']}}<br />
-					<small><i>({{ $data['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ $data['currency'] ?? null}}{{ number_format($data['programFee']) }}</td>
-					<td class="col-md-2 text-center">{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }}</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td class="text-right">
-					<p><strong>Total:&nbsp;</strong></p>
-					</td>
-					<td class="text-center">
-					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['amount']) }}</strong></p>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td class="text-right">
-					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
-					</td>
-					<td class="text-center">
-					<h4><strong style="color:red !important">{{ $data['currency'] ?? null}}{{ number_format($data['balance']) }}</strong></h4>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	<div>
-			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
-			</div>
-			<br />
-			<p><b><i>School Administrator</i></b></p>
-	</div>
+    <br>
+    <p><b><i>School Administrator</i></b></p>
 </div>
-
 </body>
 </html>

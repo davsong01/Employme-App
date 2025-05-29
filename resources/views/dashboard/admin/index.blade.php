@@ -100,5 +100,5 @@
 
 @endsection
 @section('extra-scripts')
-        @yield('extra-scripts')
+@yield('extra-scripts')
 @endsection
