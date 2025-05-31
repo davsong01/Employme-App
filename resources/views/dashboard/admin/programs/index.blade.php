@@ -231,7 +231,12 @@
                                 @endif
 
                                 @if($program->status == 1) <br>
-                                <a  href="{{ url('/trainings').'/'.$program->id }}" target="_blank"> <i class="fa fa-eye"></i> Preview Training</a> @endif  <br>
+                                <a  href="{{ url('/trainings').'/'.$program->slug }}" target="_blank"> <i class="fa fa-eye"></i> Preview Training</a>
+                                @if($program->early_bird_status == 1) <br>
+                                <a  href="{{ url('/early-bird-trainings').'/'.$program->slug }}" target="_blank"> <i class="fa fa-eye"></i> Preview Earlybird Link</a>
+                                @endif  
+                                @endif 
+                                <br>
                                 @if($program->permissions['programs.edit'])
                                 <a data-toggle="tooltip" data-placement="top" title="Edit Training"
                                     class="btn btn-info btn-xs" href="{{ route('programs.edit', ['p_id'=> $program->id, 'program'=> $program->id])}}"><i

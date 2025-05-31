@@ -58,7 +58,7 @@ class FrontendController extends Controller
     public function earlyBird($id = null)
     {
         $id = \Request::get('training') ?? $id;
-        $training = Program::with('subPrograms')->where('id', $id)->first();
+        $training = Program::with('subPrograms')->where('id', $id)->orWhere('slug', $id)->first();
 
         if ($training->p_end < date('Y-m-d') || $training->close_registration == 1) {
             return redirect(route('welcome'));
@@ -82,7 +82,7 @@ class FrontendController extends Controller
     public function show($id = null)
     {
         $id = \Request::get('training') ?? $id ;
-        $training = Program::with('subPrograms')->where('id', $id)->first();
+        $training = Program::with('subPrograms')->where('id', $id)->orWhere('slug', $id)->first();
         
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){
             return redirect(route('welcome'));

@@ -20,14 +20,14 @@
                 @foreach($discounts as $discount)
                 <div class="col-lg-4">
                     <div class="product__discount__item">
-                        <a href="{{ route('trainings', $discount->id ) }}" target="_blank">
+                        <a href="{{ route('trainings', $discount->slug ) }}" target="_blank">
                             <div class="product__discount__item__pic set-bg"
                                 data-setbg="{{ $discount->image }}">
                                 <div class="product__discount__percent">{{ number_format((($discount->e_amount * 100)/$discount->p_amount) - 100, 0) }}%</div>
                             </div>
                         </a>
                         <div class="product__discount__item__text">
-                            <a href="{{ route('trainings', $discount->id ) }}" target="_blank">
+                            <a href="{{ route('trainings', $discount->slug ) }}" target="_blank">
                                 <h5 style="color: #c2c2c2">{{ $discount->p_name }}</h5>
                             </a>
                             @if ($discount->is_closed == 'no')
@@ -61,7 +61,7 @@
                     <div class="featured__item">
                         @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
                         @else
-                        <a href="{{ route('trainings', $training->id ) }}" target="_blank">   
+                        <a href="{{ route('trainings', $training->slug ) }}" target="_blank">   
                         @endif
                             <div class="featured__item__pic set-bg" data-setbg="{{ $training->image }}">
                                 @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
@@ -79,7 +79,7 @@
                                 <span class="mobile_closed" style="display:none">Registration closed!</span>
                                 {{-- <span style="color:red">Registration closed <br></span> --}}
                                 @else
-                                <a href="{{ route('trainings', $training->id ) }}" target="_blank">  
+                                <a href="{{ route('trainings', $training->slug ) }}" target="_blank">  
                                 @endif
                                 {{ $training->p_name }}</a>
                             </h6>

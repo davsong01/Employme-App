@@ -9,13 +9,13 @@
 <head>
     <meta charset="UTF-8">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:title" content="{{ config('app.name') }}"> 
-    <meta property="og:image" content="{{ asset($logo)}}"/> 
-    <meta property="og:description" content="{{ config('app.name').' Learning Portal'}}"/> 
-    <meta name="description" content="{{ config('app.name').' Learning Portal'}}">
+    <meta property="og:title" content="{{ trim($__env->yieldContent('title', config('app.name'))) }}">
+    <meta property="og:image" content="{{ trim($__env->yieldContent('logo', asset($logo))) }}" />
+    <meta property="og:description" content="{{ trim($__env->yieldContent('title', config('app.name').' Learning Portal')) }}">
+    <meta name="description" content="{{ trim($__env->yieldContent('title', config('app.name').' Learning Portal')) }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-   
+
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($logo)}}">
 
     <title>@yield('title')</title>

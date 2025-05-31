@@ -497,7 +497,6 @@ class ProgramController extends Controller
         $modules = $training->modules;
         $questions = $training->questions;
 
-        $training->p_name = 'copy_' . $training->p_name;
         $training->parent_id = null;
 
         // Create new program
@@ -509,7 +508,11 @@ class ProgramController extends Controller
 
         try {
             DB::beginTransaction();
-
+            $newT['status'] = 0;
+            $newT['is_closed'] = 'no';
+            $newT['p_name'] = 'copy_' . $training->p_name;
+            unset($newT['slug']);
+            
             $new = Program::create($newT);
 
             if (array_intersect(['score_settings', 'all'], $request->clone_options)){

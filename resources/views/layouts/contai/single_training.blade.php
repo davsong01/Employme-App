@@ -2,6 +2,10 @@
 @section('title')
     {{ config('app.name') }} - {{ $training->p_name }}
 @endsection
+@section('logo')
+    {{asset($training->image)}}
+@endsection
+
 @section('content')
  <!-- Product Details Section Begin -->
 <section class="product-details spad">
