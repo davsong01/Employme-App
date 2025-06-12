@@ -25,8 +25,8 @@
                             <form action="{{ route('participants.certificates.new', $certificate->id) }}" method="POST">
                                 @csrf
                                 <div class="modal-body">
-                                    <label for="date_issued">Date Issued</label>
-                                    <input type="date" class="form-control" name="date_issued" required>
+                                    <label for="date_issued">Date Issued (Optional)</label>
+                                    <input type="date" class="form-control" name="date_issued">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

@@ -453,9 +453,9 @@ class CertificateController extends Controller
     }
 
     public function generateNewCertificate(Request $request, Certificate $certificate){
-        if($certificate->allow_new_certificate_request != 0){
-            return back()->with('error', 'It seems this certificate has already been regenerated. Please use the download button below to obtain a copy.');
-        }
+        // if($certificate->allow_new_certificate_request != 0){
+        //     return back()->with('error', 'It seems this certificate has already been regenerated. Please use the download button below to obtain a copy.');
+        // }
         $location = base_path('uploads/certificates');
         $newCertificate = generateCertificate($request, $certificate->program_id, $location, null, $certificate);
         
@@ -464,7 +464,7 @@ class CertificateController extends Controller
             'allow_new_certificate_request' => 0,
             'file' => $newCertificate['name'],
         ]);
-
+        
         $realpath = base_path() . '/uploads' . '/certificates/' . $newCertificate['name'];
         
         if (!file_exists($realpath)) {
