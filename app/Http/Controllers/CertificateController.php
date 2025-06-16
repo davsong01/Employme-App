@@ -29,7 +29,10 @@ class CertificateController extends Controller
         $i = 1;
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
-                $programs = Program::withCount('certificates')->where('id', '<>', 1)->whereNULL('parent_id')->orderBy('created_at', 'desc')->get();
+                $programs = Program::withCount('certificates')->where('id', '<>', 1)
+                // ->whereNULL('parent_id')
+                ->orderBy('created_at', 'desc')
+                ->get();
                 return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
             }else{
                 $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->get();
