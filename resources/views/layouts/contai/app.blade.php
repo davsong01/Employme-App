@@ -69,26 +69,26 @@
           font-size: 30px;
           box-shadow: 2px 2px 3px #999;
           z-index: 100;
-      }
+        }
 
-      .whatsapp-icon {
-          margin-top: 16px;
-      }
+        .whatsapp-icon {
+            margin-top: 16px;
+        }
 
       /* for mobile */
-      @media screen and (max-width: 767px) {
-          .whatsapp-icon {
-              margin-top: 10px;
-          }
+        @media screen and (max-width: 767px) {
+            .whatsapp-icon {
+                margin-top: 10px;
+            }
 
-          .whatsapp_float {
-              width: 40px;
-              height: 40px;
-              bottom: 20px;
-              right: 10px;
-              font-size: 22px;
-          }
-      }
+            .whatsapp_float {
+                width: 40px;
+                height: 40px;
+                bottom: 20px;
+                right: 10px;
+                font-size: 22px;
+            }
+        }
         .verification-card {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;

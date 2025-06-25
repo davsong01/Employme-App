@@ -24,7 +24,6 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 
 
-
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
 Route:: get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
 Route::get('utility/resolve-certificate-names', [UtilityTaskController::class, 'renameCertificatesWithSpaceInFilename']);

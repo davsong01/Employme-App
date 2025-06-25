@@ -324,7 +324,8 @@ class ProgramController extends Controller
                     $new_sub_data['p_amount'] = $sub['p_amount'];
                     $new_sub_data['status'] = $sub['status'];
                     $new_sub_data['parent_id'] = $program->id;
-
+                    unset($new_sub_data['slug']);
+                    
                     if (isset($sub['id'])) {
                         $subProgram = Program::where('id', $sub['id'])->first();
                         $subProgram->update($new_sub_data);
@@ -339,7 +340,6 @@ class ProgramController extends Controller
     }
 
     public function buildCertificateSettings($request){
-
         $auto_certificate_settings = [
             "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
             "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
