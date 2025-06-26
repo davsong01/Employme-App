@@ -5,4 +5,4 @@
     $exchange_rate = \Session::get('exchange_rate');
 ?>
 
-@include('layouts.'.$template.'.welcome')
+@include('layouts.'.$template.'.packages')

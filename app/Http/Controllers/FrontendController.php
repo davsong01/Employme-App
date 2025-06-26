@@ -93,7 +93,7 @@ class FrontendController extends Controller
             $discounts = Group::with('programs')
                 ->isActive()
                 ->where('e_amount', '!=', 0)
-                ->where('early_bird_status', 0)
+                ->where('early_bird_status', 1)
                 ->whereDate('p_end', '>=', now())
                 ->whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
                 ->latest()
@@ -109,13 +109,13 @@ class FrontendController extends Controller
             $discounts = Group::with('programs')
                 ->isActive()
                 ->where('e_amount', '!=', 0)
-                ->where('early_bird_status', 0)
+                ->where('early_bird_status', 1)
                 ->whereDate('p_end', '>=', now())
                 ->latest()
                 ->get();
         }
-
-        return view('welcome', [
+        
+        return view('packages', [
             'trainings' => $packages,  // keeps existing view variable names
             'discounts' => $discounts,
         ]);
@@ -162,6 +162,32 @@ class FrontendController extends Controller
         
         return view('single_training', compact('training', 'locations','modes'));
     }
+
+    public function showPackages($id = null)
+    {
+        $id = \Request::get('group') ?? $id;
+        
+        $group = Group::with('programs')
+            ->where('id', $id)
+            ->orWhere('slug', $id)
+            ->firstOrFail();
+
+        if ($group->p_end < date('Y-m-d') || $group->status != 1) {
+            return redirect(route('packages'));
+        }
+
+        $locations = (!is_null($group->locations) && $group->show_locations == 'yes') ? json_decode($group->locations, true) : null;
+        $modes = (!is_null($group->modes) && $group->show_modes == 'yes') ? json_decode($group->modes, true) : null;
+        
+        // Use different view if group has multiple programs
+        if ($group->programs->count() > 0) {
+            return view('single_group', compact('group', 'locations', 'modes'));
+        }
+
+        
+        return view('single_group_with_children', compact('group', 'locations', 'modes'));
+    }
+
 
     public function getModePaymentTypes(Request $request){
         // Check if mode exist for that training, if not return

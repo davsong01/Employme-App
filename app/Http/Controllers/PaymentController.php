@@ -24,35 +24,76 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 class PaymentController extends Controller
 {
     public function checkout(Request $request){
-        $training = json_decode($request->training, true);
+        if(!empty($request->package)){
+            $training = json_decode($request->package, true);
+            $trainingObject = json_decode(json_encode(json_decode($request->package)));
+            $trainingObject->currencies = json_decode(json_encode($trainingObject->currencies), true);
+            
+            $modes = null;
+            $location = $request->location ?? null;
+            $preferred_timing = $request->preferred_timing ?? null;
 
-        $trainingObject = json_decode(json_encode(json_decode($request->training)));
-        $trainingObject->currencies = json_decode(json_encode($trainingObject->currencies), true);
-        
-        $modes = null;
-        $location = $request->location ?? null;
-        $preferred_timing = $request->preferred_timing ?? null;
-        if($request->has('modes')){
-            // Get mode amount 
-            $modes = $request->modes;
-            $amount = $this->getModeAmount($request->modes,$request->type,$request->training);
-            if(!$amount){
-                return back()->with('error', 'Invalid Amount');
+            if ($request->has('modes')) {
+                // Get mode amount 
+                $modes = $request->modes;
+                $amount = $this->getModeAmount($request->modes, $request->type, $request->training);
+                if (!$amount) {
+                    return back()->with('error', 'Invalid Amount');
+                }
+            } else {
+                if ($request->type == 'full') {
+                    $amount = $training['p_amount'];
+                } elseif ($request->type == 'part') {
+                    $amount = $training['p_amount'] / 2;
+                } elseif ($request->type == 'earlybird') {
+                    $amount = $training['e_amount'];
+                } else {
+                    return back()->with('error', 'Invalid Payment Type selection');
+                }
             }
+
+            $type = $request->type;
+            
+            // inject facilitator details
+            if ($request->has('facilitator')) {
+                Session::put('facilitator', $request->facilitator);
+                Session::put('facilitator_id', $request->facilitator_id);
+                Session::put('facilitator_name', $request->facilitator_name);
+                Session::put('facilitator_license', $request->facilitator_license);
+            }
+
+            $payment_modes = $this->getPaymentModes();
         }else{
-            if($request->type == 'full'){
-                $amount = $training['p_amount'];
-            }elseif($request->type == 'part'){
-                $amount = $training['p_amount'] /2;
-            }elseif($request->type == 'earlybird'){
-                $amount = $training['e_amount'];
+            $training = json_decode($request->training, true);
+            
+            $trainingObject = json_decode(json_encode(json_decode($request->training)));
+            $trainingObject->currencies = json_decode(json_encode($trainingObject->currencies), true);
+            
+            $modes = null;
+            $location = $request->location ?? null;
+            $preferred_timing = $request->preferred_timing ?? null;
+            if($request->has('modes')){
+                // Get mode amount 
+                $modes = $request->modes;
+                $amount = $this->getModeAmount($request->modes,$request->type,$request->training);
+                if(!$amount){
+                    return back()->with('error', 'Invalid Amount');
+                }
             }else{
-                return back()->with('error', 'Invalid Payment Type selection');
+                if($request->type == 'full'){
+                    $amount = $training['p_amount'];
+                }elseif($request->type == 'part'){
+                    $amount = $training['p_amount'] /2;
+                }elseif($request->type == 'earlybird'){
+                    $amount = $training['e_amount'];
+                }else{
+                    return back()->with('error', 'Invalid Payment Type selection');
+                }
             }
+            
+            $type = $request->type;
         }
-        
-        $type = $request->type;
-        
+
         // inject facilitator details
         if($request->has('facilitator')){
             Session::put('facilitator', $request->facilitator);
@@ -82,9 +123,8 @@ class PaymentController extends Controller
                 $amount = $modes->$mode/2;
             }
         }
-
+    
         return $amount;
-       
     }
 
 

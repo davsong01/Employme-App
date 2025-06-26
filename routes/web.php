@@ -65,6 +65,8 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('/thankyou', 'thankyou')->name('thankyou');
             Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
             Route::get('/trainings/{id?}', 'show')->name('trainings');
+            Route::get('packages/{id?}', 'showPackages')->name('show.packages');
+
             Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
 
