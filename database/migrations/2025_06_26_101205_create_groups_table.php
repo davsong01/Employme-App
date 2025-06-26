@@ -1,0 +1,24 @@
+<?php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void {
+        if(!Schema::hasTable('groups')){
+            Schema::create('groups', function (Blueprint $table) {
+                $table->id();
+                $table->integer('program_id'); // parent program
+                $table->string('label');
+                $table->decimal('price', 10, 2);
+                $table->json('currencies')->nullable(); // e.g. {"USD":100,"NGN":50000}
+                $table->json('meta')->nullable(); // flexible metadata
+                $table->timestamps();
+            });
+        }
+    }
+
+    public function down(): void {
+        Schema::dropIfExists('groups');
+    }
+};

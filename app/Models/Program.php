@@ -5,6 +5,7 @@ use DateTime;
 use DatePeriod;
 use DateInterval;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Mocks;
 use App\Models\Coupon;
 use App\Models\Module;
@@ -178,5 +179,19 @@ class Program extends Model
     public function fullyPaid()
     {
         return $this->hasMany(Transaction::class, 'program_id')->where('balance', '<=', 0);
-    } 
+    }
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
+    }
+
+    /** Groups/packages in which this program is INCLUDED. */
+    public function includedInGroups()
+    {
+        return $this->belongsToMany(
+            Group::class,
+            'group_programs'
+        )->withTimestamps();
+    }
 }
