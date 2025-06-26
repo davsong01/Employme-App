@@ -60,6 +60,8 @@ Route::middleware(['web.access'])->group(function () {
     Route::middleware(['template'])->group(function () {
         Route::controller(FrontendController::class)->group(function () {
             Route::get('/', 'index')->name('welcome');
+            Route::get('/packages', 'packages')->name('packages');
+            
             Route::get('/thankyou', 'thankyou')->name('thankyou');
             Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
             Route::get('/trainings/{id?}', 'show')->name('trainings');

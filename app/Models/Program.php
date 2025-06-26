@@ -183,15 +183,11 @@ class Program extends Model
 
     public function groups()
     {
-        return $this->hasMany(Group::class);
+        return $this->belongsToMany(Group::class, 'group_program')->withTimestamps();
     }
 
-    /** Groups/packages in which this program is INCLUDED. */
-    public function includedInGroups()
-    {
-        return $this->belongsToMany(
-            Group::class,
-            'group_programs'
-        )->withTimestamps();
-    }
+    // $groups = Group::with('programs')
+    //            ->withCount('programs')     // e.g. children_count
+    //            ->latest()
+    //            ->get();
 }

@@ -13,13 +13,7 @@ class Group extends Model
     /* -----------------------------------------------------------------
     |  Mass-assignment & casting
     |------------------------------------------------------------------*/
-    protected $fillable = [
-        'program_id',
-        'label',
-        'price',
-        'currencies',
-        'meta',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'currencies' => 'array',
@@ -39,10 +33,13 @@ class Group extends Model
     /** Programs bundled inside this package. */
     public function programs()
     {
-        return $this->belongsToMany(
-            Program::class,
-            'group_programs'   // pivot
-        )->withTimestamps();
+        return $this->belongsToMany(Program::class, 'group_program')->withTimestamps();
+    }
+
+    public function scopeIsActive($query)
+    {
+        return $query->whereStatus(1)
+            ->where('p_end', '>=', date('Y-m-d'));
     }
 
     // Fetch a package with its programs

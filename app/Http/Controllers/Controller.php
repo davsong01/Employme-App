@@ -1024,6 +1024,13 @@ class Controller extends BaseController
                 'parentId' => 5
             ],
             [
+                'id' => 61,
+                'name' => 'Grouped Trainings',
+                'route' => 'groupedprogram.index',
+                'type' => 'menu',
+                'parentId' => 5
+            ],
+            [
                 'id' => 7,
                 'name' => 'Trashed Trainings',
                 'route' => 'programs.trashed',

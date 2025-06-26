@@ -8,9 +8,15 @@ return new class extends Migration {
         if(!Schema::hasTable('groups')){
             Schema::create('groups', function (Blueprint $table) {
                 $table->id();
-                $table->integer('program_id'); // parent program
-                $table->string('label');
-                $table->decimal('price', 10, 2);
+                $table->string('p_name');
+                $table->string('p_abbr');
+                $table->decimal('p_amount', 10, 2)->nullable();
+                $table->decimal('e_amount', 10, 2)->nullable();
+                $table->date('p_start')->nullable();
+                $table->date('p_end')->nullable();
+                $table->string('image')->nullable();
+                $table->tinyInteger('status')->default(0);
+                $table->tinyInteger('early_bird_status')->default(0);
                 $table->json('currencies')->nullable(); // e.g. {"USD":100,"NGN":50000}
                 $table->json('meta')->nullable(); // flexible metadata
                 $table->timestamps();

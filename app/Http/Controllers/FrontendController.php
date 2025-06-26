@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Group;
+use App\Models\Program;
 use App\Models\Location;
 use App\Models\Settings;
-use App\Models\Program;
 use Illuminate\Http\Request;
 use App\Models\FacilitatorTraining;
 use Illuminate\Support\Facades\Session;
@@ -53,6 +54,71 @@ class FrontendController extends Controller
         }
         
         return view('welcome', compact('trainings', 'discounts'));
+    }
+
+    public function packages(Request $request)
+    {
+        /* ───────────────────────────────
+         | 1. QUICK SEARCH
+         |───────────────────────────────*/
+        if ($request->filled('search')) {
+            $keyword   = $request->search;
+
+            $packages  = Group::with('programs')   // eager-load child programs
+                ->isActive()                       // scope: status = 1
+                ->where('p_name', 'LIKE', "%{$keyword}%")
+                ->latest()
+                ->simplePaginate(16);
+
+            return view('search_results', [
+                'trainings' => $packages,          // keeps view variable name
+                'search'    => $keyword,
+            ]);
+        }
+
+        if (Session::get('facilitator')) {
+            // pull program IDs linked to this facilitator
+            $programIds = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))
+                ->pluck('program_id')
+                ->toArray();
+
+            // packages that contain at least one of the facilitator’s programs
+            $packages = Group::with('programs')
+                ->isActive()
+                ->whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
+                ->latest()
+                ->simplePaginate(16);
+
+            // discounted packages (early-bird price set & still valid)
+            $discounts = Group::with('programs')
+                ->isActive()
+                ->where('e_amount', '!=', 0)
+                ->where('early_bird_status', 0)
+                ->whereDate('p_end', '>=', now())
+                ->whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
+                ->latest()
+                ->get();
+        } else {
+            // all active packages
+            $packages = Group::with('programs')
+                ->isActive()
+                ->latest()
+                ->simplePaginate(16);
+
+            // global discounts
+            $discounts = Group::with('programs')
+                ->isActive()
+                ->where('e_amount', '!=', 0)
+                ->where('early_bird_status', 0)
+                ->whereDate('p_end', '>=', now())
+                ->latest()
+                ->get();
+        }
+
+        return view('welcome', [
+            'trainings' => $packages,  // keeps existing view variable names
+            'discounts' => $discounts,
+        ]);
     }
 
     public function earlyBird($id = null)
