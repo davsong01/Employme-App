@@ -22,6 +22,7 @@ use App\Models\FacilitatorTraining;
 use Illuminate\Database\Eloquent\Model;
 use App\Services\CurrencyAmountFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CertificateRegenerationTemplate;
 
 class Program extends Model
 {
@@ -186,6 +187,10 @@ class Program extends Model
         return $this->belongsToMany(Group::class, 'group_program')->withTimestamps();
     }
 
+    public function regenerationTemplates()
+    {
+        return $this->belongsToMany(CertificateRegenerationTemplate::class, 'certificate_programs', 'program_id', 'certificate_regeneration_id');
+    }
     // $groups = Group::with('programs')
     //            ->withCount('programs')     // e.g. children_count
     //            ->latest()

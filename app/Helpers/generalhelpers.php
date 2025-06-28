@@ -269,16 +269,20 @@ use Intervention\Image\Facades\Image;
     }
 
     if (!function_exists("generateCertificate")) {
-        function generateCertificate($request, $program_id, $location, $user = null, $certificate = null)
+        function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null)
         {
-            $program = Program::find($program_id);
+
+            if(!empty($program_id)) {
+                $program = Program::find($program_id);
+                $certificate_settings = $program->auto_certificate_settings;
+            }else{
+                $certificate_settings = $request;
+            }
 
             if (empty($user)) {
                 $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
                 $user = $user->user;
             }
-
-            $certificate_settings = $program->auto_certificate_settings;
 
             if (!empty($request['auto_certificate_template'])) {
                 $inputImagePath = $request['auto_certificate_template'];
@@ -321,9 +325,15 @@ use Intervention\Image\Facades\Image;
 
 
                 if ($text_type == 'certificate_number') {
-                    $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
+                    if (!empty($program_id)) {
+                        $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
+                    }else{
+                        $certificate_number = rand(11111111,99999999);
+                    }
+
                     $text = $certificate_number;
                 }
+
                 if ($text_type == 'date_issued') {
                     $date_issued = !empty($request['date_issued'])
                         ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
@@ -347,7 +357,7 @@ use Intervention\Image\Facades\Image;
 
             return [
                 'name' => $name,
-                'certificate_number' => $certificate_number
+                'certificate_number' => $certificate_number ?? rand(111,999)
             ];
         }
     }

@@ -1228,6 +1228,13 @@ class Controller extends BaseController
                 'parentId' => 14
             ],
             [
+                'id' => 199,
+                'name' => 'Certificates Templates',
+                'route' => 'certificates.regeneration.templates',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
                 'id' => 20,
                 'name' => 'Score Settings',
                 'route' => 'scoreSettings.index',
