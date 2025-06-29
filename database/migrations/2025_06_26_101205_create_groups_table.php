@@ -10,8 +10,7 @@ return new class extends Migration {
                 $table->id();
                 $table->string('p_name');
                 $table->string('slug')
-                    ->storedAs("LOWER(REPLACE(REPLACE(REPLACE(p_name, '(', ''), ')', ''), ' ', '-'))")
-                    ->after('p_name');
+                    ->storedAs("LOWER(REPLACE(REPLACE(REPLACE(p_name, '(', ''), ')', ''), ' ', '-'))");
 
                 $table->string('p_abbr');
                 $table->decimal('p_amount', 10, 2)->nullable();
