@@ -217,8 +217,8 @@ class CertificateController extends Controller
 
             $details = [
                 'subject' => 'Your Certificate for ' . $program->p_name,
-                // 'email' => $userDetails->email,
-                'email' => 'davsong16@gmail.com',
+                'email' => $userDetails->email,
+                // 'email' => 'davsong16@gmail.com',
                 'content' => "<p>Dear {$name},<br><br>Your certificate for the training <strong>{$program->p_name}</strong> has been successfully generated.<br><br>Please find your certificate attached.<br><br>Regards</p>",
                 'type' => 'bulk',
                 'attachments' => [$realpath],
