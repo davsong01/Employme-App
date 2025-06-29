@@ -585,9 +585,9 @@ class CertificateController extends Controller
         try {
             $location = 'certificate_previews';
             $certificate = generateCertificate($request->all(), null, $location);
-
+            // dd($certificate);
             return response()->json([
-                'preview_image_url' => route('certificate.preview', ['filename' => $certificate['name']]),
+                'preview_image_path' => '/certificate_previews/' . $certificate['name'],
             ]);
         } catch (\Throwable $th) {
             return response()->json([
