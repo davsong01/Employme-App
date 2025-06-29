@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->integer('user_id');
             $table->integer('program_id');
+            $table->integer('certificate_id')->nullable();
             $table->string('status')->default('pending');
+            $table->json('meta')->nullable();
             $table->timestamp('preferred_date_of_issue');
-
+            
             $table->timestamps();
         });
     }

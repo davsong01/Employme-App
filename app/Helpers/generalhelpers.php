@@ -269,16 +269,16 @@ use Intervention\Image\Facades\Image;
     }
 
     if (!function_exists("generateCertificate")) {
-        function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null)
+        function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
         {
 
             if(!empty($program_id)) {
                 $program = Program::find($program_id);
-                $certificate_settings = $program->auto_certificate_settings;
+                $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
             }else{
                 $certificate_settings = $request;
             }
-
+            
             if (empty($user)) {
                 $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
                 $user = $user->user;
@@ -291,7 +291,6 @@ use Intervention\Image\Facades\Image;
             }
 
             // Create a history for the previous certificate
-
             $image = Image::make($inputImagePath);
 
             if (!empty($request['auto_certificate_name_font_weight'])) {
@@ -357,7 +356,8 @@ use Intervention\Image\Facades\Image;
 
             return [
                 'name' => $name,
-                'certificate_number' => $certificate_number ?? rand(111,999)
+                'certificate_number' => $certificate_number ?? rand(111,999),
+                'outputImagePath' => $outputImagePath
             ];
         }
     }

@@ -16,6 +16,7 @@ use App\Models\Material;
 use App\Models\Certificate;
 use App\Models\Transaction;
 use App\Models\ScoreSetting;
+use App\Models\CertificateProgram;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\FacilitatorTraining;
@@ -187,12 +188,19 @@ class Program extends Model
         return $this->belongsToMany(Group::class, 'group_program')->withTimestamps();
     }
 
-    public function regenerationTemplates()
+    // public function regenerationTemplates()
+    // {
+    //     return $this->belongsToMany(CertificateRegenerationTemplate::class, 'certificate_programs', 'program_id', 'certificate_regeneration_id');
+    // }
+    public function regenerationTemplate()
     {
-        return $this->belongsToMany(CertificateRegenerationTemplate::class, 'certificate_programs', 'program_id', 'certificate_regeneration_id');
+        return $this->hasOneThrough(
+            CertificateRegenerationTemplate::class,
+            CertificateProgram::class,
+            'program_id',                      // Foreign key on certificate_programs table
+            'id',                              // Foreign key on certificate_regeneration_templates table
+            'id',                              // Local key on programs table
+            'certificate_regeneration_id'      // Local key on certificate_programs table
+        );
     }
-    // $groups = Group::with('programs')
-    //            ->withCount('programs')     // e.g. children_count
-    //            ->latest()
-    //            ->get();
 }

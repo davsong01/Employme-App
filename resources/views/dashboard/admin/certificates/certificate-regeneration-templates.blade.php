@@ -115,7 +115,7 @@
                                     <i class="fa fa-edit"></i>
                                 </a>
 
-                                <form action="{{ route('certificates.destroy', $template->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
+                                <form action="{{ route('certificatetemplate.destroy', $template->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm" title="Delete Template">
@@ -130,22 +130,131 @@
             </table>
 
             @foreach($templates as $template)
-            <!-- Modal for Editing Template -->
-            <div class="modal fade" id="edit-{{ $template->id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel-{{ $template->id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
+            <div class="modal fade" id="edit-{{ $template->id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ $template->id }}" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editModalLabel-{{ $template->id }}">Template Settings</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            {{-- TODO: Programs select + template setting inputs --}}
-                            {{-- Example: --}}
-                            {{-- <input type="text" name="setting_name" class="form-control" value="{{ old('setting_name', $template->auto_certificate_settings['setting_name'] ?? '') }}"> --}}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
+                        <form action="" method="POST" enctype="multipart/form-data" class="edit-template-form">
+                            @csrf
+                            @method('PUT')
+                            <div class="modal-body">
+                                <div class="row">
+                                    <!-- Template Name -->
+                                    <div class="col-md-12 mb-3">
+                                        <label for="template_name_{{ $template->id }}" class="form-label">Template Name</label>
+                                        <input type="text" name="name" id="template_name_{{ $template->id }}" class="form-control" value="{{ old('name', $template->name) }}" required>
+                                    </div>
+
+                                    <!-- Programs select -->
+                                    <div class="col-md-12 mb-3">
+                                        <label>Programs</label>
+                                        <select name="program_ids[]" class="select2 form-control" multiple required>
+                                            @foreach($programs as $pro)
+                                                <option value="{{ $pro->id }}"
+                                                    {{ $template->certificatePrograms->contains('id', $pro->id) ? 'selected' : '' }}>
+                                                    {{ $pro->p_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- File Upload -->
+                                <div class="row mb-3">
+                                    <label class="col-form-label">
+                                        @if(!empty($template->auto_certificate_settings['auto_certificate_template']))
+                                            Replace Certificate Template
+                                        @else
+                                            Upload Certificate Template
+                                        @endif
+                                    </label>
+                                    <input type="file" name="auto_certificate_template" class="form-control">
+                                    @if(!empty($template->auto_certificate_settings['auto_certificate_template']))
+                                        <small>Current file: {{ basename($template->auto_certificate_settings['auto_certificate_template']) }}</small>
+                                    @endif
+                                </div>
+
+                                <!-- Existing Settings Rows -->
+                                <section id="edit-certificate-holder-{{ $template->id }}">
+                                    @php
+                                        $settings = $template->auto_certificate_settings['settings'] ?? [];
+                                        $counter = 1;
+                                    @endphp
+                                    @foreach($settings as $setting)
+                                    <div class="row edit-certificate-row" data-row-id="{{ $counter }}" style="border-top: black solid 1px; margin-bottom: 6px; padding-top: 15px;">
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text Type</label>
+                                            <select name="text_type[]" class="form-control" required>
+                                                <option value="">Select...</option>
+                                                <option value="certificate_number" {{ $setting['text_type'] == 'certificate_number' ? 'selected' : '' }}>Certificate Number</option>
+                                                <option value="name" {{ $setting['text_type'] == 'name' ? 'selected' : '' }}>Name</option>
+                                                <option value="email" {{ $setting['text_type'] == 'email' ? 'selected' : '' }}>Email</option>
+                                                <option value="staffID" {{ $setting['text_type'] == 'staffID' ? 'selected' : '' }}>Staff ID</option>
+                                                <option value="date_issued" {{ $setting['text_type'] == 'date_issued' ? 'selected' : '' }}>Date Issued</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Font Type Face</label>
+                                            <select name="text_type_face[]" class="form-control">
+                                                @foreach(certificateFontType() as $key => $value)
+                                                <option value="{{ $key }}" {{ $setting['text_type_face'] == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text font size</label>
+                                            <input type="number" min="0" name="auto_certificate_name_font_size[]" class="form-control" value="{{ $setting['auto_certificate_name_font_size'] ?? '' }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text font weight</label>
+                                            <input type="number" min="0" name="auto_certificate_name_font_weight[]" class="form-control" value="{{ $setting['auto_certificate_name_font_weight'] ?? '' }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text Top offset</label>
+                                            <input type="number" min="0" name="auto_certificate_top_offset[]" class="form-control" value="{{ $setting['auto_certificate_top_offset'] ?? '' }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text Left offset</label>
+                                            <input type="number" min="0" name="auto_certificate_left_offset[]" class="form-control" value="{{ $setting['auto_certificate_left_offset'] ?? '' }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>Text color</label>
+                                            <input type="color" name="auto_certificate_color[]" class="form-control" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <button type="button" class="btn btn-danger btn-sm remove-old-certificate" data-row-id="{{ $counter }}">
+                                                <i class="fa fa-minus"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @php $counter++; @endphp
+                                    @endforeach
+                                </section>
+
+                                <!-- Container for New Rows -->
+                                <div id="edit-certificate-new-rows-{{ $template->id }}"></div>
+
+                                <!-- Controls -->
+                                <div class="row mt-2">
+                                    <div class="col-md-4 mb-3">
+                                        <button type="button" class="btn btn-success btn-sm add-edit-row-btn" data-template-id="{{ $template->id }}">
+                                            <i class="fa fa-plus"></i> Add New Row
+                                        </button>
+                                        <button type="button" class="btn btn-info btn-sm preview-edit-btn" data-template-id="{{ $template->id }}">
+                                            <i class="fa fa-eye"></i> Preview
+                                        </button>
+                                        <span class="loadingSpinner" style="display:none; margin-left:5px;">
+                                            <i class="fa fa-spinner fa-spin"></i>
+                                        </span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Save Template</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -163,7 +272,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-center">
-                            <img src="{{ asset($filePath) }}" alt="Certificate Template" class="img-fluid" style="max-height: 80vh;">
+                            <img src="{{ $filePath }}" alt="Certificate Template" class="img-fluid" style="max-height: 80vh;">
                         </div>
                     </div>
                 </div>
@@ -242,7 +351,8 @@
                                                 <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
                                                 <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
                                                 <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
-                                                <option value="text" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
+                                                <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
+
                                             </select>
                                         </div>
                                     </div>
@@ -491,6 +601,8 @@ $(document).ready(function() {
 $(document).on('click', '#closePreviewModal', function() {
     $('#previewModal').hide();
 });
+
+
 </script>
 @endsection
 

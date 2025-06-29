@@ -5,8 +5,9 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
+            @include('layouts.partials.alerts')
             <div class="pb-2">
-                @if($certificate->allow_new_certificate_request)
+                @if($certificate->allow_new_certificate_request && !$pendingRegenerationRequests)
                 <!-- Button to Open Modal -->
                 <a class="btn btn-info" style="color:white" data-bs-toggle="modal" data-bs-target="#dateIssuedModal">
                     Generate New Certificate
@@ -22,7 +23,7 @@
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
-                            <form action="{{ route('participants.certificates.new', $certificate->id) }}" method="POST">
+                            <form action="{{ route('participants.certificates.new.request', $certificate->id) }}" method="POST">
                                 @csrf
                                 <div class="modal-body">
                                     <label for="date_issued">Date Issued (Optional)</label>
@@ -30,7 +31,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Generate Certificate</button>
+                                    <button type="submit" class="btn btn-primary">Submit Request</button>
                                 </div>
                             </form>
                         </div>
@@ -38,8 +39,45 @@
                 </div>
 
                 @endif
-                <h5 class="card-title">Please Download your certificate below</h5>
             </div>
+            @if($regenerationRequests->count() > 0)
+            <h5 class="card-title mt-4">Regeneration Request History</h5>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto; overflow-x: auto;">
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Program</th>
+                            <th>Date Requested</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($regenerationRequests as $index => $request)
+                            <tr>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $request->program->p_name }}</td>
+                                <td>{{ $request->created_at->format('d M Y') }}</td>
+                                <td>
+                                    @if($request->status == 'pending')
+                                        <span style="width: 60px;" class="badge bg-warning text-dark">Pending</span>
+                                    @elseif($request->status == 'approved')
+                                        <span style="width: 60px;" class="badge bg-success">Approved</span>
+                                    @elseif($request->status == 'rejected')
+                                        <span style="width: 60px;" class="badge bg-danger">Rejected</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5">No regeneration requests yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @endif
+            <h5 class="card-title">Certificate History</h5>
             <div class="table-responsive" style="max-height: 400px; overflow-y: auto; overflow-x: auto;">
                 <table id="" class="table table-striped table-bordered">
                     <thead class="thead-dark">
@@ -93,7 +131,6 @@
                     
                 </table>
             </div>
-
         </div>
     </div>
 </div>
