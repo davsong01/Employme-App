@@ -15,11 +15,13 @@ use Illuminate\Support\Carbon;
 use App\Models\UtilityCronTask;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
-use App\Models\CertificateGenerationHistory;
 use App\Models\CertificateStatusLog;
 use App\Services\CertificateService;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+use App\Models\CertificateGenerationHistory;
+use App\Models\CertificateRegenerationRequest;
+use App\Models\CertificateRegenerationTemplate;
 
 class CertificateController extends Controller
 {
@@ -84,15 +86,59 @@ class CertificateController extends Controller
             if ($certificate->show_certificate() == 'Disabled') {
                 return back()->with('error', 'Certificate Unavailable at the moment, please check back');
             }
+            
+            $regenerationRequests = CertificateRegenerationRequest::where('user_id', auth()->user()->id)->with('program')->latest()->get();
+            $pendingRegenerationRequests = CertificateRegenerationRequest::where('user_id', auth()->user()->id)->where('status','pending')->first();
 
-            return view('dashboard.student.certificates.index', compact('certificate', 'program'));
+            return view('dashboard.student.certificates.index', compact('certificate', 'program', 'regenerationRequests', 'pendingRegenerationRequests'));
         }
         return back();
     }
 
-    public function adminCertificates($program_id)
+    public function certificateRegenerationRequests()
     {
+        $programs = Program::whereHas('regenerationTemplate')
+            ->where('id', '<>', 1)
+            ->get();
+
+        $regenerationRequests = CertificateRegenerationRequest::with(['program','user','certificate'])->latest()->get();
+
+        $pendingUserIds = CertificateRegenerationRequest::where('status', 'pending')->pluck('user_id');
+
+        // Fetch users without a pending request (optional, only include if you need it)
+        $users = User::whereNotIn('id', $pendingUserIds)->orderBy('created_at', 'DESC')->withCount('certificates')->get();
+        
+        return view('dashboard.admin.certificates.requests', compact('programs', 'regenerationRequests', 'users'));
     }
+
+    public function certificateRegenerationTemplates()
+    {
+        // Get all templates with their related programs
+        $templates = CertificateRegenerationTemplate::with([
+            'certificatePrograms' => function ($query) {
+                $query->select('programs.id', 'p_name');
+            }
+        ])->get();
+
+        $attachedProgramIds = DB::table('certificate_programs')->pluck('program_id');
+        $programs = Program::withCount('users')
+            ->where('id', '<>', 1)
+            ->whereNotIn('id', $attachedProgramIds)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('dashboard.admin.certificates.certificate-regeneration-templates', compact('programs', 'templates'));
+    }
+
+    public function deleteCertificateTemplate(CertificateRegenerationTemplate $template){
+        if (file_exists(base_path() . '/uploads/certificates' . '/' . $template->auto_certificate_settings['auto_certificate_template'])) {
+            unlink(base_path() . '/uploads/certificate_templates' . '/' .  $template->auto_certificate_settings['auto_certificate_template']);
+        }
+        
+        $template->delete();
+        return back()->with('message', 'Template deleted Successfully');
+    }
+
 
     public function create()
     {
@@ -108,6 +154,85 @@ class CertificateController extends Controller
         $transaction->update(['show_certificate' => $status]);
 
         return back()->with('message', 'Status updated successfully');
+    }
+
+    public function updateGenerationRequestStatus(Request $request, $id){
+        $request->validate([
+            'action' => 'required|in:approve,decline',
+        ]);
+        
+        $regenerationRequest = CertificateRegenerationRequest::findOrFail($id);
+        
+        if($request->prefix__ != '/admin'){
+            if ($regenerationRequest->status !== 'pending') {
+                return back()->with('error', 'Request already processed.');
+            }
+        }
+
+        $regenerationRequest->status = $request->action === 'approve' ? 'approved' : 'declined';
+        
+        if($regenerationRequest->status == 'approved'){
+            $existingCertificate = Certificate::where('user_id', $request->user_id)->where('program_id', $request->program_id)->first();
+            
+            $program = Program::where('id', $request->program_id)->first();
+
+            $template = $program->regenerationTemplate;
+            
+            if(!$template){
+                return back()->with('error','Certificate Regeneration Template not found!');
+            }
+
+            $location = base_path('uploads/certificates');
+            
+            if(!$existingCertificate){
+                $newCertificate = generateCertificate($request, $program->id, $location, null, null, $template);
+
+                $cert = Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->program_id], [
+                    'user_id' => $request->user_id,
+                    'file' => $newCertificate['name'],
+                    'certificate_number' => $newCertificate['certificate_number'],
+                    'program_id' => $request->program_id,
+                    'allow_new_certificate_request' => 0,
+                ]);
+
+                $regenerationRequest->update([
+                    'certificate_id' => $cert->id
+                ]);
+            }else{
+                $newCertificate = generateCertificate($request, $program->id, $location, null, $existingCertificate, $template);
+
+                $this->createCertificateHistory($existingCertificate);
+                $existingCertificate->update([
+                    'allow_new_certificate_request' => 0,
+                    'file' => $newCertificate['name'],
+                ]);
+            }
+
+            $realpath = base_path() . '/uploads' . '/certificates/' . $newCertificate['name'];
+
+            if (!file_exists($realpath)) {
+                return back()->with('error', 'There was an error generating a new certificate.');
+            }
+
+            $userDetails = User::select('name', 'email')->find($request->user_id);
+            $name = $userDetails->name;
+
+            $details = [
+                'subject' => 'Your Certificate for ' . $program->p_name,
+                'email' => $userDetails->email,
+                // 'email' => 'davsong16@gmail.com',
+                'content' => "<p>Dear {$name},<br><br>Your certificate for the training <strong>{$program->p_name}</strong> has been successfully generated.<br><br>Please find your certificate attached.<br><br>Regards</p>",
+                'type' => 'bulk',
+                'attachments' => [$realpath],
+            ];
+            
+            $this->sendGenericEmail($details);
+            // return response()->download($realpath);
+        }
+
+        $regenerationRequest->save();
+
+        return back()->with('message', 'Request has been ' . $regenerationRequest->status . '.');
     }
 
     public function selectUser(Request $request, $program_id)
@@ -164,6 +289,62 @@ class CertificateController extends Controller
         }
 
         return abort(404);
+    }
+
+    public function saveCertificateTemplate(Request $request){
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'auto_certificate_template' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            'text_type' => 'array',
+            'text_type.*' => 'nullable|string',
+            'text_type_face.*' => 'nullable|string',
+            'auto_certificate_name_font_size.*' => 'nullable|numeric',
+            'auto_certificate_name_font_weight.*' => 'nullable|numeric',
+            'auto_certificate_top_offset.*' => 'nullable|numeric',
+            'auto_certificate_left_offset.*' => 'nullable|numeric',
+            'auto_certificate_color.*' => 'nullable|string',
+        ]);
+
+        // Upload certificate file
+        if ($request->hasFile('auto_certificate_template')) {
+            $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+            $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+
+            $autoSettings['auto_certificate_template'] = 'certificate_templates/' . $name;
+        }
+
+
+        // Process settings
+        $settings = [];
+        if ($request->has('text_type')) {
+            foreach ($request->text_type as $index => $type) {
+                $settings[] = [
+                    'text_type' => $type ?? '',
+                    'text_type_face' => $request->text_type_face[$index] ?? '',
+                    'auto_certificate_name_font_size' => $request->auto_certificate_name_font_size[$index] ?? '',
+                    'auto_certificate_name_font_weight' => $request->auto_certificate_name_font_weight[$index] ?? '',
+                    'auto_certificate_top_offset' => $request->auto_certificate_top_offset[$index] ?? '',
+                    'auto_certificate_left_offset' => $request->auto_certificate_left_offset[$index] ?? '',
+                    'auto_certificate_color' => $request->auto_certificate_color[$index] ?? '#000000',
+                ];
+            }
+        }
+
+        $autoSettings['settings'] = $settings;
+        $autoSettings["auto_certificate_status"] = "yes";
+
+        $template = CertificateRegenerationTemplate::create([
+            'name' => $request->input('name'),
+            'auto_certificate_settings' => $autoSettings,
+        ]);
+
+        app('App\Http\Controllers\Admin\ProgramController')->deleteAllFilesInAPublicFolder('certificate_previews');
+
+
+        // $template->certificatePrograms()->attach($request->program_ids);
+        $template->certificatePrograms()->sync($request->program_ids);
+        return back()->with('message', 'Certificate template saved successfully!');
     }
 
     public function show(certificate $certificate)
@@ -399,6 +580,22 @@ class CertificateController extends Controller
         }
     }
 
+    public function certificateRegenerationTemplatePreview(Request $request)
+    {
+        try {
+            $location = 'certificate_previews';
+            $certificate = generateCertificate($request->all(), null, $location);
+
+            return response()->json([
+                'preview_image_url' => route('certificate.preview.view', ['filename' => $certificate['name']]),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage() . ' in ' . $th->getFile() . ' on line ' . $th->getLine(),
+            ]);
+        }
+    }
+
     public function clearAllPreviews(){
 
     }
@@ -455,25 +652,84 @@ class CertificateController extends Controller
         return back()->with('message', 'All records Truncated!');
     }
 
-    public function generateNewCertificate(Request $request, Certificate $certificate){
-        // if($certificate->allow_new_certificate_request != 0){
-        //     return back()->with('error', 'It seems this certificate has already been regenerated. Please use the download button below to obtain a copy.');
-        // }
-        $location = base_path('uploads/certificates');
-        $newCertificate = generateCertificate($request, $certificate->program_id, $location, null, $certificate);
-        
-        $this->createCertificateHistory($certificate);
-        $certificate->update([
-            'allow_new_certificate_request' => 0,
-            'file' => $newCertificate['name'],
-        ]);
-        
-        $realpath = base_path() . '/uploads' . '/certificates/' . $newCertificate['name'];
-        
-        if (!file_exists($realpath)) {
-            return back()->with('error', 'There was an error generating a new certificate.');
+    function createRegenerationRequest(Request $request, Certificate $certificate){
+        if (CertificateRegenerationRequest::where('user_id', $certificate->user_id)
+            ->where('program_id', $certificate->program_id)
+            ->where('status', 'pending')
+            ->exists()
+        ) {
+            return back()->with('error', 'You have a pending request, please try again later!');
         }
 
-        return response()->download($realpath);
+        CertificateRegenerationRequest::create([
+            'meta' => $request->except(['_token', 'prefix__']),
+            'program_id' => $certificate->program_id,
+            'certificate_id' => $certificate->id,
+            'user_id' => $certificate->user_id,
+            'preferred_date_of_issue' => $request->date_issued,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('message', 'Certificate Generation application successful, we will contact you as soon as the certificate is generated.');
     }
+
+    function adminCreateRegenerationRequest(Request $request)
+    {
+        if (CertificateRegenerationRequest::where('user_id', $request->user_id)
+            ->where('program_id', $request->program_id)
+            ->where('status', 'pending')
+            ->exists()
+        ) {
+            return back()->with('error', 'There is a pending request already, please try again later!');
+        }
+
+        // Ensure this user has this program
+        $check = Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->program_id])->first();
+
+        if(!$check){
+            return back()->with('error', 'This User did not register for this program!');
+        }
+
+        if ($check->balance > 0) {
+            return back()->with('error', 'This User still has pending balance of !'. $check->balance . ' for the selected program/group');
+        }
+        
+        $existingCertificate = Certificate::where('user_id', $request->user_id)->where('program_id', $request->program_id)->first();
+        $request['action'] = 'approve';
+
+        $certRequest = CertificateRegenerationRequest::create([
+            'meta' => $request->except(['_token', 'prefix__']),
+            'program_id' => $request->program_id,
+            'certificate_id' => $existingCertificate?->id,
+            'user_id' => $request->user_id,
+            'preferred_date_of_issue' => $request->date_issued,
+            'status' => 'approved',
+        ]);
+        
+        $this->updateGenerationRequestStatus($request, $certRequest->id);
+        
+        return back()->with('message', 'Operation successful');
+    }
+
+    // public function generateNewCertificate(Request $request, Certificate $certificate){
+    //     // if($certificate->allow_new_certificate_request != 0){
+    //     //     return back()->with('error', 'It seems this certificate has already been regenerated. Please use the download button below to obtain a copy.');
+    //     // }
+    //     $location = base_path('uploads/certificates');
+    //     $newCertificate = generateCertificate($request, $certificate->program_id, $location, null, $certificate);
+    //     $this->createCertificateHistory($certificate);
+
+    //     $certificate->update([
+    //         'allow_new_certificate_request' => 0,
+    //         'file' => $newCertificate['name'],
+    //     ]);
+        
+    //     $realpath = base_path() . '/uploads' . '/certificates/' . $newCertificate['name'];
+        
+    //     if (!file_exists($realpath)) {
+    //         return back()->with('error', 'There was an error generating a new certificate.');
+    //     }
+
+    //     return response()->download($realpath);
+    // }
 }

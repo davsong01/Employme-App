@@ -60,9 +60,13 @@ Route::middleware(['web.access'])->group(function () {
     Route::middleware(['template'])->group(function () {
         Route::controller(FrontendController::class)->group(function () {
             Route::get('/', 'index')->name('welcome');
+            Route::get('/packages', 'packages')->name('packages');
+            
             Route::get('/thankyou', 'thankyou')->name('thankyou');
             Route::get('/trainingimage/{filename}', 'getfile')->name('trainingimage');
             Route::get('/trainings/{id?}', 'show')->name('trainings');
+            Route::get('packages/{id?}', 'showPackages')->name('show.packages');
+
             Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
 
@@ -200,7 +204,7 @@ Route::middleware(['web.access'])->group(function () {
         
         Route::controller(CertificateController::class)->group(function () {
             Route::get('participant-certificates', 'index')->name('participants.certificates.index');
-            Route::post('regenerate-new-certificate/{certificate}', 'generateNewCertificate')->name('participants.certificates.new');
+            Route::post('regenerate-new-certificate/{certificate}', 'createRegenerationRequest')->name('participants.certificates.new.request');
         });
 
         Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('participants.payments.print');

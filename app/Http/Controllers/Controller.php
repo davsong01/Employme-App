@@ -122,6 +122,8 @@ class Controller extends BaseController
         if ($provider == 'default') {
             try {
                 if(env('ENT') == 'local'){
+                    // Mail::to($data['email'])->send(new Welcomemail($data, $data));
+
                     \Log::info(['email_data' => $data]);
                 }else{
                     Mail::to($data['email'])->send(new Welcomemail($data, $data));
@@ -1024,6 +1026,13 @@ class Controller extends BaseController
                 'parentId' => 5
             ],
             [
+                'id' => 61,
+                'name' => 'Grouped Trainings',
+                'route' => 'groupedprogram.index',
+                'type' => 'menu',
+                'parentId' => 5
+            ],
+            [
                 'id' => 7,
                 'name' => 'Trashed Trainings',
                 'route' => 'programs.trashed',
@@ -1217,6 +1226,20 @@ class Controller extends BaseController
                 'id' => 19,
                 'name' => 'Certificates',
                 'route' => 'certificates.index',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 199,
+                'name' => 'Certificates Templates',
+                'route' => 'certificates.regeneration.templates',
+                'type' => 'menu',
+                'parentId' => 14
+            ],
+            [
+                'id' => 199,
+                'name' => 'Certificate Gen. Requests',
+                'route' => 'certificates.regeneration.requests',
                 'type' => 'menu',
                 'parentId' => 14
             ],

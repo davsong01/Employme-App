@@ -17,7 +17,7 @@ class VerifyCsrfToken extends Middleware
         'admin/certificates-modify',
         'get-mode-payment-types',
         'generate-certificate-preview/*',
-        'admin/generate-certificate-preview/*'
-        
+        'admin/generate-certificate-preview/*',
+        'admin/preview-regenerated-certificate-settings'
     ];
 }

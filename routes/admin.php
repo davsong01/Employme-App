@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ComplainController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\GroupedProgramController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\PaymentModeController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -141,6 +142,7 @@ Route::middleware(['admin.access'])->group(function () {
         // Route::middleware(['signed'])->group(function () {
         Route::middleware([])->group(function () {
             Route::resource('programs', ProgramController::class);
+            Route::resource('groupedprogram', GroupedProgramController::class);
     
             Route::controller(ProgramController::class)->group(function () {
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
@@ -223,6 +225,19 @@ Route::middleware(['admin.access'])->group(function () {
             
             Route::get('certificate-verification-logs', 'certificateVerificationLogs')->name('certificate.verification.logs');
             Route::get('truncate-verification-logs', 'truncateVerificationLogs')->name('truncate.verification.log');
+
+            Route::get('certificate-regeneration-template', 'certificateRegenerationTemplates')->name('certificates.regeneration.templates');
+            Route::post('preview-regenerated-certificate-settings', 'certificateRegenerationTemplatePreview')->name('generated-certificate.preview');
+            Route::post('save-certificate-template', 'saveCertificateTemplate')->name('save.certificate.template');
+            Route::delete('delete-certificate-template/{template}', 'deleteCertificateTemplate')->name('certificatetemplate.destroy');
+
+            Route::get('certificate-regeneration-requests', 'certificateRegenerationRequests')->name('certificates.regeneration.requests');
+            Route::put('/certificate-requests/{id}', [CertificateController::class, 'updateGenerationRequestStatus'])
+                ->name('certificate.requests.update');
+
+            Route::post('admin.create.certificate.request', 'adminCreateRegenerationRequest')->name('admin.create.certificate.request');
+
+            
         });
     
         //route for payments history

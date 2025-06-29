@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('certificate_regeneration_requests', function (Blueprint $table) {
+        Schema::create('certificate_programs', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
+            $table->integer('certificate_regeneration_id');
             $table->integer('program_id');
-            $table->integer('certificate_id')->nullable();
-            $table->string('status')->default('pending');
-            $table->json('meta')->nullable();
-            $table->timestamp('preferred_date_of_issue');
-            
             $table->timestamps();
         });
     }
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('certificate_regeneration_requests');
+        Schema::dropIfExists('program_generated_certificates');
     }
 };

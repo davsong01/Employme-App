@@ -375,7 +375,7 @@ class UserController extends Controller
             //generate pdf from receipt view
             $pdf = PDF::loadView('emails.receipt', compact('data', 'details'));
             return view('emails.receipt', compact('data', 'details'));
-
+            
             return back()->with('message', 'Receipt sent succesfully');
         }
         return back();

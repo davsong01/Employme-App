@@ -1,5 +1,6 @@
 <ul>
     <li class="active"><a href="/">All Trainings</a></li>
+    {{-- <li class=""><a href="{{ route('packages') }}">Packages</a></li> --}}
     <li class=""><a href="{{ route('upload-proof-of-payment') }}">Upload Proof of Payment</a></li>
     <li class=""><a href="{{ route('reset') }}">Reset All</a></li>
     @guest

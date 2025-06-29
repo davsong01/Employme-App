@@ -127,6 +127,7 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                        @if($transaction->user)
                         <tr id="transaction-row-{{ $transaction->id }}">
                             <td>{{ $i++ }}</a>
                             <td><strong>Name: </strong>
@@ -134,7 +135,7 @@
                                 <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
                                 <br> <strong>Phone: </strong>{{ $transaction->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
                                 @endif
-                                @if($transaction->user->last_login) <br>
+                                @if(isset($transaction->user->last_login)) <br>
                                 <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
                                 @endif
                                 @if($permissions['payments.edit'])
@@ -357,6 +358,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                         @endforeach
                     </tbody>
                     
