@@ -122,7 +122,7 @@ class Controller extends BaseController
         if ($provider == 'default') {
             try {
                 if(env('ENT') == 'local'){
-                    Mail::to($data['email'])->send(new Welcomemail($data, $data));
+                    // Mail::to($data['email'])->send(new Welcomemail($data, $data));
 
                     \Log::info(['email_data' => $data]);
                 }else{

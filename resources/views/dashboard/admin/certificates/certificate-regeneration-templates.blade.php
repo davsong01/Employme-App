@@ -150,12 +150,13 @@
                                         <select name="program_ids[]" class="select2 form-control" multiple required>
                                             @foreach($programs as $pro)
                                                 <option value="{{ $pro->id }}"
-                                                    {{ $template->certificatePrograms->contains('id', $pro->id) ? 'selected' : '' }}>
+                                                    {{ $template->certificatePrograms->pluck('id')->contains($pro->id) ? 'selected' : '' }}>
                                                     {{ $pro->p_name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
+                                    
                                 </div>
 
                                 <!-- File Upload -->

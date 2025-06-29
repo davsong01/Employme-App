@@ -19,15 +19,25 @@ class CertificateRegenerationTemplate extends Model
     //     return $this->belongsToMany(Program::class, 'certificate_programs', 'certificate_regeneration_id', 'program_id');
     // }
 
+    // public function certificatePrograms()
+    // {
+//     return $this->hasOneThrough(
+    //         Program::class,
+    //         CertificateProgram::class,
+    //         'certificate_regeneration_id',
+    //         'id',
+    //         'id',
+    //         'program_id'
+    //     );
+    // }
+
     public function certificatePrograms()
     {
-        return $this->hasOneThrough(
+        return $this->belongsToMany(
             Program::class,
-            CertificateProgram::class,
-            'certificate_regeneration_id',
-            'id',
-            'id',
-            'program_id'
+            'certificate_programs',           // Pivot table
+            'certificate_regeneration_id',    // Foreign key on pivot for this model
+            'program_id'                      // Foreign key on pivot for the related model
         );
     }
 }

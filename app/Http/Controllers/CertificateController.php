@@ -184,9 +184,9 @@ class CertificateController extends Controller
 
             $location = base_path('uploads/certificates');
             
-            $newCertificate = generateCertificate($request, $program->id, $location, null, null, $template);
-            
             if(!$existingCertificate){
+                $newCertificate = generateCertificate($request, $program->id, $location, null, null, $template);
+
                 $cert = Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->program_id], [
                     'user_id' => $request->user_id,
                     'file' => $newCertificate['name'],
@@ -199,6 +199,8 @@ class CertificateController extends Controller
                     'certificate_id' => $cert->id
                 ]);
             }else{
+                $newCertificate = generateCertificate($request, $program->id, $location, null, $existingCertificate, $template);
+
                 $this->createCertificateHistory($existingCertificate);
                 $existingCertificate->update([
                     'allow_new_certificate_request' => 0,
@@ -681,6 +683,17 @@ class CertificateController extends Controller
             return back()->with('error', 'There is a pending request already, please try again later!');
         }
 
+        // Ensure this user has this program
+        $check = Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->program_id])->first();
+
+        if(!$check){
+            return back()->with('error', 'This User did not register for this program!');
+        }
+
+        if ($check->balance > 0) {
+            return back()->with('error', 'This User still has pending balance of !'. $check->balance . ' for the selected program/group');
+        }
+        
         $existingCertificate = Certificate::where('user_id', $request->user_id)->where('program_id', $request->program_id)->first();
         $request['action'] = 'approve';
 
