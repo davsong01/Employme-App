@@ -336,7 +336,7 @@ use Intervention\Image\Facades\Image;
                 if ($text_type == 'date_issued') {
                     $date_issued = !empty($request['date_issued'])
                         ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
-                        : '';
+                        : now()->format('jS \d\a\y \o\f F, Y');
                     $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
                 }
 
