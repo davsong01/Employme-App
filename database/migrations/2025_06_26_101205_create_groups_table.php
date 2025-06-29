@@ -9,7 +9,10 @@ return new class extends Migration {
             Schema::create('groups', function (Blueprint $table) {
                 $table->id();
                 $table->string('p_name');
-                $table->string('slug')->storedAs("LOWER(REPLACE(REPLACE(REPLACE(p_name, '(', ''), ')', ''), ' ', '-'))")->after('p_name');
+                $table->string('slug')
+                    ->storedAs("LOWER(REPLACE(REPLACE(REPLACE(p_name, '(', ''), ')', ''), ' ', '-'))")
+                    ->after('p_name');
+
                 $table->string('p_abbr');
                 $table->decimal('p_amount', 10, 2)->nullable();
                 $table->decimal('e_amount', 10, 2)->nullable();
