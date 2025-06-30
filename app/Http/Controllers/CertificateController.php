@@ -175,7 +175,7 @@ class CertificateController extends Controller
             $existingCertificate = Certificate::where('user_id', $request->user_id)->where('program_id', $request->program_id)->first();
             
             $program = Program::where('id', $request->program_id)->first();
-
+            $user = User::where('id', $request->user_id)->first();
             $template = $program->regenerationTemplate;
             
             if(!$template){
@@ -185,7 +185,7 @@ class CertificateController extends Controller
             $location = base_path('uploads/certificates');
             
             if(!$existingCertificate){
-                $newCertificate = generateCertificate($request, $program->id, $location, null, null, $template);
+                $newCertificate = generateCertificate($request, $program->id, $location, $user, null, $template);
 
                 $cert = Certificate::updateOrCreate(['user_id' =>  $request->user_id, 'program_id' => $request->program_id], [
                     'user_id' => $request->user_id,
@@ -214,20 +214,18 @@ class CertificateController extends Controller
                 return back()->with('error', 'There was an error generating a new certificate.');
             }
 
-            $userDetails = User::select('name', 'email')->find($request->user_id);
-            $name = $userDetails->name;
+            $name = $user->name;
 
             $details = [
                 'subject' => 'Your Certificate for ' . $program->p_name,
-                'email' => $userDetails->email,
+                'email' => $user->email,
                 // 'email' => 'davsong16@gmail.com',
                 'content' => "<p>Dear {$name},<br><br>Your certificate for the training <strong>{$program->p_name}</strong> has been successfully generated.<br><br>Please find your certificate attached.<br><br>Regards</p>",
                 'type' => 'bulk',
                 'attachments' => [$realpath],
             ];
             
-            $this->sendGenericEmail($details);
-            // return response()->download($realpath);
+            // $this->sendGenericEmail($details);
         }
 
         $regenerationRequest->save();
