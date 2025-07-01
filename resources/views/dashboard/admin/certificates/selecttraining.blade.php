@@ -6,10 +6,10 @@
     <div class="card">
         <div class="card-body">
             <div class="card-title">
-                 <h5 class="card-title" style="color:green"> Click the eye icon to View grades for respective trainings </h5><br>
+                <h5 class="card-title" style="color:green"> Click the eye icon to View grades for respective trainings </h5><br>
                 @include('layouts.partials.alerts')
-             </div>
-           
+            </div>
+            
             <div class="">
                 <table id="zero_config" class="table table-striped table-bordered">
                     <thead>
@@ -23,7 +23,7 @@
                     <tbody>
                         @foreach($programs as $program)
                         <tr>
-                            <td>{{  $i++ }}</td>
+                            <td>{{ $i++ }}</td>
                             <td>{{ $program->p_name }}</td>
                             <td>{{ $program->certificates_count }}</td>
                             <td>

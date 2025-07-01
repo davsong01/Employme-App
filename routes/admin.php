@@ -230,12 +230,15 @@ Route::middleware(['admin.access'])->group(function () {
             Route::post('preview-regenerated-certificate-settings', 'certificateRegenerationTemplatePreview')->name('generated-certificate.preview');
             Route::post('save-certificate-template', 'saveCertificateTemplate')->name('save.certificate.template');
             Route::delete('delete-certificate-template/{template}', 'deleteCertificateTemplate')->name('certificatetemplate.destroy');
+            Route::post('update-certificate-template/{template}', 'updateCertificateTemplate')->name('update.certificate.template');
 
             Route::get('certificate-regeneration-requests', 'certificateRegenerationRequests')->name('certificates.regeneration.requests');
             Route::put('/certificate-requests/{id}', [CertificateController::class, 'updateGenerationRequestStatus'])
                 ->name('certificate.requests.update');
 
             Route::post('admin-create-certificate-request', 'adminCreateRegenerationRequest')->name('admin.create.certificate.request');
+            Route::get('/certificate-template/{id}', 'serveTemplate')
+                ->name('certificate.template.serve');
 
             
         });

@@ -111,24 +111,6 @@ class CertificateController extends Controller
         return view('dashboard.admin.certificates.requests', compact('programs', 'regenerationRequests', 'users'));
     }
 
-    public function certificateRegenerationTemplates()
-    {
-        // Get all templates with their related programs
-        $templates = CertificateRegenerationTemplate::with([
-            'certificatePrograms' => function ($query) {
-                $query->select('programs.id', 'p_name');
-            }
-        ])->get();
-
-        $attachedProgramIds = DB::table('certificate_programs')->pluck('program_id');
-        $programs = Program::withCount('users')
-            ->where('id', '<>', 1)
-            ->whereNotIn('id', $attachedProgramIds)
-            ->orderBy('created_at', 'DESC')
-            ->get();
-
-        return view('dashboard.admin.certificates.certificate-regeneration-templates', compact('programs', 'templates'));
-    }
 
     public function deleteCertificateTemplate(CertificateRegenerationTemplate $template){
         if (file_exists(base_path() . '/uploads/certificates' . '/' . $template->auto_certificate_settings['auto_certificate_template'])) {
@@ -289,6 +271,27 @@ class CertificateController extends Controller
         return abort(404);
     }
 
+    public function certificateRegenerationTemplates()
+    {
+        // Get all templates with their related programs
+        $templates = CertificateRegenerationTemplate::with([
+            'certificatePrograms' => function ($query) {
+                $query->select('programs.id', 'p_name');
+            }
+        ])->get();
+
+        $attachedProgramIds = DB::table('certificate_programs')->pluck('program_id');
+
+        $programs = Program::withCount('users')
+            ->where('id', '<>', 1)
+            // ->whereNotIn('id', $attachedProgramIds)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('dashboard.admin.certificates.certificate-regeneration-templates', compact('programs', 'templates', 'attachedProgramIds'));
+    }
+
+
     public function saveCertificateTemplate(Request $request){
 
         $request->validate([
@@ -303,7 +306,7 @@ class CertificateController extends Controller
             'auto_certificate_left_offset.*' => 'nullable|numeric',
             'auto_certificate_color.*' => 'nullable|string',
         ]);
-
+        
         // Upload certificate file
         if ($request->hasFile('auto_certificate_template')) {
             $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
@@ -343,6 +346,73 @@ class CertificateController extends Controller
         // $template->certificatePrograms()->attach($request->program_ids);
         $template->certificatePrograms()->sync($request->program_ids);
         return back()->with('message', 'Certificate template saved successfully!');
+    }
+
+    public function serveTemplate($id)
+    {
+        $template = CertificateRegenerationTemplate::findOrFail($id);
+        $path = $template->auto_certificate_settings['auto_certificate_template'] ?? null;
+        
+        if (!$path || !file_exists(base_path('uploads/' . $path))) {
+            abort(404);
+        }
+
+        return response()->file(base_path('uploads/' . $path));
+    }
+
+    public function updateCertificateTemplate(Request $request, CertificateRegenerationTemplate $template)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'auto_certificate_template' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            'text_type' => 'array',
+            'text_type.*' => 'nullable|string',
+            'text_type_face.*' => 'nullable|string',
+            'auto_certificate_name_font_size.*' => 'nullable|numeric',
+            'auto_certificate_name_font_weight.*' => 'nullable|numeric',
+            'auto_certificate_top_offset.*' => 'nullable|numeric',
+            'auto_certificate_left_offset.*' => 'nullable|numeric',
+            'auto_certificate_color.*' => 'nullable|string',
+        ]);
+        // dd($request->all());
+        // Upload certificate file
+        if ($request->hasFile('auto_certificate_template')) {
+            $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+            $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+
+            $autoSettings['auto_certificate_template'] = 'certificate_templates/' . $name;
+        }
+
+
+        // Process settings
+        $settings = [];
+        if ($request->has('text_type')) {
+            foreach ($request->text_type as $index => $type) {
+                $settings[] = [
+                    'text_type' => $type ?? '',
+                    'text_type_face' => $request->text_type_face[$index] ?? '',
+                    'auto_certificate_name_font_size' => $request->auto_certificate_name_font_size[$index] ?? '',
+                    'auto_certificate_name_font_weight' => $request->auto_certificate_name_font_weight[$index] ?? '',
+                    'auto_certificate_top_offset' => $request->auto_certificate_top_offset[$index] ?? '',
+                    'auto_certificate_left_offset' => $request->auto_certificate_left_offset[$index] ?? '',
+                    'auto_certificate_color' => $request->auto_certificate_color[$index] ?? '#000000',
+                ];
+            }
+        }
+
+        $autoSettings['settings'] = $settings;
+        $autoSettings["auto_certificate_status"] = "yes";
+
+        $template->update([
+            'name' => $request->input('name'),
+            'auto_certificate_settings' => $autoSettings,
+        ]);
+
+        app('App\Http\Controllers\Admin\ProgramController')->deleteAllFilesInAPublicFolder('certificate_previews');
+
+
+        $template->certificatePrograms()->sync($request->program_ids);
+        return back()->with('message', 'Certificate template updated successfully!');
     }
 
     public function show(certificate $certificate)

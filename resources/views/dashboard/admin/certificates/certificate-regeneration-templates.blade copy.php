@@ -93,13 +93,18 @@
 
                         <td style="text-align:center;">
                             @if(!empty($template->auto_certificate_settings['auto_certificate_template']))
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#previewModal-{{ $template->id }}">
-                                    Preview
-                                </button>
+                                <img
+                                    src="{{ route('certificate.template.serve', $template->id) }}"
+                                    data-full="{{ route('certificate.template.serve', $template->id) }}"
+                                    alt="Certificate Template"
+                                    class="img-fluid zoomable"
+                                    style="max-height: 20vh; cursor: zoom-in;"
+                                >
                             @else
                                 <span>No Preview Available</span>
                             @endif
                         </td>
+                        
                         <td>
                             <ol>
                                 @foreach($template->certificatePrograms as $program)
@@ -127,6 +132,27 @@
                     @endforeach
                 </tbody>
             </table>
+            <div id="zoomModal" style="
+                display: none;
+                position: fixed;
+                z-index: 9999;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: rgba(0,0,0,0.85);
+                justify-content: center;
+                align-items: center;
+            ">
+                <span style="
+                    position: absolute;
+                    top: 20px;
+                    right: 30px;
+                    font-size: 30px;
+                    color: #fff;
+                    cursor: pointer;
+                    z-index: 10000;
+                " id="closeZoom">&times;</span>
+                <img id="zoomedImage" src="" style="max-width: 95%; max-height: 90vh; border: 4px solid white;">
+            </div>
 
             @foreach($templates as $template)
             <div class="modal fade" id="edit-{{ $template->id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ $template->id }}" aria-hidden="true">
@@ -270,8 +296,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-center">
-                            <img src="{{ route('certificate.template.serve', $template->id) }}?v={{ \Illuminate\Support\Str::random(8) }}" alt="Certificate Template" class="img-fluid" style="max-height: 80vh;">
-
+                            <img src="{{ route('certificate.template.serve', $template->id) }}" alt="Certificate Template" class="img-fluid" style="max-height: 80vh;">
                         </div>
                     </div>
                 </div>
@@ -435,6 +460,23 @@
     </div>
 </div>
 <script>
+    $(document).on('click', '.zoomable', function () {
+        const fullSrc = $(this).data('full');
+        $('#zoomedImage').attr('src', fullSrc);
+        $('#zoomModal').fadeIn();
+    });
+
+    $('#closeZoom').on('click', function () {
+        $('#zoomModal').fadeOut();
+    });
+
+    // Optional: close on background click
+    $('#zoomModal').on('click', function (e) {
+        if (e.target.id === 'zoomModal') {
+            $(this).fadeOut();
+        }
+    });
+
     $(function () {
         let rowIndex = 0;
     
