@@ -199,7 +199,7 @@ class CertificateController extends Controller
                     'certificate_id' => $cert->id
                 ]);
             }else{
-                $newCertificate = generateCertificate($request, $program->id, $location, null, $existingCertificate, $template);
+                $newCertificate = generateCertificate($request, $program->id, $location, $user, $existingCertificate, $template);
 
                 $this->createCertificateHistory($existingCertificate);
                 $existingCertificate->update([
@@ -225,7 +225,7 @@ class CertificateController extends Controller
                 'attachments' => [$realpath],
             ];
             
-            // $this->sendGenericEmail($details);
+            $this->sendGenericEmail($details);
         }
 
         $regenerationRequest->save();

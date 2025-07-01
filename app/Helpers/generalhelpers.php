@@ -271,7 +271,6 @@ use Intervention\Image\Facades\Image;
     if (!function_exists("generateCertificate")) {
         function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
         {
-
             if(!empty($program_id)) {
                 $program = Program::find($program_id);
                 $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;

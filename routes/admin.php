@@ -235,7 +235,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::put('/certificate-requests/{id}', [CertificateController::class, 'updateGenerationRequestStatus'])
                 ->name('certificate.requests.update');
 
-            Route::post('admin.create.certificate.request', 'adminCreateRegenerationRequest')->name('admin.create.certificate.request');
+            Route::post('admin-create-certificate-request', 'adminCreateRegenerationRequest')->name('admin.create.certificate.request');
 
             
         });
