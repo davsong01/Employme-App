@@ -503,182 +503,182 @@ if (!function_exists("getAccounts")) {
 
 
 if (!function_exists("getPackageAccess")) {
-        function getPackageAccess()
-        {
-            $packages = Package::where('id', Session::get('company_package_id'))->get();
-            dd($packages);
-            return [
-                'Teacher',
-            ];
-        }
+    function getPackageAccess()
+    {
+        $packages = Package::where('id', Session::get('company_package_id'))->get();
+        dd($packages);
+        return [
+            'Teacher',
+        ];
     }
+}
 
-    if (!function_exists("allRoutes")){
-        function allRoutes($type = null, $parent = null)
-        {
-            $menus = app('App\Http\Controllers\Controller')->adminMenus($type, $parent);
-            $menus = app('App\Http\Controllers\Controller')->flattenedMenus($menus);
-            
-            return $menus;
-        }
+if (!function_exists("allRoutes")){
+    function allRoutes($type = null, $parent = null)
+    {
+        $menus = app('App\Http\Controllers\Controller')->adminMenus($type, $parent);
+        $menus = app('App\Http\Controllers\Controller')->flattenedMenus($menus);
+        
+        return $menus;
     }
+}
 
-    if (!function_exists("allAccess")) {
-        function allAccess()
-        {
-            $menus = app('App\Http\Controllers\Controller')->adminTrainingPermissions('children');
+if (!function_exists("allAccess")) {
+    function allAccess()
+    {
+        $menus = app('App\Http\Controllers\Controller')->adminTrainingPermissions('children');
 
-            return $menus->sortBy('order')->pluck('route')->toArray();
-        }
+        return $menus->sortBy('order')->pluck('route')->toArray();
     }
+}
 
-    if (!function_exists("checkRoleHas")) {
-        function checkRoleHas($roles_to_check, $user=null)
-        {
-            $user = $user ?? resolveAuthUser();
-            
-            $user_roles = $user->role();
-            
-            return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
-        }
+if (!function_exists("checkRoleHas")) {
+    function checkRoleHas($roles_to_check, $user=null)
+    {
+        $user = $user ?? resolveAuthUser();
+        
+        $user_roles = $user->role();
+        
+        return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
     }
+}
 
-    if (!function_exists("getUserByGuard")) {
-        function getUserByGuard($email, $columns=null)
-        {
-            // Check the route prefix to determine guard type
-            $isAdmin = request()->is('admin*');
+if (!function_exists("getUserByGuard")) {
+    function getUserByGuard($email, $columns=null)
+    {
+        // Check the route prefix to determine guard type
+        $isAdmin = request()->is('admin*');
 
-            $query = $isAdmin ? Admin::query() : User::query();
+        $query = $isAdmin ? Admin::query() : User::query();
 
-            $query->where('email', $email)->orwhere('id',$email);
-            
-            if(!empty($columns)){
-                $query->select($columns);
-            }
-
-            return $query->first();
+        $query->where('email', $email)->orwhere('id',$email);
+        
+        if(!empty($columns)){
+            $query->select($columns);
         }
+
+        return $query->first();
     }
+}
 
-    if (!function_exists("resolveAuthUser")) {
-        function resolveAuthUser()
-        {
-            $currentRouteName = Route::currentRouteName();
-            $routes = ['impersonate', 'topimpersonating'];
-            
-            if (request()->prefix__ == '/admin' || in_array($currentRouteName, $routes)) {
-                $user = $user ?? Auth::guard('admin')->user();
-            } else {
-                $user = $user ?? Auth::user();
-            }
-
-            return $user;
+if (!function_exists("resolveAuthUser")) {
+    function resolveAuthUser()
+    {
+        $currentRouteName = Route::currentRouteName();
+        $routes = ['impersonate', 'topimpersonating'];
+        
+        if (request()->prefix__ == '/admin' || in_array($currentRouteName, $routes)) {
+            $user = $user ?? Auth::guard('admin')->user();
+        } else {
+            $user = $user ?? Auth::user();
         }
-    }
 
-    if (!function_exists("checkTrainingHasPermissions")) {
-        function checkTrainingHasPermissions($training_id, $permissionsToCheck = null)
-        {
-            $result = [];
-            $userPermissions = resolveAuthUser()->trainingPermissions();
-           
-            $userTrainingPermissions = $userPermissions->where('program_id', $training_id)->first();
-            $trainingPermissions = $userTrainingPermissions->training_permissions ?? [];
-            
-            // If specific permissions are provided, check them
-            if (!empty($permissionsToCheck)) {
-                foreach ($permissionsToCheck as $permission) {
-                    if (in_array(resolveAuthUser()->id, [1])) {
-                        $result[$permission] = true;
-                    }else{
-                        $result[$permission] = in_array($permission, $trainingPermissions);
-                    }
-                }
-            } else {
-                // Otherwise, mark all permissions as true
-                foreach ($trainingPermissions as $permission) {
+        return $user;
+    }
+}
+
+if (!function_exists("checkTrainingHasPermissions")) {
+    function checkTrainingHasPermissions($training_id, $permissionsToCheck = null)
+    {
+        $result = [];
+        $userPermissions = resolveAuthUser()->trainingPermissions();
+        
+        $userTrainingPermissions = $userPermissions->where('program_id', $training_id)->first();
+        $trainingPermissions = $userTrainingPermissions->training_permissions ?? [];
+        
+        // If specific permissions are provided, check them
+        if (!empty($permissionsToCheck)) {
+            foreach ($permissionsToCheck as $permission) {
+                if (in_array(resolveAuthUser()->id, [1])) {
                     $result[$permission] = true;
-                }
-            }
-            
-            return $result;
-        }
-    }
-
-    if (!function_exists("canUserAccessPermission")) {
-        function canUserAccessPermission($routes, $user=null)
-        {
-            $user = $user ??  resolveAuthUser();
-            $allMenus = allRoutes('access'); 
-            $userMenus = $user->permissions();
-            $result = [];
-
-            // Check for route-specific access
-            foreach($routes as $route){
-                if (in_array($route, $allMenus)) {
-                    $result[$route] = in_array($route, $userMenus) ? true : false;
                 }else{
-                    $result[$route] = true;
-                }
-
-            }
-            
-            return $result;
-        }
-    }
-
-    if (!function_exists("getAmountExtraCurrencies")) {
-        function getAmountExtraCurrencies($training, $type = null, $amount = null, $earlybird='no')
-        {
-            $string = '';
-            $array = [];
-            $amountToUse = $amount ?? ($earlybird == 'yes' ? $training->e_amount : $training->p_amount);
-            
-            if (!empty($training->currencies) && is_array($training->currencies)) {
-                $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
-                    return [intval($c['id']) => $c['amount'] ?? null];
-                })->all();
-
-                $currencyIds = array_keys($customAmounts);
-
-                $allCurrencies = Currency::where('status', 1)
-                    ->whereIn('id', $currencyIds)
-                    ->get();
-
-                foreach ($allCurrencies as $cur) {
-                    $currencyId = $cur->id;
-                    
-                    if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
-                        $converted = $customAmounts[$currencyId] * $amountToUse;
-                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
-                    } else {
-                        $converted = $cur->conversion_rate * $amountToUse;
-
-                        // Now apply 'part' rule
-                        $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
-                    }
-
-                    $string .= ' <span style="color:black">|</span> <strong>'
-                        . $cur->symbol . '</strong>'
-                        . number_format($finalAmount, 0);
-
-                    $key = $cur->country_name ?: ($cur->code ?? $cur->id);
-
-                    $array[$key] = [
-                        'symbol' => $cur->symbol,
-                        'name' => $cur->name,
-                        'amount' => number_format($finalAmount, 0)
-                    ];
+                    $result[$permission] = in_array($permission, $trainingPermissions);
                 }
             }
-
-            return [
-                'string' => $string,
-                'array' => $array
-            ];
+        } else {
+            // Otherwise, mark all permissions as true
+            foreach ($trainingPermissions as $permission) {
+                $result[$permission] = true;
+            }
         }
+        
+        return $result;
     }
+}
+
+if (!function_exists("canUserAccessPermission")) {
+    function canUserAccessPermission($routes, $user=null)
+    {
+        $user = $user ??  resolveAuthUser();
+        $allMenus = allRoutes('access'); 
+        $userMenus = $user->permissions();
+        $result = [];
+
+        // Check for route-specific access
+        foreach($routes as $route){
+            if (in_array($route, $allMenus)) {
+                $result[$route] = in_array($route, $userMenus) ? true : false;
+            }else{
+                $result[$route] = true;
+            }
+
+        }
+        
+        return $result;
+    }
+}
+
+if (!function_exists("getAmountExtraCurrencies")) {
+    function getAmountExtraCurrencies($training, $type = null, $amount = null, $earlybird='no')
+    {
+        $string = '';
+        $array = [];
+        $amountToUse = $amount ?? ($earlybird == 'yes' ? $training->e_amount : $training->p_amount);
+        
+        if (!empty($training->currencies) && is_array($training->currencies)) {
+            $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
+                return [intval($c['id']) => $c['amount'] ?? null];
+            })->all();
+
+            $currencyIds = array_keys($customAmounts);
+
+            $allCurrencies = Currency::where('status', 1)
+                ->whereIn('id', $currencyIds)
+                ->get();
+
+            foreach ($allCurrencies as $cur) {
+                $currencyId = $cur->id;
+                
+                if (isset($customAmounts[$currencyId]) && $customAmounts[$currencyId] !== null) {
+                    $converted = $customAmounts[$currencyId] * $amountToUse;
+                    $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                } else {
+                    $converted = $cur->conversion_rate * $amountToUse;
+
+                    // Now apply 'part' rule
+                    $finalAmount = ($type === 'part') ? $converted / 2 : $converted;
+                }
+
+                $string .= ' <span style="color:black">|</span> <strong>'
+                    . $cur->symbol . '</strong>'
+                    . number_format($finalAmount, 0);
+
+                $key = $cur->country_name ?: ($cur->code ?? $cur->id);
+
+                $array[$key] = [
+                    'symbol' => $cur->symbol,
+                    'name' => $cur->name,
+                    'amount' => number_format($finalAmount, 0)
+                ];
+            }
+        }
+
+        return [
+            'string' => $string,
+            'array' => $array
+        ];
+    }
+}
 
 
 if (!function_exists('getPriceRangeMultiCurrency')) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pop;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\Settings;
@@ -38,7 +39,11 @@ class PopController extends Controller
         ->where('p_end', '>', date('Y-m-d'))
         ->orderBy('created_at', 'DESC')
         ->get();
-        
+
+        $packages = Group::with(['programs' => function ($q) {
+            $q->mainActivePrograms();
+        }]);
+
         if(isset(session()->get('data')['metadata']['pid'])){
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         }else{
