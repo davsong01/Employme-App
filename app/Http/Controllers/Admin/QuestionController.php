@@ -131,7 +131,7 @@ class QuestionController extends Controller
             'module_id' => $request->module
         ]);
 
-        return redirect('questions')->with('message', 'Question succesfully added');
+        return redirect(route('questions.show', $question->module->program_id))->with('message', 'Question succesfully added');
     }
     public function show($p_id)
     {
@@ -152,13 +152,26 @@ class QuestionController extends Controller
     public function edit(Question $question)
     {
         $modules = Module::orderBy('created_at', 'DESC')->get();
+        
         return view('dashboard.admin.questions.edit', compact('question', 'modules'));
     }
 
     public function update(Request $request, Question $question)
     {
-        $question->update($request->all());
-        return back()->with('message', 'Question has been succesfully updated');
+            $data = $request->only(
+            [
+                'module_id',
+                'title',
+                'optionA',
+                'optionB',
+                'optionC',
+                'optionD',
+                'correct'
+            ]);
+
+        $question->update($data);
+
+        return redirect(route('questions.show', $question->module->program_id))->with('message', 'Question has been succesfully updated');
     }
 
     public function destroy(Question $question)
