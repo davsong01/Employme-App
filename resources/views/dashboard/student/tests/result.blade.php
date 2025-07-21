@@ -110,7 +110,7 @@
                     <div class="box bg-success text-center">
                         <h1 class="font-light text-white"><i class="fa fa-list-alt"></i></h1>
                         <div class="card-title">
-                        
+                        {{dd($program)}}
                         <h5 class="font-light text-white"> <b>Training: </b>  {{ $program->p_name }}</h5>
                         <h5 class="font-light text-white"> <b>Module: </b>{{ $result->module->title}}</h5>
                             <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
