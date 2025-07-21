@@ -75,7 +75,7 @@
                             <h5 class="font-light text-white"> <b>Module: </b>{{ $result->module->title}}</h5>
                                 <h4 class="text-white">Test Type: {{ $result->module->type }} </h4>
                                 <p class="text-white" style="font-weight: bold">Post Class Test Score: 
-                                    @if($program->hasresult = 1)
+                                    @if($program->hasresult == 1)
                                         @if($result->module->type == 'Certification Test')
                                             {{($result->certification_test_score > 0  && in_array($result->redo_test, [0,2] )) ? $result->certification_test_score.'/'. $program->scoresettings->certification  : 'Processing'}}
                                             @if((isset($result->grader_comment) && !empty($result->grader_comment)) || ((isset($result->facilitator_comment) && !empty($result->facilitator_comment))))
