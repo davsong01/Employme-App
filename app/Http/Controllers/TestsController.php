@@ -280,6 +280,7 @@ class TestsController extends Controller
 
             $i = 1;
             $program = Program::find($request->p_id);
+            dd($program );
             $hasmock = $program->hasmock;
 
             if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {
