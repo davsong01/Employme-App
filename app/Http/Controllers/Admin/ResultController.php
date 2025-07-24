@@ -28,18 +28,15 @@ class ResultController extends Controller
     public function posttest()
     {
         $i = 1;
-
+        $trainings = Program::orderby('created_at', 'DESC');
         if (checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             if (checkRoleHas(['Admin'])) {
-                $trainings = Program::whereHas('results', function ($query) {
-                    return $query;
-                })->orderby('created_at', 'DESC')->get();
+                $trainings = $trainings->get();
+
             } elseif (checkRoleHas(['Facilitator', 'Grader'])) {
                 $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
 
-                $trainings = Program::whereIn('id', $user_trainings)->whereHas('results', function ($query) {
-                    return $query;
-                })->orderby('created_at', 'DESC')->get();
+                $trainings = $trainings->whereIn('id', $user_trainings)->get();
             } else {
                 return back();
             }
