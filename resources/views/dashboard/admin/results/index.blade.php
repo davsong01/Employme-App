@@ -643,6 +643,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    
                     <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id, 'id'=>$program->id])}}" method="POST" class="pb-2">
                         <div class="row">
                             <div class="col-md-12">

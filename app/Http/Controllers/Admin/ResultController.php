@@ -59,7 +59,7 @@ class ResultController extends Controller
             ->with(['user', 'results' => function ($query) use ($request) {
                 $query->where('program_id', $request->p_id);
             }]);
-
+        
         if (!empty($request->status)) {
             if ($request->status == 'yes') {
                 $users = $users->has('results');
@@ -105,7 +105,6 @@ class ResultController extends Controller
             ->where('program_id', $request->p_id)
             ->first();
 
-
         // Execute query
         if (empty($request->columns)) {
             $users = $users->paginate(30);
@@ -131,8 +130,9 @@ class ResultController extends Controller
                 } else {
                     $data = $request->columns;
                 }
-
+                
                 $finalBuild = buildResultExport($users, $data, $score_settings);
+                
                 return (new FastExcel($finalBuild))->download('Post-test Report for ' . $program->p_name . '.xlsx');
             }
 
