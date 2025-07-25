@@ -26,7 +26,7 @@ class UtilityTaskController extends Controller
             
             if($pend && $pend->key == 'certificate-generation'){
                 $process = app('App\Http\Controllers\CertificateController')->generateCertificates($request, $pend->payload['program_id'], true);
-    
+                
                 if($process && isset($process['status']) && $process['status'] == 'success'){
                     $pend->status = 'completed';
                     $pend->save();

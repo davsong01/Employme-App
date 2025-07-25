@@ -334,6 +334,11 @@
                         <option value="no">No</option>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="date_issued" class="form-label">Date Issued</label>
+                    <input type="date" class="form-control" name="date_issued" id="date_issued" value="{{ now()->format('Y-m-d') }}">
+                </div>
+
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

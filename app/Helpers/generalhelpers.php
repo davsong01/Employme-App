@@ -382,6 +382,10 @@ if (!function_exists("generateCertificate")) {
             });
         }
 
+        $dateIssued = !empty($request['date_issued'])
+            ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+            : now()->format('jS \d\a\y \o\f F, Y');
+
         for ($i = 0; $i < $counter; $i++) {
             $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
             $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
@@ -408,16 +412,12 @@ if (!function_exists("generateCertificate")) {
                 $text = $certificate_number;
             }
 
-
             // \Log::info($certificate_settings['settings'], $certificate_settings['settings'][$i], $i);
             if ($text_type == 'date_issued') {
-                $date_issued = !empty($request['date_issued'])
-                    ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
-                    : now()->format('jS \d\a\y \o\f F, Y');
-                $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
-
+                $text = $dateIssued;
+                // $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
             }
-
+            
             // End text
             $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight, $text_type_face) {
                 $font->file(public_path('certificate_fonts/' . $text_type_face));
@@ -426,7 +426,7 @@ if (!function_exists("generateCertificate")) {
                 // $font->weight($auto_certificate_font_weight);
             });
         }
-
+        
         $name = uniqid(9) . '.jpg';
         // $outputImagePath = base_path('uploads/certificates/' . $name);
         $outputImagePath = $location . '/' . $name;
@@ -435,7 +435,8 @@ if (!function_exists("generateCertificate")) {
         return [
             'name' => $name,
             'certificate_number' => $certificate_number ?? rand(111,999),
-            'outputImagePath' => $outputImagePath
+            'outputImagePath' => $outputImagePath,
+            'date_issued' => $dateIssued
         ];
     }
 }

@@ -198,6 +198,7 @@ class CertificateController extends Controller
                     'user_id' => $request->user_id,
                     'file' => $newCertificate['name'],
                     'certificate_number' => $newCertificate['certificate_number'],
+                    'date_issued' => $newCertificate['date_issued'] ?? null,
                     'program_id' => $request->program_id,
                     'allow_new_certificate_request' => 0,
                 ]);
@@ -285,6 +286,9 @@ class CertificateController extends Controller
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
                 'certificate_number' => $certificate_number,
+                'date_issued' => !empty($request['date_issued'])
+                    ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+                    : now()->format('jS \d\a\y \o\f F, Y'),
             ]);
 
             Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->p_id])->update(['show_certificate' => 0]);
@@ -467,8 +471,8 @@ class CertificateController extends Controller
         if($internal){
             return true;
         }
-        //delete certificate from storage           
-        return redirect('certificates')->with('message', 'certificate succesfully deleted');
+        //delete certificate from storage   
+        return back()->with('message', 'certificate succesfully deleted');        
     }
 
     public function getfile($filename)
@@ -541,7 +545,7 @@ class CertificateController extends Controller
 
         if (!empty($cron_task) && $cron_task == 'yes') {
             // Cron
-            $payload = $request->except(['use_cron', 'prefix__']);
+            $payload = $request->except(['use_cron', 'prefix__', '_token']);
             $payload['program_id'] = $program_id;
 
             UtilityCronTask::updateOrcreate([
@@ -554,7 +558,6 @@ class CertificateController extends Controller
         }
 
         // Check if the user has the required roles
-
         if ($internal) {
             $check = true;
         } else {
@@ -602,7 +605,7 @@ class CertificateController extends Controller
                 $certificate = generateCertificate($request, $program_id, $location, $transaction->user);
                 if (!$certificate) {
                     continue;
-                    \Log::info('Certificate Generation Error');
+                    // \Log::info('Certificate Generation Error');
                 }
 
                 // Save the certificate to the database
@@ -611,6 +614,7 @@ class CertificateController extends Controller
                     'file' => $certificate['name'],
                     'certificate_number' => $certificate['certificate_number'],
                     'program_id' => $program_id,
+                    'date_issued' => $certificate['date_issued'],
                 ]);
 
                 // Leave the show_certificate as 0 as per your request
