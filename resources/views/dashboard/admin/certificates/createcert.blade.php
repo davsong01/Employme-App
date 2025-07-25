@@ -95,6 +95,7 @@
                             <th style="width: 115px;">Program Details</th>
                             @endif
                             <th>Details</th>
+                            <th>Date Issued</th>
                             <th>Date Updated</th>
                             <th>Actions</th>
                         </tr>
@@ -200,6 +201,7 @@
                                 </script>
                                 @endif
                             </td>
+                            <td>{{ !empty($certificate->date_issued) ? $certificate->date_issued->format('d/m/Y') : 'N/A' }}</td>
                             <td>{{ $certificate->updated_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="btn-group">
