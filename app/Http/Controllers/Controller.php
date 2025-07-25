@@ -1482,6 +1482,20 @@ class Controller extends BaseController
                 'category_id' => 1
             ],
             [
+                'id' => 51,
+                'name' => 'Disable Certificate',
+                'route' => 'certificates.disable',
+                'order' => 5,
+                'category_id' => 1
+            ],
+            [
+                'id' => 61,
+                'name' => 'Enable Certificate',
+                'route' => 'certificates.enable',
+                'order' => 6,
+                'category_id' => 1
+            ],
+            [
                 'id' => 7,
                 'name' => 'Reset Password',
                 'route' => 'password.reset',

@@ -28,6 +28,20 @@
     <link rel="stylesheet" href="{{ asset('modal.css') }}" />
 
     <style>
+        
+        .simple-badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            background-color: #28a745;
+            border-radius: 5px;
+            line-height: 1;
+            text-transform: uppercase;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
         .table {
             border-radius: 8px;
             overflow: hidden;

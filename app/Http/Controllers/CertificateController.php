@@ -56,16 +56,18 @@ class CertificateController extends Controller
             $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
 
             $program = $transaction->program;
-            
+
             // Checks
+            if ($program->show_certificate == 0) {
+                return back()->with('error', 'Certificates not yet out for this training!');
+            }
+            
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
                 if ($transaction->balance > 0) {
-                    return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
+                    return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get view/download certificate');
                 }
             }
 
-            // if (!empty($program->scoreSettings)) {
-                
             if ($program->only_certified_should_see_certificate == 'yes') {
                 $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
                 
@@ -75,8 +77,6 @@ class CertificateController extends Controller
                 }
             }
 
-            // }
-            
             $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
             
             if (!isset($certificate)) {
@@ -91,6 +91,31 @@ class CertificateController extends Controller
             $pendingRegenerationRequests = CertificateRegenerationRequest::where('user_id', auth()->user()->id)->where('status','pending')->first();
 
             return view('dashboard.student.certificates.index', compact('certificate', 'program', 'regenerationRequests', 'pendingRegenerationRequests'));
+        }
+        return back();
+    }
+
+    public function enable($id)
+    {
+
+        if (checkRoleHas(['Admin'])) {
+            $program = Program::findorfail($id);
+            $program->show_certificate = 1;
+            $program->save();
+
+            return back()->with('message', 'Participants of this program can now download certificates');
+        }
+        return back();
+    }
+
+    public function disable($id)
+    {
+        if (checkRoleHas(['Admin'])) {
+            $program = Program::findorfail($id);
+            $program->show_certificate = 0;
+            $program->save();
+
+            return back()->with('message', 'Participants of this program can no longer download certificates');
         }
         return back();
     }

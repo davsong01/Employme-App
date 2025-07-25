@@ -391,13 +391,12 @@ if (!function_exists("generateCertificate")) {
             $text_type_face = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
 
             $text = 'Aboki Ogbeni Chuckwuma';
-
             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
+
             // Get text
             if ($text_type == 'name') $text = $user->name ?? $text;
             if ($text_type == 'email') $text = $user->email;
             if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
-
 
             if ($text_type == 'certificate_number') {
                 if (!empty($program_id)) {
@@ -409,11 +408,14 @@ if (!function_exists("generateCertificate")) {
                 $text = $certificate_number;
             }
 
+
+            // \Log::info($certificate_settings['settings'], $certificate_settings['settings'][$i], $i);
             if ($text_type == 'date_issued') {
                 $date_issued = !empty($request['date_issued'])
                     ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
                     : now()->format('jS \d\a\y \o\f F, Y');
                 $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
+
             }
 
             // End text

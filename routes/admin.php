@@ -135,6 +135,9 @@ Route::middleware(['admin.access'])->group(function () {
             Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
             Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
             Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
+
+            Route::get('certificate-enable/{id}', [CertificateController::class, 'enable'])->name('certificates.enable');
+            Route::get('certificate-disable/{id}', [CertificateController::class, 'disable'])->name('certificates.disable');
         });
     
         // Programs Routes

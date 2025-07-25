@@ -178,6 +178,8 @@
                                 'crm.show',
                                 'results.disable',
                                 'results.enable',
+                                'certificates.disable',
+                                'certificates.enable',
                                 'password.reset', 
                                 'registration.close', 
                                 'registration.open',
@@ -260,17 +262,34 @@
                                 @if($program->hasresult == 0)
                                     @if($program->permissions['results.enable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Enable User Results"
-                                        class="btn btn-success btn-xs" href="{{ route('results.enable', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable result
+                                        class="btn btn-success btn-xs" href="{{ route('results.enable', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable results
                                     </a>
                                     @endif
                                 @else
                                     @if($program->permissions['results.disable'])
                                     <a data-toggle="tooltip" data-placement="top" title="Disable User Results"
-                                        class="btn btn-info btn-xs" href="{{ route('results.disable', ['p_id'=> $program->id, 'id'=> $program->id])}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Result
+                                        class="btn btn-warning btn-xs" href="{{ route('results.disable', ['p_id'=> $program->id, 'id'=> $program->id])}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Results
                                     </a>
                                     @endif
                                 @endif
-
+                                
+                                @if($program->show_certificate == 0)
+                                    @if($program->permissions['certificates.enable'])
+                                    <a data-toggle="tooltip" data-placement="top" title="Enable User Certificates"
+                                        class="btn btn-success btn-xs" href="{{ route('certificates.enable', ['p_id'=> $program->id, 'id'=> $program->id])}}" onclick="return confirm('Are you really sure?');"><i class="fa fa-graduation-cap"></i> Enable Certificates
+                                    </a>
+                                    @endif
+                                @else
+                                    @if($program->permissions['certificates.disable'])
+                                    <a data-toggle="tooltip" data-placement="top" title="Disable User Certificates"
+                                        class="btn btn-warning btn-xs" href="{{ route('certificates.disable', ['p_id'=> $program->id, 'id'=> $program->id])}}" ><i onclick="return confirm('Are you really sure?');" class="fa fa-ban"></i> Disable Certificates
+                                    </a>
+                                    @endif
+                                @endif
+                                
+                                @if(!empty($program->auto_certificate_settings['auto_certificate_status']) && $program->auto_certificate_settings['auto_certificate_status'] == 'yes')
+                                    <span class="simple-badge">Auto Certificate</span>
+                                @endif
                             </td>
                             
                             <td><strong>Normal Fee:</strong> {{ \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION'). number_format($program->p_amount) }} <br>

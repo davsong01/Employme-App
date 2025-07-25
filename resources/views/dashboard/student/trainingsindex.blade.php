@@ -53,19 +53,21 @@
                 </li>
                 @endif
                 
-                @php
-                    $trans = Transaction::query()
-                    ->select('id', 'show_certificate', 'program_id', 'user_id')
-                    ->where('user_id', resolveAuthUser()->id)
-                    ->where('program_id', $program->id)
-                    ->first();
-                    $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
-                @endphp
-                @if($show_certificate == 1 && !empty($trans->certificate) )
-                <li class="sidebar-item"><a href="{{ route('participants.certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
-                            class="fas fa-certificate"></i><span class="hide-menu">My Certificate
-                    </span></a>
-                </li>
+                @if($program->show_certificate == 1 )
+                    @php
+                        $trans = Transaction::query()
+                        ->select('id', 'show_certificate', 'program_id', 'user_id')
+                        ->where('user_id', resolveAuthUser()->id)
+                        ->where('program_id', $program->id)
+                        ->first();
+                        $show_certificate = !empty($trans) ? $trans->show_certificate : 0;
+                    @endphp
+                    @if($show_certificate == 1 && !empty($trans->certificate) )
+                    <li class="sidebar-item"><a href="{{ route('participants.certificates.index', ['p_id' => $program->id]) }}" class="sidebar-link"><i
+                                class="fas fa-certificate"></i><span class="hide-menu">My Certificate
+                        </span></a>
+                    </li>
+                    @endif
                 @endif
 
                 @if(isset($balance) && $balance > 0)

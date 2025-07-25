@@ -51,7 +51,7 @@ class MaterialController extends Controller
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to materials');
                 }
             }
-
+            
             if ($program->hasmock == 1) {
 
                 //Check if user has taken pre tests and return back if otherwise
