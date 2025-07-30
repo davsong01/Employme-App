@@ -410,14 +410,21 @@ class ResultController extends Controller
         $request["crm_test_score"] = $request->crm_score;
         $request["certification_test_score"] = $request->certification_score;
 
-        $request["certification_facilitator"] = resolveAuthUser()->name;
         $request["certification_facilitator_comment"] = $request->facilitator_comment;
+        
+        $request["certification_grader"] = ($request->certification_score <> $result->training_result->certification_test_score) ? resolveAuthUser()->name : $result->training_result->certification_grader;
 
-        $request["certification_grader"] = resolveAuthUser()->name;
+        $request["certification_facilitator"] = ($request->roleplayscore <> $result->training_result->roleplay_test_score) ? resolveAuthUser()->name : $result->training_result->certification_facilitator;
+
+        // dd($request->roleplayscore,$result->training_result->roleplay_test_score);
+        // dd($request["certification_facilitator"]);
+        // $request[""] = resolveAuthUser()->name;
+
+
         $request["certification_grader_comment"] = $request->grader_comment;
 
         $transaction = udateTrainingResult($result->program_id, $result->user_id, $request->all());
-
+        
         $realResult->update([
             "email_test_score" => $request->emailscore,
             "role_play_score" => $request->roleplayscore,
@@ -555,7 +562,7 @@ class ResultController extends Controller
             "crm_test_score" => $results->crm_test_score,
             "email_test_score" => $results->email_test_score,
             "facilitator_comment" => $results->facilitator_comment,
-            "grader_comment" => $results->grader_comment
+            "grader_comment" => $results->grader_comment,
         ]);
 
         return $thread;
