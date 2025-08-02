@@ -252,10 +252,10 @@ class Controller extends BaseController
         if(!isset($coupon->id)){
             $coupon = Coupon::where('code', $code)->first();
         }
-       
+        
         if(isset($coupon) && !empty($coupon)){
             $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
-           
+            
             if(isset($usage)){
                 if($usage->status == 1){
                     return NULL;
@@ -1275,7 +1275,16 @@ class Controller extends BaseController
                 'route' => 'currency.index',
                 'type' => 'menu',
                 'order' => 16,
-                'icon_class' => 'fa fa-usd',
+                'icon_class' => 'fa fa-money-bill-wave',
+                'parentId' => null
+            ],
+            [
+                'id' => 26,
+                'name' => 'Blacklist Management',
+                'route' => 'blacklist.index',
+                'type' => 'menu',
+                'order' => 17,
+                'icon_class' => 'fa fa-ban',
                 'parentId' => null
             ],
             [

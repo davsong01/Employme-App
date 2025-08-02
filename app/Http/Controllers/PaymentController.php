@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use PDF;
 use App\Models\User;
+use App\Http\Requests;
 use App\Models\Coupon;
+use App\Models\Wallet;
 use App\Models\Program;
 use App\Models\Settings;
 use App\Models\PaymentMode;
 use App\Models\Transaction;
-use App\Http\Requests;
-use App\Models\Wallet;
-use App\Models\TempTransaction;
 use Illuminate\Http\Request;
+use App\Models\PaymentThread;
+use App\Models\TempTransaction;
+use App\Services\BlacklistService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\PaymentThread;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Redirect;
@@ -160,6 +161,13 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
+        if (BlacklistService::checkByValues([
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ])) {
+            return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+        }
+        
         $template = Settings::first()->templateName->name;
         
         if ($request->user_program && $request->type == 'balance') {

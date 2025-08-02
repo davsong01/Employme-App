@@ -11,20 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('results', function (Blueprint $table) {
-            $table->string('duplicate_key')->nullable()->unique()->after('program_id');
-        });
+        if (!Schema::hasColumn('results', 'duplicate_key')) {
 
-        // Backfill old records
-        DB::statement("
-            UPDATE results 
-            SET duplicate_key = CONCAT(module_id, '-', user_id, '-', program_id)
-        ");
+            // Step 1: Add nullable column with unique index
+            Schema::table('results', function (Blueprint $table) {
+                $table->string('duplicate_key')->nullable()->unique()->after('program_id');
+            });
 
-        // Now enforce NOT NULL after backfill
-        Schema::table('results', function (Blueprint $table) {
-            $table->string('duplicate_key')->nullable(false)->change();
-        });
+            // Step 2: Backfill old records
+            DB::statement("
+                UPDATE results
+                SET duplicate_key = CONCAT(module_id, '-', user_id, '-', program_id)
+            ");
+
+            // Step 3: Make it NOT NULL
+            Schema::table('results', function (Blueprint $table) {
+                $table->string('duplicate_key')->nullable(false)->change();
+            });
+        }
     }
 
     /**

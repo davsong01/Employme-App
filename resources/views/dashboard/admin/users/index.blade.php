@@ -170,8 +170,15 @@
                                         <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
                                     </div>
                                 </div>
-
-                                <div class="col-md-4 mb-2">
+                                <div class="col-md-3 mb-2">
+                                    <div class="form-group">
+                                        <select name="is_blacklisted" id="" class="form-control">
+                                            <option value="">Is Blacklisted?</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 mb-2">
                                     <button type="submit" class="btn btn-primary btn-search w-100">Search</button>
                                 </div>
                             </form>
@@ -207,7 +214,15 @@
                             {{-- <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td>  --}}
 
                             <b style="display:none">{{ $count = 1 }}</b>
-                            <td style="color:green">{{ $user->last_login ? date("M jS, Y H:i", strtotime($user->last_login)) : '' }}</td>
+                            <td style="color:green">
+                                @if (App\Services\BlacklistService::checkByValues([
+                                        'email' => $user->email,
+                                        'phone' => $user->phone,
+                                    ]))
+                                    <button class="btn btn-danger btn-sm">Blacklisted</button> <br>
+                                @endif 
+                                {{ $user->last_login ? date("M jS, Y H:i", strtotime($user->last_login)) : '' }}
+                            </td>
                             <td>
                                 {{ $user->name }} <br>
                                 @foreach($user->programs as $programs)

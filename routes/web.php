@@ -174,7 +174,7 @@ Route::middleware(['web.access'])->group(function () {
     
         Route::resource('users', UserController::class);
         Route::resource('payment-modes', PaymentModeController::class);
-        Route::resource('paymentmethod', PaymentMethodController::class);
+        // Route::resource('paymentmethod', PaymentMethodController::class);
         Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
         Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
         Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');

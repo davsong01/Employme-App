@@ -17,7 +17,7 @@
 <div class="alert alert-danger" role="alert">
     <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
             aria-hidden="true">&times;</span></button>
-    <strong>Error!</strong> {{ session()->get('danger')}}
+        {{ session()->get('danger')}}
 </div>
 @endif
 @if(session()->get('msg'))
