@@ -184,7 +184,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label style="color:">Participants of this program should have access to:</label>
-                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple required>
+                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple>
                                             @foreach($programs as $pro)
                                                 <option value="{{ $pro->id }}" {{ in_array($pro->id, $program->resolve_to_ids ?? []) ? 'selected' : '' }}>
                                                     {{ $pro->p_name }}
