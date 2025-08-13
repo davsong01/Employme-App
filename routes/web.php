@@ -67,7 +67,9 @@ Route::middleware(['web.access'])->group(function () {
             Route::get('/trainings/{id?}', 'show')->name('trainings');
             Route::get('packages/{id?}', 'showPackages')->name('show.packages');
             
-            Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
+            Route::get('early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
+            Route::get('early-bird-groups/{id?}', 'groupEarlyBird')->name('earlybird.groups');
+            
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
             
             Route::get('verify-certificate', [CertificateController::class, 'verifyCertificate'])->name('verify.certificate');

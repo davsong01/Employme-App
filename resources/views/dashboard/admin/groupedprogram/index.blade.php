@@ -215,7 +215,7 @@
                                 
                                             @if ($group->early_bird_status == 1)
                                                 <div class="mt-1">
-                                                    <a href="{{ url('/early-bird-trainings') . '/' . $group->slug }}" target="_blank" class="d-inline-block text-success">
+                                                    <a href="{{ route('earlybird.groups', $group->slug)}}" target="_blank" class="d-inline-block text-success">
                                                         <i class="fa fa-eye me-1"></i> Preview Early Bird Package
                                                     </a>
                                                 </div>

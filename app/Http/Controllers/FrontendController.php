@@ -131,7 +131,7 @@ class FrontendController extends Controller
     {
         $id = \Request::get('training') ?? $id;
         $training = Program::with('subPrograms')->where('id', $id)->orWhere('slug', $id)->first();
-
+        
         if ($training->p_end < date('Y-m-d') || $training->close_registration == 1) {
             return redirect(route('welcome'));
         }
@@ -148,6 +148,28 @@ class FrontendController extends Controller
         }
         
         return view('early_bird_single_training', compact('training', 'locations', 'modes'));
+    }
+
+    public function groupEarlyBird($id = null)
+    {
+        $id = \Request::get('training') ?? $id;
+
+        $training = Group::with(['programs' => function ($q) {
+            $q->mainActivePrograms();
+        }])
+            ->isActive()
+            ->where('id', $id)
+            ->orWhere('slug', $id)
+            ->firstOrFail();
+
+        if ($training->p_end < date('Y-m-d') || $training->status != 1) {
+            return redirect(route('packages'));
+        }
+
+        $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
+        $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
+        
+        return view('early_bird_single_group_with_children', compact('training', 'locations', 'modes'));
     }
 
 
