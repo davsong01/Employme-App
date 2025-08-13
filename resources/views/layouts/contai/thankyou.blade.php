@@ -45,7 +45,7 @@
                           </td>
                       @else
                           <td>
-                              {{ $data['p_name'] }}
+                              {{ $data['programName'] }}
                           </td>
                       @endif
                   </tr>

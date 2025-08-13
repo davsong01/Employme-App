@@ -629,7 +629,8 @@ class PaymentController extends Controller
                 $data['type'] = 'initial';
                 $data['name'] = $temp->name;
                 $data['transaction'] = $temp;
-
+                $data['program'] = $program;
+                
                 PaymentThread::create([
                     'program_id' => $temp->program_id,
                     'user_id' => $temp->user_id,
