@@ -340,12 +340,14 @@
                         </div>
                         {{-- CHILD PROGRAMS --}}
                         <div class="form-group mb-3">
+                            {{-- {{dd($allActivePrograms->pluck('id')->toArray())}} --}}
                             <label>Child Programs *</label>
                             <select name="programs[]" class="form-control select2" multiple required>
                                 @foreach ($allPrograms as $program)
                                     <option value="{{ $program->id }}"
-                                        {{ $group->programs->pluck('id')->contains($program->id) ? 'selected' : '' }}>
+                                        {{ in_array($program->id, $group->programs->pluck('id')->toArray()) ? 'selected' : '' }}>
                                         {{ $program->p_name }}
+                                        {{ in_array($program->id, $allActivePrograms->pluck('id')->toArray()) ? '(Active)' : '(Inactive)'}}
                                     </option>
                                 @endforeach
                             </select>
@@ -371,6 +373,13 @@
                                 <input  type="number" step="0.01" name="e_amount"
                                         class="form-control"
                                         value="{{ old('e_amount', $group->e_amount) }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label>Enable Part Payment</label>
+                                <select name="haspartpayment" class="form-control">
+                                    <option value="1" {{ $group->haspartpayment == '1' ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $group->haspartpayment == '0' ? 'selected' : '' }}>No</option>
+                                </select>
                             </div>
                         </div>
 
