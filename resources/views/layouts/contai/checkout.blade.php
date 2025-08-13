@@ -101,114 +101,154 @@
                         @endif
                     </div>
                     <div class="col-lg-6 col-md-6">
-                        <div class="checkout__order">
-                            <div class="checkout__order__products">Order details</div>
-                            <table style="width: 100%;">
-                                <tr class="bor-bottom">
-                                    <th class="col1">Payment Type</th>
-                                    <td class="col2">
-                                        {{ ucfirst($type) }} Payment 
-                                    </td>
-                                </tr>
-                                <tr class="bor-bottom">
-                                    <th class="col1">Training</th>
-                                    <td class="col2">{{ $training['p_name'] }}</td>
-                                </tr>
-                                
-                                <tr class="bor-bottom">
-                                    <th class="col1">Sub total</th>
-                                    <td class="col2">
-                                        {{ $currency_symbol . number_format($amount) }} 
-                                        
-                                        @if($type == 'earlybird')
-                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                        <div class="checkout__order border rounded-3 p-4 shadow-sm bg-white">
+                            {{-- ===== Title ===== --}}
+                            <h5 class="fw-semibold text-primary mb-4">Order Summary</h5>
+                    
+                            {{-- ===== Order Table ===== --}}
+                            <table class="table table-sm align-middle mb-4">
+                                <tbody>
+                                    {{-- Payment type on one neat line --}}
+                                    <tr class="border-0">
+                                        <th class="text-muted w-35">Payment Type:</th>
+                                        <td class="fw-medium">{{ ucfirst($type) }} Payment</td>
+                                    </tr>
+                                    @if($isPackage && isset($training['programs']))
+                                    <tr class="border-0">
+                                        <th class="text-muted w-35">Package Name:</th>
+                                        <td class="fw-medium">{{ ucfirst($training['p_name']) }} </td>
+                                    </tr>
+                                    @endif
+                                    {{-- Trainings, numbered + light background --}}
+                                    <tr class="border-0">
+                                        <th class="text-muted">Training{{ $isPackage ? 's' : '' }}:</th>
+                                        @if ($isPackage && isset($training['programs']))
+                                        <td class="bg-light rounded p-2" style="padding: 5px 20px !important;font-size: 14px;color: black;">
+                                            <div class="bg-light rounded p-2">
+                                                    <ol class="mb-0 ps-3">
+                                                        @foreach ($training['programs'] as $child)
+                                                            <li>{{ $child['p_name'] }}</li>
+                                                        @endforeach
+                                                    </ol>
+                                            </div>
+                                            
+                                        </td>
                                         @else
-                                        {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                                        <td>
+                                            {{ $training['p_name'] }}
+                                        </td>
                                         @endif
-                                    </td>
-                                </tr>
-
-                                <tr class="bor-bottom" id="show-coupon" style="display:none">
-                                    <th class="col1">Coupon Applied</th>
-                                    <td class="col2">{{ $currency_symbol }}<span id="coupon_amount"></span> </td>
-                                </tr>
-                                <tr class="bor-bottom">
-                                    <th class="col1">Total</th>
-                                    <td class="col2">
-                                        {{ $currency_symbol}}
-                                        <span id="total">{{ number_format($amount) }}
-                                            @if($type == 'earlybird')
-                                            {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                                    </tr>
+                    
+                                    {{-- Sub‑total --}}
+                                    <tr class="border-0">
+                                        <th class="text-muted">Subtotal:</th>
+                                        <td>
+                                            {{ $currency_symbol . number_format($amount) }}
+                                            @if ($type === 'earlybird')
+                                                {!! getAmountExtraCurrencies($trainingObject ?? [], $type, $trainingObject->e_amount, 'yes')['string'] !!}
                                             @else
-                                            {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                                                {!! getAmountExtraCurrencies($trainingObject ?? [], $type, $trainingObject->p_amount)['string'] !!}
                                             @endif
-                                        </span> 
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                    
+                                    {{-- Coupon (hidden by default) --}}
+                                    <tr id="show-coupon" class="border-0 d-none">
+                                        <th class="text-muted">Coupon Applied:</th>
+                                        <td>{{ $currency_symbol }}<span id="coupon_amount"></span></td>
+                                    </tr>
+                    
+                                    {{-- Grand Total --}}
+                                    <tr class="border-top fw-semibold">
+                                        <th class="text-dark pt-2">Total:</th>
+                                        <td class="pt-2">
+                                            {{ $currency_symbol }}
+                                            <span id="total">
+                                                {{ number_format($amount) }}
+                                                @if ($type === 'earlybird')
+                                                    {!! getAmountExtraCurrencies($trainingObject ?? [], $type, $trainingObject->e_amount, 'yes')['string'] !!}
+                                                @else
+                                                    {!! getAmountExtraCurrencies($trainingObject ?? [], $type, $trainingObject->p_amount)['string'] !!}
+                                                @endif
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                             
-                            <input type="hidden" name="modes" value="{{ $modes }}">
-                            <input type="hidden" name="location" value="{{ $location }}">
-                            <input type="hidden" name="preferred_timing" value="{{ $preferred_timing }}">
-                            <input type="hidden" name="orderID" value="{{ $training['id'] }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <input type="hidden" class="total" id="amount" name="amount" value="{{ ($amount) }}">
-                            <input type="hidden" name="currency" value="{{  $currency }}">
-                            <input type="hidden" name="metadata" value="{{ json_encode($array = ['pid' => $training['id'], 'facilitator' => $facilitator , 'coupon_id' => $coupon_id ?? NULL, 'type'=>$type ?? NULL]) }}"> 
-
-                            <div class="d-lg-flex justify-content-center align-items-start flex-column">
-                            @if($amount > 0)
-                                <h4 class="">Choose payment method</h4>
-                                <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                                    @if(resolveAuthUser())
-                                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa-solid fa-wallet"></i> Pay from account balance</button>
-                                    @endif
-                                    @if($settings->allow_transfer_button == 'yes' || in_array($training['id'], [68]))
-                                        <button class="mr-1 mb-1 pay-option" name="payment_mode" value="0"><i class="fa fa-bank"></i> Pay with Bank Transfer</button>
-                                    @endif
-                                    @if(!in_array($training['id'], [68]))
-                                        @foreach($payment_modes as $mode)
-                                        @if($mode->type == 'card')
-                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
-                                        @endif
-                                        @if($mode->type == 'crypto')
-                                            <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
-                                        @endif
-                                        @endforeach
-                                    @endif
-                                </div>
-                                <div class="w-100 d-flex justify-content-start align-items-center flex-wrap">
-                            @else
-                                <h4 class=""></h4>
-                                <button class="mr-1 mb-1 pay-option btn-primary" name="payment_mode" value="register"><i class="fa fa-hand-pointer-o"></i> <span>COMPLETE REGISTRATION</span></button>
+                            {{-- ===== Hidden Inputs ===== --}}
+                            <input type="hidden" name="modes"             value="{{ $modes }}">
+                            @if($isPackage && isset($training['programs']))
+                            <input type="hidden" name="programs" value="{{ json_encode(array_column($training['programs'], 'id')) }}">
+                            @else 
+                            <input type="hidden" name="programs" value="{{ json_encode([$training['id']]) }}">
                             @endif
+                            <input type="hidden" name="location"          value="{{ $location }}">
+                            <input type="hidden" name="preferred_timing"  value="{{ $preferred_timing }}">
+                            <input type="hidden" name="orderID"           value="{{ $training['id'] }}">
+                            <input type="hidden" name="quantity"          value="1">
+                            <input type="hidden" id="amount" class="total" name="amount" value="{{ $amount }}">
+                            <input type="hidden" name="currency"          value="{{ $currency }}">
+                            <input type="hidden" name="metadata"
+                                   value="{{ json_encode([
+                                       'pid'        => $training['id'],
+                                       'facilitator'=> $facilitator,
+                                       'coupon_id'  => $coupon_id ?? null,
+                                       'type'       => $type ?? null,
+                                       'isPackage'     => $isPackage
+                                   ]) }}">
+                    
+                            {{-- ===== Payment Methods ===== --}}
+                            <div class="mt-4">
+                                @if ($amount > 0)
+                                    <h6 class="mb-3 fw-semibold">Choose Payment Method</h6>
+                                    
+                                    <div class="d-flex flex-wrap gap-3" style="gap: 15px;">
+                                        @if (resolveAuthUser())
+                                            <button type="button" class="btn btn-outline-dark pay-option" name="payment_mode" value="wallet">
+                                                <i class="fa-solid fa-wallet me-2"></i> Pay from Balance
+                                            </button>
+                                        @endif
+                            
+                                        @if ($settings->allow_transfer_button === 'yes' || in_array($training['id'], [68]))
+                                            <button type="submit" class="btn btn-outline-secondary pay-option" name="payment_mode" value="0">
+                                                <i class="fa fa-bank me-2"></i> Bank Transfer
+                                            </button>
+                                        @endif
+                            
+                                        @if (!in_array($training['id'], [68]))
+                                            @foreach ($payment_modes as $mode)
+                                                @if ($mode->type === 'card')
+                                                    <button type="submit" class="btn btn-outline-primary pay-option d-flex align-items-center" name="payment_mode" value="{{ $mode->id }}">
+                                                        <i class="fa fa-credit-card me-2"></i> Pay with
+                                                        <span class="ms-2 d-inline-block" style="width: 24px; height: 16px; background-image: url('{{ url('/paymentmodes/' . $mode->image) }}'); background-size: contain; background-repeat: no-repeat; background-position: center;"></span>
+                                                    </button>
+                                                @endif
+                            
+                                                @if ($mode->type === 'crypto')
+                                                    <button type="submit" class="btn btn-outline-warning pay-option d-flex align-items-center" name="payment_mode" value="{{ $mode->id }}">
+                                                        <i class="fa fa-bitcoin me-2"></i> Pay with
+                                                        <span class="ms-2 d-inline-block" style="width: 24px; height: 16px; background-image: url('{{ url('/paymentmodes/' . $mode->image) }}'); background-size: contain; background-repeat: no-repeat; background-position: center;"></span>
+                                                    </button>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                @else
+                                    <button type="button" class="btn btn-primary mt-3 pay-option w-100" name="payment_mode" value="register">
+                                        <i class="fa fa-hand-pointer-o me-2"></i> Complete Registration
+                                    </button>
+                                @endif
                             </div>
+                            
                         </div>
                     </div>
+                    
                 </div>
             </form>
         </div>
     </div>
-    <div class="modal fade" id="transferModal" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Modal Header</h4>
-        </div>
-        <div class="modal-body">
-          <p>Some text in the modal.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-  
 </div>
     
 </section>

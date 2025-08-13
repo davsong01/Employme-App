@@ -10,17 +10,21 @@
                 @include('layouts.partials.alerts')
             </div>
         </div>
+        
         @if(session()->get('data'))
         <?php
-            $extraCurrencies = session()->get('data')['extraCurrencies']['array'] ?? [];
+            $data = session()->get('data');
+            $extraCurrencies = $data['extraCurrencies']['array'] ?? [];
+            $transaction = $data['transaction'] ?? [];
+            $groups = $data['groups'] ?? [];
+            
         ?>
         <div class="checkout__form transfer">
             <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">
-                Please pay &#8358;{{ number_format(session()->get('data')['amount']) }} (or the appropriate amount in your local currency) into the appropraite account below: <br>
-                {{-- Please pay intothe appropraite account number below: <br> --}}
-                <?php $training_id = session()->get('data')['metadata']['pid']; ?>
+                Please pay &#8358;{{ number_format($transaction->amount) }} (or the appropriate amount in your local currency) into the appropraite account below: <br>
+                <?php $training_id = $transaction->program_id; ?>
                 <div id="nigeria" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Nigeria (Naira Payment) - <span style="color:red">&#8358;{{ number_format(session()->get('data')['amount'])}}</span> 
+                    <h4 style="">Nigeria (Naira Payment) - <span style="color:red">&#8358;{{ number_format($transaction->amount) }}</span> 
 
                     </h4>
                     @foreach($accounts as $account)
@@ -192,14 +196,25 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
-                                    <p>Select Course<span>*</span></p>
-                                    <select name="training" id="training" class="form-control" required>
-                                        <option value="">-- Select --</option>
-                                        @foreach($trainings as $training)
-                                        <option value="{{ $training->id }}" {{ (isset(session()->get('data')['metadata']['pid']) && session()->get('data')['metadata']['pid'] == $training->id) ? 'selected' : ''  }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }} @if(in_array($training->id, [68])), GHc 60, GMD 75
-                                    @endif)</option>
-                                        @endforeach
-                                    </select>
+                                    
+                                    @if($transaction->is_package)
+                                        <p>Select Package<span>*</span></p>
+                                        <select name="training" id="training" class="form-control" required>
+                                            <option value="">-- Select --</option>
+                                            @foreach($groups as $group)
+                                                <option value="{{ $group->id }}" {{ $transaction->program_id == $group->id ? 'selected' : ''  }}>{{ $group->p_name }} | ({{ $currency . number_format($group->p_amount) }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <p>Select Course<span>*</span></p>
+                                        <select name="training" id="training" class="form-control" required>
+                                            <option value="">-- Select --</option>
+                                            @foreach($trainings as $training)
+                                            <option value="{{ $training->id }}" {{ $transaction->program_id == $training->id ? 'selected' : '' }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }} @if(in_array($training->id, [68])), GHc 60, GMD 75
+                                            @endif)</option>
+                                            @endforeach
+                                        </select>
+                                    @endif
                                 </div>
                             </div>
                         </div>

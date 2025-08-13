@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
 use Illuminate\Database\Eloquent\Model;
@@ -9,12 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 class TempTransaction extends Model
 {
     protected $guarded = [];
-
+    protected $casts = ['program_ids' => 'array','meta'=>'array'];
+    
     public function coupon(){
         return $this->belongsTo(Coupon::class, 'coupon_id');
     }
 
-     public function program(){
+    public function program(){
         return $this->belongsTo(Program::class, 'program_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'program_id');
     }
 }
