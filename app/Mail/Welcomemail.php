@@ -60,6 +60,11 @@ class Welcomemail extends Mailable
                     ->attachData($this->pdf->output(), "E-receipt.pdf")
                     ->subject('E - Receipt');
             }
+
+            if ($this->data['type'] == 'pop') {
+                return $this->markdown('emails.bulk_email')
+                    ->subject('POP Uploaded');
+            }
         }
         
         return $this->markdown('emails.welcomemail')

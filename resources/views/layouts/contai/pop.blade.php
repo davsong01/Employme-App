@@ -11,131 +11,131 @@
             </div>
         </div>
         
-        @if(session()->get('data'))
         <?php
             $data = session()->get('data');
             $extraCurrencies = $data['extraCurrencies']['array'] ?? [];
-            $transaction = $data['transaction'] ?? [];
+            $transaction = $data['transaction'] ?? null;
             $groups = $data['groups'] ?? [];
             
         ?>
-        <div class="checkout__form transfer">
-            <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">
-                Please pay &#8358;{{ number_format($transaction->amount) }} (or the appropriate amount in your local currency) into the appropraite account below: <br>
-                <?php $training_id = $transaction->program_id; ?>
-                <div id="nigeria" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Nigeria (Naira Payment) - <span style="color:red">&#8358;{{ number_format($transaction->amount) }}</span> 
+        @if(session()->get('data'))
+            <div class="checkout__form transfer">
+                <div class="b_transfer" style="font-size: 20px;background: #040080;color: white;padding: 20px;">
+                    Please pay &#8358;{{ number_format($transaction->amount) }} (or the appropriate amount in your local currency) into the appropraite account below: <br>
+                    <?php $training_id = $transaction->program_id; ?>
+                    <div id="nigeria" style="border-radius: 5px;background: #f2f2e8;color: black;padding: 15px;margin: 5px;">
+                        <h4 style="">Nigeria (Naira Payment) - <span style="color:red">&#8358;{{ number_format($transaction->amount) }}</span> 
 
-                    </h4>
-                    @foreach($accounts as $account)
-                        @if ($account['country'] == 'Nigeria')
-                            <div class="inner" style="margin-bottom: 15px;">
-                                <strong>Bank: </strong>{{$account['bank']}} <br>
-                                <strong>Account Number: </strong>{{$account['number']}} <br>
-                                <strong>Name: </strong>{{$account['name']}} <br>
-                            </div> 
-                            <hr>
-                        @endif
-                    @endforeach
+                        </h4>
+                        @foreach($accounts as $account)
+                            @if ($account['country'] == 'Nigeria')
+                                <div class="inner" style="margin-bottom: 15px;">
+                                    <strong>Bank: </strong>{{$account['bank']}} <br>
+                                    <strong>Account Number: </strong>{{$account['number']}} <br>
+                                    <strong>Name: </strong>{{$account['name']}} <br>
+                                </div> 
+                                <hr>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    {{-- @if($type == 'earlybird')
+                    {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
+                    @else
+                    {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
+                    @endif --}}
+
+                    @if(isset($extraCurrencies['Ghana']))
+                    <div id="ghana" style="border-radius: 5px;background: #ffff7e;color: black;padding: 15px;margin: 5px;">
+                        <h4 style="">Ghana (Cedes Payment)
+                            @if(isset($extraCurrencies['Ghana']))  - 
+                                <span style="color:red">
+                                    {{$extraCurrencies['Ghana']['symbol']}}{{$extraCurrencies['Ghana']['amount']}}
+                                </span>
+                            @endif
+                        </h4>
+                        @foreach($accounts as $account)
+                            @if ($account['country'] == 'Ghana')
+                                <div class="inner" style="margin-bottom: 15px;">
+                                    <strong>Bank: </strong>{{$account['bank']}} <br>
+                                    <strong>Account Number: </strong>{{$account['number']}} <br>
+                                    <strong>Name: </strong>{{$account['name']}} <br>
+                                </div>
+                                <hr>
+                            @endif
+                        @endforeach
+                    </div>
+                    @endif
+
+                    @if(isset($extraCurrencies['Gambia']))
+                    <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
+                        <h4 style="">Gambia
+                            @if(isset($extraCurrencies['Gambia']))  - 
+                                <span style="color:red">
+                                    {{ $extraCurrencies['Gambia']['symbol'] }}{{ $extraCurrencies['Gambia']['amount'] }}
+                                </span>
+                            @endif
+                        </h4>
+                        @foreach($accounts as $account)
+                            @if ($account['country'] == 'Gambia')
+                                <div class="inner" style="margin-bottom: 15px;">
+                                    <strong>Bank: </strong>{{$account['bank']}} <br>
+                                    <strong>Account Number: </strong>{{$account['number']}} <br>
+                                    <strong>Name: </strong>{{$account['name']}} <br>
+                                </div>
+                                <hr>
+                            @endif
+                        @endforeach
+                    </div>
+                    @endif
+
+                    @if(isset($extraCurrencies['Benin Rep & Togo']))
+                    <div id="gambia" style="border-radius: 5px;background: #c4f502;color: black;padding: 15px;margin: 5px;">
+                        <h4 style="">Benin Rep & Togo
+                            @if(isset($extraCurrencies['Benin Rep & Togo']))  - 
+                                <span style="color:red">
+                                    {{ $extraCurrencies['Benin Rep & Togo']['symbol'] }}{{ $extraCurrencies['Benin Rep & Togo']['amount'] }}
+                                </span>
+                            @endif
+                        </h4>
+                        @foreach($accounts as $account)
+                            @if ($account['country'] == 'Benin Rep & Togo')
+                                <div class="inner" style="margin-bottom: 15px;">
+                                    <strong>Bank: </strong>{{$account['bank']}} <br>
+                                    <strong>Account Number: </strong>{{$account['number']}} <br>
+                                    <strong>Name: </strong>{{$account['name']}} <br>
+                                </div>
+                                <hr>
+                            @endif
+                        @endforeach
+                    </div>
+                    @endif
+
+                    @if(isset($extraCurrencies['Cameroon']))
+                    <div id="gambia" style="border-radius: 5px;background: #3d5de9;color: black;padding: 15px;margin: 5px;">
+                        <h4 style="">Cameroon
+                            @if(isset($extraCurrencies['Cameroon']))  - 
+                                <span style="color:red">
+                                    {{ $extraCurrencies['Cameroon']['symbol'] }}{{ $extraCurrencies['Cameroon']['amount'] }}
+                                </span>
+                            @endif  
+                        </h4>
+                        @foreach($accounts as $account)
+                            @if ($account['country'] == 'Cameroon')
+                                <div class="inner" style="margin-bottom: 15px;">
+                                    <strong>Bank: </strong>{{$account['bank']}} <br>
+                                    <strong>Account Number: </strong>{{$account['number']}} <br>
+                                    <strong>Name: </strong>{{$account['name']}} <br>
+                                </div>
+                                <hr>
+                            @endif
+                        @endforeach
+                    </div>
+                    @endif
+
+                    And then Upload your proof of payment using the form below
                 </div>
-
-                {{-- @if($type == 'earlybird')
-                {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->e_amount, 'yes',)['string'] !!}
-                @else
-                {!! getAmountExtraCurrencies($trainingObject ?? [], $type,$trainingObject->p_amount)['string'] !!}
-                @endif --}}
-
-                @if(isset($extraCurrencies['Ghana']))
-                <div id="ghana" style="border-radius: 5px;background: #ffff7e;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Ghana (Cedes Payment)
-                        @if(isset($extraCurrencies['Ghana']))  - 
-                            <span style="color:red">
-                                {{$extraCurrencies['Ghana']['symbol']}}{{$extraCurrencies['Ghana']['amount']}}
-                            </span>
-                        @endif
-                    </h4>
-                    @foreach($accounts as $account)
-                        @if ($account['country'] == 'Ghana')
-                            <div class="inner" style="margin-bottom: 15px;">
-                                <strong>Bank: </strong>{{$account['bank']}} <br>
-                                <strong>Account Number: </strong>{{$account['number']}} <br>
-                                <strong>Name: </strong>{{$account['name']}} <br>
-                            </div>
-                            <hr>
-                        @endif
-                    @endforeach
-                </div>
-                @endif
-
-                @if(isset($extraCurrencies['Gambia']))
-                <div id="gambia" style="border-radius: 5px;background: #1edb05;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Gambia
-                        @if(isset($extraCurrencies['Gambia']))  - 
-                            <span style="color:red">
-                                {{ $extraCurrencies['Gambia']['symbol'] }}{{ $extraCurrencies['Gambia']['amount'] }}
-                            </span>
-                        @endif
-                    </h4>
-                    @foreach($accounts as $account)
-                        @if ($account['country'] == 'Gambia')
-                            <div class="inner" style="margin-bottom: 15px;">
-                                <strong>Bank: </strong>{{$account['bank']}} <br>
-                                <strong>Account Number: </strong>{{$account['number']}} <br>
-                                <strong>Name: </strong>{{$account['name']}} <br>
-                            </div>
-                            <hr>
-                        @endif
-                    @endforeach
-                </div>
-                @endif
-
-                @if(isset($extraCurrencies['Benin Rep & Togo']))
-                <div id="gambia" style="border-radius: 5px;background: #c4f502;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Benin Rep & Togo
-                        @if(isset($extraCurrencies['Benin Rep & Togo']))  - 
-                            <span style="color:red">
-                                {{ $extraCurrencies['Benin Rep & Togo']['symbol'] }}{{ $extraCurrencies['Benin Rep & Togo']['amount'] }}
-                            </span>
-                        @endif
-                    </h4>
-                    @foreach($accounts as $account)
-                        @if ($account['country'] == 'Benin Rep & Togo')
-                            <div class="inner" style="margin-bottom: 15px;">
-                                <strong>Bank: </strong>{{$account['bank']}} <br>
-                                <strong>Account Number: </strong>{{$account['number']}} <br>
-                                <strong>Name: </strong>{{$account['name']}} <br>
-                            </div>
-                            <hr>
-                        @endif
-                    @endforeach
-                </div>
-                @endif
-
-                @if(isset($extraCurrencies['Cameroon']))
-                <div id="gambia" style="border-radius: 5px;background: #3d5de9;color: black;padding: 15px;margin: 5px;">
-                    <h4 style="">Cameroon
-                        @if(isset($extraCurrencies['Cameroon']))  - 
-                            <span style="color:red">
-                                {{ $extraCurrencies['Cameroon']['symbol'] }}{{ $extraCurrencies['Cameroon']['amount'] }}
-                            </span>
-                        @endif  
-                    </h4>
-                    @foreach($accounts as $account)
-                        @if ($account['country'] == 'Cameroon')
-                            <div class="inner" style="margin-bottom: 15px;">
-                                <strong>Bank: </strong>{{$account['bank']}} <br>
-                                <strong>Account Number: </strong>{{$account['number']}} <br>
-                                <strong>Name: </strong>{{$account['name']}} <br>
-                            </div>
-                            <hr>
-                        @endif
-                    @endforeach
-                </div>
-                @endif
-
-                And then Upload your proof of payment using the form below
             </div>
-        </div>
         @endif
         <div class="checkout__form">
             <h4>Upload Proof of Payment</h4>
@@ -194,26 +194,27 @@
                             </div>
 
                             <div class="row">
-                            {{-- Program Type --}}
+                                {{-- Program Type --}}
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Program Type <span>*</span></p>
                                     <select name="program_type" id="program_type" class="form-control" required>
                                         <option value="">-- Select Type --</option>
-                                        <option value="package" {{ ($transaction && $transaction->is_package) ? 'selected' : '' }}>Package</option>
-                                        <option value="training" {{ ($transaction && !$transaction->is_package) ? 'selected' : '' }}>Training</option>
+                                        <option value="package" {{ (!empty($transaction) && $transaction->is_package) ? 'selected' : '' }}>Package</option>
+                                        <option value="training" {{ (empty($transaction) || !$transaction->is_package) ? 'selected' : '' }}>Training</option>
                                     </select>
                                 </div>
                             </div>
 
                             {{-- Package Section --}}
-                            <div class="col-lg-12 program-section" id="package_section" style="display:none;">
+                            <div class="col-lg-12 program-section" id="package_section" style="display: none;">
                                 <div class="checkout__input">
                                     <p>Select Package <span>*</span></p>
                                     <select name="package_id" id="package_id" class="form-control">
                                         <option value="">-- Select --</option>
                                         @foreach($groups as $group)
-                                            <option value="{{ $group->id }}" {{ ($transaction && $transaction->program_id == $group->id) ? 'selected' : '' }}>
+                                            <option value="{{ $group->id }}"
+                                                {{ (!empty($transaction) && $transaction->program_id == $group->id) ? 'selected' : '' }}>
                                                 {{ $group->p_name }} | ({{ $currency . number_format($group->p_amount) }})
                                             </option>
                                         @endforeach
@@ -221,7 +222,6 @@
                                 </div>
                             </div>
 
-                            {{-- Training Section --}}
                             <div class="col-lg-12 program-section" id="training_section" style="display:none;">
                                 <div class="checkout__input">
                                     <p>Select Course <span>*</span></p>

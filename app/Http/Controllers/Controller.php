@@ -72,7 +72,7 @@ class Controller extends BaseController
                     $data['content'] = $this->emailContent($data)['content'];
                     
                     $transaction->email = 'davsong16@gmail.com';
-                    $data['type'] = 'initial';
+                    // $data['type'] = 'initial';
                     
                     // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
 
@@ -763,14 +763,14 @@ class Controller extends BaseController
             $content .= '<div>
             <p style="text-align:justify !important">Your payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br></p>
             </div>';
-        }else if ($data['type'] == 'balance') {
+        }elseif ($data['type'] == 'balance') {
             $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
             $content .= '<div>
             <p style="text-align:justify !important">Your balance payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br>You can now access all sections of your portal!</p>
             </div>';
-        } else if ($data['type'] == 'initial') {
+        } elseif ($data['type'] == 'initial') {
             $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
@@ -781,7 +781,7 @@ class Controller extends BaseController
             Username: ' . $data['email'] . ' <br>
             Password: 12345 <small> <strong>(Use existing password if you are a returning participant)</strong> </small>
             </span><br><br><a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to your Portal here</button></a><br></br><br>';
-        }else if ($data['type'] == 'pop'){
+        }elseif ($data['type'] == 'pop'){
             $subject = 'Proof of Payment Uploaded';
             $content .= "<strong>Dear Admin</strong>,<br>
                 <p>Please find below proof of payment details with file attached </p>
@@ -805,7 +805,7 @@ class Controller extends BaseController
         }elseif($data['type'] == 'bulk'){
             $subject = $data['subject'];
             $content = $data['content'];
-        } else if ($data['type'] == 'manual.wallet.topup') {
+        } elseif ($data['type'] == 'manual.wallet.topup') {
             $subject = 'Account top up Proof of Manual Payment Uploaded';
             $content .= "<strong>Dear Admin</strong>,<br>
                 <p>Please find below proof of manual account top up details with file attached </p>

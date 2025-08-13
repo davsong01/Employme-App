@@ -43,7 +43,7 @@ class PopController extends Controller
         ->orderBy('created_at', 'DESC')
         ->get();
 
-        $packages = Group::isActive()->with(['programs' => function ($q) {
+        $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActivePrograms();
         }]);
         
@@ -55,6 +55,7 @@ class PopController extends Controller
         
         return view('pop')
             ->with('trainings', $trainings)
+            ->with('groups', $groups)
             ->with('accounts', $accounts);
     }
 
@@ -85,7 +86,7 @@ class PopController extends Controller
         ]);
         
         // Remove data from session
-        // \Session::forget(['data']);
+        \Session::forget(['data']);
 
         $file = Str::random(10);
         $extension = $request->file('file')->getClientOriginalExtension();
@@ -96,16 +97,19 @@ class PopController extends Controller
         // Check if already uploaded same pop
         if($program_type == 'package'){
             $popCheck = Pop::whereEmail($data['email'])->whereGroupId($data['training_id'])->where('is_package', 1)->where('amount', $data['amount'])->count();
+            $program = Group::where('id', $data['training_id'])->first();
         }else{
             $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training_id'])->where('is_package', 0)->where('amount', $data['amount'])->count();
+            $program = Program::where('id', $data['training_id'])->first();
         }
+
         
         if ($popCheck > 0) {
             return back()->with('error', "You have already uploaded proof of payment for this {$program_type} and with the same amount, kindly wait while an administrator approves your request");
         }
 
         if (isset($user) && !empty($user)) {
-            $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();
+            $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training_id']])->where('balance', '<', 1)->count();
 
             if ($check > 0) {
                 return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
@@ -115,7 +119,7 @@ class PopController extends Controller
         // Check if user already paid for same program
         $user = User::whereEmail($data['email'])->value('id');
         if (isset($user) && !empty($user)) {
-            $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training']]);
+            $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training_id']]);
             $check = $validate->where('balance', '<', 1)->count();
             if ($check > 0) {
                 return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
@@ -125,7 +129,7 @@ class PopController extends Controller
         }
 
         // Get temp transaction 
-        $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training'])->first();
+        $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training_id'])->first();
         $data['location'] = $temp->location ?? null;
         $data['training_mode'] = $temp->training_mode ?? null;
         
@@ -138,7 +142,7 @@ class PopController extends Controller
                 'bank' =>  $data['bank'],
                 'coupon_id' =>  $data['coupon_id'],
                 'amount' =>  $data['amount'],
-                'program_id' =>  $data['training'],
+                'program_id' =>  $data['training_id'],
                 'currency' =>  $data['currency'],
                 'currency_symbol' =>  $data['currency_symbol'],
                 'is_fresh' => $type ?? null,
@@ -150,16 +154,19 @@ class PopController extends Controller
             
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
-            $data['training'] = Program::where('id', $data['training'])->value('p_name');
+            $data['training'] = $program->p_name;
+            
             $data['type'] = 'pop';
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
             $data['participant_email'] = $pop->email;
             $data['realfilename'] = $file . '.' . $extension;
+            $data['transaction'] = $temp;
             
             $this->sendWelcomeMail($data);
         } catch (\Exception $e) {
+            dd($e->getMessage(), $e->getLine().$e->getFile());
             \Log::info($e->getMessage());
-            // return back()->with('error', $e->getMessage());
+            return back()->with('error', 'Something happened or you have already uploaded POP');
         }
 
         return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
