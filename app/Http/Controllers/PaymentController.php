@@ -814,6 +814,16 @@ class PaymentController extends Controller
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
                 
+                $temp->update([
+                    'status' => 'complete',
+                ]);
+
+                $data['type'] = 'initial';
+                $data['name'] = $temp->name;
+                $data['transaction'] = $temp;
+
+                return $this->sendWelcomeMail($data);
+
                 PaymentThread::create([
                     'program_id' => $temp->program_id,
                     'user_id' => $temp->user_id,

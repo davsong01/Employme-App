@@ -50,39 +50,50 @@ class Controller extends BaseController
         }
         return $invoice_id;
     }
-    
-    public function sendWelcomeMail($data,$pdf=null){
+
+    public function sendWelcomeMail($data, $pdf = null)
+    {
         set_time_limit(360);
-        dd($data);        
+        $transaction = $data['transaction'];
         $provider = $this->emailProvider();
-        
-        if($provider == 'default'){
-            if (isset($data['invoice_id'])) {
-                $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-            } else $pdf = null;
-                
+
+        if ($provider == 'default') {
+            $pdf = !empty($transaction->invoice_id)
+                ? PDF::loadView('emails.printreceipt', compact('transaction'))
+                : null;
+
+            // return $pdf->stream('receipt-preview.pdf'); // preview pdf only
+
             try {
-                if(env('ENT') == 'local'){
-                    \Log::info(['email' => $data]);
-                }else{
-                    $data[
-                    'subject'] = $this->emailContent($data)['subject'];
+                if (env('ENT') == 'local') {
+                    // \Log::info(['email' => $data]);
+                    $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
-                    
-                    Mail::to($data['email'])->send(new Welcomemail($data, $pdf));
+                    $transaction->email = 'davsong16@gmail.com';
+                    $data['type'] = 'initial';
+
+                    // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
+
+                    Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
+                } else {
+                    $data['subject'] = $this->emailContent($data)['subject'];
+                    $data['content'] = $this->emailContent($data)['content'];
+
+                    Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
                 }
-            } catch(\Exception $e){
-                dd($e->getMessage());
-                // Get error here
+            } catch (\Exception $e) {
+                dd($e->getMessage(), $e->getFile(), $e->getLine());
                 return false;
             }
-        } else{
-            if (isset($data['invoice_id'])) {
-                $pdf = PDF::loadView('emails.printreceipt', compact('data'));
-                if(env('ENT') == 'local'){
+        } else {
+            if (!empty($transaction->invoice_id)) {
+                $pdf = !empty($transaction->invoice_id)
+                    ? PDF::loadView('emails.printreceipt', compact('transaction'))
+                    : null;
+                if (env('ENT') == 'local') {
                     $file = 'receipts/' . $data['invoice_id'] . ".pdf";
                     $filepath = public_path() . '/' . $file;
-                }else{
+                } else {
                     $file = base_path() . '/receipts/' . $data['invoice_id'] . ".pdf";
                     $filepath = $file;
                 }
@@ -96,20 +107,19 @@ class Controller extends BaseController
                     'file' => $file,
                 ];
             }
-            
-            if(isset($data['type']) && $data['type'] == 'pop'){
+
+            if (isset($data['type']) && $data['type'] == 'pop') {
                 // $data['attachments'] = $data['pop'];
                 $data['attachments'] = [
                     'filename' => $data['realfilename'],
                     'filepath' => $data['pop'],
-                    'file' => 'uploads/pop/'.$data['realfilename'],
+                    'file' => 'uploads/pop/' . $data['realfilename'],
                 ];
-
             }
-            
+
             $this->sendEmailWithElastic($data);
         }
-        
+
         return;
     }
 
