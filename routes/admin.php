@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PopController;
 use App\Http\Controllers\MockController;
+use App\Http\Controllers\TestsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\SettingsController;
@@ -51,7 +52,6 @@ Route::middleware(['admin.access'])->group(function () {
     
 
         Route::resource('payment-modes', PaymentModeController::class);
-        Route::resource('paymentmethod', PaymentMethodController::class);
         Route::resource('currency', CurrencyController::class);
 
         Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
@@ -87,7 +87,14 @@ Route::middleware(['admin.access'])->group(function () {
         // Route::get('/my-wallet/{user_id}', [WalletController::class, 'participantWalletIndex'])->name('my.wallet');
         // Route::post('/top-up-account/{type?}', [PaymentController::class, 'accountTopUp'])->name('account.topup');
         // Route::get('/download-program-brochure/{p_id}', [HomeController::class, 'downloadProgramBrochure'])->name('download.program.brochure')->middleware(['programCheck']);
-    
+        
+        Route::get('blacklist', [SettingsController::class, 'blacklistIndex'])->name('blacklist.index');
+        Route::post('blacklist', [SettingsController::class, 'blacklistStore'])->name('blacklist.store');
+        Route::get('blacklist/create', [SettingsController::class, 'blacklistCreate'])->name('blacklist.create');
+        Route::get('blacklist/{blacklist}/edit', [SettingsController::class, 'blacklistEdit'])->name('blacklist.edit');
+        Route::patch('blacklist/{blacklist}', [SettingsController::class, 'blacklistUpdate'])->name('blacklist.update');
+        Route::delete('blacklist/{blacklist}', [SettingsController::class, 'blacklistDestroy'])->name('blacklist.destroy');
+        
         Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
         Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
         Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
@@ -135,6 +142,9 @@ Route::middleware(['admin.access'])->group(function () {
             Route::get('certifications', [ResultController::class, 'certifications'])->name('certifications.index');
             Route::get('resultenable/{id}', [ResultController::class, 'enable'])->name('results.enable');
             Route::get('resultdisable/{id}', [ResultController::class, 'disable'])->name('results.disable');
+
+            Route::get('certificate-enable/{id}', [CertificateController::class, 'enable'])->name('certificates.enable');
+            Route::get('certificate-disable/{id}', [CertificateController::class, 'disable'])->name('certificates.disable');
         });
     
         // Programs Routes

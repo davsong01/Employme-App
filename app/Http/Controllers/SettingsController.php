@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blacklist;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
@@ -106,5 +107,63 @@ class SettingsController extends Controller
     public function destroy(Settings $settings)
     {
         //
+    }
+
+    public function blacklistIndex(Request $request){
+        $blacklists = Blacklist::latest()->when($request->filled('value'), function ($query) use ($request) {
+            $query->where('value', $request->value);
+        })->get();
+
+        return view('dashboard.admin.blacklists.index', compact('blacklists'));
+
+    }
+
+    public function blacklistCreate(){
+        return view('dashboard.admin.blacklists.create');
+    }
+
+    public function blacklistEdit(Blacklist $blacklist)
+    {
+        return view('dashboard.admin.blacklists.edit', compact('blacklist'));
+    }
+
+    public function blacklistStore(Request $request)
+    {
+        $validated = $request->validate([
+            'type'  => 'required|string|max:50', // e.g., email, phone, ip, etc.
+            'value' => 'required|string|max:255|unique:blacklists,value',
+            'reason' => 'nullable|string|max:255',
+        ]);
+
+        $validated['added_by'] = resolveAuthUser()->id;
+        // Create blacklist entry
+        Blacklist::create($validated);
+
+        return redirect()
+            ->route('blacklist.index')
+            ->with('message', 'Created successfully');
+    }
+
+    public function blacklistUpdate(Request $request, Blacklist $blacklist)
+    {
+        $validated = $request->validate([
+            'type'   => 'required|string|max:50',
+            'value'  => 'required|string|max:255|unique:blacklists,value,' . $blacklist->id,
+            'reason' => 'nullable|string|max:255',
+            'status' => 'required|boolean',
+        ]);
+
+        $blacklist->update($validated);
+
+        return redirect()
+            ->route('blacklist.index')
+            ->with('message', 'Updated successfully');
+    }
+
+    public function blacklistDestroy(Blacklist $blacklist)
+    {
+        $blacklist->delete();
+
+        return back()->with('message', 'Delete successful');
     }
 }

@@ -30,7 +30,7 @@ class MaterialController extends Controller
         
         if (checkRoleHas(['Admin','Facilitator'])){
             if(checkRoleHas(['Admin'])) {
-                $programs = Program::withCount('materials')->whereHas('materials')->orderBy('created_at', 'desc')->get();
+                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->get();
             }
     
             if(checkRoleHas(['Facilitator','Grader'])) {
@@ -51,7 +51,7 @@ class MaterialController extends Controller
                     return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get access to materials');
                 }
             }
-
+            
             if ($program->hasmock == 1) {
 
                 //Check if user has taken pre tests and return back if otherwise

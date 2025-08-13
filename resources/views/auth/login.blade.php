@@ -36,7 +36,7 @@ Login
             @else
             <form action="{{ route('login') }}" method="POST" enctype="multipart/form-data">
             @endif
-                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                @csrf
                 <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">
                 <div class="row">
                 <div class="col-lg-12 col-md-12">

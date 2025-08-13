@@ -185,9 +185,16 @@ class TestsController extends Controller
                         'user_id' => resolveAuthUser()->id,
                         'module_id' => $module->id,
                         'certification_test_details' => json_encode($certification_test_details),
+                        "duplicate_key" => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
+
                     ]);
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $ex->getMessage();
+                    if ($ex->errorInfo[1] == 1062) { // MySQL duplicate entry code
+                        return back()->with(
+                            'error',
+                            'You have already taken this test. Please click "Post Class Tests" on the left navigation bar to take an available test.'
+                        );
+                    }
                     return back()->with('error',  'Something went wrong, please try again');
                 }
             } elseif ($module->type == 'Class Test') {
@@ -208,12 +215,18 @@ class TestsController extends Controller
                             'module_id' => $module->id,
                             'class_test_score' => $score,
                             'class_test_details' => json_encode($class_test_details),
+                            'duplicate_key' => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
                         ]);
-
                     }
                 } catch (\Illuminate\Database\QueryException $ex) {
-                    $ex->getMessage();
-                    return back()->with('error', 'something went wrong, please take test again');
+                    if ($ex->errorInfo[1] == 1062) { // MySQL duplicate entry code
+                        return back()->with(
+                            'error',
+                            'You have already taken this test. Please click "Post Class Tests" on the left navigation bar to take an available test.'
+                        );
+                    }
+
+                    return back()->with('error', 'Something went wrong, please try again.');
                 }
             }
         }
@@ -280,6 +293,7 @@ class TestsController extends Controller
 
             $i = 1;
             $program = Program::find($request->p_id);
+            // dd($program );
             $hasmock = $program->hasmock;
 
             if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {

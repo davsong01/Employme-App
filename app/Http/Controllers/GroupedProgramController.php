@@ -71,7 +71,6 @@ class GroupedProgramController extends Controller
             'currencies'        => $currencyData ?? null,
             'image'             => $validated['image'] ?? null,
             'haspartpayment'    => $validated['haspartpayment'] ?? null,
-
         ]);
         
         $group->programs()->attach($validated['programs']);
@@ -96,7 +95,6 @@ class GroupedProgramController extends Controller
             'currencies.*'      => 'exists:currencies,id',
             'currency_values'   => 'sometimes|array',
             'haspartpayment'    => 'sometimes',
-
         ]);
         
         if ($request->file('image')) {

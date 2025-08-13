@@ -18,7 +18,7 @@ use App\Http\Controllers\API\ApiController;
 //     return $request->user();
 // });
 
-Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
+// Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
 
 Route::post('users', [ApiController::class, 'show'])->name('verify');
 Route::post('verify-certificate', [ApiController::class, 'verifyCertificateNumber'])->name('verify-certificate');

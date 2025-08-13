@@ -69,7 +69,7 @@ Route::middleware(['web.access'])->group(function () {
             
             Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
-
+            
             Route::get('verify-certificate', [CertificateController::class, 'verifyCertificate'])->name('verify.certificate');
         });
     
@@ -174,7 +174,7 @@ Route::middleware(['web.access'])->group(function () {
     
         Route::resource('users', UserController::class);
         Route::resource('payment-modes', PaymentModeController::class);
-        Route::resource('paymentmethod', PaymentMethodController::class);
+        // Route::resource('paymentmethod', PaymentMethodController::class);
         Route::get('users/redotest/{id}', [UserController::class, 'redotest'])->name('redotest');
         Route::post('users/redotest', [UserController::class, 'saveredotest'])->name('saveredotest');
         Route::get('users/stopredotest/{user_id}/{result_id}', [UserController::class, 'stopredotest'])->name('stopredotest');

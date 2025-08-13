@@ -184,7 +184,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label style="color:">Participants of this program should have access to:</label>
-                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple required>
+                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple>
                                             @foreach($programs as $pro)
                                                 <option value="{{ $pro->id }}" {{ in_array($pro->id, $program->resolve_to_ids ?? []) ? 'selected' : '' }}>
                                                     {{ $pro->p_name }}
@@ -563,7 +563,7 @@
                                                         <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
                                                         <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
                                                         <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
-                                                        <option value="text" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
+                                                        <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
                                                     </select>
                                                 </div>
                                             </div>

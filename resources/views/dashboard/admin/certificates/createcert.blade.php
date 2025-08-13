@@ -95,6 +95,7 @@
                             <th style="width: 115px;">Program Details</th>
                             @endif
                             <th>Details</th>
+                            <th>Date Issued</th>
                             <th>Date Updated</th>
                             <th>Actions</th>
                         </tr>
@@ -200,6 +201,7 @@
                                 </script>
                                 @endif
                             </td>
+                            <td>{{ !empty($certificate->date_issued) ? $certificate->date_issued : 'N/A' }}</td>
                             <td>{{ $certificate->updated_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="btn-group">
@@ -334,6 +336,11 @@
                         <option value="no">No</option>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="date_issued" class="form-label">Date Issued</label>
+                    <input type="date" class="form-control" name="date_issued" id="date_issued" value="{{ now()->format('Y-m-d') }}">
+                </div>
+
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

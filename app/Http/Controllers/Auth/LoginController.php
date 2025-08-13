@@ -7,6 +7,7 @@ use App\Models\Program;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\BlacklistService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
@@ -55,33 +56,101 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        $username = $request->input('login');
+        if (BlacklistService::checkByValues([
+            'email' => $username,
+            'phone' => $username,
+            'staffID' => $username,
+        ])) {
+            return redirect()->route('login')->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+        }
+
+        if (
+            method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)
+        ) {
+            $this->fireLockoutEvent($request);
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        // If failed, increase attempt count and send failure response
+        $this->incrementLoginAttempts($request);
+        return $this->sendFailedLoginResponse($request);
+    }
+
+
+    // protected function attemptLogin(Request $request)
+    // {
+    //     $username = $request->input('login');
+
+    //     $user = User::where('email', $username)->orWhere('staffID', $username)->first();
+
+    //     if ($user) {
+    //         $programIds = Program::where(['login_without_password' => 1, 'program_lock' => 0])->pluck('id')->toArray();
+
+    //         $hasProgram = Transaction::where('user_id', $user->id)
+    //             ->whereIn('program_id', $programIds)
+    //             ->exists();
+
+    //         if ($hasProgram) {
+    //             Auth::login($user);
+
+    //             // Update last_login after successful login
+    //             $user->update(['last_login' => now()]);
+
+    //             return true;
+    //         }
+    //     }
+
+    //     $credentials = $this->credentials($request);
+    //     $attemptLogin = Auth::attempt($credentials, $request->filled('remember'));
+
+    //     // If login is successful, update last_login
+    //     if ($attemptLogin) {
+    //         $user = resolveAuthUser();
+    //         $user->update(['last_login' => now()]);
+    //     }
+
+    //     return $attemptLogin;
+    // }
     protected function attemptLogin(Request $request)
     {
         $username = $request->input('login');
 
-        $user = User::where('email', $username)->orWhere('staffID', $username)->first();
-        
+        $user = User::where('email', $username)
+            ->orWhere('staffID', $username)
+            ->first();
+
         if ($user) {
-            $programIds = Program::where(['login_without_password' => 1, 'program_lock' => 0])->pluck('id')->toArray();
-            
+            $programIds = Program::where([
+                'login_without_password' => 1,
+                'program_lock' => 0
+            ])
+                ->pluck('id')
+                ->toArray();
+
             $hasProgram = Transaction::where('user_id', $user->id)
                 ->whereIn('program_id', $programIds)
                 ->exists();
 
             if ($hasProgram) {
                 Auth::login($user);
-
-                // Update last_login after successful login
                 $user->update(['last_login' => now()]);
-
                 return true;
             }
         }
 
         $credentials = $this->credentials($request);
         $attemptLogin = Auth::attempt($credentials, $request->filled('remember'));
-        
-        // If login is successful, update last_login
+
         if ($attemptLogin) {
             $user = resolveAuthUser();
             $user->update(['last_login' => now()]);
@@ -89,5 +158,4 @@ class LoginController extends Controller
 
         return $attemptLogin;
     }
-
 }

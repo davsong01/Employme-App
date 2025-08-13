@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Models\PaymentThread;
 use App\Models\TempTransaction;
 use App\Services\PaymentService;
+use App\Services\BlacklistService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -164,6 +165,13 @@ class PaymentController extends Controller
      */
     public function redirectToGateway(Request $request)
     {
+        if (BlacklistService::checkByValues([
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ])) {
+            return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+        }
+        
         $template = Settings::first()->templateName->name;
         
         if ($request->user_program && $request->type == 'balance') {

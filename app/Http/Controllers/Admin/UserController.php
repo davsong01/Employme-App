@@ -161,6 +161,30 @@ class UserController extends Controller
             });
         }
 
+        if ($request->boolean('is_blacklisted')) {
+            $users->where(function ($q) {
+                $q->whereExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('blacklists')
+                        ->whereColumn('blacklists.value', 'users.email')
+                        ->whereStatus(1);
+                })
+                ->orWhereExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('blacklists')
+                        ->whereColumn('blacklists.value', 'users.phone')
+                        ->whereStatus(1);
+                })
+                ->orWhereExists(function ($sub) {
+                    $sub->select(DB::raw(1))
+                        ->from('blacklists')
+                        ->whereColumn('blacklists.value', 'users.staffID')
+                        ->whereStatus(1);
+                });
+            });
+        }
+
+
         $records = $users->count();
         
         $users = $users->paginate(50);

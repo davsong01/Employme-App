@@ -56,16 +56,18 @@ class CertificateController extends Controller
             $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
 
             $program = $transaction->program;
-            
+
             // Checks
+            if ($program->show_certificate == 0) {
+                return back()->with('error', 'Certificates not yet out for this training!');
+            }
+            
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
                 if ($transaction->balance > 0) {
-                    return back()->with('error', 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate');
+                    return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get view/download certificate');
                 }
             }
 
-            // if (!empty($program->scoreSettings)) {
-                
             if ($program->only_certified_should_see_certificate == 'yes') {
                 $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
                 
@@ -75,8 +77,6 @@ class CertificateController extends Controller
                 }
             }
 
-            // }
-            
             $certificate = Certificate::with(['user'])->where('user_id', resolveAuthUser()->id)->whereProgramId($request->p_id)->first();
             
             if (!isset($certificate)) {
@@ -91,6 +91,31 @@ class CertificateController extends Controller
             $pendingRegenerationRequests = CertificateRegenerationRequest::where('user_id', auth()->user()->id)->where('status','pending')->first();
 
             return view('dashboard.student.certificates.index', compact('certificate', 'program', 'regenerationRequests', 'pendingRegenerationRequests'));
+        }
+        return back();
+    }
+
+    public function enable($id)
+    {
+
+        if (checkRoleHas(['Admin'])) {
+            $program = Program::findorfail($id);
+            $program->show_certificate = 1;
+            $program->save();
+
+            return back()->with('message', 'Participants of this program can now download certificates');
+        }
+        return back();
+    }
+
+    public function disable($id)
+    {
+        if (checkRoleHas(['Admin'])) {
+            $program = Program::findorfail($id);
+            $program->show_certificate = 0;
+            $program->save();
+
+            return back()->with('message', 'Participants of this program can no longer download certificates');
         }
         return back();
     }
@@ -173,6 +198,7 @@ class CertificateController extends Controller
                     'user_id' => $request->user_id,
                     'file' => $newCertificate['name'],
                     'certificate_number' => $newCertificate['certificate_number'],
+                    'date_issued' => $newCertificate['date_issued'] ?? null,
                     'program_id' => $request->program_id,
                     'allow_new_certificate_request' => 0,
                 ]);
@@ -260,6 +286,9 @@ class CertificateController extends Controller
                 'file' => $file->getClientOriginalName(),
                 'program_id' => $request->p_id,
                 'certificate_number' => $certificate_number,
+                'date_issued' => !empty($request['date_issued'])
+                    ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+                    : now()->format('jS \d\a\y \o\f F, Y'),
             ]);
 
             Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->p_id])->update(['show_certificate' => 0]);
@@ -442,8 +471,8 @@ class CertificateController extends Controller
         if($internal){
             return true;
         }
-        //delete certificate from storage           
-        return redirect('certificates')->with('message', 'certificate succesfully deleted');
+        //delete certificate from storage   
+        return back()->with('message', 'certificate succesfully deleted');        
     }
 
     public function getfile($filename)
@@ -516,7 +545,7 @@ class CertificateController extends Controller
 
         if (!empty($cron_task) && $cron_task == 'yes') {
             // Cron
-            $payload = $request->except(['use_cron', 'prefix__']);
+            $payload = $request->except(['use_cron', 'prefix__', '_token']);
             $payload['program_id'] = $program_id;
 
             UtilityCronTask::updateOrcreate([
@@ -529,7 +558,6 @@ class CertificateController extends Controller
         }
 
         // Check if the user has the required roles
-
         if ($internal) {
             $check = true;
         } else {
@@ -577,7 +605,7 @@ class CertificateController extends Controller
                 $certificate = generateCertificate($request, $program_id, $location, $transaction->user);
                 if (!$certificate) {
                     continue;
-                    \Log::info('Certificate Generation Error');
+                    // \Log::info('Certificate Generation Error');
                 }
 
                 // Save the certificate to the database
@@ -586,6 +614,7 @@ class CertificateController extends Controller
                     'file' => $certificate['name'],
                     'certificate_number' => $certificate['certificate_number'],
                     'program_id' => $program_id,
+                    'date_issued' => $certificate['date_issued'],
                 ]);
 
                 // Leave the show_certificate as 0 as per your request

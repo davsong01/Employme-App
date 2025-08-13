@@ -11,6 +11,7 @@ use App\Models\Settings;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\TempTransaction;
+use App\Services\BlacklistService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -57,6 +58,13 @@ class PopController extends Controller
 
     public function store(Request $request)
     {
+        if (BlacklistService::checkByValues([
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ])) {
+            return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+        }
+        
         $data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required',

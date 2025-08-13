@@ -1,7 +1,6 @@
 <?php 
     $user =  resolveAuthUser();
     $menus = $user->permissions();            
-
     $role = $user->role();
     $allmenus = app('app\Http\Controllers\Controller')->adminMenus('menu');
 ?>
@@ -10,9 +9,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 @endsection
 @section('dashboard')
-
 <aside class="left-sidebar" data-sidebarbg="skin5">
     <!-- Sidebar scroll-->
     <div class="scroll-sidebar">
@@ -29,10 +28,12 @@
                             href="{{ route('admin.home') }}" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span
                                 class="hide-menu">Dashboard</span></a>
                 </li>
+                
                 @foreach($allmenus as $allmenu)
                     {{-- Without children --}}
                     @if(empty($allmenu['children']))
                         @if(in_array($allmenu['route'], $menus))
+
                             <li class="sidebar-item">
                                 <a class="sidebar-link waves-effect waves-dark sidebar-link"
                                 href="{{ route($allmenu['route']) }}"
