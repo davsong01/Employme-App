@@ -7,4 +7,4 @@
 
 ?>
 
-@include('layouts.'.$template.'.early_bird_single_group_with_children')
+@include('layouts.'.$template.'.early_bird_single_group')

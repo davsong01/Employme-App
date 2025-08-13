@@ -9,31 +9,33 @@ use App\Http\Controllers\Controller;
 
 class PaystackController extends Controller
 {
-    public function query($request, $mode, $data=null, $query_only=null){
+    public function query($transaction, $query_only=null){
+        $isBalance = $transaction->is_balance ?? false; // Add this later to the temp
+        
         if(empty($query_only)){
-            if (isset($request->user_program)) {
-                $request['transid'] = $this->getReference('PYSTK');
-                $request['invoice_id'] = $data->invoice_id;
-                DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
+            if ($isBalance) {
+                // $request['transid'] = $transaction->transid;
+                // DB::table('program_user')->whereId($request->user_program)->update(['balance_transaction_id' => $request['transid']]);
             } else {
-                $request['transid'] = $this->getReference('PYSTK');
-                app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
+                // $request['transid'] = $transaction->transid;
+                // dd($request->all())l
+                // app('app\Http\Controllers\Controller')->createTempDetails($request, $mode->id);
             }
         }else{
-            $request['transid'] = $this->getReference('PYSTK');
+            // $request['transid'] = $transaction->transid;
         }
         
         $url = "https://api.paystack.co/transaction/initialize";
-        // Convert amount using payment mode exchange rate
-        $request['amount'] = $request->amount * $mode->exchange_rate;
         
+        // Convert amount using payment mode exchange rate
         $fields = [
-            'email' => $request->email,
-            'amount' => $request->amount * 100,
-            'reference' =>  $request['transid'],
+            'email' => $transaction->email,
+            'amount' => $transaction->amount * $transaction->paymentMode->exchange_rate * 100,
+            'reference' =>  $transaction->transid,
             'callback_url' => url('/'). '/payment/callback',
-            'currency'=>$mode->currency,
+            'currency'=> $transaction->paymentMode->currency,
         ];
+
         $fields_string = http_build_query($fields);
         //open connection
         $ch = curl_init();
@@ -42,7 +44,7 @@ class PaystackController extends Controller
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "Authorization: Bearer ".$mode->secret_key,
+            "Authorization: Bearer ".$transaction->paymentMode->secret_key,
             "Cache-Control: no-cache",
         ));
 
@@ -57,7 +59,7 @@ class PaystackController extends Controller
             if (!empty($query_only)) {
                 return [
                     'url' => $result->data->authorization_url,
-                    'transaction_id' => $request['transid']
+                    'transaction_id' => $transaction->transid
                 ];
             }
             return $result->data->authorization_url;

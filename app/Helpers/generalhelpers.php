@@ -890,6 +890,7 @@ if (!function_exists('getPriceRangeMultiCurrency')) {
 
 //     return $mainLine . ($extraLine ? '<br> ' . $extraLine : '');
 // }
+
 function getPriceRangeAcrossPrograms($training, $type = null, $earlybird = 'no'): array
 {
     $allPrograms = collect([$training])->merge($training->subPrograms);

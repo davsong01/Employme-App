@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
+use App\Models\PaymentMode;
 use Illuminate\Database\Eloquent\Model;
 
 class TempTransaction extends Model
@@ -23,5 +24,10 @@ class TempTransaction extends Model
     public function group()
     {
         return $this->belongsTo(Group::class, 'program_id');
+    }
+
+    public function paymentMode()
+    {
+        return $this->belongsTo(PaymentMode::class, 'payment_mode');
     }
 }

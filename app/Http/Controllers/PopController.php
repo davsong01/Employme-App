@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Pop;
 use App\Models\User;
 use App\Models\Group;
@@ -14,6 +15,7 @@ use App\Models\TempTransaction;
 use App\Services\BlacklistService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Spatie\LaravelPackageTools\Package;
 
 class PopController extends Controller
 {
@@ -41,10 +43,10 @@ class PopController extends Controller
         ->orderBy('created_at', 'DESC')
         ->get();
 
-        $packages = Group::with(['programs' => function ($q) {
+        $packages = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActivePrograms();
         }]);
-
+        
         if(isset(session()->get('data')['metadata']['pid'])){
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         }else{
@@ -65,36 +67,42 @@ class PopController extends Controller
             return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
         }
         
+        $program_type = $request->program_type;
+        $request['training_id'] = $program_type == 'package' ? $request->package_id : $request->training_id;
+        
         $data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required',
             'phone' => 'required | numeric',
             'bank' => 'sometimes',
             'amount' => 'required | numeric',
-            'training' => 'required | numeric',
+            'training_id' => 'required | numeric',
             'currency' => 'sometimes',
             'currency_symbol' => 'sometimes',
             'coupon_id' => 'nullable',
             'date' => 'date',
             'file' => 'required|max:2048|image',
         ]);
-
+        
         // Remove data from session
-        \Session::forget(['data']);
+        // \Session::forget(['data']);
 
         $file = Str::random(10);
         $extension = $request->file('file')->getClientOriginalExtension();
         $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
         
-        $date = \Carbon\Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
+        $date = Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
         // Check if already uploaded same pop
-        // $popCheck = Pop::whereEmail($data['email'])->whereAmount($data['amount'])->whereProgramId($data['training'])->count();
-        $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training'])->count();
-
-        // if ($popCheck > 0) {
-        //     return back()->with('error', 'You have already uploaded proof of payment for this training and with the same amount, kindly wait while an administrator approves your request');
-        // }
+        if($program_type == 'package'){
+            $popCheck = Pop::whereEmail($data['email'])->whereGroupId($data['training_id'])->where('is_package', 1)->where('amount', $data['amount'])->count();
+        }else{
+            $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training_id'])->where('is_package', 0)->where('amount', $data['amount'])->count();
+        }
+        
+        if ($popCheck > 0) {
+            return back()->with('error', "You have already uploaded proof of payment for this {$program_type} and with the same amount, kindly wait while an administrator approves your request");
+        }
 
         if (isset($user) && !empty($user)) {
             $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training']])->where('balance', '<', 1)->count();

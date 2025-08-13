@@ -144,80 +144,100 @@
                 <input type="hidden" name="coupon_id" value="{{  session()->get('data')['metadata']['coupon_id'] ?? null  }}">
                 <div class="row">
                     
-                    <div class="col-lg-12 col-md-12">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="checkout__input">
-                                    <p>Name<span>*</span></p>
-                                    <input type="text" class="form-control" id="name" name="name" 
-                                        @auth
-                                        value="{{ resolveAuthUser()->name }}"  
-                                        placeholder="Full Name"
-                                        @endauth
-                                        @guest 
-                                        value="{{ session()->get('data')['name'] ?? old('name') }}" placeholder="Full Name"  
-                                        @endguest required>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="col-lg-12 col-md-12">
                             <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <p>Name<span>*</span></p>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                            @auth
+                                            value="{{ resolveAuthUser()->name }}"  
+                                            placeholder="Full Name"
+                                            @endauth
+                                            @guest 
+                                            value="{{ session()->get('data')['transaction']['name'] ?? old('name') }}" placeholder="Full Name"  
+                                            @endguest required>
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <p>Email<span>*</span></p>
+                                        <input type="email" id="email" name="email" 
+                                            @auth
+                                            value="{{ resolveAuthUser()->email }}"  
+                                            @endauth
+                                            @guest 
+                                            value="{{ session()->get('data')['transaction']['email'] ?? old('email') }}" placeholder="Enter email"  
+                                            @endguest required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="checkout__input">
+                                        <p>Phone<span>*</span></p>
+                                        <input type="text" class="form-control" id="phone" name="phone" 
+                                            @auth
+
+                                            value="{{ resolveAuthUser()->phone }}"  
+                        
+                                            @endauth
+
+                                            @guest 
+                                            value="{{ session()->get('data')['transaction']['phone'] ?? old('phone') }}"  
+                                            @endguest required>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row">
+                            {{-- Program Type --}}
                             <div class="col-lg-12">
                                 <div class="checkout__input">
-                                    <p>Email<span>*</span></p>
-                                    <input type="email" id="email" name="email" 
-                                        @auth
-                                        value="{{ resolveAuthUser()->email }}"  
-                                        @endauth
-                                        @guest 
-                                        value="{{ session()->get('data')['email'] ?? old('email') }}" placeholder="Enter email"  
-                                        @endguest required>
+                                    <p>Program Type <span>*</span></p>
+                                    <select name="program_type" id="program_type" class="form-control" required>
+                                        <option value="">-- Select Type --</option>
+                                        <option value="package" {{ ($transaction && $transaction->is_package) ? 'selected' : '' }}>Package</option>
+                                        <option value="training" {{ ($transaction && !$transaction->is_package) ? 'selected' : '' }}>Training</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Package Section --}}
+                            <div class="col-lg-12 program-section" id="package_section" style="display:none;">
+                                <div class="checkout__input">
+                                    <p>Select Package <span>*</span></p>
+                                    <select name="package_id" id="package_id" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        @foreach($groups as $group)
+                                            <option value="{{ $group->id }}" {{ ($transaction && $transaction->program_id == $group->id) ? 'selected' : '' }}>
+                                                {{ $group->p_name }} | ({{ $currency . number_format($group->p_amount) }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Training Section --}}
+                            <div class="col-lg-12 program-section" id="training_section" style="display:none;">
+                                <div class="checkout__input">
+                                    <p>Select Course <span>*</span></p>
+                                    <select name="training_id" id="training_id" class="form-control">
+                                        <option value="">-- Select --</option>
+                                        @foreach($trainings as $training)
+                                            <option value="{{ $training->id }}" {{ ($transaction && $transaction->program_id == $training->id) ? 'selected' : '' }}>
+                                                {{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }}
+                                                @if(in_array($training->id, [68])), GHc 60, GMD 75 @endif)
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="checkout__input">
-                                    <p>Phone<span>*</span></p>
-                                    <input type="text" class="form-control" id="phone" name="phone" 
-                                        @auth
 
-                                        value="{{ resolveAuthUser()->phone }}"  
-                     
-                                        @endauth
-
-                                        @guest 
-                                        value="{{ session()->get('data')['phone'] ?? old('phone') }}"  
-                                        @endguest required>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="checkout__input">
-                                    
-                                    @if($transaction->is_package)
-                                        <p>Select Package<span>*</span></p>
-                                        <select name="training" id="training" class="form-control" required>
-                                            <option value="">-- Select --</option>
-                                            @foreach($groups as $group)
-                                                <option value="{{ $group->id }}" {{ $transaction->program_id == $group->id ? 'selected' : ''  }}>{{ $group->p_name }} | ({{ $currency . number_format($group->p_amount) }}</option>
-                                            @endforeach
-                                        </select>
-                                    @else
-                                        <p>Select Course<span>*</span></p>
-                                        <select name="training" id="training" class="form-control" required>
-                                            <option value="">-- Select --</option>
-                                            @foreach($trainings as $training)
-                                            <option value="{{ $training->id }}" {{ $transaction->program_id == $training->id ? 'selected' : '' }}>{{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }} @if(in_array($training->id, [68])), GHc 60, GMD 75
-                                            @endif)</option>
-                                            @endforeach
-                                        </select>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
@@ -247,12 +267,11 @@
                                 </div>
                             </div>
                         </div>
-                         <div class="row">
+                        <div class="row">
                             <div class="col-lg-12">
                                 <div class="checkout__input">
                                     <p>Date of payment<span>*</span></p>
-                                    
-                                    <input type="date" class="form-control" name="date" id="date" value="{{ date('Y/m/d') ?? old('date')}}" required>
+                                    <input type="date" class="form-control" name="date" id="date" value="{{ old('date', date('Y-m-d')) }}" required>
                                 </div>
                             </div>
                         </div>
@@ -269,4 +288,27 @@
         </div>
     </div>
 </section>
+@endsection
+@section('scripts')
+<script>
+$(document).ready(function () {
+    function toggleProgramType() {
+        let type = $('#program_type').val();
+        $('.program-section').hide().find('select').prop('required', false);
+
+        if (type === 'package') {
+            $('#package_section').show().find('select').prop('required', true);
+        } 
+        else if (type === 'training') {
+            $('#training_section').show().find('select').prop('required', true);
+        }
+    }
+
+    // On load
+    toggleProgramType();
+
+    // On change
+    $('#program_type').on('change', toggleProgramType);
+});
+</script>
 @endsection

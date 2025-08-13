@@ -163,6 +163,17 @@ class PaymentService
         return $prefix . '-' . date('YmdHi') . '-' . rand(11111111, 99999999);
     }
 
+    public static function getInvoiceId($id = null)
+    {
+        date_default_timezone_set("Africa/Lagos");
+        if (isset($id) && !empty($id)) {
+            $invoice_id = date("YmdHi") . '-' . $id . '-' . rand(10000, 99999);
+        } else {
+            $invoice_id = date("YmdHi") . '-' . rand(10000, 99999);
+        }
+        return $invoice_id;
+    }
+
     public static function initiateTransaction($transactionArray)
     {
         try {

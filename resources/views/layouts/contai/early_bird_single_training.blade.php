@@ -137,7 +137,13 @@
                                     @endif
                                     
                                 </div>
+                                
+                                @if($is_package)
+                                <input type="hidden" name="package" value="{{ $training }}">
+                                @else
                                 <input type="hidden" name="training" value="{{ $training }}"> 
+                                @endif
+                                
                                 <input type="hidden" name="facilitator" value="{{ \Session::get('facilitator') }}"> 
                                 <input type="hidden" name="facilitator_id" value="{{ \Session::get('facilitator_id') }}"> 
                                 <input type="hidden" name="facilitator_name" value="{{ \Session::get('facilitator_name') }}"> 

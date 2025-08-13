@@ -3,14 +3,7 @@
     {{ config('app.name') }}
 @endsection
 @section('content')
-{{-- @php
-    $data = [
-        'name'=> 'assa sdd',
-        'amount' => 12,
-        'balance' => 12
-    ];
-@endphp --}}
-<!-- Featured Section Begin -->
+{{dd($temp)}}
 <section class="">
     <div class="container">
         <div class="row">
@@ -38,9 +31,24 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>Training</td>
-                      <td class="value">{{ $data['p_name'] ?? null}}</td>
+                    <tr class="border-0">
+                        <th class="text-muted">Training{{ $isPackage ? 's' : '' }}:</th>
+                        @if ($isPackage && isset($training['programs']))
+                        <td class="bg-light rounded p-2" style="padding: 5px 20px !important;font-size: 14px;color: black;">
+                            <div class="bg-light rounded p-2">
+                                    <ol class="mb-0 ps-3">
+                                        @foreach ($training['programs'] as $child)
+                                            <li>{{ $child['p_name'] }}</li>
+                                        @endforeach
+                                    </ol>
+                            </div>
+                            
+                        </td>
+                        @else
+                        <td>
+                            {{ $data['p_name'] }}
+                        </td>
+                        @endif
                     </tr>
                     <tr>
                       <td>Email</td>

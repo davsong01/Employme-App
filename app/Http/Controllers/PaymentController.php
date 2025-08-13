@@ -265,6 +265,9 @@ class PaymentController extends Controller
         
         $metadata['coupon_id'] = $couponResponse['id'] ?? null;
         $transid = $request->payment_mode == 0 ? 'BT-' . rand(11111111, 9999999) : PaymentService::getReference('PYSTK');
+        $invoiceId = PaymentService::getInvoiceId();
+        $isBalance = false; // Add this later to the transactionArray
+
         $transactionArray = [
             'email' => $request->email,
             'type' => $request->payment_type,
@@ -273,6 +276,7 @@ class PaymentController extends Controller
             'facilitator_id' => $request['metadata']['facilitator'] ?? null,
             'amount' =>  $expectedAmount,
             'transid' =>  $transid,
+            'invoice_id' => $invoiceId,
             'payment_mode' => $request->payment_mode,
             'preferred_timing' => $request->preferred_timing ?? null,
             'name' => $request->name,
@@ -286,7 +290,6 @@ class PaymentController extends Controller
         
         $transaction = PaymentService::initiateTransaction($transactionArray);
 
-        
         // Free training, will sort later
         if ($request->payment_type == 'full' && $training->p_amount == 0) {
             foreach ($trainingsToResolveTo as $singleTraining) {
@@ -313,7 +316,6 @@ class PaymentController extends Controller
             $response = $req->handleGatewayCallback($transaction, 'zero-amount');
         }
 
-        
         // handle gateway call back normally
 
         // Pay from wallet
@@ -361,6 +363,7 @@ class PaymentController extends Controller
         
         try{
             $url = $this->queryProcessor($transaction);
+
             if(!is_null($url)){
                 return redirect()->away($url);
             }else{
@@ -372,9 +375,6 @@ class PaymentController extends Controller
             
             return redirect(url('trainings/' . $pid))->with('error', 'Something went while verifying payment, Kindly contact admin!');
         } 
-
-    
-
     }
 
     // public function redirectToGateway(Request $request)
@@ -572,25 +572,24 @@ class PaymentController extends Controller
     //     }
     // }
 
-    public function queryProcessor($request,$data=null, $query_only = null){
-        $mode = PaymentMode::find($request->payment_mode ?? $request->provider);
+    public function queryProcessor($transaction, $query_only = null){
+        $mode = $transaction->paymentMode;
+        
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
                 if(!empty($query_only)){
-                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request, $mode, $data, $query_only);
+                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction, $query_only);
                 }else{
-                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($request,$mode, $data);
+                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction);
                 }
             }
 
             if ($mode->processor == 'coinbase') {
                 if (!empty($query_only)) {
-                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data,$query_only);
+                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction,$query_only);
                 } else {
-                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($request, $mode, $data);
+                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction);
                 }
-
-               
             }
         }
         // redirect away
@@ -630,6 +629,7 @@ class PaymentController extends Controller
             $status = $this->verifyProcessor($request->reference, $balance_payment);
         }else{
             $temp = TempTransaction::where('transid', $request->reference)->first();
+            
             if(!$temp){
                 // Wallet payment
                 $temp = Wallet::where('transaction_id', $request->reference)->first();
@@ -661,11 +661,11 @@ class PaymentController extends Controller
                 }
             }
         }
-
+        
         if($status == 'success'){
             if ($balance_payment) {
                 $data['type'] = 'balance';
-               
+                
                 $data['currency_symbol'] = $balance_payment->currency_symbol;
                 $data['amount'] = $balance_payment->balance;
                 $data['email'] = User::whereId($balance_payment->user_id)->value('email');
@@ -690,7 +690,7 @@ class PaymentController extends Controller
                     'parent_transaction_id' => $old->transid,
                     'amount' => $balance_payment->balance
                 ]);
-               
+                
                 $this->sendWelcomeMail($data);
 
                 return redirect(route('trainings.show', ['p_id' => $balance_payment->program_id]))->with('message','Balance payment received!');
@@ -701,8 +701,8 @@ class PaymentController extends Controller
         }
         
         $template = Settings::first()->templateName->name;
-        $program = Program::where('id', $paymentDetails->program_id)->first();
-        
+        $programs = Program::whereIn('id', $paymentDetails->program_ids)->first();
+
         if($template == 'contai'){
             // $temp = TempTransaction::where('email', $paymentDetails->email)->where('program_id', $paymentDetails->program_id)->first();
             if(isset($temp) && !empty($temp)){
@@ -717,7 +717,7 @@ class PaymentController extends Controller
                         $coupon = 0;
                         $createdBy = 0;
                     }
-                   
+                    
                     if(isset($temp->training_mode) && !empty($temp->training_mode)){
                         $mode_amount = $this->getModeAmount($temp->training_mode,$temp->type,$program);
 
@@ -725,7 +725,7 @@ class PaymentController extends Controller
                     }else{
                         $expectedAmount = $this->confirmProgramAmount($temp->program_id, 'p_amount') - $coupon;
                     }
-                  
+                    
                     if($expectedAmount == $paymentDetails->amount){
                         $earnings = $this->getEarnings(($temp->amount), $coupon, $createdBy, $program, $paymentDetails->facilitator_id ?? NULL);
                         
@@ -772,28 +772,9 @@ class PaymentController extends Controller
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
                 }
-                // process data
-                // Get training details
-                // $resolve_to_ids = collect($training->resolve_to_ids ?? [])
-                //     ->push($training->id)
-                //     ->unique()
-                //     ->values()
-                //     ->all();
-
-                // $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
-
-                // foreach ($trainingsToResolveTo as $singleTraining) {
-                //     $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
-                //     $data['balance'] = $balance;
-                //     $data['payment_type'] = $payment_type;
-                //     $data['message'] = $message;
-                //     $data['paymentStatus'] =  $paymentStatus;
-                //     $c = $c ?? NULL; // Coupon
-
-                //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-                // }
-
+                dd($program);
                 $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
+                
                 $data['balance'] = $balance;
                 $data['payment_type'] = $payment_type;
                 $data['message'] = $message;
@@ -806,7 +787,6 @@ class PaymentController extends Controller
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
                 } 
 
-                $this->deleteFromTemp($temp);
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
@@ -815,7 +795,7 @@ class PaymentController extends Controller
                     'program_id' => $data['program_id'],
                     'user_id' => $data['user_id'],
                     'payment_id' => $temp->id,
-                    'transaction_id' => $this->getReference('PYTHRD'),
+                    'transaction_id' => PaymentService::getReference('PYTHRD'),
                     't_type' => $data['t_type'],
                     'parent_transaction_id' => $data['transid'],
                     'amount' => $data['amount'],
@@ -860,7 +840,7 @@ class PaymentController extends Controller
                 // ]
 
                 //include thankyou page
-  
+                dd($data);
                 return view('thankyou', compact('data'));
 
             }

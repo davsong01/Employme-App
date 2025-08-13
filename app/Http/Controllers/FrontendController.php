@@ -168,8 +168,9 @@ class FrontendController extends Controller
 
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
-        
-        return view('early_bird_single_group_with_children', compact('training', 'locations', 'modes'));
+        $training->is_closed = 'no';
+        $is_package = true;
+        return view('early_bird_single_training', compact('training', 'locations', 'modes', 'is_package'));
     }
 
 
