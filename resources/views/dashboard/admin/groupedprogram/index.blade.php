@@ -331,6 +331,13 @@
                                         value="{{ old('p_amount', $group->p_amount) }}" required>
                             </div>
                             <div class="col-md-6">
+                                <label>Enable Part Payment *</label>
+                                <select name="haspartpayment" class="form-control" required>
+                                    <option value="1" {{$group->haspartpayment ? 'selected' : '' }}>Yes</option>
+                                    <option value="0" {{! $group->haspartpayment ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
                                 <label>Early-Bird Price (Default Currency)</label>
                                 <input  type="number" step="0.01" name="e_amount"
                                         class="form-control"
@@ -483,18 +490,24 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label>Group Price (Default Currency) *</label>
-                            <input type="number" step="0.01" name="p_amount"
-                                   class="form-control" required placeholder="e.g. 25000">
+                            <input type="number" step="0.01" name="p_amount" class="form-control" required placeholder="e.g. 25000">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Enable Part Payment *</label>
+                            <select name="haspartpayment" class="form-control" required>
+                                <option value="1" selected>Yes</option>
+                                <option value="0">No</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label>Early-Bird Price (Default Currency)</label>
                             <input type="number" step="0.01" name="e_amount"
                                    class="form-control" placeholder="e.g. 20000">
                         </div>
-                    </div>
+                    {{-- </div> --}}
 
                     {{-- OPTIONAL DATES -------------------------------------------------- --}}
-                    <div class="row g-3 mb-4">
+                    {{-- <div class="row g-3 mb-4"> --}}
                         <div class="col-md-6">
                             <label>Start Date</label>
                             <input type="date" name="p_start" class="form-control">
@@ -507,6 +520,7 @@
 
                     {{-- CURRENCIES ------------------------------------------------------ --}}
                     <div class="row mt-2">
+                        <hr>
                         <div class="col-md-12"><label>Currencies to Display *</label></div>
 
                         @foreach ($currencies as $currency)

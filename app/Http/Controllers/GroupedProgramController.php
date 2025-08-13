@@ -39,6 +39,7 @@ class GroupedProgramController extends Controller
             'currencies'        => 'sometimes|array|min:1',
             'currencies.*'      => 'exists:currencies,id',
             'currency_values'   => 'sometimes|array',
+            'haspartpayment'    => 'required|in:1,0'
         ]);
 
         if ($request->file('image')) {
@@ -67,7 +68,8 @@ class GroupedProgramController extends Controller
             'status'            => $validated['status'],
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
-            'image'              => $validated['image'] ?? null,
+            'haspartpayment'    => $validated['haspartpayment'],
+            'image'             => $validated['image'] ?? null,
         ]);
         
         $group->programs()->attach($validated['programs']);
@@ -91,6 +93,8 @@ class GroupedProgramController extends Controller
             'currencies'        => 'sometimes|array|min:1',
             'currencies.*'      => 'exists:currencies,id',
             'currency_values'   => 'sometimes|array',
+            'haspartpayment'    => 'required|in:1,0'
+
         ]);
         
         if ($request->file('image')) {
@@ -122,7 +126,9 @@ class GroupedProgramController extends Controller
             'status'            => $validated['status'],
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
-            'image'              => $validated['image'] ?? null,
+            'image'             => $validated['image'] ?? null,
+            'haspartpayment'    => $validated['haspartpayment'],
+
         ]);
 
         // Sync programs (detach all and attach new ones)

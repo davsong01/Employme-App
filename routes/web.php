@@ -69,7 +69,7 @@ Route::middleware(['web.access'])->group(function () {
 
             Route::get('/early-bird-trainings/{id?}', 'earlyBird')->name('earlybird.trainings');
             Route::post('/get-mode-payment-types', 'getModePaymentTypes');
-
+            
             Route::get('verify-certificate', [CertificateController::class, 'verifyCertificate'])->name('verify.certificate');
         });
     
