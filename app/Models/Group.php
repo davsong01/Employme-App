@@ -38,9 +38,13 @@ class Group extends Model
 
     public function scopeIsActive($query)
     {
-        return $query->whereStatus(1)
-            ->where('p_end', '>=', date('Y-m-d'));
+        return $query->where('groups.status', 1)
+            // ->where('groups.p_end', '>=', date('Y-m-d'))
+            ->whereHas('programs', function ($q) {
+                $q->mainActivePrograms();
+            });
     }
+    
 
     // Fetch a package with its programs
     // $bundle = Group::with('programs')->find($id);

@@ -15,11 +15,12 @@ class GroupedProgramController extends Controller
     {
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $groups = Group::with(['programs'])->latest()->get();
-            $allPrograms = Program::get();
+            $allActivePrograms = Program::mainActivePrograms()->get();
+            $allPrograms = Program::allMainPrograms();
             $currencies = Currency::select('id', 'name')->where('status',1)->get();
             $currency_symbol = Settings::first()->CURR_ABBREVIATION;
 
-            return view('dashboard.admin.groupedprogram.index', compact('groups', 'currency_symbol', 'allPrograms', 'currencies'));
+            return view('dashboard.admin.groupedprogram.index', compact('groups', 'currency_symbol', 'allPrograms', 'currencies', 'allActivePrograms'));
         }
     }
 

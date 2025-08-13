@@ -329,15 +329,12 @@ class Controller extends BaseController
     }
 
     public function verifyCoupon($request, $pid, $admin=null){
-       
-        $type['pid'] = $pid;
         if($request->coupon && !empty($request->coupon)){
             $verifyCoupon = $this->getCouponValue($request->coupon, $pid, $admin);
-           
+            
             if(!is_null($verifyCoupon)){
                 $amount = $request->amount ?? $request['amount'];
                 $response = $this->getCouponUsage($request->coupon, $request->email, $pid, $amount,'admin');
-               
             }else{
                 $response = null;
             }

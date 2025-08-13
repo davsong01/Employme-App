@@ -181,21 +181,51 @@
                                 </td>
                 
                                 <td>
-                                    <strong>{{ $group->p_name }}</strong><br>
-                
+                                    <div class="mb-1">
+                                        <strong class="text-dark h6">{{ $group->p_name }}</strong>
+                                    </div>
+                                
                                     @if ($group->programs->isNotEmpty())
-                                        <span class="small text-dark">
-                                            @foreach ($group->programs as $index => $child)
+                                    <ul class="list-unstyled small text-dark mb-2">
+                                        @foreach ($group->programs as $index => $child)
+                                            @php
+                                                $isActive = in_array($child->id, $allActivePrograms->pluck('id')->toArray());
+                                            @endphp
+                                    
+                                            <li>
                                                 {{ $index + 1 }}.
-                                                <a target="_blank" href="{{ route('programs.edit', $child->id) }}">
-                                                    {{ $child->p_name }}
-                                                </a>@if(! $loop->last)<br> @endif
-                                            @endforeach
-                                        </span>
+                                                <a href="{{ route('programs.edit', $child->id) }}" target="_blank" class="">
+                                                    @if ($isActive)
+                                                        <strong>{{ $child->p_name }}</strong>
+                                                    @else
+                                                        <del class="text-danger">{{ $child->p_name }}</del>
+                                                    @endif
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                    
+                                
+                                        @if ($group->status == 1)
+                                            <div class="mt-2">
+                                                <a href="{{ route('show.packages', $group->slug) }}" target="_blank" class="d-inline-block text-primary">
+                                                    <i class="fa fa-eye me-1"></i> Preview Package
+                                                </a>
+                                            </div>
+                                
+                                            @if ($group->early_bird_status == 1)
+                                                <div class="mt-1">
+                                                    <a href="{{ url('/early-bird-trainings') . '/' . $group->slug }}" target="_blank" class="d-inline-block text-success">
+                                                        <i class="fa fa-eye me-1"></i> Preview Early Bird Package
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        @endif
                                     @else
-                                        <span class="text-muted small">(no members)</span>
+                                        <span class="text-muted small">(No programs in this group)</span>
                                     @endif
                                 </td>
+                                
                 
                                 <td>
                                     <strong>Normal Fee:</strong> {{ $currency_symbol . number_format($group->p_amount) }}<br>
@@ -213,9 +243,9 @@
                 
                                 <td>
                                     @if ($group->status)
-                                        <button class="btn btn-dark btn-xs">Published</button>
+                                        <button class="btn btn-dark btn-xs">Active</button>
                                     @else
-                                        <button class="btn btn-secondary btn-xs">Draft</button>
+                                        <button class="btn btn-secondary btn-xs">Inactive</button>
                                     @endif
                                 </td>
                 
@@ -308,7 +338,6 @@
                                 @endif
                             </div>
                         </div>
-
                         {{-- CHILD PROGRAMS --}}
                         <div class="form-group mb-3">
                             <label>Child Programs *</label>
@@ -480,7 +509,7 @@
                         <label for="child_programs">Child Programs *</label>
                         <select name="programs[]" id="child_programs"
                                 class="form-control select2" multiple required>
-                            @foreach ($allPrograms as $program)
+                            @foreach ($allActivePrograms as $program)
                                 <option value="{{ $program->id }}">{{ $program->p_name }}({{$currency_symbol.number_format($program->p_amount)}})</option>
                             @endforeach
                         </select>
