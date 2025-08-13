@@ -757,16 +757,14 @@ class PaymentController extends Controller
                         }
                     }else{
                         $expectedAmount = (PaymentService::confirmProgramAmount($temp, 'p_amount')/2);
-                        dd($expectedAmount);
                         $balance = $program->p_amount - $expectedAmount;
                     }
-
+                    
                     $payment_type = 'Part';
                     $message = 'Part payment';
                     $coupon_applied = $c ?? NULL;
                     $paymentStatus =  1;
                     $earnings = $this->getEarnings(($temp->amount), NULL, '', $program, $paymentDetails->facilitator_id);
-                    
                 }elseif($temp->type == 'earlybird'){
                     $balance = 0;
                     $payment_type = 'Full';
@@ -799,7 +797,8 @@ class PaymentController extends Controller
                 // }
                 $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
                 
-                $data['balance'] = $balance;
+                $data['balance'] = $temp->allPrograms()->toArray();
+                $data['programs'] = $balance;
                 $data['payment_type'] = $payment_type;
                 $data['message'] = $message;
                 $data['paymentStatus'] =  $paymentStatus;

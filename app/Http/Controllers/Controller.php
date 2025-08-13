@@ -584,7 +584,7 @@ class Controller extends BaseController
         //If program id is not in array of user program, attach program
         $userPrograms = Transaction::where('user_id', $user->id)->where('program_id', $data['program_id'])->count();
         
-        if( $userPrograms < 1){
+        if( $userPrograms < 1 ){
             // Attach program
             $user->programs()->attach( $data['program_id'], [
                 'created_at' =>  date("Y-m-d H:i:s"),

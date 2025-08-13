@@ -33,11 +33,11 @@
                   <tbody>
                     <tr class="border-0">
                         <th class="text-muted">Training{{ $isPackage ? 's' : '' }}:</th>
-                        @if ($isPackage && isset($training['programs']))
+                        @if ($isPackage && isset($data['programs']))
                         <td class="bg-light rounded p-2" style="padding: 5px 20px !important;font-size: 14px;color: black;">
                             <div class="bg-light rounded p-2">
                                     <ol class="mb-0 ps-3">
-                                        @foreach ($training['programs'] as $child)
+                                        @foreach ($data['programs'] as $child)
                                             <li>{{ $child['p_name'] }}</li>
                                         @endforeach
                                     </ol>

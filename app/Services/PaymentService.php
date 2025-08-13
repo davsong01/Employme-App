@@ -252,13 +252,12 @@ class PaymentService
 
     public static function confirmProgramAmount($transaction, $type)
     {
-
         if ($transaction->is_package) {
             $training = Group::where('id', $transaction->program_id)->first();
         } else {
             $training = Program::where('id', $transaction->program_id)->first();
         }
-
+        
         return $training->$type;
     }
 }
