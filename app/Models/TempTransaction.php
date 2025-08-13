@@ -30,4 +30,11 @@ class TempTransaction extends Model
     {
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
     }
+
+    public function scopeAllPrograms()
+    {
+        $programs = Program::select('id', 'p_abbr', 'p_name')->whereIn('id', $this->program_ids)->get();
+
+        return $programs;
+    }
 }

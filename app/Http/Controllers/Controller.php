@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\Settings;
-use Carbon\Carbon;
+use App\Mail\Welcomemail;
 use App\Models\CouponUser;
 use App\Models\PaymentMode;
 use App\Models\Transaction;
-use App\Models\TempTransaction;
-use App\Mail\Welcomemail;
 use App\Models\PaymentThread;
+use App\Models\TempTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -342,7 +343,7 @@ class Controller extends BaseController
         }else{
             $response = null;
         }
-       
+        
         return $response;
     }
 
@@ -382,18 +383,13 @@ class Controller extends BaseController
 
                     ]);
                 } catch (\Throwable $th) {
-                    dd($th->getMessage().'Line: ' .$th->getLine());
+                    // dd($th->getMessage().'Line: ' .$th->getLine());
                     return $th->getMessage().'Line: ' .$th->getLine();
                 }
             }
         return $temp;
     }
 
-    public function confirmProgramAmount($pid, $type){
-        $program_amount = Program::where('id', $pid)->first()->$type;
-       
-        return $program_amount;
-    }
 
     public function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL){
         // Admin created coupon
@@ -406,13 +402,13 @@ class Controller extends BaseController
                 'other' => $data['other_percent'] ?? 0,
             ];
         }
-       
+        
         if($coupon > 0){
             $coupon = $coupon;
         }else{
             $coupon = 0;
         }
-       
+        
         if($createdBy == 0){
             $toShare = $amount - $coupon;
         }else{

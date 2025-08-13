@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Group;
 use App\Models\Coupon;
+use App\Models\Program;
 use App\Models\Currency;
 use App\Models\CouponUser;
 use App\Models\TempTransaction;
@@ -246,5 +248,17 @@ class PaymentService
             'string' => $string,
             'array' => $array
         ];
+    }
+
+    public static function confirmProgramAmount($transaction, $type)
+    {
+
+        if ($transaction->is_package) {
+            $training = Group::where('id', $transaction->program_id)->first();
+        } else {
+            $training = Program::where('id', $transaction->program_id)->first();
+        }
+
+        return $training->$type;
     }
 }

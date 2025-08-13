@@ -701,8 +701,13 @@ class PaymentController extends Controller
         }
         
         $template = Settings::first()->templateName->name;
-        $programs = Program::whereIn('id', $paymentDetails->program_ids)->first();
 
+        if($temp->is_package){
+            $program = Group::where('id', $temp->program_id)->first();
+        }else{
+            $program = Program::where('id', $temp->program_id)->first();
+        }
+        
         if($template == 'contai'){
             // $temp = TempTransaction::where('email', $paymentDetails->email)->where('program_id', $paymentDetails->program_id)->first();
             if(isset($temp) && !empty($temp)){
@@ -738,7 +743,7 @@ class PaymentController extends Controller
                 }elseif($temp->type == 'part'){
                     if(isset($temp->training_mode) && !empty($temp->training_mode)){
                         $mode_amount = $this->getModeAmount($temp->training_mode,$temp->type,$program);
-
+                        
                         if($mode_amount){
                             $expectedAmount = $mode_amount;
                             
@@ -751,8 +756,8 @@ class PaymentController extends Controller
 
                         }
                     }else{
-                        $expectedAmount = ($this->confirmProgramAmount($temp->program_id, 'p_amount')/2);
-
+                        $expectedAmount = (PaymentService::confirmProgramAmount($temp, 'p_amount')/2);
+                        dd($expectedAmount);
                         $balance = $program->p_amount - $expectedAmount;
                     }
 
@@ -772,7 +777,26 @@ class PaymentController extends Controller
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
                 }
-                dd($program);
+                // process data
+                // Get training details
+                // $resolve_to_ids = collect($training->resolve_to_ids ?? [])
+                //     ->push($training->id)
+                //     ->unique()
+                //     ->values()
+                //     ->all();
+
+                // $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
+
+                // foreach ($trainingsToResolveTo as $singleTraining) {
+                //     $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
+                //     $data['balance'] = $balance;
+                //     $data['payment_type'] = $payment_type;
+                //     $data['message'] = $message;
+                //     $data['paymentStatus'] =  $paymentStatus;
+                //     $c = $c ?? NULL; // Coupon
+
+                //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
+                // }
                 $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
                 
                 $data['balance'] = $balance;
