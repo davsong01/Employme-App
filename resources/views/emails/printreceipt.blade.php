@@ -1,128 +1,167 @@
+<?php
+    $logo = \App\Models\Settings::first()->value('logo');
+?>
 <html>
-	<head><meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
-		<title></title>
-		
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css" rel="stylesheet" /><script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script><script src='https://code.jquery.com/jquery-1.11.1.min.js'></script>
-	</head>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 13px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .summary-table td {
+            padding: 8px 12px;
+        }
+
+        .summary-label {
+            font-weight: bold;
+            background-color: #f5f5f5;
+            width: 30%;
+        }
+
+        .summary-value {
+            text-align: right;
+        }
+
+        .summary-total {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .summary-balance {
+            color: #c0392b;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .header,
+        .participant {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
 
 <body>
-<div class="container">
+<div class="header">
+    <div style="float: left;">
+        <a href="{{url('/')}}">
+			<img src="{{ url($logo) }}" style="width: 150px;">
+		</a>
+    </div>
 
-	<div style="float:left"><img src="{{ asset('assets/images/logo-text.png') }}" style="width: 150px;" /></div>
-
-	<div style="float:right">
-		<h4></h4>
-
-		<h4><strong><span style="font-size:36px;">E - RECEIPT</span></strong></h4>
-
-		<p></p>
-		<p><b style="color:blue !important">TRANSACTION ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['transid']}}</span>  </b></p>
-		<p><b style="color:blue !important">INVOICE ID: <br> <span style="color:green !important;font-size: 16px;">{{ $data['invoice_id']}}</span> </b></p>
-		<?php 
-		$date =  $data['created_at'] ?? now()
-		?>
-		<p><em>{{ \Carbon\Carbon::parse($date)->format('jS F, Y, h:iA')  }}</em></p>
-		
-	</div>
-
-	<div class="row">
-		<div class="col-4"></div>
-	</div>
-
-	<div class="row">&nbsp;
-		{{-- <div class="col-8"><strong>School Address: </strong>{!! \App\Models\Settings::select('ADDRESS_ON_RECEIPT')->first()->value('ADDRESS_ON_RECEIPT') !!}
-		</div> --}}
-	</div>
-
-	<div class="row">
-		<p><b style="color:red">PARTICIPANT</b><br />
-		{{ $data['name']}}</p>
-
-		<p><b style="color:red">CONTACT EMAIL</b><br />
-		{{ $data['email']}}</p>
-	</div>
-			
-	<div class="row">
-		<table class="table table-hover">
-			<thead>
-				<tr>
-					<th>Program</th>
-					<th>Payment Mode</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="col-md-10"><em style="color:red !important">{{ $data['programName']}} </em>
-					@if(isset($data['training_mode']) && !empty($data['training_mode']))
-						<small><strong style="color:blue">({{ $data['training_mode'] }} Mode)</strong></small>
-					@endif
-					</td>
-					<td class="col-md-2" style="color:red !important">{{ $data['t_type'] ?? null}}</td>
-				</tr>
-				<tr>
-					<td>
-						@if(!empty($data['location']))
-						<small><strong style="color:green">Training Location: </strong>{{ $data['location'] ?? null }} ({{ $data['location_address'] ?? null }})</small>
-						@endif
-					</td>
-					<td></td>
-				</tr>
-			</tbody>
-		</table>
-		&nbsp;
-
-		<table class="table table-bordered">
-			<thead>
-				<tr>
-					<th>#</th>
-					<th>DESCRIPTION</th>
-					<th>MAIN FEE</th>
-					<th>AMOUNT PAID</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td class="col-md-1" style="text-align: center">1</td>
-					<td class="col-md-8">{{ $data['programName']}}<br />
-					<small><i>({{ $data['message']}})</i></small></td>
-					<td class="col-md-1 text-center">{{ $data['currency'] ?? null}}{{ number_format($data['programFee']) }}</td>
-					<td class="col-md-2 text-center">
-						{{ $data['currency'] ?? null }}{{ number_format($data['amount']) }} <br>
-						@if(isset($data['training_mode']) && !empty($data['training_mode']))
-							<small><strong style="color:blue">({{ $data['training_mode'] }} Mode)</strong></small>
-						 
-						@endif
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td class="text-right">
-					<p><strong>Total Paid:&nbsp;</strong></p>
-					</td>
-					<td class="text-center">
-					<p><strong>{{ $data['currency']?? null }}{{ number_format($data['total_amount_paid'] ?? $data['amount']) }}</strong></p>
-					</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td class="text-right">
-					<h4><strong style="color:red !important">Balance:&nbsp;</strong></h4>
-					</td>
-					<td class="text-center">
-					<h4><strong style="color:red !important">{{ $data['currency'] ?? null}}{{ number_format($data['balance']) }}</strong></h4>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	<div>
-			<h5 style='font-style: italic;'><span style='color:#FF0000;'></span></h5>
-			</div>
-			<br />
-			<p><b><i>School Administrator</i></b></p>
-	</div>
+    <div style="float: right; text-align: right;">
+        <h2 style="margin:0">E - RECEIPT</h2>
+        <p><strong style="color:blue;">TRANSACTION ID:</strong><br><span style="color:green;">{{ $transaction->transid }}</span></p>
+        <p><strong style="color:blue;">INVOICE ID:</strong><br><span style="color:green;">{{ $transaction->invoice_id }}</span></p>
+        <p><em>{{ \Carbon\Carbon::parse($transaction->created_at ?? now())->format('jS F, Y, h:iA') }}</em></p>
+    </div>
+    <div style="clear: both;"></div>
 </div>
 
+<div class="participant">
+    <p><strong style="color:red;">PARTICIPANT</strong><br>{{ $transaction->name }}</p>
+    <p><strong style="color:red;">CONTACT EMAIL</strong><br>{{ $transaction->email }}</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Payment Mode</th>
+            <th>Exchange Rate</th>
+            <th>Training Mode</th>
+            <th>Training Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ $transaction->meta['payment_mode']['name'] ?? 'N/A' }}</td>
+            <td>{{ $transaction->meta['payment_mode']['exchange_rate'] ?? 'N/A' }}</td>
+            <td>{{ $transaction->training_mode ?? 'N/A' }}</td>
+            <td>
+                @if(!empty($transaction->location))
+                    {{ $transaction->location }} ({{ $transaction->location_address }})
+                @else
+                    N/A
+                @endif
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">TRAINING(S)
+                @if($transaction->is_package)
+                    <small style="color:blue;">({{ $transaction->group->p_name }})</small>
+                @endif
+            </th>
+        </tr>
+        <tr>
+            <th style="width: 50px;">#</th>
+            <th>Training Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($transaction->allPrograms() as $program)
+            <tr>
+                <td style="text-align: center;">{{ $loop->iteration }}</td>
+                <td>{{ $program->p_name }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
+
+<table class="summary-table">
+    @php
+        $meta = is_array($transaction->meta) ? $transaction->meta : json_decode($transaction->meta, true);
+    @endphp
+
+    @if (!empty($meta['coupon_used']))
+        <tr>
+            <td class="summary-label">Coupon Used</td>
+            <td class="summary-value">
+                {{ $meta['coupon_used']['code'] ?? 'N/A' }}
+                ({{ $transaction->currency_symbol }}{{ number_format($meta['coupon_used']['amount'] ?? 0) }} off)
+            </td>
+        </tr>
+    @endif
+
+    <tr>
+        <td class="summary-label">Total Paid</td>
+        <td class="summary-value summary-total">
+            {{ $transaction->currency_symbol }}{{ number_format($transaction->total_amount_paid ?? $transaction->amount) }}
+        </td>
+    </tr>
+
+    <tr>
+        <td class="summary-label">Balance</td>
+        <td class="summary-value summary-balance">
+            {{ $transaction->currency_symbol }}{{ number_format($transaction->balance) }}
+        </td>
+    </tr>
+</table>
+
+<p style="margin-top: 40px;"><strong><i>School Administrator</i></strong></p>
 </body>
 </html>
