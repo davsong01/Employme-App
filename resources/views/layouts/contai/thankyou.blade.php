@@ -3,7 +3,6 @@
     {{ config('app.name') }}
 @endsection
 @section('content')
-{{dd($temp)}}
 <section class="">
     <div class="container">
         <div class="row">
@@ -31,25 +30,25 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="border-0">
-                        <th class="text-muted">Training{{ $isPackage ? 's' : '' }}:</th>
-                        @if ($isPackage && isset($data['programs']))
-                        <td class="bg-light rounded p-2" style="padding: 5px 20px !important;font-size: 14px;color: black;">
-                            <div class="bg-light rounded p-2">
-                                    <ol class="mb-0 ps-3">
-                                        @foreach ($data['programs'] as $child)
-                                            <li>{{ $child['p_name'] }}</li>
-                                        @endforeach
-                                    </ol>
-                            </div>
-                            
-                        </td>
-                        @else
-                        <td>
-                          {{ $data['p_name'] }}
-                        </td>
-                        @endif
-                    </tr>
+                    @php
+                      $isPackage = $data['transaction']->is_package;
+                    @endphp
+                    <tr>
+                      <th>Training{{ $isPackage ? 's' : '' }}:</th>
+                      @if ($isPackage && isset($data['programs']))
+                          <td style="padding-left: 30px;">
+                              <ol>
+                                  @foreach ($data['programs'] as $child)
+                                      <li>{{ $child['p_name'] }}</li>
+                                  @endforeach
+                              </ol>
+                          </td>
+                      @else
+                          <td>
+                              {{ $data['p_name'] }}
+                          </td>
+                      @endif
+                  </tr>
                     <tr>
                       <td>Email</td>
                       <td class="value">{{ $data['email'] ?? null}}</td>
@@ -61,7 +60,7 @@
                     </tr>
                     <tr>
                       <td>Invoice ID</td>
-                      <td class="value">{{ $data['invoice_id'] ?? null}}</td>
+                      <td class="value">{{ $data['transaction']['invoice_id'] ?? null}}</td>
                     </tr>
                      <tr>
                       <td>Amount Paid</td>
@@ -96,7 +95,7 @@
               </div>
             </div>
         </div>
-       
+
     </div>
 </section>
 

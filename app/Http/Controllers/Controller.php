@@ -63,7 +63,7 @@ class Controller extends BaseController
                 ? PDF::loadView('emails.printreceipt', compact('transaction'))
                 : null;
             
-            return $pdf->stream('receipt-preview.pdf'); // preview pdf only
+            // return $pdf->stream('receipt-preview.pdf'); // preview pdf only
 
             try {
                 if (env('ENT') == 'local') {
@@ -84,10 +84,9 @@ class Controller extends BaseController
                     Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
                 }
             } catch (\Exception $e) {
-                dd($e->getMessage(), $e->getFile(), $e->getLine());
+                // dd($e->getMessage(), $e->getFile(), $e->getLine());
                 return false;
             }
-            dd('sdsd');
         } else {
             if (!empty($transaction->invoice_id)) {
                 $pdf = !empty($transaction->invoice_id)

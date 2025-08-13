@@ -198,6 +198,9 @@ class PaymentService
                 'meta' => $transactionArray['meta'],
                 'is_package' => $transactionArray['is_package'],
                 'program_ids' => $transactionArray['program_ids']?? null,
+                'status' => $transactionArray['status'],
+                't_type' => $transactionArray['t_type'],
+
             ]);
 
             return  $transaction;
