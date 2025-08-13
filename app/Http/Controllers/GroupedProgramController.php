@@ -70,7 +70,7 @@ class GroupedProgramController extends Controller
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
             'image'             => $validated['image'] ?? null,
-            'haspartpayment'    => $validated['haspartpayment'] ,
+            'haspartpayment'    => $validated['haspartpayment'] ?? null,
 
         ]);
         
@@ -129,7 +129,7 @@ class GroupedProgramController extends Controller
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
             'image'             => $validated['image'] ?? null,
-            'haspartpayment'    => $validated['haspartpayment'],
+            'haspartpayment'    => $validated['haspartpayment'] ?? null,
 
         ]);
 
