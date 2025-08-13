@@ -16,7 +16,7 @@ class GroupedProgramController extends Controller
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $groups = Group::with(['programs'])->latest()->get();
             $allActivePrograms = Program::mainActivePrograms()->get();
-            $allPrograms = Program::allMainPrograms();
+            $allPrograms = Program::allMainPrograms()->get();
             $currencies = Currency::select('id', 'name')->where('status',1)->get();
             $currency_symbol = Settings::first()->CURR_ABBREVIATION;
 
@@ -40,6 +40,7 @@ class GroupedProgramController extends Controller
             'currencies'        => 'sometimes|array|min:1',
             'currencies.*'      => 'exists:currencies,id',
             'currency_values'   => 'sometimes|array',
+            'haspartpayment'    => 'sometimes',
         ]);
 
         if ($request->file('image')) {
@@ -68,7 +69,9 @@ class GroupedProgramController extends Controller
             'status'            => $validated['status'],
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
-            'image'              => $validated['image'] ?? null,
+            'image'             => $validated['image'] ?? null,
+            'haspartpayment'    => $validated['haspartpayment'] ,
+
         ]);
         
         $group->programs()->attach($validated['programs']);
@@ -92,6 +95,8 @@ class GroupedProgramController extends Controller
             'currencies'        => 'sometimes|array|min:1',
             'currencies.*'      => 'exists:currencies,id',
             'currency_values'   => 'sometimes|array',
+            'haspartpayment'    => 'sometimes',
+
         ]);
         
         if ($request->file('image')) {
@@ -123,7 +128,9 @@ class GroupedProgramController extends Controller
             'status'            => $validated['status'],
             'early_bird_status' => $validated['early_bird_status'],
             'currencies'        => $currencyData ?? null,
-            'image'              => $validated['image'] ?? null,
+            'image'             => $validated['image'] ?? null,
+            'haspartpayment'    => $validated['haspartpayment'],
+
         ]);
 
         // Sync programs (detach all and attach new ones)
