@@ -3,9 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\Group;
 use App\Models\Coupon;
-use App\Models\Program;
 use App\Models\Currency;
 use App\Models\CouponUser;
 use App\Models\TempTransaction;
@@ -38,12 +36,12 @@ class PaymentService
     public static function applyCoupon(array $couponArray): ?array
     {
         $code = $couponArray['code'] ?? null;
-        if(!$code || in_array($couponArray['type'], ['part', 'earlybird'])){
+        if (!$code || in_array($couponArray['type'], ['part', 'earlybird'])) {
             return null;
         }
-        
+
         $couponValue = self::getCouponValue($couponArray);
-        
+
         if (!is_array($couponValue) || empty($couponValue['status'])) {
             return null;
         }
@@ -51,9 +49,11 @@ class PaymentService
         return self::getCouponUsage($couponArray);
     }
 
-    public static function getCouponValue(array $couponArray): ?array{
+    public static function getCouponValue(array $couponArray): ?array
+    {
         $code       = $couponArray['code'] ?? null;
         $programId  = $couponArray['program_id'] ?? null;
+        $groupId    = $couponArray['group_id'] ?? null;
         $isPackage  = $couponArray['isPackage'] ?? false;
         $adminId    = $couponArray['admin_id'] ?? null;
 
@@ -69,14 +69,14 @@ class PaymentService
                 'amount' => 0,
                 'id'     => null,
                 'code'   => $code,
+                'type'   => null,
             ];
         }
 
         // Query based on package vs program
         $query = Coupon::where('code', $code);
-
         if ($isPackage) {
-            $query->where('group_id', $programId);
+            $query->where('group_id', $groupId);
         } else {
             $query->where('program_id', $programId);
         }
@@ -92,6 +92,7 @@ class PaymentService
             'amount' => $coupon->amount,
             'id'     => $coupon->id,
             'code'   => $coupon->code,
+            'type'   => $coupon->type,
         ];
     }
 
@@ -100,12 +101,12 @@ class PaymentService
         $code      = $couponArray['code'] ?? null;
         $email     = $couponArray['email'] ?? null;
         $amount    = $couponArray['amount'] ?? 0;
-        $isPackage = $couponArray['isPackage'] ?? false;
 
         // Basic validations
         if (!$code || !$email || $amount <= 0) {
             return null;
         }
+
 
         // Get coupon from DB
         $coupon = !empty($couponArray['admin_id'])
@@ -124,6 +125,7 @@ class PaymentService
         // Check prior usage
         $existingUsage = CouponUser::where('coupon_id', $coupon->id)
             ->where('email', $email)
+            ->where('status', 1)
             ->first();
 
         if ($existingUsage && $existingUsage->status == 1) {
@@ -136,13 +138,14 @@ class PaymentService
                 'email'      => $email,
                 'coupon_id'  => $coupon->id,
                 'status'     => 0,
-                'program_id' => $couponArray['program_id'],
+                'program_id' => $couponArray['program_id'] ?? null,
+                'group_id' => $couponArray['group_id'] ?? null,
             ]);
         }
 
         // Calculate discount amount
         $discount = 0;
-        
+
         if ($coupon->type === 'percentage') {
             $discount = round(($coupon->amount / 100) * $amount, 2);
         } elseif ($coupon->type === 'fixed') {
@@ -150,7 +153,7 @@ class PaymentService
         }
 
         $grandTotal = max(0, $amount - $discount);
-        
+
         return [
             'status'      => true,
             'id'          => $coupon->id,
@@ -159,11 +162,6 @@ class PaymentService
             'amount'      => $discount,
             'grand_total' => $grandTotal,
         ];
-    }
-
-    public static function getReference($prefix){
-        date_default_timezone_set("Africa/Lagos");
-        return $prefix . '-' . date('YmdHi') . '-' . rand(11111111, 99999999);
     }
 
     public static function getInvoiceId($id = null)
@@ -177,9 +175,16 @@ class PaymentService
         return $invoice_id;
     }
 
+    public static function getReference($prefix)
+    {
+        date_default_timezone_set("Africa/Lagos");
+        return $prefix . '-' . date('YmdHi') . '-' . rand(11111111, 99999999);
+    }
+
     public static function initiateTransaction($transactionArray)
     {
         try {
+            // $earnings = self::getEarnings(($transactionArray));
             $transaction = TempTransaction::create([
                 'email' => $transactionArray['email'],
                 'type' => $transactionArray['type'] ?? null,
@@ -194,23 +199,76 @@ class PaymentService
                 'phone' => $transactionArray['phone'],
                 'location' => $transactionArray['location'] ?? null,
                 'training_mode' => $transactionArray['modes'] ?? null,
-                'meta' => $transactionArray['meta'],
+                'meta' => $transactionArray['meta'] ?? null,
                 'is_package' => $transactionArray['is_package'],
-                'program_ids' => $transactionArray['program_ids']?? null,
+                'program_ids' => $transactionArray['program_ids'] ?? null,
+                'currency' => $transactionArray['currency'],
+                'currency_symbol' => $transactionArray['currency_symbol'],
+                't_type' => strtoupper($transactionArray['t_type']),
+                'invoice_id' => $transactionArray['invoice_id'],
             ]);
 
-            return  $transaction;
+            return $transaction;
         } catch (\Throwable $th) {
             return $th->getMessage() . 'Line: ' . $th->getLine();
         }
     }
 
-    public static function getConvertedCurrency($transaction){
+    public static function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL)
+    {
+        if (is_null($coupon)) {
+            return [
+                'facilitator' => $data['facilitator_percent'] ?? 0,
+                'admin' => $data['admin_percent'] ?? 0,
+                'tech' => $data['tech_percent'] ?? 0,
+                'faculty' =>  $data['faculty_percent'] ?? 0,
+                'other' => $data['other_percent'] ?? 0,
+            ];
+        }
+
+        if ($coupon > 0) {
+            $coupon = $coupon;
+        } else {
+            $coupon = 0;
+        }
+
+        if ($createdBy == 0) {
+            $toShare = $amount - $coupon;
+        } else {
+            $toShare = $amount;
+        }
+
+        $data['tech_percent'] = ($toShare * $program->tech_percent) / 100;
+        $data['faculty_percent'] = ($toShare * $program->faculty_percent) / 100;
+        $data['admin_percent'] = ($toShare * $program->admin_percent) / 100;
+        $data['other_percent'] = ($toShare * $program->other_percent) / 100;
+
+        if (isset($programFacilitator)) {
+            if ($createdBy == $programFacilitator) {
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100) - $coupon;
+            } else {
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100);
+            }
+        } else {
+            $data['facilitator_percent'] = 0;
+        }
+
+        return [
+            'facilitator' => $data['facilitator_percent'] ?? 0,
+            'admin' => $data['admin_percent'] ?? 0,
+            'tech' => $data['tech_percent'] ?? 0,
+            'faculty' =>  $data['faculty_percent'] ?? 0,
+            'other' => $data['other_percent'] ?? 0,
+        ];
+    }
+
+    public static function getConvertedCurrency($transaction)
+    {
         $string = '';
         $array = [];
         $amountToUse = $transaction->amount;
         $training = $transaction->is_package ? $transaction->group : $transaction->program;
-        
+
         if (!empty($training->currencies) && is_array($training->currencies)) {
             $customAmounts = collect($training->currencies)->mapWithKeys(function ($c) {
                 return [intval($c['id']) => $c['amount'] ?? null];
@@ -251,17 +309,6 @@ class PaymentService
         ];
     }
 
-    public static function confirmProgramAmount($transaction, $type)
-    {
-        if ($transaction->is_package) {
-            $training = Group::where('id', $transaction->program_id)->first();
-        } else {
-            $training = Program::where('id', $transaction->program_id)->first();
-        }
-        
-        return $training->$type;
-    }
-
     public static function createUserAndAttachPrograms($transaction)
     {
         $existingUser = User::where('email', $transaction->email)->first();
@@ -276,7 +323,7 @@ class PaymentService
                 'roles' => 'Student',
             ]);
         }
-        
+
         // Update user details
         $user->name = $transaction->name ?? 'N/A';
         $user->staffID = $transaction->meta['staffID'] ?? null;
@@ -286,12 +333,10 @@ class PaymentService
 
         $data = [
             'transid' => $transaction->transid,
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
 
         $programIds = $transaction->is_package ? $transaction->program_ids : [$transaction->program_id];
-        
+
         foreach ($programIds as $programId) {
             $alreadyHasProgram = $user->programs()->where('program_id', $programId)->exists();
 
@@ -299,12 +344,30 @@ class PaymentService
                 $data['program_id'] = $programId;
 
                 $user->programs()->attach($programId, $data);
+
+                $attach = TempTransaction::where('user_id', $user->id)
+                    ->where('program_id', $programId)
+                    ->latest()
+                    ->first();
             }
         }
-        
+
         $transaction->update([
             'user_id' => $user->id
         ]);
+
+        return;
+    }
+
+    public static function updateCoupon($transaction)
+    {
+        $coupon = CouponUser::where('coupon_id', $transaction->coupon_id)->where('email', $transaction->email)->where('program_id', $transaction->program_id)->first();
+
+        try {
+            $coupon->status = 1;
+            $coupon->save();
+        } catch (\Throwable $th) {
+        }
 
         return;
     }

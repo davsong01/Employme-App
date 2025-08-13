@@ -798,14 +798,14 @@ class PaymentController extends Controller
                 $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
                 
                 $data['balance'] = $temp->allPrograms()->toArray();
-                $data['programs'] = $balance;
+                $data['programs'] = $temp->allPrograms()->toArray();
                 $data['payment_type'] = $payment_type;
                 $data['message'] = $message;
                 $data['paymentStatus'] =  $paymentStatus;
                 $c = $c ?? NULL; // Coupon
 
-                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-
+                PaymentService::createUserAndAttachPrograms($temp);
+                
                 if(isset($c) && !empty($c)){
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
                 } 
@@ -815,14 +815,16 @@ class PaymentController extends Controller
                 $data['exchange_rate'] = \Session::get('exchange_rate');
                 
                 PaymentThread::create([
-                    'program_id' => $data['program_id'],
-                    'user_id' => $data['user_id'],
+                    'program_id' => $temp->program_id,
+                    'user_id' => $temp->user_id,
                     'payment_id' => $temp->id,
                     'transaction_id' => PaymentService::getReference('PYTHRD'),
-                    't_type' => $data['t_type'],
-                    'parent_transaction_id' => $data['transid'],
-                    'amount' => $data['amount'],
+                    't_type' => strtolower($temp->paymentMode->processor ?? 'TRANSFER'),
+                    'parent_transaction_id' => $temp->transid,
+                    'amount' => $temp->amount,
                 ]);
+
+                $data['isPackage'] =  $temp->is_package;
 
                 $this->sendWelcomeMail($data);
                 

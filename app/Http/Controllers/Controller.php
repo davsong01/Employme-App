@@ -53,8 +53,7 @@ class Controller extends BaseController
     
     public function sendWelcomeMail($data,$pdf=null){
         set_time_limit(360);
-        
-        // return view('emails.receipt', compact('data'));
+        dd($data);        
         $provider = $this->emailProvider();
         
         if($provider == 'default'){
