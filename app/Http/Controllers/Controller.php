@@ -63,7 +63,7 @@ class Controller extends BaseController
                 ? PDF::loadView('emails.printreceipt', compact('transaction'))
                 : null;
             
-            // return $pdf->stream('receipt-preview.pdf'); // preview pdf only
+            return $pdf->stream('receipt-preview.pdf'); // preview pdf only
 
             try {
                 if (env('ENT') == 'local') {

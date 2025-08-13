@@ -82,7 +82,7 @@
     <p><strong style="color:red;">PARTICIPANT</strong><br>{{ $transaction->name }}</p>
     <p><strong style="color:red;">CONTACT EMAIL</strong><br>{{ $transaction->email }}</p>
 </div>
-
+{{dd($transaction)}}
 <table>
     <thead>
         <tr>

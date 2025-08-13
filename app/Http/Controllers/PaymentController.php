@@ -268,6 +268,24 @@ class PaymentController extends Controller
         $invoiceId = PaymentService::getInvoiceId();
         $isBalance = false; // Add this later to the transactionArray
 
+        $payment_mode = [];
+        if($request->payment_mode){
+            if($request->payment_mode == 0){
+                $payment_mode = [
+                    'name' => 'Bank Transfer',
+                    'exchange_rate' => 1,
+                ] ;
+            }else{
+                $paymentMode = PaymentMode::where('id', $request->payment_mode)->first();
+                $payment_mode = [
+                    'name' => $paymentMode->name,
+                    'exchange_rate' => $paymentMode->exchange_rate,
+                ];
+            }
+        }
+
+        $metadata['payment_mode'] = $payment_mode;
+        
         $transactionArray = [
             'email' => $request->email,
             'type' => $request->payment_type,
@@ -359,8 +377,6 @@ class PaymentController extends Controller
         }
 
         // Create temp user and redirect
-        $request['metadata'] = $type;
-        
         try{
             $url = $this->queryProcessor($transaction);
 
