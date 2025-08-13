@@ -188,6 +188,7 @@ class PaymentService
                 'facilitator_id' => $transactionArray['facilitator'] ?? null,
                 'amount' =>  $transactionArray['amount'],
                 'transid' =>  $transactionArray['transid'],
+                'invoice_id' =>  $transactionArray['invoice_id'],
                 'payment_mode' => $transactionArray['payment_mode'] ?? null,
                 'preferred_timing' => $transactionArray['preferred_timing'] ?? null,
                 'name' => $transactionArray['name'],

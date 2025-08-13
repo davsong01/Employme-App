@@ -305,7 +305,7 @@ class PaymentController extends Controller
 
             if ($request->payment_type == 'full' && $training->p_amount == 0) {
                 $this->sendWelcomeMail($data);
-    
+                dd('done send');
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
                 return view('thankyou', compact('data'));
@@ -775,26 +775,7 @@ class PaymentController extends Controller
                 }elseif($temp->type == 'balance'){
                 // Do nothing, something must have gone wrong
                 }
-                // process data
-                // Get training details
-                // $resolve_to_ids = collect($training->resolve_to_ids ?? [])
-                //     ->push($training->id)
-                //     ->unique()
-                //     ->values()
-                //     ->all();
-
-                // $trainingsToResolveTo = Program::whereIn('id', $resolve_to_ids)->get();
-
-                // foreach ($trainingsToResolveTo as $singleTraining) {
-                //     $data = $this->prepareTrainingDetails($program, $paymentDetails,$paymentDetails->amount);
-                //     $data['balance'] = $balance;
-                //     $data['payment_type'] = $payment_type;
-                //     $data['message'] = $message;
-                //     $data['paymentStatus'] =  $paymentStatus;
-                //     $c = $c ?? NULL; // Coupon
-
-                //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, $earnings, $c);
-                // }
+                
                 $data = $this->prepareTrainingDetails($program, $paymentDetails, $paymentDetails->amount);
                 
                 $data['balance'] = $temp->allPrograms()->toArray();
@@ -815,14 +796,12 @@ class PaymentController extends Controller
                 $data['exchange_rate'] = \Session::get('exchange_rate');
                 
                 $temp->update([
-                    'status' => 'complete',
+                    // 'status' => 'complete',
                 ]);
 
                 $data['type'] = 'initial';
                 $data['name'] = $temp->name;
                 $data['transaction'] = $temp;
-
-                return $this->sendWelcomeMail($data);
 
                 PaymentThread::create([
                     'program_id' => $temp->program_id,
@@ -834,10 +813,9 @@ class PaymentController extends Controller
                     'amount' => $temp->amount,
                 ]);
 
-                $data['isPackage'] =  $temp->is_package;
 
                 $this->sendWelcomeMail($data);
-                
+                dd('sddssd');
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
 

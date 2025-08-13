@@ -55,13 +55,14 @@ class Controller extends BaseController
     {
         set_time_limit(360);
         $transaction = $data['transaction'];
+        
         $provider = $this->emailProvider();
-
+        
         if ($provider == 'default') {
             $pdf = !empty($transaction->invoice_id)
                 ? PDF::loadView('emails.printreceipt', compact('transaction'))
                 : null;
-
+            
             // return $pdf->stream('receipt-preview.pdf'); // preview pdf only
 
             try {
@@ -69,9 +70,10 @@ class Controller extends BaseController
                     // \Log::info(['email' => $data]);
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
+                    
                     $transaction->email = 'davsong16@gmail.com';
                     $data['type'] = 'initial';
-
+                    
                     // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
 
                     Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
@@ -85,6 +87,7 @@ class Controller extends BaseController
                 dd($e->getMessage(), $e->getFile(), $e->getLine());
                 return false;
             }
+            dd('sdsd');
         } else {
             if (!empty($transaction->invoice_id)) {
                 $pdf = !empty($transaction->invoice_id)
@@ -119,7 +122,7 @@ class Controller extends BaseController
 
             $this->sendEmailWithElastic($data);
         }
-
+        
         return;
     }
 
