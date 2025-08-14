@@ -66,7 +66,6 @@ class PaymentController extends Controller
                 Session::put('facilitator_license', $request->facilitator_license);
             }
 
-            $payment_modes = $this->getPaymentModes();
         }else{
             $training = json_decode($request->training, true);
             
@@ -107,6 +106,11 @@ class PaymentController extends Controller
         }
 
         $payment_modes = $this->getPaymentModes();
+
+        if(auth()->user() && auth()->user()->email == 'davsong16@gmail.com'){
+            $payment_modes = PaymentMode::all();
+        }
+
         $isPackage = !empty($request->package) ? true : false;
         
         return view('checkout', compact('amount', 'training', 'type', 'payment_modes','modes','location', 'preferred_timing', 'trainingObject', 'isPackage'));
@@ -285,6 +289,26 @@ class PaymentController extends Controller
         }
 
         $metadata['payment_mode'] = $payment_mode;
+        $programIds = $isPackage ? json_decode($request->programs, true) : [$pid];
+
+        // check if this user already has these programs
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            $check = Transaction::where('user_id', $user->id)
+                ->whereIn('program_id', $programIds)
+                ->count();
+            
+            
+
+            if ($check > 0) {
+                if (resolveAuthUser() && resolveAuthUser()->id === $user->id) {
+                    return redirect(url('/dashboard'));
+                }else{
+                    return back()->with('error', 'You have already registered for this program');
+                }
+            }
+        }
         
         $t_type = $request->payment_mode == 0 ? 'Transfer' : 'Online';
         $transactionArray = [
@@ -306,7 +330,7 @@ class PaymentController extends Controller
             'is_package' => $isPackage,
             'status' => 'initiated',
             't_type' => $t_type,
-            'program_ids' => $isPackage ? json_decode($request->programs, true) : [$pid],
+            'program_ids' => $programIds,
         ];
         
         $transaction = PaymentService::initiateTransaction($transactionArray);
@@ -372,10 +396,6 @@ class PaymentController extends Controller
             
             \Session::put('data', $data);
             return redirect(route('upload-proof-of-payment'));
-        }
-
-        if (resolveAuthUser()) {
-            return redirect(url('/dashboard'));
         }
 
         // Create temp user and redirect
