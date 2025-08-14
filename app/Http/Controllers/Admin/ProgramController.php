@@ -432,32 +432,32 @@ class ProgramController extends Controller
 
     public function showcrm($id)
     {
-        $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
+        $program = Program::find($id);
+        $programName = $program->p_name;
         $program->hascrm = 1;
         $program->save();
 
-        return redirect('programs')->with('message', 'CRM has been succesfully enabled for ' . $programName);
+        return back()->with('message', 'CRM has been succesfully enabled for ' . $programName);
     }
 
     public function hidecrm($id)
     {
-        $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
+        $program = Program::find($id);
+        $programName = $program->p_name;
         $program->hascrm = 0;
         $program->save();
 
-        return redirect('programs')->with('message', 'CRM has been succesfully disabled for ' . $programName);
+        return back()->with('message', 'CRM has been succesfully disabled for ' . $programName);
     }
 
     public function closeRegistration($id)
     {
         $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
+        $programName = $program->p_name;
         $program->close_registration = 1;
         $program->save();
 
-        return redirect('programs')->with('message', 'Registration is now closed for ' . $programName);
+        return back()->with('message', 'Registration is now closed for ' . $programName);
     }
 
     public function openRegistration($id)
@@ -467,7 +467,7 @@ class ProgramController extends Controller
         $program->close_registration = 0;
         $program->save();
 
-        return redirect('programs')->with('message', 'Registration is now extended for ' . $programName);
+        return back()->with('message', 'Registration is now extended for ' . $programName);
     }
 
     public function openEarlyBird($id)
@@ -477,7 +477,7 @@ class ProgramController extends Controller
         $program->early_bird_status = 1;
         $program->save();
 
-        return redirect('programs')->with('message', 'Early is now extended for ' . $programName);
+        return back()->with('message', 'Early is now extended for ' . $programName);
     }
 
     public function closeEarlyBird($id)
@@ -487,7 +487,7 @@ class ProgramController extends Controller
         $program->early_bird_status = 0;
         $program->save();
 
-        return redirect('programs')->with('message', 'EarlyBird payment is now closed for ' . $programName);
+        return back()->with('message', 'EarlyBird payment is now closed for ' . $programName);
     }
 
     public function cloneTraining(Request $request, Program $training)
@@ -511,6 +511,9 @@ class ProgramController extends Controller
             $newT['status'] = 0;
             $newT['is_closed'] = 'no';
             $newT['p_name'] = 'copy_' . $training->p_name;
+            $newT['hascrm'] = 0;
+            $newT['hasresult'] = 0;
+            $newT['show_certificate'] = 0;
             unset($newT['slug']);
             
             $new = Program::create($newT);

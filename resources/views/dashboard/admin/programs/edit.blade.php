@@ -180,8 +180,7 @@
                                     </div>
                                 </div>
                                 {{-- @if($program->parent) --}}
-                                
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="form-group">
                                         <label style="color:">Participants of this program should have access to:</label>
                                         <select name="resolve_to_ids[]" class="select2 form-control" multiple>
@@ -192,7 +191,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
+                                </div> --}}
                                 {{-- @endif --}}
                             </div>
                         </fieldset>

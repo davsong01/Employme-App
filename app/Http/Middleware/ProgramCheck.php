@@ -16,8 +16,6 @@ class ProgramCheck
      */
     public function handle($request, Closure $next)
     {
-
-
         if (checkRoleHas(['Student'])){
             $programs = DB::table('program_user')->where('user_id', resolveAuthUser()->id)->whereProgram_id($request->p_id)->first();
             

@@ -78,8 +78,7 @@ Route::middleware(['admin.access'])->group(function () {
         Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
     
         Route::resource('settings', SettingsController::class);
-    
-    
+        
         Route::resource('tests', TestsController::class)->middleware(['programCheck']);
         Route::resource('mocks', MockController::class)->middleware(['programCheck']);
     
@@ -150,7 +149,7 @@ Route::middleware(['admin.access'])->group(function () {
         // Programs Routes
     
         // Route::middleware(['signed'])->group(function () {
-        Route::middleware([])->group(function () {
+        Route::middleware(['programCheck'])->group(function () {
             Route::resource('programs', ProgramController::class);
             Route::resource('groupedprogram', GroupedProgramController::class);
     
@@ -158,8 +157,8 @@ Route::middleware(['admin.access'])->group(function () {
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
                 Route::post('training-import-data/{training}', 'importDataFromTraining')->name('training.import.data');
                 Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
-                Route::get('restore/{id}', 'restore')->name('programs.restore');
                 Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
+                Route::get('restore/{id}', 'restore')->name('programs.restore');
                 Route::get('close/{id}', 'closeRegistration')->name('registration.close');
                 Route::get('open/{id}', 'openRegistration')->name('registration.open');
                 Route::get('password-reset/{id}', 'passwordReset')->name('admin.password.reset');
