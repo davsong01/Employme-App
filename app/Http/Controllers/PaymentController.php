@@ -358,7 +358,6 @@ class PaymentController extends Controller
         // Bank transfer
         if ($request->has('payment_mode') && $request->payment_mode == 0) {
             $extraCurrencies = PaymentService::getConvertedCurrency($transaction);
-            $transaction = $transaction;
             
             $data = [
                 'extraCurrencies' => $extraCurrencies,
