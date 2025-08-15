@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Program;
 use App\Models\Certificate;
 use App\Models\Transaction;
@@ -174,17 +175,35 @@ class UtilityTaskController extends Controller
             Program::whereIn('id', $withoutUsersIds)->delete();
         }
 
-
         if(!empty($withUsersIds)){
             $toProcess = Program::with('users')->whereIn('id', $withUsersIds)->get();
             
             foreach($toProcess as $program){
-                // create a new group
-                // add it to 
-                // Check if program is in program_user
-                
+                if($program->users->count() < 1){
+                    $programs = $program->children->pluck('id');
+    
+                    $validated = [
+                        'p_name'            => $program->p_name,
+                        'p_abbr'            => $program->p_abbr,
+                        'p_amount'          => $program->p_amount,
+                        'e_amount'          => $program->e_amount,
+                        'p_start'           => $program->p_start,
+                        'p_end'             => $program->p_end,
+                        'status'            => $program->status,
+                        'early_bird_status' => $program->early_bird_status,
+                        'currencies'        => $program->currencies,
+                        'haspartpayment'    => $program->haspartpayment,
+                        'image'             => $program->image,
+                    ];
+    
+                    $group = Group::create($validated);
+                    $group->programs()->attach($programs);
+                    dd($program);
+                    $program->delete();
+                }
             }
         }
-        // dd($programs);
+
+        return 'All done';
     }
 }
