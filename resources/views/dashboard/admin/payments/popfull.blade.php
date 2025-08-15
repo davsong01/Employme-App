@@ -32,7 +32,7 @@
                     
                     <tbody>
                         @foreach($pops as $pop)
-                            @if($pop->program)
+                            @if($pop->related)
                                 <tr>
                                     <td>{{ $pop->date }}</td>
                                     <td>{{ $pop->name }} <br>
@@ -42,7 +42,7 @@
                                             $string =  "*Name:* " . $pop->name . "
                                             *Phone:* " . $pop->phone . "
                                             *Email:* " . $pop->email . "
-                                            *Training:* " . $pop->program?->p_name . "
+                                            *Training:* " . $pop->related?->p_name . "
                                             *Amount Paid:* " . $pop->amount;
                                         ?>
                                         
@@ -71,7 +71,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td>{{ $pop->program->p_name }} <br>({{  $pop->program->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->program->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->program->e_amount  }})
+                                    <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->related->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->related->e_amount  }})
                                     @if(isset($pop->is_fresh)) <br>
                                     <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                                     @endif
@@ -156,7 +156,7 @@
                                                             <select name="program_id" id="program_id_{{ $pop->id }}" class="form-control">
                                                                 <option value="">Select</option>
                                                                 @foreach($programs as $program)
-                                                                <option value="{{ $program->id }}" {{ $program->id == $pop->program->id ? 'selected' : '' }}>
+                                                                <option value="{{ $program->id }}" {{ $program->id == $pop->related->id ? 'selected' : '' }}>
                                                                     {{ $program->p_name }} ({{ $program->p_amount }})
                                                                     @if($program->p_end > date('Y-m-d')) | Expired @endif
                                                                 </option>

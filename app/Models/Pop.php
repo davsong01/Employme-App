@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Group;
 use App\Models\TempTransaction;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,8 +15,19 @@ class Pop extends Model
         return $query->ORDERBY('date', 'DESC');
     }
 
-    public function program(){
+    public function program()
+    {
         return $this->belongsTo(Program::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function getRelatedAttribute()
+    {
+        return $this->program ?? $this->group;
     }
 
     public function user(){

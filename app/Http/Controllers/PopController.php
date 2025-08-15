@@ -29,7 +29,7 @@ class PopController extends Controller
         $transactions =  TempTransaction::with(['coupon', 'program:id,p_amount,e_amount,created_at'])->orderBy('created_at', 'DESC')->get();
         $i = 1;
         $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-
+        
         return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
     }
 
@@ -193,7 +193,7 @@ class PopController extends Controller
 
         // Try to see if this is balance payment
         $existingTransaction = $this->getExistingTransactionAndBalance($pop);
-        
+        dd($existingTransaction);
         $allDetails = [];
         if (isset($existingTransaction) && $existingTransaction['balance'] > 0) {
             $allDetails['balance_transaction_id'] = $this->getReference('SYS_ADMIN_BAL');
@@ -367,7 +367,7 @@ class PopController extends Controller
     public function getExistingTransactionAndBalance($pop)
     {
         if (isset($pop->user->id)) {
-            $existingTransactions = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->first();
+            $existingTransactions = TempTransaction::where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->first();
         } else {
             return [
                 'balance' => 0,

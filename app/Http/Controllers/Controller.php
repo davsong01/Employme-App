@@ -78,8 +78,8 @@ class Controller extends BaseController
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
                     
-                    $transaction->email = 'davsong16@gmail.com';
-                    // $data['type'] = 'initial';
+                    $email = $transaction->email ?? $data['email'] ?? null;
+                    $email = 'davsong16@gmail.com';
                     
                     // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
 
@@ -87,8 +87,9 @@ class Controller extends BaseController
                 } else {
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
+                    $email = $transaction->email ?? $data['email'] ?? null;
 
-                    Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
+                    Mail::to($email)->send(new Welcomemail($data, $pdf));
                 }
             } catch (\Exception $e) {
                 // dd($e->getMessage(), $e->getFile(), $e->getLine());
