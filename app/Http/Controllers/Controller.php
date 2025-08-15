@@ -810,7 +810,11 @@ class Controller extends BaseController
                 $content .= "Training Mode: ".$data['training_mode'];
             }
 
-            $content .= '<a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to confirm Participant</button></a><br><br>Regards';
+            $content .= '<a href="' . config('app.url') . '/login' . '"style="display:inline-block; background-color:#28a745; color:#ffffff;padding:12px 20px; text-decoration:none; font-size:14px; font-weight:bold; border-radius:5px; font-family:Arial, sans-serif;">
+                Login to Confirm Participant
+            </a>
+            <br><br>
+            Regards';
         }elseif($data['type'] == 'bulk'){
             $subject = $data['subject'];
             $content = $data['content'];

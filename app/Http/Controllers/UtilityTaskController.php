@@ -8,6 +8,7 @@ use App\Models\Certificate;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\UtilityCronTask;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 class UtilityTaskController extends Controller
@@ -154,5 +155,36 @@ class UtilityTaskController extends Controller
         }
 
         dd($count . ' Files renamed');
+    }
+
+    public function moveParentProgramsToGroup(){
+        $programIdsWithChildren = Program::whereHas('children')->pluck('id');
+
+        $programIdsWithUsers = DB::table('program_user')
+            ->whereIn('program_id', $programIdsWithChildren)
+            ->distinct()
+            ->pluck('program_id');
+
+        $withUsersIds = $programIdsWithUsers;
+        $withoutUsersIds = $programIdsWithChildren
+            ->diff($programIdsWithUsers);
+
+
+        if(!empty($withoutUsersIds)){
+            Program::whereIn('id', $withoutUsersIds)->delete();
+        }
+
+
+        if(!empty($withUsersIds)){
+            $toProcess = Program::with('users')->whereIn('id', $withUsersIds)->get();
+            
+            foreach($toProcess as $program){
+                // create a new group
+                // add it to 
+                // Check if program is in program_user
+                
+            }
+        }
+        // dd($programs);
     }
 }
