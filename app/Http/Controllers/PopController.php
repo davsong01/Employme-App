@@ -35,13 +35,15 @@ class PopController extends Controller
 
     public function create()
     {
-        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
-        ->doesntHave('children')
-        ->where('id', '<>', 1)
-        ->where('close_registration', 0)
-        ->where('p_end', '>', date('Y-m-d'))
-        ->orderBy('created_at', 'DESC')
-        ->get();
+        // $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
+        // ->doesntHave('children')
+        // ->where('id', '<>', 1)
+        // ->where('close_registration', 0)
+        // ->where('close_registration', 0)
+        // ->where('p_end', '>', date('Y-m-d'))
+        // ->orderBy('created_at', 'DESC')
+        // ->get();
+        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->mainActivePrograms()->get();
 
         $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActivePrograms();
