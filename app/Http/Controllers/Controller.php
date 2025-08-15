@@ -506,7 +506,7 @@ class Controller extends BaseController
         $data['t_location'] = $paymentDetails->location;
         $data['training_mode'] = $paymentDetails->training_mode;
         $data['preferred_timing'] = $paymentDetails->preferred_timing;
-       
+        
         return $data;
     }
 

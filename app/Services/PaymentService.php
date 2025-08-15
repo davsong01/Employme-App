@@ -200,7 +200,10 @@ class PaymentService
                 'program_ids' => $transactionArray['program_ids']?? null,
                 'status' => $transactionArray['status'],
                 't_type' => $transactionArray['t_type'],
+                'balance' => $transactionArray['balance'] ?? 0,
 
+                'currency' => $transactionArray['currency'],
+                'currency_symbol' => $transactionArray['currency_symbol'],
             ]);
 
             return  $transaction;
@@ -311,5 +314,49 @@ class PaymentService
         ]);
 
         return;
+    }
+
+    public static function getExistingTransactionAndBalance($pop)
+    {
+        // check if there is a user, if yes, use the user_id, else use the email and program or group as the case may and get the transaction balance if it exist
+        $isPackage = $pop->is_package;
+
+        if (isset($pop->user->id)) {
+            $existingTransaction = TempTransaction::where('user_id', $pop->user->id);
+            if (!$isPackage) {
+                $existingTransaction = $existingTransaction->where('program_id', $pop->program_id)->where('is_package', 0);
+            } else {
+                $existingTransaction = $existingTransaction->where('program_id', $pop->group_id)->where('is_package', 1);
+            }
+            $existingTransaction = $existingTransaction->first();
+
+            if ($existingTransaction) {
+                return [
+                    'balance' => $existingTransaction->balance ?? 0,
+                    'transaction' => $existingTransaction,
+                ];
+            }
+        } else {
+            $existingTransaction = TempTransaction::where('email', $pop->email);
+            if (!$isPackage) {
+                $existingTransaction = $existingTransaction->where('program_id', $pop->program_id)->where('is_package', 0);
+            } else {
+                $existingTransaction = $existingTransaction->where('program_id', $pop->group_id)->where('is_package', 1);
+            }
+
+            $existingTransaction = $existingTransaction->first();
+
+            if ($existingTransaction) {
+                return [
+                    'balance' => $existingTransaction->balance ?? 0,
+                    'transaction' => $existingTransaction,
+                ];
+            }
+        }
+
+        return [
+            'balance' => 0,
+            'transaction' => null,
+        ];
     }
 }

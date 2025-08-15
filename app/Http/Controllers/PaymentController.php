@@ -635,16 +635,17 @@ class PaymentController extends Controller
                 
                 if(isset($c) && !empty($c)){
                     $this->updateCoupon($c->id, $data['email'], $data['program_id']);
-                } 
+                }
+
+                $temp->update([
+                    'status' => 'complete',
+                ]);
+
 
                 $data['currency'] = \Session::get('currency');
                 $data['currency_symbol'] = \Session::get('currency_symbol');
                 $data['exchange_rate'] = \Session::get('exchange_rate');
                 
-                $temp->update([
-                    'status' => 'complete',
-                ]);
-
                 $data['type'] = 'initial';
                 $data['name'] = $temp->name;
                 $data['transaction'] = $temp;
