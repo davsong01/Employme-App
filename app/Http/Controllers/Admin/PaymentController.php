@@ -30,7 +30,8 @@ class PaymentController extends Controller
         $i = 1;
 
         if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
-            $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
+            // $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
+            $transactions = TempTransaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
             // dd($transactions->take(10)->get());
             $i = 1;
             

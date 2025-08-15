@@ -406,4 +406,179 @@ class PaymentService
             'message' => 'Balance Payment added succesfully',
         ];
     }
+
+    public static function calculateCoupon($temp, $training, $mainProgram)
+    {
+        $couponData = [
+            'coupon_amount' => 0,
+            'computed_amount' => 0,
+            'coupon_id' => null,
+            'coupon_code' => null,
+            'program_id' => $training->id,
+            'original_program_id' => null,
+            'created_by' => null,
+            'coupon_scope' => null,
+        ];
+
+        if ($temp->type !== 'full') {
+            return $couponData;
+        }
+
+        $coupon_amount = 0;
+
+        // Check for training-specific coupon first (override behavior)
+        $trainingCoupon = Coupon::where('program_id', $training->id)->first();
+
+        if ($trainingCoupon) {
+            if ($trainingCoupon->type === 'percentage') {
+                $coupon_amount = ($trainingCoupon->amount / 100) * $training->p_amount;
+            } elseif ($trainingCoupon->type === 'fixed') {
+                $coupon_amount = $trainingCoupon->amount;
+            }
+            return [
+                'coupon_amount' => round($coupon_amount, 2),
+                'computed_amount' => min(round($coupon_amount, 2), $training->p_amount),
+                'coupon_id' => $trainingCoupon->id,
+                'coupon_code' => $trainingCoupon->code,
+                'program_id' => $training->id,
+                'original_program_id' => $trainingCoupon->program_id,
+                'created_by' => $trainingCoupon->facilitator_id,
+                'coupon_scope' => 'individual',
+            ];
+        }
+
+        // If no training coupon, fallback to main program coupon
+        if (isset($temp->coupon_id)) {
+            $mainCoupon = Coupon::find($temp->coupon_id);
+
+            if ($mainCoupon) {
+                if ($mainCoupon->type === 'percentage') {
+                    $coupon_amount = ($mainCoupon->amount / 100) * $training->p_amount;
+                } elseif ($mainCoupon->type === 'fixed' && $mainProgram->p_amount > 0) {
+                    $discountPercentage = ($mainCoupon->amount / $mainProgram->p_amount) * 100;
+                    $coupon_amount = ($discountPercentage / 100) * $training->p_amount;
+                }
+
+                return [
+                    'coupon_amount' => round($coupon_amount, 2),
+                    'computed_amount' => min(round($coupon_amount, 2), $training->p_amount),
+                    'coupon_id' => $mainCoupon->id,
+                    'coupon_code' => $mainCoupon->code,
+                    'program_id' => $training->id,
+                    'original_program_id' => $mainCoupon->program_id,
+                    'created_by' => $mainCoupon->facilitator_id,
+                    'coupon_scope' => 'general',
+                ];
+            }
+        }
+
+        // Return default if no valid coupon applied
+        return $couponData;
+    }
+
+    public static function getExpectedAmountDetails($temp, $program, $couponData = null)
+    {
+        $couponAmount = $couponData['computed_amount'] ?? 0;
+        $programAmount = $program->p_amount;
+        $trainingMode = $temp->training_mode;
+        $type = $temp->type;
+
+        // Apply mode-based pricing if applicable
+        if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
+            $modes = json_decode($program->modes, true);
+            if (!empty($modes[$trainingMode])) {
+                $programAmount = $modes[$trainingMode];
+            }
+        }
+
+        $totalAmount = $programAmount;
+        $balance = 0;
+        $message = 'Full payment';
+        $paymentStatus = 1;
+
+        switch ($type) {
+            case 'full':
+                $totalAmount = ceil($programAmount - $couponAmount);
+                break;
+
+            case 'part':
+                $totalAmount = ceil($programAmount / 2);
+                $message = 'Part payment';
+                $balance = $totalAmount - $temp->amount;
+                break;
+
+            case 'earlybird':
+                $totalAmount = ceil($program->e_amount - $couponAmount);
+                break;
+
+            default:
+                $type = 'full';
+                break;
+        }
+
+        // Cap to full program amount if over-calculated
+        $totalAmount = min($totalAmount, $programAmount);
+        $balance = max(0, $balance);
+
+        return [
+            'amount_paid' => $totalAmount,
+            'expected_amount' => $totalAmount,
+            'type' => $type,
+            'coupon_data' => $couponData,
+            'message' => $message,
+            'payment_status' => $paymentStatus,
+            'balance' => $balance,
+        ];
+    }
+
+    public static function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL)
+    {
+        // Admin created coupon
+        if (is_null($coupon)) {
+            return [
+                'facilitator' => $data['facilitator_percent'] ?? 0,
+                'admin' => $data['admin_percent'] ?? 0,
+                'tech' => $data['tech_percent'] ?? 0,
+                'faculty' =>  $data['faculty_percent'] ?? 0,
+                'other' => $data['other_percent'] ?? 0,
+            ];
+        }
+
+        if ($coupon > 0) {
+            $coupon = $coupon;
+        } else {
+            $coupon = 0;
+        }
+
+        if ($createdBy == 0) {
+            $toShare = $amount - $coupon;
+        } else {
+            $toShare = $amount;
+        }
+
+        $data['tech_percent'] = ($toShare * $program->tech_percent) / 100;
+        $data['faculty_percent'] = ($toShare * $program->faculty_percent) / 100;
+        $data['admin_percent'] = ($toShare * $program->admin_percent) / 100;
+        $data['other_percent'] = ($toShare * $program->other_percent) / 100;
+
+        if (isset($programFacilitator)) {
+            if ($createdBy == $programFacilitator) {
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100) - $coupon;
+            } else {
+                $data['facilitator_percent'] = (($toShare * $program->facilitator_percent) / 100);
+            }
+        } else {
+            $data['facilitator_percent'] = 0;
+        }
+
+        return [
+            'facilitator' => $data['facilitator_percent'] ?? 0,
+            'admin' => $data['admin_percent'] ?? 0,
+            'tech' => $data['tech_percent'] ?? 0,
+            'faculty' =>  $data['faculty_percent'] ?? 0,
+            'other' => $data['other_percent'] ?? 0,
+        ];
+    }
+
+
 }
