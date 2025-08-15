@@ -47,7 +47,7 @@ class PopController extends Controller
 
         $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActiveProgramsWithIsClosed();
-        }]);
+        }])->get();
         
         if(isset(session()->get('data')['metadata']['pid'])){
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);

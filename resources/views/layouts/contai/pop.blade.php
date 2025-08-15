@@ -15,7 +15,7 @@
             $data = session()->get('data');
             $extraCurrencies = $data['extraCurrencies']['array'] ?? [];
             $transaction = $data['transaction'] ?? null;
-            $groups = $data['groups'] ?? [];
+            $groups = $data['groups'] ?? $groups;
             
         ?>
         @if(session()->get('data'))
