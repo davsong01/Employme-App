@@ -185,7 +185,6 @@ class PopController extends Controller
 
     public function show(Pop $pop)
     {
-
         try {
             if (isset($pop->user) && !empty($pop->user)) {
                 $check = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->where('balance', '<', 1)->count();
@@ -205,45 +204,16 @@ class PopController extends Controller
             }
             
             if (isset($existingTransaction) && isset($existingTransaction['transaction'])){
-                $transaction = $existingTransaction['transaction'];
-                $isNew = false;
+                $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $pop);
                 
-                // Check if there is a balance
-                if($existingTransaction['balance'] > 0){
-                    $isBalancePayment = true;
-                    $expectedAmount = $existingTransaction['balance'];
+                if($response['status']){
+                    $pop->delete();
+
+                    return redirect(route('payments.index'))->with('message', 'Balance Payment added succesfully');
                 }else{
-                    $isBalancePayment = false;
-                    $expectedAmount = $existingTransaction['balance'];
+                    return back()->with('error', $response['message']);
                 }
 
-                $balance = $expectedAmount - $pop->amount;
-                
-                if ($pop->amount > $expectedAmount) {
-                    return back()->with('error', 'Cannot pay above ' . $expectedAmount);
-                }
-
-                $type = $balance > 0 ? 'part' : 'full';
-                
-                $transaction->update([
-                    'type' => $type,
-                    'amount' => $transaction->pop->amount,
-                    'balance' => $balance,
-                ]);
-                
-                PaymentThread::create([
-                    'program_id' => $transaction->program_id,
-                    'user_id' => $transaction->user_id,
-                    'payment_id' => $transaction->id,
-                    'transaction_id' => PaymentService::getReference('PYTHRD'),
-                    't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
-                    'parent_transaction_id' => $transaction->transid,
-                    'amount' => $pop->amount,
-                ]);
-
-                // $pop->delete();
-
-                return redirect(route('payments.index'))->with('message', 'Balance Payment added succesfully');
             }else{
                 $isNew = true;
                 $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
@@ -307,7 +277,7 @@ class PopController extends Controller
                     'currency' => $pop->currency,
                     'currency_symbol' => $pop->currency_symbol,
                 ];
-                dd('ho;ld');
+                
                 $transaction = PaymentService::initiateTransaction($transactionArray);
                 $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
 
@@ -340,7 +310,7 @@ class PopController extends Controller
                 ]);
             }
             
-            // $pop->delete();
+            $pop->delete();
 
             if($isNew){
                 $this->sendWelcomeMail($data);

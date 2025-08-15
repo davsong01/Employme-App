@@ -8,6 +8,7 @@ use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\Currency;
 use App\Models\CouponUser;
+use App\Models\PaymentThread;
 use App\Models\TempTransaction;
 
 
@@ -357,6 +358,52 @@ class PaymentService
         return [
             'balance' => 0,
             'transaction' => null,
+        ];
+    }
+
+    public static function handleBalancePayment($existingTransaction, $existingTransactionBalance, $pop){
+        $transaction = $existingTransaction;
+        $isNew = false;
+
+        // Check if there is a balance
+        if ($existingTransactionBalance > 0) {
+            $isBalancePayment = true;
+            $expectedAmount = $existingTransactionBalance;
+        } else {
+            $isBalancePayment = false;
+            $expectedAmount = $existingTransaction->balance;
+        }
+
+        $balance = $expectedAmount - $pop->amount;
+        
+        if ($pop->amount > $expectedAmount) {
+            return [
+                'status' => false,
+                'message' => 'Cannot pay above ' . $expectedAmount
+            ];
+        }
+
+        $type = $balance > 0 ? 'part' : 'full';
+
+        $existingTransaction->update([
+            'type' => $type,
+            'amount' => $existingTransaction->amount + $pop->amount,
+            'balance' => $balance,
+        ]);
+
+        PaymentThread::create([
+            'program_id' => $existingTransaction->program_id,
+            'user_id' => $existingTransaction->user_id,
+            'payment_id' => $existingTransaction->id,
+            'transaction_id' => PaymentService::getReference('PYTHRD'),
+            't_type' => strtolower($existingTransaction->paymentMode->processor ?? 'TRANSFER'),
+            'parent_transaction_id' => $existingTransaction->transid,
+            'amount' => $pop->amount,
+        ]);
+
+        return [
+            'status' => true,
+            'message' => 'Balance Payment added succesfully',
         ];
     }
 }
