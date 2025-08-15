@@ -177,7 +177,7 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="checkout__input">
-                                        <p>Phone<span>*</span></p>
+                                        <p>Whatsapp Number<span>*</span></p>
                                         <input type="text" class="form-control" id="phone" name="phone" 
                                             @auth
 
