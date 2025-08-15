@@ -316,13 +316,10 @@ class PopController extends Controller
                 $this->sendWelcomeMail($data);
             }
 
-            // $transaction//////
+            return redirect(route('payments.index'))->with('message', 'Student added succesfully');
         }catch(\Exception $e){
-            DB::rollback();
             dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
         }
-
-        return redirect(route('payments.index'))->with('message', 'Student added succesfully');
     }
 
     public function update(Pop $pop, Request $request){
@@ -330,7 +327,6 @@ class PopController extends Controller
         return back()->with('message', 'Update Successful');
     }
     
-
     public function tempDestroy($id)
     {
         $trans = TempTransaction::find($id);
