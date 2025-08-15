@@ -103,7 +103,6 @@ class PopController extends Controller
             $program = Program::where('id', $data['training_id'])->first();
         }
 
-        
         if ($popCheck > 0) {
             return back()->with('error', "You have already uploaded proof of payment for this {$program_type} and with the same amount, kindly wait while an administrator approves your request");
         }
@@ -127,30 +126,38 @@ class PopController extends Controller
         } else {
             $type = 'Fresh Payment' ?? null;
         }
-
         // Get temp transaction 
         $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training_id'])->first();
+        
         $data['location'] = $temp->location ?? null;
         $data['training_mode'] = $temp->training_mode ?? null;
         
+        $storeData = [
+            'name' => $data['name'],
+            'email' =>  $data['email'],
+            'phone' =>  $data['phone'],
+            'bank' =>  $data['bank'],
+            'coupon_id' =>  $data['coupon_id'],
+            'amount' =>  $data['amount'],
+            'is_package' =>  $program_type == 'package' ? 1 : 0,
+            'currency' =>  $data['currency'],
+            'currency_symbol' =>  $data['currency_symbol'],
+            'is_fresh' => $type ?? null,
+            'temp_transaction_id' => $temp->id ?? null,
+            'location' =>  $data['location'] ?? null,
+            'date' =>  $date,
+            'file' => base64_encode($filePath),
+        ];
+
+        if($program_type == 'package'){
+            $storeData['group_id'] = $data['training_id'];
+        }else{
+            $storeData['program_id'] = $data['training_id'];
+        }
+
         try {
             //Store new pop
-            $pop = Pop::create([
-                'name' => $data['name'],
-                'email' =>  $data['email'],
-                'phone' =>  $data['phone'],
-                'bank' =>  $data['bank'],
-                'coupon_id' =>  $data['coupon_id'],
-                'amount' =>  $data['amount'],
-                'program_id' =>  $data['training_id'],
-                'currency' =>  $data['currency'],
-                'currency_symbol' =>  $data['currency_symbol'],
-                'is_fresh' => $type ?? null,
-                'temp_transaction_id' => $temp->id ?? null,
-                'location' =>  $data['location'] ?? null,
-                'date' =>  $date,
-                'file' => base64_encode($filePath),
-            ]);
+            $pop = Pop::create($storeData);
             
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
@@ -164,7 +171,7 @@ class PopController extends Controller
             
             $this->sendWelcomeMail($data);
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getLine().$e->getFile());
+            // dd($e->getMessage(), $e->getLine().$e->getFile());
             \Log::info($e->getMessage());
             return back()->with('error', 'Something happened or you have already uploaded POP');
         }

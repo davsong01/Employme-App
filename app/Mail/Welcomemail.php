@@ -62,8 +62,21 @@ class Welcomemail extends Mailable
             }
 
             if ($this->data['type'] == 'pop') {
-                return $this->markdown('emails.bulk_email')
-                    ->subject('POP Uploaded');
+                $email = $this->markdown('emails.bulk_email')
+                    ->subject($subject);
+
+                if (!empty($this->data['attachments']) && is_array($this->data['attachments'])) {
+                    foreach ($this->data['attachments'] as $attachmentPath) {
+                        if (file_exists($attachmentPath)) {
+                            $email->attach($attachmentPath, [
+                                'as' => basename($attachmentPath),
+                                'mime' => mime_content_type($attachmentPath),
+                            ]);
+                        }
+                    }
+                }
+                
+                return $email;
             }
         }
         
