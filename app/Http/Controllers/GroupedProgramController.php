@@ -15,7 +15,7 @@ class GroupedProgramController extends Controller
     {
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $groups = Group::with(['programs'])->latest()->get();
-            $allActivePrograms = Program::mainActivePrograms()->get();
+            $allActivePrograms = Program::mainActiveProgramsWithIsClosed()->get();
             $allPrograms = Program::allMainPrograms()->get();
             $currencies = Currency::select('id', 'name')->where('status',1)->get();
             $currency_symbol = Settings::first()->CURR_ABBREVIATION;

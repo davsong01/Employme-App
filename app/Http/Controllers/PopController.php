@@ -46,7 +46,7 @@ class PopController extends Controller
         $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->mainActivePrograms()->get();
 
         $groups = Group::isActive()->with(['programs' => function ($q) {
-            $q->mainActivePrograms();
+            $q->mainActiveProgramsWithIsClosed();
         }]);
         
         if(isset(session()->get('data')['metadata']['pid'])){
