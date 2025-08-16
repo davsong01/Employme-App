@@ -10,7 +10,7 @@ class Pop extends Model
 {
     protected $guarded = [];
 
-     public function scopeOrdered($query)
+    public function scopeOrdered($query)
     {
         return $query->ORDERBY('date', 'DESC');
     }

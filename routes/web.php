@@ -28,6 +28,8 @@ Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
 Route:: get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
 Route::get('utility/resolve-certificate-names', [UtilityTaskController::class, 'renameCertificatesWithSpaceInFilename']);
 Route::get('utility/move-parent-programs-to-group', [UtilityTaskController::class, 'moveParentProgramsToGroup']);
+Route::get('utility/move-programs-to-temp-transactions', [UtilityTaskController::class, 'moveProgramUserToTempTransactions']);
+
 
 // Route::get('decode-materials', [MaterialController::class, 'decode']);
 

@@ -8,13 +8,12 @@ use App\Models\Pop;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Coupon;
-use App\Models\Wallet;
 use App\Models\Program;
-use App\Mail\Welcomemail;
 use App\Models\Transaction;
+use App\Models\Wallet;
+use App\Mail\Welcomemail;
 use Illuminate\Http\Request;
 use App\Models\PaymentThread;
-use App\Models\TempTransaction;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -32,10 +31,10 @@ class PaymentController extends Controller
 
         if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
             // $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
-            // $transactions = TempTransaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC')->whereStatus('complete');
+            $transactions = TempTransaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC')
             // dd($transactions->take(10)->get());
             $i = 1;
-            // dd($transactions->get());
+            
             if (!empty($request->email)) {
                 $transactions = $transactions->whereHas('user', function ($query) use ($request) {
                     $query->where('email', $request->email);
