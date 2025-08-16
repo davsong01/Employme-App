@@ -180,7 +180,7 @@ class PaymentController extends Controller
     public function show(Request $request, $id)
     {
         $transaction = Transaction::where('id', $id)->first();
-        
+        dd($transaction);
         if(checkRoleHas(['Admin'])) {
             //get user details
             $user = User::findorFail($transaction->user_id);
@@ -240,8 +240,8 @@ class PaymentController extends Controller
 
     public function printReceipt($id)
     {
-        $transaction = Transaction::with(['coupon', 'program'])->where('id', $id)->first();
-
+        $transaction = TempTransaction::with(['coupon', 'program'])->where('id', $id)->first();
+        
         if (checkRoleHas(['Student'])){
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
@@ -250,55 +250,11 @@ class PaymentController extends Controller
                 return back()->with('warning', 'Unauthorized Action');
             }
         }
-        //get user details
-        $user = User::findorFail($transaction->user_id);
-
-        if ($transaction->amount == $user->programs[0]['e_amount']) {
-            $message = $this->dosubscript2($transaction->balance);
-        } else {
-            $message = $this->dosubscript1($user->balance);
-        }
-
-        //determine the program details
-        if (isset($transaction->t_location) && !empty($transaction->t_location)) {
-            $locations = $transaction->program->locations;
-
-            if (isset($locations) && !empty($locations)) {
-                $locations = json_decode($locations, true);
-                $training_address = $locations[$transaction->t_location] ?? $transaction->t_location;
-            }
-        }
-        $data = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'bank' => $user->t_type,
-            'amount' => $transaction->amount,
-            'programFee' => $user->programs[0]['p_amount'],
-            'programName' => $user->programs[0]['p_name'],
-            'programAbbr' => $user->programs[0]['p_abbr'],
-            'balance' => $transaction->balance,
-            'message' => $message,
-            'booking_form' => $user->programs[0]['booking_form'],
-            'invoice_id' =>  $transaction->invoice_id,
-            'message' => $message,
-            'currency' => $transaction->currency,
-            'transid' =>  $transaction->transid ?? null,
-            'invoice_id' =>  $transaction->invoice_id ?? null,
-            't_type' =>  $transaction->t_type,
-            'coupon_id' =>  $transaction->coupon->id ?? null,
-            'coupon_code' =>  $transaction->coupon->code ?? null,
-            'coupon_amount' =>  $transaction->coupon->amount ?? null,
-            'training_mode' => $transaction->training_mode ?? null,
-            'location' => $transaction->t_location ?? null,
-            'location_address' => $training_address ?? null,
-            'created_at' =>  $transaction->created_at ?? null,
-        ];
-
 
         //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data'));
-       
-        return view('emails.printreceipt', compact('data'));
+        $pdf = PDF::loadView('emails.printreceipt', compact('transaction'));
+        
+        return view('emails.printreceipt', compact('transaction'));
     }
 
     //set balance and determine user receipt values
@@ -458,7 +414,7 @@ class PaymentController extends Controller
         ];
         
         $response = PaymentService::handleBalancePayment($transaction, $transaction->balance, $bData);
-        
+
         $transaction = $transaction->fresh();
 
         return response()->json([

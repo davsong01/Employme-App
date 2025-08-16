@@ -350,7 +350,7 @@ class PaymentController extends Controller
 
             if ($request->payment_type == 'full' && $training->p_amount == 0) {
                 $this->sendWelcomeMail($data);
-                dd('done send');
+                
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
                 return view('thankyou', compact('data'));
