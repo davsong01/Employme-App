@@ -149,7 +149,31 @@
                                                             <input type="text" class="form-control" id="location" name="location" value="{{$pop->location}}">
                                                         </div>
                                                     </div>
-                                                    
+                                                    {{-- @if($pop->is_package) --}}
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label for="group_id" class="form-label">Training/Package</label>
+                                                            <select name="is_package" class="form-control">
+                                                                <option value="">Select</option>
+                                                                <option value="0" {{ !$pop->is_package ? 'selected' : ''}}>Training</option>
+                                                                <option value="1" {{ $pop->is_package ? 'selected' : ''}}>Package</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label for="group_id" class="form-label">Package</label>
+                                                            <select name="group_id" id="group_id_{{ $pop->id }}" class="form-control">
+                                                                <option value="">Select</option>
+                                                                @foreach($packages as $package)
+                                                                <option value="{{ $package->id }}" {{ $package->id == $pop->related->id ? 'selected' : '' }}>
+                                                                    {{ $package->p_name }} ({{ $package->p_amount }})
+                                                                </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    {{-- @else --}}
                                                     <div class="row">
                                                         <div class="col-md-12 mb-3">
                                                             <label for="program_id" class="form-label">Training</label>
@@ -158,12 +182,12 @@
                                                                 @foreach($programs as $program)
                                                                 <option value="{{ $program->id }}" {{ $program->id == $pop->related->id ? 'selected' : '' }}>
                                                                     {{ $program->p_name }} ({{ $program->p_amount }})
-                                                                    @if($program->p_end > date('Y-m-d')) | Expired @endif
                                                                 </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
                                                     </div>
+                                                    {{-- @endif --}}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

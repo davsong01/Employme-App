@@ -328,6 +328,7 @@ class PopController extends Controller
     }
 
     public function update(Pop $pop, Request $request){
+        // dd(($request->except(['template', '_token', '_method', 'template', 'prefix__'])));
         $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__']));
         return back()->with('message', 'Update Successful');
     }

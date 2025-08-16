@@ -27,7 +27,7 @@ class Pop extends Model
 
     public function getRelatedAttribute()
     {
-        return $this->program ?? $this->group;
+        return !$this->is_package ? $this->program : $this->group;
     }
 
     public function user(){

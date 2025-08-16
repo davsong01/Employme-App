@@ -121,8 +121,13 @@ class PaymentController extends Controller
             // ->where('p_end', '>', date('Y-m-d'))
             ->orderBy('created_at', 'DESC')
             ->get();
+
+        $packages = Group::isActive()->with(['programs' => function ($q) {
+            $q->mainActiveProgramsWithIsClosed();
+        }])->get();
         // dd($pops);
-        return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs'));
+        
+        return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs','packages'));
 
     }
     
