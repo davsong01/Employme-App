@@ -215,7 +215,7 @@ class UtilityTaskController extends Controller
         DB::beginTransaction();
 
         try {
-            $programUsers = Transaction::with('user')->get();
+            $programUsers = Transaction::with('user')->take(10)->get();
 
             $toInsert = [];
 
@@ -261,16 +261,14 @@ class UtilityTaskController extends Controller
                 ];
             }
 
-
             if (!empty($toInsert)) {
-                foreach (array_chunk($toInsert, 500) as $chunk) {
-                    \Log::info(['record' => $chunk]);
+                foreach (array_chunk($toInsert, 1000) as $chunk) {
                     TempTransaction::insert($chunk);
                 }
             }
 
             DB::commit();
-            return 'All done ✅';
+            return 'All done';
         } catch (\Throwable $th) {
             DB::rollBack();
             return 'Error: ' . $th->getMessage();
