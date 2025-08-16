@@ -1,4 +1,4 @@
-@extends('dashboard.admin.index')
+{{-- @extends('dashboard.admin.index')
 @section('Edit Transaction' )
 @section('css')
 <link rel="stylesheet" href="{{ asset('modal.css') }}" />
@@ -144,4 +144,4 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection --}}

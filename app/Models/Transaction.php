@@ -31,16 +31,6 @@ class Transaction extends Model
         return $this->belongsTo(Coupon::class);
     }
 
-    public function paymentthreads()
-    {
-        return $this->hasMany(PaymentThread::class, 'parent_transaction_id','transid');
-    }
-
-    public function paymentthreadsbyinvoice()
-    {
-        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'invoice_id');
-    }
-
     public function results(){
         return $this->hasMany(Result::class, 'user_id', 'user_id');
     }

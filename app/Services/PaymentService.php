@@ -361,9 +361,11 @@ class PaymentService
         ];
     }
 
-    public static function handleBalancePayment($existingTransaction, $existingTransactionBalance, $pop){
-        $transaction = $existingTransaction;
+    public static function handleBalancePayment($existingTransaction, $existingTransactionBalance, $data){
         $isNew = false;
+
+        $amount = $data['amount'];
+        $t_type = $data['t_type'];
 
         // Check if there is a balance
         if ($existingTransactionBalance > 0) {
@@ -374,9 +376,9 @@ class PaymentService
             $expectedAmount = $existingTransaction->balance;
         }
 
-        $balance = $expectedAmount - $pop->amount;
+        $balance = $expectedAmount - $amount;
         
-        if ($pop->amount > $expectedAmount) {
+        if ($amount > $expectedAmount) {
             return [
                 'status' => false,
                 'message' => 'Cannot pay above ' . $expectedAmount
@@ -384,10 +386,11 @@ class PaymentService
         }
 
         $type = $balance > 0 ? 'part' : 'full';
-
+        
         $existingTransaction->update([
+            't_type' => $t_type,
             'type' => $type,
-            'amount' => $existingTransaction->amount + $pop->amount,
+            'amount' => $existingTransaction->amount + $amount,
             'balance' => $balance,
         ]);
 
@@ -396,9 +399,9 @@ class PaymentService
             'user_id' => $existingTransaction->user_id,
             'payment_id' => $existingTransaction->id,
             'transaction_id' => PaymentService::getReference('PYTHRD'),
-            't_type' => strtolower($existingTransaction->paymentMode->processor ?? 'TRANSFER'),
+            't_type' => strtolower($existingTransaction->paymentMode->processor ?? $t_type),
             'parent_transaction_id' => $existingTransaction->transid,
-            'amount' => $pop->amount,
+            'amount' => $amount,
         ]);
 
         return [

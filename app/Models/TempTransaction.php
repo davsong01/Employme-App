@@ -37,7 +37,6 @@ class TempTransaction extends Model
         return $this->program ?? $this->group;
     }
 
-
     public function paymentMode()
     {
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
@@ -48,6 +47,16 @@ class TempTransaction extends Model
         $programs = Program::select('id', 'p_abbr', 'p_name')->whereIn('id', $this->program_ids)->get();
 
         return $programs;
+    }
+
+    public function paymentthreads()
+    {
+        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'transid');
+    }
+
+    public function paymentthreadsbyinvoice()
+    {
+        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'invoice_id');
     }
 
     

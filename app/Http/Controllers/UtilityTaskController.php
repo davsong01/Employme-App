@@ -215,7 +215,7 @@ class UtilityTaskController extends Controller
         DB::beginTransaction();
 
         try {
-            $programUsers = Transaction::with('user')->take(10)->get();
+            $programUsers = Transaction::with('user')->orderBy('created_at','DESC')->get();
 
             $toInsert = [];
 
@@ -235,6 +235,8 @@ class UtilityTaskController extends Controller
                     'type'            => $record->balance > 0 ? 'part' : 'full',
                     'program_id'      => $record->program_id,
                     'coupon_id'       => $record->coupon_id,
+                    'coupon_amount'   => $record->coupon_amount,
+                    'coupon_code'   => $record->coupon_code,
                     'facilitator_id'  => $record->facilitator,
                     'amount'          => $record->amount ?? 0,
                     'transid'         => $record->transid,
@@ -251,8 +253,8 @@ class UtilityTaskController extends Controller
                     'balance'         => $record->balance ?? 0,
                     'user_id'         => $record->user_id,
                     'payload'         => $record->payload,
-                    'currency'        => $record->currency,
-                    'currency_symbol' => $record->currency_symbol,
+                    'currency'        => $record->currency ?? 'NGN',
+                    'currency_symbol' => $record->currency_symbol ?? '₦',
                     'payment_url'     => $record->payment_url,
                     'status'          => 'complete',
                     't_type'          => $t_type,
@@ -266,7 +268,7 @@ class UtilityTaskController extends Controller
                     TempTransaction::insert($chunk);
                 }
             }
-
+            
             DB::commit();
             return 'All done';
         } catch (\Throwable $th) {

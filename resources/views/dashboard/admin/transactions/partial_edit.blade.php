@@ -28,15 +28,32 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <p>
-                            <strong>Program Name:</strong> {{ $transaction->p_name }} <br>
-                            <strong>Program Amount:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->p_amount) }} <br>
-                            <label for="name"><strong>Name of Participant:</strong> {{ $transaction->name }}</label> <br>
-                            <strong>Account Balance:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->user->account_balance) }} <br>
-                            <strong>Bank:</strong> {{ $transaction->t_type }} <br>
-                            <strong>Paid:</strong> {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->amount) }}
+                            <div class="mb-2">
+                                @if($transaction->is_package)
+                                    <div class="mb-2">
+                                        <span class="fw-bold">Package Name:</span>
+                                        <span class="fw-medium"><a href="{{ route('groupedprogram.edit', $transaction->program_id)}}" target="_blank">{{ ucfirst($transaction->group->p_name) }}</a></span>
+                                    </div>
+                                @endif
+                                <span class="fw-bold">
+                                    Training{{ $transaction->is_package ? 's' : '' }}:
+                                </span>
+                                <div class="bg-light rounded p-2 mt-1">
+                                    <ol class="mb-0 ps-3">
+                                        @foreach ($transaction->allPrograms() as $child)
+                                            <li><a href="{{ route('programs.edit', $child->id)}}" target="_blank" class="fw-bold text-primary">{{ $child->p_name}}</a></li>
+                                        @endforeach
+                                    </ol>
+                                </div>
+                            </div>
+                            <strong>Program Amount:</strong> {{ $transaction->currency_symbol. number_format($transaction->p_amount) }} <br>
+                            <strong>Name of Participant:</strong> {{ $transaction->user->name }}<br>
+                            <strong>Account Balance:</strong> {{ $transaction->currency_symbol. number_format($transaction->user->account_balance) }} <br>
+                            <strong>Channel:</strong> {{ $transaction->t_type }} <br>
+                            <strong>Paid:</strong> {{ $transaction->currency_symbol. number_format($transaction->amount) }}
                             
                             <br>
-                            <strong>Balance:</strong> <span class="font-weight-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->balance) }}</span>
+                            <strong>Balance:</strong> <span class="font-weight-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ $transaction->currency_symbol. number_format($transaction->balance) }}</span>
                         </p>
                     </div>
                 </div>
@@ -86,15 +103,16 @@
             <div class="form-group mb-4">
                 <label for="funds-source"><strong>Funds Source</strong></label>
                 <select id="funds-source" name="funds_source" class="form-control" required>
-                    <option value="offline" selected>Offline Payment</option>
-                    <option value="wallet">Wallet</option>
+                    <option value="Transfer" {{$transaction->t_type == 'Transfer' ? 'selected' : ''}}>Transfer</option>
+                    <option value="Online" {{$transaction->t_type == 'Online' ? 'selected' : ''}}>Online</option>
+                    <option value="Wallet" {{$transaction->t_type == 'Wallet' ? 'selected' : ''}}>Wallet</option>
                 </select>
             </div>
             @if($permissions['payments.update'])
             <div class="row">
                 <div class="col-md-12">
                     <button type="submit" class="btn btn-primary w-100">
-                        <i class="fa fa-save"></i> Save
+                        <i class="fa fa-save"></i> Update
                     </button>
                 </div>
             </div>
