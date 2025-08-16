@@ -179,57 +179,26 @@ class PaymentController extends Controller
 
     public function show(Request $request, $id)
     {
-        $transaction = Transaction::where('id', $id)->first();
-        dd($transaction);
+        $transaction = TempTransaction::where('id', $id)->first();
+        
         if(checkRoleHas(['Admin'])) {
-            //get user details
-            $user = User::findorFail($transaction->user_id);
-
-            if ($transaction->amount == $user->programs[0]['e_amount']) {
-                $message = $this->dosubscript2($transaction->balance);
-            } else {
-                $message = $this->dosubscript1($user->balance);
-            }
-
-            //determine the program details
-            $details = [
-                'programFee' => $user->programs[0]['p_amount'],
-                'programName' => $user->programs[0]['p_name'],
-                'programAbbr' => $user->programs[0]['p_abbr'],
-                'balance' => $transaction->balance,
-                'message' => $message,
-                'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
-                'invoice_id' =>  $transaction->invoice_id,
-                'currency' => $transaction->currency,
-                'transid' =>  $transaction->transid,
-                't_type' =>  $transaction->t_type
-            ];
-
-            $data = [
-                'name' => $user->name,
-                'email' => $user->email,
-                'bank' => $user->t_type,
-                'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
-                'amount' => $transaction->amount,
-                'training_mode' => $transaction->training_mode ?? null,
-                'location' => $transaction->t_location ?? null,
-                'currency_symbol' => $transaction->currency ?? null,
-            ];
-
-            //generate pdf from receipt view
-
-            //send user mails
-            // return view('emails.receipt', compact('data', 'details'));
-            $data['type'] = 'initial';
-            $data = array_merge($data, $details);
-            $pdf = PDF::loadView('emails.printreceipt', compact('data','details'));
-            // return view('emails.printreceipt', compact('data', 'details'));
-            
             try {
-                // to admin
-                // $this->sendWelcomeMail($data, $pdf);
-                // to user
-                $this->sendWelcomeMail($data, $pdf);
+                $data = $this->prepareTrainingDetails($transaction->related, $transaction, $transaction->amount);
+                
+                $data['currency'] = $transaction->currency;
+                $data['currency_symbol'] = $transaction->currency_symbol;
+                $data['exchange_rate'] = $transaction->exchange_rate;
+
+                $data['type'] = 'initial';
+                $data['name'] = $transaction->user->name;
+                $data['transaction'] = $transaction;
+                $data['program'] = $transaction->related;
+
+                $data['payment_type'] = ucfirst($transaction->type);
+                $data['amount'] = $transaction->amount;
+                $data['message'] = ucfirst($transaction->type). ' payment';
+
+                $this->sendWelcomeMail($data);
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
             }

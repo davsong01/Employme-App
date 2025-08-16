@@ -419,7 +419,7 @@
                                         </a>
                                         @endif
                                         
-                                        @if($permissions['payments.destroy'])
+                                        {{-- @if($permissions['payments.destroy'])
                                         <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
                                             onsubmit="return confirm('Are you really sure?');">
                                             {{ csrf_field() }}
@@ -429,7 +429,7 @@
                                                 data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
                                             </button>
                                         </form>
-                                        @endif
+                                        @endif --}}
                                     </div>
                                 </td>
                             </tr>
