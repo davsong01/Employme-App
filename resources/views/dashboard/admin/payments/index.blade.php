@@ -42,16 +42,25 @@
                 </div>
             </h5>
             <div class="card-body">
-                @php
-                    $currentStatus = request('status');
-                @endphp
                 <div class="">
                 <form class="search-form" method="GET" action="{{ route('payments.index') }}">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
+                                <label for="transid">Transaction ID</label>
+                                <input type="text" class="form-control" name="transid" id="transid" placeholder="Enter Transaction ID" value="{{ request('transid') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="invoice_id">Invoice ID</label>
+                                <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" value="{{ request('invoice_id') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="name" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
+                                <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
                             </div>
                         </div>
 
@@ -67,25 +76,78 @@
                                 <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
                             </div>
                         </div>
-                        <div class="col-md-3">
+
+                        <div class="col-md-2">
                             <div class="form-group">
-                                <label for="type">Type</label>
-                                <select name="type" id="type" class="form-control select2">
+                                <label for="status">Status</label>
+                                <select name="status" id="status" class="form-control select2">
+                                    <option value="">Select</option>
+                                    <option value="initiated" {{ request('status') == 'initiated' ? 'selected' : '' }}>Initiated</option>
+                                    <option value="complete" {{ request('status') == 'complete' ? 'selected' : '' }}>Complete</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="channel">Channel</label>
+                                <select name="channel" id="channel" class="form-control select2">
                                     <option value="">Select Type</option>
-                                    @foreach ($types as $type)
-                                    <option value="{{ $type->t_type}}">{{ $type->t_type}}</option>
-                                    @endforeach
+                                    <option value="Online" {{ request('channel') == 'Online' ? 'selected' : '' }}>Online</option>
+                                    <option value="Transfer" {{ request('channel') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="payment_type">Payment Type</label>
+                                <select name="payment_type" id="payment_type" class="form-control select2">
+                                    <option value="">Select Type</option>
+                                    <option value="part" {{ request('payment_type') == 'part' ? 'selected' : '' }}>Part Payment</option>
+                                    <option value="full" {{ request('payment_type') == 'full' ? 'selected' : '' }}>Full Payment</option>
+                                    <option value="earlybird" {{ request('payment_type') == 'earlybird' ? 'selected' : '' }}>Early Bird</option>
                                 </select>
                             </div>
                         </div>
                         
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label for="program_id">Select Training</label> <br>
+                                <label for="program_id">Select Training</label>
                                 <select name="program_id" id="program_id" class="form-control select2">
                                     <option value="">Select Training</option>
                                     @foreach($allPrograms as $training)
-                                    <option value="{{ $training->id}}">{{ $training->p_name }}</option>
+                                        <option value="{{ $training->id }}" {{ request('program_id') == $training->id ? 'selected' : '' }}>
+                                            {{ $training->p_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="package_id">Select Package</label>
+                                <select name="package_id" id="package_id" class="form-control select2">
+                                    <option value="">Select..</option>
+                                    @foreach($allPackages as $training)
+                                        <option value="{{ $training->id }}" {{ request('package_id') == $training->id ? 'selected' : '' }}>
+                                            {{ $training->p_name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="coupon_id">Select Coupon</label>
+                                <select name="coupon_id" id="coupon_id" class="form-control select2">
+                                    <option value="">Select..</option>
+                                    @foreach($allCoupons as $coupon)
+                                        <option value="{{ $coupon->id }}" {{ request('coupon_id') == $coupon->id ? 'selected' : '' }}>
+                                            {{ $coupon->code }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -94,23 +156,26 @@
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="from">From</label>
-                                <input type="date" class="form-control" name="from" id="from">
+                                <input type="date" class="form-control" name="from" id="from" value="{{ request('from') }}">
                             </div>
                         </div>
+
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label for="to">To</label>
-                                <input type="date" class="form-control" name="to" id="to">
+                                <input type="date" class="form-control" name="to" id="to" value="{{ request('to') }}">
                             </div>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-2">
                             <div class="form-group">
-                                <label for=""><span style="color:transparent">label</span></label> <br>
+                                <label><span style="color:transparent">label</span></label> <br>
                                 <button type="submit" class="btn btn-primary btn-search" style="width: 100%">Search</button>
                             </div>
                         </div>
                     </div>
                 </form>
+
             </div>
 
             <div class="table-responsive">
@@ -127,238 +192,247 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
-                        @if($transaction->user)
-                        <tr id="transaction-row-{{ $transaction->id }}">
-                            <td>{{ $i++ }}</a>
-                            <td><strong>Name: </strong>
-                                @if($permissions['users.edit'])
-                                <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-                                <br> <strong>Phone: </strong>{{ $transaction->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
-                                @endif
-                                @if(isset($transaction->user->last_login)) <br>
-                                <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
-                                @endif
-                                @if($permissions['payments.edit'])
-                                <br> 
-                                <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}
-                                @endif
-                                @if($permissions['impersonate']) <br>
-                                <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $transaction->user_id) }}">
-                                    <i class="fa fa-unlock"> Peek</i>
-                                </a>
-                                @endif
-
-                                <span id="formSuccessSpan-{{ $transaction->id }}" style="display:none">
-                                    <div class="alert alert-success" role="alert">
-                                        <strong><span class="formSuccess"></span></strong> 
-                                    </div>
-                                </span>
-                            </td>
-                            <td>
-                                <small class="training-details">
-                                    <a href="{{ route('programs.edit', $transaction->program->id)}}" target="_blank"><strong>Training:</strong> {{ $transaction->program->p_name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a><br>  
-                                    @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing)) <strong>Preferred Timing: </strong> <span style="background: #05f4a6;padding: 5px;border-radius: 5px;">{{$transaction->preferred_timing}} </span> @endif
-                                        @if($permissions['payments.edit'])
-                                        
-                                            <strong>Paid:</strong> {{ $transaction->currency }} <span  id="transaction-amount-{{ $transaction->id }}">{{ number_format($transaction->amount) }}</span>
-                
-                                            @if(!is_null($transaction->coupon_code))
-                                            <span style="color:blue">
-                                            <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency.number_format($transaction->coupon_amount) }}  </strong>
-                                            </span>
-                                            @endif
-                                            <br>
-                                            <strong>Balance:</strong>
-                                                @if($transaction->balance > 0 )
-                                                    <span id="transaction-balance-redspan-{{ $transaction->id }}" style="color:red">{{ $transaction->currency }} <span id="transaction-balance-red-{{ $transaction->id }}">{{ number_format($transaction->balance) }}</span> </span>
-                                                @else
-                                                    <span id="transaction-balance-greenspan-{{ $transaction->id }}" style="color:green">{{ $transaction->currency }} <span id="transaction-balance-green-{{ $transaction->id }}">{{ number_format($transaction->balance) }}</span></span>
-                                                @endif
-                                            <br>      
-                                        @endif
-                                    <?php
-                                        if(isset($transaction->t_location) && isset($transaction->t_location)){
-                                            $locations = json_decode($transaction->locations, true);
-                                            $location_address = $locations[$transaction->t_location] ?? null;
-                                        }
-                                    ?>
-                                
-                                    @if(isset($transaction->t_location) && !empty($transaction->t_location) && !empty( $location_address))
-                                    <strong>Location:</strong> {{ $transaction->t_location}}({{ $location_address}}) <br>
+                            <tr id="transaction-row-{{ $transaction->id }}">
+                                <td>{{ $loop->iteration }}</a>
+                                <td><strong>Name: </strong>
+                                    @if($permissions['users.edit'])
+                                    <a href="{{ route('users.edit', $transaction?->user_id)}}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                    <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
                                     @endif
-                                    <strong>Date: </strong>{{ $transaction->created_at }}
-                                
-                                </small>
-                                
-                            </td>   
-                            <td>
-                                <small class="id-details">
-                                    <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
-                                    <strong>Transaction ID:</strong> {{ $transaction->transid }} 
-                                    @if(isset($transaction->balance_amount_paid))
-                                    <br>
-                                    <strong>Last Balance Paid:</strong> {{ $transaction->currency_symbol.number_format($transaction->balance_amount_paid) }} <br>
-                                    <strong>Paid At:</strong> {{ $transaction->balance_paid }} 
+                                    @if(isset($transaction?->user->last_login)) <br>
+                                    <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction?->user->last_login)) : '' }}</span>
                                     @endif
-                                    <br>
-                                    <strong>Payment Type:</strong> {{ $transaction->paymenttype }} <br>
-                                    @if(isset($transaction->training_mode))
-                                    <strong>Training Mode:</strong> {{ $transaction->training_mode }} <br>
-                                    @endif
-                                    <strong>Type: </strong>{{ $transaction->t_type }} <br>
-                                    <strong>Currency: </strong>{{ $transaction->currency }}
-                                
-                                    @if($transaction->paymentthreads->count() > 0)
-                                        <br>
-                                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModals{{$transaction->transid }}">
-                                            <i class="fa fa-eye"></i> View Payment Trail
-                                        </button>
-                                    @endif
-
-                                </small>
-                            </td>
-                            <td>
-                                <div class="btn-group">
                                     @if($permissions['payments.edit'])
-                                        <!-- Button Trigger -->
-                                        <a data-toggle="tooltip" data-placement="top" title="Edit Transaction:"
-                                            class="btn btn-info btn-sm open-modal" 
-                                            data-id="{{ $transaction->id }}"
-                                            href="javascript:void(0)">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
-                                        <!-- Sidebar Modal -->
-                                        <div class="modal fade sidebarModal" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="editSidebarModalLabel">Update Transaction</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div id="modalContent">
-                                                        </div>
-                                                    </div>
+                                    <br> 
+                                    <strong>Account balance: </strong>{{number_format($transaction?->user->account_balance)}}
+                                    @endif
+                                    @if($permissions['impersonate']) <br>
+                                    <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $transaction->user_id) }}">
+                                        <i class="fa fa-unlock"> Peek</i>
+                                    </a>
+                                    @endif
+
+                                    <span id="formSuccessSpan-{{ $transaction->id }}" style="display:none">
+                                        <div class="alert alert-success" role="alert">
+                                            <strong><span class="formSuccess"></span></strong> 
+                                        </div>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="training-details small">
+                                        {{-- If package --}}
+                                        <div class="mb-2">
+                                            @if($transaction->is_package)
+                                                <div class="mb-2">
+                                                    <span class="fw-bold">Package Name:</span>
+                                                    <span class="fw-medium"><a href="{{ route('groupedprogram.edit', $transaction->program_id)}}" target="_blank">{{ ucfirst($transaction->group->p_name) }}</a></span>
                                                 </div>
+                                            @endif
+                                            <span class="fw-bold">
+                                                Training{{ $transaction->is_package ? 's' : '' }}:
+                                            </span>
+                                            <div class="bg-light rounded p-2 mt-1">
+                                                <ol class="mb-0 ps-3">
+                                                    @foreach ($transaction->allPrograms() as $child)
+                                                        <li><a href="{{ route('programs.edit', $child->id)}}" target="_blank" class="fw-bold text-primary">{{ $child->p_name}}</a></li>
+                                                    @endforeach
+                                                </ol>
                                             </div>
                                         </div>
-                                    @endif
-                                    <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
-                                        class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
-                                            class="fa fa-print"></i>
-                                    </a>
-                                    @if($permissions['payments.show'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
-                                        class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
-                                            class="far fa-envelope"></i>
-                                    </a>
-                                    @endif
-                                    
-                                    @if($permissions['payments.destroy'])
-                                    <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you really sure?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
-                                            data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-
-                        <div class="modal fade" id="exampleModal{{$transaction->transid}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
-                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    @foreach($transaction->paymentthreads as $thread)
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            Transaction Id <br>
-                                            <strong>{{ $thread->transaction_id}}</strong>
-                                        </div>
-                                        <div class="col-md-6">
-                                            Date <br>
-                                            <strong>{{ $thread->created_at->format('d/m/Y') }}</strong>
-                                        </div>
+                                        {{-- Single training --}}
                                         
-                                        <div class="col-md-6">
-                                            Amount<br>
-                                            <strong>{{ number_format($thread->amount) }}</strong>
-                                        </div>
-                                        @if(!empty($thread->admin_id))
-                                        <div class="col-md-6" style="background: #18006f38;padding: 10px;border-radius: 10px;">
-                                            Transaction added by<br>
-                                            <strong>{{ $thread->admin->name }}</strong>
-                                        </div>
-                                        @else 
-                                        <div class="col-md-6" style="background: #006f3138;padding: 10px;border-radius: 10px;">
-                                            Transaction added by<br>
-                                            <strong>{{ $thread->user->name }}</strong>
-                                        </div>
+                                        {{-- Preferred timing --}}
+                                        @if($transaction->program->allow_preferred_timing == 'yes' && !empty($transaction->program->preferred_timing))
+                                            <div class="mb-2">
+                                                <span class="fw-bold">Preferred Timing:</span>
+                                                <span class="badge bg-success text-dark">
+                                                    {{ $transaction->preferred_timing }}
+                                                </span>
+                                            </div>
                                         @endif
-                                    </div>
-                                    <hr>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModals{{$transaction->transid }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        @foreach($transaction->paymentthreads->sortByDESC('created_at') as $thread)
-                                            <div class="row">
-                                                <div class="col-md-8">
-                                                    Transaction Id :
-                                                    <strong>{{ $thread->transaction_id}}</strong>
-                                                    <br>
-                                                    Date: 
-                                                    <strong>{{ $thread->created_at->format('d/m/Y H:i:s') }}</strong> <br>
-                                                    Amount: 
-                                                    <strong>{{ number_format($thread->amount) }}</strong>
+                                        {{-- Payment Info --}}
+                                        @if($permissions['payments.edit'])
+                                            <div class="mb-2">
+                                                <span class="fw-bold">Paid:</span>
+                                                {{ $transaction->currency_symbol }}
+                                                <span id="transaction-amount-{{ $transaction->id }}">
+                                                    {{ number_format($transaction->amount) }}
+                                                </span>
+                                            </div>
+
+                                            @if(!is_null($transaction->coupon_code))
+                                                <div class="mb-2 text-primary">
+                                                    <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency . number_format($transaction->coupon_amount) }}</strong>
                                                 </div>
-                                                
-                                                <div class="col-md-4">
-                                                    @if(!empty($thread->admin_id))
-                                                        <div style="background: #18006f38;padding: 10px;border-radius: 10px;">
-                                                            Transaction added by<br>
-                                                            <strong>{{ $thread->admin?->name }}</strong>
+                                            @endif
+
+                                            <div class="mb-2">
+                                                <span class="fw-bold">Balance:</span>
+                                                @if($transaction->balance > 0)
+                                                    <span id="transaction-balance-redspan-{{ $transaction->id }}" class="text-danger">
+                                                        {{ $transaction->currency_symbol }}
+                                                        <span id="transaction-balance-red-{{ $transaction->id }}">
+                                                            {{ number_format($transaction->balance) }}
+                                                        </span>
+                                                    </span>
+                                                @else
+                                                    <span id="transaction-balance-greenspan-{{ $transaction->id }}" class="text-success">
+                                                        {{ $transaction->currency_symbol }}
+                                                        <span id="transaction-balance-green-{{ $transaction->id }}">
+                                                            {{ number_format($transaction->balance) }}
+                                                        </span>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
+
+                                        {{-- Location --}}
+                                        @php
+                                            if(isset($transaction->t_location)) {
+                                                $locations = json_decode($transaction->locations, true);
+                                                $location_address = $locations[$transaction->t_location] ?? null;
+                                            }
+                                        @endphp
+                                        @if(!empty($transaction->t_location) && !empty($location_address))
+                                            <div class="mb-2">
+                                                <span class="fw-bold">Location:</span>
+                                                {{ $transaction->t_location }} ({{ $location_address }})
+                                            </div>
+                                        @endif
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <small class="id-details">
+                                        <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
+                                        <strong>Transaction ID:</strong> {{ $transaction->transid }} 
+                                        @if($transaction->paymentthreads->count() > 0)
+                                        <br>
+                                        <strong>Last Balance Paid:</strong> {{ $transaction->currency_symbol.number_format($transaction->balance_amount_paid) }} <br>
+                                        <strong>Paid At:</strong> {{ $transaction->created_at }} 
+                                        @endif
+                                        <br>
+                                        <strong>Payment Type:</strong> {{ ucfirst($transaction->type) }} <br>
+                                        @if(isset($transaction->training_mode))
+                                        <strong>Training Mode:</strong> {{ $transaction->training_mode }} <br>
+                                        @endif
+                                        <strong>Channel: </strong>{{ $transaction->t_type }} <br>
+                                        <strong>Status: </strong>{{ ucfirst($transaction->status) }} <br>
+                                        
+                                        @if($transaction->paymentthreads->count() > 0)
+                                            <button type="button" 
+                                                class="btn btn-info btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#trail-{{ $transaction->id }}">
+                                                <i class="fa fa-eye"></i> View Payment Trail
+                                            </button>
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="trail-{{ $transaction->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                    @else 
-                                                        <div style="background: #006f3138;padding: 10px;border-radius: 10px;">
-                                                            Transaction added by<br>
-                                                            <strong>{{ $thread->user?->name }}</strong>
+                                                        <div class="modal-body">
+                                                            @foreach($transaction->paymentthreads->sortByDESC('created_at') as $thread)
+                                                                <div class="row">
+                                                                    <div class="col-md-8">
+                                                                        Transaction Id :
+                                                                        <strong>{{ $thread->transaction_id}}</strong>
+                                                                        <br>
+                                                                        Parent Transaction Id :
+                                                                        <strong>{{ $thread->parent_transaction_id}}</strong>
+                                                                        <br>
+                                                                        Date: 
+                                                                        <strong>{{ $thread->created_at->format('d/m/Y H:i:s') }}</strong> <br>
+                                                                        Amount: 
+                                                                        <strong>{{ $transaction->currency_symbol.number_format($thread->amount) }}</strong>
+                                                                    </div>
+                                                                    
+                                                                    <div class="col-md-4">
+                                                                        @if(!empty($thread->admin_id))
+                                                                            <div style="background: #18006f38;padding: 10px;border-radius: 10px;">
+                                                                                Transaction added by<br>
+                                                                                <strong>{{ $thread->admin?->name }}</strong>
+                                                                            </div>
+                                                                        @else 
+                                                                            <div style="background: #006f3138;padding: 10px;border-radius: 10px;">
+                                                                                Transaction added by<br>
+                                                                                <strong>{{ $thread->user?->name }}</strong>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                            @endforeach
                                                         </div>
-                                                    @endif
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <hr>
-                                        @endforeach
-                                    </div>
+                                        @endif
 
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        @if($permissions['payments.edit'])
+                                            <!-- Button Trigger -->
+                                            <a data-toggle="tooltip" data-placement="top" title="Edit Transaction:"
+                                                class="btn btn-info btn-sm open-modal" 
+                                                data-id="{{ $transaction->id }}"
+                                                href="javascript:void(0)">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            <!-- Sidebar Modal -->
+                                            <div class="modal fade sidebarModal" id="editSidebarModal" tabindex="-1" role="dialog" aria-labelledby="editSidebarModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down modal-dialog-slideout" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editSidebarModalLabel">Update Transaction</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div id="modalContent">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                            class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
+                                                class="fa fa-print"></i>
+                                        </a>
+                                        @if($permissions['payments.show'])
+                                        <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
+                                            class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
+                                                class="far fa-envelope"></i>
+                                        </a>
+                                        @endif
+                                        
+                                        {{-- @if($permissions['payments.destroy'])
+                                        <form action="{{ route('payments.destroy', $transaction->id) }}" method="POST"
+                                            onsubmit="return confirm('Are you really sure?');">
+                                            {{ csrf_field() }}
+                                            {{method_field('DELETE')}}
+
+                                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                                                data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                        @endif --}}
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                     
@@ -366,7 +440,6 @@
                 
             </div>
             {{  $transactions->appends($_GET)->links()  }}
-            </div>
         </div>
     </div>
 </div>
@@ -415,7 +488,7 @@
     $(document).ready(function() {
         $('.select2').select2({
             placeholder: "Select Training",
-            width: '100%'
+            width: '100%',
             allowClear: true            
         });
     });

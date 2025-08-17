@@ -25,7 +25,7 @@ class Welcomemail extends Mailable
     public function build()
     {
         $subject = $this->data['subject'] ?? 'Welcome To ' . config('app.name');
-
+        
         if (isset($this->data['type'])) {
             if ($this->data['type'] === 'notify_facilitator') {
                 return $this->markdown('emails.notificationemail')

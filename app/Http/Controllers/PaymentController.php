@@ -229,8 +229,10 @@ class PaymentController extends Controller
         
         if($isPackage){
             $training = Group::where('id', $pid)->first();
+            $returnUrl = url('packages/' . $training->slug);
         }else{
             $training = Program::where('id', $pid)->first();
+            $returnUrl = url('trainings/' . $training->slug);
         }
 
         if ($type['type'] == 'full') {
@@ -244,7 +246,7 @@ class PaymentController extends Controller
         if ($type['type'] == 'part') {
             $request['amount'] = ($training->p_amount) / 2;
         }
-
+        
         $couponArray = [
             'code' => $request->coupon,
             'program_id' => $pid,
@@ -293,7 +295,7 @@ class PaymentController extends Controller
 
         // check if this user already has these programs
         $user = User::where('email', $request->email)->first();
-
+        
         if ($user) {
             $check = Transaction::where('user_id', $user->id)
                 ->whereIn('program_id', $programIds)
@@ -330,27 +332,30 @@ class PaymentController extends Controller
             'is_package' => $isPackage,
             'status' => 'initiated',
             't_type' => $t_type,
+            'currency_symbol' => session()->get('currency_symbol'),
+            'currency' => session()->get('currency'),
+            'exchange_rate' => session()->get('exchange_rate'),
             'program_ids' => $programIds,
         ];
         
         $transaction = PaymentService::initiateTransaction($transactionArray);
-
+        
         // Free training, will sort later
         if ($request->payment_type == 'full' && $training->p_amount == 0) {
-            foreach ($trainingsToResolveTo as $singleTraining) {
-                $data = $this->prepareFreeTrainingDetails($singleTraining, $request);
-                $data['payment_type'] = 'Full';
-                $data['message'] = 'Full payment';
-                $data['paymentStatus'] = 1;
-                $data['currency_symbol'] = '&#x20A6;';
-                $data['balance'] = 0;
+            // foreach ($trainingsToResolveTo as $singleTraining) {
+            //     $data = $this->prepareFreeTrainingDetails($singleTraining, $request);
+            //     $data['payment_type'] = 'Full';
+            //     $data['message'] = 'Full payment';
+            //     $data['paymentStatus'] = 1;
+            //     $data['currency_symbol'] = '&#x20A6;';
+            //     $data['balance'] = 0;
                 
-                $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
-            }
+            //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
+            // }
 
             if ($request->payment_type == 'full' && $training->p_amount == 0) {
                 $this->sendWelcomeMail($data);
-                dd('done send');
+                
                 // Login User in
                 Auth::loginUsingId($data['user_id']);
                 return view('thankyou', compact('data'));
@@ -399,19 +404,19 @@ class PaymentController extends Controller
         }
 
         // Create temp user and redirect
-        try{
-            $url = $this->queryProcessor($transaction);
 
-            if(!is_null($url)){
-                return redirect()->away($url);
+        try{
+            $urlResponse = $this->queryProcessor($transaction);
+            
+            if($urlResponse['status']){
+                return redirect()->away($urlResponse['url']);
             }else{
-                return redirect(url('trainings/' . $pid))->with('error', 'Something went wrong, Kindly try again!');
+                return redirect($returnUrl)->with('error', $urlResponse['message'] ?? 'Something went wrong, Kindly try again!');
             }
         }catch(\Exception $e) {
             // dd($e->getMessage(), $e->getFile(), $e->getLine());
             \Log::info($e->getMessage());
-            
-            return redirect(url('trainings/' . $pid))->with('error', 'Something went while verifying payment, Kindly contact admin!');
+            return redirect($returnUrl)->with('error', 'Something went while verifying payment, Kindly contact admin!');
         } 
     }
 
@@ -422,23 +427,22 @@ class PaymentController extends Controller
         if(isset($mode) && !empty($mode)){
             if($mode->processor == 'paystack'){
                 if(!empty($query_only)){
-                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction, $query_only);
+                    $urlResponse = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction, $query_only);
                 }else{
-                    $url = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction);
+                    $urlResponse = app('App\Http\Controllers\PaymentProcessor\PaystackController')->query($transaction);
                 }
             }
-
+            
             if ($mode->processor == 'coinbase') {
                 if (!empty($query_only)) {
-                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction,$query_only);
+                    $urlResponse = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction,$query_only);
                 } else {
-                    $url = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction);
+                    $urlResponse = app('App\Http\Controllers\PaymentProcessor\CoinbaseController')->query($transaction);
                 }
             }
         }
         // redirect away
-        return $url;
-        
+        return $urlResponse;
     }
     
     public function verifyProcessor($reference, $temp, $verify_only=false){

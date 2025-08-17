@@ -204,7 +204,12 @@ class PopController extends Controller
             }
             
             if (isset($existingTransaction) && isset($existingTransaction['transaction'])){
-                $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $pop);
+                $bData = [
+                    'amount' => $pop->amount,
+                    't_type' => $pop->t_type,
+                ];
+
+                $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $bData);
                 
                 if($response['status']){
                     $pop->delete();
@@ -323,6 +328,7 @@ class PopController extends Controller
     }
 
     public function update(Pop $pop, Request $request){
+        // dd(($request->except(['template', '_token', '_method', 'template', 'prefix__'])));
         $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__']));
         return back()->with('message', 'Update Successful');
     }

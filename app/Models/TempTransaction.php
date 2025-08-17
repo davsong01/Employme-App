@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
@@ -26,6 +27,16 @@ class TempTransaction extends Model
         return $this->belongsTo(Group::class, 'program_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function getRelatedAttribute()
+    {
+        return $this->program ?? $this->group;
+    }
+
     public function paymentMode()
     {
         return $this->belongsTo(PaymentMode::class, 'payment_mode');
@@ -37,4 +48,16 @@ class TempTransaction extends Model
 
         return $programs;
     }
+
+    public function paymentthreads()
+    {
+        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'transid');
+    }
+
+    public function paymentthreadsbyinvoice()
+    {
+        return $this->hasMany(PaymentThread::class, 'parent_transaction_id', 'invoice_id');
+    }
+
+    
 }

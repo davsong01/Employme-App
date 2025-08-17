@@ -10,7 +10,7 @@ class Pop extends Model
 {
     protected $guarded = [];
 
-     public function scopeOrdered($query)
+    public function scopeOrdered($query)
     {
         return $query->ORDERBY('date', 'DESC');
     }
@@ -27,7 +27,7 @@ class Pop extends Model
 
     public function getRelatedAttribute()
     {
-        return $this->program ?? $this->group;
+        return !$this->is_package ? $this->program : $this->group;
     }
 
     public function user(){

@@ -6,15 +6,6 @@ use App\Models\Group;
 $setting = Settings::first();
 $logo = $setting->logo;
 $currency_symbol = $setting->CURR_ABBREVIATION;
-// $trainings = Program::mainActivePrograms()->latest()->take(4)->get();
-
-// $packages = Group::with(['programs' => function ($q) {
-//     $q->mainActivePrograms(); 
-// }])
-// ->isActive()
-// ->latest()
-// ->take(4)
-// ->get();
 $trainings = Program::mainActivePrograms()
     ->latest()
     ->take(4)

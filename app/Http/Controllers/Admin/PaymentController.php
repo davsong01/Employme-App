@@ -7,6 +7,7 @@ use PDF;
 use App\Models\Pop;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Wallet;
 use App\Models\Program;
@@ -15,6 +16,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\PaymentThread;
 use App\Models\TempTransaction;
+use App\Services\PaymentService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -28,57 +30,66 @@ class PaymentController extends Controller
      */
     public function index(Request $request)
     {
-        $i = 1;
 
         if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
-            // $transactions = Transaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC');
-            // $transactions = TempTransaction::with('program:id,p_name,modes,locations,allow_preferred_timing','user:id,name,email,phone,last_login')->orderBy('created_at', 'DESC')->whereStatus('complete');
-            // dd($transactions->take(10)->get());
-            $i = 1;
-            // dd($transactions->get());
+            $transactions = TempTransaction::where('status','complete')->with('group:id,p_name','program:id,p_name,modes,locations,allow_preferred_timing', 'paymentthreads','user:id,name,email,phone,last_login','coupon')->orderBy('created_at', 'DESC');
+            
+            if (!empty($request->transid)) {
+                $transactions = $transactions->where('transid', $request->transid);
+            }
+
             if (!empty($request->email)) {
-                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
-                    $query->where('email', $request->email);
-                });
+                $transactions = $transactions->where('email', $request->email);
             }
 
             if (!empty($request->name)) {
-                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
-                    $query->where('name','LIKE', "%{$request->name}%");
-                });
+                $transactions = $transactions->where('name','LIKE', "%{$request->name}%");
             }
 
             if (!empty($request->phone)) {
-                $transactions = $transactions->whereHas('user', function ($query) use ($request) {
-                    $query->where('phone', $request->phone);
-                });
+                $transactions = $transactions->where('phone', $request->phone);
             }
 
             if (!empty($request->type)) {
-                $transactions = $transactions->where('t_type', $request->type);
+                $transactions = $transactions->where('type', $request->type);
+            }
+
+            if (!empty($request->channel)) {
+                $transactions = $transactions->where('t_type', $request->channel);
             }
 
             if (!empty($request->program_id)) {
                 $transactions = $transactions->where('program_id', $request->program_id);
+            }
+
+            if (!empty($request->package_id)) {
+                $transactions = $transactions->where('program_id', $request->package_id);
+            }
+
+            if (!empty($request->coupon_id)) {
+                $transactions = $transactions->where('coupon_id', $request->coupon_id);
             }
             
             if (!empty($request->from) && !empty($request->to)) {
                 $transactions = $transactions->whereBetween('created_at', [$request->from." 00:00:00", $request->to. " 23:59:59"]);
             }
 
+            if (!empty($request->status)) {
+                $transactions = $transactions->where('status', $request->status);
+            }
+            
+
             $records = $transactions->count();
             
             $transactions = $transactions->paginate(50);
-            $types = Transaction::select('t_type')
-            ->distinct()
-            ->whereNotNull('t_type') 
-            ->whereNotIn('t_type',['0']) 
-            ->get();
 
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();
-            
-            return view('dashboard.admin.payments.index', compact('transactions', 'i', 'pops','records','allPrograms','types'));
+            $allPackages = Group::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
+            $allCoupons = Coupon::latest()->get();
+
+
+            return view('dashboard.admin.payments.index', compact('transactions', 'pops','records','allPrograms', 'allPackages', 'allCoupons'));
         }
         
         if (checkRoleHas(['Student'])){
@@ -110,8 +121,13 @@ class PaymentController extends Controller
             // ->where('p_end', '>', date('Y-m-d'))
             ->orderBy('created_at', 'DESC')
             ->get();
+
+        $packages = Group::isActive()->with(['programs' => function ($q) {
+            $q->mainActiveProgramsWithIsClosed();
+        }])->get();
         // dd($pops);
-        return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs'));
+        
+        return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs','packages'));
 
     }
     
@@ -147,14 +163,7 @@ class PaymentController extends Controller
     public function edit($id)
     {
         // $transaction = DB::table('program_user')->whereId($id)->first();
-        $transaction = Transaction::with(['coupon', 'program', 'user'])->whereId($id)->first();
-
-        $transaction->name = User::whereId($transaction->user_id)->value('name');
-        $program_details = Program::select('p_name', 'p_amount', 'modes', 'locations')->whereId($transaction->program_id)->first();
-        $coupons = Coupon::whereProgramId($transaction->program_id)->get();
-
-        $transaction->p_name = $program_details->p_name;
-        $transaction->p_amount = $program_details->p_amount;
+        $transaction = TempTransaction::with('group:id,p_name', 'program:id,p_name,modes,locations,allow_preferred_timing', 'paymentthreads', 'user:id,name,email,phone,last_login', 'coupon')->whereId($id)->first();
 
         $modes =  (isset($program_details->modes) && !empty($program_details->modes)) ? json_decode($program_details->modes) : [];
         $locations =  (isset($program_details->locations) && !empty($program_details->locations)) ? json_decode($program_details->locations) : [];
@@ -167,7 +176,7 @@ class PaymentController extends Controller
         $permissions = canUserAccessPermission($checks);
 
         if ($permissions['payments.edit']) {
-            return view('dashboard.admin.transactions.partial_edit', compact('transaction', 'locations', 'modes', 'coupons'));
+            return view('dashboard.admin.transactions.partial_edit', compact('transaction', 'locations', 'modes'));
         }
         
         return back();
@@ -175,57 +184,26 @@ class PaymentController extends Controller
 
     public function show(Request $request, $id)
     {
-        $transaction = Transaction::where('id', $id)->first();
+        $transaction = TempTransaction::where('id', $id)->first();
         
         if(checkRoleHas(['Admin'])) {
-            //get user details
-            $user = User::findorFail($transaction->user_id);
-
-            if ($transaction->amount == $user->programs[0]['e_amount']) {
-                $message = $this->dosubscript2($transaction->balance);
-            } else {
-                $message = $this->dosubscript1($user->balance);
-            }
-
-            //determine the program details
-            $details = [
-                'programFee' => $user->programs[0]['p_amount'],
-                'programName' => $user->programs[0]['p_name'],
-                'programAbbr' => $user->programs[0]['p_abbr'],
-                'balance' => $transaction->balance,
-                'message' => $message,
-                'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
-                'invoice_id' =>  $transaction->invoice_id,
-                'currency' => $transaction->currency,
-                'transid' =>  $transaction->transid,
-                't_type' =>  $transaction->t_type
-            ];
-
-            $data = [
-                'name' => $user->name,
-                'email' => $user->email,
-                'bank' => $user->t_type,
-                'booking_form' => isset($user->programs[0]['booking_form']) ? base_path() . '/uploads' . '/' . $user->programs[0]['booking_form'] : NULL,
-                'amount' => $transaction->amount,
-                'training_mode' => $transaction->training_mode ?? null,
-                'location' => $transaction->t_location ?? null,
-                'currency_symbol' => $transaction->currency ?? null,
-            ];
-
-            //generate pdf from receipt view
-
-            //send user mails
-            // return view('emails.receipt', compact('data', 'details'));
-            $data['type'] = 'initial';
-            $data = array_merge($data, $details);
-            $pdf = PDF::loadView('emails.printreceipt', compact('data','details'));
-            // return view('emails.printreceipt', compact('data', 'details'));
-            
             try {
-                // to admin
-                // $this->sendWelcomeMail($data, $pdf);
-                // to user
-                $this->sendWelcomeMail($data, $pdf);
+                $data = $this->prepareTrainingDetails($transaction->related, $transaction, $transaction->amount);
+                
+                $data['currency'] = $transaction->currency;
+                $data['currency_symbol'] = $transaction->currency_symbol;
+                $data['exchange_rate'] = $transaction->exchange_rate;
+
+                $data['type'] = 'initial';
+                $data['name'] = $transaction->user->name;
+                $data['transaction'] = $transaction;
+                $data['program'] = $transaction->related;
+
+                $data['payment_type'] = ucfirst($transaction->type);
+                $data['amount'] = $transaction->amount;
+                $data['message'] = ucfirst($transaction->type). ' payment';
+
+                $this->sendWelcomeMail($data);
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
             }
@@ -236,8 +214,8 @@ class PaymentController extends Controller
 
     public function printReceipt($id)
     {
-        $transaction = Transaction::with(['coupon', 'program'])->where('id', $id)->first();
-
+        $transaction = TempTransaction::with(['coupon', 'program'])->where('id', $id)->first();
+        
         if (checkRoleHas(['Student'])){
             if (!$transaction) {
                 return back()->with('warning', 'Unauthorized Action');
@@ -246,55 +224,11 @@ class PaymentController extends Controller
                 return back()->with('warning', 'Unauthorized Action');
             }
         }
-        //get user details
-        $user = User::findorFail($transaction->user_id);
-
-        if ($transaction->amount == $user->programs[0]['e_amount']) {
-            $message = $this->dosubscript2($transaction->balance);
-        } else {
-            $message = $this->dosubscript1($user->balance);
-        }
-
-        //determine the program details
-        if (isset($transaction->t_location) && !empty($transaction->t_location)) {
-            $locations = $transaction->program->locations;
-
-            if (isset($locations) && !empty($locations)) {
-                $locations = json_decode($locations, true);
-                $training_address = $locations[$transaction->t_location] ?? $transaction->t_location;
-            }
-        }
-        $data = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'bank' => $user->t_type,
-            'amount' => $transaction->amount,
-            'programFee' => $user->programs[0]['p_amount'],
-            'programName' => $user->programs[0]['p_name'],
-            'programAbbr' => $user->programs[0]['p_abbr'],
-            'balance' => $transaction->balance,
-            'message' => $message,
-            'booking_form' => $user->programs[0]['booking_form'],
-            'invoice_id' =>  $transaction->invoice_id,
-            'message' => $message,
-            'currency' => $transaction->currency,
-            'transid' =>  $transaction->transid ?? null,
-            'invoice_id' =>  $transaction->invoice_id ?? null,
-            't_type' =>  $transaction->t_type,
-            'coupon_id' =>  $transaction->coupon->id ?? null,
-            'coupon_code' =>  $transaction->coupon->code ?? null,
-            'coupon_amount' =>  $transaction->coupon->amount ?? null,
-            'training_mode' => $transaction->training_mode ?? null,
-            'location' => $transaction->t_location ?? null,
-            'location_address' => $training_address ?? null,
-            'created_at' =>  $transaction->created_at ?? null,
-        ];
-
 
         //generate pdf from receipt view
-        $pdf = PDF::loadView('emails.receipt', compact('data'));
-       
-        return view('emails.printreceipt', compact('data'));
+        $pdf = PDF::loadView('emails.printreceipt', compact('transaction'));
+        
+        return view('emails.printreceipt', compact('transaction'));
     }
 
     //set balance and determine user receipt values
@@ -324,7 +258,6 @@ class PaymentController extends Controller
 
     public function update(Request $request, $id)
     {
-
         if(!canUserAccessPermission(['payments.edit'])){
             return response()->json([
                 'success' => false,
@@ -333,8 +266,8 @@ class PaymentController extends Controller
             ]);
         }
 
-        $transaction = Transaction::with('user', 'program')->whereId($id)->first();
-
+        $transaction = TempTransaction::with('user', 'program')->whereId($id)->first();
+        
         $user = $transaction->user;
         $programFee = $request->program_amount;
 
@@ -346,8 +279,7 @@ class PaymentController extends Controller
             }
         }
 
-        $newamount = $transaction->amount + $request->amount;
-        $balance = $programFee - $newamount;
+        $balance = $transaction->balance ?? 0;
         
         // Checks for coupon code
         // && $request->coupon_id != $transaction->coupon_id
@@ -355,7 +287,6 @@ class PaymentController extends Controller
             $request['email'] = $transaction->user->email;
             $coupon = Coupon::whereId($request->coupon_id)->first();
             $request['coupon'] = $coupon->code;
-            $request['amount'] = $newamount;
             $request2 = (object) $request->all();
 
             $response = $this->verifyCoupon($request2, $transaction->program_id);
@@ -363,7 +294,7 @@ class PaymentController extends Controller
             if (isset($response['amount'])) {
                 // make this amount already paid for the student
                 $amount = $transaction->amount + $response['amount'];
-                $balance = $programFee - $amount;
+                $balance = $balance - $amount;
 
                 $transaction->update([
                     'coupon_id' => $response['id'],
@@ -377,16 +308,30 @@ class PaymentController extends Controller
 
         $this->dosubscript1($balance);
         $paymentStatus =  $this->paymentStatus($balance);
+        $newamount = $request->amount;
+        
+        if($balance > 1){
 
-        if ($newamount > $programFee) {
+        }
+
+        if ($newamount > $balance) {
             return response()->json([
                 'success' => false,
                 'message' => 'Student cannot pay more than program fee',
                 'transaction_id' => $id,
             ]);
         }
+
+        // if ($balance < 1) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Balance is not required',
+        //         'transaction_id' => $id,
+        //     ]);
+        // }
         
-        if ($request->funds_source == 'wallet') {
+        // complete this later
+        if ($request->funds_source == 'Wallet') {
             $account_balance = $user->account_balance;
 
             if($account_balance < $request->amount){
@@ -437,36 +382,22 @@ class PaymentController extends Controller
         }
 
         //update the program table here @ column fully paid or partly paid
-        $transaction->update([
-            'amount' => $newamount,
-            'balance' => $balance,
-            't_type' => $request['bank'] ?? null,
-            't_location' => $request['location'],
-            'training_mode' => $request['training_mode'],
-            'admin_id' => resolveAuthUser()->id,
-            'paymentStatus' =>  $paymentStatus,
-        ]);
-        $reference = $this->getReference('ADMIN_TOP_UP_WALLET');
+        $bData = [
+            'amount' => $request->amount,
+            't_type' => $request->funds_source ??  $transaction->t_type,
+        ];
+        
+        $response = PaymentService::handleBalancePayment($transaction, $transaction->balance, $bData);
 
-        PaymentThread::create([
-            'program_id' => $transaction->program_id,
-            'user_id' => $transaction->user_id,
-            'payment_id' => $transaction->id,
-            'transaction_id' => $reference,
-            't_type' => $t_type,
-            'admin_id' => resolveAuthUser()->id,
-            'parent_transaction_id' => $transaction->transid ?? $transaction->invoice_id,
-            'amount' => abs($request->amount),
-        ]);
+        $transaction = $transaction->fresh();
 
         return response()->json([
             'success' => true,
             'message' => 'Transaction updated successfully',
             'transaction_id' => $id,
-            'new_amount' => $transaction->amount,
-            'new_balance' => $transaction->balance
+            'new_amount' => number_format($transaction->amount),
+            'new_balance' => number_format($transaction->balance)
         ]);
-        // return back()->with('message', '');
     }
 
     public function destroy($id)

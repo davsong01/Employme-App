@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\Certificate;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\TempTransaction;
 use App\Models\UtilityCronTask;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -174,7 +175,7 @@ class UtilityTaskController extends Controller
         if(!empty($withoutUsersIds)){
             Program::whereIn('id', $withoutUsersIds)->delete();
         }
-
+        dd('Orphaned parents deleted');
         if(!empty($withUsersIds)){
             $toProcess = Program::with('users')->whereIn('id', $withUsersIds)->get();
             
@@ -205,5 +206,74 @@ class UtilityTaskController extends Controller
         }
 
         return 'All done';
+    }
+
+    public function moveProgramUserToTempTransactions()
+    {
+        TempTransaction::truncate();
+
+        DB::beginTransaction();
+
+        try {
+            $programUsers = Transaction::with('user')->orderBy('created_at','DESC')->get();
+
+            $toInsert = [];
+
+            foreach ($programUsers as $record) {
+                if (!$record->user) {
+                    continue;
+                }
+
+                $t_type = strtoupper($record->t_type) === 'PAYSTACK' ? 'Online' : 'Transfer';
+                $payment_mode = strtoupper($record->t_type) === 'PAYSTACK' ? 1 : 0;
+
+                $record->transid = $record->transid ?? 'BT-' . rand(11111111, 99999999);
+
+                $toInsert[] = [
+                    'id'              => $record->id,
+                    'email'           => $record->user->email,
+                    'type'            => $record->balance > 0 ? 'part' : 'full',
+                    'program_id'      => $record->program_id,
+                    'coupon_id'       => $record->coupon_id,
+                    'coupon_amount'   => $record->coupon_amount,
+                    'coupon_code'   => $record->coupon_code,
+                    'facilitator_id'  => $record->facilitator,
+                    'amount'          => $record->amount ?? 0,
+                    'transid'         => $record->transid,
+                    'invoice_id'      => $record->invoice_id,
+                    'payment_mode'    => $record->payment_mode ?: $payment_mode,
+                    'preferred_timing' => $record->preferred_timing ?? null,
+                    'name'            => $record->name,
+                    'phone'           => $record->phone,
+                    'location'        => $record->location ?? null,
+                    'training_mode'   => $record->modes ?? null,
+                    'meta'            => is_array($record->meta) ? json_encode($record->meta) : $record->meta,
+                    'is_package'      => 0,
+                    'program_ids'     => json_encode([$record->program_id]),
+                    'balance'         => $record->balance ?? 0,
+                    'user_id'         => $record->user_id,
+                    'payload'         => $record->payload,
+                    'currency'        => $record->currency ?? 'NGN',
+                    'currency_symbol' => $record->currency_symbol ?? '₦',
+                    'payment_url'     => $record->payment_url,
+                    'status'          => 'complete',
+                    't_type'          => $t_type,
+                    'created_at'      => $record->created_at,
+                    'updated_at'      => $record->updated_at,
+                ];
+            }
+
+            if (!empty($toInsert)) {
+                foreach (array_chunk($toInsert, 1000) as $chunk) {
+                    TempTransaction::insert($chunk);
+                }
+            }
+            
+            DB::commit();
+            return 'All done';
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return 'Error: ' . $th->getMessage();
+        }
     }
 }
