@@ -14,7 +14,7 @@ class Welcomemail extends Mailable
     public $data;
 
     public $pdf;
-   
+    
     public function __construct($data,$pdf)
     {
         $this->data = $data;

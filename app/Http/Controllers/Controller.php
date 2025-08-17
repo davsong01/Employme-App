@@ -90,7 +90,7 @@ class Controller extends BaseController
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
                     Mail::to('davsong16@gmail.com§')->send(new Welcomemail($data, $pdf));
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // dd($e->getMessage(), $e->getFile(), $e->getLine());
                 return false;
             }
