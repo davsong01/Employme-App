@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('temp_transactions', function (Blueprint $table) {
-            $table->string('exchange_rate')->after('currency_symbol')->nullable();
-        });
+        if (!Schema::hasColumn('temp_transactions', 'exchange_rate')) {
+            Schema::table('temp_transactions', function (Blueprint $table) {
+                $table->string('exchange_rate')->after('currency_symbol')->nullable();
+            });
+        }
     }
 
     /**
