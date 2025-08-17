@@ -93,14 +93,13 @@ class PaymentController extends Controller
         }
         
         if (checkRoleHas(['Student'])){
-            $transactiondetails = Transaction::with('paymentthreads')->where('user_id', '=', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
+            $transactiondetails = TempTransaction::with('paymentthreads')->where('user_id', '=', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
 
             foreach ($transactiondetails as $details) {
-                $details->programs = Program::select('p_name', 'p_amount')->where('id', $details->program_id)->get()->toArray();
+                $details->programs = Program::select('p_name', 'p_amount')->whereIn('id', $details->program_ids)->get()->toArray();
                 $details->p_name = $details->programs[0]['p_name'];
                 $details->p_amount = $details->programs[0]['p_amount'];
             }
-            
             return view('dashboard.student.payments.index', compact('transactiondetails'));
         }
     }

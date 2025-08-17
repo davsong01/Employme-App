@@ -11,6 +11,7 @@ use App\Models\Program;
 use App\Models\Material;
 use Carbon\Carbon;
 use App\Models\PaymentMode;
+use App\Models\TempTransaction;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -130,52 +131,19 @@ class HomeController extends Controller
 
     public function trainings($id)
     {
-        $data = Program::all();
-
         if (checkRoleHas(['Student'])){
             //Get Length of training
-            $program = Program::findOrFail($id);
-
-            $trainingStartDate = $program->p_start;
-            $trainingEndDate = $program->p_end;
-
-            $datetime1 = new \DateTime($trainingStartDate);
-            $datetime2 = new \DateTime($trainingEndDate);
-
-            $interval = $datetime1->diff($datetime2);
-            $lengthofTraining = $interval->format('%R%a') + 1;
-
-            //Get current length
-            $trainingStartDate = $program->p_start;
-            $trainingEndDate = $program->p_end;
-
-            $date1 = new \DateTime($trainingStartDate);
-            $date2 = new \DateTime("now");
-
-            $length = $date1->diff($date2);
-
-            // check if training is still in progress
-            if (date("Y-m-d") >= $trainingStartDate && date("Y-m-d") <= $trainingEndDate) {
-                $trainingProg =  (($length->days) * 100) / $lengthofTraining;
-                $trainingProgress = number_format($trainingProg, 2);
-            }
-            // check if training has started
-            elseif ($trainingEndDate > date("Y-m-d")) {
-                $trainingProgress = 0;
-            }
-            // check if training has ended
-            else if ($trainingEndDate < date("Y-m-d")) {
-                $trainingProgress = 100;
-            }
+            $program = Program::find($id);
 
             //get materials count
             $materialsCount = Material::where('program_id', $program->id)->count();
 
-            $data = DB::table('program_user')->where('program_id', $program->id)->where('user_id', resolveAuthUser()->id);
-            $paid = $data->value('currency_symbol') . number_format($data->value('amount'));
-            $balance = $data->value('balance');
-            $currency_symbol = $data->value('currency_symbol');
-            $facilitator = $data->value('facilitator_id');
+            $data = TempTransaction::whereRaw('JSON_CONTAINS(program_ids, ?)',[json_encode($program->id)]
+            )->where('user_id', resolveAuthUser()->id)->first();
+            $paid = $data->currency_symbol . number_format($data->amount);
+            $balance = $data->balance;
+            $currency_symbol = $data->currency_symbol;
+            $facilitator = $data->facilitator_id;
 
             if ($facilitator) {
                 $facilitator = User::select('name')->whereId($facilitator)->value('name');
@@ -183,7 +151,7 @@ class HomeController extends Controller
                 $facilitaor = null;
             }
 
-            return view('dashboard.student.trainings', compact('currency_symbol', 'facilitator', 'materialsCount',  'trainingProgress', 'paid', 'balance', 'program'));
+            return view('dashboard.student.trainings', compact('currency_symbol', 'facilitator', 'materialsCount', 'paid', 'balance', 'program'));
         } else return abort(404);
     }
 

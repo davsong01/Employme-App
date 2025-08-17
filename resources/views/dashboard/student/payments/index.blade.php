@@ -40,18 +40,18 @@
                                 <strong>Channel: </strong>{{ $details->t_type }}
                                 @if($details->paymentthreads->count() > 0)
                                 <br>
-                                    <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal{{$details->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                    <a class="btn btn-info btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal{{$details->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
                                 @endif
                             </td>
                             
                             <td>
                                 <strong>Training: </strong>{{ $details->p_name }} <br>
-                                <strong>Training Fee: </strong>{{ $details->p_amount }} <br>
-                                <strong>Amount Paid: </strong>{{ config('custom.default_currency') }}{{ $details->amount }} <br>
+                                <strong>Training Fee: </strong>{{ $details->currency_symbol.number_format($details->p_amount) }} <br>
+                                <strong>Amount Paid: </strong>{{ $details->currency_symbol.number_format($details->amount) }} <br>
                                 @if(!empty($details->paymenttype))
                                 <strong>Type: </strong>{{ $details->paymenttype }} <br>
                                 @endif
-                                <strong>Balance: </strong><span style="color:{{$details->paymentStatus == 0 ? 'red' : 'green'}}">{{ config('custom.default_currency') }}{{ $details->balance }} </span>
+                                <strong>Balance: </strong><span style="color:{{$details->balance > 0 ? 'red' : 'green'}}">{{ $details->currency_symbol.$details->balance }} </span>
                             </td>
                             
                             <td>
@@ -67,7 +67,7 @@
                                 <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $details->transid }}</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
@@ -85,7 +85,7 @@
                                         
                                         <div class="col-md-6">
                                             Amount<br>
-                                            <strong>{{ number_format($thread->amount) }}</strong>
+                                            <strong>{{ $details->currency_symbol.number_format($thread->amount) }}</strong>
                                         </div>
                                     </div>
                                     <hr>
