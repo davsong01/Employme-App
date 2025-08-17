@@ -208,7 +208,7 @@ class PopController extends Controller
                     'amount' => $pop->amount,
                     't_type' => $pop->t_type,
                 ];
-
+                
                 $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $bData);
                 
                 if($response['status']){
@@ -221,13 +221,23 @@ class PopController extends Controller
 
             }else{
                 $isNew = true;
-                $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+                // $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+                // $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+
+                if($pop->amount == $program->e_amount && $program->early_bird_status){
+                    $expectedAmount = $program->e_amount;
+                }else{
+                    $expectedAmount = $program->p_amount;
+                }
+                
+                // if pop->amount == e_amount and $program->early_bird_status, then expected is program->e_amount, else expected amount = program->p_amount
+                // if pop amount  e_amount and $program->early_bird_status, then expected is e_amount 
                 $balance = $expectedAmount - $pop->amount;
 
                 if ($pop->amount > $expectedAmount) {
                     return back()->with('error', 'Cannot pay above ' . $expectedAmount);
                 }
-
+                
                 if ($program->early_bird_status && $pop->amount ==  $program->e_amount) {
                     $type = 'earlybird';
                     $message = 'Earlybird payment';
@@ -284,8 +294,9 @@ class PopController extends Controller
                 ];
                 
                 $transaction = PaymentService::initiateTransaction($transactionArray);
+                
                 $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
-
+                
                 $data['balance'] = $balance;
                 $data['programs'] = $transaction->allPrograms()->toArray();
                 $data['payment_type'] = $transaction->type;
@@ -295,9 +306,9 @@ class PopController extends Controller
                 PaymentService::createUserAndAttachPrograms($transaction);
                 $transaction = $transaction->fresh();
                 
-                $data['currency'] = \Session::get('currency');
-                $data['currency_symbol'] = \Session::get('currency_symbol');
-                $data['exchange_rate'] = \Session::get('exchange_rate');
+                $data['currency'] = $transaction->currency;
+                $data['currency_symbol'] = $transaction->currency_symbol;
+                $data['exchange_rate'] = $transaction->exchange_rate;
     
                 $data['type'] = 'initial';
                 $data['name'] = $transaction->name;
@@ -323,7 +334,7 @@ class PopController extends Controller
 
             return redirect(route('payments.index'))->with('message', 'Student added succesfully');
         }catch(\Exception $e){
-            dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
+            // dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
         }
     }
 
