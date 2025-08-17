@@ -9,6 +9,7 @@ use App\Models\Program;
 use App\Models\Certificate;
 use App\Models\ResultThread;
 use App\Models\PaymentThread;
+use App\Models\TempTransaction;
 use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
@@ -62,5 +63,9 @@ class Transaction extends Model
         }
         
         return $histories;
+    }
+
+    public function paymentLog(){
+        return $this->belongsTo(TempTransaction::class, 'transid','transid');
     }
 }

@@ -585,5 +585,40 @@ class PaymentService
         ];
     }
 
+    public static function addParticipant($program, $participant, $data){
+        $transid = 'AD-IMPORT' . rand(11111111, 9999999);
+        $invoiceId = self::getInvoiceId();
+
+
+        $transactionArray = [
+            'email' => $data['email'],
+            'type' => $data['type'],
+            'program_id' => $program->id,
+            'coupon_id' =>  null,
+            'facilitator_id' => null,
+            'amount' =>  $data['amount'],
+            'transid' =>  $transid,
+            'invoice_id' => $invoiceId,
+            'payment_mode' => 0,
+            'preferred_timing' => null,
+            'name' => $data['name'],
+            'phone' => $data['phone'],
+            'location' => $data['location'] ?? null,
+            'training_mode' => null,
+            'meta' => $data['metadata'] ?? null,
+            'is_package' => $data['is_package'],
+            'status' => 'complete',
+            'balance' => $data['balance'],
+            't_type' => $data['t_type'],
+            'program_ids' => $data['programIds'],
+            'currency' => $data['currency'],
+            'currency_symbol' => $data['currency_symbol'],
+            'exchange_rate' => $data['exchange_rate'],
+        ];
+
+        $transaction = PaymentService::initiateTransaction($transactionArray);
+        
+        $data = self::createUserAndAttachPrograms($transaction);
+    }
 
 }

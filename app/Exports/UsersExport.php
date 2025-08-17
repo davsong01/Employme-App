@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class UsersExport implements FromCollection, WithHeadings
 {
-   
+
     public function collection()
     {
         // $users = User::with('program')->where('roles', 'Student')->get();
