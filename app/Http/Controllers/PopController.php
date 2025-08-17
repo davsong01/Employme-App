@@ -237,7 +237,7 @@ class PopController extends Controller
                 if ($pop->amount > $expectedAmount) {
                     return back()->with('error', 'Cannot pay above ' . $expectedAmount);
                 }
-
+                
                 if ($program->early_bird_status && $pop->amount ==  $program->e_amount) {
                     $type = 'earlybird';
                     $message = 'Earlybird payment';
