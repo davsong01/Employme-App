@@ -196,15 +196,15 @@
                                 <td>{{ $loop->iteration }}</a>
                                 <td><strong>Name: </strong>
                                     @if($permissions['users.edit'])
-                                    <a href="{{ route('users.edit', $transaction->user_id)}}" target="_blank">{{ $transaction->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-                                    <br> <strong>Phone: </strong>{{ $transaction->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction->user->email ?? 'N/A' }}
+                                    <a href="{{ route('users.edit', $transaction?->user_id)}}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                    <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
                                     @endif
-                                    @if(isset($transaction->user->last_login)) <br>
-                                    <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction->user->last_login)) : '' }}</span>
+                                    @if(isset($transaction?->user->last_login)) <br>
+                                    <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction?->user->last_login)) : '' }}</span>
                                     @endif
                                     @if($permissions['payments.edit'])
                                     <br> 
-                                    <strong>Account balance: </strong>{{number_format($transaction->user->account_balance)}}
+                                    <strong>Account balance: </strong>{{number_format($transaction?->user->account_balance)}}
                                     @endif
                                     @if($permissions['impersonate']) <br>
                                     <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"

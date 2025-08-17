@@ -32,7 +32,7 @@ class PaymentController extends Controller
     {
 
         if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
-            $transactions = TempTransaction::with('group:id,p_name','program:id,p_name,modes,locations,allow_preferred_timing', 'paymentthreads','user:id,name,email,phone,last_login','coupon')->orderBy('created_at', 'DESC');
+            $transactions = TempTransaction::where('status','complete')->with('group:id,p_name','program:id,p_name,modes,locations,allow_preferred_timing', 'paymentthreads','user:id,name,email,phone,last_login','coupon')->orderBy('created_at', 'DESC');
             
             if (!empty($request->transid)) {
                 $transactions = $transactions->where('transid', $request->transid);

