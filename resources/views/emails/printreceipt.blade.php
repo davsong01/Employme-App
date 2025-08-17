@@ -67,7 +67,8 @@
 <div class="header">
     <div style="float: left;">
         <a href="{{url('/')}}">
-			<img src="{{ url($logo) }}" style="width: 120px;">
+            <img src="{{ public_path($logo) }}" style="width:100px;">
+			{{-- <img src="{{ url($logo) }}" style="width: 120px;"> --}}
 		</a>
     </div>
 
