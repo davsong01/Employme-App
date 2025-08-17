@@ -1,5 +1,7 @@
 <?php
-    $logo = \App\Models\Settings::first()->value('logo');
+    use App\Models\Settings;
+    $setting = Settings::first();
+    $logo = $setting->logo;
 ?>
 <html>
 <head>
@@ -65,7 +67,7 @@
 <div class="header">
     <div style="float: left;">
         <a href="{{url('/')}}">
-			<img src="{{ url($logo) }}" style="width: 150px;">
+			<img src="{{ url($logo) }}" style="width: 120px;">
 		</a>
     </div>
 

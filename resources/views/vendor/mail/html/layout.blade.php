@@ -52,7 +52,7 @@ $packages = Group::with(['programs' => function ($q) {
                     {{-- ───── HEADER (centered logo) ───── --}}
                     <tr>
                         <td style="padding:25px 0; text-align:center;">
-                            <a href="{{url('/')}}"><img src="{{ url('logo') }}" alt="{{ config('app.name') }}" style="max-height:60px; border:0;"></a>
+                            <a href="{{url('/')}}"><img src="{{ url($logo) }}" alt="{{ config('app.name') }}" style="max-height:40px; border:0;"></a>
                         </td>
                     </tr>
 
