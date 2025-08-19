@@ -165,7 +165,7 @@ class FrontendController extends Controller
         if ($training->p_end < date('Y-m-d') || $training->status != 1) {
             return redirect(route('packages'));
         }
-
+        
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
         $training->is_closed = 'no';

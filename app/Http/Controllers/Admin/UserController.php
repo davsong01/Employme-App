@@ -83,7 +83,7 @@ class UserController extends Controller
                         $program = Program::find($request->p_id);
                         $data['programIds'] = $program ? [$program->id] : [];
                     }
-
+                    
                     $participants = Transaction::with([
                         'user',
                         'paymentLog' => function ($q) {
@@ -106,44 +106,94 @@ class UserController extends Controller
                     $participants = $participants->get();
                     
                     $count = 0;
-
-                    
-
-                    $checkCounter = count($data['programIds']);
-                    $data['amount'] = $program->p_amount ?? 0;
-                    $data['balance'] = 0;
-                    $data['is_package'] = $isPackage;
-                    $data['type'] = 'full';
-                    $data['t_type'] = 'Transfer';
                     
                     foreach ($participants as $participant) {
-                        $data['email'] = $participant->user->email;
-                        $data['name'] = $participant->user->name;
-                        $data['phone'] = $participant->user->phone;
-                        $data['currency_symbol'] = $participant->paymentLog->currency_symbol;
-                        $data['currency'] = $participant->paymentLog->currency;
-                        $data['exchange_rate'] = $participant->paymentLog->exchange_rate ?? 1;
+                        //
+                        try {
+                            DB::beginTransaction();
 
-                        $check = Transaction::where('user_id', $participant->user->id)
-                            ->whereIn('program_id', $data['programIds'])
-                            ->count();
-                        if($check == $checkCounter){
-                            dd($check);
-                            continue; // This user already has these programs attached
+                            $newTrainings = $data['programIds'];
+                            
+                            $user_programs = DB::table('program_user')
+                                ->where('user_id', $participant->user_id)
+                                ->pluck('program_id')
+                                ->toArray();
+                            // $user_program = $participant->user->programs()->whereIn('program_id', $newTrainings)->exists();
+                            
+                            $brandNewTrainings = array_diff($newTrainings, $user_programs);        // add
+                            
+                            // Handle new program purchases
+                            if (!empty($brandNewTrainings)) {
+                                $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
+                                
+                                foreach ($brandNewTrainings as $programId) {
+                                    $training = $allTrainings->firstWhere('id', $programId);
+                                    
+                                    if (!$training) continue;
+    
+                                    $balance = 0;
+                                    $t_type = 'Transfer';
+                                    $transid = PaymentService::getReference('SYS-ADMIN');
+                                    $invoiceId = PaymentService::getInvoiceId();
+                                    $amount = $training->p_amount;
+    
+                                    $transactionArray = [
+                                        'email' => $participant->user->email,
+                                        'type' => 'full',
+                                        'program_id' => $training->id,
+                                        'coupon_id' => null,
+                                        'facilitator_id' => null,
+                                        'amount' => $amount,
+                                        'transid' => $transid,
+                                        'invoice_id' => $invoiceId,
+                                        'payment_mode' => 0,
+                                        'preferred_timing' => null,
+                                        'name' => $participant->user->name,
+                                        'phone' => $participant->user->phone,
+                                        'location' => null,
+                                        'training_mode' => null,
+                                        'meta' => null,
+                                        'is_package' => 0,
+                                        'status' => 'complete',
+                                        'balance' => $balance,
+                                        't_type' => $t_type,
+                                        'program_ids' => [$training->id],
+                                        'currency' => "NGN",
+                                        'currency_symbol' => "₦",
+                                    ];
+                                    
+                                    $transaction = PaymentService::initiateTransaction($transactionArray);
+
+                                    $response =  PaymentService::createUserAndAttachPrograms($transaction);
+                                    
+                                    $transaction = $transaction->fresh();
+                                    
+                                    PaymentThread::create([
+                                        'program_id' => $transaction->program_id,
+                                        'user_id' => $transaction->user_id,
+                                        'payment_id' => $transaction->id,
+                                        'transaction_id' => PaymentService::getReference('PYTHRD'),
+                                        't_type' => strtolower($transaction->t_type),
+                                        'parent_transaction_id' => $transaction->transid,
+                                        'amount' => $amount,
+                                    ]);
+                                }
+                                $count++;
+                            }
+                            \Log::info($participant->id);
+                            // Handle program removals
+                            DB::commit();
+                        }catch(\Exception $e){
+                            DB::rollback();
+                            $count--;
+                            continue;
                         }
-                        
-                        dd($check);
-                        PaymentService::addParticipant($program, $participant, $data);
-
-                        $count++;
                     }
-
-                    dd($checkCounter);
+                    
                     $extraMessage = $count . ' Participants Imported from '.$oldProgram->p_name; 
                 }
             } catch (\Illuminate\Database\QueryException $ex) {
-                $error = $ex->getMessage();
-                return back()->with('error', $error);
+                return back()->with('error', $ex->getMessage());
             }
 
             return back()->with('message', 'Participants have been imported succesfully'. ' '. $extraMessage );
@@ -622,18 +672,9 @@ class UserController extends Controller
                         ];
 
                         $transaction = PaymentService::initiateTransaction($transactionArray);
-                        $data = $this->prepareTrainingDetails($training, $transaction, $transaction->amount);
-
-                        $data['balance'] = $balance;
-                        $data['programs'] = $transaction->allPrograms()->toArray();
-                        $data['payment_type'] = $transaction->type;
-
+                        
                         PaymentService::createUserAndAttachPrograms($transaction);
                         $transaction = $transaction->fresh();
-
-                        $data['currency'] = $transaction->currency;
-                        $data['currency_symbol'] = $transaction->currency_symbol;
-                        $data['exchange_rate'] = $transaction->exchange_rate;
 
                         PaymentThread::create([
                             'program_id' => $transaction->program_id,

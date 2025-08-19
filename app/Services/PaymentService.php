@@ -301,10 +301,10 @@ class PaymentService
         ];
 
         $programIds = $transaction->is_package ? $transaction->program_ids : [$transaction->program_id];
-        
+
         foreach ($programIds as $programId) {
             $alreadyHasProgram = $user->programs()->where('program_id', $programId)->exists();
-
+            
             if (!$alreadyHasProgram) {
                 $data['program_id'] = $programId;
 
