@@ -17,7 +17,9 @@ use App\Models\UpdateMails;
 use App\Exports\UsersExport;
 use App\Imports\UsersImport;
 use Illuminate\Http\Request;
+use App\Models\PaymentThread;
 use Illuminate\Support\Carbon;
+use App\Models\TempTransaction;
 use App\Services\PaymentService;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
@@ -70,6 +72,18 @@ class UserController extends Controller
                     // Get old partiicipants
                     set_time_limit(3600);
 
+                    $isPackage = $request->is_package ?? 0;
+
+                    $oldProgram = Program::select('id', 'p_name', 'p_amount')->where('id', $request->import_from)->first();
+
+                    if ($isPackage) {
+                        $program = Group::find($request->p_id);
+                        $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
+                    } else {
+                        $program = Program::find($request->p_id);
+                        $data['programIds'] = $program ? [$program->id] : [];
+                    }
+
                     $participants = Transaction::with([
                         'user',
                         'paymentLog' => function ($q) {
@@ -93,17 +107,7 @@ class UserController extends Controller
                     
                     $count = 0;
 
-                    $isPackage = $request->is_package ?? 0;
-
-                    $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();
-
-                    if ($isPackage) {
-                        $program = Group::find($request->p_id);
-                        $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
-                    } else {
-                        $program = Program::find($request->p_id);
-                        $data['programIds'] = $program ? [$program->id] : [];
-                    }
+                    
 
                     $checkCounter = count($data['programIds']);
                     $data['amount'] = $program->p_amount ?? 0;
@@ -111,7 +115,7 @@ class UserController extends Controller
                     $data['is_package'] = $isPackage;
                     $data['type'] = 'full';
                     $data['t_type'] = 'Transfer';
-                    dd($participants);
+                    
                     foreach ($participants as $participant) {
                         $data['email'] = $participant->user->email;
                         $data['name'] = $participant->user->name;
@@ -539,6 +543,8 @@ class UserController extends Controller
         } else $password = $user->password;
 
         try {
+            DB::beginTransaction();
+
             if (checkRoleHas(['Facilitaor','Grader'])) {
                 $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
                 $count = Transaction::whereUserId($user->id)->whereIn('program_id', $user_trainings)->count();
@@ -558,43 +564,106 @@ class UserController extends Controller
             ]);
             
             if(checkRoleHas(['Admin'])) {
-                // Get User programs and pop out of array
-                $user_programs = DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray();
-                $newTrainings = $request['training'];
-                $trainings = array_unique(array_merge($user_programs, $newTrainings));
-                $toBeDeleted = array_diff($user_programs, $newTrainings);
-                
                 $user->update([
                     'job_title' => $request->job_title,
                     'staffID' => $request->staffID,
                 ]);
 
-                // dd($user_programs, $toBeDeleted, $trainings, $newTrainings);
-                foreach ($trainings as $value) {
-                    if (!in_array($value, $user_programs)) {
-                        $training = Program::find($value);
-                        if ($training) {
-                            $user->programs()->attach($training->id, [
-                                'created_at' =>  date("Y-m-d H:i:s"),
-                                'invoice_id' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
-                                'transid' => date('YmdH') . '-' . rand(1111, 9999) . '-' . 'SYS_ADMIN',
-                                'amount' => $training->p_amount,
-                                'amount' => $training->p_amount,
-                                't_type' => 'System Admin',
-                                't_location' => null,
-                                'paymentStatus' => 1,
-                                'balance' => 0,
-                                'invoice_id' =>  'Invoice' . $user->id,
-                            ]);
-                        }
-                    }
 
-                    if (in_array($value, $toBeDeleted)) {
-                        DB::table('program_user')->where('user_id', $user->id)->where('program_id', $value)->delete();
+                // Get User programs and pop out of array
+                $user_programs = DB::table('program_user')
+                    ->where('user_id', $user->id)
+                    ->pluck('program_id')
+                    ->toArray();
+
+                $newTrainings = $request['training']; // assumed array of IDs
+
+                $trainings = array_unique(array_merge($user_programs, $newTrainings)); // full list
+                $toBeDeleted = array_diff($user_programs, $newTrainings);              // remove
+                $brandNewTrainings = array_diff($newTrainings, $user_programs);        // add
+                
+                // Handle new program purchases
+                if (!empty($brandNewTrainings)) {
+                    $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
+
+                    foreach ($brandNewTrainings as $programId) {
+                        $training = $allTrainings->firstWhere('id', $programId);
+                        if (!$training) continue;
+
+                        $balance = 0;
+                        $t_type = 'Transfer';
+                        $transid = PaymentService::getReference('SYS-ADMIN');
+                        $invoiceId = PaymentService::getInvoiceId();
+                        $amount = $training->p_amount;
+                        
+                        $transactionArray = [
+                            'email' => $user->email,
+                            'type' => 'full',
+                            'program_id' => $training->id,
+                            'coupon_id' => null,
+                            'facilitator_id' => null,
+                            'amount' => $amount,
+                            'transid' => $transid,
+                            'invoice_id' => $invoiceId,
+                            'payment_mode' => 0,
+                            'preferred_timing' => null,
+                            'name' => $user->name,
+                            'phone' => $user->phone,
+                            'location' => null,
+                            'training_mode' => null,
+                            'meta' => null,
+                            'is_package' => 0,
+                            'status' => 'complete',
+                            'balance' => $balance,
+                            't_type' => $t_type,
+                            'program_ids' => [$training->id],
+                            'currency' => "NGN",
+                            'currency_symbol' => "₦",
+                        ];
+
+                        $transaction = PaymentService::initiateTransaction($transactionArray);
+                        $data = $this->prepareTrainingDetails($training, $transaction, $transaction->amount);
+
+                        $data['balance'] = $balance;
+                        $data['programs'] = $transaction->allPrograms()->toArray();
+                        $data['payment_type'] = $transaction->type;
+
+                        PaymentService::createUserAndAttachPrograms($transaction);
+                        $transaction = $transaction->fresh();
+
+                        $data['currency'] = $transaction->currency;
+                        $data['currency_symbol'] = $transaction->currency_symbol;
+                        $data['exchange_rate'] = $transaction->exchange_rate;
+
+                        PaymentThread::create([
+                            'program_id' => $transaction->program_id,
+                            'user_id' => $transaction->user_id,
+                            'payment_id' => $transaction->id,
+                            'transaction_id' => PaymentService::getReference('PYTHRD'),
+                            't_type' => strtolower($transaction->t_type),
+                            'parent_transaction_id' => $transaction->transid,
+                            'amount' => $amount,
+                        ]);
                     }
                 }
+
+                // Handle program removals
+                foreach ($toBeDeleted as $programId) {
+                    TempTransaction::where('user_id', $user->id)
+                        ->whereJsonContains('program_ids', $programId)
+                        ->delete();
+
+                    DB::table('program_user')
+                        ->where('user_id', $user->id)
+                        ->where('program_id', $programId)
+                        ->delete();
+                }
             }
+            
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollback();
+
             $error = $e->getMessage();
             return back()->with('error', $error);
         }

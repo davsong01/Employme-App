@@ -585,7 +585,7 @@ class PaymentService
         ];
     }
 
-    public static function addParticipant($program, $participant, $data){
+    public static function addParticipant($program, $data){
         $transid = 'AD-IMPORT' . rand(11111111, 9999999);
         $invoiceId = self::getInvoiceId();
 
