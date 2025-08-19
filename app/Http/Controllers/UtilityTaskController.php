@@ -247,9 +247,9 @@ class UtilityTaskController extends Controller
                     'phone'           => $record->phone,
                     'location'        => $record->location ?? null,
                     'training_mode'   => $record->modes ?? null,
-                    'meta'            => is_array($record->meta) ? json_encode($record->meta) : $record->meta,
+                    'meta'            => $record->meta,
                     'is_package'      => 0,
-                    'program_ids'     => json_encode([$record->program_id]),
+                    'program_ids'     => [$record->program_id],
                     'balance'         => $record->balance ?? 0,
                     'user_id'         => $record->user_id,
                     'payload'         => $record->payload,
@@ -280,5 +280,27 @@ class UtilityTaskController extends Controller
     public function fixTempTransactionsWithoutTransid(){
         $transactions = TempTransaction::whereNull('transid')->get();
         dd($transactions);
+    }
+
+    public function normalizeProgramIds()
+    {
+        TempTransaction::chunk(1000, function ($transactions) {
+            foreach ($transactions as $transaction) {
+                $ids = $transaction->program_ids;
+
+                // If not a valid JSON array, skip
+                if (!is_array($ids)) {
+                    continue;
+                }
+
+                // Cast all to integers
+                $normalized = array_map('intval', $ids);
+                
+                $transaction->program_ids = $normalized;
+                $transaction->save();
+            }
+        });
+
+        return "Normalization complete";
     }
 }

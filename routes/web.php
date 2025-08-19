@@ -30,6 +30,7 @@ Route::get('utility/resolve-certificate-names', [UtilityTaskController::class, '
 Route::get('utility/move-parent-programs-to-group', [UtilityTaskController::class, 'moveParentProgramsToGroup']);
 Route::get('utility/move-programs-to-temp-transactions', [UtilityTaskController::class, 'moveProgramUserToTempTransactions']);
 Route::get('utility/fix-temp-transactions-without-transid', [UtilityTaskController::class, 'fixTempTransactionsWithoutTransid']);
+Route::get('utility/normalize-temp-transactions-program-ids', [UtilityTaskController::class, 'normalizeProgramIds']);
 
 
 // Route::get('decode-materials', [MaterialController::class, 'decode']);
