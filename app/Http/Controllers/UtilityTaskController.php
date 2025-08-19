@@ -276,4 +276,9 @@ class UtilityTaskController extends Controller
             return 'Error: ' . $th->getMessage();
         }
     }
+
+    public function fixTempTransactionsWithoutTransid(){
+        $transactions = TempTransaction::whereNull('transid')->get();
+        dd($transactions);
+    }
 }

@@ -138,7 +138,7 @@
                                     
                                 </div>
                                 
-                                @if($is_package)
+                                @if(isset($is_package))
                                 <input type="hidden" name="package" value="{{ $training }}">
                                 @else
                                 <input type="hidden" name="training" value="{{ $training }}"> 

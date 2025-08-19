@@ -85,8 +85,8 @@ class UserController extends Controller
                     
                     
                     if (!empty($request->start_date)) {
-                        $request['start_date'] = Carbon::parse($request->start_date);
-                        $participants = $participants->whereDate('created_at', '>=', $request->start_date);
+                        $startDate = Carbon::parse($request->start_date);
+                        $participants = $participants->whereDate('created_at', '>=', $startDate);
                     }
                     
                     $participants = $participants->get();
@@ -96,22 +96,22 @@ class UserController extends Controller
                     $isPackage = $request->is_package ?? 0;
 
                     $oldProgram = Program::select('id', 'p_name','p_amount')->where('id', $request->import_from)->first();
-                    
+
                     if ($isPackage) {
-                        $program = Group::where('id', $request->p_id)->first();
-                        $data['programIds'] = $program->programs->pluck('id')->toArray();
+                        $program = Group::find($request->p_id);
+                        $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
                     } else {
-                        $program = Program::where('id', $request->p_id)->first();
-                        $data['programIds'] = [$program->id];
+                        $program = Program::find($request->p_id);
+                        $data['programIds'] = $program ? [$program->id] : [];
                     }
 
-                    $data['amount'] = $program->p_amount;
+                    $checkCounter = count($data['programIds']);
+                    $data['amount'] = $program->p_amount ?? 0;
                     $data['balance'] = 0;
                     $data['is_package'] = $isPackage;
-
                     $data['type'] = 'full';
                     $data['t_type'] = 'Transfer';
-
+                    dd($participants);
                     foreach ($participants as $participant) {
                         $data['email'] = $participant->user->email;
                         $data['name'] = $participant->user->name;
@@ -122,42 +122,19 @@ class UserController extends Controller
 
                         $check = Transaction::where('user_id', $participant->user->id)
                             ->whereIn('program_id', $data['programIds'])
-                            ->select('program_id', DB::raw('COUNT(*) as total'))
-                            ->groupBy('program_id')
-                            ->first();
-                        dd($check, $data['programIds']);// still checking this
-                        if (!empty($check)) {
-                            continue;
+                            ->count();
+                        if($check == $checkCounter){
+                            dd($check);
+                            continue; // This user already has these programs attached
                         }
+                        
+                        dd($check);
                         PaymentService::addParticipant($program, $participant, $data);
 
                         $count++;
-                        $user = $participant->user;
-                        
-                        // Normalize data before processing
-                        $row['staffID'] = $user->staffID;
-                        $row['phone'] = $user->phone;
-                        $row['email'] = $user->email;
-                        $row['name'] = $user->name;
-                        $row['gender'] = $user->gender;
-                        $row['location'] = $user->t_location;
-
-                        // Exclude unnecessary metadata
-                        $row['metadata'] = !empty($user->metadata) ? $user->metadata : null;
-                        
-                        // Prepare training details and attach program
-                        $data = app('App\Http\Controllers\Controller')->prepareFreeTrainingDetails($program, $row, true);
-                        $data['payment_type'] = 'Full';
-                        $data['message'] = 'Full payment';
-                        $data['paymentStatus'] = 1;
-                        $data['currency_symbol'] = '&#x20A6;';
-                        $data['balance'] = 0;
-                        $data['new'] = 'no';
-                        
-                        // Create user, attach program, and update earnings
-                        app('App\Http\Controllers\Controller')->createUserAndAttachProgramAndUpdateEarnings($data, [], null);
                     }
 
+                    dd($checkCounter);
                     $extraMessage = $count . ' Participants Imported from '.$oldProgram->p_name; 
                 }
             } catch (\Illuminate\Database\QueryException $ex) {
@@ -170,83 +147,83 @@ class UserController extends Controller
         return abort(404);
     }
 
-    public function createTransactionAndAddUser(){
-        $t_type = 'Transfer';
-        $transid = 'BT-' . rand(11111111, 9999999);
-        $invoiceId = PaymentService::getInvoiceId();
+    // public function createTransactionAndAddUser(){
+    //     $t_type = 'Transfer';
+    //     $transid = 'BT-' . rand(11111111, 9999999);
+    //     $invoiceId = PaymentService::getInvoiceId();
 
-        if ($isPackage) {
-            $group = Group::where('id', $pop->group_id)->first();
-            $programIds = $group->programs->pluck('id')->toArray();
-        } else {
-            $programIds = [$pop->program_id];
-        }
+    //     if ($isPackage) {
+    //         $group = Group::where('id', $pop->group_id)->first();
+    //         $programIds = $group->programs->pluck('id')->toArray();
+    //     } else {
+    //         $programIds = [$pop->program_id];
+    //     }
 
-        $metadata = [
-            'pid'        => $pop->related->id,
-            'facilitator' => null,
-            'coupon_id'  => null,
-            'type'       => $type ?? null,
-            'isPackage'     => $isPackage
-        ];
+    //     $metadata = [
+    //         'pid'        => $pop->related->id,
+    //         'facilitator' => null,
+    //         'coupon_id'  => null,
+    //         'type'       => $type ?? null,
+    //         'isPackage'     => $isPackage
+    //     ];
 
-        $transactionArray = [
-            'email' => $pop->email,
-            'type' => $type,
-            'program_id' => $program->id,
-            'coupon_id' =>  null,
-            'facilitator_id' => null,
-            'amount' =>  $pop->amount,
-            'transid' =>  $transid,
-            'invoice_id' => $invoiceId,
-            'payment_mode' => 0,
-            'preferred_timing' => null,
-            'name' => $pop->name,
-            'phone' => $pop->phone,
-            'location' => $pop->location ?? null,
-            'training_mode' => null,
-            'meta' => $metadata,
-            'is_package' => $isPackage,
-            'status' => 'complete',
-            'balance' => $balance,
-            't_type' => $t_type,
-            'program_ids' => $programIds,
-            'currency' => $pop->currency,
-            'currency_symbol' => $pop->currency_symbol,
-        ];
+    //     $transactionArray = [
+    //         'email' => $pop->email,
+    //         'type' => $type,
+    //         'program_id' => $program->id,
+    //         'coupon_id' =>  null,
+    //         'facilitator_id' => null,
+    //         'amount' =>  $pop->amount,
+    //         'transid' =>  $transid,
+    //         'invoice_id' => $invoiceId,
+    //         'payment_mode' => 0,
+    //         'preferred_timing' => null,
+    //         'name' => $pop->name,
+    //         'phone' => $pop->phone,
+    //         'location' => $pop->location ?? null,
+    //         'training_mode' => null,
+    //         'meta' => $metadata,
+    //         'is_package' => $isPackage,
+    //         'status' => 'complete',
+    //         'balance' => $balance,
+    //         't_type' => $t_type,
+    //         'program_ids' => $programIds,
+    //         'currency' => $pop->currency,
+    //         'currency_symbol' => $pop->currency_symbol,
+    //     ];
 
-        $transaction = PaymentService::initiateTransaction($transactionArray);
+    //     $transaction = PaymentService::initiateTransaction($transactionArray);
 
-        $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
+    //     $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
 
-        $data['balance'] = $balance;
-        $data['programs'] = $transaction->allPrograms()->toArray();
-        $data['payment_type'] = $transaction->type;
-        $data['message'] = $message;
-        $data['paymentStatus'] =  $paymentStatus;
+    //     $data['balance'] = $balance;
+    //     $data['programs'] = $transaction->allPrograms()->toArray();
+    //     $data['payment_type'] = $transaction->type;
+    //     $data['message'] = $message;
+    //     $data['paymentStatus'] =  $paymentStatus;
 
-        PaymentService::createUserAndAttachPrograms($transaction);
-        $transaction = $transaction->fresh();
+    //     PaymentService::createUserAndAttachPrograms($transaction);
+    //     $transaction = $transaction->fresh();
 
-        $data['currency'] = $transaction->currency;
-        $data['currency_symbol'] = $transaction->currency_symbol;
-        $data['exchange_rate'] = $transaction->exchange_rate;
+    //     $data['currency'] = $transaction->currency;
+    //     $data['currency_symbol'] = $transaction->currency_symbol;
+    //     $data['exchange_rate'] = $transaction->exchange_rate;
 
-        $data['type'] = 'initial';
-        $data['name'] = $transaction->name;
-        $data['transaction'] = $transaction;
-        $data['program'] = $program;
+    //     $data['type'] = 'initial';
+    //     $data['name'] = $transaction->name;
+    //     $data['transaction'] = $transaction;
+    //     $data['program'] = $program;
 
-        PaymentThread::create([
-            'program_id' => $transaction->program_id,
-            'user_id' => $transaction->user_id,
-            'payment_id' => $transaction->id,
-            'transaction_id' => PaymentService::getReference('PYTHRD'),
-            't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
-            'parent_transaction_id' => $transaction->transid,
-            'amount' => $pop->amount,
-        ]);
-    }
+    //     PaymentThread::create([
+    //         'program_id' => $transaction->program_id,
+    //         'user_id' => $transaction->user_id,
+    //         'payment_id' => $transaction->id,
+    //         'transaction_id' => PaymentService::getReference('PYTHRD'),
+    //         't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
+    //         'parent_transaction_id' => $transaction->transid,
+    //         'amount' => $pop->amount,
+    //     ]);
+    // }
     public function index(Request $request)
     {
         $i = 1;
