@@ -138,16 +138,16 @@ class HomeController extends Controller
             //get materials count
             $materialsCount = Material::where('program_id', $program->id)->count();
 
-            // $data = TempTransaction::whereRaw('JSON_CONTAINS(program_ids, ?)',[json_encode($program->id)]
-            // )->where('user_id', resolveAuthUser()->id)->first() ?? collect([]);
-            $programId = $program->id;
+            $data = TempTransaction::whereRaw('JSON_CONTAINS(program_ids, ?)',[json_encode($program->id)]
+            )->where('user_id', resolveAuthUser()->id)->first() ?? collect([]);
+            // $programId = $program->id;
 
-            $data = TempTransaction::where(function ($q) use ($programId) {
-                $q->whereRaw('JSON_CONTAINS(program_ids, ?)', [json_encode((int) $programId)])
-                    ->orWhereRaw('JSON_CONTAINS(program_ids, ?)', [json_encode((string) $programId)]);
-            })
-            ->where('user_id', resolveAuthUser()->id)
-            ->first() ?? collect([]);
+            // $data = TempTransaction::where(function ($q) use ($programId) {
+            //     $q->whereRaw('JSON_CONTAINS(program_ids, ?)', [json_encode((int) $programId)])
+            //         ->orWhereRaw('JSON_CONTAINS(program_ids, ?)', [json_encode((string) $programId)]);
+            // })
+            // ->where('user_id', resolveAuthUser()->id)
+            // ->first() ?? collect([]);
 
             $paid = $data->currency_symbol . number_format($data->amount);
             $balance = $data->balance;
