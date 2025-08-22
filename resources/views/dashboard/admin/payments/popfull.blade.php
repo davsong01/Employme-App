@@ -21,9 +21,10 @@
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Type</th>
                             <th>Customer details</th>
-                            <th>Training details</th>
                             <th>Amount Paid</th>
+                            <th>Training details</th>
                             <th>Bank</th> 
                             <th>Location</th>
                             <th>Image</th>       
@@ -35,6 +36,8 @@
                             @if($pop->related)
                                 <tr>
                                     <td>{{ $pop->date }}</td>
+                                    <td>{{ ucfirst($pop?->temp?->type ?? 'N/A') }}</td>
+
                                     <td>{{ $pop->name }} <br>
                                         {{ $pop->phone }} <br>
                                         {{ $pop->email }} <br>
@@ -71,12 +74,13 @@
                                             @endif
                                         </div>
                                     </td>
+                                    <td>{{ number_format($pop->amount) }}</td>
                                     <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->related->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->related->e_amount  }})
                                     @if(isset($pop->is_fresh)) <br>
                                     <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                                     @endif
                                     </td>
-                                    <td>{{ number_format($pop->amount) }}</td>
+                      
                                     <td>{{ $pop->bank }}</td>
                                     <td>{{ $pop->location }}</td>
                                 
