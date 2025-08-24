@@ -31,7 +31,7 @@ class PopController extends Controller
         $transactions =  TempTransaction::with(['coupon', 'program:id,p_amount,e_amount,created_at'])->orderBy('created_at', 'DESC')->get();
         $i = 1;
         $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-        
+
         return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
     }
 
@@ -50,13 +50,13 @@ class PopController extends Controller
         $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActiveProgramsWithIsClosed();
         }])->get();
-        
-        if(isset(session()->get('data')['metadata']['pid'])){
+
+        if (isset(session()->get('data')['metadata']['pid'])) {
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
-        }else{
+        } else {
             $accounts = getAccounts();
         }
-        
+
         return view('pop')
             ->with('trainings', $trainings)
             ->with('groups', $groups)
@@ -71,10 +71,10 @@ class PopController extends Controller
         ])) {
             return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
         }
-        
+
         $program_type = $request->program_type;
         $request['training_id'] = $program_type == 'package' ? $request->package_id : $request->training_id;
-        
+
         $data = $this->validate($request, [
             'name' => 'required',
             'email' => 'required',
@@ -88,21 +88,21 @@ class PopController extends Controller
             'date' => 'date',
             'file' => 'required|max:2048|image',
         ]);
-        
+
         // Remove data from session
         \Session::forget(['data']);
 
         $file = Str::random(10);
         $extension = $request->file('file')->getClientOriginalExtension();
         $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
-        
+
         $date = Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
 
         // Check if already uploaded same pop
-        if($program_type == 'package'){
+        if ($program_type == 'package') {
             $popCheck = Pop::whereEmail($data['email'])->whereGroupId($data['training_id'])->where('is_package', 1)->where('amount', $data['amount'])->count();
             $program = Group::where('id', $data['training_id'])->first();
-        }else{
+        } else {
             $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training_id'])->where('is_package', 0)->where('amount', $data['amount'])->count();
             $program = Program::where('id', $data['training_id'])->first();
         }
@@ -132,10 +132,10 @@ class PopController extends Controller
         }
         // Get temp transaction 
         $temp = TempTransaction::where('email', $data['email'])->where('program_id', $data['training_id'])->first();
-        
+
         $data['location'] = $temp->location ?? null;
         $data['training_mode'] = $temp->training_mode ?? null;
-        
+
         $storeData = [
             'name' => $data['name'],
             'email' =>  $data['email'],
@@ -153,26 +153,26 @@ class PopController extends Controller
             'file' => base64_encode($filePath),
         ];
 
-        if($program_type == 'package'){
+        if ($program_type == 'package') {
             $storeData['group_id'] = $data['training_id'];
-        }else{
+        } else {
             $storeData['program_id'] = $data['training_id'];
         }
 
         try {
             //Store new pop
             $pop = Pop::create($storeData);
-            
+
             //Prepare Attachment
             $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
             $data['training'] = $program->p_name;
-            
+
             $data['type'] = 'pop';
             $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
             $data['participant_email'] = $pop->email;
             $data['realfilename'] = $file . '.' . $extension;
             $data['transaction'] = $temp;
-            
+
             $this->sendWelcomeMail($data);
         } catch (\Exception $e) {
             // dd($e->getMessage(), $e->getLine().$e->getFile());
@@ -196,42 +196,50 @@ class PopController extends Controller
 
             // Try to see if this is balance payment
             $existingTransaction = PaymentService::getExistingTransactionAndBalance($pop);
+            
             $program = $pop->related;
             $isPackage = $pop->is_package;
-            
-            if ($pop->amount > $program->p_amount) {
-                return back()->with('error', 'Cannot pay above ' . $program->p_amount);
+
+            if ($pop->amount == $program->e_amount && $program->early_bird_status) {
+                $expectedAmount = $program->e_amount;
+            } else {
+                $expectedAmount = $program->p_amount;
+            }
+
+            $balance = $expectedAmount - $pop->amount;
+
+            if ($pop->amount > $expectedAmount) {
+                return back()->with('error', 'Cannot pay above ' . $expectedAmount);
             }
             
-            if (isset($existingTransaction) && isset($existingTransaction['transaction'])){
+            if (isset($existingTransaction) && isset($existingTransaction['transaction']) && $existingTransaction['transaction']->status != 'initiated') {
                 $bData = [
                     'amount' => $pop->amount,
                     't_type' => $pop->t_type,
                 ];
-                
+
                 $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $bData);
-                
-                if($response['status']){
+
+                if ($response['status']) {
                     $pop->delete();
 
                     return redirect(route('payments.index'))->with('message', 'Balance Payment added succesfully');
-                }else{
+                } else {
                     return back()->with('error', $response['message']);
                 }
-
-            }else{
+            } else {
                 $isNew = true;
-                // $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
-                // $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+                $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+                $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
 
                 if($pop->amount == $program->e_amount && $program->early_bird_status){
                     $expectedAmount = $program->e_amount;
                 }else{
                     $expectedAmount = $program->p_amount;
                 }
-                
-                // if pop->amount == e_amount and $program->early_bird_status, then expected is program->e_amount, else expected amount = program->p_amount
-                // if pop amount  e_amount and $program->early_bird_status, then expected is e_amount 
+
+                // // if pop->amount == e_amount and $program->early_bird_status, then expected is program->e_amount, else expected amount = program->p_amount
+                // // if pop amount  e_amount and $program->early_bird_status, then expected is e_amount 
                 $balance = $expectedAmount - $pop->amount;
 
                 if ($pop->amount > $expectedAmount) {
@@ -247,12 +255,12 @@ class PopController extends Controller
                     $message = $balance > 0 ? 'Part payment' : 'Full payment';
                     $paymentStatus = $balance > 0 ? 0 : 1;
                 }
-                
+
                 // $program 
                 $t_type = 'Transfer';
                 $transid = 'BT-' . rand(11111111, 9999999);
                 $invoiceId = PaymentService::getInvoiceId();
-                
+
                 if ($isPackage) {
                     $group = Group::where('id', $pop->group_id)->first();
                     $programIds = $group->programs->pluck('id')->toArray();
@@ -292,29 +300,29 @@ class PopController extends Controller
                     'currency' => $pop->currency,
                     'currency_symbol' => $pop->currency_symbol,
                 ];
-                
+
                 $transaction = PaymentService::initiateTransaction($transactionArray);
-                
+
                 $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
-                
+
                 $data['balance'] = $balance;
                 $data['programs'] = $transaction->allPrograms()->toArray();
                 $data['payment_type'] = $transaction->type;
                 $data['message'] = $message;
                 $data['paymentStatus'] =  $paymentStatus;
-                
+
                 PaymentService::createUserAndAttachPrograms($transaction);
                 $transaction = $transaction->fresh();
-                
+
                 $data['currency'] = $transaction->currency;
                 $data['currency_symbol'] = $transaction->currency_symbol;
                 $data['exchange_rate'] = $transaction->exchange_rate;
-    
+
                 $data['type'] = 'initial';
                 $data['name'] = $transaction->name;
                 $data['transaction'] = $transaction;
                 $data['program'] = $program;
-    
+
                 PaymentThread::create([
                     'program_id' => $transaction->program_id,
                     'user_id' => $transaction->user_id,
@@ -325,25 +333,26 @@ class PopController extends Controller
                     'amount' => $pop->amount,
                 ]);
             }
-            
+
             $pop->delete();
 
-            if($isNew){
+            if ($isNew) {
                 $this->sendWelcomeMail($data);
             }
 
             return redirect(route('payments.index'))->with('message', 'Student added succesfully');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             // dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
         }
     }
 
-    public function update(Pop $pop, Request $request){
+    public function update(Pop $pop, Request $request)
+    {
         // dd(($request->except(['template', '_token', '_method', 'template', 'prefix__'])));
         $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__']));
         return back()->with('message', 'Update Successful');
     }
-    
+
     public function tempDestroy($id)
     {
         $trans = TempTransaction::find($id);

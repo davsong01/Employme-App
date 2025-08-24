@@ -80,9 +80,9 @@ class Controller extends BaseController
 
                     $email =  $data['email'] ?? $transaction->email ?? null;
                     $email = 'davsong16@gmail.com';
-
+                    \Log::info($data);
                     // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
-                    Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
+                    // Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
                 } else {
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
