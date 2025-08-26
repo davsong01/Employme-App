@@ -152,7 +152,7 @@ class PopController extends Controller
             'date' =>  $date,
             'file' => base64_encode($filePath),
         ];
-
+        
         if ($program_type == 'package') {
             $storeData['group_id'] = $data['training_id'];
         } else {

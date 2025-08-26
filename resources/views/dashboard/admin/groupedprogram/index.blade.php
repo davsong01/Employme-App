@@ -250,6 +250,9 @@
                                 </td>
                 
                                 <td style="vertical-align: top;">
+                                    <a data-toggle="tooltip" data-placement="top" title="Import Participants"
+                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('group.import', ['p_id'=> $group->id, 'program'=> $group->id, 'source'=>'group'])}}"><i class="fa fa-upload"></i> Bulk Import
+                                        </a>
                                     <button class="btn btn-info btn-xs" title="Edit Group" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#editGroupModal{{ $group->id }}">

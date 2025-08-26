@@ -152,10 +152,15 @@ Route::middleware(['admin.access'])->group(function () {
         Route::middleware(['programCheck'])->group(function () {
             Route::resource('programs', ProgramController::class);
             Route::resource('groupedprogram', GroupedProgramController::class);
-    
+
+            Route::get('group-participants-import/{p_id}/{source?}', [UserController::class,'importExport'])->name('group.import');
+            
             Route::controller(ProgramController::class)->group(function () {
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
                 Route::post('training-import-data/{training}', 'importDataFromTraining')->name('training.import.data');
+
+                Route::post('group-import-data/{training}/{source?}', 'importDataFromTraining')->name('group.import.data');
+
                 Route::get('complainshow/{crm}', 'showcrm')->name('crm.show');
                 Route::get('complainhide/{crm}', 'hidecrm')->name('crm.hide');
                 Route::get('restore/{id}', 'restore')->name('programs.restore');

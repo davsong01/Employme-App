@@ -79,7 +79,9 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if($source == 'group')
+                            <input type="hidden" value="1" name="is_package">
+                        @endif
                         <input type="hidden" value="{{ $program->id }}" name="p_id">
 
                         <div class="row">
