@@ -99,6 +99,7 @@ class HomeController extends Controller
             $thisusertransactions = Transaction::whereHas('program', function($query){
                 $query->where('program_lock', 0);
             })->where('user_id', resolveAuthUser()->id)->orderBy('created_at', 'DESC')->get();
+
             foreach ($thisusertransactions as $transactions) {
                 $transactions->modules = Module::where('program_id', $transactions->program_id)->where('status', 1)->count();
                 $transactions->materials = Material::where('program_id', $transactions->program_id)->count();
@@ -148,7 +149,7 @@ class HomeController extends Controller
             // })
             // ->where('user_id', resolveAuthUser()->id)
             // ->first() ?? collect([]);
-
+            
             $paid = $data->currency_symbol . number_format($data->amount);
             $balance = $data->balance;
             $currency_symbol = $data->currency_symbol;

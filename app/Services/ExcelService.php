@@ -26,4 +26,16 @@ class ExcelService
             }
         }, $filename);
     }
+
+    public static function import($file)
+    {
+        $sheets = (new FastExcel)->importSheets($file)->toArray();
+        $count = count($sheets);
+        $temp = [];
+        for ($i = 0; $i < $count; $i++) {
+            $temp = [...$temp, ...$sheets[$i]];
+        }
+
+        return $temp;
+    }
 }

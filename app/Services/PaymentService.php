@@ -206,6 +206,7 @@ class PaymentService
                 'currency' => $transactionArray['currency'],
                 'currency_symbol' => $transactionArray['currency_symbol'],
                 'exchange_rate' => $transactionArray['exchange_rate'] ?? \Session::get('exchange_rate') ?? 1,
+                'remarks' => $transactionArray['remarks'] ?? null,
                 
             ]);
 

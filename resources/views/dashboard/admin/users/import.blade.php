@@ -7,6 +7,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">
+                        
                         <h5>Import Participants for {{ $program->p_name }}</h5>
                         @include('layouts.partials.alerts')
                     </div>
@@ -60,6 +61,21 @@
                                     <small class="text-muted d-block mb-2"> <br>
                                     </small>
                                     <input type="date" id="start_date" class="form-control" name="start_date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <small class="text-muted d-block mb-2">
+                                        <label for="amount_to_user" class="font-weight-bold">Amount to use (Optional)</label> <br>
+                                        Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->early_bird_status) | Early Bird: {{ number_format($program->e_amount) }} @endif
+                                    </small>
+                                    <input type="number" id="amount_to_use" class="form-control" name="amount_to_use">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="remarks" class="font-weight-bold">Admin Remarks (Optional)</label>
+                                    <textarea id="remarks" class="form-control" name="remarks" rows="3"></textarea>
                                 </div>
                             </div>
                         </div>
