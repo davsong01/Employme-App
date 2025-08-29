@@ -280,4 +280,22 @@ class CouponController extends Controller
         }
         return $createdBy;
     }
+
+    public function fetchCoupon(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'source' => 'required|in:program,group',
+        ]);
+
+        if ($request->source === 'program') {
+            $coupons = Coupon::where('program_id', $request->id)->get(['id', 'code', 'type', 'amount']);
+        } else {
+            $coupons = Coupon::where('group_id', $request->id)->get(['id', 'code', 'type', 'amount']);
+        }
+
+        return response()->json([
+            'coupons' => $coupons
+        ]);
+    }
 }

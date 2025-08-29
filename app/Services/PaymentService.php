@@ -482,12 +482,79 @@ class PaymentService
         return $couponData;
     }
 
-    public static function getExpectedAmountDetails($temp, $program, $couponData = null)
+    // public static function getExpectedAmountDetails($temp, $program, $couponData = null)
+    // {
+    //     $couponAmount = $couponData['computed_amount'] ?? 0;
+    //     $programAmount = $program->p_amount;
+    //     $trainingMode = $temp->training_mode;
+    //     $type = $temp->type;
+
+    //     // Apply mode-based pricing if applicable
+    //     if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
+    //         $modes = json_decode($program->modes, true);
+    //         if (!empty($modes[$trainingMode])) {
+    //             $programAmount = $modes[$trainingMode];
+    //         }
+    //     }
+
+    //     $totalAmount = $programAmount;
+    //     $balance = 0;
+    //     $message = 'Full payment';
+    //     $paymentStatus = 1;
+
+    //     switch ($type) {
+    //         case 'full':
+    //             $totalAmount = ceil($programAmount - $couponAmount);
+    //             break;
+
+    //         case 'part':
+    //             $totalAmount = ceil($programAmount / 2);
+    //             $message = 'Part payment';
+    //             $balance = $totalAmount - $temp->amount;
+    //             break;
+
+    //         case 'earlybird':
+    //             $totalAmount = ceil($program->e_amount - $couponAmount);
+    //             break;
+
+    //         default:
+    //             $type = 'full';
+    //             break;
+    //     }
+
+    //     // Cap to full program amount if over-calculated
+    //     $totalAmount = min($totalAmount, $programAmount);
+    //     $balance = max(0, $balance);
+
+    //     return [
+    //         'amount_paid' => $totalAmount,
+    //         'expected_amount' => $totalAmount,
+    //         'type' => $type,
+    //         'coupon_data' => $couponData,
+    //         'message' => $message,
+    //         'payment_status' => $paymentStatus,
+    //         'balance' => $balance,
+    //     ];
+    // }
+    public static function applyModeProgramModeToAmount($program)
     {
-        $couponAmount = $couponData['computed_amount'] ?? 0;
+        // Apply mode-based pricing if applicable
+        if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
+            $modes = json_decode($program->modes, true);
+            if (!empty($modes[$trainingMode])) {
+                $programAmount = $modes[$trainingMode];
+            }
+        }else{
+            $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+        }
+
+        return $programAmount;
+    }
+
+
+    public static function calculatePaymentBreakdown($amountPaid, $type, $program, $trainingMode = null)
+    {
         $programAmount = $program->p_amount;
-        $trainingMode = $temp->training_mode;
-        $type = $temp->type;
 
         // Apply mode-based pricing if applicable
         if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
@@ -497,45 +564,53 @@ class PaymentService
             }
         }
 
-        $totalAmount = $programAmount;
-        $balance = 0;
+        $expectedAmount = $programAmount;
         $message = 'Full payment';
-        $paymentStatus = 1;
+        $type = strtolower($type);
 
         switch ($type) {
-            case 'full':
-                $totalAmount = ceil($programAmount - $couponAmount);
-                break;
-
             case 'part':
-                $totalAmount = ceil($programAmount / 2);
+                $expectedAmount = ceil($programAmount / 2);
                 $message = 'Part payment';
-                $balance = $totalAmount - $temp->amount;
                 break;
 
             case 'earlybird':
-                $totalAmount = ceil($program->e_amount - $couponAmount);
+                $expectedAmount = ceil($program->e_amount);
+                $message = 'Early Bird payment';
                 break;
 
+            case 'full':
             default:
+                $expectedAmount = ceil($programAmount);
                 $type = 'full';
                 break;
         }
 
-        // Cap to full program amount if over-calculated
-        $totalAmount = min($totalAmount, $programAmount);
-        $balance = max(0, $balance);
+        // Calculate balance properly
+        $balance = max(0, $programAmount - $amountPaid);
 
+        // Payment status: 1 = fully paid, 0 = not yet
+        $paymentStatus = $balance > 0 ? 0 : 1;
+        dd([
+            'amount_paid'     => $amountPaid,
+            'expected_amount' => $expectedAmount,
+            'program_amount'  => $programAmount,
+            'type'            => $type,
+            'message'         => $message,
+            'payment_status'  => $paymentStatus,
+            'balance'         => $balance,
+        ]);
         return [
-            'amount_paid' => $totalAmount,
-            'expected_amount' => $totalAmount,
-            'type' => $type,
-            'coupon_data' => $couponData,
-            'message' => $message,
-            'payment_status' => $paymentStatus,
-            'balance' => $balance,
+            'amount_paid'     => $amountPaid,
+            'expected_amount' => $expectedAmount,
+            'program_amount'  => $programAmount,
+            'type'            => $type,
+            'message'         => $message,
+            'payment_status'  => $paymentStatus,
+            'balance'         => $balance,
         ];
     }
+
 
     public static function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL)
     {

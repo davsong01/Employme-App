@@ -38,17 +38,12 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <input type="checkbox" id="show_archived" class="mr-2">
-                                        <label for="show_archived" class="mb-0">Show Archived Programs</label>
-                                    </div>
-
-                                    <label for="import_from" class="font-weight-bold">Select Program</label>
+                                    <label for="import_from" class="font-weight-bold">{{ $source== 'program' ? 'Select Program' : 'Select Group'}}</label>
                                     <small class="text-muted d-block mb-2">
-                                        All participants for the selected program will be imported.
+                                        All participants for the selected {{ $source== 'program' ? 'Program' : 'Group'}} will be imported.
                                     </small>
                                     <select name="import_from" id="import_from" class="form-control select2">
-                                        <option value="">-- Select Program --</option>
+                                        <option value="">-- Select {{ $source== 'program' ? 'Program' : 'Group'}} --</option>
                                         @foreach ($programs as $training)
                                             @if($training->id != $program->id)
                                                 <option value="{{ $training->id }}"
@@ -64,7 +59,16 @@
                                 </div>
                             </div>
 
-
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="coupon_id" class="font-weight-bold">Coupon Applied (Optional)</label>
+                                    <small class="text-muted d-block mb-2"> <br>
+                                    </small>
+                                    <select name="coupon_id" id="coupon_id" class="form-control select2">
+                                        <option value="">-- Select Program --</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="start_date" class="font-weight-bold">Start Date</label>
@@ -75,13 +79,24 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="amount_to_user" class="font-weight-bold">Amount to use (Optional)</label> <br>
                                     <small class="text-muted d-block mb-2">
-                                        <label for="amount_to_user" class="font-weight-bold">Amount to use (Optional)</label> <br>
                                         Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->early_bird_status) | Early Bird: {{ number_format($program->e_amount) }} @endif
                                     </small>
-                                    <input type="number" id="amount_to_use" class="form-control" name="amount_to_use">
+                                    <input type="number" id="amount_to_use" class="form-control" name="amount_to_use" value="">
                                 </div>
                             </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="send_email" class="font-weight-bold" style="margin-bottom: 31px;">Send Email</label>
+                                    <select name="send_email" id="send_email" class="form-control" required>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="remarks" class="font-weight-bold">Admin Remarks (Optional)</label>
@@ -97,7 +112,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">
-                                    <i class="fa fa-upload"></i> Submit Import
+                                    <i class="fa fa-upload"></i> Submit
                                 </button>
                             </div>
                         </div>
@@ -130,6 +145,45 @@
 
             // Handle checkbox toggle
             $('#show_archived').on('change', toggleArchived);
+
+            $('#import_from').on('change', function () {
+                let itemId = $(this).val();
+                let source = "{{ $source }}";
+
+                if (!itemId) {
+                    $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('coupons.fetch') }}", // <-- backend route
+                    type: "GET",
+                    data: {
+                        id: itemId,
+                        source: source
+                    },
+                    success: function (response) {
+                        $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
+
+                        if (response.coupons && response.coupons.length > 0) {
+                            $.each(response.coupons, function (index, coupon) {
+                                let label = coupon.type === 'fixed'
+                                    ? "{{ currency() }}" + parseFloat(coupon.amount).toFixed(2)
+                                    : parseFloat(coupon.amount).toFixed(2) + '%';
+
+                                $('#coupon_id').append(
+                                    `<option value="${coupon.id}">${coupon.code} | ${label}</option>`
+                                );
+                            });
+                        } else {
+                            $('#coupon_id').append('<option value="">No coupons available</option>');
+                        }
+                    },
+                    error: function () {
+                        alert('Unable to fetch coupons, please try again later.');
+                    }
+                });
+            });
         });
 
     </script>

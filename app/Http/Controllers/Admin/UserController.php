@@ -7,6 +7,7 @@ use PDF;
 use App\Mail\Email;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Coupon;
 use App\Models\Result;
 use App\Models\Program;
 use App\Models\Location;
@@ -21,6 +22,7 @@ use App\Models\PaymentThread;
 use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
 use App\Models\TempTransaction;
+use App\Services\CouponService;
 use App\Services\PaymentService;
 use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
@@ -34,19 +36,35 @@ class UserController extends Controller
 
     public function importExport($p_id, $source = 'program')
     {
-        if($source == 'program'){
-            $program =  Program::select('id','p_name','p_amount','early_bird_status')->where('id', $p_id)->first();
-        }else{
-            $program =  Group::select('id', 'p_name', 'p_amount', 'early_bird_status')->where('id', $p_id)->first();
+        if ($source === 'program') {
+            $program = Program::select('id', 'p_name', 'p_amount', 'early_bird_status')
+                ->where('id', $p_id)
+                ->firstOrFail();
+
+            $programs = Program::isNotArchived()
+                ->withCount('fullyPaid')
+                ->where('id', '<>', $p_id)
+                ->get();
+
+        } else {
+            $program = Group::select('id', 'p_name', 'p_amount', 'early_bird_status')
+                ->where('id', $p_id)
+                ->firstOrFail();
+
+            $programs = Group::isActive()
+                ->select('id', 'p_name', 'p_amount', 'early_bird_status')
+                ->where('id', '<>', $p_id)
+                ->get();
+
         }
         
-        if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $programs = Program::withCount('fullyPaid')->where('id', '<>', $p_id)->get();
-            
-            return view('dashboard.admin.users.import', compact('program','programs','source'));
+        if (!checkRoleHas(['Admin', 'Facilitator'])) {
+            return abort(404);
         }
-        return abort(404);
+
+        return view('dashboard.admin.users.import', compact('program', 'programs', 'source'));
     }
+
 
     public function downloadBulkSample($filename)
     {
@@ -61,7 +79,7 @@ class UserController extends Controller
         $oldProgram = Program::select('id', 'p_name', 'p_amount')
             ->where('id', $request->import_from)
             ->first();
-
+        
         if ($isPackage) {
             $program = Group::find($request->p_id);
             $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
@@ -160,7 +178,25 @@ class UserController extends Controller
                                 if (!$program) continue;
 
                                 $amount = $request->amount_to_use ?? $program->p_amount;
+                                
+                                if($couponCheck){
+                                    $couponArray = [
+                                        'code' => $couponCheck->code,
+                                        'program_id' => $program->id,
+                                        'amount' => $amount,
+                                        'isPackage' => $isPackage,
+                                    ];
+                                    
+                                    $couponResponse = PaymentService::Coupon($couponArray);
+    
+                                    if (!empty($couponResponse['status']) && $couponResponse['status'] == true) {
+                                        $amount = $couponResponse['grand_total'];
+                                    } else {
+                                        $amount = $request->amount;
+                                    }
+                                }
 
+                                
                                 $transactionArray = [
                                     'email'        => $user?->email ?? $participant['email'],
                                     'type'         => 'full',
@@ -202,13 +238,43 @@ class UserController extends Controller
                                 ]);
                             } else {
                                 $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
-                                
+                                dd($allTrainings);
                                 foreach ($brandNewTrainings as $programId) {
                                     $training = $allTrainings->firstWhere('id', $programId);
-                                    if (!$training) continue;
                                     
-                                    $amount = $request->amount_to_use ?? $training->p_amount;
-    
+                                    $couponCheck = Coupon::where('program_id', $programId)->first();
+                                    dd($couponCheck, $programId);
+                                    if (!$training) continue;
+                                    // Apply mode to amount
+                                    $computedAmount = PaymentService::applyModeProgramModeToAmount($training);
+                                    
+                                    if($request->coupon_id && $couponCheck){
+                                        // Apply coupon to amount
+                                        $computedAmount = CouponService::getCouponData('full', $couponCheck, $isPackage, $training->p_amount, $training, $user->email);
+                                    }
+
+                                    // Calculate amount details
+                                    // $amount = $request->amount_to_use ?? ;
+                                    dd($computedAmount);
+                                    // $training->p_amount;
+
+                                    $amount = $request->amount_to_use;
+                                    if (empty($request->amount) && $couponCheck->exist()) {
+                                        
+                                        $couponArray = [
+                                            'code' => $couponCheck->code,
+                                            'program_id' => $program->id,
+                                            'amount' => $amount,
+                                            'isPackage' => $isPackage,
+                                        ];
+                                        
+                                        $couponResponse = PaymentService::Coupon($couponArray);
+
+                                        if (!empty($couponResponse['status']) && $couponResponse['status'] == true) {
+                                            $amount = $couponResponse['grand_total'];
+                                        }
+                                    }
+
                                     $transactionArray = [
                                         'email'        => $user?->email ?? $participant['email'],
                                         'type'         => 'full',
@@ -258,6 +324,7 @@ class UserController extends Controller
                         DB::commit();
                     } catch (\Exception $e) {
                         DB::rollBack();
+                        dd($e->getMessage());
                         $count--;
                         continue;
                     }
@@ -271,7 +338,7 @@ class UserController extends Controller
                 return back()->with('error', $ex->getMessage());
             }
 
-
+            dd('sdds');
             return back()->with('message', 'Participants have been imported successfully. ' . $extraMessage);
         }
 
@@ -279,83 +346,6 @@ class UserController extends Controller
     }
 
 
-    // public function createTransactionAndAddUser(){
-    //     $t_type = 'Transfer';
-    //     $transid = 'BT-' . rand(11111111, 9999999);
-    //     $invoiceId = PaymentService::getInvoiceId();
-
-    //     if ($isPackage) {
-    //         $group = Group::where('id', $pop->group_id)->first();
-    //         $programIds = $group->programs->pluck('id')->toArray();
-    //     } else {
-    //         $programIds = [$pop->program_id];
-    //     }
-
-    //     $metadata = [
-    //         'pid'        => $pop->related->id,
-    //         'facilitator' => null,
-    //         'coupon_id'  => null,
-    //         'type'       => $type ?? null,
-    //         'isPackage'     => $isPackage
-    //     ];
-
-    //     $transactionArray = [
-    //         'email' => $pop->email,
-    //         'type' => $type,
-    //         'program_id' => $program->id,
-    //         'coupon_id' =>  null,
-    //         'facilitator_id' => null,
-    //         'amount' =>  $pop->amount,
-    //         'transid' =>  $transid,
-    //         'invoice_id' => $invoiceId,
-    //         'payment_mode' => 0,
-    //         'preferred_timing' => null,
-    //         'name' => $pop->name,
-    //         'phone' => $pop->phone,
-    //         'location' => $pop->location ?? null,
-    //         'training_mode' => null,
-    //         'meta' => $metadata,
-    //         'is_package' => $isPackage,
-    //         'status' => 'complete',
-    //         'balance' => $balance,
-    //         't_type' => $t_type,
-    //         'program_ids' => $programIds,
-    //         'currency' => $pop->currency,
-    //         'currency_symbol' => $pop->currency_symbol,
-    //     ];
-
-    //     $transaction = PaymentService::initiateTransaction($transactionArray);
-
-    //     $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
-
-    //     $data['balance'] = $balance;
-    //     $data['programs'] = $transaction->allPrograms()->toArray();
-    //     $data['payment_type'] = $transaction->type;
-    //     $data['message'] = $message;
-    //     $data['paymentStatus'] =  $paymentStatus;
-
-    //     PaymentService::createUserAndAttachPrograms($transaction);
-    //     $transaction = $transaction->fresh();
-
-    //     $data['currency'] = $transaction->currency;
-    //     $data['currency_symbol'] = $transaction->currency_symbol;
-    //     $data['exchange_rate'] = $transaction->exchange_rate;
-
-    //     $data['type'] = 'initial';
-    //     $data['name'] = $transaction->name;
-    //     $data['transaction'] = $transaction;
-    //     $data['program'] = $program;
-
-    //     PaymentThread::create([
-    //         'program_id' => $transaction->program_id,
-    //         'user_id' => $transaction->user_id,
-    //         'payment_id' => $transaction->id,
-    //         'transaction_id' => PaymentService::getReference('PYTHRD'),
-    //         't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
-    //         'parent_transaction_id' => $transaction->transid,
-    //         'amount' => $pop->amount,
-    //     ]);
-    // }
     public function index(Request $request)
     {
         $i = 1;

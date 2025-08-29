@@ -46,6 +46,8 @@ Route::middleware(['admin.access'])->group(function () {
         Route::resource('teachers', TeacherController::class);
         Route::resource('companyuser', AdminCompanyUserController::class);
         Route::resource('coupon', CouponController::class);
+        
+        Route::get('fetch-coupon-from-resource', [CouponController::class, 'fetchCoupon'])->name('coupons.fetch');
         Route::get('teachers_students/{id}', [TeacherController::class, 'showStudents'])->name('teachers.students');
         Route::get('teachers_programs/{id}', [TeacherController::class, 'showPrograms'])->name('teachers.programs');
         Route::get('teachers_earnings/{id}', [TeacherController::class, 'showEarnings'])->name('teachers.earnings');

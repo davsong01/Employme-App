@@ -167,6 +167,12 @@ class Program extends Model
         return $query->where('is_archived', 1);
     }
 
+    public function scopeisNotArchived($query)
+    {
+        return $query->where('is_archived', 0);
+    }
+
+
     public function scopeActivePrograms($query)
     {
         return $query->where('id', '<>', 1)

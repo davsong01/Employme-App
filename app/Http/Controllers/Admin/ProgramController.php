@@ -595,7 +595,7 @@ class ProgramController extends Controller
         $import_into_training = $training;
         // Create new program
         $newT = Arr::except($training->toArray(), ['id', 'created_at', 'updated_at', 'deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
-
+        
         if (empty(array_intersect(['certificate_settings', 'all'], $import_options))) {
             unset($newT['auto_certificate_settings']);
         }
