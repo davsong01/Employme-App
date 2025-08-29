@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Coupon;
 use App\Models\Program;
+use App\Models\CouponUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -43,6 +45,17 @@ class Group extends Model
             ->whereHas('programs', function ($q) {
                 $q->mainActivePrograms();
             });
+    }
+
+
+    public function coupon()
+    {
+        return $this->hasMany(Coupon::class);
+    }
+    
+    public function coupon_users()
+    {
+        return $this->hasMany(CouponUser::class, 'coupon_id');
     }
     
 

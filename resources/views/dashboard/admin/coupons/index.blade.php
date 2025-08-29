@@ -43,8 +43,13 @@
                         <tr>
                             <td>{{ $i++ }}</td>
                             <td>{{ $coupon->code }}</td>
-                            <td>{{ \App\Models\Settings::value('DEFAULT_CURRENCY') . number_format($coupon->amount) }}</td>                          
-                            <td>{{$coupon->program->p_name  ?? 'NULL'}}</td>                          
+                            <td>
+                                {{ $coupon->type === 'fixed' 
+                                    ? currency() . number_format($coupon->amount) 
+                                    : number_format($coupon->amount) . '%' }}
+                            </td>
+                            
+                            <td>{{isset($coupon->program_id) ? $coupon->program->p_name  : ($coupon->group->p_name ?? 'NOT SET') }} (<span class="">{{ isset($coupon->program_id) ? "Training"  : "Package" }}</span>)</td>                          
                             <td>{{ isset($coupon->facilitator->name) ? $coupon->facilitator->name : 'Administrator' }}</td>                          
                             <td>{{ $coupon->coupon_users->count() }}</td>                          
                             <td>

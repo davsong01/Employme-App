@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\CouponUser;
@@ -40,12 +41,8 @@ class CouponController extends Controller
     public function create()
     {
         if(checkRoleHas(['Admin'])) {
-            $programs =  Program::whereStatus(1)
-                ->where('p_end', '>=', date('Y-m-d'))
-                ->where('close_registration', 0)
-                ->orderBy('created_at', 'DESC')
-                // $programs = Program::mainActivePrograms()
-                ->get();
+            $programs = Program::mainActivePrograms()->get();
+            $groups =  Group::isActive()->get();
         } else  if(checkRoleHas(['Facilitator'])) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => resolveAuthUser()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
@@ -56,73 +53,7 @@ class CouponController extends Controller
             return abort(404);
         }
 
-        return view('dashboard.admin.coupons.create', compact('programs'));
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        $data = $this->validate($request, [
-            "program_id" => 'required',
-            "code" => 'required',
-            "amount" => 'required',
-        ]);
-
-        // run checks
-        if (in_array('all', $data['program_id'])) {
-            $programs = Program::with('coupon')->ActivePrograms()->get();
-        } else {
-            $programs = Program::with('coupon')->ActivePrograms()->whereIn('id', $data['program_id'])
-                ->get();
-        }
-
-        // $program = Program::find($data['program_id']);
-        foreach ($programs as $program) {
-            $exists = $program->coupon->where('code', $data['code'])->first();
-
-            if (!$exists) {
-                if ($request->amount > $program->p_amount) {
-                    return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
-                }
-
-                if(checkRoleHas(['Facilitator'])) {
-                    // Check that this facilitator can create the coupon
-                    $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
-
-                    if ($maxAmt > 0) {
-                        $maxAmt = ($program->facilitator_percent / 100) * $program->p_amount;
-                    }
-
-                    if ($maxAmt == 0) {
-                        return back()->with('error', 'You are not eligible to create a coupon for the selected training at the moment');
-                    }
-
-                    if ($request->amount > $maxAmt) {
-                        return back()->with('error', 'You cannot add coupon of more than ' . $maxAmt . ' for the selected training');
-                    }
-
-                    $data['facilitator_id'] = resolveAuthUser()->id;
-                } else {
-                    $data['facilitator_id'] = 0;
-                }
-
-                $in = [
-                    "code" => $data['code'],
-                    "amount" => $data['amount'],
-                    "facilitator_id" => $data['facilitator_id'],
-                    "program_id" => $program->id
-                ];
-
-                Coupon::create($in);
-            }
-        }
-
-        return redirect(route('coupon.index'))->with('message', 'Coupon created successfully');
+        return view('dashboard.admin.coupons.create', compact('programs', 'groups'));
     }
 
     /**
@@ -147,10 +78,10 @@ class CouponController extends Controller
      */
     public function edit(Coupon $coupon)
     {
-        if(checkRoleHas(['Admin'])) {
-
-            $programs = Program::select('id', 'p_name', 'p_amount')->where('id', '<>', 1)->where('status', 1)->orderBy('created_at', 'DESC')->get();
-        } else  if(checkRoleHas(['Facilitator'])) {
+        if (checkRoleHas(['Admin'])) {
+            $programs = Program::mainActivePrograms()->get();
+            $groups =  Group::isActive()->get();
+        } else  if (checkRoleHas(['Facilitator'])) {
             $programs = DB::table('facilitator_trainings')->where(['user_id' => resolveAuthUser()->id, 'status' => 1])
                 ->join('programs', 'programs.id', '=', 'facilitator_trainings.program_id')
                 ->select('programs.id', 'programs.p_name', 'programs.p_amount', 'facilitator_trainings.created_at')
@@ -159,7 +90,8 @@ class CouponController extends Controller
         } else {
             return abort(404);
         }
-        return view('dashboard.admin.coupons.edit', compact('coupon', 'programs'));
+
+        return view('dashboard.admin.coupons.create', compact('programs', 'groups','coupon'));
     }
 
     /**
@@ -172,32 +104,129 @@ class CouponController extends Controller
     public function update(Request $request, Coupon $coupon)
     {
         $data = $this->validate($request, [
-            "program_id" => 'required',
-            "code" => 'required',
-            "amount" => 'required',
+            "training_type" => 'required|in:program,group',
+            "program_ids"   => 'nullable|array',
+            "group_ids"     => 'nullable|array',
+            "code"          => 'required|string|max:255',
+            "type"          => 'required|in:fixed,percentage',
+            "amount"        => 'required|numeric|min:0',
         ]);
 
-        // run checks
-        $program = Program::find($data['program_id']);
+        $data['program_ids'] = $data['program_ids'] ?? [];
+        $data['group_ids']   = $data['group_ids'] ?? [];
 
-        if ($request->amount > $program->p_amount) {
-            return back()->with('error', 'Coupon amount cannot be more than training amount, please enter valid values');
+        if ($data['training_type'] === 'program') {
+            $items = in_array('all', $data['program_ids'])
+                ? Program::with('coupon')->ActivePrograms()->get()
+                : Program::with('coupon')->ActivePrograms()
+                ->whereIn('id', $data['program_ids'])->get();
+
+            foreach ($items as $program) {
+                $this->saveCouponForItem($program, $data, 'program_id', $coupon);
+            }
         }
 
-        if(checkRoleHas(['Facilitator'])) {
-            // Check that this facilitator can create the coupon
-            $maxAmt = isset($program->facilitator_percent) ? $program->facilitator_percent : 0;
+        if ($data['training_type'] === 'group') {
+            $items = in_array('all', $data['group_ids'])
+                ? Group::with('coupon')->get()
+                : Group::with('coupon')->whereIn('id', $data['group_ids'])->get();
+
+            foreach ($items as $group) {
+                $this->saveCouponForItem($group, $data, 'group_id', $coupon);
+            }
+        }
+
+        return redirect(route('coupon.index'))
+            ->with('message', 'Coupon updated successfully');
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $data = $this->validate($request, [
+            "training_type" => 'required|in:program,group',
+            "program_ids"   => 'nullable|array',
+            "group_ids"     => 'nullable|array',
+            "code"          => 'required|string|max:255',
+            "type"          => 'required|in:fixed,percentage',
+            "amount"        => 'required|numeric|min:0',
+        ]);
+
+        $data['program_ids'] = $data['program_ids'] ?? [];
+        $data['group_ids']   = $data['group_ids'] ?? [];
+
+        if ($data['training_type'] === 'program') {
+            // Handle Programs
+            if (in_array('all', $data['program_ids'])) {
+                $items = Program::with('coupon')->ActivePrograms()->get();
+            } else {
+                $items = Program::with('coupon')
+                    ->ActivePrograms()
+                    ->whereIn('id', $data['program_ids'])
+                    ->get();
+            }
+
+            foreach ($items as $program) {
+                $this->saveCouponForItem($program, $data, 'program_id');
+            }
+        }
+
+        if ($data['training_type'] === 'group') {
+            if (in_array('all', $data['group_ids'])) {
+                $items = Group::with('coupon')->get();
+            } else {
+                $items = Group::with('coupon')
+                    ->whereIn('id', $data['group_ids'])
+                    ->get();
+            }
+
+            foreach ($items as $group) {
+                $this->saveCouponForItem($group, $data, 'group_id');
+            }
+        }
+
+        return redirect(route('coupon.index'))
+            ->with('message', 'Coupon created successfully');
+    }
+
+    /**
+     * Shared logic for creating a coupon for either Program or Group
+     */
+    protected function saveCouponForItem($item, $data, $foreignKey, $coupon = null)
+    {
+        // If creating, prevent duplicate coupon with same code
+        if (!$coupon) {
+            $exists = $item->coupon->where('code', $data['code'])->first();
+            if ($exists) {
+                return;
+            }
+        }
+
+        // Validation: coupon amount must not exceed training/package amount
+        if ($data['amount'] > $item->p_amount) {
+            back()->with('error', 'Coupon amount cannot be more than ' . $item->p_amount . ', please enter valid values')->throwResponse();
+        }
+
+        // Facilitator rules
+        if (checkRoleHas(['Facilitator'])) {
+            $maxAmt = isset($item->facilitator_percent) ? $item->facilitator_percent : 0;
 
             if ($maxAmt > 0) {
-                $maxAmt = ($program->facilitator_percent / 100) * $program->p_amount;
+                $maxAmt = ($item->facilitator_percent / 100) * $item->p_amount;
             }
 
             if ($maxAmt == 0) {
-                return back()->with('error', 'You are not eligible to create a coupon for the selected training at the moment');
+                back()->with('error', 'You are not eligible to create/update a coupon for the selected training/package at the moment')->throwResponse();
             }
 
-            if ($request->amount > $maxAmt) {
-                return back()->with('error', 'You cannot add copon of more than ' . $maxAmt . ' for the selected training');
+            if ($data['amount'] > $maxAmt) {
+                back()->with('error', 'You cannot add coupon of more than ' . $maxAmt . ' for the selected training/package')->throwResponse();
             }
 
             $data['facilitator_id'] = resolveAuthUser()->id;
@@ -205,11 +234,27 @@ class CouponController extends Controller
             $data['facilitator_id'] = 0;
         }
 
+        // Reset both program_id and group_id to ensure exclusivity
+        $couponData = [
+            "type"           => $data['type'],
+            "code"           => $data['code'],
+            "amount"         => $data['amount'],
+            "facilitator_id" => $data['facilitator_id'],
+            "program_id"     => null,
+            "group_id"       => null,
+            $foreignKey      => $item->id,
+        ];
 
-        $coupon->update($data);
-
-        return redirect(route('coupon.index'))->with('message', 'Coupon updated successfully');
+        if ($coupon) {
+            // Update existing coupon
+            $coupon->update($couponData);
+        } else {
+            // Create new coupon
+            Coupon::create($couponData);
+        }
     }
+
+
 
     /**
      * Remove the specified resource from storage.
