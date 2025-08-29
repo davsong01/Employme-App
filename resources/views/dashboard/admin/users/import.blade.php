@@ -38,6 +38,11 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <input type="checkbox" id="show_archived" class="mr-2">
+                                        <label for="show_archived" class="mb-0">Show Archived Programs</label>
+                                    </div>
+
                                     <label for="import_from" class="font-weight-bold">Select Program</label>
                                     <small class="text-muted d-block mb-2">
                                         All participants for the selected program will be imported.
@@ -46,14 +51,19 @@
                                         <option value="">-- Select Program --</option>
                                         @foreach ($programs as $training)
                                             @if($training->id != $program->id)
-                                                <option value="{{ $training->id }}" {{ old('import_from') == $training->id ? 'selected' : '' }}>
-                                                    {{ $training->p_name }} | <strong>({{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($training->p_amount) }}) - {{ $training->fully_paid_count }} Participants</strong>
+                                                <option value="{{ $training->id }}"
+                                                        data-archived="{{ $training->is_archived }}"
+                                                        {{ old('import_from') == $training->id ? 'selected' : '' }}>
+                                                    {{ $training->p_name }} | 
+                                                    <strong>({{ currency().number_format($training->p_amount) }}) 
+                                                    - {{ $training->fully_paid_count }} Participants</strong>
                                                 </option>
                                             @endif
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
+
 
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -96,4 +106,31 @@
             </div>
         </div>
     </div>
+    @endsection
+    @section('extra-scripts')
+    <script>
+        $(document).ready(function () {
+            function toggleArchived() {
+                if ($('#show_archived').is(':checked')) {
+                    // Show archived options
+                    $('#import_from option[data-archived="1"]').show();
+                } else {
+                    // Hide archived options
+                    $('#import_from option[data-archived="1"]').hide();
+                    // If a hidden option was selected, reset back to empty
+                    if ($('#import_from option:selected').data('archived') === 1) {
+                        $('#import_from').val('');
+                    }
+                }
+                $('#import_from').trigger('change.select2'); // Refresh Select2
+            }
+
+            // Initial state (hide archived by default)
+            toggleArchived();
+
+            // Handle checkbox toggle
+            $('#show_archived').on('change', toggleArchived);
+        });
+
+    </script>
     @endsection

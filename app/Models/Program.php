@@ -162,6 +162,11 @@ class Program extends Model
             ->orderBy('created_at', 'DESC');
     }
 
+    public function scopeisArchived($query)
+    {
+        return $query->where('is_archived', 1);
+    }
+
     public function scopeActivePrograms($query)
     {
         return $query->where('id', '<>', 1)
