@@ -190,13 +190,12 @@ class UserController extends Controller
                                 
                                 $computedAmount = PaymentService::applyModeProgramModeToAmount($program, $amount_to_use);
                                 $computedAmount = $computedAmount['computed_amount'];
-                            }
-                            $balance = 0;
+                            
+                                $balance = 0;
 
-                            if ($request->coupon_id && $couponCheck) {
+                                if ($request->coupon_id && $couponCheck) {
                                     // Apply coupon to amount
                                     $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
-                                    
                                     if($couponData['status']){
                                         $couponData['group_id'] = $program->id;
                                         $couponData['email'] = $participant['email'];
@@ -206,10 +205,12 @@ class UserController extends Controller
                                         $computedAmount = $couponData['computed_amount'] ?? $computedAmount;
                                         $couponTransaction = CouponService::initiateCoupon($couponData);
                                     }
-
+                                }
+                                
+                                $real_type = $balance > 0 ? 'part' : $payment_type;
                                 $transactionArray = [
                                     'email'        => $user?->email ?? $participant['email'],
-                                    'type'         => $payment_type,
+                                    'type'         => $real_type,
                                     'program_id'   => $program->id,
                                     'coupon_id'    => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
                                     'facilitator_id' => null,
@@ -345,7 +346,7 @@ class UserController extends Controller
                             $data['programs'] = $transaction->allPrograms()->toArray();
                             $data['payment_type'] = $transaction->type;
                             
-                            $data['type'] = $balance > 0 ? 'part' : 'full';
+                            $data['type'] = $real_type;
                             $data['message'] = $balance > 0 ? 'Part payment' : 'Full payment';
                             $data['paymentStatus'] = $balance > 0 ? 0 : 1;
 

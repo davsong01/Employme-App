@@ -262,7 +262,10 @@
         code = $('#coupon').val();
         pid = "{{ $training['id'] }}";
         price = "{{ $amount }}";
-       
+        isPackage = "{{$isPackage ?? 0}}";
+        payment_type = "{{$type ?? 0}}";
+        amount =
+
         var total = $('#amount').val();
         var newTotal = 0;
         let dollarUSLocale = Intl.NumberFormat('en-US');
@@ -277,7 +280,8 @@
                 price: price,
                 code: code,
                 pid: pid,
-               
+                payment_type: payment_type,
+                isPackage: isPackage
             },function(data, status){
                 if(status == 'success'){
                     if(data.amount){
@@ -285,7 +289,7 @@
                         $('#coupon-applied').text('Coupon: '+data.code+ ' with discount of '+"{{ $currency }}"+dollarUSLocale.format(parseFloat(data.amount))+' successfully applied');
                         $('#coupon-applied').css("color", "green");
                         $('#enter-email').hide()
-                       
+                        
                         $('#amount').val(data.grand_total);
                         $('#coupon').val(code);
                         

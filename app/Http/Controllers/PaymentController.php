@@ -16,6 +16,7 @@ use App\Models\GroupProgram;
 use Illuminate\Http\Request;
 use App\Models\PaymentThread;
 use App\Models\TempTransaction;
+use App\Services\CouponService;
 use App\Services\PaymentService;
 use App\Services\BlacklistService;
 use Illuminate\Support\Facades\DB;
@@ -153,13 +154,30 @@ class PaymentController extends Controller
     }
 
     public function validateCoupon(Request $request){
-        $verifyCoupon = $this->getCouponValue($request->code, $request->pid);
-        $response = null;
-        if(!is_null($verifyCoupon)){
-            $response = $this->getCouponUsage($request->code, $request->email, $request->pid, $request->price);
-        }
+        $payment_type = $request->payment_type;
+        $isPackage = $request->isPackage;
 
-        return response()->json($response);
+        if ($isPackage) {
+            $couponCheck = Coupon::where('code', $request->code)->where('group_id', $request->pid)->first();
+            $program = Group::find($request->pid);
+        } else {
+            $couponCheck = Coupon::where('code', $request->code)->where('program_id', $request->pid)->first();
+            $program = Program::find($request->pid);
+        }
+        
+        $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $request->price, $program, $request->email);
+        
+        if(isset($couponData['status']) && $couponData['status'] == true){
+            return response()->json([
+                'amount' => $couponData['discount'],
+                'id' => $couponCheck->id,
+                'code' => $couponCheck->code,
+                'grand_total' => $request->price - $couponData['discount'],
+
+            ]);
+        }else{
+            return null;
+        }
     }
 
 

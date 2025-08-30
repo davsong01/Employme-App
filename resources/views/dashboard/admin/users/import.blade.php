@@ -88,7 +88,7 @@
                                     <small class="text-muted d-block mb-2">
                                         Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->early_bird_status) | Early Bird: {{ number_format($program->e_amount) }} @endif
                                     </small>
-                                    <input type="number" id="amount_to_use" class="form-control" name="amount_to_use" value="">
+                                    <input type="number" id="amount_to_use" class="form-control" name="amount_to_use" value="{{$program->p_amount}}">
                                 </div>
                             </div>
                             

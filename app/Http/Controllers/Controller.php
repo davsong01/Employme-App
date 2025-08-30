@@ -269,88 +269,89 @@ class Controller extends BaseController
         return;
     }
 
-    public function getCouponUsage($code, $email, $pid, $price, $admin = null)
-    {
-        if (!is_null($admin)) {
-            $coupon = $code;
-        } else {
-            $coupon = Coupon::where('code', $code)->first();
-        }
+    // public function getCouponUsage($code, $email, $pid, $price, $admin = null)
+    // {
+    //     if (!is_null($admin)) {
+    //         $coupon = $code;
+    //     } else {
+    //         $coupon = Coupon::where('code', $code)->first();
+    //     }
 
-        if (!isset($coupon->id)) {
-            $coupon = Coupon::where('code', $code)->first();
-        }
+    //     if (!isset($coupon->id)) {
+    //         $coupon = Coupon::where('code', $code)->first();
+    //     }
 
-        if (isset($coupon) && !empty($coupon)) {
-            $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
+    //     if (isset($coupon) && !empty($coupon)) {
+    //         $usage = CouponUser::where('coupon_id', $coupon->id)->where('email', $email)->first();
 
-            if (isset($usage)) {
-                if ($usage->status == 1) {
-                    return NULL;
-                }
-            } else {
-                CouponUser::Create([
-                    'email' => $email,
-                    'coupon_id' => $coupon->id,
-                    'status' => 0,
-                    'program_id' => $pid,
-                ]);
-            }
+    //         if (isset($usage)) {
+    //             if ($usage->status == 1) {
+    //                 return NULL;
+    //             }
+    //         } else {
+    //             CouponUser::Create([
+    //                 'email' => $email,
+    //                 'coupon_id' => $coupon->id,
+    //                 'status' => 0,
+    //                 'program_id' => $pid,
+    //             ]);
+    //         }
 
-            $coupon_amount = $coupon->amount;
-            $coupon_id = $coupon->id;
-            $coupon_code = $coupon->code;
+    //         $coupon_amount = $coupon->amount;
+    //         $coupon_id = $coupon->id;
+    //         $coupon_code = $coupon->code;
 
-            return [
-                'amount' => $coupon_amount,
-                'id' => $coupon_id,
-                'code' => $coupon_code,
-                'grand_total' => $price - $coupon_amount,
-            ];
-        }
+    //         return [
+    //             'amount' => $coupon_amount,
+    //             'id' => $coupon_id,
+    //             'code' => $coupon_code,
+    //             'grand_total' => $price - $coupon_amount,
+    //         ];
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
-    public function getCouponValue($code, $pid = null, $admin = null)
-    {
-        if (!is_null($admin)) {
-            $coupon = $code;
-        } else {
-            $coupon = Coupon::where('code', $code)->where('program_id', $pid)->first();
-        }
+    // public function getCouponValue($code, $pid = null, $admin = null)
+    // {
+    //     if (!is_null($admin)) {
+    //         $coupon = $code;
+    //     } else {
+    //         $coupon = Coupon::where('code', $code)->where('program_id', $pid)->first();
+    //     }
 
-        if (isset($coupon) && !empty($coupon)) {
-            $coupon_amount = $coupon->amount;
-            $coupon_id = $coupon->id;
-            $coupon_code = $coupon->code;
+    //     if (isset($coupon) && !empty($coupon)) {
+    //         $coupon_amount = $coupon->amount;
+    //         $coupon_id = $coupon->id;
+    //         $coupon_code = $coupon->code;
 
-            $facilitator = $coupon->facilitator_id;
+    //         $facilitator = $coupon->facilitator_id;
 
-            return [
-                'amount' => $coupon_amount,
-                'id' => $coupon_id,
-                'code' => $coupon_code,
-            ];
-        }
-        return;
-    }
+    //         return [
+    //             'amount' => $coupon_amount,
+    //             'id' => $coupon_id,
+    //             'code' => $coupon_code,
+    //         ];
+    //     }
+    //     return;
+    // }
 
-    public function updateCouponStatus($email, $coupon_id, $program_id)
-    {
-        // Check if user has used coupon for this program and delete
-        $old = CouponUser::where(['email' => $email, 'program_id' => $program_id])->first();
+    // public function updateCouponStatus($email, $coupon_id, $program_id)
+    // {
+    //     // Check if user has used coupon for this program and delete
+    //     $old = CouponUser::where(['email' => $email, 'program_id' => $program_id])->first();
 
-        if (isset($old) && !empty($old)) {
-            $old->delete();
-        }
-        $c = CouponUser::where(['email' => $email, 'coupon_id' => $coupon_id, 'program_id' => $program_id])->update([
-                'status' => 1,
-                'coupon_id' => $coupon_id
-            ]);
+    //     if (isset($old) && !empty($old)) {
+    //         $old->delete();
+    //     }
+    //     $c = CouponUser::where(['email' => $email, 'coupon_id' => $coupon_id, 'program_id' => $program_id])->update([
+    //             'status' => 1,
+    //             'coupon_id' => $coupon_id
+    //         ]);
 
-        return;
-    }
+    //     return;
+    // }
+    
     public function getEligibleEarners() {}
 
     public function verifyCoupon($request, $pid, $admin = null)
