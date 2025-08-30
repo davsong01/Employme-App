@@ -125,7 +125,7 @@
                                 $currentStatus = request('status');
                             @endphp
                             @if(canUserAccessPermission(['users.create'])['users.create'])
-                                <a href="{{route('users.create')}}"><button type="button" class="btn btn-outline-primary rounded">Add New Participant</button></a>
+                                {{-- <a href="{{route('users.create')}}"><button type="button" class="btn btn-outline-primary rounded">Add New Participant</button></a> --}}
                             @endif
                             {{-- <button class="btn btn-success rounded" id="csv">Export Participants</button> --}}
                             

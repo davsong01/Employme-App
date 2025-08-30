@@ -46,6 +46,7 @@ class UserController extends Controller
                 ->where('id', '<>', $p_id)
                 ->get();
 
+            $coupons = Coupon::where('program_id', $p_id)->get(['id', 'code', 'type', 'amount']);
         } else {
             $program = Group::select('id', 'p_name', 'p_amount', 'early_bird_status')
                 ->where('id', $p_id)
@@ -56,13 +57,15 @@ class UserController extends Controller
                 ->where('id', '<>', $p_id)
                 ->get();
 
+            $coupons = Coupon::where('group_id', $p_id)->get(['id', 'code', 'type', 'amount']);
         }
-        
+
+
         if (!checkRoleHas(['Admin', 'Facilitator'])) {
             return abort(404);
         }
 
-        return view('dashboard.admin.users.import', compact('program', 'programs', 'source'));
+        return view('dashboard.admin.users.import', compact('program', 'programs', 'source','coupons'));
     }
 
 
@@ -83,9 +86,15 @@ class UserController extends Controller
         if ($isPackage) {
             $program = Group::find($request->p_id);
             $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
+
+            $couponCheck = Coupon::where('id', $request->coupon_id)->where('group_id', $request->p_id)->first();
+
+
         } else {
             $program = Program::find($request->p_id);
             $data['programIds'] = $program ? [$program->id] : [];
+
+            $couponCheck = Coupon::where('id', $request->coupon_id)->where('program_id', $request->p_id)->first();
         }
         
         $count = 0;
@@ -165,45 +174,47 @@ class UserController extends Controller
                         $user_programs = $user
                             ? DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray()
                             : [];
-                        
+
                         $brandNewTrainings = array_diff($newTrainings, $user_programs);
                         
                         if (!empty($brandNewTrainings)) {
-                            $balance = 0;
                             $t_type = 'Transfer';
                             $transid = PaymentService::getReference('SYS-ADMIN');
                             $invoiceId = PaymentService::getInvoiceId();
+                            $amount_to_use = $request->amount_to_use;
+                            $payment_type = 'full';
+                            $balance = 0;
 
                             if ($isPackage) {
                                 if (!$program) continue;
-
-                                $amount = $request->amount_to_use ?? $program->p_amount;
                                 
-                                if($couponCheck){
-                                    $couponArray = [
-                                        'code' => $couponCheck->code,
-                                        'program_id' => $program->id,
-                                        'amount' => $amount,
-                                        'isPackage' => $isPackage,
-                                    ];
+                                $computedAmount = PaymentService::applyModeProgramModeToAmount($program, $amount_to_use);
+                                $computedAmount = $computedAmount['computed_amount'];
+                            }
+                            $balance = 0;
+
+                            if ($request->coupon_id && $couponCheck) {
+                                    // Apply coupon to amount
+                                    $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
                                     
-                                    $couponResponse = PaymentService::Coupon($couponArray);
-    
-                                    if (!empty($couponResponse['status']) && $couponResponse['status'] == true) {
-                                        $amount = $couponResponse['grand_total'];
-                                    } else {
-                                        $amount = $request->amount;
+                                    if($couponData['status']){
+                                        $couponData['group_id'] = $program->id;
+                                        $couponData['email'] = $participant['email'];
+                                        $couponData['transactionId'] = $transid;
+                                        $couponData['isPackage'] = $isPackage;
+                                        
+                                        $computedAmount = $couponData['computed_amount'] ?? $computedAmount;
+                                        $couponTransaction = CouponService::initiateCoupon($couponData);
                                     }
-                                }
 
-                                
                                 $transactionArray = [
                                     'email'        => $user?->email ?? $participant['email'],
-                                    'type'         => 'full',
+                                    'type'         => $payment_type,
                                     'program_id'   => $program->id,
-                                    'coupon_id'    => null,
+                                    'coupon_id'    => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
                                     'facilitator_id' => null,
-                                    'amount'       => $amount,
+                                    'amount'       => $computedAmount,
+                                    "discount"      => $couponData['discount'] ?? null,
                                     'transid'      => $transid,
                                     'invoice_id'   => $invoiceId,
                                     'payment_mode' => 0,
@@ -220,11 +231,62 @@ class UserController extends Controller
                                     'program_ids'  => $brandNewTrainings,
                                     'currency'     => "NGN",
                                     'currency_symbol' => "₦",
+                                    "coupon_code" => $couponData['code'] ?? null,
+                                    'remarks' => $request->remarks,
+                                ];
+                                
+                                $transaction = PaymentService::initiateTransaction($transactionArray);
+                                
+                                PaymentService::createUserAndAttachPrograms($transaction);
+                                $transaction = $transaction->fresh();
+                                
+                                PaymentThread::create([
+                                    'program_id'   => $transaction->program_id,
+                                    'admin_id'      => auth()->guard('admin')->user()->id,
+                                    'user_id'      => $transaction->user_id,
+                                    'payment_id'   => $transaction->id,
+                                    'transaction_id' => PaymentService::getReference('PYTHRD'),
+                                    't_type'       => strtolower($transaction->t_type),
+                                    'parent_transaction_id' => $transaction->transid,
+                                    'amount'       => $computedAmount,
+                                ]);
+                                
+                                if(!empty($transaction->coupon_id) && isset($couponTransaction->id)){
+                                    CouponService::completeCoupon($couponTransaction);
+                                }
+                                $count++;
+                            } else {
+                                $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
+                                
+                                $transactionArray = [
+                                    'email'        => $user?->email ?? $participant['email'],
+                                    'type'         => 'full',
+                                    'program_id'   => $training->id,
+                                    'coupon_id'    => null,
+                                    'facilitator_id' => null,
+                                    'amount'       => $amount,
+                                    'transid'      => $transid,
+                                    'invoice_id'   => $invoiceId,
+                                    'payment_mode' => 0,
+                                    'preferred_timing' => null,
+                                    'name'         => $user?->name ?? $participant['name'],
+                                    'phone'        => $user?->phone ?? $participant['phone'],
+                                    'location'     => null,
+                                    'training_mode' => null,
+                                    'meta'         => null,
+                                    'is_package'   => $isPackage ?? 0,
+                                    'status'       => 'complete',
+                                    'balance'      => $balance,
+                                    't_type'       => $t_type,
+                                    'program_ids'  => [$training->id],
+                                    'currency'     => "NGN",
+                                    'currency_symbol' => "₦",
                                     'remarks' => $request->remarks,
                                 ];
 
                                 $transaction = PaymentService::initiateTransaction($transactionArray);
                                 PaymentService::createUserAndAttachPrograms($transaction);
+
                                 $transaction = $transaction->fresh();
 
                                 PaymentThread::create([
@@ -236,9 +298,6 @@ class UserController extends Controller
                                     'parent_transaction_id' => $transaction->transid,
                                     'amount'       => $amount,
                                 ]);
-                            } else {
-                                $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
-                                dd($allTrainings);
                                 foreach ($brandNewTrainings as $programId) {
                                     $training = $allTrainings->firstWhere('id', $programId);
                                     
@@ -275,56 +334,41 @@ class UserController extends Controller
                                         }
                                     }
 
-                                    $transactionArray = [
-                                        'email'        => $user?->email ?? $participant['email'],
-                                        'type'         => 'full',
-                                        'program_id'   => $training->id,
-                                        'coupon_id'    => null,
-                                        'facilitator_id' => null,
-                                        'amount'       => $amount,
-                                        'transid'      => $transid,
-                                        'invoice_id'   => $invoiceId,
-                                        'payment_mode' => 0,
-                                        'preferred_timing' => null,
-                                        'name'         => $user?->name ?? $participant['name'],
-                                        'phone'        => $user?->phone ?? $participant['phone'],
-                                        'location'     => null,
-                                        'training_mode' => null,
-                                        'meta'         => null,
-                                        'is_package'   => $isPackage ?? 0,
-                                        'status'       => 'complete',
-                                        'balance'      => $balance,
-                                        't_type'       => $t_type,
-                                        'program_ids'  => [$training->id],
-                                        'currency'     => "NGN",
-                                        'currency_symbol' => "₦",
-                                        'remarks' => $request->remarks,
-                                    ];
                                     
-                                    $transaction = PaymentService::initiateTransaction($transactionArray);
-                                    PaymentService::createUserAndAttachPrograms($transaction);
-    
-                                    $transaction = $transaction->fresh();
-    
-                                    PaymentThread::create([
-                                        'program_id'   => $transaction->program_id,
-                                        'user_id'      => $transaction->user_id,
-                                        'payment_id'   => $transaction->id,
-                                        'transaction_id' => PaymentService::getReference('PYTHRD'),
-                                        't_type'       => strtolower($transaction->t_type),
-                                        'parent_transaction_id' => $transaction->transid,
-                                        'amount'       => $amount,
-                                    ]);
                                 }
                             }
                             
-                            $count++;
                         }
+                        
+                        if($request->send_email == 'yes'){
+                            $data['balance'] = $balance;
+                            $data['programs'] = $transaction->allPrograms()->toArray();
+                            $data['payment_type'] = $transaction->type;
+                            
+                            $data['type'] = $balance > 0 ? 'part' : 'full';
+                            $data['message'] = $balance > 0 ? 'Part payment' : 'Full payment';
+                            $data['paymentStatus'] = $balance > 0 ? 0 : 1;
 
+                            $data['currency'] = $transaction->currency;
+                            $data['currency_symbol'] = $transaction->currency_symbol;
+                            $data['exchange_rate'] = $transaction->exchange_rate;
+                            $data['type'] = 'initial';
+                            $data['t_type'] = $t_type;
+                            $data['amount'] = $transaction->amount;
+                            $data['email'] = $participant['email'];
+                            $data['programName'] = $program->p_name;
+                            $data['programAbbr'] = $program->p_abbr;
+                            $data['name'] = $transaction->name;
+                            $data['transaction'] = $transaction;
+                            $data['program'] = $program;
+                            
+                            $this->sendWelcomeMail($data);
+                        }
+                        
                         DB::commit();
                     } catch (\Exception $e) {
                         DB::rollBack();
-                        dd($e->getMessage());
+                        // dd($e->getMessage(). ' Line: '.$e->getLine(). ' File: '.$e->getFile());
                         $count--;
                         continue;
                     }
@@ -337,8 +381,7 @@ class UserController extends Controller
             } catch (\Illuminate\Database\QueryException $ex) {
                 return back()->with('error', $ex->getMessage());
             }
-
-            dd('sdds');
+            
             return back()->with('message', 'Participants have been imported successfully. ' . $extraMessage);
         }
 
@@ -786,12 +829,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-
         $user->programs()->detach();
 
         $user->delete();
 
-        return redirect('users')->with('message', 'user deleted successfully');
+        return back()->with('message', 'user deleted successfully');
     }
 
     public function mails()

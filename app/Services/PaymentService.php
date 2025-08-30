@@ -188,6 +188,7 @@ class PaymentService
                 'coupon_id' =>  $transactionArray['coupon_id'],
                 'facilitator_id' => $transactionArray['facilitator'] ?? null,
                 'amount' =>  $transactionArray['amount'],
+                'discount' => $transactionArray['discount'] ?? null,
                 'transid' =>  $transactionArray['transid'],
                 'invoice_id' =>  $transactionArray['invoice_id'],
                 'payment_mode' => $transactionArray['payment_mode'] ?? null,
@@ -207,7 +208,9 @@ class PaymentService
                 'currency_symbol' => $transactionArray['currency_symbol'],
                 'exchange_rate' => $transactionArray['exchange_rate'] ?? \Session::get('exchange_rate') ?? 1,
                 'remarks' => $transactionArray['remarks'] ?? null,
-                
+
+                "coupon_code" => $transactionArray['coupon_code'] ?? null,
+                "coupon_amount" =>  $transactionArray['coupon_amount'] ?? null
             ]);
 
             return  $transaction;
@@ -276,7 +279,7 @@ class PaymentService
     public static function createUserAndAttachPrograms($transaction)
     {
         $existingUser = User::where('email', $transaction->email)->first();
-
+        
         if ($existingUser) {
             $user = $existingUser;
         } else {
@@ -303,21 +306,28 @@ class PaymentService
 
         $programIds = $transaction->is_package ? $transaction->program_ids : [$transaction->program_id];
 
-        foreach ($programIds as $programId) {
-            $alreadyHasProgram = $user->programs()->where('program_id', $programId)->exists();
-            
-            if (!$alreadyHasProgram) {
-                $data['program_id'] = $programId;
+        // foreach ($programIds as $programId) {
+        //     $alreadyHasProgram = $user->programs()->where('program_id', $programId)->exists();
 
-                $user->programs()->attach($programId, $data);
-            }
+        //     if (!$alreadyHasProgram) {
+        //         $data['program_id'] = $programId;
+
+        //         $user->programs()->attach($programId, $data);
+        //     }
+        // }
+        $dataToSync = [];
+        
+        foreach ($programIds as $programId) {
+            $dataToSync[$programId] = $data;
         }
+        
+        $user->programs()->syncWithoutDetaching($dataToSync);
         
         $transaction->update([
             'user_id' => $user->id
         ]);
-
-        return;
+        
+        return $user;
     }
 
     public static function getExistingTransactionAndBalance($pop)
@@ -536,8 +546,14 @@ class PaymentService
     //         'balance' => $balance,
     //     ];
     // }
-    public static function applyModeProgramModeToAmount($program)
+    public static function applyModeProgramModeToAmount($program, $amount_to_use)
     {
+        if(!empty($amount_to_use)){
+            return [
+                'status' => true,
+                'computed_amount' => $amount_to_use
+            ];
+        }
         // Apply mode-based pricing if applicable
         if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
             $modes = json_decode($program->modes, true);
@@ -548,7 +564,11 @@ class PaymentService
             $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
         }
 
-        return $programAmount;
+        
+        return [
+            'status' => true,
+            'computed_amount' => $programAmount
+        ];
     }
 
 

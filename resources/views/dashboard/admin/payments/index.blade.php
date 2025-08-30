@@ -204,7 +204,7 @@
                                     @endif
                                     @if($permissions['payments.edit'])
                                     <br> 
-                                    <strong>Account balance: </strong>{{number_format($transaction?->user->account_balance)}}
+                                    <strong>Account balance: </strong>{{number_format($transaction?->user?->account_balance)}}
                                     @endif
                                     @if($permissions['impersonate']) <br>
                                     <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
@@ -264,7 +264,7 @@
 
                                             @if(!is_null($transaction->coupon_code))
                                                 <div class="mb-2 text-primary">
-                                                    <strong>Coupon ({{ $transaction->coupon_code }}) Applied | {{ $transaction->currency . number_format($transaction->coupon_amount) }}</strong>
+                                                    <strong>Coupon ({{ $transaction->coupon_code }}) <span style='color:red'> Applied | {{ $transaction->currency . number_format($transaction->coupon_amount ?? $transaction->discount) }}</span></strong>
                                                 </div>
                                             @endif
 

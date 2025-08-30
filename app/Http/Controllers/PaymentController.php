@@ -302,7 +302,6 @@ class PaymentController extends Controller
                 ->count();
             
             
-
             if ($check > 0) {
                 if (resolveAuthUser() && resolveAuthUser()->id === $user->id) {
                     return redirect(url('/dashboard'));

@@ -62,10 +62,15 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="coupon_id" class="font-weight-bold">Coupon Applied (Optional)</label>
-                                    <small class="text-muted d-block mb-2"> <br>
-                                    </small>
+                                    <small class="text-muted d-block mb-2"> <br></small>
                                     <select name="coupon_id" id="coupon_id" class="form-control select2">
-                                        <option value="">-- Select Program --</option>
+                                        <option value="">-- Select Coupon --</option>
+                                        @foreach ($coupons as $coupon)
+                                            <option value="{{ $coupon->id }}">
+                                                {{ $coupon->code }} | 
+                                                {{ $coupon->type === 'percentage' ? $coupon->amount.'%' : number_format($coupon->amount, 2) }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -91,8 +96,8 @@
                                 <div class="form-group">
                                     <label for="send_email" class="font-weight-bold" style="margin-bottom: 31px;">Send Email</label>
                                     <select name="send_email" id="send_email" class="form-control" required>
+                                        <option value="no" selected>No</option>
                                         <option value="yes">Yes</option>
-                                        <option value="no">No</option>
                                     </select>
                                 </div>
                             </div>
@@ -146,44 +151,44 @@
             // Handle checkbox toggle
             $('#show_archived').on('change', toggleArchived);
 
-            $('#import_from').on('change', function () {
-                let itemId = $(this).val();
-                let source = "{{ $source }}";
+            // $('#import_from').on('change', function () {
+            //     let itemId = $(this).val();
+            //     let source = "{{ $source }}";
 
-                if (!itemId) {
-                    $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
-                    return;
-                }
+            //     if (!itemId) {
+            //         $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
+            //         return;
+            //     }
 
-                $.ajax({
-                    url: "{{ route('coupons.fetch') }}", // <-- backend route
-                    type: "GET",
-                    data: {
-                        id: itemId,
-                        source: source
-                    },
-                    success: function (response) {
-                        $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
+            //     $.ajax({
+            //         url: "{{ route('coupons.fetch') }}", // <-- backend route
+            //         type: "GET",
+            //         data: {
+            //             id: itemId,
+            //             source: source
+            //         },
+            //         success: function (response) {
+            //             $('#coupon_id').empty().append('<option value="">-- Select Coupon --</option>');
 
-                        if (response.coupons && response.coupons.length > 0) {
-                            $.each(response.coupons, function (index, coupon) {
-                                let label = coupon.type === 'fixed'
-                                    ? "{{ currency() }}" + parseFloat(coupon.amount).toFixed(2)
-                                    : parseFloat(coupon.amount).toFixed(2) + '%';
+            //             if (response.coupons && response.coupons.length > 0) {
+            //                 $.each(response.coupons, function (index, coupon) {
+            //                     let label = coupon.type === 'fixed'
+            //                         ? "{{ currency() }}" + parseFloat(coupon.amount).toFixed(2)
+            //                         : parseFloat(coupon.amount).toFixed(2) + '%';
 
-                                $('#coupon_id').append(
-                                    `<option value="${coupon.id}">${coupon.code} | ${label}</option>`
-                                );
-                            });
-                        } else {
-                            $('#coupon_id').append('<option value="">No coupons available</option>');
-                        }
-                    },
-                    error: function () {
-                        alert('Unable to fetch coupons, please try again later.');
-                    }
-                });
-            });
+            //                     $('#coupon_id').append(
+            //                         `<option value="${coupon.id}">${coupon.code} | ${label}</option>`
+            //                     );
+            //                 });
+            //             } else {
+            //                 $('#coupon_id').append('<option value="">No coupons available</option>');
+            //             }
+            //         },
+            //         error: function () {
+            //             alert('Unable to fetch coupons, please try again later.');
+            //         }
+            //     });
+            // });
         });
 
     </script>

@@ -78,9 +78,11 @@ class Controller extends BaseController
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
 
-                    $email =  $data['email'] ?? $transaction->email ?? null;
+                    $email = $data['email'] ?? $transaction->email ?? null;
                     $email = 'davsong16@gmail.com';
-                    \Log::info($data);
+                    // \Log::info(json_encode($data));
+                    Mail::to($email)->send(new Welcomemail($data, $pdf));
+                    
                     // return (new \App\Mail\Welcomemail($data, $pdf))->render(); // preview email
                     // Mail::to($transaction->email)->send(new Welcomemail($data, $pdf));
                 } else {
@@ -779,20 +781,20 @@ class Controller extends BaseController
 
             $subject = 'E - Receipt';
             $content .= '<div>
-            <p style="text-align:justify !important">Your payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br></p>
+            <p style="text-align:justify !important">Your payment of ' . $data['currency_symbol'] . number_format($data['amount']) . ' for ' . $data['programName'] . ' has been received.<br><br></p>
             </div>';
         } elseif ($data['type'] == 'balance') {
             $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
             $content .= '<div>
-            <p style="text-align:justify !important">Your balance payment of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' has been received.<br><br>You can now access all sections of your portal!</p>
+            <p style="text-align:justify !important">Your balance payment of ' . $data['currency_symbol'] . number_format($data['amount']) . ' for ' . $data['programName'] . ' has been received.<br><br>You can now access all sections of your portal!</p>
             </div>';
         } elseif ($data['type'] == 'initial') {
             $content .= "<strong>Dear " . $data['name'] . ",</strong><br><br>";
 
             $subject = 'E - Receipt';
-            $content .= '<span style="text-align:justify !important">Your ' . $data['message'] . ' of ' . $data['currency_symbol'] . $data['amount'] . ' for ' . $data['programName'] . ' (' . $data['programAbbr'] . ')' . ' via ' . $data['t_type'] . ' has been received. <br><br></span>
+            $content .= '<span style="text-align:justify !important">Your ' . $data['message'] . ' of ' . $data['currency_symbol'] . number_format($data['amount']) . ' for ' . $data['programName'] . ' (' . $data['programAbbr'] . ')' . ' via ' . $data['t_type'] . ' has been received. <br><br></span>
             <span><strong style="color:red">NOTE: </strong>Attached to this email are your E-receipt, booking form (if available) and feedback form (if available) which you are to print and bring along with you to the training center (NOT APPLICABLE FOR OUR ONLINE TRAININGS).</strong> <br><br></span>
             <span>Your customized portal is where you can view/download study materials for this training, view your payment history and do much more. <br><br></span>
             <span><strong>Your customized portal login details are:</strong> <br><br>
@@ -807,7 +809,7 @@ class Controller extends BaseController
                 Email: " . $data['participant_email'] . "<br>
                 Phone: " . $data['phone'] . "<br>
                 Bank: " . $data['bank'] . "<br>
-                Amount: " . $data['amount'] . "<br>
+                Amount: " . number_format($data['amount']) . "<br>
                 Training: " . $data['training'] . "<br>
                 Date of Payment: " . $data['date'] . "<br>";
 
@@ -833,7 +835,7 @@ class Controller extends BaseController
                 <p>Please find below proof of manual account top up details with file attached </p>
                 Name: " . $data['name'] . "<br>
                 Email: " . $data['participant_email'] . "<br>
-                Amount: " . Settings::value('DEFAULT_CURRENCY') . number_format($data['amount']) . "<br>
+                Amount: " . Settings::value('DEFAULT_CURRENCY') . number_format(number_format($data['amount'])) . "<br>
                 Date Uploaded: " . now() . "<br>";
 
             $content .= '<a href="' . config('app.url') . '/payment-history' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to confirm Payment</button></a><br><br>Regards';
