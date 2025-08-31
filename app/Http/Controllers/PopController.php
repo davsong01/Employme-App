@@ -357,21 +357,8 @@ class PopController extends Controller
 
             // Try to see if this is balance payment
             $existingTransaction = PaymentService::getExistingTransactionAndBalance($pop);
-
             $program = $pop->related;
             $isPackage = $pop->is_package;
-
-            // if ($pop->amount == $program->e_amount && $program->early_bird_status) {
-            //     $expectedAmount = $program->e_amount;
-            // } else {
-            //     $expectedAmount = $program->p_amount;
-            // }
-
-            // $balance = $expectedAmount - $pop->amount;
-
-            // if ($pop->amount > $expectedAmount) {
-            //     return back()->with('error', 'Cannot pay above ' . $expectedAmount);
-            // }
 
             if ($isPackage) {
                 $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
@@ -403,7 +390,6 @@ class PopController extends Controller
                     return back()->with('error', $response['message']);
                 }
             } else {
-                $isNew = true;
                 // Start new implementation
                 $prepareData = [
                     'program' => $program,
@@ -418,7 +404,7 @@ class PopController extends Controller
                     'data' => $data, // programIDs
                     'transaction_status' => 'complete',
                     'payment_mode' => 0,
-                    'payment_type' => $pop->temp->type,
+                    'payment_type' => $pop->temp->type ?? ($pop->amount < $program->p_amount ? 'part' : 'full'),
                     'amountPaid' => $pop->amount,
                     't_type' => 'Transfer',
                     'transid' =>  PaymentService::getReference('SYS-ADMIN'),
@@ -426,6 +412,7 @@ class PopController extends Controller
                 ];
                 
                 $addProgram = PaymentService::adminAddNewParticipant($prepareData);
+                
                 $pop->delete();
 
                 if ($addProgram['status']) {
