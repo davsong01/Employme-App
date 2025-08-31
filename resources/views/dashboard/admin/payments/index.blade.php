@@ -264,7 +264,7 @@
 
                                             @if(!is_null($transaction->coupon_code))
                                                 <div class="mb-2 text-primary">
-                                                    <strong>Coupon ({{ $transaction->coupon_code }}) <span style='color:red'> Applied | {{ $transaction->currency . number_format($transaction->coupon_amount ?? $transaction->discount) }}</span></strong>
+                                                    <strong>Coupon ({{ $transaction->coupon_code }}) <span style='color:blue'> Applied | {{ $transaction->currency . number_format($transaction->coupon_amount ?? $transaction->discount) }}</span></strong>
                                                 </div>
                                             @endif
 

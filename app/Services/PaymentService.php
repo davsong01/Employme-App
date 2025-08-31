@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Coupon;
@@ -10,6 +11,8 @@ use App\Models\Currency;
 use App\Models\CouponUser;
 use App\Models\PaymentThread;
 use App\Models\TempTransaction;
+use App\Services\CouponService;
+use Illuminate\Support\Facades\DB;
 
 
 class PaymentService
@@ -546,39 +549,39 @@ class PaymentService
     //         'balance' => $balance,
     //     ];
     // }
-    public static function applyModeProgramModeToAmount($program, $amount_to_use)
-    {
-        if(!empty($amount_to_use)){
-            return [
-                'status' => true,
-                'computed_amount' => $amount_to_use
-            ];
-        }
-        // Apply mode-based pricing if applicable
-        if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
-            $modes = json_decode($program->modes, true);
-            if (!empty($modes[$trainingMode])) {
-                $programAmount = $modes[$trainingMode];
-            }
-        }else{
-            $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
-        }
 
-        
-        return [
-            'status' => true,
-            'computed_amount' => $programAmount
-        ];
-    }
+    // public static function applyProgramModeToAmount($program, $trainingMode=null, $amount_to_use=null)
+    // {
+    //     if(!empty($amount_to_use)){
+    //         return [
+    //             'status' => true,
+    //             'computed_amount' => $amount_to_use
+    //         ];
+    //     }
 
+    //     // Apply mode-based pricing if applicable
+    //     if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
+    //         $modes = $program->modes;
+    //         if (!empty($modes[$trainingMode])) {
+    //             $programAmount = $modes[$trainingMode];
+    //         }
+    //     }else{
+    //         $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+    //     }
 
-    public static function calculatePaymentBreakdown($amountPaid, $type, $program, $trainingMode = null)
+    //     return [
+    //         'status' => true,
+    //         'computed_amount' => $programAmount,
+    //         'training_mode' => $trainingMode
+    //     ];
+    // }
+    public static function calculatePaymentBreakdownonhold($amountPaid, $type, $program, $trainingMode = null)
     {
         $programAmount = $program->p_amount;
 
         // Apply mode-based pricing if applicable
         if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
-            $modes = json_decode($program->modes, true);
+            $modes = $program->modes;
             if (!empty($modes[$trainingMode])) {
                 $programAmount = $modes[$trainingMode];
             }
@@ -631,7 +634,224 @@ class PaymentService
         ];
     }
 
+    public static function calculatePaymentBreakdown($program, $type, $amountPaid, $trainingMode = null, $amount_to_use = null)
+    {        
+        // Apply mode-based pricing if applicable
+        if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
+            $modes = $program->modes;
+            if (!empty($modes[$trainingMode])) {
+                $programAmount = $modes[$trainingMode];
+            }
+        } else {
+            $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+        }
 
+        $expectedAmount = $amount_to_use ?? $programAmount;
+        $earlyBirdAmount = $amount_to_use ?? $program->e_amount;
+        
+        $message = 'Full payment';
+        $type = strtolower($type);
+        
+        switch ($type) {
+            case 'part':
+                $expectedAmount = ceil($expectedAmount / 2);
+                $message = 'Part payment';
+                break;
+
+            case 'earlybird':
+                $expectedAmount = ceil($earlyBirdAmount);
+                $message = 'Early Bird payment';
+                break;
+
+            case 'full':
+            default:
+                $expectedAmount = ceil($expectedAmount);
+                $type = 'full';
+                break;
+        }
+        
+        // Calculate balance properly
+        $balance = max(0, $expectedAmount - $amountPaid);
+        
+        // Payment status: 1 = fully paid, 0 = not yet
+        $paymentStatus = $balance > 0 ? 0 : 1;
+        
+        return [
+            'status' => true,
+            'amount_paid'     => (float) $amountPaid,
+            'computed_amount' => $expectedAmount,
+            'type'            => $type,
+            'message'         => $message,
+            'payment_status'  => $paymentStatus,
+            'balance'         => $balance,
+            'training_mode' => $trainingMode
+        ];
+    }
+
+    public static function adminAddNewParticipant($prepareData){
+
+        $data = $prepareData['data'];
+        $program = $prepareData['program'];
+        $participant = $prepareData['participant'];
+        $amount_to_use = $prepareData['amount_to_use'];
+        $isPackage = $prepareData['isPackage'];
+        $send_email = $prepareData['send_email'];
+        $remarks = $prepareData['remarks'];
+        $couponCheck = $prepareData['couponCheck'];
+        $transaction_status = $prepareData['transaction_status'] ?? 'initiated';
+        $payment_mode = $prepareData['payment_mode'];
+        $trainingMode = $prepareData['trainingMode'] ?? null;
+        $payment_type = $prepareData['payment_type'];
+        $amountPaid = $prepareData['amountPaid'];
+
+        try {
+            DB::beginTransaction();
+
+            $user = User::where('email', $participant['email'])->first();
+            
+            $newTrainings = $data['programIds'];
+
+            $user_programs = $user
+                ? DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray()
+                : [];
+            
+            $brandNewTrainings = array_diff($newTrainings, $user_programs);
+            
+            if (!empty($brandNewTrainings)) {
+                $t_type = 'Transfer';
+                $transid = self::getReference('SYS-ADMIN');
+                $invoiceId = self::getInvoiceId();
+                $amount_to_use = $amount_to_use;
+                $balance = 0;
+
+                if (!$program) {
+                    return [
+                        'status' => false,
+                        'message' => 'Invalid Program',
+                    ];
+                };
+
+                $calculateAmount = self::calculatePaymentBreakdown($program, $payment_type, $amountPaid, $trainingMode, $amount_to_use);
+                $computedAmount = $calculateAmount['computed_amount'];
+                
+                if ($couponCheck) {
+                    // Apply coupon to amount
+                    $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
+                    
+                    if ($couponData['status']) {
+                        if($isPackage){
+                            $couponData['group_id'] = $program->id;
+                        }else{
+                            $couponData['program_id'] = $program->id;
+                        }
+
+                        $couponData['email'] = $participant['email'];
+                        $couponData['transactionId'] = $transid;
+                        $couponData['isPackage'] = $isPackage;
+
+                        $computedAmount = $couponData['computed_amount'] ?? $computedAmount;
+                        $couponTransaction = CouponService::initiateCoupon($couponData);
+                    }
+                }
+
+                $real_type = $balance > 0 ? 'part' : $payment_type;
+                $transactionArray = [
+                    'email'             => $user?->email ?? $participant['email'],
+                    'type'              => $real_type,
+                    'program_id'        => $program->id,
+                    'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
+                    'facilitator_id'    => null,
+                    'amount'            => $computedAmount,
+                    "discount"          => $couponData['discount'] ?? null,
+                    'transid'           => $transid,
+                    'invoice_id'        => $invoiceId,
+                    'payment_mode'      => $payment_mode,
+                    'preferred_timing'  => null,
+                    'name'              => $user?->name ?? $participant['name'],
+                    'phone'             => $user?->phone ?? $participant['phone'],
+                    'location'          => null,
+                    'training_mode'     => null,
+                    'meta'              => null,
+                    'is_package'        => $isPackage ?? 0,
+                    'status'            => $transaction_status,
+                    'balance'           => $balance,
+                    't_type'            => $t_type,
+                    'program_ids'       => $brandNewTrainings,
+                    'currency'          => "NGN",
+                    'currency_symbol'   => "₦",
+                    "coupon_code"       => isset($couponData) && $couponData['status'] == 1 ? $couponData['code'] : null,
+                    'remarks'           => $remarks,
+                ];
+
+                $transaction = self::initiateTransaction($transactionArray);
+
+                self::createUserAndAttachPrograms($transaction);
+                $transaction = $transaction->fresh();
+
+                PaymentThread::create([
+                    'program_id'   => $transaction->program_id,
+                    'admin_id'      => auth()->guard('admin')->user()->id,
+                    'user_id'      => $transaction->user_id,
+                    'payment_id'   => $transaction->id,
+                    'transaction_id' => self::getReference('PYTHRD'),
+                    't_type'       => strtolower($transaction->t_type),
+                    'parent_transaction_id' => $transaction->transid,
+                    'amount'       => $computedAmount,
+                ]);
+
+                if (!empty($transaction->coupon_id) && isset($couponTransaction->id)) {
+                    CouponService::completeCoupon($couponTransaction);
+                }
+            }else{
+                return [
+                    'status' => false,
+                    'message' => 'No new trainings'
+                ];
+            }
+            
+            if ($send_email == 'yes') {
+                $data['balance'] = $balance;
+                $data['programs'] = $transaction->allPrograms()->toArray();
+                $data['payment_type'] = $transaction->type;
+
+                $data['type'] = $real_type;
+                $data['message'] = $balance > 0 ? 'Part payment' : 'Full payment';
+                $data['paymentStatus'] = $balance > 0 ? 0 : 1;
+
+                $data['currency'] = $transaction->currency;
+                $data['currency_symbol'] = $transaction->currency_symbol;
+                $data['exchange_rate'] = $transaction->exchange_rate;
+                $data['type'] = 'initial';
+                $data['t_type'] = $t_type;
+                $data['amount'] = $transaction->amount;
+                $data['email'] = $participant['email'];
+                $data['programName'] = $program->p_name;
+                $data['programAbbr'] = $program->p_abbr;
+                $data['name'] = $transaction->name;
+                $data['transaction'] = $transaction;
+                $data['program'] = $program;
+
+                $controller = new Controller();
+                $controller->sendWelcomeMail($data);
+            }
+            
+            DB::commit();
+
+            return [
+                'status' => true,
+                'message' => 'Participant Added Successfully'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::info($e->getMessage(). ' Line: '.$e->getLine(). ' File: '.$e->getFile());
+
+            return [
+                'status' => false,
+                'message' => 'Error Occured'
+            ];
+        }
+    }
+    
     public static function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL)
     {
         // Admin created coupon

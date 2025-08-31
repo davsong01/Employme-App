@@ -121,7 +121,7 @@ class PaymentController extends Controller
         $amount = null;
         $program = json_decode($program);
         if(isset($program->show_modes) && $program->show_modes == 'yes'){
-            $modes = json_decode($program->modes);
+            $modes = $program->modes;
         }
         
         if(!empty($modes)){
@@ -278,7 +278,7 @@ class PaymentController extends Controller
         // Get amount from modes, do this later
         // $amount = $this->getModeAmount($request->modes, $request->payment_type, $training);
         // $couponArray['code'] = 'CSS2000';
-
+        
         $couponResponse = PaymentService::applyCoupon($couponArray);
         
         if(!empty($couponResponse['status']) && $couponResponse['status'] == true){
@@ -612,7 +612,6 @@ class PaymentController extends Controller
                             $expectedAmount = $mode_amount;
                             
                             $modes = $program->modes;
-                            $modes = json_decode($modes, true);
                             // dd($temp->training_mode);
                             $amt = $modes[$temp->training_mode];
                             
