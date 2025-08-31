@@ -31,7 +31,7 @@ class PopController extends Controller
         $transactions =  TempTransaction::with(['coupon', 'program:id,p_amount,e_amount,created_at'])->orderBy('created_at', 'DESC')->get();
         $i = 1;
         $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-
+        
         return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
     }
 
@@ -183,6 +183,167 @@ class PopController extends Controller
         return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
     }
 
+    // public function show(Pop $pop)
+    // {
+    //     try {
+    //         if (isset($pop->user) && !empty($pop->user)) {
+    //             $check = DB::table('program_user')->where(['user_id' => $pop->user->id, 'program_id' => $pop->program_id])->where('balance', '<', 1)->count();
+
+    //             if ($check > 0) {
+    //                 return back()->with('error', 'Participant already registered for this training!');
+    //             }
+    //         }
+
+    //         // Try to see if this is balance payment
+    //         $existingTransaction = PaymentService::getExistingTransactionAndBalance($pop);
+
+    //         $program = $pop->related;
+    //         $isPackage = $pop->is_package;
+
+    //         if ($pop->amount == $program->e_amount && $program->early_bird_status) {
+    //             $expectedAmount = $program->e_amount;
+    //         } else {
+    //             $expectedAmount = $program->p_amount;
+    //         }
+
+    //         $balance = $expectedAmount - $pop->amount;
+
+    //         if ($pop->amount > $expectedAmount) {
+    //             return back()->with('error', 'Cannot pay above ' . $expectedAmount);
+    //         }
+
+    //         if (isset($existingTransaction) && isset($existingTransaction['transaction']) && $existingTransaction['transaction']->status != 'initiated') {
+    //             $bData = [
+    //                 'amount' => $pop->amount,
+    //                 't_type' => $pop->t_type,
+    //             ];
+
+    //             $response = PaymentService::handleBalancePayment($existingTransaction['transaction'], $existingTransaction['balance'], $bData);
+
+    //             if ($response['status']) {
+    //                 $pop->delete();
+
+    //                 return redirect(route('payments.index'))->with('message', 'Balance Payment added succesfully');
+    //             } else {
+    //                 return back()->with('error', $response['message']);
+    //             }
+    //         } else {
+    //             $isNew = true;
+    //             $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+    //             $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
+
+    //             if($pop->amount == $program->e_amount && $program->early_bird_status){
+    //                 $expectedAmount = $program->e_amount;
+    //             }else{
+    //                 $expectedAmount = $program->p_amount;
+    //             }
+
+    //             $balance = $expectedAmount - $pop->amount;
+
+    //             if ($pop->amount > $expectedAmount) {
+    //                 return back()->with('error', 'Cannot pay above ' . $expectedAmount);
+    //             }
+
+    //             if ($program->early_bird_status && $pop->amount ==  $program->e_amount) {
+    //                 $type = 'earlybird';
+    //                 $message = 'Earlybird payment';
+    //                 $paymentStatus =  1;
+    //             } else {
+    //                 $type = $balance > 0 ? 'part' : 'full';
+    //                 $message = $balance > 0 ? 'Part payment' : 'Full payment';
+    //                 $paymentStatus = $balance > 0 ? 0 : 1;
+    //             }
+
+    //             // $program 
+    //             $t_type = 'Transfer';
+    //             $transid = 'BT-' . rand(11111111, 9999999);
+    //             $invoiceId = PaymentService::getInvoiceId();
+
+    //             if ($isPackage) {
+    //                 $group = Group::where('id', $pop->group_id)->first();
+    //                 $programIds = $group->programs->pluck('id')->toArray();
+    //             } else {
+    //                 $programIds = [$pop->program_id];
+    //             }
+
+    //             $metadata = [
+    //                 'pid'        => $pop->related->id,
+    //                 'facilitator' => null,
+    //                 'coupon_id'  => null,
+    //                 'type'       => $type ?? null,
+    //                 'isPackage'     => $isPackage
+    //             ];
+
+    //             $transactionArray = [
+    //                 'email' => $pop->email,
+    //                 'type' => $type,
+    //                 'program_id' => $program->id,
+    //                 'coupon_id' =>  null,
+    //                 'facilitator_id' => null,
+    //                 'amount' =>  $pop->amount,
+    //                 'transid' =>  $transid,
+    //                 'invoice_id' => $invoiceId,
+    //                 'payment_mode' => 0,
+    //                 'preferred_timing' => null,
+    //                 'name' => $pop->name,
+    //                 'phone' => $pop->phone,
+    //                 'location' => $pop->location ?? null,
+    //                 'training_mode' => null,
+    //                 'meta' => $metadata,
+    //                 'is_package' => $isPackage,
+    //                 'status' => 'complete',
+    //                 'balance' => $balance,
+    //                 't_type' => $t_type,
+    //                 'program_ids' => $programIds,
+    //                 'currency' => $pop->currency,
+    //                 'currency_symbol' => $pop->currency_symbol,
+    //             ];
+
+    //             $transaction = PaymentService::initiateTransaction($transactionArray);
+
+    //             $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
+
+    //             $data['balance'] = $balance;
+    //             $data['programs'] = $transaction->allPrograms()->toArray();
+    //             $data['payment_type'] = $transaction->type;
+    //             $data['message'] = $message;
+    //             $data['paymentStatus'] =  $paymentStatus;
+
+    //             PaymentService::createUserAndAttachPrograms($transaction);
+    //             $transaction = $transaction->fresh();
+
+    //             $data['currency'] = $transaction->currency;
+    //             $data['currency_symbol'] = $transaction->currency_symbol;
+    //             $data['exchange_rate'] = $transaction->exchange_rate;
+
+    //             $data['type'] = 'initial';
+    //             $data['name'] = $transaction->name;
+    //             $data['transaction'] = $transaction;
+    //             $data['program'] = $program;
+
+    //             PaymentThread::create([
+    //                 'program_id' => $transaction->program_id,
+    //                 'user_id' => $transaction->user_id,
+    //                 'payment_id' => $transaction->id,
+    //                 'transaction_id' => PaymentService::getReference('PYTHRD'),
+    //                 't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
+    //                 'parent_transaction_id' => $transaction->transid,
+    //                 'amount' => $pop->amount,
+    //             ]);
+    //         }
+
+    //         $pop->delete();
+
+    //         if ($isNew) {
+    //             $this->sendWelcomeMail($data);
+    //         }
+
+    //         return redirect(route('payments.index'))->with('message', 'Student added succesfully');
+    //     } catch (\Exception $e) {
+    //         // dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
+    //     }
+    // }
+
     public function show(Pop $pop)
     {
         try {
@@ -196,22 +357,36 @@ class PopController extends Controller
 
             // Try to see if this is balance payment
             $existingTransaction = PaymentService::getExistingTransactionAndBalance($pop);
-            
+
             $program = $pop->related;
             $isPackage = $pop->is_package;
 
-            if ($pop->amount == $program->e_amount && $program->early_bird_status) {
-                $expectedAmount = $program->e_amount;
+            // if ($pop->amount == $program->e_amount && $program->early_bird_status) {
+            //     $expectedAmount = $program->e_amount;
+            // } else {
+            //     $expectedAmount = $program->p_amount;
+            // }
+
+            // $balance = $expectedAmount - $pop->amount;
+
+            // if ($pop->amount > $expectedAmount) {
+            //     return back()->with('error', 'Cannot pay above ' . $expectedAmount);
+            // }
+
+            if ($isPackage) {
+                $data['programIds'] = $program?->programs->pluck('id')->toArray() ?? [];
+
+                $couponCheck = Coupon::where('id', $pop->temp?->coupon_id)
+                    ->where('group_id', $program?->id)
+                    ->first();
             } else {
-                $expectedAmount = $program->p_amount;
+                $data['programIds'] = $program ? [$program->id] : [];
+
+                $couponCheck = Coupon::where('id', $pop->temp?->coupon_id)
+                    ->where('program_id', $program?->id)
+                    ->first();
             }
 
-            $balance = $expectedAmount - $pop->amount;
-
-            if ($pop->amount > $expectedAmount) {
-                return back()->with('error', 'Cannot pay above ' . $expectedAmount);
-            }
-            
             if (isset($existingTransaction) && isset($existingTransaction['transaction']) && $existingTransaction['transaction']->status != 'initiated') {
                 $bData = [
                     'amount' => $pop->amount,
@@ -229,119 +404,40 @@ class PopController extends Controller
                 }
             } else {
                 $isNew = true;
-                $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
-                $expectedAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
-
-                if($pop->amount == $program->e_amount && $program->early_bird_status){
-                    $expectedAmount = $program->e_amount;
-                }else{
-                    $expectedAmount = $program->p_amount;
-                }
-
-                // // if pop->amount == e_amount and $program->early_bird_status, then expected is program->e_amount, else expected amount = program->p_amount
-                // // if pop amount  e_amount and $program->early_bird_status, then expected is e_amount 
-                $balance = $expectedAmount - $pop->amount;
-
-                if ($pop->amount > $expectedAmount) {
-                    return back()->with('error', 'Cannot pay above ' . $expectedAmount);
-                }
-                
-                if ($program->early_bird_status && $pop->amount ==  $program->e_amount) {
-                    $type = 'earlybird';
-                    $message = 'Earlybird payment';
-                    $paymentStatus =  1;
-                } else {
-                    $type = $balance > 0 ? 'part' : 'full';
-                    $message = $balance > 0 ? 'Part payment' : 'Full payment';
-                    $paymentStatus = $balance > 0 ? 0 : 1;
-                }
-
-                // $program 
-                $t_type = 'Transfer';
-                $transid = 'BT-' . rand(11111111, 9999999);
-                $invoiceId = PaymentService::getInvoiceId();
-
-                if ($isPackage) {
-                    $group = Group::where('id', $pop->group_id)->first();
-                    $programIds = $group->programs->pluck('id')->toArray();
-                } else {
-                    $programIds = [$pop->program_id];
-                }
-
-                $metadata = [
-                    'pid'        => $pop->related->id,
-                    'facilitator' => null,
-                    'coupon_id'  => null,
-                    'type'       => $type ?? null,
-                    'isPackage'     => $isPackage
-                ];
-
-                $transactionArray = [
-                    'email' => $pop->email,
-                    'type' => $type,
-                    'program_id' => $program->id,
-                    'coupon_id' =>  null,
-                    'facilitator_id' => null,
-                    'amount' =>  $pop->amount,
-                    'transid' =>  $transid,
-                    'invoice_id' => $invoiceId,
+                // Start new implementation
+                $prepareData = [
+                    'program' => $program,
+                    'isPackage' => $isPackage,
+                    'participant' => [
+                        'email' => $pop->email,
+                        'phone' => $pop->phone,
+                        'name' => $pop->name,
+                    ],
+                    'couponCheck' => $couponCheck,
+                    'send_email' => 'yes',
+                    'data' => $data, // programIDs
+                    'transaction_status' => 'complete',
                     'payment_mode' => 0,
-                    'preferred_timing' => null,
-                    'name' => $pop->name,
-                    'phone' => $pop->phone,
-                    'location' => $pop->location ?? null,
-                    'training_mode' => null,
-                    'meta' => $metadata,
-                    'is_package' => $isPackage,
-                    'status' => 'complete',
-                    'balance' => $balance,
-                    't_type' => $t_type,
-                    'program_ids' => $programIds,
-                    'currency' => $pop->currency,
-                    'currency_symbol' => $pop->currency_symbol,
+                    'payment_type' => $pop->temp->type,
+                    'amountPaid' => $pop->amount,
+                    't_type' => 'Transfer',
+                    'transid' =>  PaymentService::getReference('SYS-ADMIN'),
+                    'invoiceId' =>  PaymentService::getInvoiceId(),
                 ];
+                
+                $addProgram = PaymentService::adminAddNewParticipant($prepareData);
+                $pop->delete();
 
-                $transaction = PaymentService::initiateTransaction($transactionArray);
-
-                $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
-
-                $data['balance'] = $balance;
-                $data['programs'] = $transaction->allPrograms()->toArray();
-                $data['payment_type'] = $transaction->type;
-                $data['message'] = $message;
-                $data['paymentStatus'] =  $paymentStatus;
-
-                PaymentService::createUserAndAttachPrograms($transaction);
-                $transaction = $transaction->fresh();
-
-                $data['currency'] = $transaction->currency;
-                $data['currency_symbol'] = $transaction->currency_symbol;
-                $data['exchange_rate'] = $transaction->exchange_rate;
-
-                $data['type'] = 'initial';
-                $data['name'] = $transaction->name;
-                $data['transaction'] = $transaction;
-                $data['program'] = $program;
-
-                PaymentThread::create([
-                    'program_id' => $transaction->program_id,
-                    'user_id' => $transaction->user_id,
-                    'payment_id' => $transaction->id,
-                    'transaction_id' => PaymentService::getReference('PYTHRD'),
-                    't_type' => strtolower($transaction->paymentMode->processor ?? 'TRANSFER'),
-                    'parent_transaction_id' => $transaction->transid,
-                    'amount' => $pop->amount,
-                ]);
+                if ($addProgram['status']) {
+                    return redirect(route('payments.index'))->with('message', 'Student added succesfully');
+                } else {
+                    return back()->with('error', $addProgram['message'] ?? 'Something went wrong');
+                }
+                // End new implementation
             }
 
-            $pop->delete();
-
-            if ($isNew) {
-                $this->sendWelcomeMail($data);
-            }
-
-            return redirect(route('payments.index'))->with('message', 'Student added succesfully');
         } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage(), ' File: ' . $e->getFile(), ' Line: ' . $e->getLine());
             // dd($e->getMessage(), ' File: '.$e->getFile(), ' Line: ' . $e->getLine());
         }
     }

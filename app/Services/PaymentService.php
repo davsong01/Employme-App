@@ -693,7 +693,7 @@ class PaymentService
         $data = $prepareData['data'];
         $program = $prepareData['program'];
         $participant = $prepareData['participant'];
-        $amount_to_use = $prepareData['amount_to_use'];
+        $amount_to_use = $prepareData['amount_to_use'] ?? null;
         $isPackage = $prepareData['isPackage'];
         $send_email = $prepareData['send_email'];
         $remarks = $prepareData['remarks'] ?? null;
@@ -703,6 +703,10 @@ class PaymentService
         $trainingMode = $prepareData['trainingMode'] ?? null;
         $payment_type = $prepareData['payment_type'];
         $amountPaid = $prepareData['amountPaid'];
+
+        $t_type = $prepareData['t_type'];
+        $transid = $prepareData['transid'];
+        $invoiceId = $prepareData['invoiceId'];
 
         try {
             DB::beginTransaction();
@@ -718,9 +722,6 @@ class PaymentService
             $brandNewTrainings = array_diff($newTrainings, $user_programs);
             
             if (!empty($brandNewTrainings)) {
-                $t_type = 'Transfer';
-                $transid = self::getReference('SYS-ADMIN');
-                $invoiceId = self::getInvoiceId();
                 $amount_to_use = $amount_to_use;
                 $balance = 0;
 
@@ -782,7 +783,7 @@ class PaymentService
                     "coupon_code"       => isset($couponData) && $couponData['status'] == 1 ? $couponData['code'] : null,
                     'remarks'           => $remarks,
                 ];
-
+                
                 $transaction = self::initiateTransaction($transactionArray);
 
                 self::createUserAndAttachPrograms($transaction);
@@ -790,7 +791,7 @@ class PaymentService
 
                 PaymentThread::create([
                     'program_id'   => $transaction->program_id,
-                    'admin_id'      => auth()->guard('admin')->user()->id,
+                    'admin_id'      => auth()->guard('admin')->user()->id ?? null,
                     'user_id'      => $transaction->user_id,
                     'payment_id'   => $transaction->id,
                     'transaction_id' => self::getReference('PYTHRD'),

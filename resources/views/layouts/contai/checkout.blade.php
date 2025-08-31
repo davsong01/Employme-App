@@ -256,7 +256,7 @@
     function showCoupon(){       
         $('#coupon-field').toggle();
     }
-   
+    
     function validateCoupon(id){
         email = $('#email').val();
         code = $('#coupon').val();
@@ -264,7 +264,6 @@
         price = "{{ $amount }}";
         isPackage = "{{$isPackage ?? 0}}";
         payment_type = "{{$type ?? 0}}";
-        amount =
 
         var total = $('#amount').val();
         var newTotal = 0;

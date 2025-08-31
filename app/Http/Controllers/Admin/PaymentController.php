@@ -124,7 +124,6 @@ class PaymentController extends Controller
         $packages = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActiveProgramsWithIsClosed();
         }])->get();
-        // dd($pops);
         
         return view('dashboard.admin.payments.popfull', compact('i', 'pops','programs','packages'));
 

@@ -23,7 +23,7 @@
                             <th>Date</th>
                             <th>Type</th>
                             <th>Customer details</th>
-                            <th>Amount Paid</th>
+                            <th>Payment</th>
                             <th>Training details</th>
                             <th>Bank</th> 
                             <th>Location</th>
@@ -74,8 +74,18 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td>{{ number_format($pop->amount) }}</td>
-                                    <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.$pop->related->p_amount : 'E/Amount '. $pop->currency_symbol.$pop->related->e_amount  }})
+                                    <td>
+                                        Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
+                                        @if(!empty($pop->temp->coupon_id))
+                                        <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>
+                                        @endif
+                                        @if(!empty($pop->temp_transaction_id))
+                                        <small style="color:indigo"><br>
+                                        TransactionID: {{$pop->temp->transid}}
+                                        </small>
+                                        @endif
+                                    </td>
+                                    <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.number_format($pop->related->p_amount) : 'E/Amount: '. $pop->currency_symbol.number_format($pop->related->e_amount) }})
                                     @if(isset($pop->is_fresh)) <br>
                                     <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                                     @endif
@@ -156,7 +166,7 @@
                                                     {{-- @if($pop->is_package) --}}
                                                     <div class="row">
                                                         <div class="col-md-12 mb-3">
-                                                            <label for="group_id" class="form-label">Training/Package</label>
+                                                            <label for="group_id" class="form-label">Training/Package?</label>
                                                             <select name="is_package" class="form-control">
                                                                 <option value="">Select</option>
                                                                 <option value="0" {{ !$pop->is_package ? 'selected' : ''}}>Training</option>
@@ -191,7 +201,21 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    {{-- @endif --}}
+                                                    
+                                                    @if(!empty($pop->temp->coupon_id))
+                                                    {{-- {{dd($pop->temp->coupon_id, $pop->related->coupon)}} --}}
+                                                    <div class="row">
+                                                        <div class="col-md-12 mb-3">
+                                                            <label for="group_id" class="form-label">Coupon Attached</label>
+                                                            <select name="is_package" class="form-control">
+                                                                <option value="">Select</option>
+                                                                @foreach ($pop->related->coupon as $coupon)
+                                                                    <option value="0" {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : ''}}>{{ $coupon->code }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    @endif
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

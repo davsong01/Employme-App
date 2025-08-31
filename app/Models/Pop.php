@@ -37,4 +37,6 @@ class Pop extends Model
     public function temp(){
         return $this->belongsTo(TempTransaction::class, 'temp_transaction_id');
     }
+
+    
 }
