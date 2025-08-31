@@ -696,7 +696,7 @@ class PaymentService
         $amount_to_use = $prepareData['amount_to_use'];
         $isPackage = $prepareData['isPackage'];
         $send_email = $prepareData['send_email'];
-        $remarks = $prepareData['remarks'];
+        $remarks = $prepareData['remarks'] ?? null;
         $couponCheck = $prepareData['couponCheck'];
         $transaction_status = $prepareData['transaction_status'] ?? 'initiated';
         $payment_mode = $prepareData['payment_mode'];
@@ -851,7 +851,7 @@ class PaymentService
             ];
         }
     }
-    
+
     public static function getEarnings($amount, $coupon, $createdBy, $program, $programFacilitator = NULL)
     {
         // Admin created coupon

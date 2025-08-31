@@ -484,6 +484,7 @@ class UserController extends Controller
                         'payment_mode' => 0,
                         'payment_type' => 'full',
                         'amountPaid' => $request->amount_to_use ?? $program->p_amount,
+                        'remarks' => $request->remarks,
                     ];
                     
                     $addProgram = PaymentService::adminAddNewParticipant($prepareData);

@@ -261,6 +261,13 @@
                                                     {{ number_format($transaction->amount) }}
                                                 </span>
                                             </div>
+                                            @if($transaction->remarks)
+                                            <div class="mb-2">
+                                                <span class="fw-bold">Remarks:</span>
+                                                {{ $transaction->remarks }}
+                                                
+                                            </div>
+                                            @endif
 
                                             @if(!is_null($transaction->coupon_code))
                                                 <div class="mb-2 text-primary">
