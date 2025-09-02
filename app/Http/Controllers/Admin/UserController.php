@@ -167,7 +167,6 @@ class UserController extends Controller
                         'isPackage' => $isPackage,
                         'participant' => $participant,
                         'couponCheck' => $couponCheck,
-                        'remarks' => $request->remarks,
                         'send_email' => $request->send_email,
                         'amount_to_use' => $request->amount_to_use ?? $program->p_amount,
                         'data' => $data, // programIDs
@@ -599,7 +598,7 @@ class UserController extends Controller
                             'currency_symbol' => "₦",
                         ];
 
-                        $transaction = PaymentService::initiateTransaction($transactionArray);
+                        $transaction = PaymentService::logTransaction($transactionArray);
                         
                         PaymentService::createUserAndAttachPrograms($transaction);
                         $transaction = $transaction->fresh();

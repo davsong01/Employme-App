@@ -247,50 +247,28 @@ class PaymentController extends Controller
         
         if($isPackage){
             $training = Group::where('id', $pid)->first();
+            $programIds = $training?->programs->pluck('id')->toArray() ?? [];
+            $couponCheck = Coupon::where('code', $request->coupon)->where('group_id', $pid)->first();
+
             $returnUrl = url('packages/' . $training->slug);
         }else{
             $training = Program::where('id', $pid)->first();
+            $programIds = $training ? [$training->id] : [];
+            $couponCheck = Coupon::where('code', $request->coupon)->where('program_id', $pid)->first();
             $returnUrl = url('trainings/' . $training->slug);
         }
 
-        if ($type['type'] == 'full') {
-            $request['amount'] = $training->p_amount;
-        }
+        // if ($type['type'] == 'full') {
+        //     $request['amount'] = $training->p_amount;
+        // }
 
-        if ($type['type'] == 'earlybird' && $training->early_bird_status == 1 && $training->e_amount > 0) {
-            $request['amount'] = $training->e_amount;
-        }
-        
-        if ($type['type'] == 'part') {
-            $request['amount'] = ($training->p_amount) / 2;
-        }
-        
-        $couponArray = [
-            'code' => $request->coupon,
-            'program_id' => $pid,
-            'admin_id' => null,
-            'email' => $request->email,
-            'amount' => $request->amount,
-            'isPackage' => $isPackage,
-            'type' => $type['type'],
-        ];
-        
-        // Get amount from modes, do this later
-        // $amount = $this->getModeAmount($request->modes, $request->payment_type, $training);
-        // $couponArray['code'] = 'CSS2000';
-        
-        $couponResponse = PaymentService::applyCoupon($couponArray);
-        
-        if(!empty($couponResponse['status']) && $couponResponse['status'] == true){
-            $expectedAmount = $couponResponse['grand_total'];
-        }else{
-            $expectedAmount = $request->amount;
-        }
-        
-        $metadata['coupon_id'] = $couponResponse['id'] ?? null;
-        $transid = $request->payment_mode == 0 ? 'BT-' . rand(11111111, 9999999) : PaymentService::getReference('PYSTK');
-        $invoiceId = PaymentService::getInvoiceId();
-        $isBalance = false; // Add this later to the transactionArray
+        // if ($type['type'] == 'earlybird' && $training->early_bird_status == 1 && $training->e_amount > 0) {
+        //     $request['amount'] = $training->e_amount;
+        // }
+
+        // if ($type['type'] == 'part') {
+        //     $request['amount'] = ($training->p_amount) / 2;
+        // }
 
         $payment_mode = [];
         if($request->payment_mode){
@@ -309,8 +287,7 @@ class PaymentController extends Controller
         }
 
         $metadata['payment_mode'] = $payment_mode;
-        $programIds = $isPackage ? json_decode($request->programs, true) : [$pid];
-
+        
         // check if this user already has these programs
         $user = User::where('email', $request->email)->first();
         
@@ -328,48 +305,98 @@ class PaymentController extends Controller
                 }
             }
         }
-        
+
+        // start implementation
         $t_type = $request->payment_mode == 0 ? 'Transfer' : 'Online';
-        $transactionArray = [
-            'email' => $request->email,
-            'type' => $request->payment_type,
-            'program_id' => $pid,
-            'coupon_id' =>  $metadata['coupon_id'],
-            'facilitator_id' => $request['metadata']['facilitator'] ?? null,
-            'amount' =>  $expectedAmount,
-            'transid' =>  $transid,
-            'invoice_id' => $invoiceId,
-            'payment_mode' => $request->payment_mode,
-            'preferred_timing' => $request->preferred_timing ?? null,
+        $transid = PaymentService::getReference();
+        $invoiceId = PaymentService::getInvoiceId();
+        $participant = [
             'name' => $request->name,
+            'email' => $request->email,
             'phone' => $request->phone,
+        ];
+
+        $calculateAmount = PaymentService::calculatePaymentBreakdown($training, $type['type'], $request->amount, $request->modes);
+        $computedAmount = $calculateAmount['computed_amount'];
+
+        // $expectedAmount
+        if ($couponCheck) {
+            // Apply coupon to amount
+            $couponData = CouponService::getCouponData($type['type'], $couponCheck, $isPackage, $computedAmount, $training, $participant['email']);
+
+            if ($couponData['status']) {
+                if ($isPackage) {
+                    $couponData['group_id'] = $training->id;
+                } else {
+                    $couponData['program_id'] = $training->id;
+                }
+
+                $couponData['email'] = $participant['email'];
+                $couponData['transactionId'] = $transid;
+                $couponData['isPackage'] = $isPackage;
+
+                $computedAmount = $couponData['computed_amount'] ?? $computedAmount;
+
+                $couponTransaction = CouponService::initiateCoupon($couponData);
+            }
+        }
+
+        $balance = $computedAmount - $request->amount;
+        $isFreeTraining = $request->payment_type == 'full' && $training->p_amount == 0 ? true : false;
+
+        $transactionArray = [
+            'email'             => $request->email,
+            'type'              => $request->payment_type,
+            'program_id'        => $training->id,
+            'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
+            'facilitator_id'    => null,
+            'amount'            => $request->amount,
+            "discount"          => $couponData['discount'] ?? null,
+            'transid'           => $transid,
+            'invoice_id'        => $invoiceId,
+            'payment_mode'      => $request->payment_mode,
+            'preferred_timing'  => null,
+            'name'              => $request->name,
+            'phone'             => $request->phone,
+            'is_package'        => $isPackage ?? 0,
+            'status'            => 'initiated',
+            'balance'           => $balance,
+            't_type'            => $t_type,
+            'program_ids'       => $programIds,
+            'currency'          => "NGN",
+            'currency_symbol'   => "₦",
+            "coupon_code"       => isset($couponData) && $couponData['status'] == 1 ? $couponData['code'] : null,
             'location' => $request->location ?? null,
             'training_mode' => $request->modes ?? NULL,
             'meta' => $metadata,
-            'is_package' => $isPackage,
-            'status' => 'initiated',
-            't_type' => $t_type,
-            'currency_symbol' => session()->get('currency_symbol'),
-            'currency' => session()->get('currency'),
-            'exchange_rate' => session()->get('exchange_rate'),
-            'program_ids' => $programIds,
         ];
-        
-        $transaction = PaymentService::initiateTransaction($transactionArray);
+
+        $transaction = PaymentService::logTransaction($transactionArray);
         
         // Free training, will sort later
-        if ($request->payment_type == 'full' && $training->p_amount == 0) {
-            // foreach ($trainingsToResolveTo as $singleTraining) {
-            //     $data = $this->prepareFreeTrainingDetails($singleTraining, $request);
-            //     $data['payment_type'] = 'Full';
-            //     $data['message'] = 'Full payment';
-            //     $data['paymentStatus'] = 1;
-            //     $data['currency_symbol'] = '&#x20A6;';
-            //     $data['balance'] = 0;
-                
-            //     $data = $this->createUserAndAttachProgramAndUpdateEarnings($data, []);
-            // }
+        if ($isFreeTraining) {
+            $data['balance'] = $balance;
+            $data['programs'] = $transaction->allPrograms()->toArray();
+            $data['payment_type'] = $transaction->type;
 
+            $data['type'] = $request->payment_type;
+            $data['message'] = $balance > 0 ? 'Part payment' : 'Full payment';
+            $data['paymentStatus'] = $balance > 0 ? 0 : 1;
+
+            $data['currency'] = $transaction->currency;
+            $data['currency_symbol'] = $transaction->currency_symbol;
+            $data['exchange_rate'] = $transaction->exchange_rate;
+            $data['type'] = 'initial';
+            $data['t_type'] = $t_type;
+            $data['amount'] = $transaction->amount;
+            $data['email'] = $participant['email'];
+            $data['programName'] = $training->p_name;
+            $data['programAbbr'] = $training->p_abbr;
+            $data['name'] = $transaction->name;
+            $data['transaction'] = $transaction;
+            $data['program'] = $training;
+            
+            $this->sendWelcomeMail($data);
             if ($request->payment_type == 'full' && $training->p_amount == 0) {
                 $this->sendWelcomeMail($data);
                 
@@ -386,7 +413,7 @@ class PaymentController extends Controller
         // handle gateway call back normally
 
         // Pay from wallet
-        // Work omn this later
+        // Work on this later
         // if ($request->payment_mode == 'wallet') {
         //     $request['user_id'] = resolveAuthUser()->id;
         //     $request['p_id'] = $pid;

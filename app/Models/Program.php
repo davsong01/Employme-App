@@ -235,4 +235,10 @@ class Program extends Model
             'certificate_regeneration_id'      // Local key on certificate_programs table
         );
     }
+
+    public function getSlugAttribute($value)
+    {
+        // Remove invisible characters
+        return trim(preg_replace('/[\x{2060}\x{FEFF}]/u', '', $value));
+    }
 }

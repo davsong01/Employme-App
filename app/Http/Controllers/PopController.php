@@ -299,7 +299,7 @@ class PopController extends Controller
     //                 'currency_symbol' => $pop->currency_symbol,
     //             ];
 
-    //             $transaction = PaymentService::initiateTransaction($transactionArray);
+    //             $transaction = PaymentService::logTransaction($transactionArray);
 
     //             $data = $this->prepareTrainingDetails($program, $transaction, $transaction->amount);
 

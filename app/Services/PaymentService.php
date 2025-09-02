@@ -165,9 +165,9 @@ class PaymentService
         ];
     }
 
-    public static function getReference($prefix){
+    public static function getReference($prefix=null){
         date_default_timezone_set("Africa/Lagos");
-        return $prefix . '-' . date('YmdHi') . '-' . rand(11111111, 99999999);
+        return ($prefix ? $prefix. '-' : '') . date('YmdHi') . '-' . rand(11111111, 99999999);
     }
 
     public static function getInvoiceId($id = null)
@@ -181,7 +181,7 @@ class PaymentService
         return $invoice_id;
     }
 
-    public static function initiateTransaction($transactionArray)
+    public static function logTransaction($transactionArray)
     {
         try {
             $transaction = TempTransaction::create([
@@ -727,7 +727,7 @@ class PaymentService
                 $message = 'Full payment';
                 break;
         }
-
+        
         $remainingTotal = max(0.0, (float) ceil($fullPrice) - (float) $amountPaid);
 
         $paymentStatus = $remainingTotal <= 0 ? 1 : 0;
@@ -780,8 +780,6 @@ class PaymentService
             $brandNewTrainings = array_diff($newTrainings, $user_programs);
             
             if (!empty($brandNewTrainings)) {
-                $amount_to_use = $amount_to_use;
-
                 if (!$program) {
                     return [
                         'status' => false,
@@ -791,9 +789,7 @@ class PaymentService
 
                 $calculateAmount = self::calculatePaymentBreakdown($program, $payment_type, $amountPaid, $trainingMode, $amount_to_use);
                 $computedAmount = $calculateAmount['computed_amount'];
-                
-                $balance = $calculateAmount['balance'] ?? null;
-                
+                                
                 if ($couponCheck) {
                     // Apply coupon to amount
                     $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
@@ -813,7 +809,9 @@ class PaymentService
                         $couponTransaction = CouponService::initiateCoupon($couponData);
                     }
                 }
-                
+
+                $balance = $computedAmount - $amountPaid;
+
                 $real_type = $balance > 0 ? 'part' : $payment_type;
                 $transactionArray = [
                     'email'             => $user?->email ?? $participant['email'],
@@ -843,8 +841,8 @@ class PaymentService
                     'remarks'           => $remarks,
                 ];
                 
-                $transaction = self::initiateTransaction($transactionArray);
-
+                $transaction = self::logTransaction($transactionArray);
+                
                 self::createUserAndAttachPrograms($transaction);
                 $transaction = $transaction->fresh();
 
@@ -993,7 +991,7 @@ class PaymentService
             'exchange_rate' => $data['exchange_rate'],
         ];
 
-        $transaction = PaymentService::initiateTransaction($transactionArray);
+        $transaction = PaymentService::logTransaction($transactionArray);
         
         $data = self::createUserAndAttachPrograms($transaction);
     }
