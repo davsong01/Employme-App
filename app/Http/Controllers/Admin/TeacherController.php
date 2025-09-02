@@ -275,7 +275,7 @@ class TeacherController extends Controller
             if (!empty($request['training'])) {
                 foreach ($request['training'] as $training) {
                     if(isset($request->training_permissions[$training])){
-                        FacilitatorTraining::UpdateOrCreate([
+                        FacilitatorTraining::updateOrCreate([
                             'user_id' => $user->id,
                             'program_id' => $training],[
                             'user_id' => $user->id,
@@ -284,6 +284,10 @@ class TeacherController extends Controller
                         ]);
                     }
                 }
+                
+                FacilitatorTraining::where('user_id', $user->id)
+                    ->whereNotIn('program_id', $request->training)
+                    ->delete();
             }
         }
         
