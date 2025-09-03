@@ -340,6 +340,7 @@ class PaymentController extends Controller
             'program_id'        => $training->id,
             'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
             'facilitator_id'    => null,
+            'expected_amount' => $calculateAmount['total_due'] ?? null,
             'amount'            => $request->amount,
             "discount"          => $couponData['discount'] ?? 0,
             'transid'           => $transid,

@@ -227,6 +227,7 @@ class PopController extends Controller
                 ];
                 // dd($prepareData);
                 $addProgram = PaymentService::adminAddNewParticipant($prepareData);
+                return redirect(route('payments.index'))->with('message', 'Student added succesfully');
             }else{
                 // Its either there is existing transaction or not, if there is, then
                 if ($transaction->balance > 0) {

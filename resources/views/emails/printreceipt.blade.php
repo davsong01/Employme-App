@@ -95,10 +95,11 @@
             <th>Training Location</th>
         </tr>
     </thead>
+
     <tbody>
         <tr>
-            <td>{{ $transaction->meta['payment_mode']['name'] ?? 'N/A' }}</td>
-            <td>{{ $transaction->meta['payment_mode']['exchange_rate'] ?? 'N/A' }}</td>
+            <td>{{ $transaction->meta['payment_mode']['name'] ?? ($transaction->paymentMode->name ?? 'Transfer') }}</td>
+            <td>{{ $transaction->meta['payment_mode']['exchange_rate'] ?? ($transaction->paymentMode->exchange_rate ?? 'N/A') }}</td>
             <td>{{ $transaction->training_mode ?? 'N/A' }}</td>
             <td>
                 @if(!empty($transaction->location))
@@ -136,20 +137,24 @@
 </table>
 
 <table class="summary-table">
-    @php
-        $meta = is_array($transaction->meta) ? $transaction->meta : json_decode($transaction->meta, true);
-    @endphp
-
-    @if (!empty($meta['coupon_used']))
+    
+    @if (!empty($transaction->expected_amount))
+    <tr>
+        <td class="summary-label">Total Amount Due</td>
+        <td class="summary-value summary-total">
+            {{ $transaction->currency_symbol }}{{ number_format($transaction->expected_amount ) }}
+        </td>
+    </tr>
+    @endif
+    @if (!empty($transaction->coupon_id))
         <tr>
             <td class="summary-label">Coupon Used</td>
             <td class="summary-value">
-                {{ $meta['coupon_used']['code'] ?? 'N/A' }}
-                ({{ $transaction->currency_symbol }}{{ number_format($meta['coupon_used']['amount'] ?? 0) }} off)
+                {{ $transaction->coupon_code ?? 'N/A' }}
+                ({{ $transaction->currency_symbol }}{{ number_format($transaction->coupon_amount ?? 0) }} off)
             </td>
         </tr>
     @endif
-
     <tr>
         <td class="summary-label">Total Paid</td>
         <td class="summary-value summary-total">
@@ -168,4 +173,3 @@
 <p style="margin-top: 40px;"><strong><i>School Administrator</i></strong></p>
 </body>
 </html>
-{{-- {{dd('sdds')}} --}}

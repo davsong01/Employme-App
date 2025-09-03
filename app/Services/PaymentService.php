@@ -213,7 +213,8 @@ class PaymentService
                 'remarks' => $transactionArray['remarks'] ?? null,
 
                 "coupon_code" => $transactionArray['coupon_code'] ?? null,
-                "coupon_amount" =>  $transactionArray['coupon_amount'] ?? null
+                "coupon_amount" =>  $transactionArray['coupon_amount'] ?? null,
+                'expected_amount' => $transactionArray['expected_amount'] ?? null,
             ]);
 
             return  $transaction;
@@ -860,6 +861,7 @@ class PaymentService
                     'program_id'        => $program->id,
                     'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
                     'facilitator_id'    => null,
+                    'expected_amount' => $calculateAmount['total_due'] ?? null,
                     'amount'            => $amountPaid ?? $computedAmount,
                     "discount"          => $couponData['discount'] ?? 0,
                     'transid'           => $transid,
