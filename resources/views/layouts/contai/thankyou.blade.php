@@ -56,7 +56,7 @@
                     </tr>
                      <tr>
                       <td>Transaction ID</td>
-                      <td class="value">{{ $data['transid'] ?? null}}</td>
+                      <td class="value">{{ $data['transaction']['transid'] ?? null}}</td>
                     </tr>
                     <tr>
                       <td>Invoice ID</td>

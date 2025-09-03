@@ -309,15 +309,6 @@ class PaymentService
 
         $programIds = $transaction->is_package ? $transaction->program_ids : [$transaction->program_id];
 
-        // foreach ($programIds as $programId) {
-        //     $alreadyHasProgram = $user->programs()->where('program_id', $programId)->exists();
-
-        //     if (!$alreadyHasProgram) {
-        //         $data['program_id'] = $programId;
-
-        //         $user->programs()->attach($programId, $data);
-        //     }
-        // }
         $dataToSync = [];
         
         foreach ($programIds as $programId) {
@@ -430,7 +421,7 @@ class PaymentService
     {
         $couponData = [
             'coupon_amount' => 0,
-            'computed_amount' => 0,
+            'total_due' => 0,
             'coupon_id' => null,
             'coupon_code' => null,
             'program_id' => $training->id,
@@ -456,7 +447,7 @@ class PaymentService
             }
             return [
                 'coupon_amount' => round($coupon_amount, 2),
-                'computed_amount' => min(round($coupon_amount, 2), $training->p_amount),
+                'total_due' => min(round($coupon_amount, 2), $training->p_amount),
                 'coupon_id' => $trainingCoupon->id,
                 'coupon_code' => $trainingCoupon->code,
                 'program_id' => $training->id,
@@ -480,7 +471,7 @@ class PaymentService
 
                 return [
                     'coupon_amount' => round($coupon_amount, 2),
-                    'computed_amount' => min(round($coupon_amount, 2), $training->p_amount),
+                    'total_due' => min(round($coupon_amount, 2), $training->p_amount),
                     'coupon_id' => $mainCoupon->id,
                     'coupon_code' => $mainCoupon->code,
                     'program_id' => $training->id,
@@ -497,7 +488,7 @@ class PaymentService
 
     // public static function getExpectedAmountDetails($temp, $program, $couponData = null)
     // {
-    //     $couponAmount = $couponData['computed_amount'] ?? 0;
+    //     $couponAmount = $couponData['total_due'] ?? 0;
     //     $programAmount = $program->p_amount;
     //     $trainingMode = $temp->training_mode;
     //     $type = $temp->type;
@@ -555,7 +546,7 @@ class PaymentService
     //     if(!empty($amount_to_use)){
     //         return [
     //             'status' => true,
-    //             'computed_amount' => $amount_to_use
+    //             'total_due' => $amount_to_use
     //         ];
     //     }
 
@@ -571,7 +562,7 @@ class PaymentService
 
     //     return [
     //         'status' => true,
-    //         'computed_amount' => $programAmount,
+    //         'total_due' => $programAmount,
     //         'training_mode' => $trainingMode
     //     ];
     // }
@@ -635,59 +626,60 @@ class PaymentService
     }
 
     // public static function calculatePaymentBreakdown($program, $type, $amountPaid, $trainingMode = null, $amount_to_use = null)
-    // {        
-    //     // Apply mode-based pricing if applicable
-    //     if (!empty($trainingMode) && ($program->show_modes ?? '') === 'yes' && !empty($program->modes)) {
-    //         $modes = $program->modes;
-    //         if (!empty($modes[$trainingMode])) {
-    //             $programAmount = $modes[$trainingMode];
-    //         }
-    //     } else {
-    //         $programAmount = $program->early_bird_status ? $program->e_amount : $program->p_amount;
-    //     }
+    // {
+    //     $hasModes = ($program->show_modes ?? '') === 'yes' && !empty($program->modes);
+    //     $modeAmount = ($hasModes && $trainingMode && isset($program->modes[$trainingMode]))
+    //         ? (float) $program->modes[$trainingMode]
+    //         : null;
 
-    //     $expectedAmount = $amount_to_use ?? $programAmount;
-    //     $earlyBirdAmount = $amount_to_use ?? $program->e_amount;
+    //     // Full (regular) price to use if no override
+    //     $regularPrice = $modeAmount ?? (float) ($program->p_amount ?? 0);
+    //     // Early-bird price (if applicable)
+    //     $earlyBirdPrice = (float) ($program->e_amount ?? $regularPrice);
 
-    //     $message = 'Full payment';
-    //     $type = strtolower($type);
+    //     // If an explicit override is provided, it becomes the “full” price baseline
+    //     // $fullPrice = $amount_to_use !== null ? (float) $amount_to_use
+    //         // : ($program->early_bird_status ? $earlyBirdPrice : $regularPrice);
 
+    //     $type = strtolower((string) $type);
+
+    //     // Determine how much is due *now* for this payment type
     //     switch ($type) {
-    //         case 'part':
-    //             $expectedAmount = ceil($expectedAmount / 2);
-    //             $message = 'Part payment';
+    //         case 'earlybird':
+    //             // Early-bird means paying the early-bird total now
+    //             $dueNow = (float) ceil($amount_to_use !== null ? $amount_to_use : $earlyBirdPrice);
+    //             $message = 'Early Bird payment';
     //             break;
 
-    //         case 'earlybird':
-    //             $expectedAmount = ceil($earlyBirdAmount);
-    //             $message = 'Early Bird payment';
+    //         case 'part':
+    //             // 50% installment (ceil so we don’t undercharge due to decimals)
+    //             $dueNow = (float) ceil($regularPrice / 2);
+    //             $message = 'Part payment (50%)';
     //             break;
 
     //         case 'full':
     //         default:
-    //             $expectedAmount = ceil($expectedAmount);
     //             $type = 'full';
+    //             $dueNow = (float) ceil($regularPrice);
+    //             $message = 'Full payment';
     //             break;
     //     }
 
-    //     // Calculate balance properly
-    //     $balance = max(0, $expectedAmount - $amountPaid);
+    //     $remainingTotal = max(0.0, (float) ceil($dueNow) - (float) $amountPaid);
 
-    //     // Payment status: 1 = fully paid, 0 = not yet
-    //     $paymentStatus = $balance > 0 ? 0 : 1;
+    //     $paymentStatus = $remainingTotal <= 0 ? 1 : 0;
 
     //     return [
-    //         'status' => true,
-    //         'amount_paid'     => (float) $amountPaid,
-    //         'computed_amount' => $expectedAmount,
-    //         'type'            => $type,
-    //         'message'         => $message,
-    //         'payment_status'  => $paymentStatus,
-    //         'balance'         => $balance,
-    //         'training_mode' => $trainingMode
+    //         'status'           => true,
+    //         'amount_paid'      => (float) $amountPaid,        // total paid so far (include current)
+    //         'total_due'  => (float) ceil($dueNow),   // canonical full amount for this purchase
+    //         'type'             => $type,
+    //         'message'          => $message,
+    //         'payment_status'   => $paymentStatus,             // 1 only if fully settled
+    //         'balance'          => (float) $remainingTotal,    // remaining against FULL price
+    //         'training_mode'    => $trainingMode,
     //     ];
     // }
-
     public static function calculatePaymentBreakdown($program, $type, $amountPaid, $trainingMode = null, $amount_to_use = null)
     {
         $hasModes = ($program->show_modes ?? '') === 'yes' && !empty($program->modes);
@@ -700,47 +692,42 @@ class PaymentService
         // Early-bird price (if applicable)
         $earlyBirdPrice = (float) ($program->e_amount ?? $regularPrice);
 
-        // If an explicit override is provided, it becomes the “full” price baseline
-        $fullPrice = $amount_to_use !== null ? (float) $amount_to_use
-            : ($program->early_bird_status ? $earlyBirdPrice : $regularPrice);
-
         $type = strtolower((string) $type);
 
-        // Determine how much is due *now* for this payment type
+        // Determine total amount for this payment type
         switch ($type) {
             case 'earlybird':
-                // Early-bird means paying the early-bird total now
-                $dueNow = (float) ceil($amount_to_use !== null ? $amount_to_use : $earlyBirdPrice);
-                $message = 'Early Bird payment';
+                $totalDue = (float) ceil($amount_to_use !== null ? $amount_to_use : $earlyBirdPrice);
+                $dueNow   = $totalDue; // early bird is pay all now
+                $message  = 'Early Bird payment';
                 break;
 
             case 'part':
-                // 50% installment (ceil so we don’t undercharge due to decimals)
-                $dueNow = (float) ceil($fullPrice / 2);
-                $message = 'Part payment (50%)';
+                $totalDue = (float) ceil($regularPrice);      // full program cost
+                $dueNow   = (float) ceil($regularPrice / 2);  // installment due now
+                $message  = 'Part payment (50%)';
                 break;
 
             case 'full':
             default:
-                $type = 'full';
-                $dueNow = (float) ceil($fullPrice);
-                $message = 'Full payment';
+                $type     = 'full';
+                $totalDue = (float) ceil($regularPrice);
+                $dueNow   = $totalDue;
+                $message  = 'Full payment';
                 break;
         }
+
+        $remainingBalance = max(0.0, $totalDue - (float) $amountPaid);
         
-        $remainingTotal = max(0.0, (float) ceil($fullPrice) - (float) $amountPaid);
-
-        $paymentStatus = $remainingTotal <= 0 ? 1 : 0;
-
         return [
             'status'           => true,
-            'amount_paid'      => (float) $amountPaid,        // total paid so far (include current)
-            'computed_amount'  => (float) ceil($fullPrice),   // canonical full amount for this purchase
-            'due_now'          => (float) $dueNow,            // what this invoice/attempt expects
+            'amount_paid'      => (float) $amountPaid,        // already paid
+            'due_now'          => (float) $dueNow,            // what’s required at this step
+            'total_due'        => (float) $totalDue,          // canonical program cost
+            'balance'          => (float) $remainingBalance,  // how much remains unpaid
             'type'             => $type,
             'message'          => $message,
-            'payment_status'   => $paymentStatus,             // 1 only if fully settled
-            'balance'          => (float) $remainingTotal,    // remaining against FULL price
+            'payment_status'   => $remainingBalance <= 0 ? 1 : 0,
             'training_mode'    => $trainingMode,
         ];
     }
@@ -788,7 +775,7 @@ class PaymentService
                 };
 
                 $calculateAmount = self::calculatePaymentBreakdown($program, $payment_type, $amountPaid, $trainingMode, $amount_to_use);
-                $computedAmount = $calculateAmount['computed_amount'];
+                $computedAmount = $calculateAmount['total_due'];
                                 
                 if ($couponCheck) {
                     // Apply coupon to amount
@@ -805,7 +792,7 @@ class PaymentService
                         $couponData['transactionId'] = $transid;
                         $couponData['isPackage'] = $isPackage;
 
-                        $computedAmount = $couponData['computed_amount'] ?? $computedAmount;
+                        $computedAmount = $couponData['total_due'] ?? $computedAmount;
                         $couponTransaction = CouponService::initiateCoupon($couponData);
                     }
                 }
@@ -820,7 +807,7 @@ class PaymentService
                     'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
                     'facilitator_id'    => null,
                     'amount'            => $amountPaid ?? $computedAmount,
-                    "discount"          => $couponData['discount'] ?? null,
+                    "discount"          => $couponData['discount'] ?? 0,
                     'transid'           => $transid,
                     'invoice_id'        => $invoiceId,
                     'payment_mode'      => $payment_mode,

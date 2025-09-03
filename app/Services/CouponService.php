@@ -13,7 +13,7 @@ class CouponService
                 'status' => false,
                 'message' => 'Invalid or inactive coupon code.',
                 'discount' => 0,
-                'computed_amount' => $amount,
+                'total_due' => $amount,
                 'coupon_id' => $coupon->id,
                 'code' => $coupon->code,
             ];
@@ -24,7 +24,7 @@ class CouponService
                 'status' => false,
                 'message' => 'Coupon not valid for part payment or earlybird',
                 'discount' => 0,
-                'computed_amount' => $amount,
+                'total_due' => $amount,
                 'coupon_id' => $coupon->id,
                 'code' => $coupon->code,
             ];
@@ -42,7 +42,7 @@ class CouponService
                 'status' => false,
                 'message' => 'Coupon does not apply to this program.',
                 'discount' => 0,
-                'computed_amount' => $amount,
+                'total_due' => $amount,
                 'coupon_id' => $coupon->id,
                 'code' => $coupon->code,
             ];
@@ -55,7 +55,7 @@ class CouponService
                 'status' => false,
                 'message' => 'Coupon already applied.',
                 'discount' => 0,
-                'computed_amount' => $amount,
+                'total_due' => $amount,
                 'coupon_id' => $coupon->id,
                 'code' => $coupon->code,
             ];
@@ -75,7 +75,7 @@ class CouponService
             'status' => true,
             'message' => 'Coupon valid.',
             'discount' => $discount,
-            'computed_amount' => $finalPrice,
+            'total_due' => $finalPrice,
             'coupon_id' => $coupon->id,
             'code' => $coupon->code,
         ];
@@ -104,6 +104,10 @@ class CouponService
         }
 
         return $couponTransaction;
+    }
+
+    public static function getCouponTransactionFromTransaction($transaction){
+        return CouponUser::where('transactionId', $transaction->transid)->first();
     }
 
     public static function completeCoupon($couponTransaction){
