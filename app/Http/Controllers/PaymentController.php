@@ -259,18 +259,6 @@ class PaymentController extends Controller
             $returnUrl = url('trainings/' . $training->slug);
         }
 
-        // if ($type['type'] == 'full') {
-        //     $request['amount'] = $training->p_amount;
-        // }
-
-        // if ($type['type'] == 'earlybird' && $training->early_bird_status == 1 && $training->e_amount > 0) {
-        //     $request['amount'] = $training->e_amount;
-        // }
-
-        // if ($type['type'] == 'part') {
-        //     $request['amount'] = ($training->p_amount) / 2;
-        // }
-
         $payment_mode = [];
         if($request->payment_mode){
             if($request->payment_mode == 0){
@@ -342,7 +330,7 @@ class PaymentController extends Controller
             }
         }
         
-        $balance = $computedAmount - $request->amount;
+        $balance = $computedAmount - $request->amount + ($couponData['amount'] ?? 0);
         
         $isFreeTraining = $request->payment_type == 'full' && $training->p_amount == 0 ? true : false;
         
@@ -576,6 +564,7 @@ class PaymentController extends Controller
         
         if($template == 'contai'){
             if(isset($transaction) && !empty($transaction)){
+                // abstracted this
                 $balance = $transaction->balance;
                 // Compare
                 if($transaction->type == 'full'){
@@ -628,9 +617,8 @@ class PaymentController extends Controller
                     logger()->info(['Payment Error: '. $rand => $th->getMessage()]);
 
                     return redirect(route('home'))->with('error', 'An error occured, please contact Support with this error code: '. $rand);
-
                 }
-
+                // to this
                 // Send email
                 $data['balance'] = $balance;
                 $data['programs'] = $transaction->allPrograms()->toArray();
@@ -665,7 +653,6 @@ class PaymentController extends Controller
             return redirect(route('welcome'));
             // Compare details with details in temp table
         }
-       
     }
 
     public function payFromAccount(Request $request, $source=null){
@@ -812,7 +799,8 @@ class PaymentController extends Controller
                 'transaction_id' => $allDetails['balance_transaction_id'],
                 'parent_transaction_id' => $existingTransaction->transid,
                 't_type' => 'wallet',
-                'amount' => $request->amount
+                'amount'       => $total_amount_paid,
+
             ]);
 
             $data['training'] = $allDetails['balance_transaction_id'];
@@ -858,7 +846,7 @@ class PaymentController extends Controller
                 'transaction_id' => $payment->transid,
                 'parent_transaction_id' => $payment->transid,
                 't_type' => 'wallet',
-                'amount' => $request->amount
+                'amount' => $payment->amount
             ]);
 
             $data['training'] = $payment->transid;

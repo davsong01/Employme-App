@@ -35,10 +35,14 @@
                         @foreach($pops as $pop)
                             @if($pop->related)
                                 <tr>
-                                    <td>{{ $pop->date }}</td>
+                                    <td>
+                                        {{ $pop->date }}
+                        
+                                    </td>
                                     <td>{{ ucfirst($pop?->temp?->type ?? 'N/A') }}</td>
 
-                                    <td>{{ $pop->name }} <br>
+                                    <td>
+                                        {{ $pop->name }} <br>
                                         {{ $pop->phone }} <br>
                                         {{ $pop->email }} <br>
                                         <?php 
@@ -75,6 +79,7 @@
                                         </div>
                                     </td>
                                     <td>
+                                        
                                         Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
                                         @if(!empty($pop->temp->coupon_id))
                                         <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>

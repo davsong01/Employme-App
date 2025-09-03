@@ -111,7 +111,7 @@ class PaymentController extends Controller
             return back();
         }
         
-        $pops = Pop::with('program:id,p_name,p_amount,e_amount,p_end,close_registration')->Ordered('date', 'DESC')->get();
+        $pops = Pop::with('temp','program:id,p_name,p_amount,e_amount,p_end,close_registration')->Ordered('date', 'DESC')->get();
         
         $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
             ->doesntHave('children')

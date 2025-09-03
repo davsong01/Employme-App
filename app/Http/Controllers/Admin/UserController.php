@@ -610,7 +610,7 @@ class UserController extends Controller
                             'transaction_id' => PaymentService::getReference('PYTHRD'),
                             't_type' => strtolower($transaction->t_type),
                             'parent_transaction_id' => $transaction->transid,
-                            'amount' => $amount,
+                            'amount' => $transaction->amount,
                         ]);
                     }
                 }

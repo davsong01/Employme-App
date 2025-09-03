@@ -324,49 +324,34 @@ class PaymentService
         return $user;
     }
 
-    public static function getExistingTransactionAndBalance($pop)
-    {
-        // check if there is a user, if yes, use the user_id, else use the email and program or group as the case may and get the transaction balance if it exist
-        $isPackage = $pop->is_package;
+    // public static function getExistingTransactionAndBalance($pop)
+    // {
+    //     $query = TempTransaction::query();
 
-        if (isset($pop->user->id)) {
-            $existingTransaction = TempTransaction::where('user_id', $pop->user->id);
-            if (!$isPackage) {
-                $existingTransaction = $existingTransaction->where('program_id', $pop->program_id)->where('is_package', 0);
-            } else {
-                $existingTransaction = $existingTransaction->where('program_id', $pop->group_id)->where('is_package', 1);
-            }
-            $existingTransaction = $existingTransaction->first();
+    //     if (isset($pop->user->id)) {
+    //         $query->where('user_id', $pop->user->id);
+    //     } else {
+    //         $query->where('email', $pop->email);
+    //     }
+        
+    //     if ($pop->is_package) {
+    //         $query->where('program_id', $pop->group_id)
+    //             ->where('is_package', 1);
+    //     } else {
+    //         $query->where('program_id', $pop->program_id)
+    //             ->where('is_package', 0);
+    //     }
 
-            if ($existingTransaction) {
-                return [
-                    'balance' => $existingTransaction->balance ?? 0,
-                    'transaction' => $existingTransaction,
-                ];
-            }
-        } else {
-            $existingTransaction = TempTransaction::where('email', $pop->email);
-            if (!$isPackage) {
-                $existingTransaction = $existingTransaction->where('program_id', $pop->program_id)->where('is_package', 0);
-            } else {
-                $existingTransaction = $existingTransaction->where('program_id', $pop->group_id)->where('is_package', 1);
-            }
+    //     $existingTransaction = $query->first();
+    //     dd($existingTransaction);
+    //     return [
+    //         'status' => true,
+    //         'balance' => $existingTransaction->balance ?? 0,
+    //         'transaction' => $existingTransaction,
+    //         'message' => 'Existing Transaction',
+    //     ];
+    // }
 
-            $existingTransaction = $existingTransaction->first();
-
-            if ($existingTransaction) {
-                return [
-                    'balance' => $existingTransaction->balance ?? 0,
-                    'transaction' => $existingTransaction,
-                ];
-            }
-        }
-
-        return [
-            'balance' => 0,
-            'transaction' => null,
-        ];
-    }
 
     public static function handleBalancePayment($existingTransaction, $existingTransactionBalance, $data){
         $isNew = false;
@@ -415,6 +400,75 @@ class PaymentService
             'status' => true,
             'message' => 'Balance Payment added succesfully',
         ];
+    }
+
+    public static function completePayment($transaction){
+        $balance = $transaction->balance;
+        // Compare
+        if ($transaction->type == 'full') {
+            $payment_type = 'Full';
+            $message = 'Full payment';
+            $coupon_applied = $transaction->coupon ?? NULL;
+            $paymentStatus =  1;
+        } elseif ($transaction->type == 'part') {
+            $payment_type = 'Part';
+            $message = 'Part payment';
+            $coupon_applied = $transaction->coupon ?? NULL;
+            $paymentStatus =  0;
+        } elseif ($transaction->type == 'earlybird') {
+            $payment_type = 'Full';
+            $message = 'Earlybird payment';
+            $paymentStatus =  1;
+        } elseif ($transaction->type == 'balance') {
+        }
+
+        try {
+            DB::beginTransaction();
+
+            self::createUserAndAttachPrograms($transaction);
+            $transaction = $transaction->fresh();
+
+            PaymentThread::create([
+                'program_id'   => $transaction->program_id,
+                'admin_id'      => auth()->guard('admin')->user()->id ?? null,
+                'user_id'      => $transaction->user_id,
+                'payment_id'   => $transaction->id,
+                'transaction_id' => self::getReference('PYTHRD'),
+                't_type'       => strtolower($transaction->t_type),
+                'parent_transaction_id' => $transaction->transid,
+                'amount'       => $transaction->amount,
+            ]);
+
+            if (!empty($transaction->coupon_id)) {
+                $couponTransaction = CouponService::getCouponTransactionFromTransaction($transaction);
+                CouponService::completeCoupon($couponTransaction);
+            }
+            $transaction->update([
+                'status' => 'complete',
+            ]);
+
+            DB::commit();
+
+            return [
+                'status' => true,
+                'transaction' => $transaction,
+                'paymentStatus' => $paymentStatus,
+                'message' => $message,
+                'payment_type' => $payment_type,
+                'coupon_applied' => $coupon_applied ?? null,
+                'balance' => $balance
+            ];
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $rand = rand(1111, 9999);
+            logger()->info(['Payment Error: ' . $rand => $th->getMessage()]);
+
+            return [
+                'status' => false,
+                'message' => 'An error occured, please contact Support with this error code: ' . $rand,
+            ];
+        }
     }
 
     public static function calculateCoupon($temp, $training, $mainProgram)
@@ -773,10 +827,10 @@ class PaymentService
                         'message' => 'Invalid Program',
                     ];
                 };
-
+                
                 $calculateAmount = self::calculatePaymentBreakdown($program, $payment_type, $amountPaid, $trainingMode, $amount_to_use);
                 $computedAmount = $calculateAmount['total_due'];
-                                
+                
                 if ($couponCheck) {
                     // Apply coupon to amount
                     $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
@@ -797,7 +851,7 @@ class PaymentService
                     }
                 }
 
-                $balance = $computedAmount - $amountPaid;
+                $balance = $computedAmount - $amountPaid + ($couponData['discount'] ?? 0);
 
                 $real_type = $balance > 0 ? 'part' : $payment_type;
                 $transactionArray = [
@@ -841,7 +895,7 @@ class PaymentService
                     'transaction_id' => self::getReference('PYTHRD'),
                     't_type'       => strtolower($transaction->t_type),
                     'parent_transaction_id' => $transaction->transid,
-                    'amount'       => $computedAmount,
+                    'amount'       => $transaction->amount,
                 ]);
 
                 if (!empty($transaction->coupon_id) && isset($couponTransaction->id)) {
