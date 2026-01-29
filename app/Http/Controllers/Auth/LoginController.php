@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Models\User;
+use App\Models\Program;
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Services\BlacklistService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+
+class LoginController extends Controller
+{
+    /*
+    |--------------------------------------------------------------------------
+    | Login Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles authenticating users for the application and
+    | redirecting them to your home screen. The controller uses a trait
+    | to conveniently provide its functionality to your applications.
+    |
+    */
+
+    use AuthenticatesUsers;
+
+    /**
+     * Where to redirect users after login.
+     *
+     * @var string
+     */
+    protected $redirectTo = 'home';
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // $this->middleware('guest')->except('logout');
+    }
+
+    public function username()
+    {
+        $login = request()->input('login');
+        $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'staffID';
+        request()->merge([$fieldType => $login]);
+        return $fieldType;
+    }
+
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        $username = $request->input('login');
+        if (BlacklistService::checkByValues([
+            'email' => $username,
+            'phone' => $username,
+            'staffID' => $username,
+        ])) {
+            return redirect()->route('login')->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+        }
+
+        if (
+            method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)
+        ) {
+            $this->fireLockoutEvent($request);
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        // If failed, increase attempt count and send failure response
+        $this->incrementLoginAttempts($request);
+        return $this->sendFailedLoginResponse($request);
+    }
+
+
+    // protected function attemptLogin(Request $request)
+    // {
+    //     $username = $request->input('login');
+
+    //     $user = User::where('email', $username)->orWhere('staffID', $username)->first();
+
+    //     if ($user) {
+    //         $programIds = Program::where(['login_without_password' => 1, 'program_lock' => 0])->pluck('id')->toArray();
+
+    //         $hasProgram = Transaction::where('user_id', $user->id)
+    //             ->whereIn('program_id', $programIds)
+    //             ->exists();
+
+    //         if ($hasProgram) {
+    //             Auth::login($user);
+
+    //             // Update last_login after successful login
+    //             $user->update(['last_login' => now()]);
+
+    //             return true;
+    //         }
+    //     }
+
+    //     $credentials = $this->credentials($request);
+    //     $attemptLogin = Auth::attempt($credentials, $request->filled('remember'));
+
+    //     // If login is successful, update last_login
+    //     if ($attemptLogin) {
+    //         $user = resolveAuthUser();
+    //         $user->update(['last_login' => now()]);
+    //     }
+
+    //     return $attemptLogin;
+    // }
+    protected function attemptLogin(Request $request)
+    {
+        $username = $request->input('login');
+
+        $user = User::where('email', $username)
+            ->orWhere('staffID', $username)
+            ->first();
+
+        if ($user) {
+            $programIds = Program::where([
+                'login_without_password' => 1,
+                'program_lock' => 0
+            ])
+                ->pluck('id')
+                ->toArray();
+
+            $hasProgram = Transaction::where('user_id', $user->id)
+                ->whereIn('program_id', $programIds)
+                ->exists();
+
+            if ($hasProgram) {
+                Auth::login($user);
+                $user->update(['last_login' => now()]);
+                return true;
+            }
+        }
+
+        $credentials = $this->credentials($request);
+        $attemptLogin = Auth::attempt($credentials, $request->filled('remember'));
+
+        if ($attemptLogin) {
+            $user = resolveAuthUser();
+            $user->update(['last_login' => now()]);
+        }
+
+        return $attemptLogin;
+    }
+}

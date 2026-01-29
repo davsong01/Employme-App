@@ -1,0 +1,839 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use DB;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Currency;
+use App\Models\Material;
+use App\Models\Question;
+use App\Models\Transaction;
+use Illuminate\Support\Arr;
+use App\Models\ScoreSetting;
+use Illuminate\Http\Request;
+use App\Services\ExcelService;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProgramDetailsExport;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
+
+class ProgramController extends Controller
+{
+    public function index(Program $program)
+    {
+        $i = 1;
+        $this->populateResolveToIdsWithParentProgram();
+
+        if (checkRoleHas(['Admin','Grader','Facilitator'])) {
+            if(checkRoleHas(['Admin'])){
+                //Get all programs
+                $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+            }else{
+                $programs = resolveAuthUser()->userTrainings()->get();
+            }
+            
+            //Get Users payment status
+            foreach ($programs as $program) {
+                $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
+                $program['fully_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '<=', 0)->count();
+            }
+
+            return view('dashboard.admin.programs.index', compact('programs', 'i'));
+        }
+        
+        return redirect('/');
+    }
+
+    private function populateResolveToIdsWithParentProgram(){
+        $programs = Program::select('id', 'resolve_to_ids','parent_id')->whereNull('resolve_to_ids')->whereNull('parent_id')->whereDoesntHave('children')->get();
+        
+        if($programs->isEmpty()){
+            return;
+        }
+        
+        foreach($programs as $program){
+            $program->update([
+                'resolve_to_ids' => [$program->id]
+            ]);
+        }
+
+        return;
+    }
+
+    public function exportdetails($id)
+    {
+        $programname = Program::whereId($id)->value('p_name');
+        
+        $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);
+        return Excel::download(new ProgramDetailsExport($id), $programname . ' participants.xlsx');
+    }
+
+    // public function processExportParticipantsDataFromTraining(Request $request) {
+    //     $programIds = $request->program_ids;
+    //     $from = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : null;
+    //     $to = $request->filled('to') ? Carbon::parse($request->to)->endOfDay() : null;
+    //     $removeDuplicates = $request->filled('removeDuplicates');
+
+    //     $baseQuery = Transaction::with(['program', 'user', 'paymentLog'])
+    //         ->whereIn('program_id', $programIds);
+
+    //     if($removeDuplicates && $removeDuplicates == 'yes'){
+    //         $baseQuery->distince('user_id');
+    //     }
+
+    //     if ($from && $to) {
+    //         $baseQuery->whereBetween('created_at', [$from, $to]);
+    //     } elseif ($from) {
+    //         $baseQuery->where('created_at', '>=', $from);
+    //     } elseif ($to) {
+    //         $baseQuery->where('created_at', '<=', $to);
+    //     }
+
+    //     $participants = $baseQuery->take(10)->get();
+
+    //     foreach($participants as $participant){
+    //         return [
+    //             'Date Created' => 'user.created_at',
+    //             'Staff ID' => 'user.staffId',
+    //             'Name',
+    //             'Email',
+    //             'Phone',
+    //             'Expected Amount' => 'paymentLog.expected_amount',
+    //             'Amount Paid' => 'paymentLog.amount',
+    //             'Balance' => 'paymentLog.balance',
+    //             'Payment Mode'  => 'paymentLog.payment_mode',
+    //             'Transaction Id' => 'paymentLog.transid',
+    //             'Location'
+    //             'Program(s)' => preg_replace('/[^A-Za-z0-9\-]/', '', $programname)
+    //         ];
+
+    //     }
+    //     // $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);
+    //     return Excel::download($participants, 'participants.xlsx');
+    // }
+    public function processExportParticipantsDataFromTraining(Request $request)
+    {
+        $programIds = $request->program_ids ?? [];
+        $from = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : null;
+        $to = $request->filled('to') ? Carbon::parse($request->to)->endOfDay() : null;
+        $removeDuplicates = $request->filled('remove_duplicate') && $request->remove_duplicate == 'yes';
+       
+        // Base query
+        $baseQuery = Transaction::with(['program', 'user', 'paymentLog'])
+            ->whereIn('program_id', $programIds);
+
+        // Date filtering
+        if ($from && $to) {
+            $baseQuery->whereBetween('created_at', [$from, $to]);
+        } elseif ($from) {
+            $baseQuery->where('created_at', '>=', $from);
+        } elseif ($to) {
+            $baseQuery->where('created_at', '<=', $to);
+        }
+
+        $participants = $baseQuery->get();
+
+        if ($removeDuplicates) {
+            $participants = $participants->groupBy('user_id')->map(function ($userTransactions) {
+                $first = $userTransactions->first();
+                $user = $first->user;
+                $payment = $first->paymentLog;
+
+                // Collect all program names for this user
+                $programNames = $userTransactions
+                    ->pluck('program.p_name')
+                    ->filter()
+                    ->unique()
+                    ->map(fn($name) => preg_replace('/[^A-Za-z0-9\- ]/', '', $name))
+                    ->values()
+                    ->implode(', ');
+
+
+                return [
+                    'Date Created'     => optional($user)->created_at?->format('Y-m-d H:i'),
+                    'Staff ID'         => optional($user)->staffId,
+                    'Name'             => optional($user)->name,
+                    'Email'            => optional($user)->email,
+                    'Phone'            => optional($user)->phone,
+                    'Payment Type'     => optional($payment)->type,
+                    'Expected Amount'  => optional($payment)->expected_amount,
+                    'Amount Paid'      => optional($payment)->amount,
+                    'Balance'          => optional($payment)->balance,
+                    'Payment Mode'     => optional($payment)->payment_mode,
+                    'Transaction ID'   => optional($payment)->transid,
+                    'Location'         => optional($user)->location,
+                    'Program(s)'       => $programNames,
+                ];
+            })->values();
+        } else {
+            // Normal export without merging programs
+            $participants = $participants->map(function ($participant) {
+                $user = $participant->user;
+                $payment = $participant->paymentLog;
+                $program = $participant->program;
+
+                return [
+                    'Date Created'     => optional($user)->created_at?->format('Y-m-d H:i'),
+                    'Staff ID'         => optional($user)->staffId,
+                    'Name'             => optional($user)->name,
+                    'Email'            => optional($user)->email,
+                    'Phone'            => optional($user)->phone,
+                    'Payment Type'     => optional($payment)->type,
+                    'Expected Amount'  => optional($payment)->expected_amount,
+                    'Amount Paid'      => optional($payment)->amount,
+                    'Balance'          => optional($payment)->balance,
+                    'Payment Mode'     => optional($payment)->payment_mode,
+                    'Transaction ID'   => optional($payment)->transid,
+                    'Location'         => optional($user)->location,
+                    'Program(s)'       => preg_replace('/[^A-Za-z0-9\- ]/', '', optional($program)->p_name),
+                ];
+            });
+        }
+
+        $excelService = new ExcelService();
+        return $excelService->fastExport($participants->toArray(), 'participants.xlsx');
+    }
+
+
+
+    public function create()
+    {
+        if(checkRoleHas(['Admin'])) {
+            $programs = Program::where('id', '<>', 1)->get();
+            $materials = Material::all();
+            return view('dashboard.admin.programs.create', compact('programs'));
+        } else {
+            return redirect('/programs');
+        }
+    }
+
+    public function exportParticipantsDataFromTraining()
+    {
+        if (checkRoleHas(['Admin'])) {
+            $programs = Program::where('id', '<>', 1)->orderBy('id','desc')->get();
+            return view('dashboard.admin.programs.export', compact('programs'));
+        } else {
+            return redirect('/programs');
+        }
+    }
+
+
+    public function store(Request $request)
+    {
+        $data = $this->validate($request, [
+            'p_name' => 'required',
+            'p_abbr' => 'required',
+            'p_amount' => 'required',
+            'e_amount' => 'required',
+            'p_start' => 'required',
+            'p_end' => 'required',
+            'hasmock' => 'required',
+            'is_closed' => 'nullable',
+            'booking_form' => 'file|mimes:pdf|max:10000',
+            'image' => 'required|image |max:10000',
+            'haspartpayment' => 'required',
+            'status' => 'required',
+            'off_season' => 'required',
+            'show_catalogue_popup' => 'required',
+            'show_locations' => 'required',
+            'locations' => 'nullable',
+            'show_modes' => 'required',
+            'allow_payment_restrictions_for_materials' => 'required',
+            'allow_payment_restrictions_for_pre_class_tests' => 'required',
+            'allow_payment_restrictions_for_post_class_tests' => 'required',
+            'allow_payment_restrictions_for_results' => 'required',
+            'allow_payment_restrictions_for_certificates' => 'required',
+            'allow_payment_restrictions_for_completed_tests' => 'required',
+            'allow_preferred_timing' => 'required',
+            'allow_flexible_payment' => 'required',
+        ]);
+
+        //Save booking form
+        if ($request->file('booking_form')) {
+            $filePath = $this->uploadFileToUploads($request->file('booking_form'), 'booking_form', 'bookingforms');
+            $filePath = 'bookingforms/' . $filePath;
+        }
+
+        // uploads file to the desired folder in uploads directory
+        $file = $this->uploadFileToUploads($request->file('image'), 'image', 'trainings', 533, 533);
+        $data['image'] = 'trainingimage/' . $file;
+
+        if ($request->has('show_locations') && $request->show_locations == 'yes') {
+            for ($i = 0; $i < count($request->location_name); $i++) {
+                $l[] = array_column($request->only(['location_name', 'location_address']), $i);
+            }
+
+            foreach ($l as $test) {
+                $locations[$test[0]] = $test[1];
+            }
+            $locations = json_encode($locations);
+        }
+
+        if ($request->has('show_modes') && $request->show_modes == 'yes') {
+            for ($i = 0; $i < count($request->mode_name); $i++) {
+                $m[] = array_column($request->only(['mode_name', 'mode_amount']), $i);
+            }
+
+            foreach ($m as $test) {
+                $modes[$test[0]] = $test[1];
+            }
+            $modes = json_encode($modes);
+        }
+
+        $program = Program::Create([
+            'p_name' => $data['p_name'],
+            'p_abbr' => $data['p_abbr'],
+            'p_amount' => $data['p_amount'],
+            'e_amount' => $data['e_amount'],
+            'p_start' => $data['p_start'],
+            'p_end' => $data['p_end'],
+            'hasmock' => $data['hasmock'],
+            'haspartpayment' => $data['haspartpayment'],
+            'status' => $data['status'],
+            'off_season' => $data['off_season'],
+            'is_closed' => $data['is_closed'],
+            'booking_form' => $filePath ?? null,
+            'show_locations' => $data['show_locations'],
+            'show_modes' => $data['show_modes'],
+            'modes' => $modes ?? null,
+            'locations' => $locations ?? null,
+            'show_catalogue_popup' => $data['show_catalogue_popup'],
+            'image' => 'trainingimage/' . $file,
+            'allow_payment_restrictions_for_materials' => $data['allow_payment_restrictions_for_materials'],
+            'allow_payment_restrictions_for_pre_class_tests' => $data['allow_payment_restrictions_for_pre_class_tests'],
+            'allow_payment_restrictions_for_post_class_tests' => $data['allow_payment_restrictions_for_post_class_tests'],
+            'allow_payment_restrictions_for_results' => $data['allow_payment_restrictions_for_results'],
+            'allow_payment_restrictions_for_certificates' => $data['allow_payment_restrictions_for_certificates'],
+            'allow_payment_restrictions_for_completed_tests' => $data['allow_payment_restrictions_for_completed_tests'],
+            'allow_preferred_timing' => $data['allow_preferred_timing'],
+            'allow_flexible_payment' => $data['allow_flexible_payment'],
+        ]);
+
+        if ($request->has('sub_name') && $request->show_sub == 'yes') {
+            for ($i = 0; $i < count($request->sub_name); $i++) {
+                $l[] = array_column($request->only(['sub_name', 'sub_amount']), $i);
+            }
+
+            foreach ($l as $test) {
+                $subs[$test[0]] = $test[1];
+            }
+
+            foreach ($subs as $name => $amount) {
+                $sub_data = $program->toArray();
+                $sub_data['p_name'] = $name;
+                $sub_data['parent_id'] = $sub_data['id'];
+                $sub_data['p_amount'] = $amount;
+                unset($sub_data['id']);
+                Program::Create($sub_data);
+            }
+        }
+
+
+        return redirect('programs')->with('message', 'Program added succesfully');
+    }
+
+    public function edit($id)
+    {
+        $i = 1;
+        $program = Program::find($id);
+        $modes = [
+            'Online',
+            'Offline'
+        ];
+
+        $currencies = Currency::where('status', 1)->orderBy('name')->get();
+        
+        $programs = Program::select('id', 'p_name')
+            ->activePrograms()
+            ->orWhere('id', $program->id)
+            ->get();
+
+        return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies','programs'));
+    }
+
+    public function update(Request $request, Program $program)
+    {
+        $data = $request->only(['resolve_to_ids','show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status']);
+        // Clear all certificate previews
+        $this->deleteAllFilesInAPublicFolder('certificate_previews');
+        //check if new featured image
+        
+        if(!empty($data['currencies']) && !empty($data['currency_values'])){
+            $selectedCurrencyIds = $request->input('currencies', []);
+            $currencyValues = $request->input('currency_values', []);
+
+            $currencyData = [];
+
+            foreach ($selectedCurrencyIds as $currencyId) {
+                $currencyData[] = [
+                    'id' => (int) $currencyId,
+                    'amount' => isset($currencyValues[$currencyId]) && $currencyValues[$currencyId] !== ''
+                        ? (float) $currencyValues[$currencyId]
+                        : null,
+                ];
+            }
+
+            $data['currencies'] = $currencyData;
+        }else{
+            $data['currencies'] = $program->currencies;
+        }
+        unset($data['currency_values']);
+
+        if(!empty($request->auto_certificate_template)){
+            $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+            $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+            
+            $request['path'] = 'certificate_templates/'.$name;
+            
+        }else{
+            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
+        }
+
+        $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);
+        
+        if ($request->hasFile('image')) {
+
+            // Dont delete old files, another progeam may be using it
+            // uploads file to the desired folder in uploads directory
+            $file = $this->uploadFileToUploads($request->file('image'), 'image', 'trainings', 533, 533);
+
+            $data['image'] = 'trainingimage/' . $file;
+        }
+
+        if ($request->hasFile('booking_form')) {
+            //Save booking form
+            $filePath = $this->uploadFileToUploads($request->file('booking_form'), 'booking_form', 'bookingforms');
+
+            $data['booking_form'] = 'bookingforms/' . $filePath;
+        }
+        
+        if (!empty($request->show_locations) && $request->show_locations == 'yes') {
+            if(isset($request->location_name) && count($request->location_name) > 0){
+                for ($i = 0; $i < count($request->location_name); $i++) {
+                    $l[] = array_column($request->only(['location_name', 'location_address']), $i);
+                }
+    
+                foreach ($l as $test) {
+                    $locations[$test[0]] = $test[1];
+                }
+                $data['locations'] = json_encode($locations);
+            }
+        }
+
+        if (!empty($request->show_modes) && $request->show_modes == 'yes') {
+            for ($i = 0; $i < count($request->mode_name); $i++) {
+                $m[] = array_column($request->only(['mode_name', 'mode_amount']), $i);
+            }
+
+            foreach ($m as $test) {
+                $modes[$test[0]] = $test[1];
+            }
+            $data['modes'] = json_encode($modes);
+        }
+
+        $program->update($data);
+        
+        if ($request->sub_name && $request->show_sub == 'yes') {
+
+            for ($i = 0; $i < count($request->sub_name); $i++) {
+                $l[] = array_column($request->only(['sub_name', 'sub_amount', 'sub_status', 'sub_program_id']), $i);
+            }
+
+            foreach ($l as $test) {
+                $subs[] = [
+                    'p_name' => $test[0],
+                    'p_amount' => $test[1],
+                    'status' => $test[2],
+                    'id' => $test[3] ?? null,
+                ];
+            }
+            
+            if (isset($subs) && !empty($subs)) {
+                $sub_programs = $subs;
+                $new_sub_data = $program->toArray();
+                $new_sub_data = array_diff_key($new_sub_data, array_flip(["status", "id", "created_at", "updated_at", "sub_programs", "deleted_at", "p_name", "p_amount", "show_sub"]));
+                
+                foreach ($sub_programs as $key => $sub) {
+                    $new_sub_data['p_name'] = $sub['p_name'];
+                    $new_sub_data['p_amount'] = $sub['p_amount'];
+                    $new_sub_data['status'] = $sub['status'];
+                    $new_sub_data['parent_id'] = $program->id;
+                    unset($new_sub_data['slug']);
+                    
+                    if (isset($sub['id'])) {
+                        $subProgram = Program::where('id', $sub['id'])->first();
+                        $subProgram->update($new_sub_data);
+                    } else {
+                        $new = Program::Create($new_sub_data);
+                    }
+                }
+            }
+        }
+
+        return redirect()->back()->with('message', 'Training updated successfully');
+    }
+
+    public function buildCertificateSettings($request){
+        $auto_certificate_settings = [
+            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
+            "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
+            "auto_certificate_color" => $request->auto_certificate_color,
+            "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
+            "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
+            "text_type" => $request->text_type,
+            "text_type_face" => $request->text_type_face ?: 'Pesaro-Bold.ttf',
+        ];
+
+        $final_array = [];
+
+        $auto_certificate_settings = array_filter($auto_certificate_settings, function ($value) {
+            return !is_null($value);
+        });
+
+        if($request->auto_certificate_status == 'yes' && count($auto_certificate_settings) > 0){
+            foreach ($auto_certificate_settings as $key => $req) {
+                foreach ($req as $index => $value) {
+                    $final_array[$index][$key] = $value;
+                }
+            }
+        }
+
+        $data['auto_certificate_settings'] = [
+            "auto_certificate_status" => $request->auto_certificate_status,
+            "auto_certificate_template" => $request->path,
+            "settings" => $final_array
+        ];
+
+        return $data['auto_certificate_settings'];
+    }
+
+    public function removeSubProgram($id)
+    {
+        $check = DB::table('program_user')->where('program_id', $id)->count();
+        if ($check <= 0) {
+            Program::find($id)->forceDelete();
+            return response()->json(['status' => 'success', 'message' => 'Removed successfully!'], 200);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Cannot remove program with one or more participants!'], 200);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $program = program::withTrashed()->where('id', $id)->firstOrFail();
+
+        if ($program->trashed()) {
+            $program->forceDelete();
+
+            return redirect('programs')->with('message', 'Training has been deleted forever');
+        } else {
+
+            $program->users()->detach();
+
+            $program->delete();
+
+            return redirect('programs')->with('message', 'Training has been trashed');
+        }
+    }
+
+    public function trashed()
+    {
+        $i = 1;
+        //Get all programs
+        $programs = Program::with('users')->onlyTrashed()->get();
+
+        //Get all students
+        $users = User::where('roles', 'Student')->get();
+
+        //Get Users payment status
+        foreach ($programs as $program) {
+            $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
+            $program['fully_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '<=', 0)->count();
+        }
+
+        // dd($programs);
+        return view('dashboard.admin.programs.trash', compact('programs', 'i'));
+    }
+
+    public function restore($id)
+    {
+        $program = program::withTrashed()->where('id', $id)->whereNULL('parent_id')->firstOrFail();
+
+        $program->restore();
+
+        return redirect(route('programs.index'))->with('message', 'Program has been restored');
+    }
+
+    public function showcrm($id)
+    {
+        $program = Program::find($id);
+        $programName = $program->p_name;
+        $program->hascrm = 1;
+        $program->save();
+
+        return back()->with('message', 'CRM has been succesfully enabled for ' . $programName);
+    }
+
+    public function hidecrm($id)
+    {
+        $program = Program::find($id);
+        $programName = $program->p_name;
+        $program->hascrm = 0;
+        $program->save();
+
+        return back()->with('message', 'CRM has been succesfully disabled for ' . $programName);
+    }
+
+    public function closeRegistration($id)
+    {
+        $program = Program::findorfail($id);
+        $programName = $program->p_name;
+        $program->close_registration = 1;
+        $program->save();
+
+        return back()->with('message', 'Registration is now closed for ' . $programName);
+    }
+
+    public function openRegistration($id)
+    {
+        $program = Program::findorfail($id);
+        $programName = Program::where('id', $id)->pluck('p_name');
+        $program->close_registration = 0;
+        $program->save();
+
+        return back()->with('message', 'Registration is now extended for ' . $programName);
+    }
+
+    public function openEarlyBird($id)
+    {
+        $program = Program::findorfail($id);
+        $programName = Program::where('id', $id)->pluck('p_name');
+        $program->early_bird_status = 1;
+        $program->save();
+
+        return back()->with('message', 'Early is now extended for ' . $programName);
+    }
+
+    public function closeEarlyBird($id)
+    {
+        $program = Program::findorfail($id);
+        $programName = Program::where('id', $id)->pluck('p_name');
+        $program->early_bird_status = 0;
+        $program->save();
+
+        return back()->with('message', 'EarlyBird payment is now closed for ' . $programName);
+    }
+
+    public function cloneTraining(Request $request, Program $training)
+    {
+        $scoresettings = $training->scoresettings;
+        $materials = $training->materials;
+        $modules = $training->modules;
+        $questions = $training->questions;
+
+        $training->parent_id = null;
+
+        // Create new program
+        $newT = Arr::except($training->toArray(), ['id','created_at','updated_at','deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
+
+        if (empty(array_intersect(['certificate_settings', 'all'], $request->clone_options))) {
+            unset($newT['auto_certificate_settings']);
+        }
+
+        try {
+            DB::beginTransaction();
+            $newT['status'] = 0;
+            $newT['is_closed'] = 'no';
+            $newT['p_name'] = 'copy_' . $training->p_name;
+            $newT['hascrm'] = 0;
+            $newT['hasresult'] = 0;
+            $newT['show_certificate'] = 0;
+            unset($newT['slug']);
+            
+            $new = Program::create($newT);
+
+            if (array_intersect(['score_settings', 'all'], $request->clone_options)){
+                // Create scoresettings
+                if (isset($training->scoresettings) && !empty($training->scoresettings)) {
+                    $score = ScoreSetting::create([
+                        'program_id' => $new->id,
+                        'certification' => $training->scoresettings->certification,
+                        'class_test' => $training->scoresettings->class_test,
+                        'role_play' => $training->scoresettings->role_play,
+                        'crm_test' => $training->scoresettings->crm_test,
+                        'email' => $training->scoresettings->email,
+                        'passmark' => $training->scoresettings->passmark,
+                        'total' => $training->scoresettings->total,
+                    ]);
+                }
+            }
+
+            if (array_intersect(['training_materials', 'all'], $request->clone_options)) {
+                // Material
+                if (isset($training->materials) && !empty($training->materials)) {
+                    foreach ($training->materials as $material) {
+                        $file = base64_decode($material->file);
+                        Material::create([
+                            "program_id" => $new->id,
+                            "title" => $material->title,
+                            "file" => $material->file,
+                        ]);
+                    }
+                }
+            }
+
+            if (array_intersect(['modules', 'all'], $request->clone_options)) {
+                // Modules
+                if (isset($training->modules) && !empty($training->modules)) {
+                    foreach ($training->modules as $module) {
+                        $new_module =  Module::create([
+                            "program_id" => $new->id,
+                            "title" => $module->title,
+                            "time" => $module->time,
+                            "noofquestions" => $module->noofquestions,
+                            "status" => 0,
+                            "type" => $module->type == 'Class Test' ? 0 : 1,
+                        ]);
+
+                        //Get Module questions 
+                        $module_questions = Question::whereModuleId($module->id)->get();
+
+                        //Duplicate module questions for newly created module       
+                        foreach ($module_questions as $question) {
+                            Question::create([
+                                'title' => $question->title,
+                                'optionA' => $question->optionA,
+                                'optionB' => $question->optionB,
+                                'optionC' => $question->optionC,
+                                'optionD' => $question->optionD,
+                                'correct' => $question->correct,
+                                'module_id' => $new_module->id,
+                            ]);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollback();
+            return back()->with('error', $e->getMessage());
+        }
+        
+        return back()->with('message', 'Training cloned successfully');
+    }
+    
+    public function importDataFromTraining(Request $request, Program $training)
+    {
+        $import_options = $request->import_options;
+        $import_from_training = Program::find($request->import_from);
+        $import_into_training = $training;
+        // Create new program
+        $newT = Arr::except($training->toArray(), ['id', 'created_at', 'updated_at', 'deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
+        
+        if (empty(array_intersect(['certificate_settings', 'all'], $import_options))) {
+            unset($newT['auto_certificate_settings']);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            if (array_intersect(['score_settings', 'all'], $import_options)) {
+                // Create scoresettings
+                if (isset($import_from_training->scoresettings) && !empty($import_from_training->scoresettings)) {
+                    ScoreSetting::create([
+                        'program_id' => $import_into_training->id,
+                        'certification' => $import_from_training->scoresettings->certification,
+                        'class_test' => $import_from_training->scoresettings->class_test,
+                        'role_play' => $import_from_training->scoresettings->role_play,
+                        'crm_test' => $import_from_training->scoresettings->crm_test,
+                        'email' => $import_from_training->scoresettings->email,
+                        'passmark' => $import_from_training->scoresettings->passmark,
+                        'total' => $import_from_training->scoresettings->total,
+                    ]);
+                }
+            }
+
+            if (array_intersect(['training_materials', 'all'], $import_options)) {
+                // Material
+                if (isset($import_from_training->materials) && !empty($import_from_training->materials)) {
+                    foreach ($import_from_training->materials as $material) {
+                        $file = base64_decode($material->file);
+                        Material::create([
+                            "program_id" => $import_into_training->id,
+                            "title" => $material->title,
+                            "file" => $material->file,
+                        ]);
+                    }
+                }
+            }
+
+            if (array_intersect(['modules', 'all'], $import_options)) {
+                // Modules
+                if (isset($import_from_training->modules) && !empty($import_from_training->modules)) {
+                    foreach ($import_from_training->modules as $module) {
+                        $new_module =  Module::create([
+                            "program_id" => $import_into_training->id,
+                            "title" => $module->title,
+                            "time" => $module->time,
+                            "noofquestions" => $module->noofquestions,
+                            "status" => 0,
+                            "type" => $module->type == 'Class Test' ? 0 : 1,
+                        ]);
+
+                        //Get Module questions 
+                        $module_questions = Question::whereModuleId($module->id)->get();
+
+                        //Duplicate module questions for newly created module       
+                        foreach ($module_questions as $question) {
+                            Question::create([
+                                'title' => $question->title,
+                                'optionA' => $question->optionA,
+                                'optionB' => $question->optionB,
+                                'optionC' => $question->optionC,
+                                'optionD' => $question->optionD,
+                                'correct' => $question->correct,
+                                'module_id' => $new_module->id,
+                            ]);
+                        }
+                    }
+                }
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('message', 'Training Data successfully');
+    }
+
+    public function passwordReset($id)
+    {
+        $transactions = Transaction::with('user')->where('program_id', $id)->get();
+
+        $plainPassword = '11111';
+        $hashedPassword = Hash::make($plainPassword);
+
+        $counter = 0;
+
+        DB::transaction(function () use ($transactions, $hashedPassword, &$counter) {
+            foreach ($transactions as $transaction) {
+                if ($transaction->user) {
+                    $transaction->user->update([
+                        'password' => $hashedPassword
+                    ]);
+                    $counter++;
+                }
+            }
+        });
+        
+        return back()->with('message', "Password for $counter participants successfully reset to: $plainPassword");
+    }
+
+}
