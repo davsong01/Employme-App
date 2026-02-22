@@ -63,7 +63,7 @@
                                             </a>
                                             @endif
                                             @if($permissions['pop.show'])
-                                            <a title="Approve Payment" class="btn btn-success btn-sm" href="{{ route('pop.show', $pop->id) }}">
+                                            <a title="Approve Payment" onclick="return confirm('Are you sure')" class="btn btn-success btn-sm" href="{{ route('pop.show', $pop->id) }}">
                                                 <i class="fa fa-check"></i> Approve
                                             </a>
                                             @endif
@@ -79,7 +79,6 @@
                                         </div>
                                     </td>
                                     <td>
-                                        
                                         Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
                                         @if(!empty($pop->temp->coupon_id))
                                         <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>
@@ -91,9 +90,14 @@
                                         @endif
                                     </td>
                                     <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.number_format($pop->related->p_amount) : 'E/Amount: '. $pop->currency_symbol.number_format($pop->related->e_amount) }})
+                                    <strong>
+                                    <br>
+                                    <strong>Type: </strong>{{$pop->is_package ? 'Package' : 'Training'}}
+                                    
                                     @if(isset($pop->is_fresh)) <br>
                                     <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                                     @endif
+                                    
                                     </td>
                       
                                     <td>{{ $pop->bank }}</td>
