@@ -804,10 +804,11 @@ class Controller extends BaseController
             Password: 12345 <small> <strong>(Use existing password if you are a returning participant)</strong> </small>
             </span><br><br><a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to your Portal here</button></a><br></br><br>';
         } elseif ($data['type'] == 'pop') {
-            $subject = 'Proof of Payment Uploaded';
+            $name = $data['name'] ?? 'N/A';
+            $subject = "{$name} Has Uploaded Proof of Payment";
             $content .= "<strong>Dear Admin</strong>,<br>
                 <p>Please find below proof of payment details with file attached </p>
-                Name: " . $data['name'] . "<br>
+                Name: " . $name . "<br>
                 Email: " . $data['participant_email'] . "<br>
                 Phone: " . $data['phone'] . "<br>
                 Bank: " . $data['bank'] . "<br>
