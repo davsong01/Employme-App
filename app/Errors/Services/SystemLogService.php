@@ -70,4 +70,15 @@ class SystemLogService
     {
         SystemLog::truncate();
     }
+
+    public function deleteError(int $id): bool
+    {
+        $log = SystemLog::find($id);
+
+        if (!$log) {
+            return false;
+        }
+
+        return $log->delete();
+    }
 }

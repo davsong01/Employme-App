@@ -24,7 +24,9 @@
                     </form>
                 </div>
                 <div class="card-body p-0">
-                    @include('layouts.partials.alerts')
+                    <div style="padding: 5px 10px;">
+                        @include('layouts.partials.alerts')
+                    </div>
 
                     <table class="table table-striped table-bordered mb-0">
                         <thead class="table-light">
@@ -61,7 +63,7 @@
                                     <td style="white-space: normal; word-break: break-word;">
                                         {{ Str::limit($log->message, 150) }} 
                                         
-                                        <a href="" onclick="return(confirm('Are you sure'))" class="btn btn-dark btn-sm">Delete</button>
+                                        <a href="{{ route('admin.error.delete', $log->id) }}" onclick="return(confirm('Are you sure'))" class="btn btn-dark btn-sm">Delete</button>
 
                                     </td>
                                     <td style="white-space: normal; word-break: break-word;">
@@ -70,14 +72,14 @@
 
                                             {{-- Context Modal --}}
                                             <div class="modal fade" id="contextModal{{ $log->id }}" tabindex="-1" aria-labelledby="contextModalLabel{{ $log->id }}" aria-hidden="true">
-                                                <div class="modal-dialog modal-xl">
+                                                <div class="modal-dialog modal-dialog-centered modal-xl">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title" id="contextModalLabel{{ $log->id }}">Context for Log #{{ $log->id }}</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <pre>{{ json_encode($log->context, JSON_PRETTY_PRINT) }}</pre>
+                                                            <pre style="white-space: pre-wrap; word-break: break-word;">{{ json_encode($log->context, JSON_PRETTY_PRINT) }}</pre>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -55,6 +55,13 @@ class SystemLogController extends Controller
     {
         $this->logService->clearDatabaseLogs();
 
-        return back()->with('success', 'All database logs cleared.');
+        return back()->with('message', 'All database logs cleared.');
+    }
+
+    public function delete($id)
+    {
+        $this->logService->deleteError($id);
+
+        return back()->with('message', 'Delete Successful.');
     }
 }
