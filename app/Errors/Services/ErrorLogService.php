@@ -18,15 +18,18 @@ class ErrorLogService
      */
     public function getLogFiles(): array
     {
-        return collect(File::files($this->logPath))->map(function ($file) {
-            return [
-                'name'     => $file->getFilename(),
-                'size'     => round($file->getSize() / 1024, 2) . ' KB',
-                'modified' => date('Y-m-d H:i', $file->getMTime()),
-            ];
-        })->toArray();
+        return collect(File::files($this->logPath))
+            ->sortByDesc(fn($file) => $file->getMTime()) // sort by modified time, newest first
+            ->map(function ($file) {
+                return [
+                    'name'     => $file->getFilename(),
+                    'size'     => round($file->getSize() / 1024, 2) . ' KB',
+                    'modified' => date('Y-m-d H:i', $file->getMTime()),
+                ];
+            })
+            ->values() // reindex array keys
+            ->toArray();
     }
-
     /**
      * Download a specific log file.
      */
