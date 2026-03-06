@@ -410,7 +410,7 @@
                             </div>
                         </fieldset>
                         <fieldset class="field">
-                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Certificate settings</legend>
+                            <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Certificate settings</legend>
                             <div class="row">
                                 <div class="col-md-12" style="margin-bottom:5px">
                                     <div class="form-group">
@@ -423,6 +423,38 @@
                                     </div>
                                 </div>
         
+                            </legend>
+                        </fieldset>
+                        <fieldset class="field">
+                            <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">
+                                AI Settings
+                            </legend>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-2">
+                                    <div class="form-group">
+                                        <label>AI Status</label>
+                                        <select name="ai_settings[status]" class="form-control" id="ai_status" required>
+                                            <option value="">Select...</option>
+                                            <option value="1" {{ ($program->ai_settings['status'] ?? null) == '1' ? 'selected' : '' }}>Yes</option>
+                                            <option value="0" {{ ($program->ai_settings['status'] ?? null) == '0' ? 'selected' : '' }}>No</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>AI Page Use Cases:</label>
+                                        <select name="ai_settings[use_cases][]" class="select2 form-control" multiple>
+                                            @foreach(['materials'] as $case)
+                                                <option value="{{ $case }}" 
+                                                    {{ in_array($case, $program->ai_settings['use_cases'] ?? []) ? 'selected' : '' }}>
+                                                    {{ ucfirst($case) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         </fieldset>
                         <fieldset style="" class="field">

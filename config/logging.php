@@ -1,5 +1,6 @@
 <?php
 
+use App\Errors\Logging\DatabaseLogger;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -54,6 +55,7 @@ return [
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
+            'tap' => [App\Errors\Logging\DatabaseLogger::class],
             'ignore_exceptions' => false,
         ],
 
@@ -69,6 +71,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
+            'tap' => [App\Errors\Logging\DatabaseLogger::class], // <- tap here
             'replace_placeholders' => true,
         ],
 

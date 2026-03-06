@@ -27,7 +27,7 @@
                             $permissions = checkTrainingHasPermissions($program->id, $permissionsToCheck);
                         ?>
                         <tr>
-                            <td>{{  $i++ }}</td>
+                            <td>{{  $loop->iteration }}</td>
                             <td>{{ $program->p_name }}</td>
                             <td>{{ $program->materials_count }}</td>
                             <td>

@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Pop;
-use App\Models\User;
-use App\Models\Program;
-use App\Models\Material;
-use App\Models\Transaction;
-use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use App\Models\CompanyUserTraining;
+use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MockController;
+use App\Models\CompanyUserTraining;
+use App\Models\Material;
+use App\Models\Pop;
+use App\Models\Program;
+use App\Models\Transaction;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\MockController;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Rap2hpoutre\FastExcel\Facades\FastExcel;
-use App\Http\Controllers\Admin\ResultController;
 
 
 class AdminController extends Controller
