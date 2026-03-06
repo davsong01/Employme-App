@@ -17,7 +17,7 @@ class ErrorLogFileController extends Controller
     {
         $files = $this->logService->getLogFiles();
 
-        return view('admin.error-files.index', compact('files'));
+        return view('dashboard.admin.errors.file_errors.index', compact('files'));
     }
 
     /**
