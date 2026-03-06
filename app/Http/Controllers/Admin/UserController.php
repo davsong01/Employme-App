@@ -638,7 +638,7 @@ class UserController extends Controller
 
 
         if(checkRoleHas(['Admin'])) {
-            return back()->with('message', 'Update successfully');
+            return back()->with('message', 'Updated successfully');
         }
         return back();
     }

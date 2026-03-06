@@ -1,32 +1,34 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PopController;
-use App\Http\Controllers\MockController;
-use App\Http\Controllers\TestsController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\SettingsController;
-use App\Http\Controllers\Admin\UserController;
+use App\Errors\Controllers\ErrorLogFileController;
+use App\Errors\Controllers\SystemLogController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\CertificateController;
-use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\ModuleController;
-use App\Http\Controllers\Admin\ResultController;
-use App\Http\Controllers\ScoreSettingController;
-use App\Http\Controllers\Admin\DetailsController;
-use App\Http\Controllers\Admin\PictureController;
-use App\Http\Controllers\Admin\ProgramController;
-use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
 use App\Http\Controllers\Admin\ComplainController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\DetailsController;
+use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MaterialController;
-use App\Http\Controllers\Admin\QuestionController;
-use App\Http\Controllers\GroupedProgramController;
-use App\Http\Controllers\Admin\ImpersonateController;
-use App\Http\Controllers\Admin\PaymentModeController;
+use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
-use App\Http\Controllers\Admin\CompanyUserController as AdminCompanyUserController;
+use App\Http\Controllers\Admin\PaymentModeController;
+use App\Http\Controllers\Admin\PictureController;
+use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CurrencyController;
+use App\Http\Controllers\GroupedProgramController;
+use App\Http\Controllers\MockController;
+use App\Http\Controllers\PopController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScoreSettingController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TestsController;
+use Illuminate\Support\Facades\Route;
 
 
 Route::middleware(['admin.access'])->group(function () {
@@ -278,5 +280,29 @@ Route::middleware(['admin.access'])->group(function () {
         Route::resource('details', DetailsController::class);
     
         Route::get('admin-remove-sub-program/{id}', [ProgramController::class, 'removeSubProgram']);
+    });
+
+    Route::controller(SystemLogController::class)->group(function(){
+        Route::get('/errors', 'index')->name('admin.errors.index');
+        Route::post('/errors/clear', 'clearDatabaseLogs')->name('admin.errors.clear');
+        Route::get('/errors/recent', 'recentLogs')->name('admin.errors.recent'); 
+        Route::get('/errors/recurring', 'recurringErrors')->name('admin.errors.recurring'); 
+        Route::get('/delete-error/{id}', 'delete')->name('admin.error.delete'); 
+
+    });
+
+    Route::controller(ErrorLogFileController::class)->group(function(){
+
+        Route::get('/error-log-files', 'index')
+            ->name('admin.error-files.index');
+
+        Route::get('/error-log-files/download/{file}', 'download')
+            ->name('admin.error-files.download');
+
+        Route::delete('/error-log-files/delete/{file}', 'delete')
+            ->name('admin.error-files.delete');
+
+        Route::post('/error-log-files/delete-all', 'deleteAll')
+            ->name('admin.error-files.deleteAll');
     });
 });

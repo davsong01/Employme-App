@@ -21,7 +21,7 @@
                     <tbody>
                         @foreach($materials as $material)
                         <tr>
-                            <td>{{  $i++ }}</td>
+                            <td>{{  $loop->iteration }}</td>
                             <td>
                                 <a data-toggle="tooltip" data-placement="top" title="Download Material"
                                 class="btn btn-info" href="{{ route('participants.getmaterial', ['p_id'=>$program->id, 'filename'=> $material->file])}}"><i
@@ -34,6 +34,13 @@
                     </tbody>
                     
                 </table>
+               
+                @if($useAi && $materials->count() > 0)
+                    @php
+                        $useCase = 'materials';
+                    @endphp
+                    @include('layouts.partials.portal-ai-chat')
+                @endif
             </div>
         </div>
     </div>

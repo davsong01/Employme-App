@@ -1,27 +1,28 @@
 <?php
 
-use App\Models\Transaction;
-use Illuminate\Support\Facades\File;
-use App\Http\Controllers\PopController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\MockController;
-use App\Http\Controllers\TestsController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ComplainController;
+use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\MaterialController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\PaymentModeController;
+use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AIController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MockController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PopController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TestsController;
 use App\Http\Controllers\UtilityTaskController;
-use App\Http\Controllers\Admin\ResultController;
-use App\Http\Controllers\Admin\ComplainController;
-use App\Http\Controllers\Admin\MaterialController;
-use App\Http\Controllers\Admin\ImpersonateController;
-use App\Http\Controllers\Admin\PaymentModeController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\WalletController;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\File;
 
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
 Route:: get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
@@ -136,6 +137,9 @@ Route::middleware(['web.access'])->group(function () {
     Route::get('/stopimpersonating', [ImpersonateController::class, 'stopImpersonate'])->name('stop.impersonate');
     
     Route::middleware(['auth', 'impersonate'])->group(function () {
+        
+        Route::get('ai-ask', [AIController::class, 'ask'])->name('ai.ask');
+
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
         Route::post('/pay-with-account/{type}', [paymentController::class, 'payFromAccount'])->name('account.pay');
         Route::get('/home', [HomeController::class, 'index'])->name('home2');

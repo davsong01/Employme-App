@@ -26,8 +26,8 @@ class MaterialController extends Controller
     public function index(Request $request)
     {
         $userid = resolveAuthUser()->id;
-        $i = 1;
-        
+        $useAi = false;
+
         if (checkRoleHas(['Admin','Facilitator'])){
             if(checkRoleHas(['Admin'])) {
                 $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->get();
@@ -38,12 +38,15 @@ class MaterialController extends Controller
                 $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
             }
 
-            return view('dashboard.admin.materials.selecttraining', compact('i', 'programs'));
+            return view('dashboard.admin.materials.selecttraining', compact('programs'));
         } 
 
         if (checkRoleHas(['Student'])){
             $i = 1;
             $program = Program::find($request->p_id);
+            $aiSetting = $program->ai_settings;
+            
+            $useAi = getProgramModuleAvailability($program, 'materials');
 
             if ($program->allow_payment_restrictions_for_materials == 'yes') {
                 $transaction = getTransactionFromProgramIds($request->p_id);
@@ -70,8 +73,8 @@ class MaterialController extends Controller
 
             $materials = Material::where('program_id', $program->id)->orderBy('created_at', 'DESC')->get();
             $show_catalogue = $this->showCatalogue($program);
-
-            return view('dashboard.student.materials.index', compact('i', 'materials', 'program', 'show_catalogue'));
+            
+            return view('dashboard.student.materials.index', compact('materials', 'program', 'show_catalogue','useAi'));
         }
     }
 
