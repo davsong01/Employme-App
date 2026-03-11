@@ -210,7 +210,7 @@
                                 <div class="form-group{{ $errors->has('complain') ? ' has-error' : '' }}">
                                     
                                     <label for="complain" style="color:red">Query Content</label>
-                                    <textarea id="ckeditor" type="text" class="form-control" name="content" value="{{ old('complain') ?? $complain->content }}" rows="8" autofocus>{!!  $complain->content !!}</textarea>
+                                    <textarea required id="ckeditor" type="text" class="form-control" name="content" value="{{ old('complain') ?? $complain->content }}" rows="8" autofocus>{!!  $complain->content !!}</textarea>
 
                                     @if ($errors->has('complain'))
                                     <span class="help-block">
