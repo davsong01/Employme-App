@@ -254,7 +254,7 @@ class PaymentController extends Controller
             $returnUrl = url('packages/' . $training->slug);
         }else{
             $training = Program::where('id', $pid)->first();
-            $programIds = $training ? [$training->id] : [];
+            $programIds = $training ? [(int) $training->id] : [];
             $couponCheck = Coupon::where('code', $request->coupon)->where('program_id', $pid)->first();
             $returnUrl = url('trainings/' . $training->slug);
         }

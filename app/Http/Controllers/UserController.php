@@ -152,10 +152,11 @@ class UserController extends Controller
     {
         $user = User::findorFail($id);
         $programs = Program::where('id', '<>', 1)->get();
+        
         if(checkRoleHas(['Admin'])) {
-
             return view('dashboard.admin.users.edit', compact('programs', 'user'));
         }
+        
         return back();
     }
 
