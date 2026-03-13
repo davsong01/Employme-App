@@ -532,7 +532,7 @@ if (!function_exists("getAccounts")) {
                 ],
                 'Ghana' => [
                     'bank' => 'Mobile Money (MoMo)',
-                    'number' => '0557963331',
+                    'number' => '0244627751',
                     'name' => 'Frank Asiedu',
                     'status' => 1,
                     'country' => 'Ghana',
