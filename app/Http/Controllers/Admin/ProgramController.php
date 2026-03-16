@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
-use DB;
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Module;
-use App\Models\Program;
+use App\Exports\ProgramDetailsExport;
+use App\Http\Controllers\Controller;
 use App\Models\Currency;
 use App\Models\Material;
+use App\Models\Module;
+use App\Models\Program;
 use App\Models\Question;
-use App\Models\Transaction;
-use Illuminate\Support\Arr;
 use App\Models\ScoreSetting;
-use Illuminate\Http\Request;
+use App\Models\TempTransaction;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Services\ExcelService;
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\ProgramDetailsExport;
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProgramController extends Controller
 {
@@ -32,16 +33,13 @@ class ProgramController extends Controller
 
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
-                //Get all programs
-                $programs = Program::with(['users:id','subPrograms'])->where('id', '<>', 1)->orderBy('created_at', 'desc')->get();
+                $programs = Program::withPaymentStats()
+                ->with(['users:id','subPrograms'])
+                ->where('id','<>',1)
+                ->latest()
+                ->get();
             }else{
                 $programs = resolveAuthUser()->userTrainings()->get();
-            }
-            
-            //Get Users payment status
-            foreach ($programs as $program) {
-                $program['part_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '>', 0)->count();
-                $program['fully_paid'] = DB::table('program_user')->where('program_id', $program->id)->where('balance', '<=', 0)->count();
             }
 
             return view('dashboard.admin.programs.index', compact('programs', 'i'));
@@ -74,61 +72,33 @@ class ProgramController extends Controller
         return Excel::download(new ProgramDetailsExport($id), $programname . ' participants.xlsx');
     }
 
-    // public function processExportParticipantsDataFromTraining(Request $request) {
-    //     $programIds = $request->program_ids;
-    //     $from = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : null;
-    //     $to = $request->filled('to') ? Carbon::parse($request->to)->endOfDay() : null;
-    //     $removeDuplicates = $request->filled('removeDuplicates');
-
-    //     $baseQuery = Transaction::with(['program', 'user', 'paymentLog'])
-    //         ->whereIn('program_id', $programIds);
-
-    //     if($removeDuplicates && $removeDuplicates == 'yes'){
-    //         $baseQuery->distince('user_id');
-    //     }
-
-    //     if ($from && $to) {
-    //         $baseQuery->whereBetween('created_at', [$from, $to]);
-    //     } elseif ($from) {
-    //         $baseQuery->where('created_at', '>=', $from);
-    //     } elseif ($to) {
-    //         $baseQuery->where('created_at', '<=', $to);
-    //     }
-
-    //     $participants = $baseQuery->take(10)->get();
-
-    //     foreach($participants as $participant){
-    //         return [
-    //             'Date Created' => 'user.created_at',
-    //             'Staff ID' => 'user.staffId',
-    //             'Name',
-    //             'Email',
-    //             'Phone',
-    //             'Expected Amount' => 'paymentLog.expected_amount',
-    //             'Amount Paid' => 'paymentLog.amount',
-    //             'Balance' => 'paymentLog.balance',
-    //             'Payment Mode'  => 'paymentLog.payment_mode',
-    //             'Transaction Id' => 'paymentLog.transid',
-    //             'Location'
-    //             'Program(s)' => preg_replace('/[^A-Za-z0-9\-]/', '', $programname)
-    //         ];
-
-    //     }
-    //     // $programname = preg_replace('/[^A-Za-z0-9\-]/', '', $programname);
-    //     return Excel::download($participants, 'participants.xlsx');
-    // }
     public function processExportParticipantsDataFromTraining(Request $request)
     {
         $programIds = $request->program_ids ?? [];
+        $explicitProgramId = $request->filled('explicit_program_id') ? (int) $request->explicit_program_id : null;
+        $removeDuplicates = $request->filled('remove_duplicate') && $request->remove_duplicate === 'yes';
         $from = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : null;
         $to = $request->filled('to') ? Carbon::parse($request->to)->endOfDay() : null;
-        $removeDuplicates = $request->filled('remove_duplicate') && $request->remove_duplicate == 'yes';
-       
-        // Base query
-        $baseQuery = Transaction::with(['program', 'user', 'paymentLog'])
-            ->whereIn('program_id', $programIds);
 
-        // Date filtering
+        // Preload program names
+        $programMap = Program::pluck('p_name', 'id')->toArray();
+
+        // Base query
+        $baseQuery = TempTransaction::with(['user'])
+            ->where('status', 'complete');
+
+        // Either explicit program OR multiple programs
+        if ($explicitProgramId) {
+            $baseQuery->where('program_id', $explicitProgramId);
+        } elseif (!empty($programIds)) {
+            $baseQuery->where(function($q) use ($programIds) {
+                foreach ($programIds as $programId) {
+                    $q->orWhereJsonContains('program_ids', (int) $programId);
+                }
+            });
+        }
+
+        // Date filter
         if ($from && $to) {
             $baseQuery->whereBetween('created_at', [$from, $to]);
         } elseif ($from) {
@@ -137,70 +107,55 @@ class ProgramController extends Controller
             $baseQuery->where('created_at', '<=', $to);
         }
 
-        $participants = $baseQuery->get();
-
-        if ($removeDuplicates) {
-            $participants = $participants->groupBy('user_id')->map(function ($userTransactions) {
-                $first = $userTransactions->first();
-                $user = $first->user;
-                $payment = $first->paymentLog;
-
-                // Collect all program names for this user
-                $programNames = $userTransactions
-                    ->pluck('program.p_name')
-                    ->filter()
-                    ->unique()
-                    ->map(fn($name) => preg_replace('/[^A-Za-z0-9\- ]/', '', $name))
-                    ->values()
-                    ->implode(', ');
-
-
-                return [
-                    'Date Created'     => optional($user)->created_at?->format('Y-m-d H:i'),
-                    'Staff ID'         => optional($user)->staffId,
-                    'Name'             => optional($user)->name,
-                    'Email'            => optional($user)->email,
-                    'Phone'            => optional($user)->phone,
-                    'Payment Type'     => optional($payment)->type,
-                    'Expected Amount'  => optional($payment)->expected_amount,
-                    'Amount Paid'      => optional($payment)->amount,
-                    'Balance'          => optional($payment)->balance,
-                    'Payment Mode'     => optional($payment)->payment_mode,
-                    'Transaction ID'   => optional($payment)->transid,
-                    'Location'         => optional($user)->location,
-                    'Program(s)'       => $programNames,
-                ];
-            })->values();
-        } else {
-            // Normal export without merging programs
-            $participants = $participants->map(function ($participant) {
-                $user = $participant->user;
-                $payment = $participant->paymentLog;
-                $program = $participant->program;
-
-                return [
-                    'Date Created'     => optional($user)->created_at?->format('Y-m-d H:i'),
-                    'Staff ID'         => optional($user)->staffId,
-                    'Name'             => optional($user)->name,
-                    'Email'            => optional($user)->email,
-                    'Phone'            => optional($user)->phone,
-                    'Payment Type'     => optional($payment)->type,
-                    'Expected Amount'  => optional($payment)->expected_amount,
-                    'Amount Paid'      => optional($payment)->amount,
-                    'Balance'          => optional($payment)->balance,
-                    'Payment Mode'     => optional($payment)->payment_mode,
-                    'Transaction ID'   => optional($payment)->transid,
-                    'Location'         => optional($user)->location,
-                    'Program(s)'       => preg_replace('/[^A-Za-z0-9\- ]/', '', optional($program)->p_name),
-                ];
-            });
+        // Payment type filter
+        if ($request->filled('payment_type')) {
+            $baseQuery->where('type', $request->payment_type);
         }
 
+        // Fetch transactions after all filters applied
+        $transactions = $baseQuery->get();
+        
+        // Map transactions to export rows
+        $rows = $transactions->map(function ($tx) use ($programMap) {
+            $user = $tx->user;
+            $payment = $tx->paymentLog;
+
+            $programIds = $tx->program_ids ?? [];
+            $programNames = collect($programIds)
+                ->map(fn($id) => $programMap[$id] ?? null)
+                ->filter()
+                ->map(fn($name) => preg_replace('/[^A-Za-z0-9\- ]/', '', $name))
+                ->implode(', ');
+
+            return [
+                'Date Created'     => $user?->created_at?->format('Y-m-d H:i'),
+                'Staff ID'         => $user?->staffId,
+                'Name'             => $user?->name,
+                'Email'            => $user?->email,
+                'Phone'            => $user?->phone,
+                'Payment Type'     => $payment?->type,
+                'Expected Amount'  => $payment?->expected_amount,
+                'Amount Paid'      => $payment?->amount,
+                'Balance'          => $payment?->balance,
+                'Payment Mode'     => $payment?->payment_mode,
+                'Transaction ID'   => $payment?->transid,
+                'Location'         => $user?->location,
+                'Program(s)'       => $programNames,
+                'user_id'          => $user?->id, // for duplicate removal
+            ];
+        });
+
+        // Remove duplicates if requested
+        if ($removeDuplicates) {
+            $rows = $rows->groupBy('user_id')->map(fn($group) => $group->first())->values();
+        }
+
+        // Remove helper column
+        $rows = $rows->map(fn($r) => Arr::except($r, ['user_id']));
+
         $excelService = new ExcelService();
-        return $excelService->fastExport($participants->toArray(), 'participants.xlsx');
+        return $excelService->fastExport($rows->toArray(), 'participants.xlsx');
     }
-
-
 
     public function create()
     {

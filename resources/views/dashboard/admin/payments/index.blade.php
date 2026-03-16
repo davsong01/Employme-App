@@ -77,7 +77,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2">
+                        {{-- <div class="col-md-2">
                             <div class="form-group">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control select2">
@@ -86,7 +86,7 @@
                                     <option value="complete" {{ request('status') == 'complete' ? 'selected' : '' }}>Complete</option>
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="col-md-2">
                             <div class="form-group">
@@ -193,7 +193,7 @@
                     <tbody>
                         @foreach($transactions as $transaction)
                             <tr id="transaction-row-{{ $transaction->id }}">
-                                <td>{{ $loop->iteration }}</a>
+                                 <td>{{ paginationIndex($transactions, $loop) }}</td>
                                 <td><strong>Name: </strong>
                                     @if($permissions['users.edit'])
                                     <a href="{{ route('users.edit', $transaction?->user_id)}}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>

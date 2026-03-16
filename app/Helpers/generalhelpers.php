@@ -815,13 +815,19 @@ if (!function_exists('getTransactionFromProgramIds')) {
         $temp = TempTransaction::whereJsonContains('program_ids', $program_id)
             ->where('user_id', resolveAuthUser()->id)
             ->first() ?? collect([]);
-        
-        // $temp = TempTransaction::whereRaw(
-        //     'JSON_CONTAINS(program_ids, ?)',
-        //     [json_encode($program_id)]
-        // )->where('user_id', resolveAuthUser()->id)->first() ?? collect([]);
 
         return $temp;
+    }
+}
+
+if (!function_exists('paginationIndex')) {
+    function paginationIndex($paginator, $loop)
+    {
+        if (!$paginator || !method_exists($paginator, 'firstItem')) {
+            return $loop->iteration;
+        }
+
+        return $paginator->firstItem() + $loop->index;
     }
 }
 

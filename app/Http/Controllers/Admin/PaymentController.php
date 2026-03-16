@@ -34,50 +34,56 @@ class PaymentController extends Controller
         if (canUserAccessPermission(['payments.index']) && !checkRoleHas(['Student'])) {
             $transactions = TempTransaction::where('status','complete')->with('group:id,p_name','program:id,p_name,modes,locations,allow_preferred_timing', 'paymentthreads','user:id,name,email,phone,last_login','coupon')->orderBy('created_at', 'DESC');
             
-            if (!empty($request->transid)) {
-                $transactions = $transactions->where('transid', $request->transid);
+            if ($request->filled('transid')) {
+                $transactions->where('transid', $request->transid);
             }
 
-            if (!empty($request->email)) {
-                $transactions = $transactions->where('email', $request->email);
+            if ($request->filled('payment_type')) {
+                $transactions->where('type', $request->payment_type);
             }
 
-            if (!empty($request->name)) {
-                $transactions = $transactions->where('name','LIKE', "%{$request->name}%");
+            if ($request->filled('email')) {
+                $transactions->where('email', $request->email);
             }
 
-            if (!empty($request->phone)) {
-                $transactions = $transactions->where('phone', $request->phone);
+            if ($request->filled('name')) {
+                $transactions->where('name', 'LIKE', "%{$request->name}%");
             }
 
-            if (!empty($request->type)) {
-                $transactions = $transactions->where('type', $request->type);
+            if ($request->filled('phone')) {
+                $transactions->where('phone', $request->phone);
             }
 
-            if (!empty($request->channel)) {
-                $transactions = $transactions->where('t_type', $request->channel);
+            if ($request->filled('type')) {
+                $transactions->where('type', $request->type);
             }
 
-            if (!empty($request->program_id)) {
-                $transactions = $transactions->where('program_id', $request->program_id);
+            if ($request->filled('channel')) {
+                $transactions->where('t_type', $request->channel);
             }
 
-            if (!empty($request->package_id)) {
-                $transactions = $transactions->where('program_id', $request->package_id);
+            if ($request->filled('program_id')) {
+                $transactions->whereJsonContains('program_ids', (int) $request->program_id);
             }
 
-            if (!empty($request->coupon_id)) {
-                $transactions = $transactions->where('coupon_id', $request->coupon_id);
-            }
-            
-            if (!empty($request->from) && !empty($request->to)) {
-                $transactions = $transactions->whereBetween('created_at', [$request->from." 00:00:00", $request->to. " 23:59:59"]);
+            if ($request->filled('package_id')) {
+                $transactions->where('program_id', $request->package_id);
             }
 
-            if (!empty($request->status)) {
-                $transactions = $transactions->where('status', $request->status);
+            if ($request->filled('coupon_id')) {
+                $transactions->where('coupon_id', $request->coupon_id);
             }
-            
+
+            if ($request->filled('from') && $request->filled('to')) {
+                $transactions->whereBetween('created_at', [
+                    $request->from . " 00:00:00",
+                    $request->to . " 23:59:59"
+                ]);
+            }
+
+            // if ($request->filled('status')) {
+            //     $transactions->where('status', $request->status);
+            // }
 
             $records = $transactions->count();
             
@@ -87,7 +93,6 @@ class PaymentController extends Controller
             $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();
             $allPackages = Group::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
             $allCoupons = Coupon::latest()->get();
-
 
             return view('dashboard.admin.payments.index', compact('transactions', 'pops','records','allPrograms', 'allPackages', 'allCoupons'));
         }

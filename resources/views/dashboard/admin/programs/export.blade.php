@@ -13,18 +13,36 @@
                     <form action="{{route('process.programs.export.participants')}}" method="POST" enctype="multipart/form-data" class="pb-2">
                         {{ csrf_field() }}
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Select Program</label>
-                                    <select name="program_ids[]" class="select2 form-control" multiple required data-placeholder="Select Programs">
+                                    <label>Select Programs <small class="text-muted">(OR choose a single program on the right)</small></label>
+                                    <select name="program_ids[]" class="select2 form-control" multiple data-placeholder="Select Programs">
                                         @foreach($programs as $pro)
-                                            <option value="{{ $pro->id }}">
+                                            <option value="{{ $pro->id }}" {{ (collect(old('program_ids'))->contains($pro->id)) ? 'selected' : '' }}>
                                                 {{ $pro->p_name }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>OR Filter by Single Program (Explicit)</label>
+                                    <select name="explicit_program_id" class="form-control" id="explicit_program_id">
+                                        <option value="">-- Select Program --</option>
+                                        @foreach($programs as $program)
+                                            <option value="{{ $program->id }}" {{ old('explicit_program_id') == $program->id ? 'selected' : '' }}>
+                                                {{ $program->p_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-muted small">*Select either multiple programs on the left, or a single explicit program on the right. The left selection will be ignored if a program is chosen on the right.*</p>
+                        <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Date From</label>
@@ -58,6 +76,7 @@
                                     </select>
                                 </div>
                             </div>
+                            
                         </div>
                     <div class="col-md-12">
                         <button name="submit" class="btn btn-primary" style="width:100%">Submit</button>

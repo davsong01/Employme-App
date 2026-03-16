@@ -247,4 +247,28 @@ class Program extends Model
         // Remove invisible characters
         return trim(preg_replace('/[\x{2060}\x{FEFF}]/u', '', $value));
     }
+
+    public function scopeWithPaymentStats($query)
+    {
+        return $query
+            ->select('*')
+            ->selectRaw("
+                (
+                    SELECT COUNT(*)
+                    FROM temp_transactions tt
+                    WHERE tt.status='complete'
+                    AND tt.balance=0
+                    AND JSON_CONTAINS(tt.program_ids, JSON_ARRAY(programs.id))
+                ) as fully_paid
+            ")
+            ->selectRaw("
+                (
+                    SELECT COUNT(*)
+                    FROM temp_transactions tt
+                    WHERE tt.status='complete'
+                    AND tt.balance>0
+                    AND JSON_CONTAINS(tt.program_ids, JSON_ARRAY(programs.id))
+                ) as part_paid
+            ");
+    }
 }

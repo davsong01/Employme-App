@@ -290,9 +290,9 @@
                                         @else
                                             Not Uploaded/Test Not Taken
                                         @endif
-                                        <br>
                                         @endif
-                                            @if($page == 'mocks')
+                                        <br>
+                                        @if($page == 'mocks')
                                         <strong>Date Submitted: </strong>{{ $user->mocks->count() > 0 ? $user->mocks->last()->created_at->format('d/m/Y') : '' }}
                                         @else
                                         <strong>Date Submitted: </strong>{{ $user->results->count() > 0 ? $user->results->last()->created_at->format('d/m/Y') : '' }}
