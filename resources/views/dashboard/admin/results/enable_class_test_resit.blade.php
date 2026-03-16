@@ -21,7 +21,7 @@
             </button>
         </form>
 
-    @elseif($resitStatus == 1 && $parsedDate)
+    @elseif($parsedDate)
         @if($parsedDate >= now())
             {{-- Resit in progress --}}
             <small class="resit-status d-block mb-1 text-danger"><strong>Resit In Progress!</strong></small>
