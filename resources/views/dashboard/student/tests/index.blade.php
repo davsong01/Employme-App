@@ -82,7 +82,7 @@
                 <!-- Action Buttons -->
                 {{-- {{ dd($module->completed, $module->redo, $module->expiry, $expiryPassed) }} --}}
                 <div class="mt-auto">
-                    @if(($module->completed == 0 || $module->redo == 1) && (empty($module->expiry) || !$expiryPassed))
+                    @if(($module->completed == 0 ) && (empty($module->expiry) || !$expiryPassed))
                         <a href="{{ route('participants.tests.show', ['test' => $module->id, 'p_id' => $program->id]) }}">
                             <button type="button" class="btn btn-outline-primary w-100" onclick="return confirm('Have you read the instructions above?');">
                                 Start Now!
