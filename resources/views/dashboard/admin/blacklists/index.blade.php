@@ -31,7 +31,7 @@
                     <tbody>
                         @foreach($blacklists as $blacklist)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ paginationIndex($blacklists, $loop) }}</td>
                             <td>{{ $blacklist->value }}</td>
                             <td>
                                 @if($blacklist->status == 1)

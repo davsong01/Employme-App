@@ -257,7 +257,7 @@
                     <tbody>
                         @foreach($users as $user)
                             <tr id="result-row-{{ $user->id }}">
-                                <td>{{ $i++ }}</td>
+                                <td>{{ paginationIndex($users, $loop) }}</td>
                                 <td>
                                     
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])                            
@@ -265,7 +265,7 @@
                                             {{ $user->user->name }} <i class="fas fa-external-link-alt" aria-hidden="true"></i>
                                         </a>
                                     @else
-                                        {{  $user->user->name }}
+                                        {{ $user->user->name }}
                                     @endif
 
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])  

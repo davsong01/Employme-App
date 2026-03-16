@@ -88,7 +88,7 @@
                 <tbody>
                     @foreach($templates as $template)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ paginationIndex($templates, $loop) }}</td>
                         <td>{{ $template->name ?? 'Untitled Template' }}</td>
 
                         <td style="text-align:center;">

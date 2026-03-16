@@ -193,7 +193,7 @@
                     <tbody>
                         @foreach($transactions as $transaction)
                             <tr id="transaction-row-{{ $transaction->id }}">
-                                 <td>{{ paginationIndex($transactions, $loop) }}</td>
+                                <td>{{ paginationIndex($transactions, $loop) }}</td>
                                 <td><strong>Name: </strong>
                                     @if($permissions['users.edit'])
                                     <a href="{{ route('users.edit', $transaction?->user_id)}}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>

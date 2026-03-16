@@ -172,7 +172,7 @@
                     <tbody>
                         @foreach ($groups as $group)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ paginationIndex($groups, $loop) }}</td>
                 
                                 <td>
                                     @if ($group->image)
