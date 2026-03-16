@@ -326,7 +326,6 @@
                                             @endif
                                         @else 
                                             @php
-                                            
                                                 $canManageResults = $permissions['results.add'] || $permissions['results.destroy'] || $permissions['stopredotest'];
                                                 $certifiableTests = $user->results->whereNotNull('certification_test_details')->first();
                                             @endphp
