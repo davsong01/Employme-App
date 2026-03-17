@@ -25,29 +25,6 @@ class ResultController extends Controller
 {
     public function index() {}
 
-    // public function posttest()
-    // {
-    //     $i = 1;
-    //     $trainings = Program::orderby('created_at', 'DESC');
-    //     if (checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
-    //         if (checkRoleHas(['Admin'])) {
-    //             $trainings = $trainings->get();
-
-    //         } elseif (checkRoleHas(['Facilitator', 'Grader'])) {
-    //             $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
-
-    //             $trainings = $trainings->whereIn('id', $user_trainings)->get();
-    //         } else {
-    //             return back();
-    //         }
-
-    //         foreach ($trainings as $training) {
-    //             $training['result_count'] = Result::distinct()->whereProgramId($training->id)->count();
-    //         }
-
-    //         return view('dashboard.admin.results.selecttraining', compact('trainings', 'i'));
-    //     }
-    // }
     public function posttest()
     {
         $user = resolveAuthUser();
@@ -522,7 +499,11 @@ class ResultController extends Controller
             $data["certification_test_resit_enabled_by_id"] = resolveAuthUser()->id;
 
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
-            $results->update(['redo_test' => 1]);
+            
+            if($results){
+                $results->update(['redo_test' => 1]);
+            }
+
             // Save result thread
             if (!empty($results->certification_test_details)) {
                 $this->createResultThread($results);
@@ -530,13 +511,33 @@ class ResultController extends Controller
 
             // $results->delete();
             // Send resit email
+            $expiryHours = env('CERTIFICATION_TEST_RESIT_EXIPIRY');
+            $expiryDate = now()->addHours($expiryHours)->format('M d, Y h:i A');
 
-            $details['subject'] = 'Test Re-write successful';
+            $programName = $transaction->program->p_name ?? 'the program';
+            $userName = $transaction->user->name ?? 'Participant';
+
+            // Optional (only if exists)
+            $moduleTitle = $results->module->title ?? null;
+
+            $details['subject'] = 'Test Retake Activated';
             $details['email'] = $transaction->user->email;
-            $details['content'] = 'Hello ' . $transaction->user->name . ', <br><br>
-            This is to inform you that you are now cleared to Re-sit ' . $results->module->title . ' Test at the ongoing ' . $transaction->program->p_name . '. You now have a ' . env('CERTIFICATION_TEST_RESIT_EXIPIRY') . 'hour window to retake and submit for grading after which the portal will close for you to Resit.<br><br>The Re-sit window will expire on: ' . now()->addHours(env('CERTIFICATION_TEST_RESIT_EXIPIRY')) . '<br><br>Once you complete the Resit, kindly chat the school WhatsApp admin on 07038378085 to inform about your completion.<br><br>Thanks. <br>Program Admin.';
-            $details['type'] = 'bulk';
 
+            $details['content'] = "
+            Hello {$userName}, <br><br>
+
+            You are now eligible to retake your test for {$programName}.<br><br>
+            " . ($moduleTitle ? "Test: <strong>{$moduleTitle}</strong><br><br>" : "") . "
+            You have a {$expiryHours}-hour window to complete your retake before access closes.<br><br>
+            <strong>Expiry Time:</strong> {$expiryDate}<br><br>
+            Please ensure you complete and submit your test within this period.<br><br>
+            If required, you may notify the admin after completion.<br><br>
+            Best regards,<br>
+            Program Team.
+            ";
+
+            $details['type'] = 'bulk';
+        
             $this->sendGenericEmail($details);
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }

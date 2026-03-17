@@ -66,21 +66,18 @@ class TestsController extends Controller
 
             $i = 1;
 
-
             // ------------------------------------
             //  REDO OVERRIDE
             // ------------------------------------
-            if (resolveAuthUser()->redotest == $program->id) {
+            if (resolveAuthUser()->redotest == 1) {
                 $modules = Module::with('questions')
                     ->where('program_id', $program->id)
                     ->get();
             }
-
             // ------------------------------------
             //  ENSURE PRE-TESTS ARE COMPLETED
             // ------------------------------------
             if ($program->hasmock == 1) {
-
                 $expected = Module::ClassTests($program->id)->count();
 
                 $completed = Mocks::where('program_id', $program->id)
@@ -101,18 +98,16 @@ class TestsController extends Controller
                 ->where('computation_status', 1)
                 ->get()
                 ->reject(function ($module) use ($transaction) {
-
                     $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
-
+                    
                     // if resit not allowed and module inactive → hide
                     return $resitStatus['status'] != 1 && $module->status == 0;
                 });
-
             // ------------------------------------
             //  DECORATE MODULES
             // ------------------------------------
-            foreach ($modules as $module) {
 
+            foreach ($modules as $module) {
                 $moduleCheck = Result::where('module_id', $module->id)
                     ->where('user_id', $userId)
                     ->where('program_id', $program->id)
@@ -121,7 +116,7 @@ class TestsController extends Controller
                 $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
 
                 $expiry = $resitStatus['expiry'];
-
+        
                 // Completed?
                 $module->completed = $moduleCheck ? 1 : 0;
 
@@ -179,7 +174,7 @@ class TestsController extends Controller
         ->where('program_id', $request->p_id)
             ->where('user_id', resolveAuthUser()->id)
             ->first();
-
+        
         $resitStatus = $this->getResitTrainingStatus($module->type, $transaction);
         
         // Get Resit Status
@@ -195,7 +190,7 @@ class TestsController extends Controller
                     return back()->with('error', 'The resit period for this test elapsed on: ' .$parsedDate.'. Please contact an administrator!');
                 }
             }
-            
+
             $check->certification_test_details = json_encode($certification_test_details);
             $check->redo_test = 2;
             $check->save();
@@ -216,9 +211,6 @@ class TestsController extends Controller
             }
             
             udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
-
-            // $transaction->training_result->
-            // Send email to Admin of succesful test re completion
 
             $details['subject'] = 'Test Re-write successful';
             $details['email'] = $email;
@@ -304,7 +296,6 @@ class TestsController extends Controller
         $data["last_updated_at"] = now();
 
         if($resit){
-            
             $expectedResultCount = Module::where('program_id', $transaction->program_id)->where('computation_status', 1)->where('type',0)->count();
 
             $resultCount = Result::where('program_id', $transaction->program_id)
@@ -312,9 +303,6 @@ class TestsController extends Controller
             ->whereNotNull('class_test_details')
             ->distinct()
             ->count('module_id');
-
-            // \Log::info(['exexted' => $expectedResultCount == $resultCount, 'result' => $result]);
-            // dd($expectedResultCount, $resultCount, $result);
 
             if ($expectedResultCount == $resultCount) {
                 $data["class_test_resit_status"] = 2;
@@ -327,7 +315,6 @@ class TestsController extends Controller
         }
         
         udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
-        // udateTrainingResult($request->p_id, resolveAuthUser()->id);
 
         return Redirect::to('userresults?p_id=' . $program->id);
     }
@@ -335,7 +322,7 @@ class TestsController extends Controller
     public function getResitTrainingStatus($module_type, $transaction){
         $status = 0;
         $expiry = NULL;
-
+       
         if($module_type == 'Class Test'){
             $status =  $transaction->training_result->class_test_resit_status ?? null;
             if(!empty($status) && $status == 1){
@@ -349,6 +336,7 @@ class TestsController extends Controller
                 $expiry = $transaction->training_result->certification_test_resit_expiry;
             }
         }
+
         return [
             'status' => $status,
             'expiry' => $expiry,

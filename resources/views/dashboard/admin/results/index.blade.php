@@ -256,6 +256,7 @@
                     </thead>
                     <tbody>
                         @foreach($users as $user)
+                        
                             <tr id="result-row-{{ $user->id }}">
                                 <td>{{ paginationIndex($users, $loop) }}</td>
                                 <td>
