@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use DB;
-use App\Models\User;
+use App\Http\Controllers\Controller;
+use App\Models\FacilitatorTraining;
 use App\Models\Module;
-use App\Models\Result;
 use App\Models\Program;
 use App\Models\Question;
+use App\Models\Result;
+use App\Models\ResultThread;
+use App\Models\ScoreSetting;
 use App\Models\Settings;
 use App\Models\Transaction;
-use App\Models\ScoreSetting;
+use App\Models\User;
 use GuzzleHttp\Client;
-use App\Models\FacilitatorTraining;
-use App\Models\ResultThread;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Rap2hpoutre\FastExcel\FastExcel;
-use intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use intervention\Image\Facades\Image;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class ResultController extends Controller
 {
@@ -33,8 +33,6 @@ class ResultController extends Controller
         if (! checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             return back();
         }
-
-        $i = 1;
 
         // Base query
         $query = Program::orderBy('created_at', 'DESC');
@@ -61,7 +59,7 @@ class ResultController extends Controller
             $training->result_count = $resultCounts[$training->id] ?? 0;
         }
 
-        return view('dashboard.admin.results.selecttraining', compact('trainings', 'i'));
+        return view('dashboard.admin.results.selecttraining', compact('trainings'));
     }
 
 

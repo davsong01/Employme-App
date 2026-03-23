@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Result;
-use App\Models\Program;
-use App\Models\Certificate;
-use App\Models\Transaction;
-use App\Models\ScoreSetting;
-use Illuminate\Http\Request;
-use App\Models\UtilityTracker;
-use Illuminate\Support\Carbon;
-use App\Models\UtilityCronTask;
-use Illuminate\Support\Facades\DB;
-use App\Models\FacilitatorTraining;
 use App\Http\Controllers\Controller;
-use App\Models\CertificateStatusLog;
-use App\Services\CertificateService;
-use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
+use App\Models\Certificate;
 use App\Models\CertificateGenerationHistory;
 use App\Models\CertificateRegenerationRequest;
 use App\Models\CertificateRegenerationTemplate;
+use App\Models\CertificateStatusLog;
+use App\Models\FacilitatorTraining;
+use App\Models\Program;
+use App\Models\Result;
+use App\Models\ScoreSetting;
+use App\Models\Transaction;
+use App\Models\User;
+use App\Models\UtilityCronTask;
+use App\Models\UtilityTracker;
+use App\Services\CertificateService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Intervention\Image\Facades\Image;
 
 class CertificateController extends Controller
 {
@@ -501,7 +502,7 @@ class CertificateController extends Controller
 
                     if (!$certificate) {
                         continue;
-                        \Log::info('Certificate Generation Error');
+                        Log::info('Certificate Generation Error');
                     }
                 
                     Certificate::updateOrCreate(['user_id' =>  $transaction->user_id, 'program_id' => $request->program_id],[
@@ -511,7 +512,7 @@ class CertificateController extends Controller
                         'program_id' => $request->program_id,
                     ]);
                     
-                    $transaction->show_certificate = 0;
+                    // $transaction->show_certificate = 0;
                     $transaction->save();
                 }
 

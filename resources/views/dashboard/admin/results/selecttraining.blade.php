@@ -27,7 +27,7 @@
                             $permissions = checkTrainingHasPermissions($training->id, $permissionsToCheck);
                         ?>
                         <tr>
-                            <td>{{  $i++ }}</td>
+                            <td>{{  paginationIndex($trainings, $loop) }}</td>
                             <td>{{ $training->p_name }}</td>
                             <td>{{ number_format($training->result_count) }}</td>
                             <td>

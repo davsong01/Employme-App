@@ -146,6 +146,7 @@
 
     .button-container .btn {
         border-radius: 8px;
+        width: 100% !important;
         font-weight: 500;
         text-align: center;
         transition: all 0.3s ease; 
@@ -163,6 +164,26 @@
         margin-right: 0.25rem; 
     }
 
+    .answer-box {
+        max-width: 100%;
+        overflow-x: auto;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .answer-box * {
+        max-width: 100% !important;
+    }
+
+    table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    td {
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
 </style>
 @endsection
 @section('title', 'All Results')
@@ -307,7 +328,7 @@
                                                         <a data-toggle="tooltip" data-placement="top" title="Update user scores"
                                                         class="btn btn-info" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
                                                             <i class="fa fa-eye"></i>
-                                                        </a>]
+                                                        </a>
                                                     @endif
                                                     @if($permissions['mocks.add'])
                                                         <form action="{{route('mocks.destroy', ['mocks' => $user->result_id,  'p_id' => $user->program_id]) }}" method="POST" 
@@ -409,7 +430,7 @@
                                                                 </span> --}}
                                                                 <br>
                                                                 <a style="border-radius: 6px;color: white;" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#classTestResitModal{{$user->id}}">
-                                                                View  History  <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="">{{$classtest_histories->count()}}
+                                                                View History  <span style="background: aqua;padding: 6px 6px;border-radius: 50%;display: inline-block;text-align: center;line-height: 12px;color: red;font-weight: bold" class="">{{$classtest_histories->count()}}
                                                                 </a>
                                                             @endif
                                                         @endif
@@ -500,50 +521,89 @@
 
                                     <!-- Modal Body -->
                                     <div class="modal-body">
-                                        @if(isset($histories) && !empty($histories))
-                                            <div class="accordion" id="historyAccordion">
-                                            @foreach($histories as $key => $result)
-                                                @php
-                                                $testDetails = $result->certification_test_details;
-                                                $testDetails = json_decode($testDetails, true);
-                                                $allDetails = array_keys($testDetails);
-                                                $questions = App\Models\Question::whereIn('id', $allDetails)->get();
-                                                @endphp
+                                        @php
+                                            $histories = $user->certification_resits($user->program_id, $user->user_id);
+                                        @endphp
 
-                                                @if($questions)
-                                                <div class="accordion-item">
-                                                    <h2 class="accordion-header" id="heading-{{ $key }}">
-                                                    <button 
-                                                        class="accordion-button {{ $key == 0 ? '' : 'collapsed' }}" 
-                                                        type="button" 
-                                                        data-bs-toggle="collapse" 
-                                                        data-bs-target="#collapse-{{ $key }}" 
-                                                        aria-expanded="{{ $key == 0 ? 'true' : 'false' }}" 
-                                                        aria-controls="collapse-{{ $key }}">
-                                                        Submitted on: {{ $result->submitted_on }}
-                                                    </button>
-                                                    </h2>
-                                                    <div id="collapse-{{ $key }}" class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}" 
-                                                    aria-labelledby="heading-{{ $key }}" 
-                                                    data-bs-parent="#historyAccordion">
-                                                    <div class="accordion-body">
-                                                        @foreach($questions as $question)
-                                                        <div class="mb-3">
-                                                            <p><strong style="color:green">QUESTION {{ $loop->iteration }}:</strong></p>
-                                                            <p><strong style="color:green">Module:</strong> {{ $result->module->title }}</p>
-                                                            <p><strong style="color:green">Question:</strong> {!! $question->title !!}</p>
-                                                            <hr>
-                                                            <p><strong><h5 style="color:#0056b3">Participant's Answer:</h5></strong>{!! $testDetails[$question->id] !!}</p>
+                                        @if($histories && $histories->count())
+                                            <div class="accordion" id="historyAccordion{{$user->id}}">
+                                                @foreach($histories as $key => $result)
+
+                                                    @php
+                                                        $testDetails = json_decode($result->certification_test_details, true) ?? [];
+                                                        $questions = App\Models\Question::whereIn('id', array_keys($testDetails))->get();
+                                                    @endphp
+
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="heading-{{$user->id}}-{{ $key }}">
+                                                            <button 
+                                                                class="accordion-button {{ $key == 0 ? '' : 'collapsed' }}" 
+                                                                type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                data-bs-target="#collapse-{{$user->id}}-{{ $key }}">
+                                                                Submitted on: {{ $result->submitted_on }}
+                                                            </button>
+                                                        </h2>
+
+                                                        <div id="collapse-{{$user->id}}-{{ $key }}" 
+                                                            class="accordion-collapse collapse {{ $key == 0 ? 'show' : '' }}"
+                                                            data-bs-parent="#historyAccordion{{$user->id}}">
+
+                                                            <div class="accordion-body">
+
+                                                                {{-- @foreach($questions as $question)
+                                                                    <div class="mb-3">
+                                                                        <p><strong>QUESTION {{ $loop->iteration }}</strong></p>
+                                                                        <p><strong>Module:</strong> {{ optional($result->module)->title }}</p>
+                                                                        <p><strong>Question:</strong> {!! $question->title !!}</p>
+
+                                                                        <hr>
+
+                                                                        <h5>Participant's Answer:</h5>
+                                                                        <div class="answer-box">
+
+                                                                            {!! $testDetails[$question->id] ?? '' !!}
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach --}}
+                                                                @php
+                                                                    $testDetails =$result->certification_test_details ?? [];
+                                                                @endphp
+
+                                                                @foreach($questions as $question)
+                                                                    @php
+                                                                        $answer = $testDetails[$question->id] ?? '';
+                                                                        $answer = preg_replace('/width:\s*\d+%/i', '', $answer);
+                                                                    @endphp
+
+                                                                    <div class="mb-3">
+                                                                        <p><strong style="color:green">QUESTION {{ paginationIndex($questions, $loop) }}:</strong></p>
+                                                                        <p><strong style="color:green">Module:</strong> {{ $result->module->title }}</p>
+                                                                        <p><strong style="color:green">Question:</strong> {!! $question->title !!}</p>
+                                                                        <hr>
+
+                                                                        <h5 style="color:#0056b3">Participant's Answer:</h5>
+
+                                                                        <div class="answer-box">
+                                                                            <div style="min-width:600px;">
+                                                                                {!! $answer !!}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+
+                                                                <p><strong>Facilitator:</strong> {{ $result->marked_by ?? 'N/A' }}</p>
+                                                                <p><strong>Facilitator Comment:</strong> {!! $result->facilitator_comment !!}</p>
+
+                                                                <p><strong>Grader:</strong> {{ $result->graded_by ?? 'N/A' }}</p>
+                                                                <p><strong>Grader Comment:</strong> {!! $result->grader_comment !!}</p>
+
+                                                                <p><strong>Score:</strong> {{ $result->certification_test_score }}</p>
+                                                            </div>
                                                         </div>
-                                                        @endforeach
-                                                        <p><strong style="color:green">Facilitator's Comment</strong> ({{ $result->marked_by }}): {!! $result->facilitator_comment !!}</p>
-                                                        <p><strong style="color:green">Grader's Comment:</strong> ({{ $result->grader_comment }}): {!! $result->grader_comment !!}</p>
-                                                        <p><strong style="color:green">Score:</strong> {{ $result->certification_test_score }}</p>
                                                     </div>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                            @endforeach
+
+                                                @endforeach
                                             </div>
                                         @else
                                             <p>No histories found.</p>
