@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Errors\Services\SystemLogService;
+use App\Mail\Email;
 use App\Models\Certificate;
 use App\Models\Group;
 use App\Models\Program;
@@ -13,6 +14,7 @@ use App\Models\UtilityCronTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 
 class UtilityTaskController extends Controller
 {
@@ -386,7 +388,24 @@ class UtilityTaskController extends Controller
 
     public function sendErrorNotification(){
         $recurring = app(SystemLogService::class)->getRecurringErrors(20);
-        dd($recurring);
+        
+        $subject = 'Employme Portal - Recurring System Errors Detected';
+         $content = "<p>The following top recurring errors have been detected in the <strong>Employme Portal</strong>:</p>";
 
+        if ($recurring->count()) {
+            $content .= "<ol>"; // start ordered list
+            foreach ($recurring as $error) {
+                $content .= "<li>Error: <strong>{$error->message}</strong> - Occurrences: {$error->total}</li>";
+            }
+            $content .= "</ol>";
+        } else {
+            $content .= "<p>No recurring errors detected.</p>";
+        }
+
+        $content .= "<p>Please investigate these issues to ensure system stability.</p>";
+
+        Mail::to('davedeloper@gmail.com')->send(new Email($content, 'Developer', $subject));       
+        
+        return 'Notification sent';
     }
 }
