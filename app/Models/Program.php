@@ -152,7 +152,7 @@ class Program extends Model
     {
         return $query->where('programs.id', '<>', 1)
         ->whereStatus(1)
-            ->where('programs.close_registration', 0)
+            // ->where('programs.close_registration', 0)
             ->orderBy('programs.created_at', 'DESC');
     }
 
