@@ -103,7 +103,7 @@ class FrontendController extends Controller
         }
 
         $baseQuery = Group::with(['programs' => function ($q) {
-            $q->mainActivePrograms();
+            $q->allMainPrograms();
         }])->isActive();
 
         if ($isFacilitator) {

@@ -1,51 +1,51 @@
 @php
     $today = date('Y-m-d');
 
+    $isDisabled = ($item->p_end < $today || ($item->close_registration ?? 0) == 1);
+
     if ($item->p_end < $today || ($item->close_registration ?? 0) == 1) {
-        $badge = 'Past';
-        $badgeColor = 'bg-danger';
-        $isDisabled = true;
+        $status = 'Past';
+        $statusColor = 'bg-danger';
     } elseif ($item->p_start > $today) {
-        $badge = 'Upcoming';
-        $badgeColor = 'bg-primary';
-        $isDisabled = false;
+        $status = 'Upcoming';
+        $statusColor = 'bg-primary';
     } else {
-        $badge = 'Ongoing';
-        $badgeColor = 'bg-success';
-        $isDisabled = false;
+        $status = 'Ongoing';
+        $statusColor = 'bg-success';
     }
 
-    // EarlyBird percentage badge
-    $earlyBirdPercent = ($item->e_amount > 0 && $item->early_bird_status == 0)
-        ? number_format((($item->e_amount * 100)/$item->p_amount) - 100, 0)
-        : null;
-
-    // Decide route
     $route = $type === 'package'
         ? route('show.packages', $item->slug)
         : route('trainings', $item->slug);
+
+    $hasDiscount = $item->early_bird_status == 1 && $item->e_amount > 0;
+
+    $discountPercent = $hasDiscount
+        ? number_format((($item->e_amount * 100) / $item->p_amount) - 100, 0)
+        : null;
 @endphp
+
 
 <div class="col-lg-3 col-md-4 col-sm-6 mix">
     <div class="featured__item position-relative">
 
-        {{-- Timing Badge --}}
-        <span class="badge position-absolute top-0 start-0 m-2 text-white px-2 py-1 {{ $badgeColor }}" style="z-index: 10;">
-            {{ $badge }}
-        </span>
-
-        {{-- EarlyBird Discount Badge --}}
-        @if($earlyBirdPercent)
-            <span class="badge position-absolute top-0 end-0 m-2 text-white px-2 py-1 bg-warning" style="z-index: 10;">
-                {{ $earlyBirdPercent }}%
+        {{-- Badge (Discount OR Status) --}}
+        @if($hasDiscount)
+            <span class="badge position-absolute top-0 start-0 m-2 text-white px-2 py-1 bg-danger" style="z-index:10;">
+                {{ $discountPercent }}% OFF
+            </span>
+        @else
+            <span class="badge position-absolute top-0 start-0 m-2 text-white px-2 py-1 {{ $statusColor }}" style="z-index:10;">
+                {{ $status }}
             </span>
         @endif
 
-        {{-- Image / Link --}}
+
+        {{-- Image --}}
         @if($isDisabled)
             <div class="featured__item__pic set-bg" data-setbg="{{ $item->image ?? 'dummy.jpg' }}">
                 <span class="badge position-absolute bottom-0 start-50 translate-middle-x text-white px-3 py-2 bg-danger"
-                      style="z-index: 10; font-size: 0.85rem; border-radius: 0.25rem;">
+                      style="z-index:10; font-size:0.85rem;">
                     Registration Closed
                 </span>
             </div>
@@ -55,8 +55,10 @@
             </a>
         @endif
 
+
         {{-- Text --}}
         <div class="featured__item__text">
+
             <h6 style="min-height:60px">
                 @if($isDisabled)
                     <span class="disabled-link">{{ $item->p_name }}</span>
@@ -66,25 +68,35 @@
             </h6>
 
             <h5>
-                @if ($item->is_closed == 'no')
-                    @if($item->e_amount > 0 && $item->early_bird_status == 0)
+
+                {{-- Closed Group Training (trainings only) --}}
+                @if(isset($item->is_closed) && $item->is_closed == 'yes')
+
+                    <span class="text-danger">Closed Group Training</span>
+
+                @else
+
+                    @if($hasDiscount)
+
                         {{ $currency_symbol }}{{ number_format($exchange_rate * $item->e_amount) }}
+
                         <span class="discount-color">
                             &nbsp; {{ $currency_symbol }}
-                            <span class="linethrough discount-color">{{ number_format($exchange_rate * $item->p_amount) }}</span>
+                            <span class="linethrough discount-color">
+                                {{ number_format($exchange_rate * $item->p_amount) }}
+                            </span>
                         </span>
+
                     @else
-                        @if(!empty($item->price_range))
-                            From {{ $currency_symbol.number_format($exchange_rate * $item->price_range['from']) }}
-                            to {{ $currency_symbol.number_format($exchange_rate * $item->price_range['to']) }}
-                        @else
-                            {{ $currency_symbol }}{{ number_format($exchange_rate * $item->p_amount) }}
-                        @endif
+
+                        {{ $currency_symbol }}{{ number_format($exchange_rate * $item->p_amount) }}
+
                     @endif
-                @else
-                    <span class="text-danger">Closed Group Training</span>
+
                 @endif
+
             </h5>
+
         </div>
 
     </div>

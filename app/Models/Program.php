@@ -148,6 +148,15 @@ class Program extends Model
             ->orderBy('programs.created_at', 'DESC');
     }
 
+    public function scopeAllMainPrograms($query)
+    {
+        return $query->where('programs.id', '<>', 1)
+        ->whereStatus(1)
+            ->where('programs.close_registration', 0)
+            ->orderBy('programs.created_at', 'DESC');
+    }
+
+
     public function scopeMainActiveProgramsWithIsClosed($query)
     {
         return $query->where('programs.id', '<>', 1)
@@ -156,16 +165,6 @@ class Program extends Model
             ->where('programs.p_end', '>=', date('Y-m-d'))
             ->where('programs.close_registration', 0)
             ->orderBy('programs.created_at', 'DESC');
-    }
-
-    public function scopeAllMainPrograms($query)
-    {
-        return $query->where('id', '<>', 1)
-        // ->whereNULL('parent_id')
-        ->whereStatus(1)
-            // ->where('p_end', '>=', date('Y-m-d'))
-            ->where('close_registration', 0)
-            ->orderBy('created_at', 'DESC');
     }
 
     public function scopeisArchived($query)
