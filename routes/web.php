@@ -24,7 +24,7 @@ use App\Http\Controllers\WalletController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\File;
 
-Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
+Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']); // Certificate generation
 Route::get('cron/send-error-notification', [UtilityTaskController::class, 'sendErrorNotification']);
 
 Route:: get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);

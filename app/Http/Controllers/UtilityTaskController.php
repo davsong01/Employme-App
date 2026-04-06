@@ -389,8 +389,11 @@ class UtilityTaskController extends Controller
     public function sendErrorNotification(){
         $recurring = app(SystemLogService::class)->getRecurringErrors(20);
         
+        if ($recurring->isEmpty()) {
+            return $recurring;
+        }
         $subject = 'Employme Portal - Recurring System Errors Detected';
-         $content = "<p>The following top recurring errors have been detected in the <strong>Employme Portal</strong>:</p>";
+        $content = "<p>The following top recurring errors have been detected in the <strong>Employme Portal</strong>:</p>";
 
         if ($recurring->count()) {
             $content .= "<ol>"; // start ordered list
