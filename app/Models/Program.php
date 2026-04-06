@@ -140,7 +140,7 @@ class Program extends Model
     public function scopeMainActivePrograms($query)
     {
         return $query->where('programs.id', '<>', 1)
-            ->whereNull('programs.parent_id')
+            // ->whereNull('programs.parent_id')
             ->where('programs.status', 1)
             ->where('programs.is_closed', 'no')
             ->where('programs.p_end', '>=', date('Y-m-d'))
@@ -151,7 +151,7 @@ class Program extends Model
     public function scopeMainActiveProgramsWithIsClosed($query)
     {
         return $query->where('programs.id', '<>', 1)
-            ->whereNull('programs.parent_id')
+            // ->whereNull('programs.parent_id')
             ->where('programs.status', 1)
             ->where('programs.p_end', '>=', date('Y-m-d'))
             ->where('programs.close_registration', 0)
@@ -161,7 +161,7 @@ class Program extends Model
     public function scopeAllMainPrograms($query)
     {
         return $query->where('id', '<>', 1)
-        ->whereNULL('parent_id')
+        // ->whereNULL('parent_id')
         ->whereStatus(1)
             // ->where('p_end', '>=', date('Y-m-d'))
             ->where('close_registration', 0)

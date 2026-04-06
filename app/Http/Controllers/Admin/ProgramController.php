@@ -453,8 +453,10 @@ class ProgramController extends Controller
 
         if($request->auto_certificate_status == 'yes' && count($auto_certificate_settings) > 0){
             foreach ($auto_certificate_settings as $key => $req) {
-                foreach ($req as $index => $value) {
-                    $final_array[$index][$key] = $value;
+                if($auto_certificate_settings[$key] !== null){
+                     foreach ($req as $index => $value) {
+                        $final_array[$index][$key] = $value;
+                    }
                 }
             }
         }
