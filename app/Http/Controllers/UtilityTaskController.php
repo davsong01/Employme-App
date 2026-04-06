@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Errors\Services\SystemLogService;
+use App\Models\Certificate;
 use App\Models\Group;
 use App\Models\Program;
-use App\Models\Certificate;
-use App\Models\Transaction;
-use Illuminate\Http\Request;
 use App\Models\TempTransaction;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Models\UtilityCronTask;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
@@ -381,5 +382,11 @@ class UtilityTaskController extends Controller
         });
 
         return "Normalization complete";
+    }
+
+    public function sendErrorNotification(){
+        $recurring = app(SystemLogService::class)->getRecurringErrors(20);
+        dd($recurring);
+
     }
 }

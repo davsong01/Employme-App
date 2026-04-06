@@ -435,9 +435,8 @@
                                     <div class="form-group">
                                         <label>AI Status</label>
                                         <select name="ai_settings[status]" class="form-control" id="ai_status" required>
-                                            <option value="">Select...</option>
-                                            <option value="1" {{ ($program->ai_settings['status'] ?? null) == '1' ? 'selected' : '' }}>Yes</option>
                                             <option value="0" {{ ($program->ai_settings['status'] ?? null) == '0' ? 'selected' : '' }}>No</option>
+                                            <option value="1" {{ ($program->ai_settings['status'] ?? null) == '1' ? 'selected' : '' }}>Yes</option>
                                         </select>
                                     </div>
                                 </div>

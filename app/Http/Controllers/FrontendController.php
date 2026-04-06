@@ -29,31 +29,59 @@ class FrontendController extends Controller
 
     public function index(Request $request)
     {
-        if($request->has('search')){
-            if (Session::get('facilitator')) {
-                $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
-                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereStatus(1)->whereIn('id', $programs)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->simplePaginate(16);
-            } else {
-                $trainings = Program::allMainPrograms()->where('id', '<>', 1)->whereStatus(1)->where('p_name', 'LIKE', '%' . $request->search . '%')->ORDERBY('created_at', 'DESC')->simplePaginate(16);
-                // dd($trainings->count());
-            }
-            $search = $request->search;
-            return view('search_results', compact('trainings', 'search'));
+        $isFacilitator = Session::get('facilitator');
+        $facilitatorProgramIds = $isFacilitator
+            ? FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray()
+            : null;
+
+        $programQuery = Program::allMainPrograms()
+            ->where('id', '<>', 1)
+            ->whereStatus(1);
+
+        if ($isFacilitator && $facilitatorProgramIds) {
+            $programQuery->whereIn('id', $facilitatorProgramIds);
         }
 
-        if(Session::get('facilitator')){
-            $programs = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))->pluck('program_id')->toArray();
-            // $trainings = Program::where('id', '<>', 1)->whereStatus(1)->whereIn('id',$programs)->ORDERBY('created_at', 'DESC')->paginate(12);
-            $trainings = Program::allMainPrograms()->whereIn('id', $programs)->simplePaginate(16);
-            $discounts = Program::where('e_amount', '!=', 0)->where('early_bird_status', 0)->where('id', '<>', 1)->whereIn('id',$programs)->where('p_end', '>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
-        }else{
-            // $trainings = Program::where('id', '<>', 1)->whereStatus(1)->ORDERBY('created_at', 'DESC')->ORDERBY('p_start', 'ASC')->paginate(12);
-            $trainings = Program::allMainPrograms()->simplePaginate(16);
-            
-            $discounts = Program::where('e_amount', '!=', 0)->where('early_bird_status', 0)->where('id', '<>', 1)->where('p_end','>=', now())->whereStatus(1)->ORDERBY('created_at', 'DESC')->get();
+        $today = date('Y-m-d');
+
+        // Upcoming
+        $upcomingTrainings = (clone $programQuery)
+            ->where('p_start', '>', $today)
+            ->orderByDesc('created_at')
+            ->paginate(8, ['*'], 'upcoming_page');
+
+        // Ongoing
+        $ongoingTrainings = (clone $programQuery)
+            ->where('p_start', '<=', $today)
+            ->where('p_end', '>=', $today)
+            ->orderByDesc('created_at')
+            ->paginate(8, ['*'], 'ongoing_page');
+
+        // Past
+        $pastTrainings = (clone $programQuery)
+            ->where('p_end', '<', $today)
+            ->orderByDesc('created_at')
+            ->paginate(8, ['*'], 'past_page');
+
+        // Discounts
+        $discountsQuery = Program::where('e_amount', '!=', 0)
+            ->where('early_bird_status', 0)
+            ->where('id', '<>', 1)
+            ->where('p_end', '>=', now())
+            ->whereStatus(1);
+
+        if ($isFacilitator && $facilitatorProgramIds) {
+            $discountsQuery->whereIn('id', $facilitatorProgramIds);
         }
-        
-        return view('welcome', compact('trainings', 'discounts'));
+
+        $discounts = $discountsQuery->orderByDesc('created_at')->get();
+
+        return view('welcome', compact(
+            'discounts',
+            'upcomingTrainings',
+            'ongoingTrainings',
+            'pastTrainings'
+        ));
     }
 
     public function packages(Request $request)
@@ -244,14 +272,13 @@ class FrontendController extends Controller
         }
        
         return response()->json(['status'=>'success', 'data'=>$options]);
-        
     }
 
     public function getfile($filename){
         $realpath = base_path() . '/uploads/trainings'. '/' .$filename;
 
         return response()->download($realpath);
-    }  
+    }
 
     public function thankyou(Request $request){
         return view('thankyou');

@@ -5,7 +5,7 @@
 @section('content')
 
 @if($discounts->count() > 0)
-<!-- Earlybird rush -->
+<!-- Earlybird Rush -->
 <section class="from-blog spad">
     <div class="container">
         <div class="row">
@@ -21,9 +21,10 @@
                 <div class="col-lg-4">
                     <div class="product__discount__item">
                         <a href="{{ route('trainings', $discount->slug ) }}" target="_blank">
-                            <div class="product__discount__item__pic set-bg"
-                                data-setbg="{{ $discount->image }}">
-                                <div class="product__discount__percent">{{ number_format((($discount->e_amount * 100)/$discount->p_amount) - 100, 0) }}%</div>
+                            <div class="product__discount__item__pic set-bg" data-setbg="{{ $discount->image }}">
+                                <div class="product__discount__percent">
+                                    {{ number_format((($discount->e_amount * 100)/$discount->p_amount) - 100, 0) }}%
+                                </div>
                             </div>
                         </a>
                         <div class="product__discount__item__text">
@@ -31,9 +32,12 @@
                                 <h5 style="color: #c2c2c2">{{ $discount->p_name }}</h5>
                             </a>
                             @if ($discount->is_closed == 'no')
-                            <div class="product__item__price">{{ $currency_symbol. number_format($exchange_rate * $discount->e_amount ) }}<span>{{ $currency_symbol. number_format($exchange_rate * $discount->p_amount) }}</span></div>
+                                <div class="product__item__price">
+                                    {{ $currency_symbol . number_format($exchange_rate * $discount->e_amount) }}
+                                    <span>{{ $currency_symbol . number_format($exchange_rate * $discount->p_amount) }}</span>
+                                </div>
                             @else 
-                            <div class="product__item__price" style="color:red">Closed Group Training</span></div>
+                                <div class="product__item__price" style="color:red">Closed Group Training</div>
                             @endif
                         </div>
                     </div>
@@ -43,75 +47,62 @@
         </div>
     </div>
 </section>
-<!-- End of earlybird rush -->
 @endif
-<!-- Featured Section Begin -->
+
+<!-- Trainings Section -->
 <section class="">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title">
-                    <h2>All Courses</h2>
-                </div>
-            </div>
+    <div class="container mt-4">
+        {{-- Upcoming Trainings --}}
+        @if($upcomingTrainings->count() > 0)
+        <div class="row mb-3">
+            <div class="col-lg-12"><h3>Upcoming Trainings</h3></div>
         </div>
-        <div class="row featured__filter">
-            @foreach($trainings as $training)
-                <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
-                    <div class="featured__item">
-                        @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
-                        @else
-                        <a href="{{ route('trainings', $training->slug ) }}" target="_blank">   
-                        @endif
-                            <div class="featured__item__pic set-bg" data-setbg="{{ $training->image }}">
-                                @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
-                                <ul class="featured__item__pic__hover">
-                                    <li><a href="#" class="disabled-link">Registration closed!</a></li>
-                                </ul> 
-                                @endif
-                            </div>
-                        </a>
-                        
-                        <div class="featured__item__text">
-                            <h6 style="min-height:60px">
-                                @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
-                                <a href="#" class="disabled-link">
-                                <span class="mobile_closed" style="display:none">Registration closed!</span>
-                                {{-- <span style="color:red">Registration closed <br></span> --}}
-                                @else
-                                <a href="{{ route('trainings', $training->slug ) }}" target="_blank">  
-                                @endif
-                                {{ $training->p_name }}</a>
-                            </h6>
-                            <h5>
-                                @if ($training->is_closed == 'no')
-                                    @if(($training->e_amount > 0 ) && $training->early_bird_status == 0 || $training->e_amount != 0)
-                                        {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
-                                        <span class="discount-color">&nbsp; {{ $currency_symbol }}<span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span></span>
-                                    @else
-                                        @if(!empty($training->price_range))
-                                            From {{ $currency_symbol.number_format($exchange_rate * $training->price_range['from']) }} to {{ $currency_symbol.number_format($exchange_rate * $training->price_range['to']) }}
-                                        @else
-                                            {{ $currency_symbol }}{{ number_format($exchange_rate * $training->p_amount) }}
-                                        @endif
-                                    @endif
-                                @else
-                                <span style="color:red">Closed Group Training</span>
-                                @endif
-                            </h5> 
-                        </div>
-                    </div>
-                </div>
+        <div class="row">
+            @foreach($upcomingTrainings as $training)
+                @include('layouts.contai.training_card', ['training' => $training])
             @endforeach
         </div>
-
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-lg-12">
-                <div class="section-title">
-                    {!! $trainings->links() !!}
-                </div>
+                {!! $upcomingTrainings->appends(request()->except('upcoming_page'))->links() !!}
             </div>
         </div>
+        @endif
+
+        {{-- Ongoing Trainings --}}
+        @if($ongoingTrainings->count() > 0)
+        <div class="row mb-3 mt-5">
+            <div class="col-lg-12"><h3>Ongoing Trainings</h3></div>
+        </div>
+        <div class="row">
+            @foreach($ongoingTrainings as $training)
+                @include('layouts.contai.training_card', ['training' => $training])
+            @endforeach
+        </div>
+        <div class="row mt-3">
+            <div class="col-lg-12">
+                {!! $ongoingTrainings->appends(request()->except('ongoing_page'))->links() !!}
+            </div>
+        </div>
+        @endif
+
+        {{-- Past Trainings --}}
+        @if($pastTrainings->count() > 0)
+        <div class="row mb-3 mt-5">
+            <div class="col-lg-12"><h3>Past Trainings</h3></div>
+        </div>
+        <div class="row">
+            @foreach($pastTrainings as $training)
+                @include('layouts.contai.training_card', ['training' => $training])
+            @endforeach
+        </div>
+        <div class="row mt-3 mb-4">
+            <div class="col-lg-12">
+                {!! $pastTrainings->appends(request()->except('past_page'))->links() !!}
+            </div>
+        </div>
+        @endif
+
     </div>
 </section>
 

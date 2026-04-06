@@ -25,6 +25,8 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\File;
 
 Route::get('cron/run-utility-tasks', [UtilityTaskController::class, 'runTool']);
+Route::get('cron/send-error-notification', [UtilityTaskController::class, 'sendErrorNotification']);
+
 Route:: get('cron/resolve-training-result', [UtilityTaskController::class, 'resolveTrainingResult']);
 Route::get('utility/resolve-certificate-names', [UtilityTaskController::class, 'renameCertificatesWithSpaceInFilename']);
 Route::get('utility/move-parent-programs-to-group', [UtilityTaskController::class, 'moveParentProgramsToGroup']);
