@@ -28,7 +28,7 @@
 
 
 @section('logo')
-    {{asset($training->image)}}
+    {{asset($training->image ?? 'dummy.jpg')}}
 @endsection
 
 @section('content')
@@ -45,7 +45,7 @@
                 <div class="product__details__pic">
                     <div class="product__details__pic__item">
                         <img class="product__details__pic__item--large"
-                            src="{{ '/'.$training->image }}" alt="">
+                            src="{{ '/'.$training->image ?? 'dummy.jpg'}}" alt="">
                     </div>
                 </div>
             </div>

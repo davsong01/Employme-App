@@ -14,22 +14,36 @@
         $badgeColor = 'bg-success'; // green
         $isDisabled = false;
     }
+
+    // EarlyBird percentage badge
+    $earlyBirdPercent = ($training->e_amount > 0 && $training->early_bird_status == 0)
+        ? number_format((($training->e_amount * 100)/$training->p_amount) - 100, 0)
+        : null;
 @endphp
 
 <div class="col-lg-3 col-md-4 col-sm-6 mix">
     <div class="featured__item position-relative">
 
-        {{-- Badge --}}
+        {{-- Timing Badge --}}
         <span class="badge position-absolute top-0 start-0 m-2 text-white px-2 py-1 {{ $badgeColor }}" style="z-index: 10;">
             {{ $badge }}
         </span>
 
+        {{-- EarlyBird Discount Badge --}}
+        @if($earlyBirdPercent)
+            <span class="badge position-absolute top-0 end-0 m-2 text-white px-2 py-1 bg-warning" style="z-index: 10;">
+                {{ $earlyBirdPercent }}%
+            </span>
+        @endif
+
         {{-- Image / Link --}}
         @if($isDisabled)
             <div class="featured__item__pic set-bg" data-setbg="{{ $training->image ?? 'dummy.jpg' }}">
-                <ul class="featured__item__pic__hover">
-                    <li><span class="disabled-link">Registration closed!</span></li>
-                </ul>
+                {{-- Registration Closed Badge at Bottom Center --}}
+                <span class="badge position-absolute bottom-0 start-50 translate-middle-x text-white px-3 py-2 bg-danger" 
+                      style="z-index: 10; font-size: 0.85rem; border-radius: 0.25rem;">
+                    Registration Closed
+                </span>
             </div>
         @else
             <a href="{{ route('trainings', $training->slug) }}" target="_blank">
@@ -48,8 +62,8 @@
             </h6>
             <h5>
                 @if ($training->is_closed == 'no')
-                    @if(($training->e_amount > 0 ) && $training->early_bird_status == 0)
-                        {{ $currency_symbol }}{{ number_format($exchange_rate*$training->e_amount) }}
+                    @if($training->e_amount > 0 && $training->early_bird_status == 0)
+                        {{ $currency_symbol }}{{ number_format($exchange_rate * $training->e_amount) }}
                         <span class="discount-color">
                             &nbsp; {{ $currency_symbol }}
                             <span class="linethrough discount-color">{{ number_format($exchange_rate * $training->p_amount) }}</span>
@@ -63,7 +77,7 @@
                         @endif
                     @endif
                 @else
-                    <span style="color:red">Closed Group Training</span>
+                    <span class="text-danger">Closed Group Training</span>
                 @endif
             </h5>
         </div>

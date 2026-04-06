@@ -3,7 +3,18 @@
     {{ config('app.name') }}
 @endsection
 @section('content')
-
+<style>
+    @media (max-width: 576px) {
+        .pagination {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .pagination li {
+            white-space: nowrap;
+        }
+    }
+</style>
 @if($discounts->count() > 0)
 <!-- Earlybird Rush -->
 <section class="from-blog spad">
@@ -21,7 +32,7 @@
                 <div class="col-lg-4">
                     <div class="product__discount__item">
                         <a href="{{ route('trainings', $discount->slug ) }}" target="_blank">
-                            <div class="product__discount__item__pic set-bg" data-setbg="{{ $discount->image }}">
+                            <div class="product__discount__item__pic set-bg" data-setbg="{{ $discount->image ?? 'dummy.jpg'}}">
                                 <div class="product__discount__percent">
                                     {{ number_format((($discount->e_amount * 100)/$discount->p_amount) - 100, 0) }}%
                                 </div>

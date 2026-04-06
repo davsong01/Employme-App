@@ -38,12 +38,17 @@ class FrontendController extends Controller
             ->where('id', '<>', 1)
             ->whereStatus(1);
 
+        if($request->filled('search')) {
+            $keyword = $request->search;
+            $programQuery->where('p_name', 'LIKE', "%{$keyword}%");
+        }
+
         if ($isFacilitator && $facilitatorProgramIds) {
             $programQuery->whereIn('id', $facilitatorProgramIds);
         }
 
         $today = date('Y-m-d');
-
+        
         // Upcoming
         $upcomingTrainings = (clone $programQuery)
             ->where('p_start', '>', $today)
@@ -65,10 +70,9 @@ class FrontendController extends Controller
 
         // Discounts
         $discountsQuery = Program::where('e_amount', '!=', 0)
-            ->where('early_bird_status', 0)
+            ->where('early_bird_status', 1)
             ->where('id', '<>', 1)
-            ->where('p_end', '>=', now())
-            ->whereStatus(1);
+            ->where('p_end', '>=', now());
 
         if ($isFacilitator && $facilitatorProgramIds) {
             $discountsQuery->whereIn('id', $facilitatorProgramIds);

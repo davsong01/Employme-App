@@ -107,6 +107,8 @@
             font-size: 1.5rem;
             font-weight: bold;
         }
+
+        
     </style>
 </head>
 
@@ -152,27 +154,34 @@
                             <div class="hero__search__phone__icon">
                                 <img src="{{ asset('contai/img/wtnlogo.jpeg') }}" alt="">
                             </div>
-                           
                             <div class="hero__search__phone__text">
                                 <h6>{{ \Session::get('facilitator_license') }}</h6>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
                 @endif
             </div>
+
             <div class="humberger__open">
                 <i class="fa fa-bars"></i>
             </div>
+
             <div class="hero__search">
-                <div class="hero__search__form">
-                    <form action="/" method="get">
-                        <div class="hero__search__categories">
-                            Search course
-                            <span class="arrow_carrot-right"></span>
-                        </div>
-                        <input type="text" name="search" value="{{ old('search') }}" placeholder="Search for a course">
+                <div class="hero__search__form d-flex flex-wrap align-items-center gap-2">
+                    <form action="/" method="get" class="d-flex flex-wrap align-items-center gap-2 w-100">
+                        <!-- Search input -->
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search for a course" class="form-control me-2" style="min-width: 150px;">
+
+                        <!-- Training type filter -->
+                        <select name="type" class="form-control me-2" style="min-width: 130px;">
+                            <option value="">All Trainings</option>
+                            <option value="upcoming" {{ request('type') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                            <option value="ongoing" {{ request('type') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                            <option value="past" {{ request('type') == 'past' ? 'selected' : '' }}>Past</option>
+                        </select>
+
+                        <!-- Submit button -->
                         <button type="submit" class="site-btn">SEARCH</button>
                     </form>
                 </div>
