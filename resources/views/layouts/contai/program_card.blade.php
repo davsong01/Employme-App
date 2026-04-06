@@ -1,0 +1,91 @@
+@php
+    $today = date('Y-m-d');
+
+    if ($item->p_end < $today || ($item->close_registration ?? 0) == 1) {
+        $badge = 'Past';
+        $badgeColor = 'bg-danger';
+        $isDisabled = true;
+    } elseif ($item->p_start > $today) {
+        $badge = 'Upcoming';
+        $badgeColor = 'bg-primary';
+        $isDisabled = false;
+    } else {
+        $badge = 'Ongoing';
+        $badgeColor = 'bg-success';
+        $isDisabled = false;
+    }
+
+    // EarlyBird percentage badge
+    $earlyBirdPercent = ($item->e_amount > 0 && $item->early_bird_status == 0)
+        ? number_format((($item->e_amount * 100)/$item->p_amount) - 100, 0)
+        : null;
+
+    // Decide route
+    $route = $type === 'package'
+        ? route('show.packages', $item->slug)
+        : route('trainings', $item->slug);
+@endphp
+
+<div class="col-lg-3 col-md-4 col-sm-6 mix">
+    <div class="featured__item position-relative">
+
+        {{-- Timing Badge --}}
+        <span class="badge position-absolute top-0 start-0 m-2 text-white px-2 py-1 {{ $badgeColor }}" style="z-index: 10;">
+            {{ $badge }}
+        </span>
+
+        {{-- EarlyBird Discount Badge --}}
+        @if($earlyBirdPercent)
+            <span class="badge position-absolute top-0 end-0 m-2 text-white px-2 py-1 bg-warning" style="z-index: 10;">
+                {{ $earlyBirdPercent }}%
+            </span>
+        @endif
+
+        {{-- Image / Link --}}
+        @if($isDisabled)
+            <div class="featured__item__pic set-bg" data-setbg="{{ $item->image ?? 'dummy.jpg' }}">
+                <span class="badge position-absolute bottom-0 start-50 translate-middle-x text-white px-3 py-2 bg-danger"
+                      style="z-index: 10; font-size: 0.85rem; border-radius: 0.25rem;">
+                    Registration Closed
+                </span>
+            </div>
+        @else
+            <a href="{{ $route }}" target="_blank">
+                <div class="featured__item__pic set-bg" data-setbg="{{ $item->image ?? 'dummy.jpg' }}"></div>
+            </a>
+        @endif
+
+        {{-- Text --}}
+        <div class="featured__item__text">
+            <h6 style="min-height:60px">
+                @if($isDisabled)
+                    <span class="disabled-link">{{ $item->p_name }}</span>
+                @else
+                    <a href="{{ $route }}" target="_blank">{{ $item->p_name }}</a>
+                @endif
+            </h6>
+
+            <h5>
+                @if ($item->is_closed == 'no')
+                    @if($item->e_amount > 0 && $item->early_bird_status == 0)
+                        {{ $currency_symbol }}{{ number_format($exchange_rate * $item->e_amount) }}
+                        <span class="discount-color">
+                            &nbsp; {{ $currency_symbol }}
+                            <span class="linethrough discount-color">{{ number_format($exchange_rate * $item->p_amount) }}</span>
+                        </span>
+                    @else
+                        @if(!empty($item->price_range))
+                            From {{ $currency_symbol.number_format($exchange_rate * $item->price_range['from']) }}
+                            to {{ $currency_symbol.number_format($exchange_rate * $item->price_range['to']) }}
+                        @else
+                            {{ $currency_symbol }}{{ number_format($exchange_rate * $item->p_amount) }}
+                        @endif
+                    @endif
+                @else
+                    <span class="text-danger">Closed Group Training</span>
+                @endif
+            </h5>
+        </div>
+
+    </div>
+</div>

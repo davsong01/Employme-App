@@ -90,72 +90,54 @@ class FrontendController extends Controller
 
     public function packages(Request $request)
     {
-        if ($request->filled('search')) {
-            $keyword   = $request->search;
+        $today = now()->toDateString();
 
-            $packages = Group::with(['programs' => function ($q) {
-                $q->mainActivePrograms();
-            }])// eager-load child programs
-            ->isActive()                       // scope: status = 1
-            ->where('p_name', 'LIKE', "%{$keyword}%")
-            ->latest()
-            ->simplePaginate(16);
+        $isFacilitator = Session::get('facilitator');
 
-            return view('search_results', [
-                'trainings' => $packages,          // keeps view variable name
-                'search'    => $keyword,
-            ]);
-        }
+        $programIds = [];
 
-        if (Session::get('facilitator')) {
-            // pull program IDs linked to this facilitator
+        if ($isFacilitator) {
             $programIds = FacilitatorTraining::whereUserId(Session::get('facilitator_id'))
                 ->pluck('program_id')
                 ->toArray();
+        }
 
-            // packages that contain at least one of the facilitator’s programs
-            $packages = Group::with(['programs' => function ($q) {
-                $q->mainActivePrograms();
-            }])
-            ->isActive()
-            ->whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
-            ->latest()
-            ->simplePaginate(16);
+        $baseQuery = Group::with(['programs' => function ($q) {
+            $q->mainActivePrograms();
+        }])->isActive();
 
-            // discounted packages (early-bird price set & still valid)
-            $discounts = Group::with(['programs' => function ($q) {
-                    $q->mainActivePrograms();
-                }])
-                ->isActive()
-                ->where('e_amount', '!=', 0)
-                ->where('early_bird_status', 1)
-                ->whereDate('p_end', '>=', now())
-                ->whereHas('programs', fn($q) => $q->whereIn('programs.id', $programIds))
-                ->latest()
-                ->get();
-        } else {
-            // all active packages
-            $packages = Group::with(['programs' => function ($q) {
-                $q->mainActivePrograms(); 
-            }])
-            ->isActive()
+        if ($isFacilitator) {
+            $baseQuery->whereHas('programs', fn ($q) => $q->whereIn('programs.id', $programIds));
+        }
+
+        $upcomingPackages = (clone $baseQuery)
+            ->whereDate('p_start', '>', $today)
             ->latest()
-            ->simplePaginate(16);
-            
-            // global discounts
-            $discounts = Group::with(['programs' => function ($q) {
-                $q->mainActivePrograms();
-            }])
-            ->isActive()
+            ->simplePaginate(12, ['*'], 'upcoming_page');
+
+        $ongoingPackages = (clone $baseQuery)
+            ->whereDate('p_start', '<=', $today)
+            ->whereDate('p_end', '>=', $today)
+            ->latest()
+            ->simplePaginate(12, ['*'], 'ongoing_page');
+
+        $pastPackages = (clone $baseQuery)
+            ->whereDate('p_end', '<', $today)
+            ->latest()
+            ->simplePaginate(12, ['*'], 'past_page');
+
+        $discounts = (clone $baseQuery)
             ->where('e_amount', '!=', 0)
             ->where('early_bird_status', 1)
+            ->whereDate('p_end', '>=', now())
             ->latest()
             ->get();
-        }
-        
+
         return view('packages', [
-            'trainings' => $packages,  // keeps existing view variable names
-            'discounts' => $discounts,
+            'upcomingPackages' => $upcomingPackages,
+            'ongoingPackages'  => $ongoingPackages,
+            'pastPackages'     => $pastPackages,
+            'discounts'        => $discounts,
         ]);
     }
 

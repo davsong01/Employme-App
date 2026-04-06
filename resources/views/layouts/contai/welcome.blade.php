@@ -70,7 +70,10 @@
         </div>
         <div class="row">
             @foreach($upcomingTrainings as $training)
-                @include('layouts.contai.training_card', ['training' => $training])
+                @include('layouts.contai.program_card', [
+                    'item' => $training,
+                    'type' => 'training'
+                ])
             @endforeach
         </div>
         <div class="row mt-3">
@@ -87,7 +90,10 @@
         </div>
         <div class="row">
             @foreach($ongoingTrainings as $training)
-                @include('layouts.contai.training_card', ['training' => $training])
+                @include('layouts.contai.program_card', [
+                    'item' => $training,
+                    'type' => 'training'
+                ])
             @endforeach
         </div>
         <div class="row mt-3">
@@ -104,7 +110,10 @@
         </div>
         <div class="row">
             @foreach($pastTrainings as $training)
-                @include('layouts.contai.training_card', ['training' => $training])
+                @include('layouts.contai.program_card', [
+                    'item' => $training,
+                    'type' => 'training'
+                ])
             @endforeach
         </div>
         <div class="row mt-3 mb-4">
