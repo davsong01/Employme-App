@@ -40,11 +40,11 @@ class Group extends Model
 
     public function scopeIsActive($query)
     {
-        return $query->where('groups.status', 1)
+        return $query->where('groups.status', 1);
             // ->where('groups.p_end', '>=', date('Y-m-d'))
-            ->whereHas('programs', function ($q) {
-                $q->mainActivePrograms();
-            });
+            // ->whereHas('programs', function ($q) {
+            //     $q->mainActivePrograms();
+            // });
     }
 
 
