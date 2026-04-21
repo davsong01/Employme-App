@@ -17,7 +17,9 @@ class WebAccessMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $request['prefix__'] = request()->route()->getPrefix();
-        $setting = Settings::value('site_access_settings');
+        $setting = \Cache::remember('site_access_settings', 300, function () {
+            return Settings::value('site_access_settings');
+        });
         $webAccess = $setting->web_access;
 
         if($webAccess == 'disabled'){

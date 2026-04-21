@@ -18,7 +18,9 @@ class AdminAccessMiddleware
     {
         $request['prefix__'] = request()->route()->getPrefix();
         
-        $setting = Settings::value('site_access_settings');
+        $setting = \Cache::remember('site_access_settings', 300, function () {
+            return Settings::value('site_access_settings');
+        });
         $webAccess = $setting->admin_access;
         if ($webAccess == 'disabled') {
             return abort(403);

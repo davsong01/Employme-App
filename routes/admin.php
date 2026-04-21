@@ -288,7 +288,6 @@ Route::middleware(['admin.access'])->group(function () {
         Route::get('/errors/recent', 'recentLogs')->name('admin.errors.recent'); 
         Route::get('/errors/recurring', 'recurringErrors')->name('admin.errors.recurring'); 
         Route::get('/delete-error/{id}', 'delete')->name('admin.error.delete'); 
-
     });
 
     Route::controller(ErrorLogFileController::class)->group(function(){

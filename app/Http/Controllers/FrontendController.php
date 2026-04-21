@@ -146,7 +146,7 @@ class FrontendController extends Controller
         $id = \Request::get('training') ?? $id;
         $training = Program::with('subPrograms')->where('id', $id)->orWhere('slug', $id)->first();
         
-        if ($training->p_end < date('Y-m-d') || $training->close_registration == 1) {
+        if (!$training || $training->p_end < date('Y-m-d') || $training->close_registration == 1) {
             return redirect(route('welcome'));
         }
 
@@ -196,6 +196,7 @@ class FrontendController extends Controller
         if(!$training){
             return back();
         }
+        
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){
             return redirect(route('welcome'));
         }

@@ -455,14 +455,14 @@ class ResultController extends Controller
                 'success' => true,
                 'message' => 'Test Scores Updated Successfully',
                 'id' => $transaction->id,
-                'certification_test_score' => $transaction->training_result->certification_test_score,
+                'certification_test_score' => $transaction->training_result?->certification_test_score ?? 0,
                 'passmark' => $transaction->program->scoresettings->passmark,
-                'role_play_score' => $transaction->training_result->roleplay_test_score,
-                'email_test_score' => $transaction->training_result->email_test_score,
-                'crm_test_score' => $transaction->training_result->crm_test_score,
-                'certification_facilitator' => $transaction->training_result->certification_facilitator,
-                'certification_grader' => $transaction->training_result->certification_grader,
-                'total_score' => $transaction->training_result->total_score,
+                'role_play_score' => $transaction->training_result?->roleplay_test_score ?? 0,
+                'email_test_score' => $transaction->training_result?->email_test_score ?? 0,
+                'crm_test_score' => $transaction->training_result?->crm_test_score ?? 0,
+                'certification_facilitator' => $transaction->training_result?->certification_facilitator ?? '',
+                'certification_grader' => $transaction->training_result?->certification_grader ?? '',
+                'total_score' => $transaction->training_result?->total_score ?? 0,
                 'updated_at' => $result->updated_at ? \Carbon\Carbon::parse($result->updated_at)->format('jS F, Y, h:iA') : ''
             ]);
         } catch (\Throwable $th) {
