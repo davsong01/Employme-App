@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly" # Change from 'daily' to 'weekly' so it doesn't spam you
+    open-pull-requests-limit: 5 # Limit the number of open PRs
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
