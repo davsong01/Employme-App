@@ -190,9 +190,13 @@ class TestsController extends Controller
                 }
             }
 
-            $check->certification_test_details = json_encode($certification_test_details);
-            $check->redo_test = 2;
-            $check->save();
+            if(!$check){
+                $check = $this->createResult($module, $certification_test_details);
+                $check->update([
+                    'certification_test_details' => json_encode($certification_test_details),
+                    'redo_test' => 2
+                ]);
+            }
             
             // End redo test
             $data["certification_test_resit_status"] = 2;
