@@ -535,7 +535,7 @@ class ResultController extends Controller
             ";
 
             $details['type'] = 'bulk';
-        
+            
             $this->sendGenericEmail($details);
             return back()->with('message', 'All Post Test Certification Test details for this user have been deleted successfully');
         }

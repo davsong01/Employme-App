@@ -147,7 +147,6 @@ class TestsController extends Controller
     {
         $program = Program::find($request->p_id);
         
-
         $class_test_details = $request->except(['_token', 'mod_id', 'id', 'prefix__']);
         $resit = false;
 
@@ -235,20 +234,13 @@ class TestsController extends Controller
                 }
             }
 
-            $questions = $module->questions->toarray();
+            $questions = $module->questions->toArray();
             $no_of_questions = count($questions);
             $score = 0;
 
             if ($module->type == 'Certification Test') {
                 try {
-                    $result = Result::create([
-                        'program_id' => $module->program->id,
-                        'user_id' => resolveAuthUser()->id,
-                        'module_id' => $module->id,
-                        'certification_test_details' => json_encode($certification_test_details),
-                        "duplicate_key" => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
-
-                    ]);
+                    $result = $this->createResult($module, $certification_test_details);
                 } catch (\Illuminate\Database\QueryException $ex) {
                     if ($ex->errorInfo[1] == 1062) { // MySQL duplicate entry code
                         return back()->with(
@@ -270,14 +262,7 @@ class TestsController extends Controller
 
                 try {
                     if ($module->type == 'Class Test') {
-                        $result = Result::create([
-                            'program_id' => $module->program->id,
-                            'user_id' => resolveAuthUser()->id,
-                            'module_id' => $module->id,
-                            'class_test_score' => $score,
-                            'class_test_details' => json_encode($class_test_details),
-                            'duplicate_key' => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
-                        ]);
+                        $result = $this->createResult($module, $class_test_details, $score);
                     }
                 } catch (\Illuminate\Database\QueryException $ex) {
                     if ($ex->errorInfo[1] == 1062) { // MySQL duplicate entry code
@@ -317,6 +302,31 @@ class TestsController extends Controller
         udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
 
         return Redirect::to('userresults?p_id=' . $program->id);
+    }
+
+    public function createResult($module, $details, $score = 0){
+        $type = $module->type;
+
+        if($type == 'Certification Test'){
+            return Result::create([
+                'program_id' => $module->program->id,
+                'user_id' => resolveAuthUser()->id,
+                'module_id' => $module->id,
+                'certification_test_details' => json_encode($details),
+                'duplicate_key' => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
+            ]);
+        }
+
+        if($type == 'Class Test'){
+            return Result::create([
+                'program_id' => $module->program->id,
+                'user_id' => resolveAuthUser()->id,
+                'module_id' => $module->id,
+                'class_test_score' => $score,
+                'class_test_details' => json_encode($details),
+                'duplicate_key' => $module->id . '-' . resolveAuthUser()->id . '-' . $module->program->id
+            ]);
+        }
     }
 
     public function getResitTrainingStatus($module_type, $transaction){
@@ -437,7 +447,7 @@ class TestsController extends Controller
         foreach($results as $result){
             $history = app('App\Http\Controllers\Admin\ResultController')->createResultThread($result);
             $result->delete();
-
+            
             return Redirect::to('tests?p_id=' . request()->get('p_id'));
         }
 
