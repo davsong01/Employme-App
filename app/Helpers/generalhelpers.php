@@ -399,7 +399,12 @@ if (!function_exists("generateCertificate")) {
             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
 
             // Get text
-            if ($text_type == 'name') $text = $user->name ?? $text;
+            if ($text_type == 'name') {
+                $text = $user->name ?? $text;
+                // Ensure each word starts with a capital letter
+                $text = ucwords(strtolower($text));
+            };
+            
             if ($text_type == 'email') $text = $user->email;
             if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
 
