@@ -112,25 +112,62 @@ if (!function_exists("certificationStatus")) {
     }
 }
 
-if (!function_exists("certificationStatusNew")) {
-    function certificationStatusNew($training_result, $program, $user){
+// if (!function_exists("certificationStatusNew")) {
+//     function certificationStatusNew($training_result, $program, $user){
         
-        if($program instanceof Program){
-            $program = $program;
-        }else{
-            $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult')->with('scoresettings')->where('id', $program)->first();
+//         if($program instanceof Program){
+//             $program = $program;
+//         }else{
+//             $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult')->with('scoresettings')->where('id', $program)->first();
+//         }
+
+//         if ($user instanceof User) {
+//             $user = $user;
+//         } else {
+//             $user = User::where('id', $user)->first();
+//         }
+        
+//         $training_result->certification_status = isset($training_result->total_score) && ($training_result->total_score >= $program->scoresettings->passmark) ? 'CERTIFIED' : 'NOT CERTIFIED';
+//         $training_result->program = $program;
+//         $training_result->scoresettings = $program->scoresettings;
+//         $training_result->user = $user ?? null;
+
+//         return $training_result;
+//     }
+// }
+if (!function_exists("certificationStatusNew")) {
+    function certificationStatusNew($training_result, $program, $user) {
+        
+        // Ensure $program is an object
+        if (!($program instanceof Program)) {
+            $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult')
+                ->with('scoresettings')
+                ->where('id', $program)
+                ->first();
         }
 
-        if ($user instanceof User) {
-            $user = $user;
-        } else {
+        // Ensure $user is an object
+        if (!($user instanceof User)) {
             $user = User::where('id', $user)->first();
         }
+
+        // 1. Safe Check for $training_result (ensure it's an object)
+        if (!is_object($training_result)) {
+            return $training_result; 
+        }
+
+        // 2. Safe Check for passmark logic
+        // Use ?-> to check if $program and scoresettings exist. Fallback to 0 passmark if missing.
+        $passmark = $program?->scoresettings?->passmark ?? 0;
         
-        $training_result->certification_status = $training_result->total_score >= $program->scoresettings->passmark ? 'CERTIFIED' : 'NOT CERTIFIED';
+        $training_result->certification_status = (isset($training_result->total_score) && $training_result->total_score >= $passmark) 
+            ? 'CERTIFIED' 
+            : 'NOT CERTIFIED';
+
+        // 3. Safe Assignments
         $training_result->program = $program;
-        $training_result->scoresettings = $program->scoresettings;
-        $training_result->user = $user ?? null;
+        $training_result->scoresettings = $program?->scoresettings; // Safe if $program is null
+        $training_result->user = $user;
 
         return $training_result;
     }
