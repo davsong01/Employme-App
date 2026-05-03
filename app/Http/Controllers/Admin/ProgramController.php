@@ -312,10 +312,32 @@ class ProgramController extends Controller
     public function update(Request $request, Program $program)
     {
         $data = $request->only(['resolve_to_ids','show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status','ai_settings']);
-        // Clear all certificate previews
+
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
-        //check if new featured image
         
+         if ($request->use_existing_settings == 'yes' && !empty($request->existing_program_id)) {
+            $sourceProgram = Program::find($request->existing_program_id);
+            if ($sourceProgram) {
+                $data['auto_certificate_settings'] = $sourceProgram->auto_certificate_settings;
+                // Ensure the status matches current toggle even if inherited
+                $data['auto_certificate_settings']['auto_certificate_status'] = $request->auto_certificate_status;
+                $data['auto_certificate_settings']['inherited_from'] = $sourceProgram->id;
+            }
+        } else {
+            // Manual Build Logic
+            $templatePath = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
+
+            if ($request->hasFile('auto_certificate_template')) {
+                $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+                $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+                $templatePath = 'certificate_templates/' . $name;
+            }
+
+            // Pass templatePath explicitly instead of attaching to $request
+            $data['auto_certificate_settings'] = $this->buildCertificateSettings($request, $templatePath);
+        }
+
+
         if(!empty($data['currencies']) && !empty($data['currency_values'])){
             $selectedCurrencyIds = $request->input('currencies', []);
             $currencyValues = $request->input('currency_values', []);
@@ -337,30 +359,7 @@ class ProgramController extends Controller
         }
         unset($data['currency_values']);
 
-        if ($request->use_existing_settings == 'yes' && !empty($request->existing_program_id)) {
-            // Inherit from another program
-            $sourceProgram = Program::find($request->existing_program_id);
-            
-            if ($sourceProgram) {
-                $data['auto_certificate_settings'] = $sourceProgram->auto_certificate_settings;
-                // Add a flag so you know it's inherited (optional)
-                $data['auto_certificate_settings']['inherited_from'] = $sourceProgram->id;
-            }
-
-        }else{
-            if(!empty($request->auto_certificate_template)){
-                $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
-                $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
-                
-                $request['path'] = 'certificate_templates/'.$name;
-                
-            }else{
-                $request['path'] = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
-            }
-        }
-
-        $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);
-        
+    
         if ($request->hasFile('image')) {
 
             // Dont delete old files, another progeam may be using it
@@ -443,40 +442,40 @@ class ProgramController extends Controller
         return redirect()->back()->with('message', 'Training updated successfully');
     }
 
-    public function buildCertificateSettings($request){
+    public function buildCertificateSettings($request, $templatePath)
+    {
         $auto_certificate_settings = [
-            "auto_certificate_name_font_size" => $request->auto_certificate_name_font_size,
+            "auto_certificate_name_font_size"   => $request->auto_certificate_name_font_size,
             "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight,
-            "auto_certificate_color" => $request->auto_certificate_color,
-            "auto_certificate_top_offset" => $request->auto_certificate_top_offset,
-            "auto_certificate_left_offset" => $request->auto_certificate_left_offset,
-            "text_type" => $request->text_type,
-            "text_type_face" => $request->text_type_face ?: 'Pesaro-Bold.ttf',
+            "auto_certificate_color"           => $request->auto_certificate_color,
+            "auto_certificate_top_offset"      => $request->auto_certificate_top_offset,
+            "auto_certificate_left_offset"     => $request->auto_certificate_left_offset,
+            "text_type"                        => $request->text_type,
+            "text_type_face"                   => $request->text_type_face,
         ];
 
         $final_array = [];
 
-        $auto_certificate_settings = array_filter($auto_certificate_settings, function ($value) {
-            return !is_null($value);
-        });
-
-        if($request->auto_certificate_status == 'yes' && count($auto_certificate_settings) > 0){
-            foreach ($auto_certificate_settings as $key => $req) {
-                if($auto_certificate_settings[$key] !== null){
-                     foreach ($req as $index => $value) {
-                        $final_array[$index][$key] = $value;
-                    }
-                }
+        // Only process rows if status is yes and we actually have array data
+        if ($request->auto_certificate_status == 'yes' && is_array($request->text_type)) {
+            foreach ($request->text_type as $index => $type) {
+                $final_array[] = [
+                    "text_type"                         => $type,
+                    "text_type_face"                    => $request->text_type_face[$index] ?? 'Pesaro-Bold.ttf',
+                    "auto_certificate_name_font_size"   => $request->auto_certificate_name_font_size[$index] ?? null,
+                    "auto_certificate_name_font_weight" => $request->auto_certificate_name_font_weight[$index] ?? null,
+                    "auto_certificate_color"           => $request->auto_certificate_color[$index] ?? '#000000',
+                    "auto_certificate_top_offset"      => $request->auto_certificate_top_offset[$index] ?? 0,
+                    "auto_certificate_left_offset"     => $request->auto_certificate_left_offset[$index] ?? 0,
+                ];
             }
         }
 
-        $data['auto_certificate_settings'] = [
-            "auto_certificate_status" => $request->auto_certificate_status,
-            "auto_certificate_template" => $request->path,
-            "settings" => $final_array
+        return [
+            "auto_certificate_status"   => $request->auto_certificate_status,
+            "auto_certificate_template" => $templatePath,
+            "settings"                  => $final_array
         ];
-
-        return $data['auto_certificate_settings'];
     }
 
     public function removeSubProgram($id)
