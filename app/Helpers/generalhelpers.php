@@ -346,30 +346,142 @@ if (!function_exists("buildResultExport")) {
 
 
 
+// if (!function_exists("generateCertificate")) {
+//     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
+//     {
+//         if(!empty($program_id)) {
+//             $program = Program::find($program_id);
+//             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
+//         }else{
+//             $certificate_settings = $request;
+//         }
+        
+//         if (empty($user)) {
+//             $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
+//             $user = $user->user;
+//         }
+
+//         if (!empty($request['auto_certificate_template'])) {
+//             $inputImagePath = $request['auto_certificate_template'];
+//         } else {
+//             $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
+//         }
+
+//         // Create a history for the previous certificate
+//         $image = Image::make($inputImagePath);
+
+//         if (!empty($request['auto_certificate_name_font_weight'])) {
+//             $counter = count($request['auto_certificate_name_font_weight']);
+//         } else {
+//             $counter = count($certificate_settings['settings']);
+//         }
+
+//         if ($image->width() > 4000 || $image->height() > 4000) {
+//             $image->resize(4000, null, function ($constraint) {
+//                 $constraint->aspectRatio();
+//                 $constraint->upsize();
+//             });
+//         }
+
+//         $dateIssued = !empty($request['date_issued'])
+//             ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+//             : now()->format('jS \d\a\y \o\f F, Y');
+
+//         for ($i = 0; $i < $counter; $i++) {
+//             $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
+//             $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
+//             $auto_certificate_top_offset = !empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset'];
+//             $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
+//             $auto_certificate_font_weight = !empty($request['auto_certificate_name_font_weight'][$i]) ? $request['auto_certificate_name_font_weight'][$i] : ($certificate_settings['settings'][$i]['auto_certificate_name_font_weight'] ?? 10);
+//             $text_type_face = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
+
+//             $text = 'Aboki Ogbeni Chuckwuma';
+//             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
+
+//             // Get text
+//             if ($text_type == 'name') {
+//                 $text = $user->name ?? $text;
+//                 // Ensure each word starts with a capital letter
+//                 $text = ucwords(strtolower($text));
+//             };
+            
+//             if ($text_type == 'email') $text = $user->email;
+//             if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
+
+//             if ($text_type == 'certificate_number') {
+//                 if (!empty($program_id)) {
+//                     $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
+//                 }else{
+//                     $certificate_number = rand(11111111,99999999);
+//                 }
+
+//                 $text = $certificate_number;
+//             }
+
+//             // \Log::info($certificate_settings['settings'], $certificate_settings['settings'][$i], $i);
+//             if ($text_type == 'date_issued') {
+//                 $text = $dateIssued;
+//                 // $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
+//             }
+            
+//             // End text
+//             $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight, $text_type_face) {
+//                 $font->file(public_path('certificate_fonts/' . $text_type_face));
+//                 $font->size($size);
+//                 $font->color($color);
+//                 // $font->weight($auto_certificate_font_weight);
+//             });
+//         }
+        
+//         $name = uniqid(9) . '.jpg';
+//         // $outputImagePath = base_path('uploads/certificates/' . $name);
+//         $outputImagePath = $location . '/' . $name;
+//         $image->save($outputImagePath);
+
+//         return [
+//             'name' => $name,
+//             'certificate_number' => $certificate_number ?? rand(111,999),
+//             'outputImagePath' => $outputImagePath,
+//             'date_issued' => $dateIssued
+//         ];
+//     }
+// }
+    
 if (!function_exists("generateCertificate")) {
     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
     {
         if(!empty($program_id)) {
             $program = Program::find($program_id);
+            // If $template is passed use it, else use program settings
             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
-        }else{
+        } else {
             $certificate_settings = $request;
         }
         
         if (empty($user)) {
             $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
-            $user = $user->user;
+            $user = $user ? $user->user : (object)['name' => 'John Doe', 'email' => 'test@test.com'];
         }
 
-        if (!empty($request['auto_certificate_template'])) {
+        // --- FIXED IMAGE PATH LOGIC ---
+        if (!empty($request['auto_certificate_template']) && !is_string($request['auto_certificate_template'])) {
+            // Case 1: Real file upload object
             $inputImagePath = $request['auto_certificate_template'];
+        } elseif (!empty($request['template_path_override'])) {
+            // Case 2: Path passed from inheritance or hidden field
+            $inputImagePath = base_path('uploads/' . $request['template_path_override']);
         } else {
-            $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
+            // Case 3: Default to whatever is in the settings
+            $path = $certificate_settings['auto_certificate_template'] ?? null;
+            $inputImagePath = base_path('uploads/' . $path);
         }
 
-        // Create a history for the previous certificate
-        $image = Image::make($inputImagePath);
+        // Ensure file actually exists before processing
+        if (!file_exists($inputImagePath)) {
+            throw new \Exception("Certificate template not found at: " . $inputImagePath);
+        }
 
+        $image = Image::make($inputImagePath);
         if (!empty($request['auto_certificate_name_font_weight'])) {
             $counter = count($request['auto_certificate_name_font_weight']);
         } else {
@@ -447,6 +559,7 @@ if (!function_exists("generateCertificate")) {
     }
 }
     
+
 if (!function_exists("certificateFontType")) {
     function certificateFontType()
     {

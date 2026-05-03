@@ -179,20 +179,7 @@
                                         <small style="color:red">{{ $errors->first('login_without_password')}}</small>
                                     </div>
                                 </div>
-                                {{-- @if($program->parent) --}}
-                                {{-- <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label style="color:">Participants of this program should have access to:</label>
-                                        <select name="resolve_to_ids[]" class="select2 form-control" multiple>
-                                            @foreach($programs as $pro)
-                                                <option value="{{ $pro->id }}" {{ in_array($pro->id, $program->resolve_to_ids ?? []) ? 'selected' : '' }}>
-                                                    {{ $pro->p_name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div> --}}
-                                {{-- @endif --}}
+                                
                             </div>
                         </fieldset>
                         
@@ -517,12 +504,14 @@
                         </section>
                         </fieldset>
                         <fieldset class="field">
-                        <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Auto Certificate settings</legend>
+                            <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Auto Certificate settings</legend>
                             <section>
                                 @php
                                     $c_settings['auto_certificate_status'] = $c_settings['auto_certificate_status'] ?? 'no';
                                 @endphp
-                                <div class="row">  
+                                
+                                <div class="row">
+                                    <!-- Toggle: Enable Auto Generate -->
                                     <div class="col-md-6" style="margin-bottom:5px">
                                         <div class="form-group">
                                             <label>Enable Auto generate certificate</label>
@@ -533,132 +522,174 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-6" style="margin-bottom:5px">
-                                        <div class="form-group row">
-                                            <label class="col-md-6 col-form-label">
-                                                @if(isset($c_settings['auto_certificate_template']))
-                                                    Replace Certificate Template
-                                                @else
-                                                    Upload Certificate Template
-                                                @endif
-                                            </label>
-                                            
-                                            <div class="col-md-12">
-                                                <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
+
+                                    <!-- Toggle: Use Existing Settings --> 
+                                </div>
+
+                                <!-- THIS SECTION SHOWS ONLY IF "USE EXISTING" IS YES -->
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-6" style="margin-bottom:5px">
+                                            <div class="form-group">
+                                                <label>Use Existing Certificate Settings</label>
+                                                <select name="use_existing_settings" class="form-control" id="use_existing_settings" required>
+                                                    <option value="">Select...</option>
+                                                    <option value="no" selected>No</option>
+                                                    <option value="yes">Yes</option>
+                                                </select>
                                             </div>
                                         </div>
+                                        <div class="col-md-6" id="program_select_wrapper" style="display: none;" style="margin-bottom:15px">
+                                            <div class="form-group">
+                                                <label style="color: blue; font-weight: bold;">Select Program to Inherit Certificate From</label>
+                                                <select name="existing_program_id" class="form-control">
+                                                    <option value="">Select Program...</option>
+                                                    @foreach($programs as $program)
+                                                        <option value="{{ $program->id }}">{{ $program->p_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                        {{-- <div class="form-group row">
-                                            @if(isset($c_settings['auto_certificate_template']) && $c_settings['auto_certificate_template'])
-                                                <div class="col-md-6">
-                                                    <img src="{{ Storage::url('certificate_templates/' . $c_settings['auto_certificate_template']) }}" alt="Existing Certificate Template" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+                                <!-- THIS SECTION HIDES IF "USE EXISTING" IS YES -->
+                                <div id="manual_settings_wrapper">
+                                    <div class="row">
+                                        <div class="col-md-12" style="margin-bottom:15px">
+                                            <div class="form-group">
+                                                <label class="form-label" style="font-weight: bold;">
+                                                    {{ isset($c_settings['auto_certificate_template']) ? 'Replace Certificate Template' : 'Upload Certificate Template' }}
+                                                </label>
+                                                
+                                                <div class="d-flex align-items-start">
+                                                    <!-- File Input Container -->
+                                                    <div style="flex-grow: 1;">
+                                                        <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
+                                                        
+                                                        @if(isset($c_settings['auto_certificate_template']))
+                                                            <!-- Hidden field for AJAX Preview logic -->
+                                                            <input type="hidden" name="existing_auto_certificate_template" id="existing_auto_certificate_template" value="{{ $c_settings['auto_certificate_template'] }}">
+                                                            {{-- <p class="small text-muted mt-1">Current file: {{ $c_settings['auto_certificate_template'] }}</p> --}}
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- Image Preview Thumb -->
+                                                    @if(isset($c_settings['auto_certificate_template']))
+                                                        <div class="ml-3">
+                                                            <div style="border: 1px solid #ddd; padding: 2px; border-radius: 4px; background: #f9f9f9;">
+                                                                <!-- Browser-accessible URL -->
+                                                                <img src="{{ url('uploads/' . base64_encode($c_settings['auto_certificate_template'])) }}" 
+                                                                    alt="Current Template" 
+                                                                    style="width: 100px; height: 70px; object-fit: cover; cursor: pointer;"
+                                                                    onclick="window.open(this.src)">
+                                                                    
+                                                                <!-- Clean path for backend processing (e.g., 'certificate_templates/filename.jpg') -->
+                                                                <input type="hidden" name="existing_auto_certificate_template" 
+                                                                    id="existing_auto_certificate_template" 
+                                                                    value="{{ $c_settings['auto_certificate_template'] }}">
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 </div>
-                                            @endif
-                                        </div> --}}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {{-- <div class="col-md-6" style="margin-bottom:5px">
-                                        @if(isset($certificate_settings['auto_certificate_template']))
-                                        <div class="form-group">
-                                            <label>Replace Certificate Template</label> <br> 
-                                            <input type="file" name="auto_certificate_template" class="form-control" id="auto_certificate_template">
-                                        </div>
-                                        @else
-                                        <div class="form-group">
-                                            <label>Upload Certificate Template</label>
-                                            <input type="file" id="auto_certificate_template" name="auto_certificate_template" value="{{ old('auto_certificate_template') }}" class="form-control">
-                                        </div>
-                                        @endif
-                                    </div> --}}
-                                </div>
-                                @if(!empty($c_settings['settings']))
-                                    @php
-                                        $certificate_counter = 1;
-                                    @endphp
-                                    <section id="certificate-holder" class="pt-2">
-                                        <div class="row" id="certificate-0">
-                                        </div>
-                                        @foreach($c_settings['settings'] as $setting)
-                                        @php
-                                            $counter = $certificate_counter++;
-                                        @endphp
-                                        <div id="oldcertificate-{{ $counter }}" class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text Type</label>
-                                                    <select name="text_type[]" class="form-control" id="text_type" required>
-                                                        <option value="">Select...</option>
-                                                        <option value="certificate_number" {{ (isset($setting['text_type']) && $setting['text_type'] == 'certificate_number') ? 'selected' : ''}}>Certificate Number</option>
-                                                        <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : ''}}>Name</option>
-                                                        <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
-                                                        <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
-                                                        <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
-                                                    </select>
+                                    @if(!empty($c_settings['settings']))
+                                        @php $certificate_counter = 1; @endphp
+                                        <section id="certificate-holder" class="pt-2">
+                                            @foreach($c_settings['settings'] as $setting)
+                                                @php $counter = $certificate_counter++; @endphp
+                                                <div id="oldcertificate-{{ $counter }}" class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">
+                                                    
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text Type</label>
+                                                            <select name="text_type[]" class="form-control" id="text_type" required>
+                                                                <option value="">Select...</option>
+                                                                <option value="certificate_number" {{ (isset($setting['text_type']) && $setting['text_type'] == 'certificate_number') ? 'selected' : '' }}>Certificate Number</option>
+                                                                <option value="name" {{ (isset($setting['text_type']) && $setting['text_type'] == 'name') ? 'selected' : '' }}>Name</option>
+                                                                <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : '' }}>Email</option>
+                                                                <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : '' }}>Staff ID</option>
+                                                                <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : '' }}>Date Issued</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Font Type Face</label>
+                                                            <select name="text_type_face[]" class="form-control" id="text_type_face">
+                                                                @foreach(certificateFontType() as $key => $value)
+                                                                    <option value="{{ $key }}" {{ (isset($setting['text_type_face']) && $setting['text_type_face'] == $key) ? 'selected' : '' }}>
+                                                                        {{ $value }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text font size, e.g 150</label>
+                                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" 
+                                                                value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size') }}" 
+                                                                id="auto_certificate_name_font_size">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text font weight e.g 300</label>
+                                                            <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" 
+                                                                value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight') }}" 
+                                                                id="auto_certificate_name_font_weight">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text Top offset. e.g 300</label>
+                                                            <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" 
+                                                                value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" 
+                                                                id="auto_certificate_top_offset">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text Left offset. e.g 100</label>
+                                                            <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" 
+                                                                value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" 
+                                                                id="auto_certificate_left_offset">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4" style="margin-bottom:5px">
+                                                        <div class="form-group">
+                                                            <label>Text color</label>
+                                                            <input type="color" class="form-control" name="auto_certificate_color[]" 
+                                                                value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
+                                                        </div>
+                                                    </div>
+                                                    <!-- ... (Other font settings fields) ... -->
+                                                    <div class="col-md-2 mt-4">
+                                                        <div class="form-group">
+                                                            <label style="color:transparent">label</label>
+                                                            <button class="btn btn-danger remove-old-certificate" type="button"><i class="fa fa-minus"></i> Remove</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Font Type Face</label>
-                                                    <select name="text_type_face[]" class="form-control" id="text_type_face">
-                                                        @foreach(certificateFontType() as $key=>$value)
-                                                        <option value="{{ $key }}" {{ (isset($setting['text_type_face']) && $setting['text_type_face'] == $key) ? 'selected' : ''}}>{{ $value }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text font size, e.g 150</label>
-                                                    <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text font weight e.g 300</label>
-                                                    <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')}}" id="auto_certificate_name_font_weight">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text Top offset. e.g 300</label>
-                                                    <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" id="auto_certificate_top_offset">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text Left offset. e.g 100</label>
-                                                    <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" id="auto_certificate_left_offset">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4" style="margin-bottom:5px">
-                                                <div class="form-group">
-                                                    <label>Text color</label>
-                                                    <input type="color" class="form-control" name="auto_certificate_color[]" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="form-group">
-                                                    <label for="mark" style="color:transparent">sdsdsddsdssd</label>
-                                                    <button class="btn btn-danger remove-old-certificate" id="oldcertificate-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </section>
-                                @endif
-                                <!-- Container for dynamically added rows -->
-                                <div id="certificateRows"></div>
-                                <div class="row mt-5">
-                                    <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                            @endforeach
+                                        </section>
+                                    @endif
+
+                                    <div id="certificateRows"></div>
+                                    <div class="row mt-5">
+                                        <div class="col-md-4">
                                             <button type="button" class="btn btn-success btn-sm" id="addRowButton"><i class="fa fa-plus"></i> Add New Row</button>
                                             <button type="button" class="btn-info btn-sm" id="previewButton"><i class="fa fa-eye"></i> Preview</button>
-                                            <span id="loadingSpinner" style="display: none; margin-left: 5px;">
-                                                <i class="fa fa-spinner fa-spin"></i>
-                                            </span>
-                                        </div>
-                                        <div class="form-group">
                                         </div>
                                     </div>
                                 </div>
@@ -729,6 +760,24 @@
 </div>
 <script>
     $(document).ready(function() {
+        function toggleCertificateFields() {
+            var useExisting = $('#use_existing_settings').val();
+            
+            if (useExisting === 'yes') {
+                $('#program_select_wrapper').fadeIn();
+            } else {
+                $('#program_select_wrapper').hide();
+            }
+        }
+
+        // Trigger on change
+        $('#use_existing_settings').on('change', function() {
+            toggleCertificateFields();
+        });
+
+        // Run on page load (in case of validation errors returning value)
+        toggleCertificateFields();
+        
         $('#addRowButton').on('click', function(e) {
             var lastChild = $("#certificateRows").children().last();
             var lastId = $(lastChild).attr('id');
@@ -796,7 +845,7 @@
                             <input type="color" class="form-control" name="auto_certificate_color[]">
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-4 mt-4">
                         <button type="button" class="btn btn-danger btn-sm removeRowButton">
                             <i class="fa fa-minus"></i> Remove
                         </button>
@@ -817,56 +866,59 @@
         $('#previewButton').on('click', function(e) {
             e.preventDefault();
             $('#loadingSpinner').show();
+            
             var formData = new FormData();
 
-            $('select[name="text_type[]"]').each(function() {
-                formData.append('text_type[]', $(this).val());
-            });
-
-            $('select[name="text_type_face[]"]').each(function() {
-                formData.append('text_type_face[]', $(this).val());
-            });
-
-            $('input[name="auto_certificate_name_font_size[]"]').each(function() {
-                formData.append('auto_certificate_name_font_size[]', $(this).val());
-            });
-
-            $('input[name="auto_certificate_name_font_weight[]"]').each(function() {
-                formData.append('auto_certificate_name_font_weight[]', $(this).val());
-            });
-            $('input[name="auto_certificate_top_offset[]"]').each(function() {
-                formData.append('auto_certificate_top_offset[]', $(this).val());
-            });
-            $('input[name="auto_certificate_left_offset[]"]').each(function() {
-                formData.append('auto_certificate_left_offset[]', $(this).val());
-            });
-            $('input[name="auto_certificate_color[]"]').each(function() {
-                formData.append('auto_certificate_color[]', $(this).val());
-            });
-
+            // 1. Handle the Template (File vs. Existing Hidden Path)
             var fileInput = $('#auto_certificate_template')[0].files[0];
+            
             if (fileInput) {
+                // User picked a new file
                 formData.append('auto_certificate_template', fileInput);
+            } else {
+                // No new file, try to grab the hidden value
+                var existingPath = $('#existing_auto_certificate_template').val();
+                if (existingPath) {
+                    formData.append('existing_template_path', existingPath);
+                }
             }
 
+            // 2. Handle Inheritance Settings
+            formData.append('use_existing_settings', $('#use_existing_settings').val());
+            formData.append('existing_program_id', $('select[name="existing_program_id"]').val());
+
+            // 3. Loop through all dynamic arrays
+            $('select[name="text_type[]"]').each(function() { formData.append('text_type[]', $(this).val()); });
+            $('select[name="text_type_face[]"]').each(function() { formData.append('text_type_face[]', $(this).val()); });
+            $('input[name="auto_certificate_name_font_size[]"]').each(function() { formData.append('auto_certificate_name_font_size[]', $(this).val()); });
+            $('input[name="auto_certificate_name_font_weight[]"]').each(function() { formData.append('auto_certificate_name_font_weight[]', $(this).val()); });
+            $('input[name="auto_certificate_top_offset[]"]').each(function() { formData.append('auto_certificate_top_offset[]', $(this).val()); });
+            $('input[name="auto_certificate_left_offset[]"]').each(function() { formData.append('auto_certificate_left_offset[]', $(this).val()); });
+            $('input[name="auto_certificate_color[]"]').each(function() { formData.append('auto_certificate_color[]', $(this).val()); });
+            
             $.ajax({
-                url: '/admin/generate-certificate-preview/' + '{{$program->id}}',
+                url: '/admin/generate-certificate-preview/{{$program->id}}',
                 type: 'POST',
                 data: formData,
                 contentType: false,
                 processData: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     $('#loadingSpinner').hide();
                     if (response.preview_image_path) {
-                        $('#certificatePreviewImage').attr('src', response.preview_image_path);
-                        $('#previewModal').show(); // Display the modal
+                        // Force refresh image by appending timestamp
+                        var timestamp = new Date().getTime();
+                        $('#certificatePreviewImage').attr('src', response.preview_image_path + '?t=' + timestamp);
+                        $('#previewModal').show(); 
                     } else {
-                        alert('Failed to generate preview. Please try again.' + response.error);
+                        alert('Error: ' + response.error);
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error(error);
-                    alert('An error occurred. '+ error);
+                    $('#loadingSpinner').hide();
+                    alert('Server Error: ' + error);
                 }
             });
         });
@@ -954,11 +1006,6 @@
         $("#"+removeId).remove();
     });
 
-    // $("#certificate-holder").on('click','.remove-old-certificate', function(e) {
-    //     var removeId = $(e.target).attr('id');        
-    //     $("#"+removeId).remove();
-    //     // $("#oldcertificate-2").remove();
-    // });
     $("#certificate-holder").on('click', '.remove-old-certificate', function() {
         // Get the ID of the clicked element
         var removeId = $(this).attr('id');  

@@ -304,10 +304,7 @@ class ProgramController extends Controller
 
         $currencies = Currency::where('status', 1)->orderBy('name')->get();
         
-        $programs = Program::select('id', 'p_name')
-            ->activePrograms()
-            ->orWhere('id', $program->id)
-            ->get();
+        $programs = Program::select('id', 'p_name')->whereNotNull('auto_certificate_settings')->whereNotIn('id', [$program->id, 1])->latest()->get();
 
         return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies','programs'));
     }
@@ -340,14 +337,26 @@ class ProgramController extends Controller
         }
         unset($data['currency_values']);
 
-        if(!empty($request->auto_certificate_template)){
-            $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
-            $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+        if ($request->use_existing_settings == 'yes' && !empty($request->existing_program_id)) {
+            // Inherit from another program
+            $sourceProgram = Program::find($request->existing_program_id);
             
-            $request['path'] = 'certificate_templates/'.$name;
-            
+            if ($sourceProgram) {
+                $data['auto_certificate_settings'] = $sourceProgram->auto_certificate_settings;
+                // Add a flag so you know it's inherited (optional)
+                $data['auto_certificate_settings']['inherited_from'] = $sourceProgram->id;
+            }
+
         }else{
-            $request['path'] = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
+            if(!empty($request->auto_certificate_template)){
+                $name = uniqid(9) . '.' . $request->auto_certificate_template->getClientOriginalExtension();
+                $request->auto_certificate_template->storeAs('certificate_templates', $name, 'uploads');
+                
+                $request['path'] = 'certificate_templates/'.$name;
+                
+            }else{
+                $request['path'] = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
+            }
         }
 
         $data['auto_certificate_settings'] = $this->buildCertificateSettings($request);

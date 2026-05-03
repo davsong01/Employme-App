@@ -803,19 +803,61 @@ class CertificateController extends Controller
         ]);
     }
 
+    // public function generateCertificatePreview(Request $request, $program_id)
+    // {
+    //     try {
+    //         $location = 'certificate_previews';
+            
+    //         $certificate = generateCertificate($request->all(), $program_id, $location);
+
+    //         return response()->json([
+    //             'preview_image_path' => '/certificate_previews/' . $certificate['name'],
+    //         ]);
+    //     } catch (\Throwable $th) {
+    //         return response()->json([
+    //             'error' => $th->getMessage(),
+    //         ]);
+    //     }
+    // }
+
     public function generateCertificatePreview(Request $request, $program_id)
     {
         try {
             $location = 'certificate_previews';
-            $certificate = generateCertificate($request->all(), $program_id, $location);
+            $data = $request->all();
+
+            // 1. Logic for Inheritance
+            if ($request->use_existing_settings === 'yes' && !empty($request->existing_program_id)) {
+                $sourceProgram = Program::find($request->existing_program_id);
+                if ($sourceProgram && !empty($sourceProgram->auto_certificate_settings)) {
+                    $inherited = $sourceProgram->auto_certificate_settings;
+                    
+                    // Map to flat arrays for the helper loop
+                    $data['text_type'] = array_column($inherited['settings'], 'text_type');
+                    $data['text_type_face'] = array_column($inherited['settings'], 'text_type_face');
+                    $data['auto_certificate_name_font_size'] = array_column($inherited['settings'], 'auto_certificate_name_font_size');
+                    $data['auto_certificate_top_offset'] = array_column($inherited['settings'], 'auto_certificate_top_offset');
+                    $data['auto_certificate_left_offset'] = array_column($inherited['settings'], 'auto_certificate_left_offset');
+                    $data['auto_certificate_color'] = array_column($inherited['settings'], 'auto_certificate_color');
+                    $data['auto_certificate_name_font_weight'] = array_column($inherited['settings'], 'auto_certificate_name_font_weight');
+                    
+                    // CRITICAL: Set the template path
+                    $data['template_path_override'] = $inherited['auto_certificate_template'];
+                }
+            } 
+            // 2. Logic for "Existing file on current program"
+            elseif (!$request->hasFile('auto_certificate_template') && $request->filled('existing_template_path')) {
+                $data['template_path_override'] = $request->existing_template_path;
+            }
+
+            // Pass the modified $data
+            $certificate = generateCertificate($data, $program_id, $location);
 
             return response()->json([
                 'preview_image_path' => '/certificate_previews/' . $certificate['name'],
             ]);
         } catch (\Throwable $th) {
-            return response()->json([
-                'error' => $th->getMessage(),
-            ]);
+            return response()->json(['error' => $th->getMessage() . " line: " . $th->getLine()]);
         }
     }
 

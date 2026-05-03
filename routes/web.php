@@ -117,6 +117,7 @@ Route::middleware(['web.access'])->group(function () {
     
     Route::get('uploads/{filename}', function ($filename) {
         $decodedFilename = base64_decode($filename);
+        
         $realpath = base_path('uploads') . '/' . $decodedFilename;
     
         if (!File::exists($realpath)) {
