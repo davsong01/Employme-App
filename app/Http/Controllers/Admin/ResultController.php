@@ -392,29 +392,75 @@ class ResultController extends Controller
         return back();
     }
 
+    // public function show($id, Request $request)
+    // {
+    //     if (checkRoleHas(['Student']) || resolveAuthUser()->id == $id) {
+    //         $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
+    //         $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($transaction->program_id);
+            
+    //         $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
+            
+    //         if ($program->allow_payment_restrictions_for_results == 'yes') {
+    //             if ($transaction->balance > 0) {
+    //                 return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to view results');
+    //             }
+    //         }
+
+    //         if($details)
+    //         if ($program->hasresult == 0) {
+    //             return back()->with('error', 'Results for this program have not been enabled, Please check back!');
+    //         }
+
+    //         return view('dashboard.admin.results.show', compact('details', 'program'));
+    //     }
+
+    //     return redirect('/');
+    // }
     public function show($id, Request $request)
-    {
-        if (checkRoleHas(['Student']) || resolveAuthUser()->id == $id) {
-            $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')->where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
-            $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate')->with('scoresettings')->find($transaction->program_id);
+{
+    if (checkRoleHas(['Student']) || resolveAuthUser()->id == $id) {
+        $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')
+            ->where('program_id', $request->p_id)
+            ->where('user_id', resolveAuthUser()->id)
+            ->first();
 
-            $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
-
-            if ($program->allow_payment_restrictions_for_results == 'yes') {
-                if ($transaction->balance > 0) {
-                    return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to view results');
-                }
-            }
-
-            if ($program->hasresult == 0) {
-                return back()->with('error', 'Results for this program have not been enabled, Please check back!');
-            }
-
-            return view('dashboard.admin.results.show', compact('details', 'program'));
+        // Safety 1: Check if transaction exists
+        if (!$transaction) {
+            return back()->with('error', 'Transaction record not found.');
         }
 
-        return redirect('/');
+        $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate')
+            ->with('scoresettings')
+            ->find($transaction->program_id);
+
+        // Safety 2: Check if program exists
+        if (!$program) {
+            return back()->with('error', 'Program details not found.');
+        }
+
+        $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
+
+        // Payment restriction check
+        if ($program->allow_payment_restrictions_for_results == 'yes') {
+            if ($transaction->balance > 0) {
+                return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to view results');
+            }
+        }
+
+        if(empty($details)) {
+            return back()->with('error', 'Your certification status could not be determined. Please ensure you have taken the certification tests or contact support.');
+        }
+
+        // Result availability check
+        if ($program->hasresult == 0) {
+            return back()->with('error', 'Results for this program have not been enabled, Please check back!');
+        }
+
+        return view('dashboard.admin.results.show', compact('details', 'program'));
     }
+
+    return redirect('/');
+}
 
     public function update($id, Request $request)
     {
