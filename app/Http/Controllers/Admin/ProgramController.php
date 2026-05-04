@@ -295,6 +295,7 @@ class ProgramController extends Controller
 
     public function edit($id)
     {
+        // dd(phpinfo());
         $i = 1;
         $program = Program::find($id);
         $modes = [

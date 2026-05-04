@@ -487,17 +487,28 @@ if (!function_exists("buildResultExport")) {
 if (!function_exists("generateCertificate")) {
     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
     {
-        if(!empty($program_id)) {
+
+//      $ss= "Active php.ini: " . php_ini_loaded_file();
+// $ss.= "<br>";
+// $ss.= "Extension Dir: " . ini_get('extension_dir');
+// dd($ss);
+        if (!empty($program_id)) {
             $program = Program::find($program_id);
-            // If $template is passed use it, else use program settings
             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
         } else {
             $certificate_settings = $request;
+            $program = null;
         }
         
         if (empty($user)) {
             $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
             $user = $user ? $user->user : (object)['name' => 'John Doe', 'email' => 'test@test.com'];
+        }
+
+        if (!empty($program)) {
+            $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
+        } else {
+            $certificate_number = "CERT-" . rand(111111, 999999);
         }
 
         // --- FIXED IMAGE PATH LOGIC ---
@@ -547,6 +558,30 @@ if (!function_exists("generateCertificate")) {
             $text = 'Aboki Ogbeni Chuckwuma';
             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
 
+           
+
+            if ($text_type == 'qr_code') {
+                $verifyUrl = url('/verify/certificate/' . $certificate_number);
+
+                // Generate a standard QR code without any center logo
+                $qrCodeData = \QrCode::format('png')
+                    ->size((int)$size)
+                    ->margin(0)
+                    ->backgroundColor(255, 255, 255, 0) // Transparent background
+                    ->generate($verifyUrl);
+
+                // Convert binary to base64 string to keep GD from crashing
+                $base64 = 'data:image/png;base64,' . base64_encode($qrCodeData);
+
+                // Load into Intervention
+                $qrImage = \Image::make($base64);
+
+                // Position it using your admin offsets
+                $image->insert($qrImage, 'top-left', (int)$auto_certificate_left_offset, (int)$auto_certificate_top_offset);
+                
+                continue; 
+            }
+
             // Get text
             if ($text_type == 'name') {
                 $text = $user->name ?? $text;
@@ -558,12 +593,6 @@ if (!function_exists("generateCertificate")) {
             if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
 
             if ($text_type == 'certificate_number') {
-                if (!empty($program_id)) {
-                    $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
-                }else{
-                    $certificate_number = rand(11111111,99999999);
-                }
-
                 $text = $certificate_number;
             }
 
@@ -580,6 +609,21 @@ if (!function_exists("generateCertificate")) {
                 $font->color($color);
                 // $font->weight($auto_certificate_font_weight);
             });
+
+            if ($text_type == 'qr_code') {
+                $verifyUrl = url('/verify/certificate/' . $certificate_number);
+
+                // SimpleSoftwareIO\QrCode handles PNG generation for GD
+                $qrCodeData = \QrCode::format('png')
+                    ->size($size)
+                    ->margin(0)
+                    ->backgroundColor(255, 255, 255, 0) // Transparent for GD
+                    ->generate($verifyUrl);
+
+                $qrImage = \Image::make($qrCodeData);
+                $image->insert($qrImage, 'top-left', $left, $top);
+                continue;
+            }
         }
         
         $name = uniqid(9) . '.jpg';
@@ -596,7 +640,6 @@ if (!function_exists("generateCertificate")) {
     }
 }
     
-
 if (!function_exists("certificateFontType")) {
     function certificateFontType()
     {

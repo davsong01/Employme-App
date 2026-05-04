@@ -674,10 +674,11 @@
                                                                 value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
                                                         </div>
                                                     </div>
-                                                    <!-- ... (Other font settings fields) ... -->
+                                                    
                                                     <div class="col-md-2 mt-4">
                                                         <div class="form-group">
                                                             <label style="color:transparent">label</label>
+                                                            
                                                             <button class="btn btn-danger remove-old-certificate" type="button"><i class="fa fa-minus"></i> Remove</button>
                                                         </div>
                                                     </div>
@@ -1010,15 +1011,16 @@
 
     $("#certificate-holder").on('click', '.remove-old-certificate', function() {
         // Get the ID of the clicked element
+        $(this).closest('.row').remove();
         var removeId = $(this).attr('id');  
     
-        // Check if the ID is not empty
-        if (removeId) {
-            // Remove the element with the corresponding ID
-            $("#" + removeId).remove();
-        } else {
-            console.warn("No ID found to remove.");
-        }
+        // // Check if the ID is not empty
+        // if (removeId) {
+        //     // Remove the element with the corresponding ID
+        //     $("#" + removeId).remove();
+        // } else {
+        //     console.warn("No ID found to remove.");
+        // }
     });
 
 
