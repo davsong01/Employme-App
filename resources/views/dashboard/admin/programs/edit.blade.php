@@ -613,6 +613,7 @@
                                                                 <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : '' }}>Email</option>
                                                                 <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : '' }}>Staff ID</option>
                                                                 <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : '' }}>Date Issued</option>
+                                                                <option value="qr_code" {{ (isset($setting['text_type']) && $setting['text_type'] == 'qr_code') ? 'selected' : ''}}>QR Verification Code</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -800,6 +801,7 @@
                                 <option value="email">Email</option>
                                 <option value="staffID">Staff ID</option>
                                 <option value="date_issued">Date Issued</option>
+                                <option value="qr_code">QR Verification Code</option>
                             </select>
                         </div>
                     </div>

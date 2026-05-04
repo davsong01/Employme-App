@@ -1,17 +1,17 @@
 <?php
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Module;
-use App\Models\Result;
-use App\Models\Program;
 use App\Models\Currency;
+use App\Models\Module;
+use App\Models\Program;
+use App\Models\Result;
 use App\Models\Settings;
-use App\Models\Transaction;
 use App\Models\TempTransaction;
+use App\Models\Transaction;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Intervention\Image\Facades\Image;
+
 
 
 if (!function_exists("certificationStatus")) {
@@ -382,31 +382,41 @@ if (!function_exists("buildResultExport")) {
 }
 
 
-
 // if (!function_exists("generateCertificate")) {
 //     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
 //     {
 //         if(!empty($program_id)) {
 //             $program = Program::find($program_id);
+//             // If $template is passed use it, else use program settings
 //             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
-//         }else{
+//         } else {
 //             $certificate_settings = $request;
 //         }
         
 //         if (empty($user)) {
 //             $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
-//             $user = $user->user;
+//             $user = $user ? $user->user : (object)['name' => 'John Doe', 'email' => 'test@test.com'];
 //         }
 
-//         if (!empty($request['auto_certificate_template'])) {
+//         // --- FIXED IMAGE PATH LOGIC ---
+//         if (!empty($request['auto_certificate_template']) && !is_string($request['auto_certificate_template'])) {
+//             // Case 1: Real file upload object
 //             $inputImagePath = $request['auto_certificate_template'];
+//         } elseif (!empty($request['template_path_override'])) {
+//             // Case 2: Path passed from inheritance or hidden field
+//             $inputImagePath = base_path('uploads/' . $request['template_path_override']);
 //         } else {
-//             $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
+//             // Case 3: Default to whatever is in the settings
+//             $path = $certificate_settings['auto_certificate_template'] ?? null;
+//             $inputImagePath = base_path('uploads/' . $path);
 //         }
 
-//         // Create a history for the previous certificate
-//         $image = Image::make($inputImagePath);
+//         // Ensure file actually exists before processing
+//         if (!file_exists($inputImagePath)) {
+//             throw new \Exception("Certificate template not found at: " . $inputImagePath);
+//         }
 
+//         $image = Image::make($inputImagePath);
 //         if (!empty($request['auto_certificate_name_font_weight'])) {
 //             $counter = count($request['auto_certificate_name_font_weight']);
 //         } else {
@@ -483,49 +493,54 @@ if (!function_exists("buildResultExport")) {
 //         ];
 //     }
 // }
-    
 if (!function_exists("generateCertificate")) {
     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
     {
-        if(!empty($program_id)) {
+        // 1. Setup Program & Settings
+        if (!empty($program_id)) {
             $program = Program::find($program_id);
-            // If $template is passed use it, else use program settings
             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
         } else {
             $certificate_settings = $request;
+            $program = null;
         }
         
+        // 2. Initialize User (Ensures an 'id' exists for the number generator)
         if (empty($user)) {
-            $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
-            $user = $user ? $user->user : (object)['name' => 'John Doe', 'email' => 'test@test.com'];
+            $user = (object)[
+                'id' => 0, 
+                'name' => 'John Doe', 
+                'email' => 'test@test.com',
+                'staffID' => 'STF-000'
+            ];
         }
 
-        // --- FIXED IMAGE PATH LOGIC ---
+        // 3. ALWAYS generate the Number first (Guarantees QR and Text match)
+        if (!empty($program)) {
+            $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
+        } else {
+            $certificate_number = "CERT-" . rand(111111, 999999);
+        }
+
+        // 4. Image Path Logic
         if (!empty($request['auto_certificate_template']) && !is_string($request['auto_certificate_template'])) {
-            // Case 1: Real file upload object
             $inputImagePath = $request['auto_certificate_template'];
         } elseif (!empty($request['template_path_override'])) {
-            // Case 2: Path passed from inheritance or hidden field
             $inputImagePath = base_path('uploads/' . $request['template_path_override']);
         } else {
-            // Case 3: Default to whatever is in the settings
             $path = $certificate_settings['auto_certificate_template'] ?? null;
             $inputImagePath = base_path('uploads/' . $path);
         }
 
-        // Ensure file actually exists before processing
         if (!file_exists($inputImagePath)) {
-            throw new \Exception("Certificate template not found at: " . $inputImagePath);
+            throw new \Exception("Template not found: " . $inputImagePath);
         }
 
-        $image = Image::make($inputImagePath);
-        if (!empty($request['auto_certificate_name_font_weight'])) {
-            $counter = count($request['auto_certificate_name_font_weight']);
-        } else {
-            $counter = count($certificate_settings['settings']);
-        }
-
-        if ($image->width() > 4000 || $image->height() > 4000) {
+        // 5. Initialize Image (GD Driver)
+        $image = \Image::make($inputImagePath);
+        
+        // Resize for performance if necessary
+        if ($image->width() > 4000) {
             $image->resize(4000, null, function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
@@ -533,69 +548,71 @@ if (!function_exists("generateCertificate")) {
         }
 
         $dateIssued = !empty($request['date_issued'])
-            ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
+            ? \Carbon\Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
             : now()->format('jS \d\a\y \o\f F, Y');
 
+        // Determine loop count
+        $counter = !empty($request['auto_certificate_name_font_size']) 
+                   ? count($request['auto_certificate_name_font_size']) 
+                   : (isset($certificate_settings['settings']) ? count($certificate_settings['settings']) : 0);
+
+        // 6. Processing Loop
         for ($i = 0; $i < $counter; $i++) {
             $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
             $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
-            $auto_certificate_top_offset = !empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset'];
-            $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
-            $auto_certificate_font_weight = !empty($request['auto_certificate_name_font_weight'][$i]) ? $request['auto_certificate_name_font_weight'][$i] : ($certificate_settings['settings'][$i]['auto_certificate_name_font_weight'] ?? 10);
-            $text_type_face = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
-
-            $text = 'Aboki Ogbeni Chuckwuma';
+            $top = (int)(!empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset']);
+            $left = (int)(!empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset']);
+            $font_file = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
 
-            // Get text
-            if ($text_type == 'name') {
-                $text = $user->name ?? $text;
-                // Ensure each word starts with a capital letter
-                $text = ucwords(strtolower($text));
-            };
-            
-            if ($text_type == 'email') $text = $user->email;
-            if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
+            // CASE A: QR CODE
+            if ($text_type == 'qr_code') {
+                $verifyUrl = url('/verify/certificate/' . $certificate_number);
 
-            if ($text_type == 'certificate_number') {
-                if (!empty($program_id)) {
-                    $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
-                }else{
-                    $certificate_number = rand(11111111,99999999);
-                }
+                // SimpleSoftwareIO\QrCode handles PNG generation for GD
+                $qrCodeData = \QrCode::format('png')
+                    ->size($size)
+                    ->margin(0)
+                    ->backgroundColor(255, 255, 255, 0) // Transparent for GD
+                    ->generate($verifyUrl);
 
-                $text = $certificate_number;
+                $qrImage = \Image::make($qrCodeData);
+                $image->insert($qrImage, 'top-left', $left, $top);
+                continue;
             }
 
-            // \Log::info($certificate_settings['settings'], $certificate_settings['settings'][$i], $i);
-            if ($text_type == 'date_issued') {
-                $text = $dateIssued;
-                // $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
+            // CASE B: TEXT TYPES
+            $text = '';
+            switch ($text_type) {
+                case 'name': $text = ucwords(strtolower($user->name)); break;
+                case 'email': $text = $user->email; break;
+                case 'staffID': $text = $user->staffID ?? 'N/A'; break;
+                case 'certificate_number': $text = $certificate_number; break;
+                case 'date_issued': $text = $dateIssued; break;
             }
-            
-            // End text
-            $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight, $text_type_face) {
-                $font->file(public_path('certificate_fonts/' . $text_type_face));
+
+            $image->text($text, $left, $top, function ($font) use ($size, $color, $font_file) {
+                $font->file(public_path('certificate_fonts/' . $font_file));
                 $font->size($size);
                 $font->color($color);
-                // $font->weight($auto_certificate_font_weight);
+                $font->align('left');
+                $font->valign('top'); // Syncs coordinate logic with QR code's top-left insertion
             });
         }
         
-        $name = uniqid(9) . '.jpg';
-        // $outputImagePath = base_path('uploads/certificates/' . $name);
+        // 7. Save and Return
+        $name = uniqid() . '.jpg';
         $outputImagePath = $location . '/' . $name;
-        $image->save($outputImagePath);
+        $image->save($outputImagePath, 90); // 90% quality for GD JPG
 
         return [
             'name' => $name,
-            'certificate_number' => $certificate_number ?? rand(111,999),
+            'certificate_number' => $certificate_number,
             'outputImagePath' => $outputImagePath,
             'date_issued' => $dateIssued
         ];
     }
 }
-    
 
 if (!function_exists("certificateFontType")) {
     function certificateFontType()
@@ -620,6 +637,7 @@ if (!function_exists("generateCertificateNumber")) {
         $key = ($program->p_abbr ?? 'CT') . $programId;
         $randomNumber = generateRandomNumberBasedOnKey($key, 100, 999);
         
+        // Handle Empty User: Use user ID if exists, otherwise a random placeholder
         $userId = isset($user->id) ? $user->id : rand(1000, 9999);
         
         $certificate_number = strtoupper($programAbbr) . '-' . $programId . '-' . $randomNumber . '-' . $userId;

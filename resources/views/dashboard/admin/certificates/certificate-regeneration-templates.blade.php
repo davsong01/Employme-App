@@ -188,6 +188,7 @@
                                                 <option value="email" {{ $setting['text_type'] == 'email' ? 'selected' : '' }}>Email</option>
                                                 <option value="staffID" {{ $setting['text_type'] == 'staffID' ? 'selected' : '' }}>Staff ID</option>
                                                 <option value="date_issued" {{ $setting['text_type'] == 'date_issued' ? 'selected' : '' }}>Date Issued</option>
+                                                <option value="qr_code" {{ (isset($setting['text_type']) && $setting['text_type'] == 'qr_code') ? 'selected' : ''}}>QR Verification Code</option>
                                             </select>
                                         </div>
                                         <div class="col-md-4 mb-3">
@@ -216,6 +217,10 @@
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label>Text color</label>
+                                            <input type="color" name="auto_certificate_color[]" class="form-control" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label>QR VerificationCode</label>
                                             <input type="color" name="auto_certificate_color[]" class="form-control" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
                                         </div>
                                         <div class="col-md-12 mb-3">
@@ -351,6 +356,7 @@
                                                 <option value="email" {{ (isset($setting['text_type']) && $setting['text_type'] == 'email') ? 'selected' : ''}}>Email</option>
                                                 <option value="staffID" {{ (isset($setting['text_type']) && $setting['text_type'] == 'staffID') ? 'selected' : ''}}>Staff ID</option>
                                                 <option value="date_issued" {{ (isset($setting['text_type']) && $setting['text_type'] == 'date_issued') ? 'selected' : ''}}>Date Issued</option>
+                                                <option value="qr_code" {{ (isset($setting['text_type']) && $setting['text_type'] == 'qr_code') ? 'selected' : ''}}>QR Verification Code</option>
 
                                             </select>
                                         </div>
@@ -451,6 +457,7 @@
                             <option value="email">Email</option>
                             <option value="staffID">Staff ID</option>
                             <option value="date_issued">Date Issued</option>
+                            <option value="qr_code">QR Verification Code</option>
                         </select>
                     </div>
                     <div class="col-md-4 mb-3">
