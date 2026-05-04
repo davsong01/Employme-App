@@ -437,7 +437,7 @@ class ResultController extends Controller
         if (!$program) {
             return back()->with('error', 'Program details not found.');
         }
-
+        
         $details = certificationStatusNew($transaction->training_result, $program, resolveAuthUser());
 
         // Payment restriction check
