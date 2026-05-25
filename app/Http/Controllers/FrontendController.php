@@ -213,7 +213,7 @@ class FrontendController extends Controller
     public function showPackages($id = null)
     {
         $id = \Request::get('group') ?? $id;
-        
+       
         $group = Group::with(['programs' => function ($q) {
                 $q->mainActivePrograms();
             }])

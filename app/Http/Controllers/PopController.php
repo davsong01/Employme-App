@@ -38,10 +38,11 @@ class PopController extends Controller
     public function create()
     {
         $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->mainActivePrograms()->get();
-
+        $today = now()->toDateString();
+        
         $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActiveProgramsWithIsClosed();
-        }])->get();
+        }])->whereDate('p_start', '>', $today)->get();
 
         if (isset(session()->get('data')['metadata']['pid'])) {
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
