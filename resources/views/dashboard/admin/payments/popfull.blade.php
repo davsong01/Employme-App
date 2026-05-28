@@ -142,89 +142,203 @@
                                                 @method('PATCH')
                                                 @csrf
                                                 <div class="modal-body">
+
                                                     <div class="row">
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="date" class="form-label">Date</label>
-                                                            <input type="date" class="form-control" id="date" name="date" value="{{ $pop->date ? \Carbon\Carbon::parse($pop->date)->format('Y-m-d') : '' }}">
+
+                                                            <input
+                                                                type="date"
+                                                                class="form-control"
+                                                                id="date"
+                                                                name="date"
+                                                                value="{{ $pop->date ? \Carbon\Carbon::parse($pop->date)->format('Y-m-d') : '' }}"
+                                                            >
                                                         </div>
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="name" class="form-label">Name</label>
-                                                            <input type="text" class="form-control" id="name" name="name" value="{{$pop->name}}">
+
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="name"
+                                                                name="name"
+                                                                value="{{ $pop->name }}"
+                                                            >
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="phone" class="form-label">Phone</label>
-                                                            <input type="text" class="form-control" id="phone" name="phone" value="{{$pop->phone}}">
+
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="phone"
+                                                                name="phone"
+                                                                value="{{ $pop->phone }}"
+                                                            >
                                                         </div>
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="email" class="form-label">Email</label>
-                                                            <input type="email" class="form-control" id="email" name="email" value="{{$pop->email}}">
+
+                                                            <input
+                                                                type="email"
+                                                                class="form-control"
+                                                                id="email"
+                                                                name="email"
+                                                                value="{{ $pop->email }}"
+                                                            >
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
+
+                                                        @if($pop->temp)
+                                                            <div class="col-md-12 mb-3">
+
+                                                                <label for="transId" class="form-label">
+                                                                    Transaction ID
+                                                                </label>
+
+                                                                <div class="d-flex align-items-center gap-3">
+
+                                                                    <input
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        id="transId"
+                                                                        name="transId"
+                                                                        value="{{ $pop->temp->transid }}"
+                                                                    >
+
+                                                                    <div class="form-check mt-2 flex-shrink-0">
+                                                                        <input
+                                                                            class="form-check-input"
+                                                                            type="checkbox"
+                                                                            value="1"
+                                                                            id="delete_transaction_{{ $pop->id }}"
+                                                                            name="delete_transaction"
+                                                                        >
+
+                                                                        <label
+                                                                            class="form-check-label text-danger"
+                                                                            for="delete_transaction_{{ $pop->id }}"
+                                                                        >
+                                                                            Delete Transaction
+                                                                        </label>
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+                                                        @endif
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="amount" class="form-label">Amount</label>
-                                                            <input type="text" class="form-control" id="amount" name="amount" value="{{$pop->amount}}">
+
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="amount"
+                                                                name="amount"
+                                                                value="{{ $pop->amount }}"
+                                                            >
                                                         </div>
+
                                                         <div class="col-md-6 mb-3">
                                                             <label for="location" class="form-label">Location</label>
-                                                            <input type="text" class="form-control" id="location" name="location" value="{{$pop->location}}">
+
+                                                            <input
+                                                                type="text"
+                                                                class="form-control"
+                                                                id="location"
+                                                                name="location"
+                                                                value="{{ $pop->location }}"
+                                                            >
                                                         </div>
-                                                    </div>
-                                                    {{-- @if($pop->is_package) --}}
-                                                    <div class="row">
+
                                                         <div class="col-md-12 mb-3">
-                                                            <label for="group_id" class="form-label">Training/Package?</label>
+                                                            <label class="form-label">Training/Package?</label>
+
                                                             <select name="is_package" class="form-control">
                                                                 <option value="">Select</option>
-                                                                <option value="0" {{ !$pop->is_package ? 'selected' : ''}}>Training</option>
-                                                                <option value="1" {{ $pop->is_package ? 'selected' : ''}}>Package</option>
+
+                                                                <option value="0" {{ !$pop->is_package ? 'selected' : '' }}>
+                                                                    Training
+                                                                </option>
+
+                                                                <option value="1" {{ $pop->is_package ? 'selected' : '' }}>
+                                                                    Package
+                                                                </option>
                                                             </select>
                                                         </div>
-                                                    </div>
-                                                    <div class="row">
+
                                                         <div class="col-md-12 mb-3">
-                                                            <label for="group_id" class="form-label">Package</label>
-                                                            <select name="group_id" id="group_id_{{ $pop->id }}" class="form-control">
+                                                            <label class="form-label">Package</label>
+
+                                                            <select
+                                                                name="group_id"
+                                                                id="group_id_{{ $pop->id }}"
+                                                                class="form-control"
+                                                            >
                                                                 <option value="">Select</option>
+
                                                                 @foreach($packages as $package)
-                                                                <option value="{{ $package->id }}" {{ $package->id == $pop->related->id ? 'selected' : '' }}>
-                                                                    {{ $package->p_name }} ({{ $package->p_amount }})
-                                                                </option>
+                                                                    <option
+                                                                        value="{{ $package->id }}"
+                                                                        {{ $package->id == $pop->related->id ? 'selected' : '' }}
+                                                                    >
+                                                                        {{ $package->p_name }}
+                                                                        ({{ $package->p_amount }})
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
-                                                    </div>
-                                                    {{-- @else --}}
-                                                    <div class="row">
+
                                                         <div class="col-md-12 mb-3">
-                                                            <label for="program_id" class="form-label">Training</label>
-                                                            <select name="program_id" id="program_id_{{ $pop->id }}" class="form-control">
+                                                            <label class="form-label">Training</label>
+
+                                                            <select
+                                                                name="program_id"
+                                                                id="program_id_{{ $pop->id }}"
+                                                                class="form-control"
+                                                            >
                                                                 <option value="">Select</option>
+
                                                                 @foreach($programs as $program)
-                                                                <option value="{{ $program->id }}" {{ $program->id == $pop->related->id ? 'selected' : '' }}>
-                                                                    {{ $program->p_name }} ({{ $program->p_amount }})
-                                                                </option>
+                                                                    <option
+                                                                        value="{{ $program->id }}"
+                                                                        {{ $program->id == $pop->related->id ? 'selected' : '' }}
+                                                                    >
+                                                                        {{ $program->p_name }}
+                                                                        ({{ $program->p_amount }})
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
+
+                                                        @if(!empty($pop->temp->coupon_id))
+                                                            <div class="col-md-12 mb-3">
+
+                                                                <label class="form-label">
+                                                                    Coupon Attached
+                                                                </label>
+
+                                                                <select class="form-control" disabled>
+                                                                    @foreach ($pop->related->coupon as $coupon)
+                                                                        <option
+                                                                            value="{{ $coupon->id }}"
+                                                                            {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : '' }}
+                                                                        >
+                                                                            {{ $coupon->code }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+
+                                                            </div>
+                                                        @endif
+
                                                     </div>
-                                                    
-                                                    @if(!empty($pop->temp->coupon_id))
-                                                    {{-- {{dd($pop->temp->coupon_id, $pop->related->coupon)}} --}}
-                                                    <div class="row">
-                                                        <div class="col-md-12 mb-3">
-                                                            <label for="group_id" class="form-label">Coupon Attached</label>
-                                                            <select name="is_package" class="form-control">
-                                                                <option value="">Select</option>
-                                                                @foreach ($pop->related->coupon as $coupon)
-                                                                    <option value="0" {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : ''}}>{{ $coupon->code }}</option>
-                                                                @endforeach
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    @endif
+
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

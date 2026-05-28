@@ -43,7 +43,7 @@ class PopController extends Controller
         $groups = Group::isActive()->with(['programs' => function ($q) {
             $q->mainActiveProgramsWithIsClosed();
         }])->whereDate('p_start', '>', $today)->get();
-
+        
         if (isset(session()->get('data')['metadata']['pid'])) {
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         } else {
@@ -56,124 +56,315 @@ class PopController extends Controller
             ->with('accounts', $accounts);
     }
 
+    // public function store(Request $request)
+    // {
+    //     if (BlacklistService::checkByValues([
+    //         'email' => $request->email,
+    //         'phone' => $request->phone,
+    //     ])) {
+    //         return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+    //     }
+
+    //     $program_type = $request->program_type;
+    //     $request['training_id'] = $program_type == 'package' ? $request->package_id : $request->training_id;
+
+    //     $data = $this->validate($request, [
+    //         'name' => 'required',
+    //         'email' => 'required',
+    //         'phone' => 'required | numeric',
+    //         'bank' => 'sometimes',
+    //         'amount' => 'required | numeric',
+    //         'training_id' => 'required | numeric',
+    //         'currency' => 'sometimes',
+    //         'currency_symbol' => 'sometimes',
+    //         'coupon_id' => 'nullable',
+    //         'date' => 'date',
+    //         'file' => 'required|max:2048|image',
+    //     ]);
+
+    //     // Remove data from session
+    //     \Session::forget(['data']);
+
+    //     $file = Str::random(10);
+    //     $extension = $request->file('file')->getClientOriginalExtension();
+    //     $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
+
+    //     $date = Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
+
+    //     // Check if already uploaded same pop
+    //     if ($program_type == 'package') {
+    //         $popCheck = Pop::whereEmail($data['email'])->whereGroupId($data['training_id'])->where('is_package', 1)->where('amount', $data['amount'])->count();
+    //         $program = Group::where('id', $data['training_id'])->first();
+    //     } else {
+    //         $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training_id'])->where('is_package', 0)->where('amount', $data['amount'])->count();
+    //         $program = Program::where('id', $data['training_id'])->first();
+    //     }
+
+    //     if ($popCheck > 0) {
+    //         return back()->with('error', "You have already uploaded proof of payment for this {$program_type} and with the same amount, kindly wait while an administrator approves your request");
+    //     }
+
+    //     if (isset($user) && !empty($user)) {
+    //         $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training_id']])->where('balance', '<', 1)->count();
+
+    //         if ($check > 0) {
+    //             return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
+    //         }
+    //     }
+
+    //     // Check if user already paid for same program
+    //     $user = User::whereEmail($data['email'])->value('id');
+    //     if (isset($user) && !empty($user)) {
+    //         $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training_id']]);
+    //         $check = $validate->where('balance', '<', 1)->count();
+    //         if ($check > 0) {
+    //             return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
+    //         }
+    //     } else {
+    //         $type = 'Fresh Payment' ?? null;
+    //     }
+    //     // Get temp transaction 
+    //     if($validate){
+    //         $transaction = TempTransaction::where('email', $data['email'])->where('program_id', $data['training_id'])->where('status','initiated')->first();
+
+    //     }
+        
+    //     $data['location'] = $transaction->location ?? null;
+    //     $data['training_mode'] = $transaction->training_mode ?? null;
+
+    //     $storeData = [
+    //         'name' => $data['name'],
+    //         'email' =>  $data['email'],
+    //         'phone' =>  $data['phone'],
+    //         'bank' =>  $data['bank'],
+    //         'coupon_id' =>  $data['coupon_id'],
+    //         'amount' =>  $data['amount'],
+    //         'is_package' =>  $program_type == 'package' ? 1 : 0,
+    //         'currency' =>  $data['currency'],
+    //         'currency_symbol' =>  $data['currency_symbol'],
+    //         'is_fresh' => $type ?? null,
+    //         'temp_transaction_id' => $transaction->id ?? null,
+    //         'location' =>  $data['location'] ?? null,
+    //         'date' =>  $date,
+    //         'file' => base64_encode($filePath),
+    //     ];
+        
+    //     if ($program_type == 'package') {
+    //         $storeData['group_id'] = $data['training_id'];
+    //     } else {
+    //         $storeData['program_id'] = $data['training_id'];
+    //     }
+
+    //     try {
+    //         //Store new pop
+    //         $pop = Pop::create($storeData);
+
+    //         //Prepare Attachment
+    //         $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
+    //         $data['training'] = $program->p_name;
+
+    //         $data['type'] = 'pop';
+    //         $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
+    //         $data['participant_email'] = $pop->email;
+    //         $data['realfilename'] = $file . '.' . $extension;
+    //         $data['transaction'] = $transaction;
+
+    //         $this->sendWelcomeMail($data);
+    //     } catch (\Exception $e) {
+    //         // dd($e->getMessage(), $e->getLine().$e->getFile());
+    //         \Log::info($e->getMessage());
+    //         return back()->with('error', 'Something happened or you have already uploaded POP');
+    //     }
+
+    //     return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
+    // }
     public function store(Request $request)
     {
         if (BlacklistService::checkByValues([
             'email' => $request->email,
             'phone' => $request->phone,
         ])) {
-            return back()->with('danger', 'BLTD: Something went wrong, Please contact Admin');
+            return back()->with(
+                'danger',
+                'BLTD: Something went wrong, Please contact Admin'
+            );
         }
 
-        $program_type = $request->program_type;
-        $request['training_id'] = $program_type == 'package' ? $request->package_id : $request->training_id;
+        $programType = $request->program_type;
 
-        $data = $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required',
-            'phone' => 'required | numeric',
-            'bank' => 'sometimes',
-            'amount' => 'required | numeric',
-            'training_id' => 'required | numeric',
-            'currency' => 'sometimes',
-            'currency_symbol' => 'sometimes',
-            'coupon_id' => 'nullable',
-            'date' => 'date',
-            'file' => 'required|max:2048|image',
+        $request->merge([
+            'training_id' => $programType === 'package'
+                ? $request->package_id
+                : $request->training_id,
         ]);
 
-        // Remove data from session
-        \Session::forget(['data']);
+        $data = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|numeric',
+            'bank' => 'nullable|string',
+            'amount' => 'required|numeric',
+            'training_id' => 'required|numeric',
+            'currency' => 'nullable|string',
+            'currency_symbol' => 'nullable|string',
+            'coupon_id' => 'nullable',
+            'date' => 'required|date',
+            'file' => 'required|image|max:2048',
+        ]);
 
-        $file = Str::random(10);
-        $extension = $request->file('file')->getClientOriginalExtension();
-        $filePath = $request->file('file')->storeAs('payments', $file . '.' . $extension, 'uploads');
+        session()->forget('data');
 
-        $date = Carbon::parse($data['date'] . ' ' . now()->format('h:i:s'));
+        /**
+         * ---------------------------------
+         * FILE UPLOAD
+         * ---------------------------------
+         */
+        $file = $request->file('file');
 
-        // Check if already uploaded same pop
-        if ($program_type == 'package') {
-            $popCheck = Pop::whereEmail($data['email'])->whereGroupId($data['training_id'])->where('is_package', 1)->where('amount', $data['amount'])->count();
-            $program = Group::where('id', $data['training_id'])->first();
+        $fileName = Str::random(20) . '.' . $file->getClientOriginalExtension();
+
+        $filePath = $file->storeAs(
+            'payments',
+            $fileName,
+            'uploads'
+        );
+
+        /**
+         * ---------------------------------
+         * PROGRAM / PACKAGE
+         * ---------------------------------
+         */
+        if ($programType === 'package') {
+
+            $program = Group::find($data['training_id']);
+
+            $duplicatePop = Pop::where([
+                'email' => $data['email'],
+                'group_id' => $data['training_id'],
+                'is_package' => 1,
+                'amount' => $data['amount'],
+            ])->exists();
+
         } else {
-            $popCheck = Pop::whereEmail($data['email'])->whereProgramId($data['training_id'])->where('is_package', 0)->where('amount', $data['amount'])->count();
-            $program = Program::where('id', $data['training_id'])->first();
+
+            $program = Program::find($data['training_id']);
+
+            $duplicatePop = Pop::where([
+                'email' => $data['email'],
+                'program_id' => $data['training_id'],
+                'is_package' => 0,
+                'amount' => $data['amount'],
+            ])->exists();
         }
 
-        if ($popCheck > 0) {
-            return back()->with('error', "You have already uploaded proof of payment for this {$program_type} and with the same amount, kindly wait while an administrator approves your request");
+        if ($duplicatePop) {
+            return back()->with(
+                'error',
+                "You have already uploaded proof of payment for this {$programType} with the same amount. Kindly wait for approval."
+            );
         }
 
-        if (isset($user) && !empty($user)) {
-            $check = DB::table('pop')->where(['user_id' => $user, 'program_id' => $data['training_id']])->where('balance', '<', 1)->count();
+        $userId = User::where('email', $data['email'])->value('id');
 
-            if ($check > 0) {
-                return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
+        $isFreshPayment = empty($userId);
+
+        $transaction = null;
+
+        if ($userId) {
+
+            $alreadyRegistered = DB::table('program_user')
+                ->where([
+                    'user_id' => $userId,
+                    'program_id' => $data['training_id'],
+                ])
+                ->where('balance', '<', 1)
+                ->exists();
+
+            if ($alreadyRegistered) {
+                return back()->with(
+                    'error',
+                    'You are already registered for this training! Kindly login with your email and password.'
+                );
+            }
+
+            $programUserExists = DB::table('program_user')
+                ->where('user_id', $userId)
+                ->where('program_id', $data['training_id'])
+                ->exists();
+
+            if ($programUserExists) {
+
+                $transaction = TempTransaction::where([
+                    'email' => $data['email'],
+                    'program_id' => $data['training_id'],
+                    'status' => 'initiated',
+                ])->first();
             }
         }
 
-        // Check if user already paid for same program
-        $user = User::whereEmail($data['email'])->value('id');
-        if (isset($user) && !empty($user)) {
-            $validate = DB::table('program_user')->where(['user_id' => $user, 'program_id' => $data['training_id']]);
-            $check = $validate->where('balance', '<', 1)->count();
-            if ($check > 0) {
-                return back()->with('error', 'You are already registered for this training! Kindly login with your email address and password');
-            }
-        } else {
-            $type = 'Fresh Payment' ?? null;
-        }
-        // Get temp transaction 
-        $transaction = TempTransaction::where('email', $data['email'])->where('program_id', $data['training_id'])->where('status','initiated')->first();
-        
-        $data['location'] = $transaction->location ?? null;
-        $data['training_mode'] = $transaction->training_mode ?? null;
+        $date = Carbon::parse(
+            $data['date'] . ' ' . now()->format('H:i:s')
+        );
 
         $storeData = [
             'name' => $data['name'],
-            'email' =>  $data['email'],
-            'phone' =>  $data['phone'],
-            'bank' =>  $data['bank'],
-            'coupon_id' =>  $data['coupon_id'],
-            'amount' =>  $data['amount'],
-            'is_package' =>  $program_type == 'package' ? 1 : 0,
-            'currency' =>  $data['currency'],
-            'currency_symbol' =>  $data['currency_symbol'],
-            'is_fresh' => $type ?? null,
-            'temp_transaction_id' => $transaction->id ?? null,
-            'location' =>  $data['location'] ?? null,
-            'date' =>  $date,
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'bank' => $data['bank'] ?? null,
+            'coupon_id' => $data['coupon_id'] ?? null,
+            'amount' => $data['amount'],
+            'currency' => $data['currency'] ?? null,
+            'currency_symbol' => $data['currency_symbol'] ?? null,
+            'is_package' => $programType === 'package' ? 1 : 0,
+            'is_fresh' => $isFreshPayment ? 'Fresh Payment' : null,
+            'temp_transaction_id' => $transaction?->id,
+            'location' => $transaction?->location,
+            'date' => $date,
             'file' => base64_encode($filePath),
         ];
-        
-        if ($program_type == 'package') {
+
+        if ($programType === 'package') {
             $storeData['group_id'] = $data['training_id'];
         } else {
             $storeData['program_id'] = $data['training_id'];
         }
 
+        DB::beginTransaction();
+
         try {
-            //Store new pop
             $pop = Pop::create($storeData);
 
-            //Prepare Attachment
-            $data['pop'] = base_path() . '/uploads' . '/' . $filePath;
-            $data['training'] = $program->p_name;
+            $mailData = [
+                'pop' => base_path('uploads/' . $filePath),
+                'training' => $program?->p_name,
+                'type' => 'pop',
+                'email' => Settings::value('OFFICIAL_EMAIL'),
+                'participant_email' => $pop->email,
+                'realfilename' => $fileName,
+                'transaction' => $transaction,
+            ];
 
-            $data['type'] = 'pop';
-            $data['email'] = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-            $data['participant_email'] = $pop->email;
-            $data['realfilename'] = $file . '.' . $extension;
-            $data['transaction'] = $transaction;
+            
+            DB::commit();
+            
+            $this->sendWelcomeMail($mailData);
+            
+            return back()->with(
+                'message',
+                'Your proof of payment has been received. We will confirm and issue your E-receipt ASAP.'
+            );
 
-            $this->sendWelcomeMail($data);
         } catch (\Exception $e) {
-            // dd($e->getMessage(), $e->getLine().$e->getFile());
-            \Log::info($e->getMessage());
-            return back()->with('error', 'Something happened or you have already uploaded POP');
-        }
 
-        return back()->with('message', 'Your proof of payment has been received,  we will confirm  and issue you an E-receipt ASAP, Thank you');
+            DB::rollBack();
+
+            \Log::error($e->getMessage());
+
+            return back()->with(
+                'error',
+                'Something went wrong or the POP already exists.'
+            );
+        }
     }
 
     public function show(Pop $pop)
@@ -308,9 +499,17 @@ class PopController extends Controller
 
     public function update(Pop $pop, Request $request)
     {
-        // dd(($request->except(['template', '_token', '_method', 'template', 'prefix__'])));
-        $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__']));
-        
+
+        $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__', 'transId', 'delete_transaction', 'transid']));
+
+        if(!empty($request->delete_transaction)){
+            $pop->temp->delete();
+
+            $pop->update([
+                'temp_transaction_id' => null,
+            ]);
+
+        }
         return back()->with('message', 'Update Successful');
     }
 

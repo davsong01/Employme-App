@@ -90,7 +90,6 @@ class Controller extends BaseController
                     $data['content'] = $this->emailContent($data)['content'];
                     $email = $data['email'] ?? $transaction->email ?? null;
 
-                    // Mail::to('davsong16@gmail.com')->send(new Welcomemail($data, $pdf));
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
                 }
             } catch (\Throwable $e) {
