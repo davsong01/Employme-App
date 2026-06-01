@@ -349,7 +349,7 @@ class PopController extends Controller
                 ];
                 $this->sendWelcomeMail($mailData);
             } catch (\Throwable $th) {
-
+                report ($th);
             }
    
             return back()->with(

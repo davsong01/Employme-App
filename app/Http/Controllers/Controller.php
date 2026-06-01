@@ -93,6 +93,7 @@ class Controller extends BaseController
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
                 }
             } catch (\Throwable $e) {
+                report ($e);
                 // dd($e->getMessage(), $e->getFile(), $e->getLine());
                 return false;
             }
