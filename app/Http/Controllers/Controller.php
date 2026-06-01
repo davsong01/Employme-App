@@ -56,7 +56,7 @@ class Controller extends BaseController
     {
         set_time_limit(360);
         $transaction = $data['transaction'];
-
+        
         $provider = $this->emailProvider();
 
         if ($provider == 'default') {
@@ -803,17 +803,19 @@ class Controller extends BaseController
             Password: 12345 <small> <strong>(Use existing password if you are a returning participant)</strong> </small>
             </span><br><br><a href="' . config('app.url') . '/login' . '"><button style="background: green;text-decoration: none;padding: 10px;color: white;">Login to your Portal here</button></a><br></br><br>';
         } elseif ($data['type'] == 'pop') {
-            $name = $data['name'] ?? 'N/A';
+            $pop = $data['record'];
+            
+            $name = $pop->name ?? 'N/A';
             $subject = "{$name} Has Uploaded Proof of Payment";
             $content .= "<strong>Dear Admin</strong>,<br>
                 <p>Please find below proof of payment details with file attached </p>
                 Name: " . $name . "<br>
-                Email: " . $data['participant_email'] . "<br>
-                Phone: " . $data['phone'] . "<br>
-                Bank: " . $data['bank'] . "<br>
-                Amount: " . number_format($data['amount']) . "<br>
-                Training: " . $data['training'] . "<br>
-                Date of Payment: " . $data['date'] . "<br>";
+                Email: " . $pop->email . "<br>
+                Phone: " . $pop->phone . "<br>
+                Bank: " . $pop->bank . "<br>
+                Amount: " . number_format($pop->amount) . "<br>
+                Training: " . $pop->training . "<br>
+                Date of Payment: " . $pop->date . "<br>";
 
             if (isset($data['location'])) {
                 $content .= "Location: " . $data['location'];

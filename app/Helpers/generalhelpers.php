@@ -487,11 +487,6 @@ if (!function_exists("buildResultExport")) {
 if (!function_exists("generateCertificate")) {
     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
     {
-
-//      $ss= "Active php.ini: " . php_ini_loaded_file();
-// $ss.= "<br>";
-// $ss.= "Extension Dir: " . ini_get('extension_dir');
-// dd($ss);
         if (!empty($program_id)) {
             $program = Program::find($program_id);
             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;

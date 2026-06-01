@@ -330,25 +330,28 @@ class PopController extends Controller
         }
 
         DB::beginTransaction();
-
+       
         try {
             $pop = Pop::create($storeData);
-
-            $mailData = [
-                'pop' => base_path('uploads/' . $filePath),
-                'training' => $program?->p_name,
-                'type' => 'pop',
-                'email' => Settings::value('OFFICIAL_EMAIL'),
-                'participant_email' => $pop->email,
-                'realfilename' => $fileName,
-                'transaction' => $transaction,
-            ];
-
+            $pop->training = $program->p_name;
             
             DB::commit();
             
-            $this->sendWelcomeMail($mailData);
-            
+            try {
+                $mailData = [
+                    'pop' => base_path('uploads/' . $filePath),
+                    'training' => $program?->p_name,
+                    'type' => 'pop',
+                    'email' => Settings::value('OFFICIAL_EMAIL'),
+                    'record' => $pop,
+                    'realfilename' => $fileName,
+                    'transaction' => $transaction,
+                ];
+                $this->sendWelcomeMail($mailData);
+            } catch (\Throwable $th) {
+
+            }
+   
             return back()->with(
                 'message',
                 'Your proof of payment has been received. We will confirm and issue your E-receipt ASAP.'
