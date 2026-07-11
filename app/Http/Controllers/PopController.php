@@ -502,8 +502,16 @@ class PopController extends Controller
 
     public function update(Pop $pop, Request $request)
     {
+        $request->validate([
+            'is_package' => 'sometimes|required|boolean',
+        ]);
 
-        $pop->update($request->except(['template', '_token', '_method', 'template', 'prefix__', 'transId', 'delete_transaction', 'transid']));
+        $data = $request->except(['template', '_token', '_method', 'prefix__', 'transId', 'delete_transaction', 'transid']);
+        $data['is_package'] = $request->has('is_package')
+            ? $request->boolean('is_package')
+            : (bool) $pop->is_package;
+
+        $pop->update($data);
 
         if(!empty($request->delete_transaction)){
             $pop->temp->delete();

@@ -142,7 +142,12 @@ class PaymentController extends Controller
     public function getPaymentModes(){
         $payment_modes = PaymentMode::where('status', 'active')->get();
         if(Session::has('facilitator_id')){
-            $mode_id = User::where('id', Session::get('facilitator_id'))->first()->payment_mode;
+            $facilitator = User::find(Session::get('facilitator_id'));
+            $mode_id = $facilitator?->payment_mode;
+
+            if (!$facilitator) {
+                Session::forget(['facilitator_id', 'facilitator_name', 'facilitator_license']);
+            }
             if(isset($mode_id) && !empty($mode_id)){
                 $modes = PaymentMode::where('id', $mode_id)->where('status', 'active')->get();
                 if (isset($modes) && !empty($modes)) {
@@ -199,6 +204,10 @@ class PaymentController extends Controller
         
         if ($request->user_program && $request->type == 'balance') {
             $data = DB::table('program_user')->find($request->user_program);
+
+            if (!$data) {
+                return back()->with('error', 'The referenced payment record no longer exists.');
+            }
 
             $request['amount'] = $data->balance;
             $request['payment_mode'] = $data->payment_mode;

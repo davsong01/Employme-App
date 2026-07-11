@@ -18,7 +18,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('key');
                 $table->integer('start');
-                $table->string('end');
+                $table->integer('end');
                 $table->timestamps();
             });
         }

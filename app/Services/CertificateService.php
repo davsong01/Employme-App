@@ -52,8 +52,8 @@ class CertificateService
         $transaction = Transaction::select('id', 'training_result', 'balance', 'user_id', 'program_id', 'currency_symbol')->where('program_id',  $certificate->program_id)->where('user_id', $certificate->user_id)->first();
         $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult', 'only_certified_should_see_certificate', 'allow_payment_restrictions_for_certificates')->with('scoresettings')->find($certificate->program_id);
         
-        if(!$transaction){
-            $details = [
+        if (!$transaction || !$program) {
+            return [
                 'status' => false,
                 'message' => 'ERR04: Associated Training not found!',
                 'status_code' => 201,
@@ -64,13 +64,13 @@ class CertificateService
         // Checks
         // allow_payment_restrictions_for_results
         if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-            $user_balance = $transaction->balance;
-            if ($user_balance > 0) {
+            $userBalance = (float) $transaction->balance;
+            if ($userBalance > 0) {
                 $details = [
                     'status' => false,
                     'message' => 'ERR03: Certificate is not available at the moment!',
                     'status_code' => 201,
-                    'error' => 'Please Pay your balance of ' . $user_balance->currency_symbol . number_format($user_balance->balance) . ' in order to get view/download certificate'
+                    'error' => 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($userBalance) . ' in order to view/download your certificate'
                 ];
 
                 return $details;
@@ -100,8 +100,8 @@ class CertificateService
             'status_code' => 200,
             'certificate_number' => $certificate->certificate_number,
             'certification_status' => $certification_status == 'CERTIFIED' ? 'VERIFIED' : 'NOT VERIFIED',
-            'training' => $certificate->program->p_name,
-            'owner' => $certificate->user->name,
+            'training' => $certificate->program?->p_name ?? $program->p_name,
+            'owner' => $certificate->user?->name ?? 'Unknown',
             'certified_on' => $certificate->created_at,
             'score_obtainable' => $details->scoresettings->passmark ?? 'N/A',
             'score_obtained' => $details->total_score ?? 'N/A',

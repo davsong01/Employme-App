@@ -78,6 +78,11 @@ class GroupedProgramController extends Controller
         return back()->with('success', 'Group created successfully.');
     }
 
+    public function edit(Group $groupedprogram)
+    {
+        return redirect()->route('groupedprogram.index', ['edit' => $groupedprogram->id]);
+    }
+
     public function update(Request $request, Group $groupedprogram)
     {
         $validated = $request->validate([

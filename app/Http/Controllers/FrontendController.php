@@ -264,6 +264,8 @@ class FrontendController extends Controller
     public function getfile($filename){
         $realpath = base_path() . '/uploads/trainings'. '/' .$filename;
 
+        abort_unless(is_file($realpath), 404, 'Training file not found.');
+
         return response()->download($realpath);
     }
 

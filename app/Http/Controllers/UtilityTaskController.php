@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\UtilityCronTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 
@@ -64,7 +65,22 @@ class UtilityTaskController extends Controller
     // }
     public function runTool()
     {
-        $pending = UtilityCronTask::where('status', 'pending')->get();
+        $lock = Cache::lock('utility-cron-tasks', 300);
+
+        if (!$lock->get()) {
+            return response()->json(['message' => 'Utility tasks are already running.'], 409);
+        }
+
+        try {
+            return $this->processPendingTasks();
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function processPendingTasks()
+    {
+        $pending = UtilityCronTask::where('status', 'pending')->limit(25)->get();
 
         if ($pending->isEmpty()) {
             return response()->json([
