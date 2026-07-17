@@ -28,7 +28,7 @@
                     <div class="col-md-12">
                         <div class="mb-3 type">
                             <label>Select Type</label>
-                            <select name="type" id="type" class="form-control custom-select-value" required>
+                            <select name="type" id="type" class="form-select" required>
                                 <option value="">Choose option</option>
                                 <option value="bulk">Program Participants</option>
                                 <option value="selected">Selected Participants</option>
@@ -42,7 +42,7 @@
                         </div>
                         <div class="mb-3 bulkemail">
                             <label>Choose Program</label>
-                            <select name="program" id="program" class="form-control custom-select-value">
+                            <select name="program" id="program" class="form-select">
                                 <option value="">Choose option</option>
                                 @foreach($programs as $program)
                                     @if($program->users_count > 0)

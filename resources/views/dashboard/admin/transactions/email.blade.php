@@ -30,7 +30,7 @@
                         <div
                             class="mb-3{{ $errors->has('program') ? ' is-invalid' : '' }}">
                             <label>Choose Program</label>
-                            <select name="program" id="program" class="form-control custom-select-value" required>
+                            <select name="program" id="program" class="form-select" required>
                                 <option value="">Choose option</option>
                                 @foreach($programs as $program)
                                     <option value="{{ $program->id }}">{{ $program->p_name }}</option>
