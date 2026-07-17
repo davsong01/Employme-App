@@ -3,6 +3,9 @@
     $menus = $user->permissions();            
     $role = $user->role();
     $allmenus = app('app\Http\Controllers\Controller')->adminMenus('menu');
+    $routeFallbacks = [
+        'certificates.manage.templates.index' => url('/admin/certificates/manage/templates'),
+    ];
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
@@ -31,12 +34,18 @@
                 
                 @foreach($allmenus as $allmenu)
                     {{-- Without children --}}
-                    @if(empty($allmenu['children']))
+                        @if(empty($allmenu['children']))
                         @if(in_array($allmenu['route'], $menus))
+                            @php
+                                $menuRoute = $allmenu['route'];
+                                $menuUrl = \Illuminate\Support\Facades\Route::has($menuRoute)
+                                    ? route($menuRoute)
+                                    : ($routeFallbacks[$menuRoute] ?? '#');
+                            @endphp
 
                             <li class="sidebar-item">
                                 <a class="sidebar-link waves-effect waves-dark sidebar-link"
-                                href="{{ route($allmenu['route']) }}"
+                                href="{{ $menuUrl }}"
                                 aria-expanded="false">
                                     <i class="{{ $allmenu['icon_class'] }}"></i>
                                     <span class="hide-menu">{{ $allmenu['name'] }}</span>
@@ -56,8 +65,14 @@
                                 <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
                                     @foreach($allmenu['children'] as $child)
                                         @if(in_array($child['route'], $menus))
+                                            @php
+                                                $childRoute = $child['route'];
+                                                $childUrl = \Illuminate\Support\Facades\Route::has($childRoute)
+                                                    ? route($childRoute)
+                                                    : ($routeFallbacks[$childRoute] ?? '#');
+                                            @endphp
                                             <li class="sidebar-item">
-                                                <a href="{{ route($child['route']) }}" class="sidebar-link">
+                                                <a href="{{ $childUrl }}" class="sidebar-link">
                                                     <span class="hide-menu">- {{ $child['name'] }}</span>
                                                 </a>
                                             </li>
