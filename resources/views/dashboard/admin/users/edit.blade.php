@@ -69,7 +69,7 @@
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
                                     </span>
-                                    <input id="password" type="text" class="form-control" name="password" value="{{ old('password') ?? '' }}"
+                                    <input id="password" type="password" class="form-control" name="password" value="{{ old('password') ?? '' }}"
                                         autofocus>
                                     @if ($errors->has('password'))
                                     <span class="help-block">
@@ -83,10 +83,10 @@
                                     <label for="class">Role *</label>
                                     <select name="role" id="class" class="form-control">
                                         <option value="" disabled>Assign Role</option>
-                                        <option value="Student" {{ checkRoleHas(['Student']) ? 'selected' : ''}}>Student</option>
+                                        <option value="Student" {{ $user->roles == 'Student' ? 'selected' : ''}}>Student</option>
                                         @if(checkRoleHas(['Admin']))
                                         <option value="Teacher" {{ $user->roles == 'Teacher' ? 'selected' : ''}}>Facilitator</option>
-                                        <option value="Grader" {{ checkRoleHas(['Grader']) ? 'selected' : ''}}>Grader</option>
+                                        <option value="Grader" {{ $user->roles == 'Grader' ? 'selected' : ''}}>Grader</option>
                                         @endif
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>

@@ -40,7 +40,7 @@
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
                                     </span>
-                                    <input id="password" type="text" class="form-control" name="password"
+                                    <input id="password" type="password" class="form-control" name="password"
                                         value="{{ old('password') ?? '' }}" autofocus>
                                     @if ($errors->has('password'))
                                     <span class="help-block">

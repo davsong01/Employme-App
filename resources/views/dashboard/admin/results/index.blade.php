@@ -93,7 +93,7 @@
         color: #fff;
     }
    
-    .badge {
+    .bs4-badge-circle {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -218,7 +218,7 @@
                             {{-- <a onclick="return confirm('Are you really sure?');" href="{{ route('result.clear.duplicates', ['id' => $program->id, 'p_id' => $program->id, 'program_id' => $program->id])}}" class="btn btn-danger rounded">Clear Duplicates</a> --}}
 
 
-                            <div class="badge float-right">
+                            <div class="bs4-badge-circle float-right">
                                 <span class="transaction-count">{{ $records }}</span> <!-- Number of transactions -->
                             </div>
                         </div>
@@ -325,7 +325,7 @@
                                             @if($user->result_id)
                                                 <div class="btn-group">
                                                     @if($permissions['mocks.add'])
-                                                        <a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                                        <a data-bs-toggle="tooltip" data-placement="top" title="Update user scores"
                                                         class="btn btn-info" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
                                                             <i class="fa fa-eye"></i>
                                                         </a>
@@ -336,7 +336,7 @@
                                                             {{ csrf_field() }}
                                                             {{method_field('DELETE')}}
                                                             <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                                            <button type="submit" class="btn btn-danger btn-xsm" data-bs-toggle="tooltip"
                                                                     data-placement="top" title="Delete Result"> 
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
@@ -360,7 +360,7 @@
                                                         @if ($permissions['results.add'])
                                                             <a href="javascript:void(0)"
                                                             class="btn btn-info btn-sm open-result-modal d-block w-50"
-                                                            data-toggle="tooltip" data-placement="top"
+                                                            data-bs-toggle="tooltip" data-placement="top"
                                                             title="Update Test Scores:"
                                                             data-id="{{ $user->id }}"
                                                             data-r_id="{{ $certifiableTests->id }}"
@@ -388,7 +388,7 @@
                                         @endif
 
                                         @if($menuPermissions['impersonate'])
-                                            <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                            <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                             class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}">
                                                 <i class="fa fa-unlock"> Peek</i>
                                             </a>

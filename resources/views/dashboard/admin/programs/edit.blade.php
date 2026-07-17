@@ -145,7 +145,7 @@
                                     <div class="form-group">
                                         @if($program->booking_form)
                                         <label>Replace Booking form</label>
-                                        <i data-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
+                                        <i data-bs-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
                                         @else
                                         <label>Upload Booking form</label>
                                         @endif

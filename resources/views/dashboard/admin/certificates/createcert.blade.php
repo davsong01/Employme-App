@@ -130,14 +130,14 @@
                                     <strong style="color: #940798;">ReGenCert</strong>
 
                                     @if($certificate->allow_new_certificate_request)
-                                        <a data-toggle="tooltip" data-placement="top" title="Disable new certificate generation"
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Disable new certificate generation"
                                         class="btn btn-danger btn-sm"
                                         href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 0]) }}"
                                         onclick="return confirm('Are you sure you want to disable new certificate generation?');">
                                             <i class="fa fa-toggle-on"></i> Disable
                                         </a>
                                     @else
-                                        <a data-toggle="tooltip" data-placement="top" title="Enable new certificate generation"
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Enable new certificate generation"
                                         class="btn btn-success btn-sm"
                                         href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 1]) }}"
                                         onclick="return confirm('Are you sure you want to enable new certificate generation?');">
@@ -206,19 +206,19 @@
                             <td>
                                 <div class="btn-group">
                                     @if($certificate->show_certificate() == 'Disabled')
-                                    <a data-toggle="tooltip" data-placement="top" title="Enable certificate"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Enable certificate"
                                         class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i
                                             class="fa fa-toggle-on"></i>
                                     </a>
                                     @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Disable certificate"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Disable certificate"
                                         class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>0, 'certificate_id' => $certificate->id ]) }}"><i
                                             class="fa fa-toggle-off"></i>
                                     </a>
                                     @endif
 
                                     
-                                    <a data-toggle="tooltip" data-placement="top" title="Download certificate"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
                                         class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
                                             class="fa fa-download"></i>
                                     </a>
@@ -227,7 +227,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete certificate"> <i
                                                 class="fa fa-trash"></i>
                                         </button>
@@ -241,9 +241,7 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="historyModalLabel">Certificate Regeneration History</h5>
-                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         @foreach($certificate->certificateHistory as $history)
@@ -274,9 +272,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Select Action</h5>
-                <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="col-md-12" style="padding: 10px 0;">
@@ -359,7 +355,7 @@
         <div class="modal-content">
             <div class="modal-body" style="text-align:center;">
                 <div id="spinner" class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="visually-hidden">Loading...</span>
                 </div>
                 <img id="certificate-img" src="" alt="Certificate" style="display:none; width:500px; height:auto;">
             </div>
@@ -389,14 +385,24 @@
             $(this).show();
         });
 
-        $(modalId).modal('show');
+        const certificateModal = document.getElementById('certificateModal');
+        if (window.bootstrap && window.bootstrap.Modal && certificateModal) {
+            window.bootstrap.Modal.getOrCreateInstance(certificateModal).show();
+        } else {
+            $(modalId).modal('show');
+        }
     }
 
 </script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('.close').click(function(e){
-            $("#myModal").modal('hide');
+        $('.btn-close').click(function(e){
+            const modalEl = document.getElementById('myModal');
+            if (window.bootstrap && window.bootstrap.Modal && modalEl) {
+                window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            } else {
+                $("#myModal").modal('hide');
+            }
         });
 
         $('#all').click(function(e){
@@ -410,7 +416,12 @@
         });
 
         $('#send-all').click(function(e){
-            $("#myModal").modal('show');
+            const modalEl = document.getElementById('myModal');
+            if (window.bootstrap && window.bootstrap.Modal && modalEl) {
+                window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else {
+                $("#myModal").modal('show');
+            }
         });
 
         $('#promote-all').click(function(e){

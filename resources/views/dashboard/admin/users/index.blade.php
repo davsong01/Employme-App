@@ -14,7 +14,7 @@
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
         color: black; /* Text color for selected items */
     }
-§
+
     .select2-container--default .select2-selection--multiple .select2-selection__rendered {
         color: black; /* Text color for the rendered selections */
     }
@@ -32,7 +32,7 @@
     }
     
 
-    .badge {
+    .bs4-badge-circle {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -129,7 +129,7 @@
                             @endif
                             {{-- <button class="btn btn-success rounded" id="csv">Export Participants</button> --}}
                             
-                            <div class="badge float-right">
+                            <div class="bs4-badge-circle float-right">
                                 <span class="transaction-count">{{ $records }}</span>
                             </div>
                         </div>
@@ -233,13 +233,13 @@
                             <td>
                                 <div class="btn-group">
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit User"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit User"
                                         class="btn btn-info btn-sm" href="{{ route('users.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
                                     @endif
                                     @if(canUserAccessPermission(['impersonate'])['impersonate'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                         class="btn btn-warning btn-sm" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
@@ -251,7 +251,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>

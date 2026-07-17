@@ -47,7 +47,7 @@ class ComplainController extends Controller
             return back();
         }
 
-        $query = Complain::with('user')->where('program_id', $p_id->id);
+        $query = Complain::with(['user', 'program'])->where('program_id', $p_id->id);
 
         if (checkRoleHas(['Admin'])) {
             // Admin sees all complaints for this program
@@ -82,6 +82,10 @@ class ComplainController extends Controller
     public function create(Request $request)
     {
         $training = Program::where('id', request()->p_id)->first();
+        if (!$training) {
+            return back()->with('error', 'Please select a valid training before logging a case.');
+        }
+
         if (checkRoleHas(['Admin','Facilitator'])) {
             return view('dashboard.admin.complains.create')
                 ->with('extend', 'dashboard.admin.index')
@@ -96,36 +100,15 @@ class ComplainController extends Controller
 
     public function store(Request $request)
     {
-        $data = request()->validate([
-            'name' => 'required|min:5|max:50',
-            'email' => 'required',
-            'phone' => 'required',
-            'state' => 'required',
-            'lga' => 'required',
-            'address' => 'required|min:5|max:60',
-            'mode' => 'required',
-            'type' => 'required',
-            'issues' => 'required',
-            'priority' => 'required',
-            'status' => 'required',
-            'gender' => 'required',
-            'teamlead' => 'nullable',
-            'complain' => 'required',
-            'other' => 'nullable',
-            'response' => 'nullable',
-            'notes' => 'nullable',
-            'program_id' => 'nullable',
-        ]);
-        
+        $data = $request->validate($this->storeRules());
+
         $training = Program::where('id', $data['program_id'])->first();
-        if($training->hascrm == 0){
-            return back()->with('error', 'CRM not enabled for: '.$training->p_name);
+        if (!$training) {
+            return back()->with('error', 'Please select a valid training before logging a case.');
         }
 
-        if (!empty($data['notes'])) {
-            $data['notes'] =  $data['notes'];
-        } else {
-            $data['notes'] = 0;
+        if($training->hascrm == 0){
+            return back()->with('error', 'CRM not enabled for: '.$training->p_name);
         }
 
         if ($data['type'] == "Enquiry") {
@@ -138,6 +121,8 @@ class ComplainController extends Controller
             'address' => $data['address'] ?? null,
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
+            'subject' => $data['subject'] ?? null,
+            'category' => $data['category'] ?? null,
             'state' => $data['state'] ?? null,
             'lga' => $data['lga'] ?? null,
             'other' => $data['other'] ?? null,
@@ -149,9 +134,10 @@ class ComplainController extends Controller
             'gender' => $data['gender'] ?? null,
             'teamlead' => $data['teamlead'] ?? null,
             'notes' => $data['notes'] ?? null,
-            'content' => $data['complain'] ?? null,
+            'content' => $data['content'] ?? null,
             'response' => $data['response'] ?? null,
-            'program_id' => $data['response'] ?? null,
+            'follow_up_at' => $data['follow_up_at'] ?? null,
+            'tags' => $data['tags'] ?? null,
             'sla' => $sla,
             'program_id' => $data['program_id'] ?? null,
 
@@ -178,8 +164,8 @@ class ComplainController extends Controller
 
     public function update(Complain $complain, Request $request)
     {
-        $data = $request->except(['p_id', 'prefix__']);
-        
+        $data = $request->validate($this->updateRules());
+
         $complain->update($data);
         //Update User Percentage Response
         if (request()->prefix__ != '/admin') {
@@ -226,5 +212,60 @@ class ComplainController extends Controller
         $user = User::findorfail($id);
         $user->responseStatus = $responsePercentage;
         $user->save();
+    }
+
+    private function storeRules(): array
+    {
+        return [
+            'name' => 'required|string|min:5|max:50',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:30',
+            'subject' => 'nullable|string|max:160',
+            'category' => 'nullable|string|max:120',
+            'state' => 'required|string|max:80',
+            'lga' => 'required|string|max:120',
+            'address' => 'required|string|min:5|max:160',
+            'mode' => 'required|string|max:40',
+            'type' => 'required|string|max:40',
+            'issues' => 'required|string|max:120',
+            'priority' => 'required|string|max:20',
+            'status' => 'required|string|max:30',
+            'gender' => 'required|string|max:20',
+            'teamlead' => 'nullable|string|max:120',
+            'content' => 'required|string',
+            'other' => 'nullable|string|max:160',
+            'response' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'follow_up_at' => 'nullable|date',
+            'tags' => 'nullable|string|max:255',
+            'program_id' => 'required|exists:programs,id',
+        ];
+    }
+
+    private function updateRules(): array
+    {
+        return [
+            'name' => 'nullable|string|min:5|max:50',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:30',
+            'subject' => 'nullable|string|max:160',
+            'category' => 'nullable|string|max:120',
+            'state' => 'nullable|string|max:80',
+            'lga' => 'nullable|string|max:120',
+            'address' => 'nullable|string|min:5|max:160',
+            'mode' => 'nullable|string|max:40',
+            'type' => 'required|string|max:40',
+            'issues' => 'required|string|max:120',
+            'priority' => 'required|string|max:20',
+            'status' => 'required|string|max:30',
+            'gender' => 'nullable|string|max:20',
+            'teamlead' => 'nullable|string|max:120',
+            'content' => 'required|string',
+            'other' => 'nullable|string|max:160',
+            'response' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'follow_up_at' => 'nullable|date',
+            'tags' => 'nullable|string|max:255',
+        ];
     }
 }

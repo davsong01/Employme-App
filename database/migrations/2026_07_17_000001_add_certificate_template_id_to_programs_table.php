@@ -9,18 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('programs', function (Blueprint $table) {
-            $table->foreignId('certificate_template_id')
+            $table->unsignedBigInteger('certificate_template_id')
                 ->nullable()
-                ->after('auto_certificate_settings')
-                ->constrained('certificate_templates')
-                ->nullOnDelete();
+                ->index()
+                ->after('auto_certificate_settings');
         });
     }
 
     public function down(): void
     {
         Schema::table('programs', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('certificate_template_id');
+            $table->dropColumn('certificate_template_id');
         });
     }
 };
