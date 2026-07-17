@@ -77,7 +77,7 @@
                     @csrf
                     @if($program->allow_flexible_payment == 'yes')
                     <div class="col-md-12">
-                        <div class="mb-3{{ $errors->has('amount') ? ' has-error' : '' }}">
+                        <div class="mb-3">
                             <label for="amount">Amount</label>
                             <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ $program->checkBalance($program->id )}}" autofocus required>
                             @if ($errors->has('amount'))
@@ -116,4 +116,3 @@
         }
     </script>
 @endsection
-    

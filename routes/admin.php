@@ -198,6 +198,15 @@ Route::middleware(['admin.access'])->group(function () {
         Route::controller(QuestionController::class)->group(function () {
             Route::get('questions/all/{p_id}', 'add')->middleware(['programCheck'])->name('questions.add');
             Route::get('questionsimport-export/{p_id}', 'importExport')->middleware(['programCheck'])->name('questions.import.form');
+            Route::get('importquestions', function () {
+                $p_id = request('p_id');
+
+                if (!empty($p_id)) {
+                    return redirect()->route('questions.add', ['p_id' => $p_id]);
+                }
+
+                return back();
+            })->middleware(['programCheck'])->name('questions.import.redirect');
             Route::post('import', 'import')->middleware(['programCheck']);
             Route::post('importquestions', 'import')->middleware(['programCheck'])->name('questions.import');
 

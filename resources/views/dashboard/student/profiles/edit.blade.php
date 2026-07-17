@@ -15,7 +15,7 @@
                         {{ method_field('PATCH') }}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
@@ -26,7 +26,7 @@
                                     @endif
                                 </div>
                                
-                                <div class="mb-3{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone') ?? $user->phone }}" autofocus>
@@ -36,7 +36,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="mb-3{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
                                     </span>
@@ -48,7 +48,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="mb-3{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="job_title">Job Title</label>
                                     <input id="job_title" type="text" class="form-control" name="job_title"
                                         value="{{ old('job_title') ?? $user->job_title }}" autofocus>
@@ -60,7 +60,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" {{ !empty($user->email) ? 'disabled' : ''}}>
@@ -70,7 +70,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3">
                                     <label for="staffID">Staff ID</label>
                                     <input id="staffID" type="staffID" class="form-control" name="staffID"
                                         value="{{ old('staffID') ?? $user->staffID }}">

@@ -13,7 +13,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.8.95/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ asset('login_files/assets/css/login.css')}}">
 </head>
 
@@ -26,7 +26,7 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                <div class="row no-gutters">
+                <div class="row g-0">
                     <div class="col-md-5">
                         <img src="{{ asset('login_files/assets/images/picture.jpg') }}" alt="login"
                             class="login-card-img">
@@ -38,8 +38,7 @@
         </div>
     </main>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     
 

@@ -35,17 +35,19 @@
     }
 
     .badge {
-        display: flex;
+        display: inline-flex;
         justify-content: center;
         align-items: center;
-        width: 45px !important;
-        height: 45px;
+        width: auto !important;
+        min-width: 0;
+        height: auto;
         background-color: #4CAF50;
-        border-radius: 50%;
+        border-radius: 999px;
         color: white;
-        font-size: 10px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        font-size: 11px;
+        font-weight: 700;
+        padding: .5rem .8rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
     }
 
     .transaction-count {
@@ -123,7 +125,7 @@
                         <div class="card-body">
                             <div class="row mb-3">
                                 <!-- Badge Display -->
-                                <div class="col-md-3 col-lg-2 mb-2" style="float-left">
+                                <div class="col-md-3 col-lg-2 mb-2">
                                     <div class="badge bg-secondary w-100 text-center">
                                         <span class="transaction-count">{{ $records }}</span>
                                     </div>
@@ -168,7 +170,7 @@
 
                                 <!-- Name Field -->
                                 <div class="col-md-9 mb-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="name">Enter Name</label>
                                         <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
                                     </div>
@@ -176,7 +178,7 @@
 
                                 <!-- Search Button -->
                                 <div class="col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="" style="color:transparent;display:block">Searching</label>
                                         <button type="submit" class="btn btn-primary w-100">Search</button>
                                     </div>
@@ -256,15 +258,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="{{route($page == 'results' ? 'company.results.getgrades' : 'company.mocks.getgrades', ['id'=>$program->id])}}" method="POST" class="pb-2">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="columns">User Data to Export</label>
                                 <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
                                     <option value="name">Name</option>

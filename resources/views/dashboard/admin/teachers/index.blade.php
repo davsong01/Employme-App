@@ -85,7 +85,7 @@
                                         <span class="badge bg-primary">Facilitator</span>
                                     @endif
                                     @if(checkRoleHas(['Grader'], $user))
-                                        <span class="badge bg-info text-dark">Grader</span>
+                                        <span class="badge bg-info text-light">Grader</span>
                                     @endif
                                     @if(checkRoleHas(['Admin'], $user))
                                         <span class="badge bg-success">Admin</span>

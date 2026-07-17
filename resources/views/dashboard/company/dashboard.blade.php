@@ -32,7 +32,7 @@
                                         <h1 class="font-light text-white mb-3">
                                             <i class="fas fa-chalkboard-teacher"></i>
                                         </h1>
-                                        <h5 class="text-white font-weight-bold mb-1">{{ $detail->program->p_name }}</h5>
+                                        <h5 class="text-white fw-bold mb-1">{{ $detail->program->p_name }}</h5>
                                         <p class="text-white-50 mb-0" style="font-size: 0.9rem;">{{ $detail->user_count}}+ Registered Participants</p>
                                     </div>
                                 </div>

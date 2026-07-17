@@ -132,7 +132,7 @@
                                 <form action="{{route('account.topup', 'manual')}}" method="POST" class="pb-2" enctype="multipart/form-data">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="mb-3{{ $errors->has('amount') ? ' has-error' : '' }}">
+                                            <div class="mb-3">
                                                 <label for="amount">Amount</label>
                                                 <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                                 @if ($errors->has('amount'))
@@ -143,7 +143,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="mb-3{{ $errors->has('pop') ? ' has-error' : '' }}">
+                                            <div class="mb-3">
                                                 <label for="pop">Proof of payment (Images, < 2mb)</label>
                                                 <input id="pop" type="file" class="form-control" pop="pop" name="pop" accept="image/*" value="{{ old('pop')}}" autofocus required>
                                                 @if ($errors->has('pop'))
@@ -175,7 +175,7 @@
                             <form action="{{route('account.topup', 'virtual')}}" method="POST">
                                 @csrf
                                 <div class="col-md-12">
-                                    <div class="mb-3{{ $errors->has('amount') ? ' has-error' : '' }}">
+                                    <div class="mb-3">
                                         <label for="amount">Amount</label>
                                         <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                         @if ($errors->has('amount'))
