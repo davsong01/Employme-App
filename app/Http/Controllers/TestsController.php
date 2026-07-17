@@ -304,6 +304,7 @@ class TestsController extends Controller
         }
         
         udateTrainingResult($transaction->program_id, $transaction->user_id, $data);
+        session()->forget('exam_timer:' . resolveAuthUser()->id . ':' . $request->p_id . ':' . $request->mod_id);
 
         return Redirect::to('userresults?p_id=' . $program->id);
     }
@@ -416,6 +417,11 @@ class TestsController extends Controller
         };
 
         $module_type = Module::where('id', $id)->value('type');
+        $timerKey = 'exam_timer:' . resolveAuthUser()->id . ':' . $request->p_id . ':' . $id;
+        $timerState = session($timerKey, []);
+        $startedAt = data_get($timerState, 'started_at');
+        $expiresAt = data_get($timerState, 'expires_at');
+        $now = now()->timestamp;
 
         foreach ($questions as $question) {
             $program_name = $question->module->program->p_name;
@@ -424,11 +430,23 @@ class TestsController extends Controller
             $module_title = $question->module->title;
         }
 
+        if (empty($startedAt) || empty($expiresAt)) {
+            $startedAt = $now;
+            $expiresAt = $now + ((int) $time * 60);
+
+            session()->put($timerKey, [
+                'started_at' => $startedAt,
+                'expires_at' => $expiresAt,
+            ]);
+        }
+
+        $remainingSeconds = max(0, $expiresAt - $now);
+
         if ($module_type == 'Class Test') {
-            return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program', 'program_name', 'module_title', 'time'));
+            return view('dashboard.student.tests.quizz', compact('questions', 'i', 'program', 'program_name', 'module_title', 'time', 'remainingSeconds'));
         }
         if ($module_type == 'Certification Test') {
-            return view('dashboard.student.tests.certification', compact('questions', 'i', 'program', 'program_name', 'module_title', 'time'));
+            return view('dashboard.student.tests.certification', compact('questions', 'i', 'program', 'program_name', 'module_title', 'time', 'remainingSeconds'));
         }
     }
 
