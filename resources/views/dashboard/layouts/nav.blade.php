@@ -38,14 +38,14 @@
 
                 {{-- <ul class="dropdown-menu dropdown-menu-end user-dd animated" aria-labelledby="navbarDropdown">
             @guest
-                <li><a class="dropdown-item" href="{{ route('login') }}"><i class="ti-user m-r-5 m-l-5"></i> Login</a></li>
-                <li><a class="dropdown-item" href="{{ route('register') }}"><i class="ti-wallet m-r-5 m-l-5"></i> Register</a></li>
+                <li><a class="dropdown-item" href="{{ route('login') }}"><i class="ti-user me-1 ms-1"></i> Login</a></li>
+                <li><a class="dropdown-item" href="{{ route('register') }}"><i class="ti-wallet me-1 ms-1"></i> Register</a></li>
             @else
-                <li><a class="dropdown-item" href="{{ route('profiles.edit', resolveAuthUser()->id) }}"><i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a></li>
+                <li><a class="dropdown-item" href="{{ route('profiles.edit', resolveAuthUser()->id) }}"><i class="ti-settings me-1 ms-1"></i> Account Setting</a></li>
                 <li>
                     <a class="dropdown-item" href="{{ route('logout') }}" 
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        <i class="fa fa-power-off m-r-5 m-l-5"></i> Logout
+                        <i class="fa fa-power-off me-1 ms-1"></i> Logout
                     </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                         {{ csrf_field() }}

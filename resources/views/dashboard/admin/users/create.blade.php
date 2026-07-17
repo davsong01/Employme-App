@@ -22,13 +22,7 @@
                                         value="{{ old('name')}}" autofocus required>
 
                                     @if ($errors->has('name'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('name') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
                                     @endif
 
                                 </div>
@@ -41,13 +35,7 @@
                                         value="{{ old('email') }}" required>
 
                                     @if ($errors->has('email'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('email') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
                                     @endif
 
                                 </div>
@@ -60,13 +48,7 @@
                                         value="{{ old('phone')}}" autofocus required>
 
                                     @if ($errors->has('phone'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('phone') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
                                     @endif
 
                                 </div>
@@ -85,9 +67,7 @@
 
                                     </select>
                                     @if ($errors->has('location'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('location') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('location') }}</div>
                                     @endif
 
                                 </div>
@@ -100,13 +80,7 @@
                                         value="{{ old('password') ?? 12345 }}" autofocus>
 
                                     @if ($errors->has('password'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('password') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                     @endif
 
                                 </div>
@@ -132,13 +106,7 @@
                                     </select>
 
                                     @if ($errors->has('training'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('training') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('training') }}</div>
                                     @endif
 
                                 </div>
@@ -167,13 +135,7 @@
                                 </div>
 
                                 @if ($errors->has('bank'))
-
-                                <span class="help-block">
-
-                                    <strong>{{ $errors->first('bank') }}</strong>
-
-                                </span>
-
+                                    <div class="text-danger small mt-1">{{ $errors->first('bank') }}</div>
                                 @endif
 
                                 <div class="mb-3">
@@ -200,13 +162,7 @@
                                         value="{{ old('transaction_id') }}" autofocus>
 
                                     @if ($errors->has('transaction_id'))
-
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('transaction_id') }}</strong>
-
-                                    </span>
-
+                                        <div class="text-danger small mt-1">{{ $errors->first('transaction_id') }}</div>
                                     @endif
 
                                 </div>

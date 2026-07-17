@@ -6,18 +6,22 @@
 @extends('dashboard.student.trainingsindex')
 @section('content')
 <div class="container-fluid">
-    <!-- ============================================================== -->
-    <!-- Start Page Content -->
-    <!-- ============================================================== -->
-    <div class="row">
+    <div class="row g-4">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-title">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Balance Payment</span>
+                            <h4 class="mb-2">Pending balance payment</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
                     @include('layouts.partials.alerts')
                 </div>
-               
-                <div class="card-body" style="text-align: center;padding-bottom:20px">
-                    <h4 style="color:red; text-align:center; padding:20px">You have a pending balance payment of {{$currency. number_format($program->checkBalance($program->id))}} for : {{$program->p_name}}</h4> <br>
+                <div class="card-body text-center pb-4">
+                    <h4 class="text-danger mb-4">You have a pending balance payment of {{$currency. number_format($program->checkBalance($program->id))}} for: {{$program->p_name}}</h4>
                     @if($program->checkBalance($program->id) <= $balance)
                         {{-- <a style="margin-top:15px" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal" class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br> --}}
                         <a style="margin-top:15px" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal" class="me-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br>
@@ -30,9 +34,6 @@
                             <a target="_blank" class="btn btn-success btn-sm" style="border-radius:5px"href="{{route('home')}}"><i class="fa fa-plus"></i>&nbsp;Top Up Account Balance to be able to make payment</a></p>
                         </p>
                     @endif
-                    
-                </div>
-                <div class="card-body" style="text-align: center;">
                     
                 </div>
             </div>
@@ -81,9 +82,7 @@
                             <label for="amount">Amount</label>
                             <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ $program->checkBalance($program->id )}}" autofocus required>
                             @if ($errors->has('amount'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('amount') }}</strong>
-                            </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('amount') }}</div>
                             @endif
                         </div>
                     </div>

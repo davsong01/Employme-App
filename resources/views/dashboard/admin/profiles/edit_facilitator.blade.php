@@ -64,9 +64,7 @@
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus >
                                     @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">
@@ -77,15 +75,12 @@
                                     </select>
                                 </div>
                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
-                                    <label for="password">Change Password: </label><span class="help-block">
-                                        <strong>Default: 12345</strong>
-                                    </span>
+                                    <label for="password" class="form-label">Change Password</label>
+                                    <div class="text-muted small mb-2">Default: 12345</div>
                                     <input id="password" type="text" class="form-control" name="password" value="{{ old('password') ?? '' }}"
                                         autofocus>
                                     @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                     @endif
                                 </div>
                             </div>
@@ -95,9 +90,7 @@
                                     <label for="phone">phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone}}">
                                     @if ($errors->has('phone'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('phone') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">
@@ -117,9 +110,7 @@
                                     <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') ?? $user->profile }}" rows="8" autofocus>{!!  $user->profile !!}</textarea>
 
                                     @if ($errors->has('profile'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('profile') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('profile') }}</div>
                                     @endif
                                 </div>
                             </div>
@@ -147,4 +138,3 @@
     }
 </script>
 @endsection
-

@@ -136,9 +136,7 @@
                                                 <label for="amount">Amount</label>
                                                 <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                                 @if ($errors->has('amount'))
-                                                <span class="help-block">
-                                                    <strong>{{ $errors->first('amount') }}</strong>
-                                                </span>
+                                                    <div class="text-danger small mt-1">{{ $errors->first('amount') }}</div>
                                                 @endif
                                             </div>
                                         </div>
@@ -147,9 +145,7 @@
                                                 <label for="pop">Proof of payment (Images, < 2mb)</label>
                                                 <input id="pop" type="file" class="form-control" pop="pop" name="pop" accept="image/*" value="{{ old('pop')}}" autofocus required>
                                                 @if ($errors->has('pop'))
-                                                <span class="help-block">
-                                                    <strong>{{ $errors->first('pop') }}</strong>
-                                                </span>
+                                                    <div class="text-danger small mt-1">{{ $errors->first('pop') }}</div>
                                                 @endif
                                             </div>
                                         </div>
@@ -179,9 +175,7 @@
                                         <label for="amount">Amount</label>
                                         <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                         @if ($errors->has('amount'))
-                                        <span class="help-block">
-                                            <strong>{{ $errors->first('amount') }}</strong>
-                                        </span>
+                                            <div class="text-danger small mt-1">{{ $errors->first('amount') }}</div>
                                         @endif
                                     </div>
                                 </div>

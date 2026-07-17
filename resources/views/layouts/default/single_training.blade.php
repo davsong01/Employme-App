@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12 col-lg-7">
                 <div class="" style="margin-bottom: 20px;">
-                    <div id="product_details_slider" class="carousel slide" data-ride="carousel">
+                    <div id="product_details_slider" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                             <div class="">
                                 <img src="{{ '/'.$training->image }}" alt="Training image">
@@ -56,9 +56,9 @@
                     <div><p>Please Enter your details below and make payment</p></div>
                     <!-- Add to Cart Form -->
                     <form class="cart clearfix" action="{{ route('pay') }}" method="post">
-                        <div class="cart-btn d-flex">
-                            <div class="col-md-12 mb-3">
-                                <select name="amount" id="amount" class="form-control" required>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <select name="amount" id="amount" class="form-select" required>
                                     <option value="">Select Payment Type</option>
                                     <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</option>
                                     @if($training->early_bird_status == 0 && $training->e_amount > 0)
@@ -68,20 +68,16 @@
                                     <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount/2) }})</option>
                                     @endif
                                 </select>
+                                @if ($errors->has('amount'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('amount') }}</div>
+                                @endif
                             </div>
-                        </div>
-                        @if ($errors->has('amount'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('amount') }}</strong>
-                            </span>
-                        @endif
 
                         @if($locations->count() <= 0)
-                        <input type= 'hidden' name="location" id="location"
+                            <input type="hidden" name="location" id="location">
                         @else
-                        <div class="cart-btn d-flex">
-                            <div class="col-md-12 mb-3">
-                                <select name="location" id="location" class="form-control">
+                            <div class="col-12">
+                                <select name="location" id="location" class="form-select">
                                     <option value="">Select Location (Optional)</option>
                                     @foreach($locations as $location)
                                         <option value="{{ $location->id }}" {{ old('location') == $location->id ? 'selected' : '' }}>
@@ -89,17 +85,13 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                {{-- @endif --}}
+                                @if ($errors->has('location'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('location') }}</div>
+                                @endif
                             </div>
-                        </div>
-                        @if ($errors->has('location'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('location') }}</strong>
-                            </span>
                         @endif
-                        @endif
-                        <div class="cart-btn d-flex">
-                            <div class="col-md-12 mb-3">
+
+                            <div class="col-12">
                                 <input type="text" class="form-control" id="name" name="name" 
                                 @auth
                                 value="{{ resolveAuthUser()->name }}"  
@@ -111,15 +103,12 @@
                                  @endguest 
                                 
                                 required>
+                                @if ($errors->has('name'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
+                                @endif
                             </div>
-                        </div>
-                        @if ($errors->has('name'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('name') }}</strong>
-                            </span>
-                        @endif
-                        <div class="cart-btn d-flex">
-                            <div class="col-md-12 mb-3">
+
+                            <div class="col-12">
                                 <input type="email" name="email" class="form-control" id="email" 
                                 @auth
                                 value="{{ resolveAuthUser()->email }}"  
@@ -131,15 +120,12 @@
                                  @endguest 
                                 
                                 required>
+                                @if ($errors->has('email'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
+                                @endif
                             </div>
-                        </div>
-                        @if ($errors->has('email'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('email') }}</strong>
-                            </span>
-                        @endif
-                        <div class="cart-btn d-flex">
-                            <div class="col-md-12 mb-3">
+
+                            <div class="col-12">
                                 <input type="text" class="form-control" name="phone" id="phone" 
                                 @auth
                                 value="{{ resolveAuthUser()->phone }}"  
@@ -151,13 +137,11 @@
                                  @endguest 
                                 
                                 required>
+                                @if ($errors->has('phone'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
+                                @endif
                             </div>
                         </div>
-                        @if ($errors->has('phone'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('phone') }}</strong>
-                            </span>
-                        @endif
                         
                         <input type="hidden" name="quantity" value="1">
                         <input type="hidden" name="currency" value="{{  \App\Models\Settings::select('CURR_ABBREVIATION')->first()->value('CURR_ABBREVIATION') }}">
@@ -180,10 +164,10 @@
                                
                         </script>
                         <div>
-                            <button type="submit" onclick="fetchMetaValues()" class="btn btn-block login-btn mb-4">Make Payment</button>
-                        </div>  
-                        <div>
-                        <a href="{{ url('/') }}" style="background:green" class="btn btn-block login-btn mb-4">VIEW OTHER TRAININGS</a>
+                    <button type="submit" onclick="fetchMetaValues()" class="btn btn-primary w-100 mb-4">Make Payment</button>
+                    </div>
+                    <div>
+                        <a href="{{ url('/') }}" class="btn btn-success w-100 mb-4">VIEW OTHER TRAININGS</a>
                     </div>                      
                     </form>
                     @endif
@@ -194,4 +178,3 @@
 </div>
 <!-- Product Details Area End -->
 @endsection  
-    
