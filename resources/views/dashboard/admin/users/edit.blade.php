@@ -24,7 +24,7 @@
                         {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}"
                                         autofocus>
@@ -34,7 +34,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email }}">
                                     @if ($errors->has('email'))
@@ -43,7 +43,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="mb-3{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone }}"
                                         autofocus>
@@ -53,7 +53,7 @@
                                     </span>
                                     @endif
                                 </div> 
-                                <div class="mb-3{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('job_title') ? ' is-invalid' : '' }}">
                                     <label for="job_title">Job Title</label>
                                     <input id="job_title" type="text" class="form-control" name="job_title" value="{{ old('job_title') ?? $user->job_title }}"
                                         autofocus>
@@ -65,7 +65,7 @@
                                 </div>  
                             </div>
                             <div class="col-md-6">
-                                 <div class="mb-3{{ $errors->has('password') ? ' has-error' : '' }}">
+                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
                                     </span>
@@ -103,7 +103,7 @@
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
                                 
-                                <div class="mb-3{{ $errors->has('staffID') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('staffID') ? ' is-invalid' : '' }}">
                                     <label for="staffID">Staff Id</label>
                                     <input id="staffID" type="text" class="form-control" name="staffID" value="{{ old('staffID') ?? $user->staffID }}"
                                         autofocus>

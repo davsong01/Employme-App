@@ -7,7 +7,7 @@
         <div class="card-body">
             @if(session()->get('message'))
             <div class="alert alert-success" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
                 <strong>Success!</strong> {{ session()->get('message')}}
             </div>

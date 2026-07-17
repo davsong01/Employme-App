@@ -26,7 +26,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group type">
+                        <div class="mb-3 type">
                             <label>Select Type</label>
                             <select name="type" id="type" class="form-control custom-select-value" required>
                                 <option value="">Choose option</option>
@@ -40,7 +40,7 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="form-group bulkemail">
+                        <div class="mb-3 bulkemail">
                             <label>Choose Program</label>
                             <select name="program" id="program" class="form-control custom-select-value">
                                 <option value="">Choose option</option>
@@ -56,7 +56,7 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="form-group selectedemail">
+                        <div class="mb-3 selectedemail">
                             <label>Select recipients</label>
                             <select name="selectedemail[]" id="selectedemail" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
                                 <option value="">Choose option</option>
@@ -71,7 +71,7 @@
                             @endif
                         </div>
 
-                        <div class="form-group bulkrecipients">
+                        <div class="mb-3 bulkrecipients">
                             <textarea style="width:100%" name="bulkrecipients" id="bulkrecipients" rows="15" placeholder="Paste the emails here, each email on a new line"></textarea>
                             @if($errors->has('bulkrecipients'))
                                 <span class="help-block">
@@ -81,7 +81,7 @@
                         </div>
 
                         
-                        <div class="form-group">
+                        <div class="mb-3">
 
                             <label for="subject">Subject</label>
 
@@ -96,7 +96,7 @@
                             @endif
 
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Type Email Content (<strong style="color:red">Dear {Participant's name} is automatically added at the top of this mail</strong>)</label>
 
                             <textarea class="form-control" id="summary-ckeditor" name="content"></textarea>
@@ -146,7 +146,7 @@
                                     <td>{{ $email->noofemails }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <a data-toggle="tooltip" data-placement="top" title="Edit email" class="btn btn-info"
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Edit email" class="btn btn-info"
                                                 href="{{ route('updateemails.show', $email->id) }}"><i
                                                     class="fa fa-eye"></i>
                                             </a>
@@ -159,7 +159,7 @@
                                             {{ csrf_field() }}
                                             {{ method_field('DELETE') }} --}}
             
-                                            {{-- <button type="submit" class="btn btn-warning" data-toggle="tooltip"
+                                            {{-- <button type="submit" class="btn btn-warning" data-bs-toggle="tooltip"
                                                 data-placement="top" title="Trash Training"> <i class="fa fa-trash"></i>
                                             </button> --}}
                                             {{-- </form> --}}

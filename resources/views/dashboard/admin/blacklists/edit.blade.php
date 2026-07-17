@@ -17,7 +17,7 @@
                             <div class="col-md-12">
 
                                 {{-- Type --}}
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="type">Type</label>
                                     <select name="type" id="type" class="form-control" required>
                                         <option value="">-- Select Option --</option>
@@ -26,19 +26,19 @@
                                 </div>
                                 
                                 {{-- Value --}}
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="value">Value</label>
                                     <input type="text" class="form-control" name="value" value="{{ old('value', $blacklist->value) }}" required>
                                 </div>
 
                                 {{-- Reason --}}
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="reason">Reason</label>
                                     <textarea name="reason" class="form-control" cols="30" rows="5">{{ old('reason', $blacklist->reason) }}</textarea>
                                 </div>
 
                                 {{-- Status --}}
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="status">Status</label>
                                     <select name="status" id="status" class="form-control" required>
                                         <option value="1" {{ old('status', $blacklist->status) == 1 ? 'selected' : '' }}>Active</option>

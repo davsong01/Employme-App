@@ -31,13 +31,13 @@
                         {{ method_field('PATCH') }}
                         <div class="row">
                             <div class="col-md-2">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <img src="{{ (filter_var(resolveAuthUser()->profile_picture, FILTER_VALIDATE_URL) !== false) ? resolveAuthUser()->profile_picture : url('/'). '/avatars'.'/'.resolveAuthUser()->profile_picture }}" class="rounded-circle" width="100"
                                     height="100">
                                 </div>
                             </div>
                             <div class="col-md-10">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <table class="table table-bordered">
                                         <th><strong>Trainings</strong><a href="{{ route('teachers.programs', $user->id) }}" target="_blank" class="btn btn-info btn-sm view"> View</a></th>
                                         <th><strong>Students</strong><a href="{{ route('users.index') }}" class="btn btn-info btn-sm view" target="_blank"> View</a></th>
@@ -60,7 +60,7 @@
                         </div>
                          <div class="row" style="margin-top:20px">
                             <div class="col-md-6">
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus >
                                     @if ($errors->has('name'))
@@ -69,14 +69,14 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Available for off Season Programs?</label>
                                     <select name="off_season" class="form-control" id="off_season" required>
                                         <option value="1" {{ $user->off_season_availability == 1 ? 'selected' : '' }}>Yes</option>
                                         <option value="0" {{ $user->off_season_availability == 0 ? 'selected' : '' }}>No</option>
                                     </select>
                                 </div>
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                     <label for="password">Change Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
                                     </span>
@@ -91,7 +91,7 @@
                             </div>
                             <div class="col-md-6">
                                
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
                                     <label for="phone">phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone}}">
                                     @if ($errors->has('phone'))
@@ -100,7 +100,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Change Profile Picture</label>
                                     <input type="file" name="image" value="" class="form-control">
                                 </div>
@@ -111,7 +111,7 @@
                         
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group{{ $errors->has('profile') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('profile') ? ' is-invalid' : '' }}">
                                     
                                     <label for="profile" style="color:red">Profile overview</label>
                                     <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') ?? $user->profile }}" rows="8" autofocus>{!!  $user->profile !!}</textarea>

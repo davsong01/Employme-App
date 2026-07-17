@@ -14,7 +14,7 @@
                         <div class="row">
                             <div class="col-md-6">
 
-                                <div class="mb-3{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
 
                                     <label for="name">Name</label>
 
@@ -33,7 +33,7 @@
 
                                 </div>
 
-                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
 
                                     <label for="email">E-Mail Address</label>
 
@@ -52,7 +52,7 @@
 
                                 </div>
 
-                                <div class="mb-3{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
 
                                     <label for="phone">Phone</label>
 
@@ -71,7 +71,7 @@
 
                                 </div>
 
-                                <div class="mb-3{{ $errors->has('location') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('location') ? ' is-invalid' : '' }}">
 
                                     <label for="location">Location </label>
                                     <select name="location" id="location" class="form-control">
@@ -92,7 +92,7 @@
 
                                 </div>
 
-                                <div class="mb-3{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
 
                                     <label for="password">Password</label>
 
@@ -192,7 +192,7 @@
 
                                 </div>
 
-                                <div class="mb-3{{ $errors->has('transaction_id') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('transaction_id') ? ' is-invalid' : '' }}">
 
                                     <label for="transaction_id">Transaction Id</label>
 

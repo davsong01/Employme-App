@@ -44,7 +44,7 @@
                                
                                 <input type="hidden" name="training_mode" value="{{ $transaction->training_mode }}">
                                 @if(isset($locations) && !empty($locations))
-                                <div class="mb-3{{ $errors->has('location') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('location') ? ' is-invalid' : '' }}">
                                     <label for="location">Location </label>
                                      <select  id="location" name="location" class="form-control">
                                         <option value=""></option>
@@ -62,7 +62,7 @@
                                 @endif
                                
                                 @if(isset($coupons) && $coupons->count()>0)
-                                    <div class="mb-3{{ $errors->has('coupon_id') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('coupon_id') ? ' is-invalid' : '' }}">
                                         <label for="location">Coupon Used </label>
                                         <select  id="coupon_id" name="coupon_id" class="form-control">
                                             <option value="">Select..</option>

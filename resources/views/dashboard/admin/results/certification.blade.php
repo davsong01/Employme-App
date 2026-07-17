@@ -41,7 +41,7 @@
                                         class="btn btn-info" href="{{ route('results.show', $user->id) }}"><i
                                             class="fa fa-eye"></i>
                                     </a>
-                                    {{-- <a data-toggle="tooltip" data-placement="top" title="Edit Result"
+                                    {{-- <a data-bs-toggle="tooltip" data-placement="top" title="Edit Result"
                                     class="btn btn-warning" href="{{ route('results.edit', $user->id) }}"><i
                                         class="fa fa-edit"></i>
                                 </a> --}}

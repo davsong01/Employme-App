@@ -14,7 +14,7 @@
                     <strong><span id="formErrors"></span></strong> 
                 </div>
             </span>
-            <h4 class="text-uppercase font-weight-bold">Invoice ID: {{$transaction->invoice_id}}</h4>
+            <h4 class="text-uppercase fw-bold">Invoice ID: {{$transaction->invoice_id}}</h4>
             <h6 class="text-muted">Transaction ID: {{ $transaction->transid }}</h6>
         </div>
 
@@ -52,13 +52,13 @@
                             <strong>Paid:</strong> {{ $transaction->currency_symbol. number_format($transaction->amount) }}
                             
                             <br>
-                            <strong>Balance:</strong> <span class="font-weight-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ $transaction->currency_symbol. number_format($transaction->balance) }}</span>
+                            <strong>Balance:</strong> <span class="fw-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ $transaction->currency_symbol. number_format($transaction->balance) }}</span>
                         </p>
                     </div>
                 </div>
             </div>
 {{-- programs --}}
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="location"><strong>Payment Type</strong></label>
                 <select id="type" name="type" class="form-control @error('type') is-invalid @enderror">
                     <option value="">Select payment type</option>
@@ -71,21 +71,21 @@
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="expected_amount"><strong>Expected Amount</strong></label>
                 <input type="number" name="expected_amount" value="{{ $transaction->expected_amount }}" class="form-control @error('expected_amount') is-invalid @enderror">
                 @error('expected_amount')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="amount_paid"><strong>Amount Paid</strong></label>
                 <input type="number" name="amount_paid" value="{{ $transaction->amount }}" class="form-control @error('amount_paid') is-invalid @enderror">
                 @error('amount_paid')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="balance"><strong>Balance</strong></label>
                 <input type="number" name="balance" value="{{ $transaction->balance }}" class="form-control @error('balance') is-invalid @enderror">
                 @error('balance')
@@ -93,7 +93,7 @@
                 @enderror
             </div>
             <!-- New Amount -->
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="amount"><strong>New Amount</strong></label>
                 <input type="number" name="amount" value="{{ old('amount') ?? 0 }}" class="form-control @error('amount') is-invalid @enderror">
                 @error('amount')
@@ -103,7 +103,7 @@
             <input type="hidden" name="transaction_id" id="transactionId" value="{{$transaction->id}}">
             <!-- Location Field (if available) -->
             @if(isset($locations) && !empty($locations))
-                <div class="form-group mb-4">
+                <div class="mb-4">
                     <label for="location"><strong>Location</strong></label>
                     <select id="location" name="location" class="form-control @error('location') is-invalid @enderror">
                         <option value="">Select Location</option>
@@ -119,7 +119,7 @@
 
             <!-- Coupon Field (if available) -->
             @if(isset($coupons) && $coupons->count() > 0)
-                <div class="form-group mb-4">
+                <div class="mb-4">
                     <label for="coupon_id"><strong>Coupon Used</strong></label>
                     <select id="coupon_id" name="coupon_id" class="form-control @error('coupon_id') is-invalid @enderror">
                         <option value="">Select Coupon</option>
@@ -133,7 +133,7 @@
                 </div>
             @endif
 
-            <div class="form-group mb-4">
+            <div class="mb-4">
                 <label for="funds-source"><strong>Funds Source</strong></label>
                 <select id="funds-source" name="funds_source" class="form-control" required>
                     <option value="Transfer" {{$transaction->t_type == 'Transfer' ? 'selected' : ''}}>Transfer</option>

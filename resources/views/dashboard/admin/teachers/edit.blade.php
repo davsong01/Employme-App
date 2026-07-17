@@ -41,14 +41,14 @@
                             <legend>Basic Information</legend>
                             <div class="row">
                                 <div class="col-md-2">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="100" height="100">
                                     </div>
                                 </div>
                                 <div class="col-md-10">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="name">Name</label>
                                                 <input id="name" type="text" class="form-control" name="name" value="{{ old('name') ?? $user->name }}" autofocus>
                                                 @error('name')
@@ -57,7 +57,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="email">E-Mail Address</label>
                                                 <input id="email" type="email" class="form-control" name="email" value="{{ old('email') ?? $user->email }}">
                                                 @error('email')
@@ -66,7 +66,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="phone">Phone</label>
                                                 <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone') ?? $user->phone }}">
                                                 @error('phone')
@@ -75,8 +75,8 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-group">
-                                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                            <div class="mb-3">
+                                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                                 <label for="password">Password: </label><span class="help-block">
                                                    <small> <strong>Default: 12345</strong> (Leave blank to keep the default password)</small>
                                                 </span>
@@ -100,7 +100,7 @@
                         <fieldset>
                             <legend>Role and Status</legend>
                             {{-- {{dd($user->roles)}} --}}
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Role*</label>
                                 <div class="row">
                                     <!-- Admin Role -->
@@ -139,7 +139,7 @@
                                 @enderror
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control" required>
                                     <option value="active" {{ $user->status == 'active' ? 'selected' : '' }}>Active</option>
@@ -290,7 +290,7 @@
                                                                 <div class="col-md-12 mb-4">
                                                                     <!-- Parent Name -->
                                                                     <h5 class="text-primary">{{ $menu['name'] }}</h5>
-                                                                    <div class="row ml-3">
+                                                                    <div class="row ms-3">
                                                                         @foreach($menu['children'] as $children)
                                                                             @php
                                                                                 $checkboxId = "permission-{$program->program_id}-{$children['route']}";
@@ -428,7 +428,7 @@
                     return `
                         <div class="col-md-12 mb-3">
                             <h5 class="text-primary">${menu.name}</h5>
-                            <div class="row ml-3">
+                            <div class="row ms-3">
                                 ${childPermissionsHtml}
                             </div>
                         </div>`;

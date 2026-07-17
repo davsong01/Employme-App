@@ -19,7 +19,7 @@
                             class="pb-2">
                             <!--Gives the first error for input name-->
                             <div><small>{{ $errors->first('type')}}</small></div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="class">Select Retieval type</label>
                                 <select name="type" id="type" class="form-control" required>
                                         <option value="email">Email</option>
@@ -31,7 +31,7 @@
                             </div>
                             <!--Gives the first error for input name-->
                             <div><small>{{ $errors->first('title')}}</small></div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="class">Select Training *</label>
                                 <select name="program_id" id="program_id" class="form-control" required>
                                     <option value=""></option>

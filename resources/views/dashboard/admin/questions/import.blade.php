@@ -14,7 +14,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Upload File</label>
                                    <input type="file" name="file" class="form-control" accept=".csv, .xlsv, .xls, .xlsx" required>
                                     <br>

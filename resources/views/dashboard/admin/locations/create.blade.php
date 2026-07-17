@@ -15,7 +15,7 @@
                         
 
 
-                        <div class="form-group">
+                        <div class="mb-3">
 
                             <label for="class">Select Training *</label>
 

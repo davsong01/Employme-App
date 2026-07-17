@@ -49,7 +49,7 @@
                             
                                 <td>
                                     <div class="btn-group">
-                                        <a data-toggle="tooltip" data-placement="top" title="Delete" onclick="return confirm('Are you really sure?');"
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Delete" onclick="return confirm('Are you really sure?');"
                                             class="btn btn-danger" href="{{ route('temp.destroy', $transaction->id) }}"><i
                                                 class="fa fa-trash"></i>
                                         </a>

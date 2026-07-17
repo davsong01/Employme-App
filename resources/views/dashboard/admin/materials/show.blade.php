@@ -22,7 +22,7 @@
                             <tr>
                                 <td>{{  $i++ }}</td>
                                 
-                                <td><a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                <td><a data-bs-toggle="tooltip" data-placement="top" title="Update user scores"
                                     class="btn btn-info" href="{{ route( 'facilitatormaterials', ['p_id'=>$facilitator_program->program_id] ) }}">
                                     {{ $facilitator_program->p_name }}
                                 </a>

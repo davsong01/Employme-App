@@ -20,7 +20,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <!--Gives the first error for input name-->
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Select Training</label>
                                     <select name="program" id="program" class="form-control" required>
                                         <option value="">Select an option</option>
@@ -33,13 +33,13 @@
                                     <div><small style="color:red">{{ $errors->first('program_id')}}</small></div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Maximum score for Class Tests<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="classtests" value="{{ old('classtests')}}"
                                         class=" form-control" min="0" max="100">
                                     <div><small style="color:red">{{ $errors->first('classtests')}}</small></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Maximum score for Role Play<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="rolepalyscore" value="{{ old('rolepalyscore')}}"
                                         class="form-control" min="0" max="100">
@@ -48,27 +48,27 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Maximum score for Email<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="emailscore" value="{{ old('emailscore')}}"
                                         class="form-control" min="0" max="100">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Maximum score for Certification<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="certificationscore" class="form-control" min="0"
                                         max="100" required value="{{ old('certificationscore')}}">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('crm_test')}}</small></div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Maximum score for CRM Test<span style="color:green">(Max score = 100)</span></label>
                                     <input type="number" name="crm_test" class="form-control" min="0"
                                         max="100" required value="{{ old('crm_test')}}">
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('certificationscore')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label style="color:red">Set Pass Mark <span style="color:green">(Max score = 100%)</span></label>
                                     <input type="number" name="passmark" value="{{ old('passmark')}}"
                                         class="form-control" min="0" max="100" required>

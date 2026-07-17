@@ -13,7 +13,7 @@
                         <form action="{{ route('locations.update', $location->id ) }}" method="POST" class="pb-2">
                             {{ csrf_field() }}
                              {{ method_field('PATCH') }}
-                            <div class="form-group">
+                            <div class="mb-3">
 
                                 <label for="class">Title (e.g: Lagos)</label>
 
@@ -23,7 +23,7 @@
 
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
 
                                 <label for="class">Select Training *</label>
 

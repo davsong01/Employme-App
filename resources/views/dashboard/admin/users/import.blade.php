@@ -16,8 +16,8 @@
 
                         <div class="row mb-4">
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="file" class="font-weight-bold">Upload File</label>
+                                <div class="mb-3">
+                                    <label for="file" class="fw-bold">Upload File</label>
                                     <small class="text-muted d-block mb-2">
                                         Please upload your file containing the user data. Supported formats: .csv, .xls, .xlsx
                                     </small>
@@ -37,8 +37,8 @@
                         </div>
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="import_from" class="font-weight-bold">{{ $source== 'program' ? 'Select Program' : 'Select Group'}}</label>
+                                <div class="mb-3">
+                                    <label for="import_from" class="fw-bold">{{ $source== 'program' ? 'Select Program' : 'Select Group'}}</label>
                                     <small class="text-muted d-block mb-2">
                                         All participants for the selected {{ $source== 'program' ? 'Program' : 'Group'}} will be imported.
                                     </small>
@@ -60,8 +60,8 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="coupon_id" class="font-weight-bold">Coupon Applied (Optional)</label>
+                                <div class="mb-3">
+                                    <label for="coupon_id" class="fw-bold">Coupon Applied (Optional)</label>
                                     <small class="text-muted d-block mb-2"> <br></small>
                                     <select name="coupon_id" id="coupon_id" class="form-control select2">
                                         <option value="">-- Select Coupon --</option>
@@ -75,16 +75,16 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="start_date" class="font-weight-bold">Start Date</label>
+                                <div class="mb-3">
+                                    <label for="start_date" class="fw-bold">Start Date</label>
                                     <small class="text-muted d-block mb-2"> <br>
                                     </small>
                                     <input type="date" id="start_date" class="form-control" name="start_date">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="amount_to_user" class="font-weight-bold">Amount to use (Optional)</label> <br>
+                                <div class="mb-3">
+                                    <label for="amount_to_user" class="fw-bold">Amount to use (Optional)</label> <br>
                                     <small class="text-muted d-block mb-2">
                                         Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->early_bird_status) | Early Bird: {{ number_format($program->e_amount) }} @endif
                                     </small>
@@ -93,8 +93,8 @@
                             </div>
                             
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="send_email" class="font-weight-bold" style="margin-bottom: 31px;">Send Email</label>
+                                <div class="mb-3">
+                                    <label for="send_email" class="fw-bold" style="margin-bottom: 31px;">Send Email</label>
                                     <select name="send_email" id="send_email" class="form-control" required>
                                         <option value="no" selected>No</option>
                                         <option value="yes">Yes</option>
@@ -103,8 +103,8 @@
                             </div>
                             
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="remarks" class="font-weight-bold">Admin Remarks (Optional)</label>
+                                <div class="mb-3">
+                                    <label for="remarks" class="fw-bold">Admin Remarks (Optional)</label>
                                     <textarea id="remarks" class="form-control" name="remarks" rows="3"></textarea>
                                 </div>
                             </div>

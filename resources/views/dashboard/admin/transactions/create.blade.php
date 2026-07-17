@@ -15,7 +15,7 @@
 
                             <div class="col-md-6">
 
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
 
                                     <label for="name">Name</label>
 
@@ -34,7 +34,7 @@
 
                                 </div>
 
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
 
                                     <label for="email">E-Mail Address</label>
 
@@ -53,7 +53,7 @@
 
                                 </div>
 
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
 
                                     <label for="phone">Phone</label>
 
@@ -72,7 +72,7 @@
 
                                 </div>
 
-                                <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('location') ? ' is-invalid' : '' }}">
 
                                     <label for="location">Location *</label>
 
@@ -91,7 +91,7 @@
 
                                 </div>
 
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
 
                                     <label for="password">Password</label>
 
@@ -112,7 +112,7 @@
 
                                 <div><small style="color:red">{{ $errors->first('class')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label for="training">Select Training *</label>
 
@@ -146,7 +146,7 @@
 
                             <div class="col-md-6">
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label>Amount Paid *</label>
 
@@ -159,7 +159,7 @@
 
                                 <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label>Bank *</label>
 
@@ -177,7 +177,7 @@
 
                                 @endif
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label for="class">Role *</label>
 
@@ -193,7 +193,7 @@
 
                                 </div>
 
-                                <div class="form-group{{ $errors->has('transaction_id') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('transaction_id') ? ' is-invalid' : '' }}">
 
                                     <label for="transaction_id">Transaction Id</label>
 
@@ -212,7 +212,7 @@
 
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label for="class">Gender</label>
 
@@ -232,7 +232,7 @@
 
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
 
                                     <label for="class">Bypass EarlyBird Check</label>
 

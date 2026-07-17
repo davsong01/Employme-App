@@ -19,7 +19,7 @@
                 {{ csrf_field() }}
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="form-group{{ $errors->has('subject') ? ' has-error' : '' }}">
+                        <div class="mb-3{{ $errors->has('subject') ? ' is-invalid' : '' }}">
                             <label for="subject">Subject</label>
                             <input id="subject" type="text" class="form-control" name="subject" value="{{ old('subject') ?? $email->subject }}"
                                 autofocus required>
@@ -29,7 +29,7 @@
                             </span>
                             @endif
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Email Content (<strong style="color:red">Dear {Participant's name} is automatically added at the top of this mail</strong>)</label>
 
                             <textarea class="form-control" id="summary-ckeditor" name="content">{!!  $email->content !!}</textarea>
