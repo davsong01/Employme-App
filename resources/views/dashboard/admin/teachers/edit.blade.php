@@ -77,16 +77,16 @@
                                         <div class="col-md-6">
                                             <div class="mb-3">
                                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
-                                                <label for="password">Password: </label><span class="help-block">
-                                                   <small> <strong>Default: 12345</strong> (Leave blank to keep the default password)</small>
-                                                </span>
-                                                <input id="password" type="text" class="form-control" name="password"
-                                                    value="{{ old('password') ?? '' }}" autofocus>
-                                                @if ($errors->has('password'))
-                                                <span class="help-block">
-                                                    <strong>{{ $errors->first('password') }}</strong>
-                                                </span>
-                                                @endif
+                                                    <label for="password" class="form-label">Password</label>
+                                                    <div class="text-muted small mb-2">
+                                                        Default: 12345. Leave blank if you want to keep the default password.
+                                                    </div>
+                                                    <input id="password" type="text" class="form-control" name="password"
+                                                        value="{{ old('password') ?? '' }}" autofocus>
+                                                    @if ($errors->has('password'))
+                                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

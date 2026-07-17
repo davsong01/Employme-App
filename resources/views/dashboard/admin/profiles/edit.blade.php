@@ -16,7 +16,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
-                                    <label for="name">Name</label>
+                                    <label for="name" class="form-label">Name</label>
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
                                     @if ($errors->has('name'))
@@ -25,7 +25,7 @@
                                 </div>
                                
                                 <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
-                                    <label for="phone">Phone</label>
+                                    <label for="phone" class="form-label">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone') ?? ($user->phone ?? $user->phone) }}" autofocus>
 
@@ -46,7 +46,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
-                                    <label for="email">E-Mail Address</label>
+                                    <label for="email" class="form-label">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" disabled>
                                     @if ($errors->has('email'))
@@ -74,19 +74,19 @@
                                     @endif
                                 </div> --}}
                                 <div class="mb-3">
-                                    <label for="class">Gender</label>
-                                    <select name="gender" id="class" class="form-control" required>
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select name="gender" id="gender" class="form-select" required>
                                         <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
                                         <option value="Female" {{ $user->gender == 'Female' ? 'selected' : ''}}>Female</option>
                                     </select>
-                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('gender') }}</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label>Profile Picture</label>
                                     <input type="file" name="image" value="" class="form-control">
                                 </div>
-                                <div><small style="color:red">{{ $errors->first('image')}}</small></div>
+                                <div class="text-danger small mt-1">{{ $errors->first('image') }}</div>
                             </div>
                         </div>
                         <div class="row">
