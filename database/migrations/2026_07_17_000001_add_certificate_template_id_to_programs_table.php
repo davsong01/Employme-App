@@ -6,23 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('programs', function (Blueprint $table) {
-            $table->json('resolve_to_ids')->nullable()->after('program_lock');
+            $table->foreignId('certificate_template_id')
+                ->nullable()
+                ->after('auto_certificate_settings')
+                ->constrained('certificate_templates')
+                ->nullOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('programs', function (Blueprint $table) {
-            $table->dropColumn('resolve_to_ids');
+            $table->dropConstrainedForeignId('certificate_template_id');
         });
     }
 };

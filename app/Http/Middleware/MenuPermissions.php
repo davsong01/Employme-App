@@ -19,10 +19,12 @@ class MenuPermissions
     public function handle(Request $request, Closure $next)
     {
         $currentRouteName = Route::currentRouteName();
+        $prefix = $request->prefix__ ?? $request->route()?->getPrefix();
+        $isAdminRoute = $request->is('admin*') || str_starts_with((string) $prefix, '/admin') || $prefix === 'admin';
 
         // Get the authenticated or impersonated user
         if(session()->get('impersonate')){
-            if(request()->prefix__ == '/admin'){
+            if ($isAdminRoute) {
                 $user = Admin::find(session()->get('impersonate'));
             }else{
                 $user = User::find(session()->get('impersonate'));

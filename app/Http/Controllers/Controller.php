@@ -1270,6 +1270,15 @@ class Controller extends BaseController
                 'parentId' => 14
             ],
             [
+                'id' => 2600,
+                'name' => 'Certificate Designer',
+                'route' => 'certificates.manage.templates.index',
+                'type' => 'menu',
+                'parentId' => null,
+                'order' => 13,
+                'icon_class' => 'fa fa-magic',
+            ],
+            [
                 'id' => 199,
                 'name' => 'Certificates Templates',
                 'route' => 'certificates.regeneration.templates',

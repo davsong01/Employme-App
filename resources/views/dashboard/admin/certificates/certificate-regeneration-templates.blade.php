@@ -305,9 +305,7 @@
                                 <label style="color:">Programs:</label>
                                 <select name="program_ids[]" class="select2 form-control" multiple required>
                                     @foreach($programs->whereNotIn('id', $attachedProgramIds) as $pro)
-                                        <option value="{{ $pro->id }}" {{ in_array($pro->id, $program->resolve_to_ids ?? []) ? 'selected' : '' }}>
-                                            {{ $pro->p_name }}
-                                        </option>
+                                        <option value="{{ $pro->id }}">{{ $pro->p_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -662,4 +660,3 @@
     });
 </script>
 @endsection
-

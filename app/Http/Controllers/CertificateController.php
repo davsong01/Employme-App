@@ -185,6 +185,10 @@ class CertificateController extends Controller
             $program = Program::where('id', $request->program_id)->first();
             $user = User::where('id', $request->user_id)->first();
             $template = $program->regenerationTemplate;
+
+            if (! $this->programAllowsAutoCertificateGeneration($program)) {
+                return back()->with('error', 'Auto certificate generation is disabled for this program.');
+            }
             
             if(!$template){
                 return back()->with('error','Certificate Regeneration Template not found!');
@@ -494,6 +498,12 @@ class CertificateController extends Controller
         
         if($request->action == 'regenerate-certificate'){
             if (checkRoleHas(['Admin','Grader','Facilitator'])) {
+                $program = Program::find($request->program_id);
+
+                if (! $this->programAllowsAutoCertificateGeneration($program)) {
+                    return back()->with('error', 'Auto certificate generation is disabled for this program.');
+                }
+
                 foreach ($transactions->get() as $transaction) {
                     $location = base_path('uploads/certificates');
 
@@ -650,6 +660,13 @@ class CertificateController extends Controller
         set_time_limit(0);
 
         $cron_task = $request->use_cron ?? null;
+        $program = Program::find($program_id);
+
+        if (! $this->programAllowsAutoCertificateGeneration($program)) {
+            return $internal
+                ? ['status' => 'failed', 'message' => 'Auto certificate generation is disabled for this program.']
+                : back()->with('error', 'Auto certificate generation is disabled for this program.');
+        }
 
         // If scheduled via UI to create a cron task, just log it (existing behavior)
         if (!empty($cron_task) && $cron_task === 'yes' && !$internal) {
@@ -794,6 +811,23 @@ class CertificateController extends Controller
         ]);
 
         return back()->with('message', 'Enabled succesfully');
+    }
+
+    private function programAllowsAutoCertificateGeneration(?Program $program): bool
+    {
+        if (! $program) {
+            return false;
+        }
+
+        $status = data_get($program, 'auto_certificate_settings.auto_certificate_status');
+
+        if ($status === null) {
+            return ! empty($program->certificate_template_id)
+                || ! empty(data_get($program, 'auto_certificate_settings.settings'))
+                || ! empty(data_get($program, 'auto_certificate_settings.auto_certificate_template'));
+        }
+
+        return $status === 'yes';
     }
 
     public function createCertificateHistory($certificate){

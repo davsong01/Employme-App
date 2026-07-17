@@ -13,14 +13,17 @@ use App\Models\ScoreSetting;
 use App\Models\TempTransaction;
 use App\Models\Transaction;
 use App\Models\User;
+use DavidOghi\CertificateGeneration\Services\CertificateManager as PackageCertificateManager;
 use App\Services\ExcelService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -29,7 +32,6 @@ class ProgramController extends Controller
     public function index(Program $program)
     {
         $i = 1;
-        $this->populateResolveToIdsWithParentProgram();
 
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
             if(checkRoleHas(['Admin'])){
@@ -46,22 +48,6 @@ class ProgramController extends Controller
         }
         
         return redirect('/');
-    }
-
-    private function populateResolveToIdsWithParentProgram(){
-        $programs = Program::select('id', 'resolve_to_ids','parent_id')->whereNull('resolve_to_ids')->whereNull('parent_id')->whereDoesntHave('children')->get();
-        
-        if($programs->isEmpty()){
-            return;
-        }
-        
-        foreach($programs as $program){
-            $program->update([
-                'resolve_to_ids' => [$program->id]
-            ]);
-        }
-
-        return;
     }
 
     public function exportdetails($id)
@@ -160,9 +146,22 @@ class ProgramController extends Controller
     public function create()
     {
         if(checkRoleHas(['Admin'])) {
-            $programs = Program::where('id', '<>', 1)->get();
-            $materials = Material::all();
-            return view('dashboard.admin.programs.create', compact('programs'));
+            $program = new Program();
+            $programs = collect();
+            $modes = ['Online', 'Offline'];
+            $currencies = Currency::where('status', 1)->orderBy('name')->get();
+
+            return view('dashboard.admin.programs.edit', [
+                'program' => $program,
+                'programs' => $programs,
+                'modes' => $modes,
+                'currencies' => $currencies,
+                'certificateSettings' => [],
+                'legacyCertificateSettings' => false,
+                'useExistingSettings' => 'no',
+                'inheritedProgramId' => null,
+                'isCreate' => true,
+            ]);
         } else {
             return redirect('/programs');
         }
@@ -297,34 +296,82 @@ class ProgramController extends Controller
     {
         // dd(phpinfo());
         $i = 1;
-        $program = Program::find($id);
+        $program = Program::with('certificateTemplate')->findOrFail($id);
         $modes = [
             'Online',
             'Offline'
         ];
 
         $currencies = Currency::where('status', 1)->orderBy('name')->get();
-        
-        $programs = Program::select('id', 'p_name')->whereNotNull('auto_certificate_settings')->whereNotIn('id', [$program->id, 1])->latest()->get();
+        $certificateSettings = $program->auto_certificate_settings ?? [];
+        $inheritedProgramId = old('existing_program_id', data_get($certificateSettings, 'inherited_from'));
+        $useExistingSettings = old('use_existing_settings', !empty($inheritedProgramId) ? 'yes' : 'no');
+        $legacyCertificateSettings = $this->programUsesLegacyCertificateSettings($program);
 
-        return view('dashboard.admin.programs.edit', compact('program', 'modes','currencies','programs'));
+        $programs = Program::select('id', 'p_name', 'certificate_template_id', 'auto_certificate_settings')
+            ->whereNotIn('id', [$program->id, 1])
+            ->orderBy('p_name')
+            ->get()
+            ->filter(function (Program $candidate) use ($program) {
+                return $this->programUsesLegacyCertificateSettings($candidate)
+                    || !empty($candidate->certificate_template_id)
+                    || data_get($candidate->auto_certificate_settings, 'auto_certificate_status') === 'yes';
+            })
+            ->values();
+
+        if (!empty($inheritedProgramId) && ! $programs->contains('id', (int) $inheritedProgramId)) {
+            $inheritedProgram = Program::select('id', 'p_name', 'certificate_template_id', 'auto_certificate_settings')
+                ->find($inheritedProgramId);
+
+            if ($inheritedProgram) {
+                $programs->push($inheritedProgram);
+            }
+        }
+
+        $programs = $programs->sortBy('p_name')->values();
+
+        return view('dashboard.admin.programs.edit', compact(
+            'program',
+            'modes',
+            'currencies',
+            'programs',
+            'certificateSettings',
+            'inheritedProgramId',
+            'useExistingSettings',
+            'legacyCertificateSettings'
+        ));
     }
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['resolve_to_ids','show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status','ai_settings']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status','ai_settings']);
 
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
-        
-         if ($request->use_existing_settings == 'yes' && !empty($request->existing_program_id)) {
-            $sourceProgram = Program::find($request->existing_program_id);
+
+        $hasLegacyInputs = $request->hasFile('auto_certificate_template')
+            || $request->filled('existing_auto_certificate_template')
+            || $request->filled('existing_program_id')
+            || is_array($request->text_type);
+
+        if ($request->use_existing_settings == 'yes' && !empty($request->existing_program_id)) {
+            $sourceProgram = Program::with('certificateTemplate')->find($request->existing_program_id);
+
             if ($sourceProgram) {
-                $data['auto_certificate_settings'] = $sourceProgram->auto_certificate_settings;
-                // Ensure the status matches current toggle even if inherited
-                $data['auto_certificate_settings']['auto_certificate_status'] = $request->auto_certificate_status;
-                $data['auto_certificate_settings']['inherited_from'] = $sourceProgram->id;
+                if (!empty($sourceProgram->certificate_template_id)) {
+                    $data['certificate_template_id'] = $sourceProgram->certificate_template_id;
+                    $data['auto_certificate_settings'] = [
+                        'auto_certificate_status' => $request->auto_certificate_status,
+                        'inherited_from' => $sourceProgram->id,
+                    ];
+                } else {
+                    $sourceSettings = $sourceProgram->auto_certificate_settings ?? [];
+                    $sourceSettings['auto_certificate_status'] = $request->auto_certificate_status;
+                    $sourceSettings['inherited_from'] = $sourceProgram->id;
+                    $data['certificate_template_id'] = null;
+                    $data['auto_certificate_settings'] = $sourceSettings;
+                }
             }
-        } else {
+        } elseif ($hasLegacyInputs) {
             // Manual Build Logic
             $templatePath = $program->auto_certificate_settings['auto_certificate_template'] ?? null;
 
@@ -334,8 +381,13 @@ class ProgramController extends Controller
                 $templatePath = 'certificate_templates/' . $name;
             }
 
+            $data['certificate_template_id'] = null;
             // Pass templatePath explicitly instead of attaching to $request
             $data['auto_certificate_settings'] = $this->buildCertificateSettings($request, $templatePath);
+        } else {
+            $existingSettings = is_array($program->auto_certificate_settings) ? $program->auto_certificate_settings : [];
+            $existingSettings['auto_certificate_status'] = $request->auto_certificate_status ?? data_get($program, 'auto_certificate_settings.auto_certificate_status', 'no');
+            $data['auto_certificate_settings'] = $existingSettings;
         }
 
 
@@ -479,6 +531,92 @@ class ProgramController extends Controller
         ];
     }
 
+    private function programUsesLegacyCertificateSettings(Program $program): bool
+    {
+        if (! empty($program->certificate_template_id)) {
+            return false;
+        }
+
+        $settings = $program->auto_certificate_settings;
+
+        if (! is_array($settings)) {
+            return false;
+        }
+
+        return ! empty($settings['auto_certificate_template'])
+            || ! empty($settings['settings'])
+            || ! empty($settings['inherited_from']);
+    }
+
+    private function programUsesDesignerCertificateSettings(Program $program): bool
+    {
+        return ! empty($program->certificate_template_id);
+    }
+
+    public function migrateCertificateDesigner(Program $program, PackageCertificateManager $certificates)
+    {
+        if ($this->programUsesDesignerCertificateSettings($program)) {
+            return back()->with('message', 'This program is already using the new certificate designer.');
+        }
+
+        if (! $this->programUsesLegacyCertificateSettings($program)) {
+            return back()->with('error', 'No legacy certificate settings found for this program.');
+        }
+
+        $legacySettings = $program->auto_certificate_settings ?? [];
+        $legacyTemplatePath = data_get($legacySettings, 'auto_certificate_template');
+
+        if (blank($legacyTemplatePath)) {
+            return back()->with('error', 'Legacy certificate template is missing.');
+        }
+
+        $legacyAbsolutePath = base_path('uploads/' . $legacyTemplatePath);
+        if (! file_exists($legacyAbsolutePath)) {
+            return back()->with('error', 'Legacy certificate template file could not be found.');
+        }
+
+        $templateModel = config('certificates.models.template', \App\Models\CertificateTemplate::class);
+        $existingTemplate = $templateModel::query()
+            ->where('description', 'Migrated from legacy program ID ' . $program->id)
+            ->first();
+
+        if ($existingTemplate) {
+            $program->update([
+                'certificate_template_id' => $existingTemplate->id,
+                'auto_certificate_settings' => [
+                    'auto_certificate_status' => data_get($legacySettings, 'auto_certificate_status', 'no'),
+                    'migrated_from_legacy' => true,
+                ],
+            ]);
+
+            return back()->with('message', 'Program migrated to the new certificate designer successfully.');
+        }
+
+        $storedTemplatePath = Storage::disk(config('certificates.storage.disk', 'local'))->putFileAs(
+            trim(config('certificates.storage.template_directory', 'certificates/templates'), '/'),
+            new File($legacyAbsolutePath),
+            Str::slug($program->p_name . ' certificate') . '-' . Str::random(8) . '.' . pathinfo($legacyAbsolutePath, PATHINFO_EXTENSION)
+        );
+
+        $template = $certificates->create([
+            'name' => $program->p_name . ' Certificate',
+            'description' => 'Migrated from legacy program ID ' . $program->id,
+            'certificate_template' => $storedTemplatePath,
+            'settings' => certificatePackageSettingsFromLegacy($legacySettings, $legacyAbsolutePath),
+            'status' => true,
+        ], resolveAuthUser());
+
+        $program->update([
+            'certificate_template_id' => $template->id,
+            'auto_certificate_settings' => [
+                'auto_certificate_status' => data_get($legacySettings, 'auto_certificate_status', 'no'),
+                'migrated_from_legacy' => true,
+            ],
+        ]);
+
+        return back()->with('message', 'Program migrated to the new certificate designer successfully.');
+    }
+
     public function removeSubProgram($id)
     {
         $check = DB::table('program_user')->where('program_id', $id)->count();
@@ -602,14 +740,22 @@ class ProgramController extends Controller
         $materials = $training->materials;
         $modules = $training->modules;
         $questions = $training->questions;
+        $cloneCertificateSettings = array_intersect(['certificate_settings', 'all'], $request->clone_options);
+        $trainingUsesDesignerCertificates = $this->programUsesDesignerCertificateSettings($training);
 
         $training->parent_id = null;
 
         // Create new program
         $newT = Arr::except($training->toArray(), ['id','created_at','updated_at','deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
 
-        if (empty(array_intersect(['certificate_settings', 'all'], $request->clone_options))) {
-            unset($newT['auto_certificate_settings']);
+        if ($trainingUsesDesignerCertificates && ! empty($cloneCertificateSettings)) {
+            $newT['certificate_template_id'] = $training->certificate_template_id;
+            $newT['auto_certificate_settings'] = [
+                'auto_certificate_status' => data_get($training, 'auto_certificate_settings.auto_certificate_status', 'no'),
+            ];
+        } else {
+            // Legacy programs should never carry old certificate configuration into a clone.
+            unset($newT['auto_certificate_settings'], $newT['certificate_template_id']);
         }
 
         try {
@@ -621,7 +767,6 @@ class ProgramController extends Controller
             $newT['hasresult'] = 0;
             $newT['show_certificate'] = 0;
             unset($newT['slug']);
-            
             $new = Program::create($newT);
 
             if (array_intersect(['score_settings', 'all'], $request->clone_options)){
@@ -699,15 +844,19 @@ class ProgramController extends Controller
         $import_options = $request->import_options;
         $import_from_training = Program::find($request->import_from);
         $import_into_training = $training;
-        // Create new program
-        $newT = Arr::except($training->toArray(), ['id', 'created_at', 'updated_at', 'deleted_at', 'scoresettings', 'materials', 'modules', 'questions']);
-        
-        if (empty(array_intersect(['certificate_settings', 'all'], $import_options))) {
-            unset($newT['auto_certificate_settings']);
-        }
+        $importCertificateSettings = array_intersect(['certificate_settings', 'all'], $import_options);
+        $sourceUsesDesignerCertificates = $this->programUsesDesignerCertificateSettings($import_from_training);
 
         try {
             DB::beginTransaction();
+
+            if ($sourceUsesDesignerCertificates && ! empty($importCertificateSettings)) {
+                $import_into_training->certificate_template_id = $import_from_training->certificate_template_id;
+                $import_into_training->auto_certificate_settings = [
+                    'auto_certificate_status' => data_get($import_from_training, 'auto_certificate_settings.auto_certificate_status', 'no'),
+                ];
+                $import_into_training->save();
+            }
 
             if (array_intersect(['score_settings', 'all'], $import_options)) {
                 // Create scoresettings
