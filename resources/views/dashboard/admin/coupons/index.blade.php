@@ -55,7 +55,7 @@
                             <td>
                                 <div class="btn-group">
                                     @if($permissions['coupon.edit'])
-                                    <a data-toggle="tooltip" data-placement="top" title="edit coupon details"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="edit coupon details"
                                         class="btn btn-info" href="{{ route('coupon.edit', $coupon->id)}}"><i class="fa fa-edit"></i>
                                     </a>
                                     @endif
@@ -64,14 +64,14 @@
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
 
-                                            <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                            <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                                 data-placement="top" title="Delete coupon"> <i
                                                     class="fa fa-trash"></i>
                                             </button>
                                         </form>
                                     @endif
                                     @if($permissions['coupon.show'])
-                                    <a data-toggle="tooltip" data-placement="top" title="View coupon usage"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="View coupon usage"
                                         class="btn btn-primary" href="{{ route('coupon.show', $coupon->id)}}"><i class="fa fa-eye"></i>
                                     </a>
                                     @endif

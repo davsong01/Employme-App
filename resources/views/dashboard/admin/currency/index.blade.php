@@ -39,7 +39,7 @@
                             <td><span style="color:{{ $currency->status == 1 ? 'green' : 'red' }}">{{ $currency->status == 1 ? 'Active' : 'Inactive' }}</span></td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit currency"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit currency"
                                         class="btn btn-info" href="{{ route('currency.edit', $currency->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
@@ -48,7 +48,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form> --}}

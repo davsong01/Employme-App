@@ -456,6 +456,99 @@
             cursor: pointer;
         }
 
+        body {
+            background: #f5f7fb;
+            color: #0f172a;
+        }
+
+        #main-wrapper {
+            min-height: 100vh;
+            background: #f5f7fb;
+        }
+
+        .page-wrapper {
+            background: #f5f7fb;
+            padding: 1.25rem 1rem 1.5rem;
+        }
+
+        .card {
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: .9rem;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #fff;
+            border-bottom: 1px solid rgba(15, 23, 42, .08);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background: #f8fafc;
+            border-bottom-color: rgba(15, 23, 42, .08);
+            color: #334155;
+            font-size: .78rem;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            border-radius: .5rem;
+            box-shadow: none;
+        }
+
+        .btn-sm {
+            border-radius: .45rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: .5rem;
+            border-color: #cbd5e1;
+            box-shadow: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .08);
+        }
+
+        .dropdown-menu {
+            border: 1px solid rgba(15, 23, 42, .08);
+            border-radius: .75rem;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, .12);
+        }
+
+        .modal-content {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, .18);
+        }
+
+        .navbar.top-navbar {
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .left-sidebar {
+            background: #0f172a;
+        }
+
+        .sidebar-nav ul .sidebar-item .sidebar-link {
+            border-radius: .65rem;
+            margin: .1rem .5rem;
+        }
+
+        .sidebar-nav ul .sidebar-item.selected>.sidebar-link,
+        .sidebar-nav ul .sidebar-item .sidebar-link:hover {
+            background: rgba(255, 255, 255, .08) !important;
+        }
+
         .rounded2{
             border-radius: 5px !important;
         }

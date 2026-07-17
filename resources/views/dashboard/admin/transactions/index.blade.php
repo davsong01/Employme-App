@@ -42,15 +42,15 @@
                            
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit User"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit User"
                                         class="btn btn-info" href="{{ route('users.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
-                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                         class="btn btn-warning" href="{{ route('impersonate', $user->id) }}"><i
                                             class="fa fa-unlock"></i>
                                     </a>
-                                    <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Send E-receipt"
                                         class="btn btn-primary" href="{{ route('users.show', $user->id) }}"><i
                                             class="far fa-envelope"></i>
                                     </a>
@@ -59,7 +59,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>

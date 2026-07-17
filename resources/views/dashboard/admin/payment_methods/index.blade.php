@@ -37,7 +37,7 @@
                             <td> <img src="/{{ $method->image }}" alt="image" class="rounded-circle" width="50" height="50"> </td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit payment method"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit payment method"
                                         class="btn btn-info" href="{{ route('paymentmethod.edit', $method->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>
@@ -47,7 +47,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete payment method"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>

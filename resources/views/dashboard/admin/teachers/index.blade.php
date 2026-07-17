@@ -75,7 +75,7 @@
                                 @if(checkRoleHas(['Admin'],$user))
                                 <button class="disabled btn btn-success btn-sm" style="background-color: darkblue;border-color: darkblue;">Admin</button> <br>
                                 @endif
-                            @if($user->status == 'active') <button class="btn btn-success btn-xs">Active</button> @else <button class="btn btn-danger btn-xs">Inactive</button> @endif
+                            @if($user->status == 'active') <button class="btn btn-success btn-sm">Active</button> @else <button class="btn btn-danger btn-sm">Inactive</button> @endif
                             </td>
                             <td>
                                 <small>
@@ -85,24 +85,24 @@
                                 </small>
                             </td>
                             <td>{{ $user->students_count }} <br>
-                                <a target="_blank" href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                                <a target="_blank" href="{{ route('teachers.students', $user->id) }}" class="btn btn-info btn-sm">View</a>
                             </td>
                             
                             <td>{{ $user->payment_modes->currency_symbol ?? 'NGN' }}{{ $user->earnings ? number_format($user->earnings) : 0 }} <br>
-                                <a target="_blank" href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-xs">View</a>
+                                <a target="_blank" href="{{ route('teachers.earnings', $user->id) }}" class="btn btn-info btn-sm">View</a>
                             </td>
                           
                             <td>{{ $user->off_season_availability == 1 ? 'Yes' : 'No' }}</td>
                             <td>
                                 <div class="btn-group">
                                     @if($permissions['teachers.edit'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Edit Staff"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit Staff"
                                         class="btn btn-info" href="{{ route('teachers.edit', $user->id) }}"><i
                                             class="fa fa-edit"></i>
                                     </a>       
                                     @endif  
                                     @if($permissions['admin-impersonate'])
-                                    <a data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-warning" href="{{ route('admin.impersonate', $user->id) }}"><i
                                         class="fa fa-unlock"></i>
                                     </a>
@@ -114,7 +114,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete facilitator"> <i class="fa fa-trash"></i>
                                         </button>
                                     </form>
