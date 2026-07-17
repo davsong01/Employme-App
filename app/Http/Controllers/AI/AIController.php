@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\AI;
 
 use Illuminate\Http\Request;
 use App\Services\AI\AIService;
@@ -8,6 +8,7 @@ use App\Models\AIRequest;
 use App\Models\Material;
 use Illuminate\Support\Facades\Cache;
 use Smalot\PdfParser\Parser; // PDF parser package
+use App\Http\Controllers\Controller;
 
 class AIController extends Controller
 {

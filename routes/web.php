@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\PaymentModeController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\AIController;
+use App\Http\Controllers\AI\AIController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\CertificateController;

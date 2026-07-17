@@ -10,7 +10,9 @@
             || !empty(data_get($certificateSettings, 'settings'))
             || !empty(data_get($certificateSettings, 'inherited_from')))
     );
-    $certificateDesignerIndexUrl = $certificateDesignerIndexUrl ?? route('certificates.manage.templates.index');
+    $certificateDesignerIndexUrl = $certificateDesignerIndexUrl ?? (\Illuminate\Support\Facades\Route::has('certificates.manage.templates.index')
+        ? route('certificates.manage.templates.index')
+        : url('/admin/certificates/manage/templates'));
 @endphp
 
 <fieldset class="field">

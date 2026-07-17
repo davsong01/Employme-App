@@ -3,12 +3,14 @@
     use Illuminate\Support\Facades\Storage;
     $program = $program ?? new Program();
     $isCreate = $isCreate ?? false;
+    $certificateDesignerIndexUrl = \Illuminate\Support\Facades\Route::has('certificates.manage.templates.index')
+        ? route('certificates.manage.templates.index')
+        : url('/admin/certificates/manage/templates');
     $c_settings = $certificateSettings ?? ($program->auto_certificate_settings ?? []);
     $autoCertificateStatus = old('auto_certificate_status', data_get($c_settings, 'auto_certificate_status', 'no'));
     $useExistingSettings = old('use_existing_settings', $useExistingSettings ?? (data_get($c_settings, 'inherited_from') ? 'yes' : 'no'));
     $inheritedProgramId = old('existing_program_id', $inheritedProgramId ?? data_get($c_settings, 'inherited_from'));
     $legacyCertificateSettings = $legacyCertificateSettings ?? (empty($program->certificate_template_id) && (!empty(data_get($c_settings, 'auto_certificate_template')) || !empty(data_get($c_settings, 'settings')) || !empty(data_get($c_settings, 'inherited_from'))));
-    $certificateDesignerIndexUrl = route('certificates.manage.templates.index');
     $formAction = $isCreate ? route('programs.store') : route('programs.update', $program->id);
     $formMethodField = $isCreate ? '' : method_field('PATCH');
     $submitLabel = $isCreate ? 'Submit' : 'Update';
