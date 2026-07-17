@@ -1,62 +1,67 @@
 @extends('dashboard.student.trainingsindex')
 @section('content')
 <div class="container-fluid">
-    <!-- ============================================================== -->
-    <!-- Start Page Content -->
-    <!-- ============================================================== -->
-    <div class="row">
+    <div class="row g-4">
         <div class="col-md-12">
-            <div class="card-title">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Training Overview</span>
+                            <h2 class="mb-2">{{ strtoupper($program->p_name) }}</h2>
+                            <p class="text-muted mb-0">Your program progress, materials and test access all in one place.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
                 @include('layouts.partials.alerts')
-                <h2 style="color:green; text-align:center; padding:20px">{{ strtoupper($program->p_name) }}</h2>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-3 col-lg-3">
+    <div class="row g-4 mt-1">
+        <div class="col-12 col-md-6 col-xl-3">
             <a href="{{ route('participants.payments.index') }}">
-                <div class="card card-hover">
-                    <div
-                        class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="box bg-{{ $balance > 0 ? 'danger' : 'success' }} text-center rounded-4 p-4 h-100 d-flex flex-column justify-content-center">
                         <h1 class="font-light text-white"><i class="far fa-money-bill-alt"></i></h1>
-                        <h6 class="text-white">Payment Status {{ $currency_symbol }}{{ number_format($balance)  }} </h6>
-                        <p class="text-white">Paid: {{ $paid }} ; Balance:
-                            {{ $balance }} </p>
+                        <h6 class="text-white mb-2">Payment Status {{ $currency_symbol }}{{ number_format($balance)  }}</h6>
+                        <p class="text-white mb-0">Paid: {{ $paid }}; Balance: {{ $balance }}</p>
                     </div>
                 </div>
             </a>
         </div>
-        <div class="col-md-3 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <a href="{{ route('participants.materials.index', ['p_id'=> $program->id]) }}">
-                <div class="card card-hover">
-                    <div class="box bg-info text-center">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="box bg-info text-center rounded-4 p-4 h-100 d-flex flex-column justify-content-center">
                         <h1 class="font-light text-white"><i class="fas fa-download"></i></h1>
-                        <h6 class="text-white">{{ $materialsCount }}</h6>
-                        <p class="text-white">Study materials</p>
+                        <h6 class="text-white mb-2">{{ $materialsCount }}</h6>
+                        <p class="text-white mb-0">Study materials</p>
                     </div>
                 </div>
             </a>
         </div>
         @if($program->hasmock == 1)
-        <div class="col-md-3 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <a href="{{ route('participants.mocks.index', ['p_id' => $program->id])}}">
-                <div class="card card-hover">
-                    <div class="box bg-warning text-center">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="box bg-warning text-center rounded-4 p-4 h-100 d-flex flex-column justify-content-center">
                         <h1 class="font-light text-white"><i class="fa fa-chalkboard"></i></h1>
-                        <h6 class="text-white">&nbsp;</h6>
-                        <p class="text-white">Pre Class Tests</p>
+                        <h6 class="text-white mb-2">&nbsp;</h6>
+                        <p class="text-white mb-0">Pre Class Tests</p>
                     </div>
                 </div>
             </a>
         </div>
         @endif
-        <div class="col-md-3 col-lg-3">
+        <div class="col-12 col-md-6 col-xl-3">
             <a href="{{ route('participants.tests.index', ['p_id'=>$program->id])}}">
-                <div class="card card-hover">
-                    <div class="box bg-success text-center">
+                <div class="card card-hover h-100 border-0 shadow-sm">
+                    <div class="box bg-success text-center rounded-4 p-4 h-100 d-flex flex-column justify-content-center">
                         <h1 class="font-light text-white"><i class="fas fa-question"></i></h1>
-                        <h6 class="text-white">&nbsp;</h6>
-                        <p class="text-white">Post class Tests</p>
+                        <h6 class="text-white mb-2">&nbsp;</h6>
+                        <p class="text-white mb-0">Post class Tests</p>
                     </div>
                 </div>
             </a>
@@ -69,8 +74,8 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title m-b-0">Training Progress</h4>
-                    <div class="m-t-20">
+                    <h4 class="card-title mb-0">Training Progress</h4>
+                    <div class="mt-4">
                         <div class="d-flex no-block align-items-center">
                             <span>{{ $trainingProgress }}%</span>
                             <div class="ms-auto">
@@ -93,8 +98,8 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <h1 class="card-title m-b-0">Your Facilitator</h1> <br><br>
-                    <div class="row pt-2">
+                    <h1 class="card-title mb-0">Your Facilitator</h1>
+                    <div class="row pt-3">
                         <div class="col-md-2">
                             <div class="d-flex no-block align-items-center">
                                 <img src="{{ asset('profiles/'. resolveAuthUser()->facilitator->profile_picture )}}" alt="{{ resolveAuthUser()->facilitator->profile_picture }}" class="rounded-circle" width="150"
