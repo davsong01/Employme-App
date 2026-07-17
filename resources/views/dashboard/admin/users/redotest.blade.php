@@ -17,8 +17,8 @@
 
                                 <div class="mb-3{{ $errors->has('program') ? ' is-invalid' : '' }}">
 
-                                    <label for="program">Choose Program you want to enable its tests for this participant </label>
-                                    <select name="program" id="program" class="form-control" required> 
+                                    <label for="program" class="form-label">Choose program you want to enable its tests for this participant</label>
+                                    <select name="program" id="program" class="form-select" required>
 
                                         <option value="">-- Select Option --</option>
                                         @foreach( $programs as $program )
@@ -29,9 +29,7 @@
 
                                     </select>
                                     @if ($errors->has('program'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('program') }}</strong>
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('program') }}</div>
                                     @endif
 
                                 </div>

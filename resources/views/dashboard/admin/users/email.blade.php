@@ -35,9 +35,7 @@
                                 <option value="bulkrecipients">Bulk Email</option>
                             </select>
                             @if($errors->has('type'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('type') }}</strong>
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('type') }}</div>
                             @endif
                         </div>
                         <div class="mb-3 bulkemail">
@@ -51,9 +49,7 @@
                                 @endforeach
                             </select>
                             @if($errors->has('program'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('program') }}</strong>
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('program') }}</div>
                             @endif
                         </div>
                         <div class="mb-3 selectedemail">
@@ -65,18 +61,14 @@
                                 @endforeach
                             </select>
                             @if($errors->has('selectedemail'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('selectedemail') }}</strong>
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('selectedemail') }}</div>
                             @endif
                         </div>
 
                         <div class="mb-3 bulkrecipients">
                             <textarea style="width:100%" name="bulkrecipients" id="bulkrecipients" rows="15" placeholder="Paste the emails here, each email on a new line"></textarea>
                             @if($errors->has('bulkrecipients'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('bulkrecipients') }}</strong>
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('bulkrecipients') }}</div>
                             @endif
                         </div>
 
@@ -89,10 +81,7 @@
                                 value="{{ old('subject')}}" required autofocus>
 
                             @if ($errors->has('subject'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('subject') }}</strong>
-                            </span>
-
+                            <div class="text-danger small mt-1">{{ $errors->first('subject') }}</div>
                             @endif
 
                         </div>
@@ -102,9 +91,7 @@
                             <textarea class="form-control" id="summary-ckeditor" name="content"></textarea>
                         </div>
                         @if($errors->has('content'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('content') }}</strong>
-                            </span>
+                            <div class="text-danger small mt-1">{{ $errors->first('content') }}</div>
                         @endif
                     </div>
                 </div>

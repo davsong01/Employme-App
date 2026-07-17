@@ -15,13 +15,11 @@
                             <div class="col-md-12">
                                
                                 <div class="mb-3">
-                                    <label for="class">Upload File</label>
+                                    <label for="file" class="form-label">Upload File</label>
                                    <input type="file" name="file" class="form-control" accept=".csv, .xlsv, .xls, .xlsx" required>
                                     <br>
                                     @if ($errors->has('file'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('file') }}</strong>
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('file') }}</div>
                                     @endif
                                 </div>
                             </div>
