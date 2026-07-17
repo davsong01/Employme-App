@@ -82,11 +82,11 @@
                                 <td>{{  $i++ }}</td>
                                 <td>
                                     @if($permissions['modules.index'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Click to view modules for this training" class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Click to view modules for this training" class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
                                         {{ $programs->p_name }}
                                         </a>
                                     @else
-                                        <a data-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
+                                        <a data-bs-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
                                         {{ $programs->p_name }}
                                         </a>
                                     @endif

@@ -165,6 +165,7 @@ Route::middleware(['admin.access'])->group(function () {
                 Route::post('process-export-participants', 'processExportParticipantsDataFromTraining')->name('process.programs.export.participants');
                 Route::post('training-clone/{training}', 'cloneTraining')->name('training.clone');
                 Route::post('training-import-data/{training}', 'importDataFromTraining')->name('training.import.data');
+                Route::post('programs/{program}/migrate-certificate-designer', 'migrateCertificateDesigner')->name('programs.certificate.migrate');
 
                 Route::post('group-import-data/{training}/{source?}', 'importDataFromTraining')->name('group.import.data');
 
@@ -263,8 +264,6 @@ Route::middleware(['admin.access'])->group(function () {
             Route::post('admin-create-certificate-request', 'adminCreateRegenerationRequest')->name('admin.create.certificate.request');
             Route::get('/certificate-template/{id}', 'serveTemplate')
                 ->name('certificate.template.serve');
-
-            
         });
     
         //route for payments history

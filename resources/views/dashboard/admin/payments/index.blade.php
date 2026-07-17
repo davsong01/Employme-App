@@ -12,7 +12,21 @@
 @endphp
 @extends('dashboard.admin.index')
 @section('css')
-<style>  
+    <style>  
+    .bs4-badge-circle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 45px;
+        height: 45px;
+        background-color: #4CAF50;
+        border-radius: 50%;
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
     .select2-container--default .select2-selection--single {
         border: 1px solid #e9ecef;
         border-radius: 20px;
@@ -37,7 +51,7 @@
         <div class="card-body">
             <h5 class="card-title">All Transactions
                 @include('layouts.partials.alerts')
-                <div class="badge float-right">
+                <div class="bs4-badge-circle float-right">
                     <span class="transaction-count">{{ $records }}</span>
                 </div>
             </h5>
@@ -207,7 +221,7 @@
                                     <strong>Account balance: </strong>{{number_format($transaction?->user?->account_balance)}}
                                     @endif
                                     @if($permissions['impersonate']) <br>
-                                    <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                    <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $transaction->user_id) }}">
                                         <i class="fa fa-unlock"> Peek</i>
                                     </a>
@@ -399,7 +413,7 @@
                                     <div class="btn-group">
                                         @if($permissions['payments.edit'])
                                             <!-- Button Trigger -->
-                                            <a data-toggle="tooltip" data-placement="top" title="Edit Transaction:"
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Edit Transaction:"
                                                 class="btn btn-info btn-sm open-modal" 
                                                 data-id="{{ $transaction->id }}"
                                                 href="javascript:void(0)">
@@ -421,12 +435,12 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Print E-receipt"
                                             class="btn btn-warning btn-sm" href="{{ route('payments.print', $transaction->id) }}"><i
                                                 class="fa fa-print"></i>
                                         </a>
                                         @if($permissions['payments.show'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Send E-receipt"
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Send E-receipt"
                                             class="btn btn-primary btn-sm" href="{{ route('payments.show', $transaction->id) }}"><i
                                                 class="far fa-envelope"></i>
                                         </a>
@@ -438,7 +452,7 @@
                                             {{ csrf_field() }}
                                             {{method_field('DELETE')}}
 
-                                            <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                                            <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                                 data-placement="top" title="Delete transaction"> <i class="fa fa-trash"></i>
                                             </button>
                                         </form>

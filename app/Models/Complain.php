@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 class Complain extends Model
 {
     protected $guarded = [];
+    protected $casts = [
+        'follow_up_at' => 'date',
+    ];
 
     public function user(){
         return $this->belongsTo(User::class);

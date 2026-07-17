@@ -17,6 +17,7 @@ use App\Models\Certificate;
 use App\Models\Transaction;
 use App\Models\ScoreSetting;
 use App\Models\CertificateProgram;
+use App\Models\CertificateTemplate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\FacilitatorTraining;
@@ -34,7 +35,6 @@ class Program extends Model
         'modes' => 'array',
         'auto_certificate_settings' => 'array', 
         'currencies' => 'array', 
-        'resolve_to_ids' => 'array',
         'ai_settings' => 'array'
         ];
     
@@ -106,11 +106,6 @@ class Program extends Model
     
     public function subPrograms(){
         return $this->hasMany(Program::class, 'parent_id');
-    }
-
-    public function getResolveToProgramsAttribute()
-    {
-        return Program::whereIn('id', $this->resolve_to_ids ?? [])->get();
     }
 
     public function parent()
@@ -239,6 +234,11 @@ class Program extends Model
             'id',                              // Local key on programs table
             'certificate_regeneration_id'      // Local key on certificate_programs table
         );
+    }
+
+    public function certificateTemplate()
+    {
+        return $this->belongsTo(CertificateTemplate::class, 'certificate_template_id');
     }
 
     public function getSlugAttribute($value)

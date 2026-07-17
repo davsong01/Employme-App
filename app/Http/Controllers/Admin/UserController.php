@@ -515,9 +515,12 @@ class UserController extends Controller
         date_default_timezone_set("Africa/Lagos");
         $user = User::findorFail($id);
         
-        if ($request['password']) {
-            $password = bcrypt($request['password']);
-        } else $password = $user->password;
+        if ($request->filled('password')) {
+            $password = bcrypt($request->password);
+        } else {
+            $password = $user->password;
+        }
+        $role = $request->filled('role') ? $request->role : $user->roles;
 
         try {
             DB::beginTransaction();
@@ -536,7 +539,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => $password,
-                'roles' => $request->role,
+                'roles' => $role,
                 'gender' => $request->gender,
             ]);
             
