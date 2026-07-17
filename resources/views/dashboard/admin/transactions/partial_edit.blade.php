@@ -10,8 +10,7 @@
 
             <span id ="formErrorSpan" style="display:none">
                 <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     <strong><span id="formErrors"></span></strong> 
                 </div>
             </span>
@@ -26,7 +25,7 @@
             <div class="row mb-4">
                 <!-- Transaction Details -->
                 <div class="col-md-12">
-                    <div class="form-group">
+            <div class="mb-3">
                         <p>
                             <div class="mb-2">
                                 @if($transaction->is_package)
@@ -158,7 +157,12 @@
     $(document).on('click', '.open-modal', function () {
         const transactionId = $(this).data('id');
         $('#transactionId').val(transactionId);
-        $('#editSidebarModal').modal('show'); 
+        const modalEl = document.getElementById('editSidebarModal');
+        if (window.bootstrap && window.bootstrap.Modal && modalEl) {
+            window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        } else {
+            $('#editSidebarModal').modal('show');
+        }
     });
 
     $('#editTransactionForm').on('submit', function (e) {
@@ -192,7 +196,12 @@
                     $(`#transaction-balance-greenspan-` + response.transaction_id).hide();
                 }
                 
-                $('#editSidebarModal').modal('hide');
+                const modalEl = document.getElementById('editSidebarModal');
+                if (window.bootstrap && window.bootstrap.Modal && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                } else {
+                    $('#editSidebarModal').modal('hide');
+                }
 
                 window.location.href = window.location.href.split('#')[0] + '#transaction-row-' + response.transaction_id;
                 
