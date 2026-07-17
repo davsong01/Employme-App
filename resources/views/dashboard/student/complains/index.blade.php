@@ -125,9 +125,23 @@
                                 </td>
                                 <td data-label="SLA">{{ $complain->sla }} {{ $complain->sla ? 'hours' : '' }}</td>
                                 <td class="text-end" data-label="Action">
-                                    <a class="btn btn-outline-secondary btn-sm" href="{{ route('participant.complains.edit', ['complain' => $complain->id, 'p_id' => $program]) }}" data-bs-toggle="tooltip" title="Open case">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
+                                    <div class="d-none d-md-inline-flex justify-content-end">
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ route('participant.complains.edit', ['complain' => $complain->id, 'p_id' => $program]) }}" data-bs-toggle="tooltip" title="Open case">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                    </div>
+                                    <div class="dropdown d-inline-flex d-md-none">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            More
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('participant.complains.edit', ['complain' => $complain->id, 'p_id' => $program]) }}">
+                                                    <i class="fa fa-eye me-2"></i>Open case
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
