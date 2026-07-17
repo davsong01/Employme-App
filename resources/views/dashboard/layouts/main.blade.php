@@ -123,6 +123,20 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        .bs4-badge-circle {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
     </style>
 
     @yield('css')
@@ -142,6 +156,56 @@
             tt = display_c();
         }
 
+    </script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.bootstrap && window.bootstrap.Tooltip) {
+                document.querySelectorAll('[data-toggle="tooltip"]').forEach(function (element) {
+                    if (! element.getAttribute('data-bs-toggle')) {
+                        element.setAttribute('data-bs-toggle', 'tooltip');
+                    }
+
+                    if (! element.__bsTooltip) {
+                        element.__bsTooltip = new window.bootstrap.Tooltip(element);
+                    }
+                });
+            }
+
+            document.querySelectorAll('[data-toggle="modal"]').forEach(function (element) {
+                if (! element.getAttribute('data-bs-toggle')) {
+                    element.setAttribute('data-bs-toggle', 'modal');
+                }
+
+                if (! element.getAttribute('data-bs-target') && element.getAttribute('data-target')) {
+                    element.setAttribute('data-bs-target', element.getAttribute('data-target'));
+                }
+            });
+
+            document.querySelectorAll('[data-toggle="collapse"]').forEach(function (element) {
+                if (! element.getAttribute('data-bs-toggle')) {
+                    element.setAttribute('data-bs-toggle', 'collapse');
+                }
+
+                if (! element.getAttribute('data-bs-target')) {
+                    const href = element.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        element.setAttribute('data-bs-target', href);
+                    }
+                }
+            });
+
+            document.querySelectorAll('[data-toggle="dropdown"]').forEach(function (element) {
+                if (! element.getAttribute('data-bs-toggle')) {
+                    element.setAttribute('data-bs-toggle', 'dropdown');
+                }
+            });
+
+            document.querySelectorAll('[data-dismiss]').forEach(function (element) {
+                if (! element.getAttribute('data-bs-dismiss')) {
+                    element.setAttribute('data-bs-dismiss', element.getAttribute('data-dismiss'));
+                }
+            });
+        });
     </script>
 
     <style>
@@ -278,20 +342,6 @@
             color: black; /* Text color for the dropdown options */
         }
         
-        .badge {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 45px;
-            height: 45px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
         .transaction-count {
             text-align: center;
         }
