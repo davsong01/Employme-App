@@ -37,11 +37,11 @@
                             <td>
                                 <div class="btn-group">
 
-                                    <a data-toggle="tooltip" data-placement="top" title="View/Mark"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="View/Mark"
                                         class="btn btn-info" href="{{ route('results.show', $user->id) }}"><i
                                             class="fa fa-eye"></i>
                                     </a>
-                                    {{-- <a data-toggle="tooltip" data-placement="top" title="Edit Result"
+                                    {{-- <a data-bs-toggle="tooltip" data-placement="top" title="Edit Result"
                                     class="btn btn-warning" href="{{ route('results.edit', $user->id) }}"><i
                                         class="fa fa-edit"></i>
                                 </a> --}}
@@ -49,7 +49,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete Record"> <i
                                                 class="fa fa-trash"></i>
                                         </button>

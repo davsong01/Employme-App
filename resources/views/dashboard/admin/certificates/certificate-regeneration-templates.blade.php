@@ -301,7 +301,7 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label style="color:">Programs:</label>
                                 <select name="program_ids[]" class="select2 form-control" multiple required>
                                     @foreach($programs->whereNotIn('id', $attachedProgramIds) as $pro)
@@ -317,7 +317,7 @@
                         @endphp
                         <div class="row">  
                             <div class="col-md-12" style="margin-bottom:5px">
-                                <div class="form-group row">
+                                <div class="row mb-3">
                                     <label class="col-md-6 col-form-label">
                                         @if(isset($c_settings['auto_certificate_template']))
                                             Replace Certificate Template
@@ -345,7 +345,7 @@
                                 @endphp
                                 <div id="oldcertificate-{{ $counter }}" class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">  
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text Type</label>
                                             <select name="text_type[]" class="form-control" id="text_type" required>
                                                 <option value="">Select...</option>
@@ -360,7 +360,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Font Type Face</label>
                                             <select name="text_type_face[]" class="form-control" id="text_type_face">
                                                 @foreach(certificateFontType() as $key=>$value)
@@ -370,37 +370,37 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text font size, e.g 150</label>
                                             <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]" value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size')}}" id="auto_certificate_name_font_size">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text font weight e.g 300</label>
                                             <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]" value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight')}}" id="auto_certificate_name_font_weight">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text Top offset. e.g 300</label>
                                             <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]" value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}" id="auto_certificate_top_offset">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text Left offset. e.g 100</label>
                                             <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]" value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}" id="auto_certificate_left_offset">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="margin-bottom:5px">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label>Text color</label>
                                             <input type="color" class="form-control" name="auto_certificate_color[]" value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="mark" style="color:transparent">sdsdsddsdssd</label>
                                             <button class="btn btn-danger remove-old-certificate" id="oldcertificate-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                         </div>
@@ -412,14 +412,14 @@
                         <div id="certificateRows"></div>
                         <div class="row">
                             <div class="col-md-4" style="margin-bottom:5px">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <button type="button" class="btn btn-success btn-sm" id="addRowButton"><i class="fa fa-plus"></i> Add New Row</button>
                                     <button type="button" class="btn-info btn-sm" id="previewButton"><i class="fa fa-eye"></i> Preview</button>
                                     <span id="loadingSpinner" style="display: none; margin-left: 5px;">
                                         <i class="fa fa-spinner fa-spin"></i>
                                     </span>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                 </div>
                             </div>
                         </div>

@@ -19,8 +19,8 @@
                 <div class="card-body" style="text-align: center;padding-bottom:20px">
                     <h4 style="color:red; text-align:center; padding:20px">You have a pending balance payment of {{$currency. number_format($program->checkBalance($program->id))}} for : {{$program->p_name}}</h4> <br>
                     @if($program->checkBalance($program->id) <= $balance)
-                        {{-- <a style="margin-top:15px" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal" class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br> --}}
-                        <a style="margin-top:15px" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal" class="mr-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br>
+                        {{-- <a style="margin-top:15px" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal" class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br> --}}
+                        <a style="margin-top:15px" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal" class="me-1 mb-1 pay-option" name="payment_mode" value="wallet"><i class="fa fa-credit-card"></i> Pay from Account Balance ({{$currency.number_format($balance)}})</a><br><br><br>
 
                         <p><a class="btn btn-success btn-sm" target="_blank" style="border-radius:5px" href="{{route('home')}}"><i class="fa fa-plus"></i>&nbsp;Top Up Account Balance</a>
                         </p>
@@ -54,10 +54,10 @@
                 <h4 class="">Select payment method</h4>
                 <div class="align-items-center">
                     @if($payment_mode->type == 'card')
-                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$payment_mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                    <button class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$payment_mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                     @endif
                     @if($payment_mode->type == 'crypto')
-                    <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$payment_mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                    <button class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $payment_mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$payment_mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                     @endif
                 </div>
             </form>
@@ -68,7 +68,7 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Pay balance of {{ $program->checkBalance($program->id )}} from Account Balance ({{$currency.number_format($balance)}})</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -77,7 +77,7 @@
                     @csrf
                     @if($program->allow_flexible_payment == 'yes')
                     <div class="col-md-12">
-                        <div class="form-group{{ $errors->has('amount') ? ' has-error' : '' }}">
+                        <div class="mb-3">
                             <label for="amount">Amount</label>
                             <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ $program->checkBalance($program->id )}}" autofocus required>
                             @if ($errors->has('amount'))
@@ -96,7 +96,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" id="s-button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" id="s-button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
             </div>
             </div>
         </div>
@@ -116,4 +116,3 @@
         }
     </script>
 @endsection
-    

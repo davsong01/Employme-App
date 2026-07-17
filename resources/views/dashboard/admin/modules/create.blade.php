@@ -15,7 +15,7 @@
                                 <div>
                                     <h4>Module Details</h4>
                                 </div>
-                                <div class="form-group{{ $errors->has('title') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('title') ? ' is-invalid' : '' }}">
                                     <label for="title">Title</label>
                                     <input id="title" type="text" class="form-control" name="title"
                                         value="{{ old('title') }}" autofocus required>
@@ -26,7 +26,7 @@
                                     @endif
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Training</label>
                                     <input type="text" placeholder= "{{ $program->p_name }}"  disabled  id="program" value="{{ $program->p_name }}" class="form-control" >
 
@@ -35,7 +35,7 @@
                                     <div><small style="color:red">{{ $errors->first('program')}}</small></div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Type</label>
                                     <select name="type" id="type" class="form-control" required>
                                         <option value="" selected>-- Select Option --</option>
@@ -45,7 +45,7 @@
                                     <div><small style="color:red">{{ $errors->first('type')}}</small></div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Status</label>
                                     <select name="status" id="status" class="form-control">
                                         <option value="0" selected>Disabled</option>
@@ -53,7 +53,7 @@
                                     <div><small style="color:red">{{ $errors->first('status')}}</small></div>
                                 </div>
 
-                                <div class="form-group{{ $errors->has('noofquestions') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('noofquestions') ? ' is-invalid' : '' }}">
                                     <label for="noofquestions">No of Questions<small class = "cwarning" style="color:red"> <b>(You can only add 1 question for a certification text)</b> </small> </label>
                                     <input id="noofquestions" type="number" class="form-control" name="noofquestions"
                                         value="{{ old('noofquestions') }}" min="0" utofocus required>
@@ -64,7 +64,7 @@
                                     @endif
                                 </div>
 
-                                <div class="form-group{{ $errors->has('time') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('time') ? ' is-invalid' : '' }}">
                                     <label for="time">How many minutes for Module Questions(0 means no time limit)</label>
                                     <input id="time" type="number" class="form-control" name="time"
                                         value="{{ old('time') }}" autofocus min="0">
@@ -74,7 +74,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Allow Test retake</label>
                                     <select name="allow_test_retake" class="form-control" id="allow_test_retake" required>
                                         <option value="1" {{ old('allow_test_retake') == 1 ? 'selected' : '' }}>Yes</option>

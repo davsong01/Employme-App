@@ -15,7 +15,7 @@
 
                             <div class="col-md-12">
 
-                                <div class="form-group{{ $errors->has('program') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('program') ? ' is-invalid' : '' }}">
 
                                     <label for="program">Choose Program you want to enable its tests for this participant </label>
                                     <select name="program" id="program" class="form-control" required> 

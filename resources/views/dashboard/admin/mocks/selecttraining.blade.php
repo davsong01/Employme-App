@@ -34,7 +34,7 @@
                             <td>
                                 <div class="btn-group">
                                     @if($permissions['view.tests'])
-                                    <a data-toggle="tooltip" data-placement="top" title="View Grades"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="View Grades"
                                         class="btn btn-info" href="{{ route('mocks.getgrades', ['id'=>$training->id, 'p_id'=>$training->id])}}"><i class="fa fa-eye"></i>
                                     </a>
                                     @endif

@@ -14,7 +14,7 @@
                         {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Select Programs <small class="text-muted">(OR choose a single program on the right)</small></label>
                                     <select name="program_ids[]" class="select2 form-control" multiple data-placeholder="Select Programs">
                                         @foreach($programs as $pro)
@@ -27,7 +27,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>OR Filter by Single Program (Explicit)</label>
                                     <select name="explicit_program_id" class="form-control" id="explicit_program_id">
                                         <option value="">-- Select Program --</option>
@@ -44,20 +44,20 @@
                         <p class="text-muted small">*Select either multiple programs on the left, or a single explicit program on the right. The left selection will be ignored if a program is chosen on the right.*</p>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Date From</label>
                                     <input type="date" name="from" value="{{ old('from')}}" class="form-control">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Date To</label>
                                     <input type="date" name="to" value="{{ old('to')}}" class="form-control">
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Payment Type</label>
                                     <select name="payment_type" class="form-control" id="payment_type">
                                         <option value="" selected>All</option>
@@ -68,7 +68,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Remove Duplicates Participants?</label>
                                     <select name="remove_duplicate" class="form-control" id="remove_duplicate">
                                         <option value="no" selected>No</option>

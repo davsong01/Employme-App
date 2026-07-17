@@ -13,7 +13,7 @@
                     <form action="{{ route('coupon.update', $coupon->id) }}" method="POST" class="pb-2">
                         {{ csrf_field() }}
                          {{ method_field('PATCH') }}
-                        <div class="form-group">
+                        <div class="mb-3">
 
                             <label for="class">Select Training *</label>
 
@@ -25,12 +25,12 @@
                             </select>
                            
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="code">Coupon Code</label>
                             <input id="code" type="text" class="form-control" name="code"
                                 value="{{ old('code') ?? $coupon->code }}" required>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="code">Coupon Amount</label>
                             <input id="amount" type="number" class="form-control" name="amount"
                                 value="{{ old('amount') ?? $coupon->amount }}" required>

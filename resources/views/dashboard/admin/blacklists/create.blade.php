@@ -15,7 +15,7 @@
                         <div class="row">
 
                             <div class="col-md-12">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="type">Type</label>
                                     <select name="type" id="type" class="form-control" required>
                                         <option value="">-- Select Option --</option>
@@ -23,16 +23,16 @@
                                     </select>
                                 </div>
                                 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="name">Value</label>
                                     <input type="text" class="form-control" name="value" value="{{ old('value') }}" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="reason">Reason</label>
                                     <textarea name="reason" id="" class="form-control" cols="30" rows="10" value="{{ old('reason') }}" ></textarea>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="status">Status</label>
                                     <select name="status" id="status" class="form-control" required>
                                         <option value="1" selected>Active</option>

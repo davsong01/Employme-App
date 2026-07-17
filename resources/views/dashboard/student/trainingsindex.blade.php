@@ -73,11 +73,11 @@
                 @if(isset($balance) && $balance > 0)
                     @if($program->allow_flexible_payment == 'yes')
                     <li class="sidebar-item">
-                        <a class="blinking btn btn-danger btn-lg btn-block" href="{{ route('balance.checkout', ['p_id' => $program->id, 'program' => $program] )}}" class="form-horizontal">Pay balance</a>
+                        <a class="blinking btn btn-danger btn-lg w-100" href="{{ route('balance.checkout', ['p_id' => $program->id, 'program' => $program] )}}" class="form-horizontal">Pay balance</a>
                     </li>
                     @else
                     <li class="sidebar-item">
-                        <a class="blinking btn btn-danger btn-lg btn-block" href="{{ route('balance.checkout', ['p_id' => $program->id] )}}" class="form-horizontal">Pay balance of {{ $currency_symbol.number_format($balance) }} now</a>
+                        <a class="blinking btn btn-danger btn-lg w-100" href="{{ route('balance.checkout', ['p_id' => $program->id] )}}" class="form-horizontal">Pay balance of {{ $currency_symbol.number_format($balance) }} now</a>
                     </li>
                     @endif
                 @endif

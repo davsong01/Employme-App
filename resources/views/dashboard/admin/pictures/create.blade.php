@@ -1,5 +1,5 @@
 <form action="{{ route('pictures.store') }}" method="POST" enctype="multipart/form-data" class="pb-2">
-    <div class="form-group">
+    <div class="mb-3">
         <label>Caption *</label>
         <input type="text" name="title" value="{{ old('title') }}" class="form-control" required>
     </div>
@@ -7,7 +7,7 @@
     <!--Gives the first error for input name-->
     <div><small>{{ $errors->first('title')}}</small></div>
 
-    <div class="form-group">
+    <div class="mb-3">
         <label>Select file</label>
         <input type="file" name="file" value="" class="form-control">
     </div>

@@ -1,51 +1,51 @@
 @extends('dashboard.admin.index')
 @section('title')
-    {{ config('app.name') .'Questions' }}
+    {{ config('app.name') .' Questions' }}
 @endsection
 @section('content')
-
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div class="card-title">
-                @include('layouts.partials.alerts')
-             </div>
-            <div class="card-header">
-                <div>
-                    <h5 class="card-title"> Select a Training to manage its questions. Trainings which have no questions will not appear here </h5> 
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Question Bank</span>
+                            <h1 class="h3 fw-bold mb-2">Training Questions</h1>
+                            <p class="text-muted mb-0">Select a training to manage its questions. Trainings without questions are hidden automatically.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="">
-                <table id="zero_config" class="">
+            @include('layouts.partials.alerts')
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="zero_config" class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Training</th>
-                            <th>Questions</th>                           
+                            <th>Questions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($programs_with_questions as $programs)
-                            <?php 
-                                $permissionsToCheck = ['single.program.questions.index'];
-                                $permissions = checkTrainingHasPermissions($programs->id, $permissionsToCheck);
-                            ?>
-                            @if($programs->questions_count >0)
-                            <tr>
-                                <td>{{  $i++ }}</td>
-                                <td>
-                                    @if($permissions['single.program.questions.index'])
-                                        <a data-toggle="tooltip" data-placement="top" title="Click to view questions for this training" class="btn btn-info" href="{{ route( 'questions.show', $programs->id ) }}">
-                                        {{ $programs->p_name }}</a>
-                                    @else 
-                                        <a data-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
-                                        {{ $programs->p_name }}
-                                        </a>
-                                    @endif
-                                
-                                </td>
-                                <td>{{ $programs->questions_count}}</td>
-                            </tr>
+                            @if($programs->questions_count > 0)
+                                <tr>
+                                    <td data-label="#">
+                                        {{ $i++ }}
+                                    </td>
+                                    <td data-label="Training">
+                                        <span class="btn btn-outline-secondary btn-sm disabled">{{ $programs->p_name }}</span>
+                                    </td>
+                                    <td data-label="Questions">
+                                        <span class="badge bg-light text-dark rounded-pill">{{ $programs->questions_count }}</span>
+                                    </td>
+                                </tr>
                             @endif
                         @endforeach
                     </tbody>
@@ -54,5 +54,4 @@
         </div>
     </div>
 </div>
-
 @endsection

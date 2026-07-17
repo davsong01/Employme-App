@@ -20,7 +20,7 @@
     <section>
         <div class="row">
             <div class="col-md-6" style="margin-bottom:5px">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Enable Auto generate certificate</label>
                     <select name="auto_certificate_status" class="form-control" id="auto_certificate_status" required>
                         <option value="">Select...</option>
@@ -35,7 +35,7 @@
             <div>
                 <div class="row">
                     <div class="col-md-6" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Use Existing Certificate Settings</label>
                             <select name="use_existing_settings" class="form-control" id="use_existing_settings" required>
                                 <option value="">Select...</option>
@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <div class="col-md-6" id="program_select_wrapper" style="display: none; margin-bottom:15px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label style="color: blue; font-weight: bold;">Select Program to Inherit Certificate From</label>
                             <select name="existing_program_id" class="form-control select2">
                                 <option value="">Select Program...</option>
@@ -61,7 +61,7 @@
             <div id="manual_settings_wrapper">
                 <div class="row">
                     <div class="col-md-12" style="margin-bottom:15px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label class="form-label" style="font-weight: bold;">
                                 {{ !empty(data_get($certificateSettings, 'auto_certificate_template')) ? 'Replace Certificate Template' : 'Upload Certificate Template' }}
                             </label>
@@ -76,7 +76,7 @@
                                 </div>
 
                                 @if(!empty(data_get($certificateSettings, 'auto_certificate_template')))
-                                    <div class="ml-3">
+                                    <div class="ms-3">
                                         <div style="border: 1px solid #ddd; padding: 2px; border-radius: 4px; background: #f9f9f9;">
                                             <img src="{{ url('uploads/' . base64_encode(data_get($certificateSettings, 'auto_certificate_template'))) }}"
                                                 alt="Current Template"
@@ -101,7 +101,7 @@
                             @php $counter = $certificate_counter++; @endphp
                             <div id="oldcertificate-{{ $counter }}" class="row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;">
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text Type</label>
                                         <select name="text_type[]" class="form-control" id="text_type" required>
                                             <option value="">Select...</option>
@@ -116,7 +116,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Font Type Face</label>
                                         <select name="text_type_face[]" class="form-control" id="text_type_face">
                                             @foreach(certificateFontType() as $key => $value)
@@ -129,7 +129,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text font size, e.g 150</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]"
                                             value="{{ $setting['auto_certificate_name_font_size'] ?? old('auto_certificate_name_font_size') }}"
@@ -138,7 +138,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text font weight e.g 300</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]"
                                             value="{{ $setting['auto_certificate_name_font_weight'] ?? old('auto_certificate_name_font_weight') }}"
@@ -147,7 +147,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text Top offset. e.g 300</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]"
                                             value="{{ $setting['auto_certificate_top_offset'] ?? old('auto_certificate_top_offset') }}"
@@ -156,7 +156,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text Left offset. e.g 100</label>
                                         <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]"
                                             value="{{ $setting['auto_certificate_left_offset'] ?? old('auto_certificate_left_offset') }}"
@@ -165,7 +165,7 @@
                                 </div>
 
                                 <div class="col-md-4" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Text color</label>
                                         <input type="color" class="form-control" name="auto_certificate_color[]"
                                             value="{{ $setting['auto_certificate_color'] ?? '#000000' }}">
@@ -173,7 +173,7 @@
                                 </div>
 
                                 <div class="col-md-2 mt-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label style="color:transparent">label</label>
                                         <button class="btn btn-danger remove-old-certificate" type="button"><i class="fa fa-minus"></i> Remove</button>
                                     </div>

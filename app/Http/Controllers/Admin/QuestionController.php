@@ -45,7 +45,7 @@ class QuestionController extends Controller
                 $error = $ex->getMessage();
                 return back()->with('error', $error);
             }
-            return redirect(route('questions.index'))->with('message', 'Data has been imported succesfully');
+            return back()->with('message', 'Data has been imported succesfully');
         }
         return abort(404);
     }
@@ -80,13 +80,18 @@ class QuestionController extends Controller
     {
         if(checkRoleHas(['Admin'])) {
             $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
+            $selectedModuleId = request('module_id');
+            $selectedModuleType = optional($modules->firstWhere('id', $selectedModuleId))->type;
 
-            return view('dashboard.admin.questions.create', compact('modules'));
+            return view('dashboard.admin.questions.create', compact('modules', 'selectedModuleId', 'selectedModuleType'));
         }
 
          if(checkRoleHas(['Facilitator','Grader'])) {
             $modules = Module::withCount('questions')->whereProgramId($p_id)->get();
-            return view('dashboard.admin.questions.create', compact('modules'));
+            $selectedModuleId = request('module_id');
+            $selectedModuleType = optional($modules->firstWhere('id', $selectedModuleId))->type;
+
+            return view('dashboard.admin.questions.create', compact('modules', 'selectedModuleId', 'selectedModuleType'));
         }
 
         return back();
@@ -94,58 +99,102 @@ class QuestionController extends Controller
 
     public function store(Request $request)
     {
-        $data = $this->validate($request, [
-            'module' => 'required|numeric',
-            'title' => 'required',
-            'optionA' => 'sometimes',
-            'optionB' => 'sometimes',
-            'optionC' => 'sometimes',
-            'optionD' => 'sometimes',
-            'correct' => 'sometimes',
-        ]);
+        $moduleId = $request->input('module');
+        $questionRows = $request->input('questions');
+        $legacyQuestion = $request->only(['module', 'title', 'optionA', 'optionB', 'optionC', 'optionD', 'correct']);
 
-
-        //get module
-        $module = Module::findorFail($data['module']);
-
-        //Check if options are needed or not for this question
-        if ($this->checkOptions($data, $module) == 0) {
-            return back()->with('error', 'No options needed for the associated module, please remove all options and try again');
+        if (is_array($questionRows)) {
+            $questionRows = collect($questionRows)->filter(function ($question) {
+                return !empty(data_get($question, 'title')) || !empty(data_get($question, 'module'));
+            })->values()->all();
+        } else {
+            $moduleId = $moduleId ?? data_get($legacyQuestion, 'module');
+            $questionRows = [$legacyQuestion];
         }
 
-        if ($this->checkOptions($data, $module) == 2) {
-            return back()->with('error', 'The associated module needs options, please enter all options and try again');
+        if (empty($questionRows)) {
+            return back()->with('error', 'Please add at least one question');
         }
 
-        //check if module already has maximum number of questions
-        if ($module->questions->count() >= $module->noofquestions) {
-            return back()->with('error', 'The associated module already has maximum number of questions');
-        }
-        $question = Question::create([
-            'title' => $request->title,
-            'optionA' => $request->optionA,
-            'optionB' => $request->optionB,
-            'optionC' => $request->optionC,
-            'optionD' => $request->optionD,
-            'correct' => $request->correct,
-            'module_id' => $request->module
-        ]);
+        $preparedQuestions = [];
+        $modulePlan = [];
+        $moduleCache = [];
 
-        return redirect(route('questions.show', $question->module->program_id))->with('message', 'Question succesfully added');
+        foreach ($questionRows as $index => $questionData) {
+            $title = trim((string) data_get($questionData, 'title', ''));
+            $optionA = data_get($questionData, 'optionA');
+            $optionB = data_get($questionData, 'optionB');
+            $optionC = data_get($questionData, 'optionC');
+            $optionD = data_get($questionData, 'optionD');
+            $correct = data_get($questionData, 'correct');
+
+            if (empty($moduleId) || empty($title)) {
+                return back()->with('error', 'Each question needs a module and a title');
+            }
+
+            $module = $moduleCache[$moduleId] ??= Module::findOrFail($moduleId);
+            $isCertification = $module->type === 'Certification Test';
+
+            if ($isCertification) {
+                $optionA = null;
+                $optionB = null;
+                $optionC = null;
+                $optionD = null;
+                $correct = null;
+            }
+
+            $payload = [
+                'module' => $module,
+                'data' => [
+                    'title' => $title,
+                    'optionA' => $optionA,
+                    'optionB' => $optionB,
+                    'optionC' => $optionC,
+                    'optionD' => $optionD,
+                    'correct' => $correct,
+                    'module_id' => $module->id,
+                ],
+            ];
+
+            $optionCheck = $this->checkOptions($payload['data'], $module);
+            if ($optionCheck == 0) {
+                return back()->with('error', 'No options needed for the associated module, please remove all options and try again');
+            }
+
+            if ($optionCheck == 2) {
+                return back()->with('error', 'The associated module needs options, please enter all options and try again');
+            }
+
+            $preparedQuestions[] = $payload;
+            $modulePlan[$module->id] = ($modulePlan[$module->id] ?? 0) + 1;
+        }
+
+        foreach ($modulePlan as $moduleId => $plannedCount) {
+            $module = Module::findOrFail($moduleId);
+            if ($module->questions()->count() + $plannedCount > $module->noofquestions) {
+                return back()->with('error', 'One of the selected modules already has maximum number of questions');
+            }
+        }
+
+        $createdQuestion = null;
+
+        foreach ($preparedQuestions as $questionData) {
+            $createdQuestion = Question::create($questionData['data']);
+        }
+
+        if (!$createdQuestion) {
+            return back()->with('error', 'Unable to add the questions right now');
+        }
+
+        return redirect(route('modules.edit', ['p_id' => $createdQuestion->module->program_id, 'module' => $createdQuestion->module_id]) . '#questions')
+            ->with('message', 'Questions successfully added');
     }
     public function show($p_id)
     {
 
         if (checkRoleHas(['Admin']) || checkRoleHas(['Facilitator','Grader'])) {
-            $i = 1;
-
-            $questions = Question::whereHas('module', function ($query) use ($p_id) {
-                $query->whereProgramId($p_id);
-            })->get();
-
-            $p_name = Program::whereId($p_id)->value('p_name');
-
-            return view('dashboard.admin.questions.show', compact('questions', 'i', 'p_name', 'p_id'));
+            return redirect(route('facilitatormodules', $p_id))
+                ->with('message', 'Questions are now managed from each module.');
         }
     }
 
@@ -158,7 +207,9 @@ class QuestionController extends Controller
 
     public function update(Request $request, Question $question)
     {
-            $data = $request->only(
+        $module = Module::findOrFail($request->input('module_id', $question->module_id));
+
+        $data = $request->only(
             [
                 'module_id',
                 'title',
@@ -169,9 +220,18 @@ class QuestionController extends Controller
                 'correct'
             ]);
 
+        if ($module->type === 'Certification Test') {
+            $data['optionA'] = null;
+            $data['optionB'] = null;
+            $data['optionC'] = null;
+            $data['optionD'] = null;
+            $data['correct'] = null;
+        }
+
         $question->update($data);
 
-        return redirect(route('questions.show', $question->module->program_id))->with('message', 'Question has been succesfully updated');
+        return redirect(route('modules.edit', ['p_id' => $question->module->program_id, 'module' => $question->module_id]) . '#questions')
+            ->with('message', 'Question has been succesfully updated');
     }
 
     public function destroy(Question $question)
@@ -195,14 +255,14 @@ class QuestionController extends Controller
     private function checkOptions($values, $module)
     {
         if ($module->type == 'Certification Test') {
-            if (!empty($values['optionA']) || !empty($values['optionB']) && !empty($values['optionC']) || !empty($values['optionD']) || !empty($values['correct'])) {
+            if (!empty($values['optionA']) || !empty($values['optionB']) || !empty($values['optionC']) || !empty($values['optionD']) || !empty($values['correct'])) {
                 return 0; //No options needed for the associated module
             } else {
                 return 1; //Everything is fine, continue
             }
         }
 
-        if ($module->type == 'Class Test' && (empty($values['optionA']) || empty($values['optionB']) && empty($values['optionC']) || empty($values['optionD']) || empty($values['correct']))) {
+        if ($module->type == 'Class Test' && (empty($values['optionA']) || empty($values['optionB']) || empty($values['optionC']) || empty($values['optionD']) || empty($values['correct']))) {
             return 2; //The associated module needs options
         } else {
             return 1; //Everything is fine, continue

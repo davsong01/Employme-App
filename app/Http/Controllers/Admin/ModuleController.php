@@ -10,7 +10,7 @@ use App\Models\Question;
 use App\Models\ScoreSetting;
 use App\Models\FacilitatorTraining;
 use Illuminate\Http\Request;
-use Illuminate\Support\facades\DB;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -172,10 +172,130 @@ class ModuleController extends Controller
        
         if(checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
             $program = Program::whereId($module->program_id)->first();
-            return view('dashboard.admin.modules.edit', compact('module', 'program'));
+            $questions = $module->questions()->latest()->get();
+            $questionImportProgramId = $module->program_id;
+            $selectedModuleId = $module->id;
+            $selectedModuleType = $module->type;
+
+            return view('dashboard.admin.modules.edit', compact(
+                'module',
+                'program',
+                'questions',
+                'questionImportProgramId',
+                'selectedModuleId',
+                'selectedModuleType'
+            ));
         }else{
             return back();
         }
+    }
+
+    public function syncQuestions(Request $request, Module $module)
+    {
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return back();
+        }
+
+        $validated = $this->validate($request, [
+            'title' => 'required|min:5',
+            'program_id' => 'required|numeric',
+            'status' => 'required|numeric',
+            'computation_status' => 'nullable|numeric',
+            'noofquestions' => 'required|numeric|min:1',
+            'time' => 'nullable|numeric|min:0',
+            'type' => 'required',
+            'allow_test_retake' => 'required|numeric',
+            'questions' => 'required|array',
+        ]);
+
+        $questionRows = collect($request->input('questions'))
+            ->filter(function ($question) {
+                return trim((string) data_get($question, 'title', '')) !== '';
+            })
+            ->values()
+            ->all();
+
+        if (empty($questionRows)) {
+            return back()->withInput()->with('error', 'Please add at least one question');
+        }
+
+        $questionLimit = (int) $validated['noofquestions'];
+        if (count($questionRows) > $questionLimit) {
+            return back()->withInput()->with('error', 'This module can only hold ' . $questionLimit . ' question(s)');
+        }
+
+        $isCertification = in_array((string) $validated['type'], ['1', 'Certification Test'], true);
+        $existingQuestions = $module->questions()->get()->keyBy('id');
+        $preparedRows = [];
+
+        foreach ($questionRows as $row) {
+            $title = trim((string) data_get($row, 'title', ''));
+            $questionId = data_get($row, 'id');
+            $optionA = data_get($row, 'optionA');
+            $optionB = data_get($row, 'optionB');
+            $optionC = data_get($row, 'optionC');
+            $optionD = data_get($row, 'optionD');
+            $correct = data_get($row, 'correct');
+
+            if ($isCertification) {
+                $optionA = null;
+                $optionB = null;
+                $optionC = null;
+                $optionD = null;
+                $correct = null;
+            } elseif (empty($optionA) || empty($optionB) || empty($optionC) || empty($optionD) || empty($correct)) {
+                return back()->withInput()->with('error', 'Each class test question needs all options and a correct answer');
+            }
+
+            if ($questionId && !$existingQuestions->has((int) $questionId)) {
+                return back()->withInput()->with('error', 'One of the questions could not be found. Please reload and try again');
+            }
+
+            $preparedRows[] = [
+                'id' => $questionId ? (int) $questionId : null,
+                'payload' => [
+                    'title' => $title,
+                    'optionA' => $optionA,
+                    'optionB' => $optionB,
+                    'optionC' => $optionC,
+                    'optionD' => $optionD,
+                    'correct' => $correct,
+                    'module_id' => $module->id,
+                ],
+            ];
+        }
+
+        DB::transaction(function () use ($module, $validated, $preparedRows, $existingQuestions) {
+            $module->update([
+                'title' => $validated['title'],
+                'program_id' => $validated['program_id'],
+                'status' => $validated['status'],
+                'computation_status' => $validated['computation_status'] ?? $module->computation_status,
+                'noofquestions' => $validated['noofquestions'],
+                'time' => $validated['time'] ?? 0,
+                'type' => $validated['type'],
+                'allow_test_retake' => $validated['allow_test_retake'],
+            ]);
+
+            $submittedIds = [];
+
+            foreach ($preparedRows as $preparedRow) {
+                if ($preparedRow['id']) {
+                    $question = $existingQuestions->get($preparedRow['id']);
+                    $question->update($preparedRow['payload']);
+                    $submittedIds[] = $question->id;
+                    continue;
+                }
+
+                $question = Question::create($preparedRow['payload']);
+                $submittedIds[] = $question->id;
+            }
+
+            $module->questions()->whereNotIn('id', $submittedIds)->delete();
+        });
+
+        return redirect(route('modules.edit', ['p_id' => $module->program_id, 'module' => $module->id]) . '#questions')
+            ->with('message', 'Module and questions updated successfully');
     }
 
     public function update(Request $request, Module $module)

@@ -15,7 +15,7 @@
                         {{ method_field('PATCH') }}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
@@ -26,7 +26,7 @@
                                     @endif
                                 </div>
                                
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone') ?? ($user->phone ?? $user->phone) }}" autofocus>
@@ -37,7 +37,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
                                     </span>
@@ -52,7 +52,7 @@
                                 
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" disabled>
@@ -62,7 +62,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                {{-- <div class="form-group">
+                                {{-- <div class="mb-3">
                                     <label for="training">Current Training</label>
                                     <input id="training" type="text" class="form-control" name="training"
                                         value="{{ $user->programs->p_name }}" autofocus disabled>
@@ -72,7 +72,7 @@
                                     </span>
                                     @endif
                                 </div> --}}
-                                {{-- <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
+                                {{-- <div class="mb-3{{ $errors->has('location') ? ' is-invalid' : '' }}">
                                     <label for="location">Location</label>
                                     <input id="location" type="text" class="form-control" name="location"
                                         value="{{ old('location') ?? $user->t_location }}" autofocus disabled>
@@ -82,7 +82,7 @@
                                     </span>
                                     @endif
                                 </div> --}}
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Gender</label>
                                     <select name="gender" id="class" class="form-control" required>
                                         <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
@@ -91,7 +91,7 @@
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Profile Picture</label>
                                     <input type="file" name="image" value="" class="form-control">
                                 </div>

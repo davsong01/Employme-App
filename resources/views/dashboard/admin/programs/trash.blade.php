@@ -7,8 +7,7 @@
         <div class="card-body">
             @if(session()->get('message'))
             <div class="alert alert-success" role="alert">
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-                        aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 <strong>Success!</strong> {{ session()->get('message')}}
             </div>
             @endif
@@ -49,11 +48,11 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete Training"> <i class="fas fa-trash-restore"></i>
                                         </button>
                                     </form>
-                                        <a href="{{ route('programs.restore', $program->id) }}" type="submit" class="btn btn-success btn-sm" data-toggle="tooltip"
+                                        <a href="{{ route('programs.restore', $program->id) }}" type="submit" class="btn btn-success btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Restore Training"> <i class="fas fa-trash-restore"></i>
                                     </a>
                                 </div>

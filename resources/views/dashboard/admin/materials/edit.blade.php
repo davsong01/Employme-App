@@ -14,7 +14,7 @@
                         <form action="{{ route('material.clone', $material ) }}" method="POST" class="pb-2">
                             {{ csrf_field() }}
                             <!--Gives the first error for input name-->
-                            <div class="form-group">
+                            <div class="mb-3">
 
                                 <label for="class">Select Training *</label>
 

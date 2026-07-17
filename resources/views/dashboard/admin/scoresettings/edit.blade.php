@@ -23,14 +23,14 @@
                             <input type="hidden" name="program" value="{{ old('program') ?? $scoreSetting->program->id }}" placeholder="{{$scoreSetting->program->id }}" class=" form-control"
                                 min="0" max="100" required readonly>
                             
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Set Maximum score for Class Tests<span style="color:green">(Max score =
                                     100)</span></label>
                             <input type="number" name="classtests" value="{{ old('classtests') ?? $scoreSetting->class_test }}" class=" form-control"
                                 min="0" max="100">
                             <div><small style="color:red">{{ $errors->first('classtests')}}</small></div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Set Maximum score for Role Play<span style="color:green">(Max score =
                                     100)</span></label>
                             <input type="number" name="roleplayscore" value="{{ old('roleplayscore') ?? $scoreSetting->role_play}}"
@@ -38,28 +38,28 @@
                         </div>
                         <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
                         
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Set Maximum score for Email<span style="color:green">(Max score = 100)</span></label>
                         <input type="number" name="emailscore" value="{{ old('emailscore') ?? $scoreSetting->email }}" class="form-control"
                             min="0" max="100">
                     </div>
                     <div><small style="color:red">{{ $errors->first('emailscore')}}</small></div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Set Maximum score for Certification<span style="color:green">(Max score =
                                 100)</span></label>
                         <input type="number" value="{{ old('certificationscore') ?? $scoreSetting->certification }}" name="certificationscore" class="form-control" min="0" max="100">
                     </div>
                     <div><small style="color:red">{{ $errors->first('certificationscore')}}</small></div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Set Maximum score for CRM<span style="color:green">(Max score =
                                 100)</span></label>
                         <input type="number" value="{{ old('crm_test') ?? $scoreSetting->crm_test }}" name="crm_test" class="form-control" min="0" max="100">
                     </div>
                     <div><small style="color:red">{{ $errors->first('crm_test')}}</small></div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Set Pass Mark <span style="color:green">(Max score = 100)</span></label>
                         <input type="number" name="passmark" value="{{ old('passmark') ?? $scoreSetting->passmark }}" class="form-control" min="0"
                             max="100" required>

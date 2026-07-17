@@ -13,7 +13,7 @@
                     <form action="{{route('teachers.store')}}" method="POST" enctype="multipart/form-data" class="pb-2">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Role*</label>
                                     <select name="role[]" id="role" class="select2 role form-control" multiple="multiple" >
                                         <option value="" disabled>Assign Role</option>
@@ -23,7 +23,7 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                     <label for="license">WAACSP license</label> <br>
                                     <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
                                     <span id="verify-button"><span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span></span>
@@ -31,13 +31,13 @@
                                         <strong id="result"></strong>
                                     </span>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="waacsp_url" style="margin-top: 15px;">WAACSP url</label> <br>
                                     <input id="waacsp_url" type="text"  class="form-control" name="waacsp_url" value="{{ old('waacsp_url') }}" autofocus >
                                     
                                 </div>
                               
-                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
                                     <label for="payment_mode">Payment Mode</label>
                                     <select name="payment_mode" id="payment_mode " class="form-control" required>
                                         @foreach($payment_modes as $mode)
@@ -45,7 +45,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" autofocus >
                                     @if ($errors->has('name'))
@@ -54,7 +54,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
                                     <label for="status">Status</label>
                                     <select name="status" id="type" class="form-control" required>
                                         <option value="active" selected>Active</option> 
@@ -65,13 +65,13 @@
                                 
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Upload Profile Picture</label>
                                     <img style="display:none; width: 80px;border-radius: 50%;height: 80px;padding: 10px;" id="profile_picture" src="" alt="">
                                     <input type="file" name="file" value="{{ old('avatar') }}" class="form-control">
                                 </div>
                                 <input type="hidden" id="picture" name="picture" value="">
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}">
                                     @if ($errors->has('email'))
@@ -81,11 +81,11 @@
                                     @endif
                                 </div>
 
-                                <div style="margin-top: 5px;" class="form-group">
+                                <div style="margin-top: 5px;" class="mb-3">
                                     <label for="email">Phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') }}">
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Available off season?</label>
                                     <select name="off_season_availability" id="class" class="form-control">
                                         <option value="" {{ old('off_season_availability') == '' ? 'selected' : ''}}>No</option>
@@ -93,7 +93,7 @@
                                     </select>
                                 </div>
                                 
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong>
                                     </span>
@@ -110,7 +110,7 @@
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <div class="form-group">
+                                <div class="mb-3">
                                         <label class="training">Select Training(s)</label>
                                         <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
                                         @foreach($programs as $program)
@@ -146,7 +146,7 @@
                         </div> --}}
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group{{ $errors->has('profile') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('profile') ? ' is-invalid' : '' }}">
                                     
                                     <label for="profile" style="color:red">Profile overview</label>
                                     <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') }}" rows="8" autofocus>{{ old('profile')  }}</textarea>

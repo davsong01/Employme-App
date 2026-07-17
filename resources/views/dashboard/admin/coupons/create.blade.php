@@ -19,7 +19,7 @@
 
                         <div class="row">
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="training_type">Select Type *</label>
                                     <select name="training_type" id="training_type" class="form-control" required>
                                         <option value="">-- Select Type --</option>
@@ -33,7 +33,7 @@
 
                             {{-- Program select --}}
                             <div class="col-md-12 {{ old('training_type', $coupon->program_id ?? null ? 'program' : '') === 'program' ? '' : 'd-none' }}" id="program_select_wrapper">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="program_id">Select Training *</label>
                                     <select name="program_ids[]" id="program_id" class="select2 form-control" multiple="multiple" style="height: 30px; width: 100%;">
                                         <option value="all" {{ in_array('all', old('program_ids', [])) ? 'selected' : '' }}>All</option>
@@ -49,7 +49,7 @@
 
                             {{-- Group select --}}
                             <div class="col-md-12 {{ old('training_type', $coupon->group_id ?? null ? 'group' : '') === 'group' ? '' : 'd-none' }}" id="group_select_wrapper">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="group_id">Select Package *</label>
                                     <select name="group_ids[]" id="group_id" class="select2 form-control" multiple="multiple" style="height: 30px; width: 100%;">
                                         <option value="all" {{ in_array('all', old('group_ids', [])) ? 'selected' : '' }}>All</option>
@@ -65,14 +65,14 @@
 
                             {{-- Coupon details --}}
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="code">Coupon Code</label>
                                     <input id="code" type="text" class="form-control" name="code"
                                            value="{{ old('code', $coupon->code ?? '') }}" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="type">Select Coupon Type *</label>
                                     <select name="type" id="type" class="form-control" required>
                                         <option value="">-- Select Type --</option>
@@ -82,7 +82,7 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="amount">Coupon Amount</label>
                                     <input id="amount" type="number" class="form-control" name="amount"
                                            value="{{ old('amount', $coupon->amount ?? '') }}" required>

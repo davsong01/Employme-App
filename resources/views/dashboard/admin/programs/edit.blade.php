@@ -74,32 +74,32 @@
                             <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Core Settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Training Title *</label>
                                         <input type="text" name="p_name" value="{{ old('p_name') ?? $program->p_name}}" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Training Hashtag *</label>
                                         <input type="text" name="p_abbr" value="{{ old('p_abbr') ?? $program->p_abbr }}" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Start Date *</label>
                                         <input type="date" name="p_start" value="{{ old('p_start') ?? $program->p_start }}" class="form-control"
                                             required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>End Date *</label>
                                         <input type="date" name="p_end" value="{{ old('p_end') ??  $program->p_end }}" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Off Season Program?</label>
                                         <select name="off_season" class="form-control" id="off_season" required>
                                             <option value="1" {{ $program->off_season == 1 ? 'selected' : '' }}>Yes</option>
@@ -108,7 +108,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Closed Group Training?</label>
                                         <select name="is_closed" class="form-control" id="is_closed" required>
                                             <option value="yes" {{ $program->is_closed == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -117,7 +117,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Show Catalogue Popup</label>
                                         <select name="show_catalogue_popup" class="form-control" id="show_catalogue_popup" required>
                                             <option value="yes" {{ $program->show_catalogue_popup == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -126,7 +126,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>{{ !empty($program->image) ? 'Replace Program Banner' : 'Upload Program Banner' }}</label> <br>
                                         @if(!empty($program->image))
                                             <img src="{{ url('/').'/'.$program->image }}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
@@ -135,7 +135,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Flexible timing?</label>
                                         <select name="allow_preferred_timing" class="form-control" id="allow_preferred_timing" required>
                                             <option value="no" {{ $program->allow_preferred_timing == 'no' ? 'selected' : '' }}>No</option>
@@ -144,7 +144,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         @if($program->booking_form)
                                         <label>Replace Booking form</label>
                                         <i data-bs-toggle="tooltip" title="{{$program->booking_form }}" class="fa fa-paperclip" style="width: 70px;padding-bottom: 10px;"></i>
@@ -156,7 +156,7 @@
                                     <div><small style="color:red">{{ $errors->first('booking_form')}}</small></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Does Program have pre class tests?</label>
                                         <select name="hasmock" class="form-control" id="hasmock" required>
                                             <option value="1" {{ $program->hasmock == 1 ? 'selected' : '' }}>Yes</option>
@@ -167,7 +167,7 @@
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Status</label>
                                         <select name="status" class="form-control" id="status" required>
                                             <option value="1" {{ $program->status == 1 ? 'selected' : '' }}>Published</option>
@@ -177,7 +177,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Program Status <small>(Participants will not be able to access program)</small></label>
                                         <select name="program_lock" class="form-control" id="program_lock" required>
                                             <option value="1" {{ $program->program_lock == 1 ? 'selected' : '' }}>Locked</option>
@@ -187,7 +187,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label style="color:red">Login Without Password</label>
                                         <select name="login_without_password" class="form-control" id="login_without_password" required>
                                             <option value="1" {{ $program->login_without_password == 1 ? 'selected' : '' }}>Yes</option>
@@ -204,14 +204,14 @@
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Payment settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Training Fee *</label>
                                         <input type="number" name="p_amount" value="{{ old('p_amount') ??  $program->p_amount}}" min="0"
                                             class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment?</label>
                                         <select name="haspartpayment" class="form-control" id="hasmock" required>
                                             <option value="1" {{ $program->haspartpayment == 1 ? 'selected' : '' }}>Yes</option>
@@ -221,14 +221,14 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Early Bird Fee *</label>
                                         <input type="number" name="e_amount" value="{{ old('e_amount') ??  $program->e_amount}}" min="0"
                                             class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Early Bird Status</label>
                                         <select name="early_bird_status" class="form-control" id="early_bird_status" required>
                                             <option value="1" {{ $program->early_bird_status == 1 ? 'selected' : '' }}>Active</option>
@@ -237,7 +237,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Flexible payment?</label>
                                         <select name="allow_flexible_payment" class="form-control" id="allow_flexible_payment" required>
                                             <option value="no" {{ $program->allow_flexible_payment == 'no' ? 'selected' : '' }}>No</option>
@@ -247,7 +247,7 @@
                                 </div>
 
                                 <div class="col-md-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label for="currencies">Currencies to Display *</label>
                                         <div class="d-flex flex-wrap gap-3">
                                             @foreach($currencies as $currency)
@@ -330,7 +330,7 @@
                                         <?php $counter = $mode_counter++ ?>
                                         <div class="row" id="oldmode-{{ $counter }}">
                                             <div class="col-md-5">
-                                                <div class="form-group">
+                                                <div class="mb-3">
                                                     <label for="mode_name">Mode Name</label>
                                                 
                                                     <input type="select" class="form-control" value="{{ $key }}"
@@ -338,13 +338,13 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-5">
-                                                <div class="form-group">
+                                                <div class="mb-3">
                                                     <label for="mode_amount">Mode Amount</label>
                                                     <input type="text" class="form-control" id="unit" value="{{ $value }}"name="mode_amount[]" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-2">
-                                                <div class="form-group">
+                                                <div class="mb-3">
                                                     <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                                                     <button class="btn btn-danger removeold-mode" id="removeold-mode-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                                 </div>
@@ -358,7 +358,7 @@
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Payment Restriction Settings</legend>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for materials?</label>
                                         <select name="allow_payment_restrictions_for_materials" class="form-control" id="allow_payment_restrictions_for_materials" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_materials == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -367,7 +367,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for Pre class tests?</label>
                                         <select name="allow_payment_restrictions_for_pre_class_tests" class="form-control" id="allow_payment_restrictions_for_pre_class_tests" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_pre_class_tests == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -376,7 +376,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for Post class tests?</label>
                                         <select name="allow_payment_restrictions_for_post_class_tests" class="form-control" id="allow_payment_restrictions_for_post_class_tests" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_post_class_tests == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -385,7 +385,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for Completed Tests?</label>
                                         <select name="allow_payment_restrictions_for_completed_tests" class="form-control" id="allow_payment_restrictions_for_completed_tests" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_completed_tests == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -394,7 +394,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for Results?</label>
                                         <select name="allow_payment_restrictions_for_results" class="form-control" id="allow_payment_restrictions_for_results" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_results == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -403,7 +403,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Enable Part Payment Restrictions for Certificates?</label>
                                         <select name="allow_payment_restrictions_for_certificates" class="form-control" id="allow_payment_restrictions_for_certificates" required>
                                             <option value="yes" {{ $program->allow_payment_restrictions_for_certificates == 'yes' ? 'selected' : '' }}>Yes</option>
@@ -417,7 +417,7 @@
                             <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Certificate settings</legend>
                             <div class="row">
                                 <div class="col-md-12" style="margin-bottom:5px">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Only Certified Should See Certificate</label>
                                         <select name="only_certified_should_see_certificate" class="form-control" id="only_certified_should_see_certificate" required>
                                             <option value="">Select...</option>
@@ -436,7 +436,7 @@
 
                             <div class="row">
                                 <div class="col-md-12 mb-2">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>AI Status</label>
                                         <select name="ai_settings[status]" class="form-control" id="ai_status" required>
                                             <option value="0" {{ ($program->ai_settings['status'] ?? null) == '0' ? 'selected' : '' }}>No</option>
@@ -446,7 +446,7 @@
                                 </div>
 
                                 <div class="col-md-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>AI Page Use Cases:</label>
                                         <select name="ai_settings[use_cases][]" class="select2 form-control" multiple>
                                             @foreach(['materials'] as $case)
@@ -487,20 +487,20 @@
                                     <input type="hidden" name="sub_program_id[]" value="{{ $sub->id }}">
                                     <div class="row p-2" id="oldsub-{{ $counter }}">
                                         <div class="col-md-5">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="sub_name" style="padding-top:10px">Sub Program Name</label>
                                                 <input type="text" class="form-control" value="{{ $sub->p_name }}"
                                                     name="sub_name[]" required>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="sub_amount" style="padding-top:10px">Sub Program Amount</label>
                                                 <input type="text" class="form-control" id="amount" value="{{ $sub->p_amount }}" name="sub_amount[]" required>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="mode_name" style="padding-top:10px">Status</label>
                                                 <select name="sub_status[]" class="form-control" id="sub_status" required>
                                                     <option value="1" {{  $sub->status == 1 ? 'selected' : '' }}>Published</option>
@@ -509,7 +509,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <label for="mark" style="color:antiquewhite; padding-top:10px">sdsdsddsdssd</label>
                                                 <button class="btn btn-danger removeold-sub" data-program-id="{{ $sub->id }}" id="removeold-sub-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                                 <a target="_blank" class="btn btn-info" id="" type="button" style="min-width: unset;" href="{{route('programs.edit', $sub->id)}}"> <i class="fa fa-edit"></i></a>
@@ -548,21 +548,21 @@
                                 <?php $counter = $location_counter++ ?>
                                 <div class="row" id="oldcourse-{{ $counter }}">
                                     <div class="col-md-5">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="location_name">Location Name</label>
                                             <input type="text" class="form-control" value="{{ $key }}"
                                                 name="location_name[]" required>
                                         </div>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="location_address">Location Address</label>
                                             <input type="text" class="form-control" id="unit" value="{{ $value }}"name="location_address[]" required>
                                         </div>
                                     </div>
                                     
                                     <div class="col-md-2">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                                             <button class="btn btn-danger remove-old-course" id="oldcourse-{{ $counter }}" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                                         </div>
@@ -617,7 +617,7 @@
             var newRow = `
                 <div class="row added-row" style="border-top: black solid 1px;margin-bottom: 6px;padding-top: 15px;" id="certificate-` + id + `">
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text Type</label>
                             <select name="text_type[]" class="form-control" id="text_type" required>
                                 <option value="">Select...</option>
@@ -632,7 +632,7 @@
                     </div>
                     
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Font Type Face</label>
                             <select name="text_type_face[]" class="form-control" id="text_type_face">
                                 @foreach(certificateFontType() as $key=>$value)
@@ -643,31 +643,31 @@
                     </div>
 
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text font size, e.g 150</label>
                             <input type="number" min="0" class="form-control" name="auto_certificate_name_font_size[]">
                         </div>
                     </div>
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text font weight e.g 300</label>
                             <input type="number" min="0" class="form-control" name="auto_certificate_name_font_weight[]">
                         </div>
                     </div>
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text Top offset. e.g 300</label>
                             <input type="number" min="0" class="form-control" name="auto_certificate_top_offset[]">
                         </div>
                     </div>
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text Left offset. e.g 100</label>
                             <input type="number" min="0" class="form-control" name="auto_certificate_left_offset[]">
                         </div>
                     </div>
                     <div class="col-md-4" style="margin-bottom:5px">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Text color</label>
                             <input type="color" class="form-control" name="auto_certificate_color[]">
                         </div>
@@ -799,21 +799,21 @@
         var id = lastId[1] + 1;
         var child = `<div class="row" id="course-`+id+`">
                 <div class="col-md-5">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="location_name">Location Name</label>
                         <input type="text" class="form-control" value="{{ old('location_name') }}"
                             name="location_name[]" required>
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="location_address">Location Address</label>
                         <input type="text" class="form-control" id="unit" value="{{ old('location_address')}}"name="location_address[]" required>
                     </div>
                 </div>
                 
                 <div class="col-md-2">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                         <button class="btn btn-danger remove-course" id="remove-course-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                     </div>
@@ -873,7 +873,7 @@
 
         var child = `<div class="row" id="mode-`+id+`">
                 <div class="col-md-5">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="mode_name">Mode Name</label>
                         <select name="mode_name[]" class="form-control" id="mode_name" required>
                             <option value="" selected>Select mode</option>
@@ -883,14 +883,14 @@
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="location_address">Mode Amount</label>
                         <input type="text" class="form-control" id="unit" value="{{ old('mode_amount')}}"name="mode_amount[]" required>
                     </div>
                 </div>
                 
                 <div class="col-md-2">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="mark" style="color:antiquewhite">sdsdsddsdssd</label>
                         <button class="btn btn-danger remove-mode" id="remove-mode-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                     </div>
@@ -915,19 +915,19 @@
         
         var child = `<div class="row" id="sub-`+id+`">
                 <div class="col-md-5">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="sub_name" style="padding-top:10px">Sub Program Name</label>
                         <input type="text" class="form-control" id="sub_name" value="{{ old('sub_name')}}"name="sub_name[]" required>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="sub_amount" style="padding-top:10px" >Sub Program Amount</label>
                         <input type="text" class="form-control" id="sub_amount" value="{{ old('sub_amount')}}"name="sub_amount[]" required>
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="mode_name" style="padding-top:10px">Status</label>
                         <select name="sub_status[]" class="form-control" id="sub_status" required>
                             <option value="1" selected>Published</option>
@@ -937,7 +937,7 @@
                 </div>
                 
                 <div class="col-md-2">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="mark" style="color:antiquewhite;padding-top:10px">sdsdsddsdssd</label>
                         <button class="btn btn-danger remove-sub" id="remove-sub-`+id+`" type="button" style="min-width: unset;"> <i class="fa fa-minus"></i> Remove</button>
                     </div>

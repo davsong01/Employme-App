@@ -47,7 +47,7 @@
                 <div class="box bg-dark text-center">
                     <h1 class="font-light text-white"><img src="/money-bag.png" alt="" style="width: 38px;"></h1>
                     <h6 class="text-white">Account Balance</h6>
-                    <p class="text-white">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
+                    <p class="text-white">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($account_balance) }} &nbsp;&nbsp; <a class="btn btn-success" style="color:white" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa fa-plus"></i> &nbsp;Top Up Now</a></p>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Top Up account balance</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -132,7 +132,7 @@
                                 <form action="{{route('account.topup', 'manual')}}" method="POST" class="pb-2" enctype="multipart/form-data">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <div class="form-group{{ $errors->has('amount') ? ' has-error' : '' }}">
+                                            <div class="mb-3">
                                                 <label for="amount">Amount</label>
                                                 <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                                 @if ($errors->has('amount'))
@@ -143,7 +143,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <div class="form-group{{ $errors->has('pop') ? ' has-error' : '' }}">
+                                            <div class="mb-3">
                                                 <label for="pop">Proof of payment (Images, < 2mb)</label>
                                                 <input id="pop" type="file" class="form-control" pop="pop" name="pop" accept="image/*" value="{{ old('pop')}}" autofocus required>
                                                 @if ($errors->has('pop'))
@@ -175,7 +175,7 @@
                             <form action="{{route('account.topup', 'virtual')}}" method="POST">
                                 @csrf
                                 <div class="col-md-12">
-                                    <div class="form-group{{ $errors->has('amount') ? ' has-error' : '' }}">
+                                    <div class="mb-3">
                                         <label for="amount">Amount</label>
                                         <input id="amount" type="number" class="form-control" amount="amount" min="1" name="amount" value="{{ old('amount')}}" autofocus required>
                                         @if ($errors->has('amount'))
@@ -193,10 +193,10 @@
                                                  
                                 @foreach($payment_modes as $mode)
                                 @if($mode->type == 'card')
-                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                <button class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-credit-card"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                 @endif
                                 @if($mode->type == 'crypto')
-                                <button class="mr-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
+                                <button class="me-1 mb-1 pay-option" name="payment_mode" value="{{  $mode->id }}"><i class="fa fa-bitcoin"></i> Pay with <span style="background-image:url({{ url('/').'/paymentmodes/'.$mode->image }});background-position: center;background-repeat: no-repeat;background-size: cover;color:transparent;">image</span></button>
                                 @endif
                                 @endforeach
                             </form>
@@ -208,7 +208,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
             </div>
         </div>

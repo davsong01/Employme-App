@@ -55,7 +55,7 @@
                             </td>
                             
                             <td>
-                                <a data-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                <a data-bs-toggle="tooltip" data-placement="top" title="Print E-receipt"
                                         class="btn btn-warning btn-sm" href="{{ route('participants.payments.print', $details->id) }}"><i
                                             class="fa fa-print"></i>
                                 </a>
@@ -67,9 +67,7 @@
                                 <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $details->transid }}</h5>
-                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     @foreach($details->paymentthreads as $thread)

@@ -130,31 +130,31 @@
         border: 1px solid #dbe3ec;
     }
 
-    .programs-dashboard .program-pills .badge.badge-warning {
+    .programs-dashboard .program-pills .badge.bg-warning {
         background: #fff3cd;
         color: #856404;
         border-color: #ffe69c;
     }
 
-    .programs-dashboard .program-pills .badge.badge-info {
+    .programs-dashboard .program-pills .badge.bg-info {
         background: #e0f2fe;
         color: #075985;
         border-color: #bae6fd;
     }
 
-    .programs-dashboard .program-pills .badge.badge-success {
+    .programs-dashboard .program-pills .badge.bg-success {
         background: #dcfce7;
         color: #166534;
         border-color: #bbf7d0;
     }
 
-    .programs-dashboard .program-pills .badge.badge-primary {
+    .programs-dashboard .program-pills .badge.bg-primary {
         background: #dbeafe;
         color: #1d4ed8;
         border-color: #bfdbfe;
     }
 
-    .programs-dashboard .program-pills .badge.badge-secondary {
+    .programs-dashboard .program-pills .badge.bg-secondary {
         background: #e2e8f0;
         color: #334155;
         border-color: #cbd5e1;
@@ -359,18 +359,18 @@
                                 <div class="program-copy mt-1">
                                     @if($program->parent)
                                         <div class="mb-1">
-                                            <span class="text-muted font-weight-bold">Parent:</span>
+                                            <span class="text-muted fw-bold">Parent:</span>
                                             <a target="_blank" href="{{ route('programs.edit', $program->parent->id) }}">{{ $program->parent->p_name }}</a>
                                         </div>
                                     @endif
 
                                     <div class="program-pills mt-2">
-                                        <span class="badge badge-secondary">Type: {{ $program->off_season ? 'Off Season' : 'Normal' }}</span>
+                                        <span class="badge bg-secondary">Type: {{ $program->off_season ? 'Off Season' : 'Normal' }}</span>
                                         @if($program->early_bird_status == 1)
-                                            <span class="badge badge-warning">Discounted</span>
+                                            <span class="badge bg-warning">Discounted</span>
                                         @endif
                                         @if(!empty($program->auto_certificate_settings['auto_certificate_status']) && $program->auto_certificate_settings['auto_certificate_status'] === 'yes')
-                                            <span class="badge badge-info">Auto Certificate</span>
+                                            <span class="badge bg-info">Auto Certificate</span>
                                         @endif
                                     </div>
 
@@ -425,9 +425,9 @@
                             </td>
                             <td class="align-top">
                                 @if($program->status == 1)
-                                    <span class="badge badge-success">Published</span>
+                                    <span class="badge bg-success">Published</span>
                                 @else
-                                    <span class="badge badge-secondary">Draft</span>
+                                    <span class="badge bg-secondary">Draft</span>
                                 @endif
                             </td>
                             <td class="align-top">

@@ -18,19 +18,17 @@
                     </a>
     
                     <!-- Modal -->
-                    <div class="modal fade" id="dateIssuedModal" tabindex="-1" aria-labelledby="dateIssuedModalLabel" tabindex="-1" aria-hidden="true">
+                    <div class="modal fade" id="dateIssuedModal" tabindex="-1" aria-labelledby="dateIssuedModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="dateIssuedModalLabel">Enter Date Issued</h5>
-                                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <form onsubmit="return confirm('Are you sure?')" action="{{ route('admin.create.certificate.request') }}" method="POST">
                                     @csrf
                                     <div class="modal-body">
-                                        <div class="form-group mb-3">
+                                        <div class="mb-3">
                                             <label for="program_id">Select User</label>
                                             <select name="user_id" id="user_id" class="form-control select2" required>
                                                 <option value="">-- Select User --</option>
@@ -40,7 +38,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="form-group mb-3">
+                                        <div class="mb-3">
                                             <label for="program_id">Select Program</label>
                                             <select name="program_id" id="program_id" class="form-control select2" required>
                                                 <option value="">-- Select Program --</option>
@@ -50,7 +48,7 @@
                                             </select>
                                         </div>
                                     
-                                        <div class="form-group mb-3">
+                                        <div class="mb-3">
                                             <label for="date_issued">Date Issued (Optional)</label>
                                             <input type="date" class="form-control" name="date_issued">
                                         </div>
@@ -94,7 +92,7 @@
                             <td>
                                 {{-- download certificate --}}
                                 @if($request->status == 'approved')
-                                <a data-toggle="tooltip" data-placement="top" title="Download certificate"
+                                <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
                                 class="btn btn-primary btn-sm" href="/download-certificate/{{ $request->certificate->file }}"><i
                                     class="fa fa-download"> Download Certificate</i></a>
                                 @endif

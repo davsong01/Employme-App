@@ -40,31 +40,31 @@
                             <legend class="w-auto">Personal Information</legend>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
                                         <label for="name">Name</label>
                                         <input id="name" type="text" class="form-control" name="name" value="{{ old('name', $user->name) }}" autofocus>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
                                         <label for="email">Email Address</label>
                                         <input id="email" type="email" class="form-control" name="email" value="{{ old('email', $user->email) }}" autofocus>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
                                         <label for="phone">Phone</label>
                                         <input id="phone" type="text" class="form-control" name="phone" value="{{ old('phone', $user->phone) }}" autofocus>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('job_title') ? ' is-invalid' : '' }}">
                                         <label for="job_title">Job Title</label>
                                         <input id="job_title" type="text" class="form-control" name="job_title" value="{{ old('phone', $user->job_title) }}" autofocus>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
                                         <label for="status">Status</label>
                                         <select name="status" id="status" class="form-control" required>
                                             <option value="">Select...</option> 
@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('status') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
                                         <label for="gender">Gender</label>
                                         <select name="gender" id="gender" class="form-control" required>
                                             <option value="">Select...</option> 
@@ -84,7 +84,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                         <label for="password">New Password</label>
                                         <input id="password" type="text" class="form-control" name="password" value="{{ old('phone') }}" autofocus>
                                     </div>
@@ -112,7 +112,7 @@
                                                 </div>
                                                 
                                                 @if (!empty($menu['children']))
-                                                    <div class="ml-4">
+                                                    <div class="ms-4">
                                                         @foreach($menu['children'] as $child)
                                                             <div class="form-check">
                                                                 <input class="form-check-input child-checkbox-{{ $menu['id'] }}" type="checkbox" name="permissions[]" value="{{ $child['id'] }}" id="menu-{{ $child['id'] }}" 

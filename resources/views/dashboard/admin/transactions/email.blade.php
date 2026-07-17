@@ -28,7 +28,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div
-                            class="form-group{{ $errors->has('program') ? ' has-error' : '' }}">
+                            class="mb-3{{ $errors->has('program') ? ' is-invalid' : '' }}">
                             <label>Choose Program</label>
                             <select name="program" id="program" class="form-control custom-select-value" required>
                                 <option value="">Choose option</option>
@@ -42,7 +42,7 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="form-group{{ $errors->has('subject') ? ' has-error' : '' }}">
+                        <div class="mb-3{{ $errors->has('subject') ? ' is-invalid' : '' }}">
 
                             <label for="subject">Subject</label>
 
@@ -57,7 +57,7 @@
                             @endif
 
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Type Email Content (<strong style="color:red">Dear {Participant's name} is automatically added at the top of this mail</strong>)</label>
 
                             <textarea class="form-control" id="summary-ckeditor" name="content"></textarea>
@@ -107,7 +107,7 @@
                                     <td>{{ $email->noofemails }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <a data-toggle="tooltip" data-placement="top" title="Edit email" class="btn btn-info"
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Edit email" class="btn btn-info"
                                                 href="{{ route('updateemails.show', $email->id) }}"><i
                                                     class="fa fa-eye"></i>
                                             </a>
@@ -120,7 +120,7 @@
                                             {{ csrf_field() }}
                                             {{ method_field('DELETE') }} --}}
             
-                                            {{-- <button type="submit" class="btn btn-warning" data-toggle="tooltip"
+                                            {{-- <button type="submit" class="btn btn-warning" data-bs-toggle="tooltip"
                                                 data-placement="top" title="Trash Training"> <i class="fa fa-trash"></i>
                                             </button> --}}
                                             {{-- </form> --}}
