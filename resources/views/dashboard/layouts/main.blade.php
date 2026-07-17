@@ -262,51 +262,13 @@
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
             if (window.bootstrap && window.bootstrap.Tooltip) {
-                document.querySelectorAll('[data-toggle="tooltip"]').forEach(function (element) {
-                    if (! element.getAttribute('data-bs-toggle')) {
-                        element.setAttribute('data-bs-toggle', 'tooltip');
-                    }
-
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
                     if (! element.__bsTooltip) {
                         element.__bsTooltip = new window.bootstrap.Tooltip(element);
                     }
                 });
             }
 
-            document.querySelectorAll('[data-toggle="modal"]').forEach(function (element) {
-                if (! element.getAttribute('data-bs-toggle')) {
-                    element.setAttribute('data-bs-toggle', 'modal');
-                }
-
-                if (! element.getAttribute('data-bs-target') && element.getAttribute('data-target')) {
-                    element.setAttribute('data-bs-target', element.getAttribute('data-target'));
-                }
-            });
-
-            document.querySelectorAll('[data-toggle="collapse"]').forEach(function (element) {
-                if (! element.getAttribute('data-bs-toggle')) {
-                    element.setAttribute('data-bs-toggle', 'collapse');
-                }
-
-                if (! element.getAttribute('data-bs-target')) {
-                    const href = element.getAttribute('href');
-                    if (href && href.startsWith('#')) {
-                        element.setAttribute('data-bs-target', href);
-                    }
-                }
-            });
-
-            document.querySelectorAll('[data-toggle="dropdown"]').forEach(function (element) {
-                if (! element.getAttribute('data-bs-toggle')) {
-                    element.setAttribute('data-bs-toggle', 'dropdown');
-                }
-            });
-
-            document.querySelectorAll('[data-dismiss]').forEach(function (element) {
-                if (! element.getAttribute('data-bs-dismiss')) {
-                    element.setAttribute('data-bs-dismiss', element.getAttribute('data-dismiss'));
-                }
-            });
         });
     </script>
 
