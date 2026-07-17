@@ -21,7 +21,7 @@
                 method="POST" class="pb-2">
                 {{ csrf_field() }}
                 @foreach($questions as $question)
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="name">{{ $i ++ .'. ' }}{!! $question->title !!}
 
                         </label><br>

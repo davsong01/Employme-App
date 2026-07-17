@@ -55,93 +55,41 @@
         padding: 10px;
         border-bottom: 1px solid black;
     }
-
-    body {
-        background-color: #78909C;
-    }
-
-    .demo {
-        padding-top: 60px;
-        padding-bottom: 110px;
-    }
-
-    .btn-demo {
-        margin: 15px;
-        padding: 10px 15px;
-        border-radius: 0;
-        font-size: 16px;
-        background-color: #FFFFFF;
-    }
-
-    .btn-demo:focus {
-        outline: 0;
-    }
-
-    .demo-footer {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        padding: 15px;
-        background-color: #212121;
-        text-align: center;
-    }
-
-    .demo-footer > a {
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 16px;
-        color: #fff;
-    }
    
-    .badge {
+    .result-count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 88px;
+        padding: .65rem 1rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, .2);
+    }
+
+    .search-form {
+        background-color: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .search-form .form-control,
+    .search-form .select2-selection--single {
+        border-radius: 12px;
+    }
+
+    .result-filter-chip {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 45px;
-        height: 45px;
-        background-color: #4CAF50;
-        border-radius: 50%;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .transaction-count {
-        text-align: center;
-    }
-    .search-form {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .form-control {
-        border-radius: 20px;
-    }
-
-    .rounded {
-        border-radius: 20px !important;
-    }
-    .btn-search {
-        border-radius: 20px;
-        transition: background-color 0.3s;
-    }
-    .btn-search:hover {
-        background-color: #0056b3;
-    }
-
-    .btn.active {
-        background-color: #0056b3;
-        color: white;
-        border: 4px solid black;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05); 
-        transition: all 0.3s;
-    }
-
-    .btn:not(.active):hover {
-        transform: scale(1.05); 
+        border-radius: 12px;
+        font-weight: 700;
+        padding: .65rem 1rem;
+        border: 1px solid #dbe4ee;
     }
 
     .button-container .btn {
@@ -168,63 +116,62 @@
 @section('title', 'All Results')
 @section('content')
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div lass="card-title">
-                @include('layouts.partials.alerts')
-                <div class="card-header">
-                    <div>
-                        <h5 class="card-title"> 
-                            {!! $title !!}
-                        </h5>
-                        <br>
-                        <div class="card-body">
-                            @php
-                                $currentStatus = request('status');
-                            @endphp
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}">
-                                <button class="btn btn-dark rounded {{ is_null($currentStatus) ? 'active' : '' }}">All</button>
-                            </a>
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}">
-                                <button class="btn btn-success rounded {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</button>
-                            </a>
-                            <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}">
-                                <button class="btn btn-danger rounded {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</button>
-                            </a>
-
-                            <a class="btn btn-info rounded" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal"><i class="fa fa-download"></i> Export {{ $page == 'results' ? 'Post' : 'Pre'}} Test Results</a>
-                            <div class="badge float-right">
-                                <span class="transaction-count">{{ $records }}</span> <!-- Number of transactions -->
-                            </div>
+    @php
+        $currentStatus = request('status');
+    @endphp
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Admin Desk</span>
+                            <h1 class="h3 fw-bold mb-2">{!! $title !!}</h1>
+                            <p class="text-muted mb-0">Review result records, open score modals, and export test data from a cleaner dashboard shell.</p>
                         </div>
-                        <div class="mt-4">
-                            <form class="search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
-                                <input type="hidden" name="status" value="{{ request('status') }}">
-                                <div class="row">
-                                    <div class="col-12 col-md-6 mb-2">
-                                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
-                                    </div>
-                                    <div class="col-12 col-md-6 mb-2">
-                                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
-                                    </div>
-                                    <div class="col-12 col-md-6 mb-2">
-                                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
-                                    </div>
-                                    <div class="col-12 col-md-6 mb-2">
-                                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
-                                    </div>
-                                    <div class="col-12 text-center">
-                                        <button type="submit" class="btn btn-primary btn-search">Search</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-
+                        <div class="result-count-badge">{{ $records }}</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}" class="btn btn-outline-dark {{ is_null($currentStatus) ? 'active' : '' }}">All</a>
+                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
+                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
+                        <a class="btn btn-primary" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal"><i class="fa fa-download me-1"></i>Export {{ $page == 'results' ? 'Post' : 'Pre' }} Test Results</a>
                     </div>
                 </div>
             </div>
-            <div class="table-responsive mt-4">
-                <table class="table table-striped table-bordered">
+            @include('layouts.partials.alerts')
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form class="search-form" method="GET" action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id]) }}">
+                <input type="hidden" name="status" value="{{ request('status') }}">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
+                    </div>
+                    <div class="col-12 d-grid d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-4">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -261,7 +208,7 @@
                                         @if($user->result_id)
                                             <div class="btn-group">
                                                 @if($permissions['mocks.add'])
-                                                    <a data-toggle="tooltip" data-placement="top" title="Update user scores"
+                                                    <a data-bs-toggle="tooltip" data-placement="top" title="Update user scores"
                                                     class="btn btn-info" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
                                                         <i class="fa fa-eye"></i>
                                                     </a>]
@@ -273,7 +220,7 @@
                                                         {{ csrf_field() }}
                                                         {{method_field('DELETE')}}
                                                         <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                                        <button type="submit" class="btn btn-danger btn-xsm" data-bs-toggle="tooltip"
                                                                 data-placement="top" title="Delete Result"> 
                                                             <i class="fa fa-trash"></i>
                                                         </button>
@@ -291,7 +238,7 @@
                                             <div class="button-container">
                                                 @if (!empty($user->training_result))
                                                     @if($permissions['results.add'])
-                                                        <a data-toggle="tooltip" data-placement="top" title="Update Test Scores:"
+                                                        <a data-bs-toggle="tooltip" data-placement="top" title="Update Test Scores:"
                                                             class="btn btn-info btn-sm open-result-modal" 
                                                             data-id="{{ $user->id }}" data-uid="{{ $user->user_id }}" data-pid="{{$user->program_id}}", data-p_id = {{ $user->program_id }}
                                                             href="javascript:void(0)">
@@ -350,7 +297,7 @@
 
                                     <div class="button-container">
                                         @if($menuPermissions['impersonate'])
-                                            <a target="_blank" data-toggle="tooltip" data-placement="top" title="Impersonate User"
+                                            <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                             class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}">
                                                 <i class="fa fa-unlock"> Peek</i>
                                             </a>
@@ -558,7 +505,7 @@
                     <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id, 'id'=>$program->id])}}" method="POST" class="pb-2">
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="columns">User Columns to Export</label>
                                     <select name="columns[]" id="columns" class="form-control select2 w-100" multiple="multiple" required>
                                         <option value="all" selected>All</option>

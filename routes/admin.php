@@ -197,7 +197,7 @@ Route::middleware(['admin.access'])->group(function () {
         // Questions Routes
         Route::controller(QuestionController::class)->group(function () {
             Route::get('questions/all/{p_id}', 'add')->middleware(['programCheck'])->name('questions.add');
-            Route::get('questionsimport-export/{p_id}', 'importExport')->middleware(['programCheck'])->name('questions.import');
+            Route::get('questionsimport-export/{p_id}', 'importExport')->middleware(['programCheck'])->name('questions.import.form');
             Route::post('import', 'import')->middleware(['programCheck']);
             Route::post('importquestions', 'import')->middleware(['programCheck'])->name('questions.import');
 
@@ -216,6 +216,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::get('facilitatormodules/{p_id}', 'all')->name('facilitatormodules');
             Route::get('enablemodule/{id}', 'enablemodule')->name('modules.enable');
             Route::get('disablemodule/{id}', 'disablemodule')->name('modules.disable');
+            Route::post('modules/{module}/questions', 'syncQuestions')->name('modules.questions.sync');
         });
     
         Route::resource('questions', QuestionController::class);

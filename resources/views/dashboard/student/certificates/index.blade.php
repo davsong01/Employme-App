@@ -97,7 +97,7 @@
                                 Certificate Status: <strong>{{ $certificate->show_certificate() }}</strong>
                                 @if($certificate->certificate_number)
                                 <br>Certificate No: <strong>{{ $certificate->certificate_number }}</strong> <br>
-                                <div class="form-group mb-3">
+                                <div class="mb-3">
                                     <button id="copy-btn{{$certificate->id}}" class="btn btn-primary">
                                         <i class="fa fa-copy"></i> Copy Certificate Verification Link
                                     </button>
@@ -122,7 +122,7 @@
                                 @endif
                             </td>
                             <td>
-                                <a data-toggle="tooltip" data-placement="top" title="Download certificate"
+                                <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
                                 class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
                                     class="fa fa-download"> Download Certificate</i></a>
                             </td>

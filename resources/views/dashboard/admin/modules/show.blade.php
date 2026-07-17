@@ -40,7 +40,7 @@
         </div>
         <!-- Column -->
         <div class="col-md-4 col-lg-4">
-        <a href="{{ route('questions.show', $p_id)}}">
+        <a href="{{ route('modules.edit', ['p_id' => $p_id, 'module' => $modules->first()?->id])}}">
             <div class="card card-hover">
                 <div class="box bg-success text-center">
                     <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>

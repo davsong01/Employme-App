@@ -1242,13 +1242,6 @@ class Controller extends BaseController
                 'parentId' => 14
             ],
             [
-                'id' => 16,
-                'name' => 'Questions',
-                'route' => 'questions.index',
-                'type' => 'menu',
-                'parentId' => 14
-            ],
-            [
                 'id' => 17,
                 'name' => 'Pre Test results',
                 'route' => 'pretest.select',
@@ -1664,49 +1657,6 @@ class Controller extends BaseController
                 'route' => 'modules.destroy',
                 'order' => 18,
                 'category_id' => 2
-            ],
-            [
-                'id' => 20,
-                'name' => 'Add Questions',
-                'route' => 'questions.store',
-                'order' => 20,
-                'category_id' => 3
-            ],
-
-            [
-                'id' => 22,
-                'name' => 'Import Questions',
-                'route' => 'questions.import',
-                'order' => 22,
-                'category_id' => 3
-            ],
-            [
-                'id' => 23,
-                'name' => 'Edit Questions',
-                'route' => 'questions.edit',
-                'order' => 23,
-                'category_id' => 3
-            ],
-            [
-                'id' => 23,
-                'name' => 'Update Questions',
-                'route' => 'questions.update',
-                'order' => 23,
-                'category_id' => 3
-            ],
-            [
-                'id' => 24,
-                'name' => 'Delete Questions',
-                'route' => 'questions.destroy',
-                'order' => 24,
-                'category_id' => 3
-            ],
-            [
-                'id' => 25,
-                'name' => 'View Questions',
-                'route' => 'single.program.questions.index',
-                'order' => 25,
-                'category_id' => 3
             ],
             [
                 'id' => 80,

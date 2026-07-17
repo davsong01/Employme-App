@@ -3,73 +3,85 @@
     {{ config('app.name') .' Test Management' }}
 @endsection
 @section('content')
+@php
+    $totalPrograms = method_exists($programs_with_modules, 'total') ? $programs_with_modules->total() : $programs_with_modules->count();
+@endphp
 
 <div class="container-fluid">
-    <div class="row">
-        <!-- Column -->
+    <div class="row g-4 mb-4">
         <div class="col-md-3 col-lg-3">
-        <a href="{{ route('modules.index')}}">
-            <div class="card card-hover">
-                <div class="box bg-info text-center">
-                    <h1 class="font-light text-white"><i class=" fa fa-list-alt"></i></h1>
-                    <h6 class="text-white"><b></b> {{$modules->count()}} Module(s)</h6>
-                </div>
-            </div>
-        </a>
-        </div>
-        <!-- Column -->
-        <div class="col-md-3 col-lg-3">
-        <a href="{{ route('questions.index')}}">
-            <div class="card card-hover">
-                <div class="box bg-success text-center">
-                    <h1 class="font-light text-white"><i class="fa fa-check"></i></h1>
-                <h6 class="text-white"><b></b> {{ $questions_count }} Questions</h6>
-                </div>
-            </div>
-        </a>
-        </div>
-        <div class="col-md-3 col-lg-3">
-            <a href="{{ route('results.index')}}">
-                <div class="card card-hover">
-                    <div class="box bg-warning text-center">
-                        <h1 class="font-light text-white"><i class="fas fa-user-graduate"></i></h1>
-                    <h6 class="text-white"><b></b> Grades </h6>
+            <a href="{{ route('modules.index') }}">
+                <div class="card border-0 shadow-sm crm-hero h-100">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2"><i class="fa fa-list-alt"></i></div>
+                        <div class="fw-semibold">{{ $modules->count() }} Module(s)</div>
                     </div>
                 </div>
             </a>
-            </div>
-        @if(resolveAuthUser()->roles == "Admin")
+        </div>
         <div class="col-md-3 col-lg-3">
-        <a href="{{ route('scoreSettings.index')}}">
-            <div class="card card-hover">
-                <div class="box bg-success text-center">
-                    <h1 class="font-light text-white"><i class="fa fa-cog"></i></h1>
-                <h6 class="text-white"><b></b> Score Settings </h6>
+            <div class="card border-0 shadow-sm crm-hero h-100">
+                <div class="card-body text-center">
+                    <div class="h1 mb-2"><i class="fa fa-check"></i></div>
+                    <div class="fw-semibold">{{ $questions_count }} Questions</div>
+                    <div class="small text-muted">Manage them from each module</div>
                 </div>
             </div>
-        </a>
         </div>
+        <div class="col-md-3 col-lg-3">
+            <a href="{{ route('results.index') }}">
+                <div class="card border-0 shadow-sm crm-hero h-100">
+                    <div class="card-body text-center">
+                        <div class="h1 mb-2"><i class="fas fa-user-graduate"></i></div>
+                        <div class="fw-semibold">Grades</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        @if(resolveAuthUser()->roles == "Admin")
+            <div class="col-md-3 col-lg-3">
+                <a href="{{ route('scoreSettings.index') }}">
+                    <div class="card border-0 shadow-sm crm-hero h-100">
+                        <div class="card-body text-center">
+                            <div class="h1 mb-2"><i class="fa fa-cog"></i></div>
+                            <div class="fw-semibold">Score Settings</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
         @endif
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="card-title">
-                @include('layouts.partials.alerts')
-             </div>
-            <div class="card-header">
-                <div>
-                    <h5 class="card-title"> Select a Training to manage its modules </h5> 
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Admin Desk</span>
+                            <h1 class="h3 fw-bold mb-2">Select a Training to manage its modules</h1>
+                            <p class="text-muted mb-0">Pick a training below to view its modules and question counts.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ $totalPrograms }} trainings</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="">
-                <table id="zero_config" class="">
+            @include('layouts.partials.alerts')
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="zero_config" class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Training</th>
-                            <th>Modules</th> 
-                            <th>Questions</th>                           
+                            <th>Modules</th>
+                            <th>Questions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,20 +91,20 @@
                                 $permissions = checkTrainingHasPermissions($programs->id, $permissionsToCheck);
                             ?>
                             <tr>
-                                <td>{{  $i++ }}</td>
-                                <td>
+                                <td data-label="#">
+                                    {{ $i++ }}
+                                </td>
+                                <td data-label="Training">
                                     @if($permissions['modules.index'])
-                                        <a data-bs-toggle="tooltip" data-placement="top" title="Click to view modules for this training" class="btn btn-info" href="{{ route( 'facilitatormodules', ['p_id'=>$programs->id] ) }}">
-                                        {{ $programs->p_name }}
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Click to view modules for this training" class="btn btn-outline-primary btn-sm" href="{{ route('facilitatormodules', ['p_id'=>$programs->id]) }}">
+                                            {{ $programs->p_name }}
                                         </a>
                                     @else
-                                        <a data-bs-toggle="tooltip" style="color:white" data-placement="top" class="btn btn-info">
-                                        {{ $programs->p_name }}
-                                        </a>
+                                        <span class="btn btn-outline-secondary btn-sm">{{ $programs->p_name }}</span>
                                     @endif
                                 </td>
-                                <td>{{ $programs->modules->count() }}</td>
-                                <td>{{ $programs->questions->count() }}</td>
+                                <td data-label="Modules">{{ $programs->modules->count() }}</td>
+                                <td data-label="Questions">{{ $programs->questions->count() }}</td>
                             </tr>
                         @endforeach
                     </tbody>

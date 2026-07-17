@@ -73,7 +73,7 @@
                     <div class="m-t-20">
                         <div class="d-flex no-block align-items-center">
                             <span>{{ $trainingProgress }}%</span>
-                            <div class="ml-auto">
+                            <div class="ms-auto">
                                 <span>100</span>
                             </div>
                         </div>

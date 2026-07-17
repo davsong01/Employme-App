@@ -23,12 +23,12 @@
                 {{ csrf_field() }}
 
                 @foreach($questions as $question)
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="title">{{ $i ++ .'. ' }}{!! $question->title !!}</label><br>
 
                     <label for="{{ $question->id}}">Your answer <strong style="color:green">( Maximum words: 500 )</strong></label><br>
                     {{-- Word Count : <span style="font-weight: 1000;" id="{{ $question->id}}">0</span> --}}
-                    <div class="form-group">
+                    <div class="mb-3">
                     <textarea id="text{{ $question->id}}" class="answer" style="max-width: 100%;" name="{{ $question->id}}" id="{{ $question->id}}" rows="20" cols="100"
                         placeholder="Enter your answer for question {{ $i - 1 }} here" required></textarea>
                     </div>

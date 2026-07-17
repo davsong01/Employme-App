@@ -2,125 +2,34 @@
 @section('title', 'Grouped Trainings')
 @section('css')
 <style>
-    .table {
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    .group-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, .06);
     }
 
-    tbody tr:hover {
-        background-color: #f1f1f1;
+    .group-table thead th {
+        background: #f8fafc;
+        text-transform: uppercase;
+        font-size: .75rem;
+        letter-spacing: .06em;
+        color: #475569;
     }
 
-    .table-image {
+    .group-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .group-banner {
         width: 85px;
-        border-radius: 5px;
+        border-radius: 8px;
         object-fit: cover;
     }
-    .btn {
-        border-radius: 5px;
-        margin: 2px 0;
-    }
 
-    .actions-group {
+    .group-actions {
         display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .export-link {
-        color: brown;
-        font-weight: bold;
-    }
-
-    .export-link:hover {
-        text-decoration: underline;
-        color: darkred;
-    }
-
-    .dropdown {
-        position: relative;
-        display: block;
-    }
-    .dropdown-button {
-        background-color: #17a2b8;
-        color: white;
-        padding: 4px 4px;
-        font-size: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .dropdown-button:hover {
-        background-color: #138496; /* Slightly darker shade for hover */
-    }
-    /* Dropdown content (hidden by default) */
-    .dropdown-content {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
-    }
-
-    /* Links inside the dropdown */
-    .dropdown-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-    }
-
-    .dropdown-content a:hover {
-        background-color: #f1f1f1;
-    }
-
-    .dropdown:hover .dropdown-content {
-        display: block;
-    }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        padding-top: 100px;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgb(0, 0, 0);
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    /* Modal Content */
-    .modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        border-radius: 50%;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .modal-backdrop {
-        position: relative;
+        flex-wrap: wrap;
+        gap: .4rem;
     }
 
     .flashing-red {
@@ -140,22 +49,30 @@
 @section('content')
 
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div class="card-title">
-                @include('layouts.partials.alerts')
-            </div>
-            <div class="card-header">
-                <div>
-                    <h5 class="card-title"> All Groups 
-                        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addGroupModal">
-                            <i class="fa fa-plus"></i> Add Group
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero group-card">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Admin Desk</span>
+                            <h1 class="h3 fw-bold mb-2">Grouped Trainings</h1>
+                            <p class="text-muted mb-0">Bundle trainings into packages, manage child programs, and update pricing from one screen.</p>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGroupModal">
+                            <i class="fa fa-plus me-1"></i> Add Group
                         </button>
-                    </h5> 
-                </div> 
+                    </div>
+                    @include('layouts.partials.alerts')
+                </div>
             </div>
-            <div class="">
-                <table id="zero_config" class="table table-striped table-bordered">
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm group-card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="zero_config" class="table table-hover align-middle crm-table crm-mobile-stack mb-0 group-table">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -174,9 +91,9 @@
                             <tr>
                                 <td>{{ paginationIndex($groups, $loop) }}</td>
                 
-                                <td>
+                                <td data-label="Banner">
                                     @if ($group->image)
-                                        <img src="{{ asset($group->image) }}" alt="banner" style="width:85px;">
+                                        <img src="{{ asset($group->image) }}" alt="banner" class="group-banner">
                                     @endif
                                 </td>
                 
@@ -249,22 +166,23 @@
                                     @endif
                                 </td>
                 
-                                <td style="vertical-align: top;">
-                                    <a data-toggle="tooltip" data-placement="top" title="Import Participants"
-                                            class="btn btn-dark btn-xs" style="background:#183153" href="{{ route('group.import', ['p_id'=> $group->id, 'program'=> $group->id, 'source'=>'group'])}}"><i class="fa fa-upload"></i> Bulk Import
+                                <td data-label="Actions" style="vertical-align: top;">
+                                    <div class="group-actions">
+                                        <a data-bs-toggle="tooltip" data-placement="top" title="Import Participants"
+                                            class="btn btn-dark btn-sm" style="background:#183153" href="{{ route('group.import', ['p_id'=> $group->id, 'program'=> $group->id, 'source'=>'group'])}}"><i class="fa fa-upload me-1"></i> Bulk Import
                                         </a>
-                                    <button class="btn btn-info btn-xs" title="Edit Group" 
+                                        <button class="btn btn-info btn-sm" title="Edit Group"
                                         data-bs-toggle="modal" 
                                         data-bs-target="#editGroupModal{{ $group->id }}">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </button>
-                
-                                    <form class="d-inline" action="{{ route('groupedprogram.destroy', $group->id) }}" method="POST" onsubmit="return confirm('Delete this group?');">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-danger btn-xs" title="Trash Group">
-                                            <i class="fa fa-delete"></i> Delete
+                                            <i class="fa fa-edit me-1"></i> Edit
                                         </button>
-                                    </form>
+                                        <form class="d-inline" action="{{ route('groupedprogram.destroy', $group->id) }}" method="POST" onsubmit="return confirm('Delete this group?');">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-danger btn-sm" title="Trash Group">
+                                                <i class="fa fa-trash me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             
@@ -342,7 +260,7 @@
                             </div>
                         </div>
                         {{-- CHILD PROGRAMS --}}
-                        <div class="form-group mb-3">
+                        <div class="mb-3">
                             {{-- {{dd($allActivePrograms->pluck('id')->toArray())}} --}}
                             <label>Child Programs *</label>
                             <select name="programs[]" class="form-control select2" multiple required>
@@ -517,7 +435,7 @@
                     </div>
 
                     {{-- MEMBERS (child programs) --------------------------------------- --}}
-                    <div class="form-group mb-3">
+                    <div class="mb-3">
                         <label for="child_programs">Child Programs *</label>
                         <select name="programs[]" id="child_programs"
                                 class="form-control select2" multiple required>

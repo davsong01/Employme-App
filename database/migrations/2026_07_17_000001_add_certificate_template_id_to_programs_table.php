@@ -8,18 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('programs', function (Blueprint $table) {
-            $table->unsignedBigInteger('certificate_template_id')
-                ->nullable()
-                ->index()
-                ->after('auto_certificate_settings');
-        });
+        if (! Schema::hasColumn('programs', 'certificate_template_id')) {
+            Schema::table('programs', function (Blueprint $table) {
+                $table->unsignedBigInteger('certificate_template_id')
+                    ->nullable()
+                    ->index()
+                    ->after('auto_certificate_settings');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('programs', function (Blueprint $table) {
-            $table->dropColumn('certificate_template_id');
-        });
+        if (Schema::hasColumn('programs', 'certificate_template_id')) {
+            Schema::table('programs', function (Blueprint $table) {
+                $table->dropColumn('certificate_template_id');
+            });
+        }
     }
 };

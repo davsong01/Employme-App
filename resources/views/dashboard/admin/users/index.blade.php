@@ -1,274 +1,199 @@
 @extends('dashboard.admin.index')
 @section('css')
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <style>
-    .select2-container--default .select2-selection--multiple {
-        width: 100% !important; /* Force full width */
+    .participant-filter-card .form-control,
+    .participant-filter-card .form-select {
+        border-radius: 0.85rem;
     }
-
-    .select2-container {
-        width: 100% !important; /* Force full width */
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        color: black; /* Text color for selected items */
-    }
-
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-        color: black; /* Text color for the rendered selections */
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: black; /* Text color for the single selected item */
-    }
-
-    .select2-container--default .select2-selection--single .select2-selection__placeholder {
-        color: black; /* Text color for the placeholder */
-    }
-
-    .select2-container--default .select2-results__option {
-        color: black; /* Text color for the dropdown options */
-    }
-    
-
-    .bs4-badge-circle {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 45px;
-        height: 45px;
-        background-color: #4CAF50;
-        border-radius: 50%;
-        color: white;
-        font-size: 10px;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .transaction-count {
-        text-align: center;
-    }
-    .search-form {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .form-control {
-        border-radius: 20px;
-    }
-
-    .rounded {
-        border-radius: 20px !important;
-    }
-    .btn-search {
-        border-radius: 20px;
-        transition: background-color 0.3s;
-    }
-    .btn-search:hover {
-        background-color: #0056b3;
-    }
-
-    .btn.active {
-        background-color: #0056b3;
-        color: white;
-        border: 4px solid black;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        transform: scale(1.05); 
-        transition: all 0.3s;
-    }
-
-    .btn:not(.active):hover {
-        transform: scale(1.05); 
-    }
-
-    .button-container .btn {
-        border-radius: 8px;
-        font-weight: 500;
-        text-align: center;
-        transition: all 0.3s ease; 
-    }
-
-    .button-container .btn:hover {
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .button-container .btn:disabled {
-        opacity: 0.6;
-    }
-
-    .button-container .fa-unlock {
-        margin-right: 0.25rem; 
-    }
-
-
-    
-
 </style>
 @endsection
 @section('title', 'All Participants')
 @section('content')
-
+@php
+    $currentStatus = request('status');
+@endphp
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <div lass="card-title">
-                @include('layouts.partials.alerts')
-                <div class="card-header">
-                    <div>
-                        <h5 class="card-title">All Participants</h5>
-                        </h5>
-                        <br>
-                        <div class="card-body">
-                            @php
-                                $currentStatus = request('status');
-                            @endphp
-                            @if(canUserAccessPermission(['users.create'])['users.create'])
-                                {{-- <a href="{{route('users.create')}}"><button type="button" class="btn btn-outline-primary rounded">Add New Participant</button></a> --}}
-                            @endif
-                            {{-- <button class="btn btn-success rounded" id="csv">Export Participants</button> --}}
-                            
-                            <div class="bs4-badge-circle float-right">
-                                <span class="transaction-count">{{ $records }}</span>
-                            </div>
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Admin Desk</span>
+                            <h1 class="h3 fw-bold mb-2">All Participants</h1>
+                            <p class="text-muted mb-0">Search participants, review their trainings, and manage access from one page.</p>
                         </div>
-                        
-                        <div class="mt-4">
-                            <form class="row" method="GET" action="{{ route('users.index') }}">
-                                <input type="hidden" name="status" value="{{ request('status') }}">
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-group">
-                                        <select name="program_id" id="" class="form-control">
-                                            <option value="">Select Training</option>
-                                            @foreach($allPrograms as $training)
-                                            <option value="{{ $training->id }}">{{ $training->p_name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-group">
-                                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 mb-2">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-2">
-                                    <div class="form-group">
-                                        <select name="is_blacklisted" id="" class="form-control">
-                                            <option value="">Is Blacklisted?</option>
-                                            <option value="1">Yes</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-1 mb-2">
-                                    <button type="submit" class="btn btn-primary btn-search w-100">Search</button>
-                                </div>
-                            </form>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ $records }} records</span>
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ $allPrograms->count() }} trainings</span>
                         </div>
-
                     </div>
                 </div>
             </div>
+            @include('layouts.partials.alerts')
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm participant-filter-card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('users.index') }}">
+                <input type="hidden" name="status" value="{{ $currentStatus }}">
+                <div class="row g-3">
+                    <div class="col-md-4 col-lg-3">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="program_id">Training</label>
+                        <select name="program_id" id="program_id" class="form-select select2">
+                            <option value="">All trainings</option>
+                            @foreach($allPrograms as $training)
+                                <option value="{{ $training->id }}" {{ request('program_id') == $training->id ? 'selected' : '' }}>{{ $training->p_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="staffID">Staff ID</label>
+                        <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Staff ID" value="{{ request('staffID') }}">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="name">Name</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Participant name" value="{{ request('name') }}">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="email">Email</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Email address" value="{{ request('email') }}">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="phone">Phone</label>
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Phone number" value="{{ request('phone') }}">
+                    </div>
+                    <div class="col-md-4 col-lg-1">
+                        <label class="form-label small text-uppercase fw-semibold text-muted" for="is_blacklisted">Blacklisted</label>
+                        <select name="is_blacklisted" id="is_blacklisted" class="form-select">
+                            <option value="">Any</option>
+                            <option value="1" {{ request('is_blacklisted') == '1' ? 'selected' : '' }}>Yes</option>
+                        </select>
+                    </div>
+                    <div class="col-12 d-grid d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-4">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-bordered">
+                <table class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th>Details</th>
                             <th>Last Login</th>
                             <th>Trainings</th>
-                            <th>Manage</th>
+                            <th class="text-end">Manage</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $user)
-                        <tr>
-                            
-                            <td>{{ $i++ }}</td>
-                            <td> <strong>Name:</strong> {{ $user->name }} <br>
-                                <strong>Email: </strong>{{$user->email}} <br>
-                                <strong>Staff ID: </strong>{{$user->staffID}} <br>
-                                <strong>Phone: </strong>{{ $user->phone}} <br>
-                                <strong>Account Balance:</strong> {{number_format($user->account_balance)}} <br>
-                                <strong>Date Added:</strong> {{ $user->created_at->format('d/m/Y') }} <br>
-                                <strong>Trainings count: </strong>{{ $user->programs()->count() }}
-                            </td>
-                            {{-- <td> <img src="{{ asset('/avatars/'.$user->profile_picture) }}" alt="avatar" style="width: 80px;border-radius: 50%; height: 80px;"> </td>  --}}
-
-                            <b style="display:none">{{ $count = 1 }}</b>
-                            <td style="color:green">
-                                @if (App\Services\BlacklistService::check($user))
-                                <button class="btn btn-danger btn-sm">Blacklisted</button> <br>
-                                @endif 
-                                {{ $user->last_login ? date("M jS, Y H:i", strtotime($user->last_login)) : '' }}
-                            </td>
-                            <td>
-                                @foreach($user->programs as $programs)
-                                    @if (in_array($programs->id, $allPrograms->pluck('id')->toArray()))
-                                        <small style="color:green">{{ $count ++ }}.
-                                        {{ $programs->p_name }} <br></small>
-                                        <hr style="margin-top: 2px; margin-bottom: 2px; border-top: 1px solid rgb(34, 85, 164);">
+                            @php $count = 1; @endphp
+                            <tr>
+                                <td data-label="#">
+                                    {{ $i++ }}
+                                </td>
+                                <td data-label="Details">
+                                    <div class="fw-semibold">{{ $user->name }}</div>
+                                    <div class="text-muted small">Email: {{ $user->email }}</div>
+                                    <div class="text-muted small">Staff ID: {{ $user->staffID }}</div>
+                                    <div class="text-muted small">Phone: {{ $user->phone }}</div>
+                                    <div class="text-muted small">Balance: {{ number_format($user->account_balance) }}</div>
+                                    <div class="text-muted small">Joined: {{ optional($user->created_at)->format('d M Y') }}</div>
+                                </td>
+                                <td data-label="Last Login">
+                                    @if (App\Services\BlacklistService::check($user))
+                                        <div class="mb-2"><span class="badge bg-danger">Blacklisted</span></div>
                                     @endif
-                                @endforeach
-                            </td> 
-        
-                            <td>
-                                <div class="btn-group">
-                                    @if(canUserAccessPermission(['users.edit'])['users.edit'])
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="Edit User"
-                                        class="btn btn-info btn-sm" href="{{ route('users.edit', $user->id) }}"><i
-                                            class="fa fa-edit"></i>
-                                    </a>
-                                    @endif
-                                    @if(canUserAccessPermission(['impersonate'])['impersonate'])
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                        class="btn btn-warning btn-sm" href="{{ route('impersonate', $user->id) }}"><i
-                                            class="fa fa-unlock"></i>
-                                    </a>
-                                    @endif
-
-                                    @if(canUserAccessPermission(['users.destroy'])['users.destroy'])
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                        onsubmit="return confirm('Are you really sure?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
-                                            data-placement="top" title="Delete user"> <i class="fa fa-trash"></i>
+                                    <span class="text-muted">{{ $user->last_login ? date('M jS, Y H:i', strtotime($user->last_login)) : 'Never' }}</span>
+                                </td>
+                                <td data-label="Trainings">
+                                    @forelse($user->programs as $program)
+                                        @if (in_array($program->id, $allPrograms->pluck('id')->toArray()))
+                                            <div class="mb-1">
+                                                <span class="badge bg-light text-dark rounded-pill">{{ $count++ }}. {{ $program->p_name }}</span>
+                                            </div>
+                                        @endif
+                                    @empty
+                                        <span class="text-muted">No trainings</span>
+                                    @endforelse
+                                </td>
+                                <td class="text-end" data-label="Manage">
+                                    <div class="d-none d-md-inline-flex justify-content-end gap-1">
+                                        @if(canUserAccessPermission(['users.edit'])['users.edit'])
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Edit User" class="btn btn-outline-primary btn-sm" href="{{ route('users.edit', $user->id) }}">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                        @endif
+                                        @if(canUserAccessPermission(['impersonate'])['impersonate'])
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User" class="btn btn-outline-warning btn-sm" href="{{ route('impersonate', $user->id) }}">
+                                                <i class="fa fa-unlock"></i>
+                                            </a>
+                                        @endif
+                                        @if(canUserAccessPermission(['users.destroy'])['users.destroy'])
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');" class="m-0">
+                                                {{ csrf_field() }}
+                                                {{ method_field('DELETE') }}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" data-placement="top" title="Delete user">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                    <div class="dropdown d-inline-flex d-md-none">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            More
                                         </button>
-                                    </form>
-                                    @endif
-                                </div>
-
-                            </td>
-                            @endforeach
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            @if(canUserAccessPermission(['users.edit'])['users.edit'])
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
+                                                        <i class="fa fa-edit me-2"></i>Edit User
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if(canUserAccessPermission(['impersonate'])['impersonate'])
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('impersonate', $user->id) }}">
+                                                        <i class="fa fa-unlock me-2"></i>Impersonate
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if(canUserAccessPermission(['users.destroy'])['users.destroy'])
+                                                <li>
+                                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');" class="m-0">
+                                                        {{ csrf_field() }}
+                                                        {{ method_field('DELETE') }}
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="fa fa-trash me-2"></i>Delete User
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-            {{ $users->links() }}
+            <div class="mt-3">
+                {{ $users->links() }}
+            </div>
         </div>
     </div>
 </div>
+@endsection
+@section('extra-scripts')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.select2').select2({
             width: '100%',
             allowClear: true

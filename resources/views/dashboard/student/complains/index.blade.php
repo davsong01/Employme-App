@@ -73,7 +73,7 @@
     </div>
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white border-0 pb-0">
+        <div class="px-4 pt-4 pb-0">
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
                 <div>
                     <h2 class="h5 mb-1">Your cases</h2>

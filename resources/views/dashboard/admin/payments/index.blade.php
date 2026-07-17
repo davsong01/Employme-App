@@ -13,6 +13,45 @@
 @extends('dashboard.admin.index')
 @section('css')
     <style>  
+    .transaction-count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 88px;
+        padding: .65rem 1rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0f766e, #115e59);
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: 0 8px 24px rgba(15, 118, 110, .2);
+    }
+
+    .search-form {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+
+    .search-form .form-control,
+    .search-form .select2-selection--single {
+        border-radius: 12px;
+    }
+
+    .result-card {
+        border-radius: 16px;
+    }
+
+    .result-card .card-header {
+        background: #fff;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .transaction-count {
+        text-align: center;
+    }
+
     .bs4-badge-circle {
         display: flex;
         justify-content: center;
@@ -47,52 +86,51 @@
 @section('content')
 
 <div class="container-fluid">
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">All Transactions
-                @include('layouts.partials.alerts')
-                <div class="bs4-badge-circle float-right">
-                    <span class="transaction-count">{{ $records }}</span>
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm crm-hero result-card">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center">
+                        <div>
+                            <span class="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">Admin Desk</span>
+                            <h1 class="h3 fw-bold mb-2">All Transactions</h1>
+                            <p class="text-muted mb-0">Search transactions, inspect payment trails, and update records from one dashboard view.</p>
+                        </div>
+                        <div class="transaction-count-badge">{{ $records }}</div>
+                    </div>
+                    @include('layouts.partials.alerts')
                 </div>
-            </h5>
-            <div class="card-body">
-                <div class="">
-                <form class="search-form" method="GET" action="{{ route('payments.index') }}">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="transid">Transaction ID</label>
-                                <input type="text" class="form-control" name="transid" id="transid" placeholder="Enter Transaction ID" value="{{ request('transid') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="invoice_id">Invoice ID</label>
-                                <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" value="{{ request('invoice_id') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="name">Name</label>
-                                <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
-                            </div>
-                        </div>
+            </div>
+        </div>
+    </div>
 
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="phone">Phone</label>
-                                <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
-                            </div>
-                        </div>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form class="search-form" method="GET" action="{{ route('payments.index') }}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="transid" class="form-label small text-uppercase fw-semibold text-muted">Transaction ID</label>
+                        <input type="text" class="form-control" name="transid" id="transid" placeholder="Enter Transaction ID" value="{{ request('transid') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="invoice_id" class="form-label small text-uppercase fw-semibold text-muted">Invoice ID</label>
+                        <input type="text" class="form-control" name="invoice_id" id="invoice_id" placeholder="Enter Invoice ID" value="{{ request('invoice_id') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="name" class="form-label small text-uppercase fw-semibold text-muted">Name</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" value="{{ request('name') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="email" class="form-label small text-uppercase fw-semibold text-muted">Email</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter Email" value="{{ request('email') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="phone" class="form-label small text-uppercase fw-semibold text-muted">Phone</label>
+                        <input type="text" class="form-control" name="phone" id="phone" placeholder="Enter Phone" value="{{ request('phone') }}">
+                    </div>
 
                         {{-- <div class="col-md-2">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label for="status">Status</label>
                                 <select name="status" id="status" class="form-control select2">
                                     <option value="">Select</option>
@@ -103,97 +141,80 @@
                         </div> --}}
 
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="channel">Channel</label>
-                                <select name="channel" id="channel" class="form-control select2">
-                                    <option value="">Select Type</option>
-                                    <option value="Online" {{ request('channel') == 'Online' ? 'selected' : '' }}>Online</option>
-                                    <option value="Transfer" {{ request('channel') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
-                                </select>
-                            </div>
+                            <label for="channel" class="form-label small text-uppercase fw-semibold text-muted">Channel</label>
+                            <select name="channel" id="channel" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="Online" {{ request('channel') == 'Online' ? 'selected' : '' }}>Online</option>
+                                <option value="Transfer" {{ request('channel') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
+                            </select>
                         </div>
 
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="payment_type">Payment Type</label>
-                                <select name="payment_type" id="payment_type" class="form-control select2">
-                                    <option value="">Select Type</option>
-                                    <option value="part" {{ request('payment_type') == 'part' ? 'selected' : '' }}>Part Payment</option>
-                                    <option value="full" {{ request('payment_type') == 'full' ? 'selected' : '' }}>Full Payment</option>
-                                    <option value="earlybird" {{ request('payment_type') == 'earlybird' ? 'selected' : '' }}>Early Bird</option>
-                                </select>
-                            </div>
+                            <label for="payment_type" class="form-label small text-uppercase fw-semibold text-muted">Payment Type</label>
+                            <select name="payment_type" id="payment_type" class="form-control select2">
+                                <option value="">Select Type</option>
+                                <option value="part" {{ request('payment_type') == 'part' ? 'selected' : '' }}>Part Payment</option>
+                                <option value="full" {{ request('payment_type') == 'full' ? 'selected' : '' }}>Full Payment</option>
+                                <option value="earlybird" {{ request('payment_type') == 'earlybird' ? 'selected' : '' }}>Early Bird</option>
+                            </select>
                         </div>
                         
                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="program_id">Select Training</label>
-                                <select name="program_id" id="program_id" class="form-control select2">
-                                    <option value="">Select Training</option>
-                                    @foreach($allPrograms as $training)
-                                        <option value="{{ $training->id }}" {{ request('program_id') == $training->id ? 'selected' : '' }}>
-                                            {{ $training->p_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <label for="program_id" class="form-label small text-uppercase fw-semibold text-muted">Select Training</label>
+                            <select name="program_id" id="program_id" class="form-control select2">
+                                <option value="">Select Training</option>
+                                @foreach($allPrograms as $training)
+                                    <option value="{{ $training->id }}" {{ request('program_id') == $training->id ? 'selected' : '' }}>
+                                        {{ $training->p_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="package_id">Select Package</label>
-                                <select name="package_id" id="package_id" class="form-control select2">
-                                    <option value="">Select..</option>
-                                    @foreach($allPackages as $training)
-                                        <option value="{{ $training->id }}" {{ request('package_id') == $training->id ? 'selected' : '' }}>
-                                            {{ $training->p_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <label for="package_id" class="form-label small text-uppercase fw-semibold text-muted">Select Package</label>
+                            <select name="package_id" id="package_id" class="form-control select2">
+                                <option value="">Select..</option>
+                                @foreach($allPackages as $training)
+                                    <option value="{{ $training->id }}" {{ request('package_id') == $training->id ? 'selected' : '' }}>
+                                        {{ $training->p_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="coupon_id">Select Coupon</label>
-                                <select name="coupon_id" id="coupon_id" class="form-control select2">
-                                    <option value="">Select..</option>
-                                    @foreach($allCoupons as $coupon)
-                                        <option value="{{ $coupon->id }}" {{ request('coupon_id') == $coupon->id ? 'selected' : '' }}>
-                                            {{ $coupon->code }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                            <label for="coupon_id" class="form-label small text-uppercase fw-semibold text-muted">Select Coupon</label>
+                            <select name="coupon_id" id="coupon_id" class="form-control select2">
+                                <option value="">Select..</option>
+                                @foreach($allCoupons as $coupon)
+                                    <option value="{{ $coupon->id }}" {{ request('coupon_id') == $coupon->id ? 'selected' : '' }}>
+                                        {{ $coupon->code }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="from">From</label>
-                                <input type="date" class="form-control" name="from" id="from" value="{{ request('from') }}">
-                            </div>
+                            <label for="from" class="form-label small text-uppercase fw-semibold text-muted">From</label>
+                            <input type="date" class="form-control" name="from" id="from" value="{{ request('from') }}">
                         </div>
 
                         <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="to">To</label>
-                                <input type="date" class="form-control" name="to" id="to" value="{{ request('to') }}">
-                            </div>
+                            <label for="to" class="form-label small text-uppercase fw-semibold text-muted">To</label>
+                            <input type="date" class="form-control" name="to" id="to" value="{{ request('to') }}">
                         </div>
 
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label><span style="color:transparent">label</span></label> <br>
-                                <button type="submit" class="btn btn-primary btn-search" style="width: 100%">Search</button>
-                            </div>
+                        <div class="col-md-2 d-grid align-self-end">
+                            <button type="submit" class="btn btn-primary btn-search">Search</button>
                         </div>
                     </div>
                 </form>
 
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered" style="width:100%">
+            <div class="table-responsive mt-4">
+                <table class="table table-hover align-middle crm-table crm-mobile-stack" style="width:100%">
                     <thead>
                         <tr>
                             <th>#</th>

@@ -15,7 +15,7 @@
                         {{ method_field('PATCH') }}
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group{{ $errors->has('name') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('name') ? ' has-error' : '' }}">
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
@@ -26,7 +26,7 @@
                                     @endif
                                 </div>
                                
-                                <div class="form-group{{ $errors->has('phone') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('phone') ? ' has-error' : '' }}">
                                     <label for="phone">Phone</label>
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone') ?? $user->phone }}" autofocus>
@@ -36,7 +36,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('password') ? ' has-error' : '' }}">
                                     <label for="password">Password: </label><span class="help-block">
                                         <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
                                     </span>
@@ -48,7 +48,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('job_title') ? ' has-error' : '' }}">
                                     <label for="job_title">Job Title</label>
                                     <input id="job_title" type="text" class="form-control" name="job_title"
                                         value="{{ old('job_title') ?? $user->job_title }}" autofocus>
@@ -60,7 +60,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" {{ !empty($user->email) ? 'disabled' : ''}}>
@@ -70,12 +70,12 @@
                                     </span>
                                     @endif
                                 </div>
-                                <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('email') ? ' has-error' : '' }}">
                                     <label for="staffID">Staff ID</label>
                                     <input id="staffID" type="staffID" class="form-control" name="staffID"
                                         value="{{ old('staffID') ?? $user->staffID }}">
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Gender</label>
                                     <select name="gender" id="class" class="form-control" required>
                                         <option value="Male" {{ $user->gender == 'Male' ? 'selected' : ''}}>Male</option>
@@ -85,7 +85,7 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
                                 </div>  
-                                <div class="form-group">
+                                <div class="mb-3">
                                     @if(isset($user->profile_picture) && $user->profile_picture == "avatar.jpg")
                                     <label>Upload Profile Picture</label> <br>
                                     <img src="{{ url('/').'/profiles/avatar.jpg'}}" alt="banner" style="width: 70px;padding-bottom: 10px;">  
