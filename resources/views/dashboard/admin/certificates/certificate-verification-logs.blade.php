@@ -129,13 +129,13 @@
                         @if( $permissions['truncate.verification.log'])
                         <br>
                         <div class="card-body">
-                            <a onclick="return confirm('Are you really sure?');" href="{{ route('truncate.verification.log')}}" class="btn btn-danger float-right">Truncate Logs</a>
+                            <a onclick="return confirm('Are you really sure?');" href="{{ route('truncate.verification.log')}}" class="btn btn-danger float-end">Truncate Logs</a>
                         </div>
                         @endif
                         <div class="mt-4">
                             <form class="row" method="GET" action="">
                                 <div class="col-md-4 mb-2">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <input type="text" class="form-control" name="certificate_number" id="certificate_number" placeholder="EnterCertificate Number" value="{{ request('certificate_number') }}">
                                     </div>
                                 </div>

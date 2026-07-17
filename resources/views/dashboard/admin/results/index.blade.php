@@ -262,7 +262,7 @@
                                                             {{ csrf_field() }}
                                                             {{method_field('DELETE')}}
                                                             <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                                            <button type="submit" class="btn btn-danger btn-xsm" data-bs-toggle="tooltip"
+                                                            <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                                                     data-placement="top" title="Delete Result"> 
                                                                 <i class="fa fa-trash"></i>
                                                             </button>

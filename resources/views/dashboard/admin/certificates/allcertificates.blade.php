@@ -35,15 +35,15 @@
                             <td>
                                 <div class="btn-group">
                                     @if($certificate->show_certificate() == 'Disabled')
-                                    <a data-toggle="tooltip" class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i class="fa fa-toggle-on"></i>
+                                    <a data-bs-toggle="tooltip" class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i class="fa fa-toggle-on"></i>
                                     </a>
                                     @else
-                                    <a data-toggle="tooltip" data-placement="top" title="Disable certificate"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Disable certificate"
                                         class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>0, 'certificate_id' => $certificate->id ]) }}"><i
                                             class="fa fa-toggle-off"></i>
                                     </a>
                                     @endif
-                                    <a data-toggle="tooltip" data-placement="top" title="Download certificate"
+                                    <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
                                         class="btn btn-info" href="download-certificate/{{ $certificate->file }}"><i
                                             class="fa fa-download"></i>
                                     </a>
@@ -52,7 +52,7 @@
                                         {{ csrf_field() }}
                                         {{method_field('DELETE')}}
 
-                                        <button type="submit" class="btn btn-danger btn-xsm" data-toggle="tooltip"
+                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                             data-placement="top" title="Delete certificate"> <i
                                                 class="fa fa-trash"></i>
                                         </button>
