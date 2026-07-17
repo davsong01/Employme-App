@@ -995,7 +995,7 @@ class Controller extends BaseController
 
             [
                 'id' => 4,
-                'name' => 'Company Admin Management',
+                'name' => 'Company Admins',
                 'route' => 'companyuser.index',
                 'type' => 'menu',
                 'order' => 4,

@@ -14,12 +14,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="name">Name</label>
                                     <input type="text" class="form-control" name="name" value="{{ old('name') ?? $paymentmethod->name }}" required>
                                 </div>
                                 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="image">Image</label>
                                     <input type="file" class="form-control" name="image" value="">
                                 </div>

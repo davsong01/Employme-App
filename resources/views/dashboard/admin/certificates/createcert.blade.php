@@ -47,7 +47,7 @@
                         <!--Gives the first error for input name-->
 
                         <div><small>{{ $errors->first('title')}}</small></div>
-                        <div class="form-group">
+                        <div class="mb-3">
 
                             <label for="class">Select User *</label>
 
@@ -61,7 +61,7 @@
                             </select>
                             <div><small style="color:red">{{ $errors->first('user_id')}}</small></div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Choose Certificate</label>
                                 <input type="file" id="certificate" name="certificate" class="form-control" required>
                             </div>
@@ -177,7 +177,7 @@
                                 Certificate Status: <strong>{{ $certificate->show_certificate() }}</strong>
                                 @if($certificate->certificate_number)
                                 <br>Certificate No: <strong>{{ $certificate->certificate_number }}</strong> <br>
-                                <div class="form-group mb-3">
+                                <div class="mb-3">
                                     <button id="copy-btn{{$certificate->id}}" class="btn btn-primary">
                                         <i class="fa fa-copy"></i> Copy Certificate Verification Link
                                     </button>

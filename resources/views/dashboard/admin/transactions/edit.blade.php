@@ -20,7 +20,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="name">Name of Participant:  {{ $transaction->name }}</label> <br>
                                     <strong>Account Balance:  {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->user->account_balance) }}</strong> <br>
 
@@ -28,14 +28,14 @@
                                     <label for="transaction_id">Program Amount: {{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->p_amount) }}</label> <br>
                                     <label for="transaction_id">Paid: {{ \App\Models\Settings::value('DEFAULT_CURRENCY').number_format($transaction->amount) }} @if($transaction->paymentthreads->count() > 0)
                                    
-                                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-toggle="modal" data-bs-target="#exampleModal{{$transaction->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
+                                        <a class="btn btn-info btn-sm" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal{{$transaction->transid }}"><i class="fa fa-eye"></i>View Payment Trail</a>
                                     @endif</label> <br> <br>
 
                                     <label>Balance: <span style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ \App\Models\Settings::value('DEFAULT_CURRENCY'). number_format($transaction->balance) }}</span> </label> <br>
 
                                 </div>
                                 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>New Amount</label><span></span>
                                     <input type="number" name="amount" value="{{ old('amount') ?? 0 }}" class="form-control">
                                 </div>
@@ -44,7 +44,7 @@
                                
                                 <input type="hidden" name="training_mode" value="{{ $transaction->training_mode }}">
                                 @if(isset($locations) && !empty($locations))
-                                <div class="form-group{{ $errors->has('location') ? ' has-error' : '' }}">
+                                <div class="mb-3{{ $errors->has('location') ? ' has-error' : '' }}">
                                     <label for="location">Location </label>
                                      <select  id="location" name="location" class="form-control">
                                         <option value=""></option>
@@ -62,7 +62,7 @@
                                 @endif
                                
                                 @if(isset($coupons) && $coupons->count()>0)
-                                    <div class="form-group{{ $errors->has('coupon_id') ? ' has-error' : '' }}">
+                                    <div class="mb-3{{ $errors->has('coupon_id') ? ' has-error' : '' }}">
                                         <label for="location">Coupon Used </label>
                                         <select  id="coupon_id" name="coupon_id" class="form-control">
                                             <option value="">Select..</option>
@@ -78,7 +78,7 @@
                                         @endif
                                     </div>
                                 @endif
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="funds-source">Funds Source </label>
                                      <select  id="funds-source" name="funds_source" class="form-control" required>
                                         <option value="offline" selected>Offline Payment</option>
@@ -105,9 +105,7 @@
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="exampleModalLabel">Payment Trail for {{ $transaction->transid }}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             @foreach($transaction->paymentthreads as $thread)

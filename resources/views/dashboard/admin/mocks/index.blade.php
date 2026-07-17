@@ -220,7 +220,7 @@
                                                         {{ csrf_field() }}
                                                         {{method_field('DELETE')}}
                                                         <input type="hidden" name="id" value="{{ $user->result_id }}">
-                                                        <button type="submit" class="btn btn-danger btn-xsm" data-bs-toggle="tooltip"
+                                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
                                                                 data-placement="top" title="Delete Result"> 
                                                             <i class="fa fa-trash"></i>
                                                         </button>
@@ -497,9 +497,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Export {{ $page == 'results' ? 'Post' : 'Pre'}} test results</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id, 'id'=>$program->id])}}" method="POST" class="pb-2">

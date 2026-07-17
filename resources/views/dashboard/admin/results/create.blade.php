@@ -15,7 +15,7 @@
                         class="pb-2">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Select Student *</label>
                                     <select name="id" id="id" class="form-control" required>
                                         <option value=""></option>
@@ -26,7 +26,7 @@
                                     <div><small style="color:red">{{ $errors->first('student')}}</small></div>
                                 </div>
                                 <!--Gives the first error for input name-->
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="class">Select Training *</label>
                                     <select name="program_id" id="program_id" class="form-control" required>
                                         <option value=""></option>
@@ -37,13 +37,13 @@
                                     <div><small style="color:red">{{ $errors->first('program_id')}}</small></div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Workbook Score*<span style="color:green">(Max score = 35)</span></label>
                                     <input type="number" name="workbookscore" value="{{ old('workbookscore')}}"
                                         class=" form-control" min="0" max="100" required>
                                     <div><small style="color:red">{{ $errors->first('workbookscore')}}</small></div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Email Score* <span style="color:green">(Max score = 20)</span></label>
                                     <input type="number" name="emailscore" value="{{ old('emailscore')}}"
                                         class="form-control" min="0" max="100">
@@ -54,21 +54,21 @@
                             <div class="col-md-6">
 
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Role Play Score* <span style="color:green">(Max score = 25)</span></label>
                                     <input type="number" name="roleplayscore" value="{{ old('roleplayscore')}}"
                                         class="form-control" min="0" max="100" required>
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('roleplayscore')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Certification Score*<span style="color:green">(Max score = 20)</span></label>
                                     <input type="number" name="certificationscore" class="form-control" min="0"
                                         max="100" required>
                                 </div>
                                 <div><small style="color:red">{{ $errors->first('certificationscore')}}</small></div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Set Pass Mark*</label>
                                     <input type="number" name="passmark" value="{{ old('passmark')}}"
                                         class="form-control" min="0" max="100" required>

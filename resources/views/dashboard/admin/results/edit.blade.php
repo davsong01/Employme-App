@@ -40,18 +40,10 @@
   }
 
   /* The Close Button */
-  .close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-
-  .close:hover,
-  .close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
+  .btn-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
   }
 </style>
 @endsection
@@ -87,13 +79,13 @@
               <div class="col-md-6">
                 <h6 style="color:red">Training details</s></h6>
                 <!--Gives the first error for input name-->
-                <div class="form-group">
+                <div class="mb-3">
                   <label>Training</label>
                   <input type="text" name="" value="{{ $program->p_name }}" class=" form-control" disabled>
                 </div>
 
                 <small><small style="color:red">{{ $errors->first('passmark')}}</small></small>
-                <div class="form-group">
+                <div class="mb-3">
                   <label>Pass Mark Set</label>
                   <input type="number" name="passmark"
                     value="{{ old('passmark') ?? $program->scoresettings->passmark }}" class="form-control" min="0"
@@ -106,7 +98,7 @@
                 @if(!empty($program->scoresettings->email) && $program->scoresettings->email > 0) 
                   @if($permissions['update-email-score'])
                     <h6 style="color:red">Add Email score here</h6>
-                    <div class="form-group">
+                    <div class="mb-3">
                       <label>Email Score* <span style="color:green">(Max score =
                           {{$program->scoresettings->email }})</span></label>
                       <input type="number" name="emailscore" value="{{ old('emailscore') ?? $details['email_test_score'] }}"
@@ -118,7 +110,7 @@
                 @if(!empty($program->scoresettings->role_play) && $program->scoresettings->role_play > 0) 
                   @if($permissions['update-roleplay-score'])
                   <h6 style="color:red">Add Role play score here</h6>
-                  <div class="form-group">
+                  <div class="mb-3">
                     <label>Role Play Score* <span style="color:green">(Max score =
                         {{$program->scoresettings->role_play }})</span></label>
                     <input type="number" name="roleplayscore"
@@ -130,7 +122,7 @@
                 @if(!empty($program->scoresettings->crm_test) && $program->scoresettings->crm_test > 0) 
                   @if($permissions['update-crm-score'])
                   <h6 style="color:red">Add CRM test score here</h6>
-                  <div class="form-group">
+                  <div class="mb-3">
                     <label>CRM Test Score* <span style="color:green">(Max score =
                         {{$program->scoresettings->crm_test }})</span></label>
                     <input type="number" name="crm_score"
@@ -151,7 +143,7 @@
                   <h6 style="color:red">Certificate Test Submision</h6>
                   <p>Please go through this user's attempt and grade user with the grade box below</p>
 
-                  <div class="form-group">
+                  <div class="mb-3">
                     @foreach($user_results as $results)
 
                     <label for="title"> <strong style="color:green">QUESTION {{ $i ++  }}</strong></label><br>
@@ -167,7 +159,7 @@
 
                   <h6 style="color:red">Now, score this candidate's certification test (Result with score of 10 will be
                     recorded as 'processing' on cadidate's dashboard): </h6>
-                  <div class="form-group">
+                  <div class="mb-3">
                     <label><span style="color:green">(Max score =
                         {{ $program->scoresettings->certification}})</span></label>
                     <input type="number" name="certification_score"
@@ -179,7 +171,7 @@
                   <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
                 @endif
                 @if($permissions['update-certification-score'] && $permissions['results.grader'])
-                <div class="form-group">
+                <div class="mb-3">
                   <label>Grader Comment(Optional) </label>
                   <textarea name="grader_comment" class="form-control" id="" cols="30" rows="10"
                     value="{{ old('grader_comment') ?? $details['grader_comment'] }}">{{ old('grader_comment') ?? $details['grader_comment'] }}</textarea>
@@ -187,7 +179,7 @@
                 </div>
                 @endif
                 @if($permissions['update-certification-score'] && $permissions['results.facilitator'])
-                <div class="form-group">
+                <div class="mb-3">
                   <label>Facilitator Comment(Optional) </label>
                   <textarea name="facilitator_comment" class="form-control" id="" cols="30" rows="10"
                     value="{{ old('facilitator_comment') ?? $details['facilitator_comment'] }}">{{ old('facilitator_comment') ?? $details['facilitator_comment'] }}</textarea>
@@ -196,7 +188,7 @@
                 @endif
                 
                 <div class="row">
-                  <button type="submit" class="btn btn-primary form-group" style="width:100%">Submit</button>
+                  <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
                 </div>
                 
               </div>
@@ -212,7 +204,7 @@
       <div id="myModal" class="modal">
         <!-- Modal content -->
         <div class="modal-content">
-          <span class="close">&times;</span>
+          <button type="button" class="btn-close" aria-label="Close"></button>
           <div class="card">
             <div class="card-body">
               <div class="card-title">
@@ -256,7 +248,7 @@
             var btn = document.getElementById("myBtn");
 
             // Get the <span> element that closes the modal
-            var span = document.getElementsByClassName("close")[0];
+            var span = document.getElementsByClassName("btn-close")[0];
 
             // When the user clicks the button, open the modal 
             btn.onclick = function () {
