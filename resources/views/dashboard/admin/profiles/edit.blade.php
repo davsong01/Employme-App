@@ -20,9 +20,7 @@
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
                                     @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
                                     @endif
                                 </div>
                                
@@ -32,21 +30,16 @@
                                         value="{{ old('phone') ?? ($user->phone ?? $user->phone) }}" autofocus>
 
                                     @if ($errors->has('phone'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('phone') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
-                                    <label for="password">Password: </label><span class="help-block">
-                                        <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
-                                    </span>
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="text-muted small mb-2">Default: 12345. Leave blank if you want to keep the default password.</div>
                                     <input id="password" type="text" class="form-control" name="password"
                                         value="{{ old('password') ?? '' }}" autofocus>
                                     @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                     @endif
                                 </div>
                                 
@@ -57,9 +50,7 @@
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" disabled>
                                     @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
                                     @endif
                                 </div>
                                 {{-- <div class="mb-3">

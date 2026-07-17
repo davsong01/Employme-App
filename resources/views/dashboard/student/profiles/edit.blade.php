@@ -20,9 +20,7 @@
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name') ?? $user->name }}" autofocus>
                                     @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
                                     @endif
                                 </div>
                                
@@ -31,21 +29,16 @@
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone') ?? $user->phone }}" autofocus>
                                     @if ($errors->has('phone'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('phone') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">
-                                    <label for="password">Password: </label><span class="help-block">
-                                        <strong>Default: 12345</strong> (Leave blank if you want to keep the default password)
-                                    </span>
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="text-muted small mb-2">Default: 12345. Leave blank if you want to keep the current password.</div>
                                     <input id="password" type="password" class="form-control" name="password"
                                         value="{{ old('password') ?? '' }}" autofocus>
                                     @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">
@@ -53,9 +46,7 @@
                                     <input id="job_title" type="text" class="form-control" name="job_title"
                                         value="{{ old('job_title') ?? $user->job_title }}" autofocus>
                                     @if ($errors->has('job_title'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('job_title') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('job_title') }}</div>
                                     @endif
                                 </div>
                             </div>
@@ -65,9 +56,7 @@
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') ?? $user->email }}" {{ !empty($user->email) ? 'disabled' : ''}}>
                                     @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">

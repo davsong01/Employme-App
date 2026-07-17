@@ -27,9 +27,7 @@
                                     <label for="license">WAACSP license</label> <br>
                                     <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
                                     <span id="verify-button"><span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span></span>
-                                    <span class="help-block">
-                                        <strong id="result"></strong>
-                                    </span>
+                                    <div class="text-danger small mt-1" id="result"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="waacsp_url" style="margin-top: 15px;">WAACSP url</label> <br>
@@ -49,9 +47,7 @@
                                     <label for="name">Name</label>
                                     <input id="name" type="text" class="form-control" name="name" value="{{ old('name') }}" autofocus >
                                     @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
@@ -75,9 +71,7 @@
                                     <label for="email">E-Mail Address</label>
                                     <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}">
                                     @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
                                     @endif
                                 </div>
 
@@ -94,15 +88,12 @@
                                 </div>
                                 
                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
-                                    <label for="password">Password: </label><span class="help-block">
-                                        <strong>Default: 12345</strong>
-                                    </span>
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="text-muted small mb-2">Default: 12345</div>
                                     <input id="password" type="text" class="form-control" name="password" value="{{ old('password') ?? '' }}"
                                         autofocus>
                                     @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                     @endif
                                 </div>
                                  
@@ -112,16 +103,14 @@
                             <div class="col-12">
                                 <div class="mb-3">
                                         <label class="training">Select Training(s)</label>
-                                        <select name="training[]" id="training" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
+                                        <select name="training[]" id="training" class="select2 form-select mt-3" multiple="multiple" style="width: 100%;">
                                         @foreach($programs as $program)
                                              <option value="{{ $program->id }}">{{ $program->p_name }}</option>
                                         @endforeach
                                         </select>
                                     <div>
                                         @if ($errors->has('training'))
-                                        <span class="help-block">
-                                            <strong>{{ $errors->first('training') }}</strong>
-                                        </span>
+                                            <div class="text-danger small mt-1">{{ $errors->first('training') }}</div>
                                         @endif
                                     </div>
                                 <div>
@@ -152,9 +141,7 @@
                                     <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') }}" rows="8" autofocus>{{ old('profile')  }}</textarea>
 
                                     @if ($errors->has('profile'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('profile') }}</strong>
-                                    </span>
+                                        <div class="text-danger small mt-1">{{ $errors->first('profile') }}</div>
                                     @endif
                                 </div>
                             </div>

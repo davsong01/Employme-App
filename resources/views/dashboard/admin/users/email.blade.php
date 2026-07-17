@@ -58,7 +58,7 @@
                         </div>
                         <div class="mb-3 selectedemail">
                             <label>Select recipients</label>
-                            <select name="selectedemail[]" id="selectedemail" class="select2 form-control m-t-15" multiple="multiple" style="height: 30px;width: 100%;">
+                            <select name="selectedemail[]" id="selectedemail" class="select2 form-select mt-3" multiple="multiple" style="width: 100%;">
                                 <option value="">Choose option</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->email }}">{{ $user->email }} ( {{ $user->name }} )</option>
