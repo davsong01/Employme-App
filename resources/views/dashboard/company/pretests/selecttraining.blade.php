@@ -25,7 +25,7 @@
                             <td>{{ $program->p_name }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="View Grades"
+                                    <a data-bs-toggle="tooltip" data-bs-placement="top" title="View Grades"
                                         class="btn btn-primary btn-sm" href="{{ route('company.mocks.getgrades', $program->id)}}"><i class="fa fa-eye"></i> View
                                     </a>
                                 </div>
