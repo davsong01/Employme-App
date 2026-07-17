@@ -48,20 +48,32 @@ $(function() {
     // This is for the floating labels
     // ============================================================== 
     $('.floating-labels .form-control').on('focus blur', function(e) {
-        $(this).parents('.form-group').toggleClass('focused', (e.type === 'focus' || this.value.length > 0));
+        $(this).parents('.mb-3').toggleClass('focused', (e.type === 'focus' || this.value.length > 0));
     }).trigger('blur');
 
     // ============================================================== 
     //tooltip
     // ============================================================== 
     $(function() {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-bs-toggle="tooltip"]').each(function() {
+            if (window.bootstrap && window.bootstrap.Tooltip) {
+                if (! this.__bsTooltip) {
+                    this.__bsTooltip = new window.bootstrap.Tooltip(this);
+                }
+            }
+        })
     })
     // ============================================================== 
     //Popover
     // ============================================================== 
     $(function() {
-        $('[data-toggle="popover"]').popover()
+        $('[data-bs-toggle="popover"]').each(function() {
+            if (window.bootstrap && window.bootstrap.Popover) {
+                if (! this.__bsPopover) {
+                    this.__bsPopover = new window.bootstrap.Popover(this);
+                }
+            }
+        })
     })
 
     // ============================================================== 

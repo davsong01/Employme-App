@@ -120,7 +120,7 @@
                                 @endif
                             </td>
                             <td>
-                                <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
+                                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Download certificate"
                                 class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
                                     class="fa fa-download"> Download Certificate</i></a>
                             </td>

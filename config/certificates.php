@@ -34,8 +34,8 @@ return [
     ],
 
     'authorization' => [
-        'manage_ability' => 'manage-certificates',
         'guard' => 'admin',
+        'permission_resolver' => \App\Certificates\AdminCertificateAuthorizationResolver::class,
         // Optional fallback for hosts that use a role/type column instead of a Gate.
         'allowed_actor_types' => [],
         'actor_type_column' => 'type',
@@ -49,7 +49,7 @@ return [
         'preview_enabled' => true,
         'prefix' => 'certificates',
         'admin_prefix' => 'admin',
-        'middleware' => ['web', 'admin.access', 'auth.admin', 'impersonate.admin', 'permission'],
+        'middleware' => ['web'],
         'public_middleware' => ['web'],
         'name' => 'certificates.',
     ],

@@ -26,7 +26,7 @@ jobs:
             cd portal.employme.ng/Files
             git stash
             git pull origin development
-            composer install
+            # composer install
             php artisan migrate --force
             php artisan cache:clear
             php artisan config:clear

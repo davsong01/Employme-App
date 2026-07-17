@@ -3,9 +3,6 @@
     $menus = $user->permissions();            
     $role = $user->role();
     $allmenus = app('app\Http\Controllers\Controller')->adminMenus('menu');
-    $routeFallbacks = [
-        'certificates.manage.templates.index' => url('/admin/certificates/manage/templates'),
-    ];
 ?>
 @extends('dashboard.layouts.main')
 @section('css')
@@ -40,7 +37,7 @@
                                 $menuRoute = $allmenu['route'];
                                 $menuUrl = \Illuminate\Support\Facades\Route::has($menuRoute)
                                     ? route($menuRoute)
-                                    : ($routeFallbacks[$menuRoute] ?? '#');
+                                    : '#';
                             @endphp
 
                             <li class="sidebar-item">
@@ -69,7 +66,7 @@
                                                 $childRoute = $child['route'];
                                                 $childUrl = \Illuminate\Support\Facades\Route::has($childRoute)
                                                     ? route($childRoute)
-                                                    : ($routeFallbacks[$childRoute] ?? '#');
+                                                    : '#';
                                             @endphp
                                             <li class="sidebar-item">
                                                 <a href="{{ $childUrl }}" class="sidebar-link">

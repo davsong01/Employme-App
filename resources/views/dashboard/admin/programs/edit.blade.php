@@ -3,9 +3,7 @@
     use Illuminate\Support\Facades\Storage;
     $program = $program ?? new Program();
     $isCreate = $isCreate ?? false;
-    $certificateDesignerIndexUrl = \Illuminate\Support\Facades\Route::has('certificates.manage.templates.index')
-        ? route('certificates.manage.templates.index')
-        : url('/admin/certificates/manage/templates');
+    $certificateDesignerIndexUrl = url('/admin/certificates/manage/templates');
     $c_settings = $certificateSettings ?? ($program->auto_certificate_settings ?? []);
     $autoCertificateStatus = old('auto_certificate_status', data_get($c_settings, 'auto_certificate_status', 'no'));
     $useExistingSettings = old('use_existing_settings', $useExistingSettings ?? (data_get($c_settings, 'inherited_from') ? 'yes' : 'no'));

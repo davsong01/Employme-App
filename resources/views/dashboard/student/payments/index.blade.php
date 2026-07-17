@@ -55,7 +55,7 @@
                             </td>
                             
                             <td>
-                                <a data-bs-toggle="tooltip" data-placement="top" title="Print E-receipt"
+                                <a data-bs-toggle="tooltip" data-bs-placement="top" title="Print E-receipt"
                                         class="btn btn-warning btn-sm" href="{{ route('participants.payments.print', $details->id) }}"><i
                                             class="fa fa-print"></i>
                                 </a>
