@@ -16,67 +16,61 @@
                                     <h4>Module Details</h4>
                                 </div>
                                 <div class="mb-3{{ $errors->has('title') ? ' is-invalid' : '' }}">
-                                    <label for="title">Title</label>
+                                    <label for="title" class="form-label">Title</label>
                                     <input id="title" type="text" class="form-control" name="title"
                                         value="{{ old('title') }}" autofocus required>
                                     @if ($errors->has('title'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('title') }}</strong>
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('title') }}</div>
                                     @endif
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="class">Training</label>
-                                    <input type="text" placeholder= "{{ $program->p_name }}"  disabled  id="program" value="{{ $program->p_name }}" class="form-control" >
+                                    <label for="program_display" class="form-label">Training</label>
+                                    <input type="text" placeholder="{{ $program->p_name }}" disabled id="program_display" value="{{ $program->p_name }}" class="form-control">
 
-                                    <input type="hidden" id="program" name="program" value="{{ $program->id }}" class="form-control" required>
+                                    <input type="hidden" name="program" value="{{ $program->id }}" required>
 
-                                    <div><small style="color:red">{{ $errors->first('program')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('program')}}</div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="class">Type</label>
-                                    <select name="type" id="type" class="form-control" required>
+                                    <label for="type" class="form-label">Type</label>
+                                    <select name="type" id="type" class="form-select" required>
                                         <option value="" selected>-- Select Option --</option>
                                         <option value="0">Class Test</option>
                                         <option value="1">Certification Test</option>
                                     </select>
-                                    <div><small style="color:red">{{ $errors->first('type')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('type')}}</div>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="class">Status</label>
-                                    <select name="status" id="status" class="form-control">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select name="status" id="status" class="form-select">
                                         <option value="0" selected>Disabled</option>
                                     </select>
-                                    <div><small style="color:red">{{ $errors->first('status')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('status')}}</div>
                                 </div>
 
                                 <div class="mb-3{{ $errors->has('noofquestions') ? ' is-invalid' : '' }}">
-                                    <label for="noofquestions">No of Questions<small class = "cwarning" style="color:red"> <b>(You can only add 1 question for a certification text)</b> </small> </label>
+                                    <label for="noofquestions" class="form-label">No of Questions <small class="cwarning text-danger"><b>(You can only add 1 question for a certification test)</b></small></label>
                                     <input id="noofquestions" type="number" class="form-control" name="noofquestions"
-                                        value="{{ old('noofquestions') }}" min="0" utofocus required>
+                                        value="{{ old('noofquestions') }}" min="0" autofocus required>
                                     @if ($errors->has('noofquestions'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('noofquestions') }}</strong>
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('noofquestions') }}</div>
                                     @endif
                                 </div>
 
                                 <div class="mb-3{{ $errors->has('time') ? ' is-invalid' : '' }}">
-                                    <label for="time">How many minutes for Module Questions(0 means no time limit)</label>
+                                    <label for="time" class="form-label">How many minutes for module questions (0 means no time limit)</label>
                                     <input id="time" type="number" class="form-control" name="time"
                                         value="{{ old('time') }}" autofocus min="0">
                                     @if ($errors->has('time'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('time') }}</strong>
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('time') }}</div>
                                     @endif
                                 </div>
                                 <div class="mb-3">
-                                    <label>Allow Test retake</label>
-                                    <select name="allow_test_retake" class="form-control" id="allow_test_retake" required>
+                                    <label for="allow_test_retake" class="form-label">Allow Test retake</label>
+                                    <select name="allow_test_retake" class="form-select" id="allow_test_retake" required>
                                         <option value="1" {{ old('allow_test_retake') == 1 ? 'selected' : '' }}>Yes</option>
                                         <option value="0" {{ old('allow_test_retake') == 0 ? 'selected' : '' }}>No</option>
                                     </select>
@@ -89,6 +83,7 @@
                             </button>
                         </div>
                         {{ csrf_field() }}
+                    </form>
                 </div>
             </div>
         </div>

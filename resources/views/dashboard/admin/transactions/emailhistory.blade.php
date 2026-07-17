@@ -20,13 +20,11 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3{{ $errors->has('subject') ? ' is-invalid' : '' }}">
-                            <label for="subject">Subject</label>
+                            <label for="subject" class="form-label">Subject</label>
                             <input id="subject" type="text" class="form-control" name="subject" value="{{ old('subject') ?? $email->subject }}"
                                 autofocus required>
                             @if ($errors->has('subject'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('subject') }}</strong>
-                            </span>
+                            <div class="text-danger small mt-1">{{ $errors->first('subject') }}</div>
                             @endif
                         </div>
                         <div class="mb-3">

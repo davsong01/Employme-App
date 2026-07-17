@@ -17,18 +17,14 @@
 
                                 <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
 
-                                    <label for="name">Name</label>
+                                    <label for="name" class="form-label">Name</label>
 
                                     <input id="name" type="text" class="form-control" name="name"
                                         value="{{ old('name')}}" autofocus>
 
                                     @if ($errors->has('name'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('name') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('name') }}</div>
 
                                     @endif
 
@@ -36,18 +32,14 @@
 
                                 <div class="mb-3{{ $errors->has('email') ? ' is-invalid' : '' }}">
 
-                                    <label for="email">E-Mail Address</label>
+                                    <label for="email" class="form-label">E-Mail Address</label>
 
                                     <input id="email" type="email" class="form-control" name="email"
                                         value="{{ old('email') }}">
 
                                     @if ($errors->has('email'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('email') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('email') }}</div>
 
                                     @endif
 
@@ -55,18 +47,14 @@
 
                                 <div class="mb-3{{ $errors->has('phone') ? ' is-invalid' : '' }}">
 
-                                    <label for="phone">Phone</label>
+                                    <label for="phone" class="form-label">Phone</label>
 
                                     <input id="phone" type="text" class="form-control" name="phone"
                                         value="{{ old('phone')}}" autofocus>
 
                                     @if ($errors->has('phone'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('phone') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('phone') }}</div>
 
                                     @endif
 
@@ -74,18 +62,14 @@
 
                                 <div class="mb-3{{ $errors->has('location') ? ' is-invalid' : '' }}">
 
-                                    <label for="location">Location *</label>
+                                    <label for="location" class="form-label">Location *</label>
 
                                     <input id="location" type="text" class="form-control" name="location"
                                         value="{{ old('location')}}" autofocus>
 
                                     @if ($errors->has('location'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('location') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('location') }}</div>
 
                                     @endif
 
@@ -93,30 +77,24 @@
 
                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
 
-                                    <label for="password">Password</label>
+                                    <label for="password" class="form-label">Password</label>
 
                                     <input id="password" type="text" class="form-control" name="password"
                                         value="{{ old('password') ?? 12345 }}" autofocus>
 
                                     @if ($errors->has('password'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('password') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
 
                                     @endif
 
                                 </div>
 
-                                <div><small style="color:red">{{ $errors->first('class')}}</small></div>
-
                                 <div class="mb-3">
 
-                                    <label for="training">Select Training *</label>
+                                    <label for="training" class="form-label">Select Training *</label>
 
-                                    <select name="training" id="training" class="form-control">
+                                    <select name="training" id="training" class="form-select">
 
                                         <option value=""></option>
 
@@ -132,11 +110,7 @@
 
                                     @if ($errors->has('training'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('training') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('training') }}</div>
 
                                     @endif
 
@@ -148,20 +122,18 @@
 
                                 <div class="mb-3">
 
-                                    <label>Amount Paid *</label>
+                                    <label class="form-label">Amount Paid *</label>
 
                                     <input type="number" name="amount" value="{{ old('amount') }}" min="0"
                                         class="form-control">
 
                                 </div>
 
-                                <!--Gives the first error for input name-->
-
-                                <div><small style="color:red">{{ $errors->first('amount')}}</small></div>
+                                <div class="text-danger small mt-1">{{ $errors->first('amount') }}</div>
 
                                 <div class="mb-3">
 
-                                    <label>Bank *</label>
+                                    <label class="form-label">Bank *</label>
 
                                     <input type="text" name="bank" value="{{ old('bank') }}" class="form-control">
 
@@ -169,19 +141,15 @@
 
                                 @if ($errors->has('bank'))
 
-                                <span class="help-block">
-
-                                    <strong>{{ $errors->first('bank') }}</strong>
-
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('bank') }}</div>
 
                                 @endif
 
                                 <div class="mb-3">
 
-                                    <label for="class">Role *</label>
+                                    <label for="role" class="form-label">Role *</label>
 
-                                    <select name="role" id="class" class="form-control">
+                                    <select name="role" id="role" class="form-select">
 
                                         <option value="" disabled>Assign Role</option>
 
@@ -189,24 +157,20 @@
 
                                     </select>
 
-                                    <div><small style="color:red">{{ $errors->first('role')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('role') }}</div>
 
                                 </div>
 
                                 <div class="mb-3{{ $errors->has('transaction_id') ? ' is-invalid' : '' }}">
 
-                                    <label for="transaction_id">Transaction Id</label>
+                                    <label for="transaction_id" class="form-label">Transaction Id</label>
 
                                     <input id="transaction_id" type="text" class="form-control" name="transaction_id"
                                         value="{{ old('transaction_id') }}" autofocus>
 
                                     @if ($errors->has('transaction_id'))
 
-                                    <span class="help-block">
-
-                                        <strong>{{ $errors->first('transaction_id') }}</strong>
-
-                                    </span>
+                                    <div class="text-danger small mt-1">{{ $errors->first('transaction_id') }}</div>
 
                                     @endif
 
@@ -214,9 +178,9 @@
 
                                 <div class="mb-3">
 
-                                    <label for="class">Gender</label>
+                                    <label for="gender" class="form-label">Gender</label>
 
-                                    <select name="gender" id="class" class="form-control">
+                                    <select name="gender" id="gender" class="form-select">
 
                                         <option value="" disabled>Select gender</option>
 
@@ -228,24 +192,22 @@
 
                                     </select>
 
-                                    <div><small style="color:red">{{ $errors->first('gender')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('gender') }}</div>
 
                                 </div>
 
                                 <div class="mb-3">
 
-                                    <label for="class">Bypass EarlyBird Check</label>
+                                    <label class="form-label d-block">Bypass EarlyBird Check</label>
 
-                                    <input type="checkbox" name="earlybird"> <small style="color:red"> Check this only
-                                        if student paid EarlyBird
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="earlybird" id="earlybird">
+                                        <label class="form-check-label text-danger small" for="earlybird">
+                                            Check this only if the student paid EarlyBird amount after Earlybird has expired.
+                                        </label>
+                                    </div>
 
-                                        amount
-
-                                        after Earlybird has expired</small>
-
-                                    </select>
-
-                                    <div><small style="color:red">{{ $errors->first('earlybird')}}</small></div>
+                                    <div class="text-danger small mt-1">{{ $errors->first('earlybird') }}</div>
 
                                 </div>
 
@@ -264,6 +226,7 @@
                         </div>
 
                         {{ csrf_field() }}
+                    </form>
                 </div>
             </div>
         </div>

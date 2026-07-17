@@ -29,7 +29,7 @@
                     <div class="col-md-12">
                         <div
                             class="mb-3{{ $errors->has('program') ? ' is-invalid' : '' }}">
-                            <label>Choose Program</label>
+                            <label class="form-label">Choose Program</label>
                             <select name="program" id="program" class="form-select" required>
                                 <option value="">Choose option</option>
                                 @foreach($programs as $program)
@@ -37,23 +37,18 @@
                                 @endforeach
                             </select>
                             @if($errors->has('program'))
-                                <span class="help-block">
-                                    <strong>{{ $errors->first('program') }}</strong>
-                                </span>
+                                <div class="text-danger small mt-1">{{ $errors->first('program') }}</div>
                             @endif
                         </div>
                         <div class="mb-3{{ $errors->has('subject') ? ' is-invalid' : '' }}">
 
-                            <label for="subject">Subject</label>
+                            <label for="subject" class="form-label">Subject</label>
 
                             <input id="subject" type="text" class="form-control" name="subject"
                                 value="{{ old('subject')}}" required autofocus>
 
                             @if ($errors->has('subject'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('subject') }}</strong>
-                            </span>
-
+                            <div class="text-danger small mt-1">{{ $errors->first('subject') }}</div>
                             @endif
 
                         </div>
@@ -63,9 +58,7 @@
                             <textarea class="form-control" id="summary-ckeditor" name="content"></textarea>
                         </div>
                         @if($errors->has('content'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('content') }}</strong>
-                            </span>
+                            <div class="text-danger small mt-1">{{ $errors->first('content') }}</div>
                         @endif
                     </div>
                 </div>
@@ -80,11 +73,11 @@
                 </div>
             </form>
             <div class="row">
-                <div class="card-title" style="margin-top:30px">
+                <div class="card-title mt-4">
                     <h3>Emails History</h3>
                 </div>
                 <div class="">
-                    <table id="zero_config" class="">
+                    <table id="zero_config" class="table table-striped table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -107,7 +100,7 @@
                                     <td>{{ $email->noofemails }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <a data-bs-toggle="tooltip" data-placement="top" title="Edit email" class="btn btn-info"
+                                            <a data-bs-toggle="tooltip" title="Edit email" class="btn btn-info"
                                                 href="{{ route('updateemails.show', $email->id) }}"><i
                                                     class="fa fa-eye"></i>
                                             </a>
