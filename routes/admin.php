@@ -223,6 +223,7 @@ Route::middleware(['admin.access'])->group(function () {
         Route::controller(ModuleController::class)->group(function () {
             Route::post('clonemodule', 'clone')->name('module.clone');
             Route::get('facilitatormodules/{p_id}', 'all')->name('facilitatormodules');
+            Route::post('facilitatormodules/bulk-status', 'bulkStatus')->name('modules.bulk-status');
             Route::get('enablemodule/{id}', 'enablemodule')->name('modules.enable');
             Route::get('disablemodule/{id}', 'disablemodule')->name('modules.disable');
             Route::post('modules/{module}/questions', 'syncQuestions')->name('modules.questions.sync');

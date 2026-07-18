@@ -167,6 +167,64 @@ class ModuleController extends Controller
         return back()->with('message', 'This Module and its questions have been disabled uccessfully ');
     }
 
+    public function bulkStatus(Request $request)
+    {
+        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
+            return back();
+        }
+
+        $validated = $request->validate([
+            'module_ids' => ['required', 'array', 'min:1'],
+            'module_ids.*' => ['integer', 'exists:modules,id'],
+            'bulk_status' => ['required', 'in:enable,disable'],
+            'p_id' => ['required', 'integer', 'exists:programs,id'],
+        ]);
+
+        $modules = Module::withCount('questions')
+            ->whereIn('id', $validated['module_ids'])
+            ->where('program_id', $validated['p_id'])
+            ->get();
+
+        if ($modules->isEmpty()) {
+            return back()->with('error', 'No matching modules were found for the selected training.');
+        }
+
+        $updated = [];
+        $skipped = [];
+
+        DB::transaction(function () use ($modules, $validated, &$updated, &$skipped) {
+            foreach ($modules as $module) {
+                if ($validated['bulk_status'] === 'enable') {
+                    if ((int) $module->questions_count < (int) $module->noofquestions) {
+                        $skipped[] = $module->title;
+                        continue;
+                    }
+
+                    $module->status = 1;
+                } else {
+                    $module->status = 0;
+                }
+
+                $module->save();
+                $updated[] = $module->title;
+            }
+        });
+
+        if (empty($updated) && !empty($skipped)) {
+            return back()->with('error', 'None of the selected modules could be activated because they do not have enough questions.');
+        }
+
+        $message = $validated['bulk_status'] === 'enable'
+            ? 'Selected modules were activated successfully.'
+            : 'Selected modules were deactivated successfully.';
+
+        if (!empty($skipped)) {
+            $message .= ' Skipped: '.implode(', ', $skipped).'.';
+        }
+
+        return redirect(route('facilitatormodules', $validated['p_id']))->with('message', $message);
+    }
+
     public function edit(Module $module)
     {
        
