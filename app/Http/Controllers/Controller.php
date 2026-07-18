@@ -1036,7 +1036,7 @@ class Controller extends BaseController
             ],
             [
                 'id' => 5,
-                'name' => 'Training Management',
+                'name' => 'Trainings',
                 'route' => 'training.management',
                 'type' => 'menu',
                 'order' => 5,
@@ -1335,7 +1335,7 @@ class Controller extends BaseController
                 'route' => 'certificate.verification.logs',
                 'type' => 'menu',
                 'order' => 10,
-                'icon_class' => 'fa fa-certificate',
+                'icon_class' => 'fa fa-shield',
                 'parentId' => null
             ],
             [
@@ -1344,7 +1344,7 @@ class Controller extends BaseController
                 'route' => 'certificates.manage.templates.index',
                 'type' => 'menu',
                 'order' => 11,
-                'icon_class' => 'fa fa-certificate',
+                'icon_class' => 'fa fa-file-text-o',
                 'parentId' => null
             ],
             [
