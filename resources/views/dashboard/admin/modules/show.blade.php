@@ -133,6 +133,9 @@
                         </button>
                         <span class="text-muted small">Select one or more rows to update their status together.</span>
                     </div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="selectAllModules">
+                        <i class="fa fa-check-square me-1"></i>Select all rows
+                    </button>
                 </div>
             </div>
 
@@ -140,9 +143,7 @@
                 <table id="zero_config" class="table table-hover align-middle crm-table crm-mobile-stack mb-0 module-table">
                     <thead>
                         <tr>
-                            <th class="module-select-col">
-                                <input type="checkbox" id="selectAllModulesHeader" class="form-check-input">
-                            </th>
+                            <th class="module-select-col"></th>
                             <th>#</th>
                             <th>Date</th>
                             <th>Title</th>
@@ -283,9 +284,9 @@
 @section('extra-scripts')
 <script>
     (function () {
-        const header = document.getElementById('selectAllModulesHeader');
+        const helper = document.getElementById('selectAllModules');
 
-        if (!header) {
+        if (!helper) {
             return;
         }
 
@@ -294,10 +295,9 @@
             boxes().forEach((box) => {
                 box.checked = checked;
             });
-            header.checked = checked;
         };
 
-        header.addEventListener('change', () => setAll(header.checked));
+        helper.addEventListener('click', () => setAll(!boxes().every((box) => box.checked)));
     })();
 </script>
 @endsection
