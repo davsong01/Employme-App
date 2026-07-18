@@ -42,7 +42,17 @@ class ModuleController extends Controller
             return back();
         }
 
-        return view('dashboard.admin.modules.index', compact('programs_with_modules', 'modules', 'i', 'questions_count'));
+        $activeModulesCount = $modules->where('status', 1)->count();
+        $inactiveModulesCount = $modules->where('status', 0)->count();
+
+        return view('dashboard.admin.modules.index', compact(
+            'programs_with_modules',
+            'modules',
+            'i',
+            'questions_count',
+            'activeModulesCount',
+            'inactiveModulesCount'
+        ));
     }
 
     public function all($p_id)

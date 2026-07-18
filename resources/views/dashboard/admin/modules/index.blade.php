@@ -22,9 +22,18 @@
         <div class="col-md-3 col-lg-3">
             <div class="card border-0 shadow-sm crm-hero h-100">
                 <div class="card-body text-center">
-                    <div class="h1 mb-2"><i class="fa fa-check"></i></div>
-                    <div class="fw-semibold">{{ $questions_count }} Questions</div>
-                    <div class="small text-muted">Manage them from each module</div>
+                    <div class="h1 mb-2"><i class="fa fa-check-circle text-success"></i></div>
+                    <div class="fw-semibold">{{ $activeModulesCount ?? 0 }} Active Modules</div>
+                    <div class="small text-muted">Currently enabled</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3">
+            <div class="card border-0 shadow-sm crm-hero h-100">
+                <div class="card-body text-center">
+                    <div class="h1 mb-2"><i class="fa fa-ban text-secondary"></i></div>
+                    <div class="fw-semibold">{{ $inactiveModulesCount ?? 0 }} Inactive Modules</div>
+                    <div class="small text-muted">Currently disabled</div>
                 </div>
             </div>
         </div>
