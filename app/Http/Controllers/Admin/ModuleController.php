@@ -21,11 +21,22 @@ class ModuleController extends Controller
     public function index()
     {
         $i = 1;
+        $programQuery = Program::query()->orderBy('created_at', 'DESC');
         
         if (checkRoleHas(['Admin'])) {
             $modules = Module::with(['program', 'questions'])->orderBy('created_at', 'desc')->get();
             $questions_count = Question::all()->count();
-            $programs_with_modules = Program::orderby('created_at', 'DESC')->get();
+            $programs_with_modules = $programQuery
+                ->withCount([
+                    'modules',
+                    'modules as active_modules_count' => function ($query) {
+                        $query->where('status', 1);
+                    },
+                    'modules as inactive_modules_count' => function ($query) {
+                        $query->where('status', 0);
+                    },
+                ])
+                ->get();
         }elseif (checkRoleHas(['Facilitator','Grader'])){
             $user_trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
 
@@ -35,7 +46,18 @@ class ModuleController extends Controller
                 $query->whereIn('id', $user_trainings);
             })->get();
 
-            $programs_with_modules = Program::orderby('created_at', 'DESC')->whereIn('id', $user_trainings)->get();
+            $programs_with_modules = $programQuery
+                ->whereIn('id', $user_trainings)
+                ->withCount([
+                    'modules',
+                    'modules as active_modules_count' => function ($query) {
+                        $query->where('status', 1);
+                    },
+                    'modules as inactive_modules_count' => function ($query) {
+                        $query->where('status', 0);
+                    },
+                ])
+                ->get();
             $questions_count = Question::whereIn('id', $modules->pluck('id')->toArray())->count();
 
         } else{

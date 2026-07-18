@@ -112,7 +112,17 @@
                                         <span class="btn btn-outline-secondary btn-sm">{{ $programs->p_name }}</span>
                                     @endif
                                 </td>
-                                <td data-label="Modules">{{ $programs->modules->count() }}</td>
+                                <td data-label="Modules">
+                                    <div class="fw-semibold">{{ $programs->modules_count ?? $programs->modules->count() }}</div>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        <span class="badge bg-success rounded-pill">
+                                            {{ $programs->active_modules_count ?? 0 }} active
+                                        </span>
+                                        <span class="badge bg-secondary rounded-pill">
+                                            {{ $programs->inactive_modules_count ?? 0 }} inactive
+                                        </span>
+                                    </div>
+                                </td>
                                 <td data-label="Questions">{{ $programs->questions->count() }}</td>
                             </tr>
                         @endforeach
