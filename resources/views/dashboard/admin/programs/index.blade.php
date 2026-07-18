@@ -370,7 +370,7 @@
                                             <span class="badge bg-warning">Discounted</span>
                                         @endif
                                         @if(!empty($program->auto_certificate_settings['auto_certificate_status']) && $program->auto_certificate_settings['auto_certificate_status'] === 'yes')
-                                            <span class="badge bg-info">Auto Certificate</span>
+                                            <span class="badge bg-info text-light">Auto Certificate</span>
                                         @endif
                                     </div>
 

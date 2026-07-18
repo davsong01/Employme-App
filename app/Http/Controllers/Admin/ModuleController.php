@@ -21,7 +21,7 @@ class ModuleController extends Controller
     public function index()
     {
         $i = 1;
-        $programQuery = Program::query()->orderBy('created_at', 'DESC');
+        $programQuery = Program::query()->latest('created_at');
         
         if (checkRoleHas(['Admin'])) {
             $modules = Module::with(['program', 'questions'])->orderBy('created_at', 'desc')->get();
