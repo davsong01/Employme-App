@@ -6,7 +6,7 @@ It also keeps the legacy certificate generator in place for programs that have n
 ## What was changed
 
 1. Added the package repository to Composer.
-2. Installed the package as `david-oghi/certificate-generation:dev-main`.
+2. Installed the package as `david-oghi/certificate-generation:^1.0`.
 3. Published the package config and migrations.
 4. Ran the migration for the new package tables.
 5. Rewired the certificate helper so new-design programs use the package renderer while older programs still use the legacy generator.
@@ -20,7 +20,7 @@ It also keeps the legacy certificate generator in place for programs that have n
 
 ```bash
 composer config repositories.certificate-generation vcs https://github.com/davsong01/certificate-generation.git
-composer require david-oghi/certificate-generation:dev-main
+composer require david-oghi/certificate-generation:^1.0
 php artisan vendor:publish --tag=certificates-config
 php artisan vendor:publish --tag=certificates-migrations
 php artisan migrate
