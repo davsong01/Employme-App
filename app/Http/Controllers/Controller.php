@@ -863,7 +863,7 @@ class Controller extends BaseController
             // ],
             [
                 'id' => 2,
-                'name' => 'Student Management',
+                'name' => 'Participants',
                 'route' => 'users.index',
                 'type' => 'menu',
                 'order' => 2,

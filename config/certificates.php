@@ -112,7 +112,7 @@ return [
 
     'ui' => [
         // Expose the deployed package build so the host can quickly verify upgrades.
-        'package_version' => env('CERTIFICATES_PACKAGE_VERSION', 'dev-main'),
+        'package_version' => env('CERTIFICATES_PACKAGE_VERSION', '1.0.0'),
         'bootstrap_version' => 5,
         'designer_badge' => 'Certificate Designer',
         'create_title' => 'Create Certificate Template',
