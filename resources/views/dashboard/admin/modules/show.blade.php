@@ -133,9 +133,6 @@
                         </button>
                         <span class="text-muted small">Select one or more rows to update their status together.</span>
                     </div>
-                    <button type="button" class="btn btn-link btn-sm text-decoration-none px-0" id="selectAllModules">
-                        Select all
-                    </button>
                 </div>
             </div>
 
@@ -150,8 +147,7 @@
                             <th>Date</th>
                             <th>Title</th>
                             <th>Associated Training</th>
-                            <th>Expected Questions</th>
-                            <th>Set Questions</th>
+                            <th>Questions</th>
                             <th>Question Time</th>
                             <th>Type</th>
                             <th>Status</th>
@@ -176,8 +172,10 @@
                                     <br><span class="badge bg-danger rounded-pill mt-1">Can Retake Tests</span>
                                 @endif
                             </td>
-                            <td data-label="Expected Questions">{{ $module->noofquestions }}</td>
-                            <td data-label="Set Questions">{{ $module->questions->count() }}</td>
+                            <td data-label="Questions">
+                                <span class="fw-semibold">{{ $module->questions->count() }}</span>
+                                <span class="text-muted">/ {{ $module->noofquestions }} expected</span>
+                            </td>
                             <td data-label="Question Time">{{ $module->time }} minutes</td>
                             <td data-label="Type">{{ $module->type }}</td>
                             <td data-label="Status">
@@ -286,9 +284,8 @@
 <script>
     (function () {
         const header = document.getElementById('selectAllModulesHeader');
-        const helper = document.getElementById('selectAllModules');
 
-        if (!header || !helper) {
+        if (!header) {
             return;
         }
 
@@ -301,7 +298,6 @@
         };
 
         header.addEventListener('change', () => setAll(header.checked));
-        helper.addEventListener('click', () => setAll(!header.checked));
     })();
 </script>
 @endsection
