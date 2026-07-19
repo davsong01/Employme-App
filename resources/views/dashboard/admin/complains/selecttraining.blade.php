@@ -6,7 +6,7 @@
     <div class="card">
         <div class="card-body">
             <div class="card-title">
-                <h5 class="card-title" style="color:green"> Click the eye icon to Select CRM for respective trainings </h5><br>
+                <h5 class="card-title" style="color:green"> Click the eye icon to view CRM entries for each training </h5><br>
                 @include('layouts.partials.alerts')
             </div>
            
@@ -17,6 +17,7 @@
                             <th>#</th>
                             <th>Program Title</th>
                             <th>CRM Count</th>
+                            <th>CRM Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -31,10 +32,22 @@
                             <td>{{ $training->p_name }}</td>
                             <td>{{ $training->crm_count }}</td>
                             <td>
+                                @if($training->hascrm == 1)
+                                    <span class="badge bg-success">Enabled</span>
+                                @elseif($training->crm_count > 0)
+                                    <span class="badge bg-warning text-dark">Disabled, has entries</span>
+                                @else
+                                    <span class="badge bg-secondary">Disabled</span>
+                                @endif
+                            </td>
+                            <td>
                                 <div class="btn-group">
-                                    @if($training->hascrm == 1)
-                                    <a class="btn btn-info" href="{{ route('complain.program.select', ['p_id' => $training->id])}}"><i class="fa fa-eye"></i> View
-                                    </a>
+                                    @if($training->hascrm == 1 || $training->crm_count > 0)
+                                        <a class="btn btn-info" href="{{ route('complain.program.select', ['p_id' => $training->id])}}">
+                                            <i class="fa fa-eye"></i> View
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">No CRM entries</span>
                                     @endif
                                 </div>
                             </td>

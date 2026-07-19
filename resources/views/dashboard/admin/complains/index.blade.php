@@ -24,9 +24,13 @@
                             <p class="text-muted mb-0">Track customer cases, ownership, follow-up dates, and resolution status in one place.</p>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('complains.create', ['p_id' => $training->id]) }}" class="btn btn-primary">
-                                <i class="fa fa-plus me-1"></i> Log new case
-                            </a>
+                            @if($training->hascrm == 1)
+                                <a href="{{ route('complains.create', ['p_id' => $training->id]) }}" class="btn btn-primary">
+                                    <i class="fa fa-plus me-1"></i> Log new case
+                                </a>
+                            @else
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">CRM disabled for new cases</span>
+                            @endif
                             <span class="badge bg-light text-dark rounded-pill px-3 py-2">{{ $totalComplains }} total</span>
                         </div>
                     </div>
@@ -111,9 +115,11 @@
                     <p class="text-muted small mb-0">Review, resolve, or delete cases from the training CRM.</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('complains.create', ['p_id' => $training->id]) }}" class="btn btn-outline-primary">
-                        <i class="fa fa-plus me-1"></i> Add case
-                    </a>
+                    @if($training->hascrm == 1)
+                        <a href="{{ route('complains.create', ['p_id' => $training->id]) }}" class="btn btn-outline-primary">
+                            <i class="fa fa-plus me-1"></i> Add case
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
