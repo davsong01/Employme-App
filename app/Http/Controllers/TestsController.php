@@ -365,8 +365,8 @@ class TestsController extends Controller
 
             $i = 1;
             $program = Program::find($request->p_id);
-            // dd($program );
-            if (!$program->has_result) {
+            
+            if (!$program->hasresult) {
                 return back()->with('error', 'Results for this program are not available at the moment, please try again later');
             }
             $hasmock = $program->hasmock;
