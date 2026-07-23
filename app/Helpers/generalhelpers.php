@@ -500,6 +500,61 @@ if (!function_exists("generateCertificate")) {
     }
 }
 
+if (!function_exists("certificateRequestInput")) {
+    function certificateRequestInput($request, string $key, mixed $default = null): mixed
+    {
+        if ($request instanceof \Illuminate\Http\Request) {
+            return $request->input($key, $default);
+        }
+
+        if (is_array($request)) {
+            return data_get($request, $key, $default);
+        }
+
+        if (is_object($request) && method_exists($request, 'input')) {
+            return $request->input($key, $default);
+        }
+
+        return data_get($request, $key, $default);
+    }
+}
+
+if (!function_exists("programAutoCertificateEnabled")) {
+    function programAutoCertificateEnabled(?Program $program, ?array $settings = null): bool
+    {
+        $settings ??= is_array($program?->auto_certificate_settings) ? $program->auto_certificate_settings : [];
+        $status = data_get($settings, 'auto_certificate_status');
+
+        if ($status === null || $status === '') {
+            return ! empty($program?->certificate_template_id)
+                || ! empty(data_get($settings, 'settings'))
+                || ! empty(data_get($settings, 'auto_certificate_template'));
+        }
+
+        return in_array($status, ['yes', 'published', 1, '1', true], true);
+    }
+}
+
+if (!function_exists("certificateIssuedDate")) {
+    function certificateIssuedDate($request, ?Program $program = null, ?array $settings = null): string
+    {
+        $settings ??= is_array($program?->auto_certificate_settings) ? $program->auto_certificate_settings : [];
+        $rawDate = certificateRequestInput($request, 'date_issued');
+
+        if (blank($rawDate)) {
+            $rawDate = certificateRequestInput($request, 'preferred_date_of_issue');
+        }
+
+        if (blank($rawDate)) {
+            $rawDate = data_get($settings, 'date_of_issue');
+        }
+
+        return ! blank($rawDate)
+            ? \Carbon\Carbon::parse($rawDate)->format('jS \d\a\y \o\f F, Y')
+            : now()->format('jS \d\a\y \o\f F, Y');
+    }
+}
+
 if (!function_exists("generatePackageCertificate")) {
     function generatePackageCertificate($request, $program = null, $location = null, $user = null, $certificate = null, $template = null)
     {
@@ -515,13 +570,15 @@ if (!function_exists("generatePackageCertificate")) {
             throw new \Exception('Certificate designer template not found for this program.');
         }
 
+        if (! programAutoCertificateEnabled($program)) {
+            throw new \Exception('Auto certificate generation is disabled for this program.');
+        }
+
         $certificate_number = !empty($program)
             ? (!empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user))
             : ("CERT-" . rand(111111, 999999));
 
-        $dateIssued = !empty($request['date_issued'])
-            ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
-            : now()->format('jS \d\a\y \o\f F, Y');
+        $dateIssued = certificateIssuedDate($request, $program);
 
         $payload = [
             'name' => $user->name ?? 'John Doe',
@@ -600,6 +657,10 @@ if (!function_exists("generateLegacyCertificate")) {
             $certificate_number = "CERT-" . rand(111111, 999999);
         }
 
+        if (! programAutoCertificateEnabled($program, is_array($certificate_settings) ? $certificate_settings : [])) {
+            throw new \Exception('Auto certificate generation is disabled for this program.');
+        }
+
         // 4. Image Path Logic
         if (!empty($request['auto_certificate_template']) && !is_string($request['auto_certificate_template'])) {
             $inputImagePath = $request['auto_certificate_template'];
@@ -625,9 +686,7 @@ if (!function_exists("generateLegacyCertificate")) {
             });
         }
 
-        $dateIssued = !empty($request['date_issued'])
-            ? \Carbon\Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
-            : now()->format('jS \d\a\y \o\f F, Y');
+        $dateIssued = certificateIssuedDate($request, $program, is_array($certificate_settings) ? $certificate_settings : []);
 
         // Determine loop count
         $counter = !empty($request['auto_certificate_name_font_size']) 
