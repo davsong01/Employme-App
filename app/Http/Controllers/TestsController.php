@@ -366,6 +366,9 @@ class TestsController extends Controller
             $i = 1;
             $program = Program::find($request->p_id);
             // dd($program );
+            if (!$program->has_result) {
+                return back()->with('error', 'Results for this program are not available at the moment, please tery again later');
+            }
             $hasmock = $program->hasmock;
 
             if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {
