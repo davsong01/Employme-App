@@ -345,6 +345,13 @@
                             $program->permissions = checkTrainingHasPermissions($program->id, $permissionsToCheck);
                             $hasChildren = $program->subPrograms && $program->subPrograms->count() > 0;
                             $programStatus = $program->status == 1 ? 'Published' : 'Draft';
+                            $certificateSettings = $program->auto_certificate_settings ?? [];
+                            $hasLegacyCertificateSettings = empty($program->certificate_template_id)
+                                && (
+                                    ! empty(data_get($certificateSettings, 'auto_certificate_template'))
+                                    || ! empty(data_get($certificateSettings, 'settings'))
+                                    || ! empty(data_get($certificateSettings, 'inherited_from'))
+                                );
                         @endphp
                         <tr>
                             <td class="align-top text-nowrap">{{ $i++ }}</td>
@@ -371,6 +378,9 @@
                                         @endif
                                         @if(!empty($program->auto_certificate_settings['auto_certificate_status']) && $program->auto_certificate_settings['auto_certificate_status'] === 'yes')
                                             <span class="badge bg-info text-light">Auto Certificate</span>
+                                        @endif
+                                        @if($hasLegacyCertificateSettings)
+                                            <span class="badge bg-warning text-dark">Legacy Certificate</span>
                                         @endif
                                     </div>
 
@@ -436,6 +446,15 @@
                                         <a class="btn btn-info btn-sm" href="{{ route('programs.edit', ['p_id'=> $program->id, 'program'=> $program->id]) }}">
                                             <i class="fa fa-edit"></i> Edit
                                         </a>
+                                    @endif
+
+                                    @if($hasLegacyCertificateSettings && checkRoleHas(['Admin']))
+                                        <form action="{{ route('programs.certificate.migrate', ['program' => $program->id]) }}" method="POST" onsubmit="return confirm('Migrate this training to the new certificate designer? This will keep the existing background and settings but move them into the new designer structure.');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="fa fa-magic"></i> Migrate Certificate
+                                            </button>
+                                        </form>
                                     @endif
 
                                     @if($program->hascrm == 0)
