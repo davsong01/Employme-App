@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\ProgramDetailsExport;
 use App\Http\Controllers\Controller;
+use App\Models\CertificateTemplate;
 use App\Models\Currency;
 use App\Models\Material;
 use App\Models\Module;
@@ -13,13 +14,13 @@ use App\Models\ScoreSetting;
 use App\Models\TempTransaction;
 use App\Models\Transaction;
 use App\Models\User;
-use DavidOghi\CertificateGeneration\Services\CertificateManager as PackageCertificateManager;
 use App\Services\ExcelService;
 use Carbon\Carbon;
+use DavidOghi\CertificateGeneration\Services\CertificateManager as PackageCertificateManager;
 use DB;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -569,27 +570,12 @@ class ProgramController extends Controller
         if (blank($legacyTemplatePath)) {
             return back()->with('error', 'Legacy certificate template is missing.');
         }
-
+        
+        
         $legacyAbsolutePath = base_path('uploads/' . $legacyTemplatePath);
+        
         if (! file_exists($legacyAbsolutePath)) {
             return back()->with('error', 'Legacy certificate template file could not be found.');
-        }
-
-        $templateModel = config('certificates.models.template', \App\Models\CertificateTemplate::class);
-        $existingTemplate = $templateModel::query()
-            ->where('description', 'Migrated from legacy program ID ' . $program->id)
-            ->first();
-
-        if ($existingTemplate) {
-            $program->update([
-                'certificate_template_id' => $existingTemplate->id,
-                'auto_certificate_settings' => [
-                    'auto_certificate_status' => data_get($legacySettings, 'auto_certificate_status', 'no'),
-                    'migrated_from_legacy' => true,
-                ],
-            ]);
-
-            return back()->with('message', 'Program migrated to the new certificate designer successfully.');
         }
 
         $storedTemplatePath = Storage::disk(config('certificates.storage.disk', 'local'))->putFileAs(
@@ -597,7 +583,7 @@ class ProgramController extends Controller
             new File($legacyAbsolutePath),
             Str::slug($program->p_name . ' certificate') . '-' . Str::random(8) . '.' . pathinfo($legacyAbsolutePath, PATHINFO_EXTENSION)
         );
-
+        
         $template = $certificates->create([
             'name' => $program->p_name . ' Certificate',
             'description' => 'Migrated from legacy program ID ' . $program->id,
@@ -610,6 +596,7 @@ class ProgramController extends Controller
             'certificate_template_id' => $template->id,
             'auto_certificate_settings' => [
                 'auto_certificate_status' => data_get($legacySettings, 'auto_certificate_status', 'no'),
+                'date_of_issue' => data_get($legacySettings, 'date_of_issue'),
                 'migrated_from_legacy' => true,
             ],
         ]);
