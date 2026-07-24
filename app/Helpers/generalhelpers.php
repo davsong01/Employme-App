@@ -108,7 +108,7 @@ if (!function_exists("certificationStatus")) {
                 ];
             }
         } catch (\Throwable $th) {
-            dd($th->getMessage(),$th->getLine());
+            report($th);
         }
     }
 }
@@ -218,8 +218,7 @@ if (!function_exists("udateTrainingResult")) {
             "certification_facilitator_comment" => $certificationStatus['certification_facilitator_comment'] ?? null,
             "certification_grader_comment" => $certificationStatus['certification_grader_comment'] ?? null,
         ];
-        
-        // dd($transaction->training_result->email_test_score, $transaction->training_result->roleplay_test_score, $transaction->training_result->crm_test_score, $transaction->training_result->certification_test_score);
+
         if(!empty($data)){
             $result["email_test_score"] = (int) ($data['email_test_score'] ?? ($transaction->training_result->email_test_score ?? 0));
             $result["roleplay_test_score"] = (int) ($data['roleplay_test_score'] ?? ($transaction->training_result->roleplay_test_score ?? 0));
@@ -234,8 +233,6 @@ if (!function_exists("udateTrainingResult")) {
             $result["last_updated_at"] = ($data['last_updated_at'] ?? ($transaction->training_result->last_updated_at ?? 'N/A'));            
         }
         
-        // dd($result);
-
         // \Log::info([$result["total_score"],$result["class_test_score"], $result["email_test_score"], $result["roleplay_test_score"], $result["crm_test_score"] , $result["certification_test_score"]]);
         $transaction->update([
             'training_result' => $result,
@@ -244,74 +241,6 @@ if (!function_exists("udateTrainingResult")) {
         return $transaction;
     }
 }
-
-// if (!function_exists("buildResultExport")) {
-//     function buildResultExport($users, $data, $score_settings){
-//     $filteredUsers = $users->map(function ($user) use ($data, $score_settings) {
-//         $userArray = $user->toArray();
-//         $filteredUser = array_intersect_key($userArray, array_flip($data));
-
-//         $lastMock = $user->mocks?->last();
-
-//         $filteredUser['Final Submission'] = $lastMock && $lastMock->created_at
-//             ? $lastMock->created_at->format('d/m/Y')
-//             : 'NOT SUBMITTED';
-
-//         if (
-//             isset($user->training_result?->total_cert_score) &&
-//             $score_settings->certification > 0
-//         ) {
-//             $filteredUser['Certification Score'] = $user->training_result->total_cert_score;
-//         }
-
-
-//         if (isset($user->training_result->final_ct_score) && $score_settings->class_test > 0) {
-//             $filteredUser['Class Test Score'] = $user->training_result->final_ct_score;
-//         }
-
-//         if (isset($user->training_result->total_role_play_score) && $score_settings->role_play > 0) {
-//             $filteredUser['Role Play Score'] = $user->training_result->total_role_play_score; 
-//         }
-
-//         if (isset($user->training_result->total_email_test_score) && $score_settings->email > 0) {
-//             $filteredUser['Email Test Score'] = $user->training_result->total_email_test_score;
-//         }
-
-//         if (isset($user->training_result->total_crm_test_score) && $score_settings->crm_test > 0) {
-//             $filteredUser['CRM Test Score'] = $user->training_result->total_email_test_score;
-//         }
-
-//         $filteredUser['Passmark'] = $user->passmark;
-//         $filteredUser['Total Score'] = $filteredUser['Total Score'] = (
-//             ($user->final_ct_score ?? 0) +
-//             ($user->total_role_play_score ?? 0) +
-//             ($user->total_email_test_score ?? 0)
-//         );
-
-//         // if($user->staffID == '7470'){
-//         //     dd($filteredUser, $user->final_ct_score);
-//         // }
-
-//         // Process metadata keys
-//         if (isset($filteredUser['metadata']) && !empty($user->metadata)) {
-//             foreach ($user->metadata as $key => $value) {
-//                 if (!empty($value)) {
-//                     $modifiedKey = ucwords(str_replace(['-', '_'], ' ', $key)); 
-//                     $filteredUser[$modifiedKey] = $value;
-//                 }
-//             }
-//             unset($filteredUser['metadata']);
-//         }
-
-//         // Format all keys in the filtered user
-//         return collect($filteredUser)->mapWithKeys(function ($value, $key) {
-//             $formattedKey = ucwords(str_replace(['-', '_'], ' ', $key)); 
-//             return [$formattedKey => $value];
-//         })->toArray();
-//     })->toArray();
-//         return  $filteredUsers;
-//     }
-// }
 
 if (!function_exists("buildResultExport")) {
     function buildResultExport($users, $data, $score_settings)
@@ -382,108 +311,6 @@ if (!function_exists("buildResultExport")) {
     }
 }
 
-
-
-// if (!function_exists("generateCertificate")) {
-//     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
-//     {
-//         if(!empty($program_id)) {
-//             $program = Program::find($program_id);
-//             $certificate_settings = $template->auto_certificate_settings ?? $program->auto_certificate_settings;
-//         }else{
-//             $certificate_settings = $request;
-//         }
-        
-//         if (empty($user)) {
-//             $user = Transaction::with('user')->whereHas('user')->inRandomOrder()->first();
-//             $user = $user->user;
-//         }
-
-//         if (!empty($request['auto_certificate_template'])) {
-//             $inputImagePath = $request['auto_certificate_template'];
-//         } else {
-//             $inputImagePath = base_path('uploads/' . $certificate_settings['auto_certificate_template']);
-//         }
-
-//         // Create a history for the previous certificate
-//         $image = Image::make($inputImagePath);
-
-//         if (!empty($request['auto_certificate_name_font_weight'])) {
-//             $counter = count($request['auto_certificate_name_font_weight']);
-//         } else {
-//             $counter = count($certificate_settings['settings']);
-//         }
-
-//         if ($image->width() > 4000 || $image->height() > 4000) {
-//             $image->resize(4000, null, function ($constraint) {
-//                 $constraint->aspectRatio();
-//                 $constraint->upsize();
-//             });
-//         }
-
-//         $dateIssued = !empty($request['date_issued'])
-//             ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
-//             : now()->format('jS \d\a\y \o\f F, Y');
-
-//         for ($i = 0; $i < $counter; $i++) {
-//             $size = !empty($request['auto_certificate_name_font_size'][$i]) ? $request['auto_certificate_name_font_size'][$i] : $certificate_settings['settings'][$i]['auto_certificate_name_font_size'];
-//             $color = !empty($request['auto_certificate_color'][$i]) ? $request['auto_certificate_color'][$i] : $certificate_settings['settings'][$i]['auto_certificate_color'];
-//             $auto_certificate_top_offset = !empty($request['auto_certificate_top_offset'][$i]) ? $request['auto_certificate_top_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_top_offset'];
-//             $auto_certificate_left_offset = !empty($request['auto_certificate_left_offset'][$i]) ? $request['auto_certificate_left_offset'][$i] : $certificate_settings['settings'][$i]['auto_certificate_left_offset'];
-//             $auto_certificate_font_weight = !empty($request['auto_certificate_name_font_weight'][$i]) ? $request['auto_certificate_name_font_weight'][$i] : ($certificate_settings['settings'][$i]['auto_certificate_name_font_weight'] ?? 10);
-//             $text_type_face = !empty($request['text_type_face'][$i]) ? $request['text_type_face'][$i] : ($certificate_settings['settings'][$i]['text_type_face'] ?? 'Pesaro-Bold.ttf');
-
-//             $text = 'Aboki Ogbeni Chuckwuma';
-//             $text_type = !empty($request['text_type'][$i]) ? $request['text_type'][$i] : $certificate_settings['settings'][$i]['text_type'];
-
-//             // Get text
-//             if ($text_type == 'name') {
-//                 $text = $user->name ?? $text;
-//                 // Ensure each word starts with a capital letter
-//                 $text = ucwords(strtolower($text));
-//             };
-            
-//             if ($text_type == 'email') $text = $user->email;
-//             if ($text_type == 'staffID') $text = $user->staffID ?? 'NO STAFF ID SET';
-
-//             if ($text_type == 'certificate_number') {
-//                 if (!empty($program_id)) {
-//                     $certificate_number = !empty($certificate) ? $certificate->certificate_number : generateCertificateNumber($program, $user);
-//                 }else{
-//                     $certificate_number = rand(11111111,99999999);
-//                 }
-
-//                 $text = $certificate_number;
-//             }
-
-//             // \Log::info($certificate_settings['settings'], $certificate_settings['settings'][$i], $i);
-//             if ($text_type == 'date_issued') {
-//                 $text = $dateIssued;
-//                 // $text = request()->route()->getName() == 'certificates.preview' ? Carbon::now()->format('jS \d\a\y \o\f F, Y') : $date_issued;
-//             }
-            
-//             // End text
-//             $image->text($text, $auto_certificate_left_offset, $auto_certificate_top_offset, function ($font) use ($size, $color, $auto_certificate_font_weight, $text_type_face) {
-//                 $font->file(public_path('certificate_fonts/' . $text_type_face));
-//                 $font->size($size);
-//                 $font->color($color);
-//                 // $font->weight($auto_certificate_font_weight);
-//             });
-//         }
-        
-//         $name = uniqid(9) . '.jpg';
-//         // $outputImagePath = base_path('uploads/certificates/' . $name);
-//         $outputImagePath = $location . '/' . $name;
-//         $image->save($outputImagePath);
-
-//         return [
-//             'name' => $name,
-//             'certificate_number' => $certificate_number ?? rand(111,999),
-//             'outputImagePath' => $outputImagePath,
-//             'date_issued' => $dateIssued
-//         ];
-//     }
-// }
     
 if (!function_exists("generateCertificate")) {
     function generateCertificate($request, $program_id=null, $location = null, $user = null, $certificate = null, $template=null)
@@ -491,7 +318,7 @@ if (!function_exists("generateCertificate")) {
         $program = !empty($program_id)
             ? Program::with('certificateTemplate')->find($program_id)
             : null;
-
+        
         if ($program?->certificateTemplate) {
             return generatePackageCertificate($request, $program, $location, $user, $certificate, $template);
         }
@@ -579,7 +406,7 @@ if (!function_exists("generatePackageCertificate")) {
             : ("CERT-" . rand(111111, 999999));
 
         $dateIssued = certificateIssuedDate($request, $program);
-
+    
         $payload = [
             'name' => $user->name ?? 'John Doe',
             'email' => $user->email ?? 'test@test.com',
@@ -1008,7 +835,7 @@ if (!function_exists("getPackageAccess")) {
     function getPackageAccess()
     {
         $packages = Package::where('id', Session::get('company_package_id'))->get();
-        dd($packages);
+  
         return [
             'Teacher',
         ];

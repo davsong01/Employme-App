@@ -518,7 +518,9 @@
                             @endif
                         </section>
                         </fieldset>
+                        @if(!$program->certificate_template_id)
                         @include('dashboard.admin.programs.partials.certificate-settings')
+                        @endif
                         <fieldset class="field">
                         <legend style="font-size: 1.2rem; font-weight: bold; color: #333; padding: 0 10px; width: auto; border-bottom: none;">Others</legend>
                             <section>

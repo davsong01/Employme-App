@@ -739,9 +739,9 @@ class CertificateController extends Controller
         try {
             foreach ($transactions as $transaction) {
                 $location = base_path('uploads/certificates');
-
+                
                 $certificate = generateCertificate($request, $program_id, $location, $transaction->user);
-
+                
                 // if generation failed for this record we skip but continue others
                 if (! $certificate) {
                     // optional: log failure for this user/transaction
@@ -784,6 +784,8 @@ class CertificateController extends Controller
             if ($internal) {
                 return ['status' => 'failed', 'message' => 'Internal error. Check logs.'];
             }
+            report($e);
+            
             return back()->with('error', 'An error occurred while generating certificates. Check logs.');
         }
 
@@ -836,23 +838,6 @@ class CertificateController extends Controller
             'file' => $certificate->file
         ]);
     }
-
-    // public function generateCertificatePreview(Request $request, $program_id)
-    // {
-    //     try {
-    //         $location = 'certificate_previews';
-            
-    //         $certificate = generateCertificate($request->all(), $program_id, $location);
-
-    //         return response()->json([
-    //             'preview_image_path' => '/certificate_previews/' . $certificate['name'],
-    //         ]);
-    //     } catch (\Throwable $th) {
-    //         return response()->json([
-    //             'error' => $th->getMessage(),
-    //         ]);
-    //     }
-    // }
 
     public function generateCertificatePreview(Request $request, $program_id)
     {

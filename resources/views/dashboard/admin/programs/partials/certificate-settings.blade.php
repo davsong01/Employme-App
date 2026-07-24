@@ -190,7 +190,7 @@
                 </div>
             </div>
         @else
-            <div class="alert alert-info mb-0">
+            {{-- <div class="alert alert-info mb-0">
                 Legacy certificate settings have moved to the new Certificate Designer.
                 <a href="{{ $certificateDesignerIndexUrl }}" class="alert-link">Open Certificate Designer</a>
             </div>
@@ -201,7 +201,7 @@
                         Migrate this program to the new Certificate Designer
                     </button>
                 </form>
-            @endif
+            @endif --}}
         @endif
     </section>
 </fieldset>

@@ -586,7 +586,7 @@ class ProgramController extends Controller
         
         $template = $certificates->create([
             'name' => $program->p_name . ' Certificate',
-            'description' => 'Migrated from legacy program ID ' . $program->id,
+            'description' => 'Migrated from ' . $program->p_name,
             'certificate_template' => $storedTemplatePath,
             'settings' => certificatePackageSettingsFromLegacy($legacySettings, $legacyAbsolutePath),
             'status' => true,
