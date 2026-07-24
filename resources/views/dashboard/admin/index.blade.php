@@ -104,27 +104,6 @@
                         </li>
                     </ul>
                 </li>
-
-                <li class="sidebar-item">
-                    <a class="sidebar-link has-arrow waves-effect waves-dark"
-                    href="javascript:void(0)"
-                    aria-expanded="false">
-                        <i class="fa fa-exclamation-circle"></i>
-                        <span class="hide-menu">Error Logs</span>
-                    </a>
-                    <ul style="margin-left:30px" aria-expanded="false" class="collapse first-level">
-                        <li class="sidebar-item">
-                            <a href="{{ route('admin.errors.index') }}" class="sidebar-link">
-                                <span class="hide-menu">- Errors (Database logs)</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="{{ route('admin.error-files.index') }}" class="sidebar-link">
-                                <span class="hide-menu">- Error Log Files</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
             </ul>
         </nav>
         <!-- End Sidebar navigation -->

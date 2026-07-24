@@ -1339,6 +1339,14 @@ class Controller extends BaseController
                 'parentId' => null
             ],
             [
+                'id' => 54,
+                'name' => 'Truncate Verification Logs',
+                'route' => 'truncate.verification.log',
+                'type' => 'access',
+                'order' => 1,
+                'parentId' => 53
+            ],
+            [
                 'id' => 55,
                 'name' => 'Certificate Designer',
                 'route' => 'certificates.manage.templates.index',
@@ -1348,12 +1356,30 @@ class Controller extends BaseController
                 'parentId' => null
             ],
             [
-                'id' => 54,
-                'name' => 'Truncate Verification Logs',
-                'route' => 'truncate.verification.log',
-                'type' => 'access',
-                'order' => 1,
-                'parentId' => 53
+                'id' => 60,
+                'name' => 'Error Logs',
+                'type' => 'menu',
+                'route' => '',
+                'isParent' => 'yes',
+                'parentId' => null,
+                'icon_class' => 'fa fa-exclamation-circle',
+            ],
+            [
+                'id' => 61,
+                'name' => 'Errors (Database logs)',
+                'route' => 'admin.errors.index',
+                'type' => 'menu',
+                'isParent' => 'no',
+                'parentId' => 60
+
+            ],
+            [
+                'id' => 62,
+                'name' => 'Error Log Files',
+                'route' => 'admin.error-files.index',
+                'type' => 'menu',
+                'isParent' => 'no',
+                'parentId' => 60
             ],
         ];
 
