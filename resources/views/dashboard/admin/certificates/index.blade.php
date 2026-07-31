@@ -374,11 +374,11 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="GET" class="row g-3 align-items-end">
-                <div class="col-md-5 col-lg-4">
+                <div class="col-md-4 col-lg-3">
                     <label class="form-label small text-uppercase fw-semibold text-muted">Search</label>
                     <input type="search" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name, email, phone, program, or certificate number">
                 </div>
-                <div class="col-md-4 col-lg-3">
+                <div class="col-md-3 col-lg-3">
                     <label class="form-label small text-uppercase fw-semibold text-muted">Program</label>
                     <select name="program_id" class="form-select select2" data-placeholder="All trainings">
                         <option value=""></option>
@@ -389,7 +389,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3 col-lg-2">
+                <div class="col-md-2 col-lg-2">
                     <label class="form-label small text-uppercase fw-semibold text-muted">Access</label>
                     <select name="access_status" class="form-select select2" data-placeholder="Any status">
                         <option value=""></option>
@@ -397,11 +397,11 @@
                         <option value="disabled" @selected(request('access_status') === 'disabled')>Disabled</option>
                     </select>
                 </div>
-                <div class="col-md-3 col-lg-1">
+                <div class="col-md-2 col-lg-2">
                     <label class="form-label small text-uppercase fw-semibold text-muted">From</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
                 </div>
-                <div class="col-md-3 col-lg-1">
+                <div class="col-md-2 col-lg-2">
                     <label class="form-label small text-uppercase fw-semibold text-muted">To</label>
                     <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
                 </div>
