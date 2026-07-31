@@ -7,6 +7,9 @@
 Verify Certificate
 @endsection
 @section('content')
+@php
+    $certificateInputValue = request('certificate_number');
+@endphp
 <section class="checkout spad" style="padding-top: 20px;">
     <div class="container">
         <div class="row">
@@ -71,7 +74,22 @@ Verify Certificate
                                         <div style="display: flex; justify-content: space-between; align-items: center;">
                                             <label for="certificate_number" style="margin: 0;">Certificate Number<span>*</span></label>
                                         </div>
-                                        <input type="text" class="form-control" id="certificate_number" name="certificate_number" required>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="certificate_number"
+                                            name="certificate_number"
+                                            value="{{ $certificateInputValue }}"
+                                            required
+                                            autocomplete="off"
+                                        >
+                                        <small id="certificate-number-hint" class="text-muted d-block mt-2">
+                                            Use only letters, numbers, and hyphens.
+                                        </small>
+                                        <small id="certificate-number-error" class="text-danger d-none d-block mt-2"></small>
+                                        @if(!empty($validationError))
+                                            <small class="text-danger d-block mt-2">{{ $validationError }}</small>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -87,4 +105,54 @@ Verify Certificate
         @endif
     </div>
 </section>
+<script>
+    (function () {
+        const input = document.getElementById('certificate_number');
+        const error = document.getElementById('certificate-number-error');
+        const form = input ? input.closest('form') : null;
+        const allowed = /^[A-Za-z0-9-]*$/;
+
+        if (!input || !error || !form) {
+            return;
+        }
+
+        const showError = (message) => {
+            error.textContent = message;
+            error.classList.remove('d-none');
+        };
+
+        const clearError = () => {
+            error.textContent = '';
+            error.classList.add('d-none');
+        };
+
+        const validate = () => {
+            const value = input.value.trim();
+
+            if (!value) {
+                clearError();
+                return true;
+            }
+
+            if (!allowed.test(value)) {
+                showError('Please remove pasted symbols or emojis. Only letters, numbers, and hyphens are allowed.');
+                return false;
+            }
+
+            clearError();
+            return true;
+        };
+
+        input.addEventListener('input', validate);
+        input.addEventListener('paste', () => {
+            window.setTimeout(validate, 0);
+        });
+
+        form.addEventListener('submit', function (event) {
+            if (!validate()) {
+                event.preventDefault();
+            }
+        });
+    })();
+</script>
 @endsection

@@ -1099,6 +1099,13 @@ if (!function_exists('paginationIndex')) {
     }
 }
 
+if (!function_exists('adminPaginationRecords')) {
+    function adminPaginationRecords()
+    {
+        return 40;
+    }
+}
+
 // function getPriceRangeAcrossPrograms($training, $type = null, $earlybird='no'): array
 // {
 //     $allPrograms = collect([$training])->merge($training->subPrograms);

@@ -134,7 +134,7 @@ class ApiController extends Controller
             ], 401);
         }
         
-        $certificate_number = request()->get('certificate_number');
+        $certificate_number = $certificate->normalizeCertificateNumber($request->get('certificate_number'));
         $service = $certificate->verify($certificate_number);
         
         return response()->json($service, 200);

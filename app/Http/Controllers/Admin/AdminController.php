@@ -202,7 +202,7 @@ class AdminController extends Controller
         }
 
         $records = $users->count();
-        $users = $users->paginate(50);
+        $users = $users->paginate(adminPaginationRecords());
         
         $allPrograms = Program::whereIn('id', $programs)->select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();
 

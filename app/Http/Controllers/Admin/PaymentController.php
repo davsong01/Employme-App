@@ -87,7 +87,7 @@ class PaymentController extends Controller
 
             $records = $transactions->count();
             
-            $transactions = $transactions->paginate(50);
+            $transactions = $transactions->paginate(adminPaginationRecords());
 
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();

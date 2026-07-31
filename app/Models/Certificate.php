@@ -7,6 +7,7 @@ use App\Models\Module;
 
 use App\Models\Result;
 use App\Models\Program;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CertificateGenerationHistory;
@@ -14,6 +15,9 @@ use App\Models\CertificateGenerationHistory;
 class Certificate extends Model
 {
     protected $guarded = [];
+    protected $casts = [
+        'uploaded_at' => 'datetime',
+    ];
 
     public function user(){
         return $this->belongsTo(User::class);
@@ -23,9 +27,20 @@ class Certificate extends Model
         return $this->belongsTo(Program::class);
     }
 
+    public function uploadedBy()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class, 'user_id', 'user_id')
+            ->whereColumn('program_id', 'program_id');
+    }
+
     public function show_certificate()
     {
-        $check = Transaction::where(['user_id' =>$this->user_id, 'program_id'=>$this->program_id])->first();
+        $check = $this->transaction;
         $access = 'Disabled';
         
         if($check){

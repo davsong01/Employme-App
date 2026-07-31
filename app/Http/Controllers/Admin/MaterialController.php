@@ -28,18 +28,41 @@ class MaterialController extends Controller
         $userid = resolveAuthUser()->id;
         $useAi = false;
 
-        if (checkRoleHas(['Admin','Facilitator'])){
-            if(checkRoleHas(['Admin'])) {
-                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->get();
-            }
-    
-            if(checkRoleHas(['Facilitator','Grader'])) {
-                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
-                $programs = Program::withCount('materials')->orderBy('created_at', 'desc')->whereIn('id', $trainings)->get();
+        if (checkRoleHas(['Admin','Facilitator','Grader'])){
+            $allowedProgramIds = $this->allowedProgramIds();
+            $programQuery = Program::query()->withCount('materials')->orderBy('created_at', 'desc');
+
+            if(! checkRoleHas(['Admin'])) {
+                $programQuery->whereIn('id', $allowedProgramIds);
             }
 
-            return view('dashboard.admin.materials.selecttraining', compact('programs'));
-        } 
+            $programs = $programQuery->get();
+
+            $materialsQuery = Material::query()
+                ->with(['program', 'uploader'])
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $search = $request->string('search')->value();
+
+                    $query->where(function ($builder) use ($search) {
+                        $builder->where('title', 'like', "%{$search}%")
+                            ->orWhereHas('program', fn ($programQuery) => $programQuery->where('p_name', 'like', "%{$search}%"));
+                    });
+                })
+                ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->integer('program_id')))
+                ->when($request->filled('date_from'), fn ($query) => $query->whereDate('created_at', '>=', $request->input('date_from')))
+                ->when($request->filled('date_to'), fn ($query) => $query->whereDate('created_at', '<=', $request->input('date_to')));
+
+            if(! checkRoleHas(['Admin'])) {
+                $materialsQuery->whereIn('program_id', $allowedProgramIds);
+            }
+
+            $materials = $materialsQuery
+                ->latest()
+                ->paginate(adminPaginationRecords())
+                ->withQueryString();
+
+            return view('dashboard.admin.materials.index', compact('materials', 'programs'));
+        }
 
         if (checkRoleHas(['Student'])){
             $i = 1;
@@ -82,19 +105,16 @@ class MaterialController extends Controller
         $i = 1;
 
         if (checkRoleHas(['Admin','Facilitator', 'Grader'])) {
-            if (checkRoleHas(['Admin'])) {
-                $training = Program::withCount('materials')->where('id', $training->id)->first();
+            if (! checkRoleHas(['Admin']) && ! in_array($training->id, $this->allowedProgramIds(), true)) {
+                abort(403);
             }
 
-            if (checkRoleHas(['Facilitator', 'Grader'])) {
-                $trainings = resolveAuthUser()->trainings->pluck('program_id')->toArray();
-                $training = Program::withCount('materials')->where('id', $training->id)->whereIn('id', $trainings)->first();
-            } 
+            $training = Program::withCount('materials')->where('id', $training->id)->firstOrFail();
         }else {
             return back();
         }
         
-        $materials = Material::with('program')->where('program_id', $training->id)->orderBy('created_at', 'desc')->get();
+        $materials = Material::with(['program', 'uploader'])->where('program_id', $training->id)->orderBy('created_at', 'desc')->get();
         
         return view('dashboard.admin.materials.index', compact('i', 'materials','training')); 
     }
@@ -106,31 +126,40 @@ class MaterialController extends Controller
 
     public function store(Request $request)
     {
-        if (request()->has('p_id')) {
-            foreach (request()->file('file') as $file) {
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $filename = Str::slug($fileName);
-                $path = base64_encode(request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension());
+        $data = $request->validate([
+            'program_id' => ['required', 'integer', 'exists:programs,id'],
+            'file' => ['required', 'array', 'min:1'],
+            'file.*' => ['file'],
+        ]);
 
-                $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $filename = Str::slug($fileName);
-                $preferredName = request()->p_id . '/' . $filename . '.' . $file->getClientOriginalExtension();
-                
-                $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
-                
-                Material::create([
-                    'title' => $file->getClientOriginalName(),
-                    'program_id' =>  request()->p_id,
-                    'file' => $path,
-                ]);
-            }
-            
-            return back()->with('message', 'Study material succesfully added');
-        } 
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $data['program_id'], $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
+
+        foreach ($request->file('file') as $file) {
+            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $filename = Str::slug($fileName);
+            $preferredName = $data['program_id'] . '/' . $filename . '.' . $file->getClientOriginalExtension();
+
+            $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
+
+            Material::create([
+                'title' => $file->getClientOriginalName(),
+                'program_id' =>  $data['program_id'],
+                'file' => $path,
+                'uploaded_by' => resolveAuthUser()->id,
+                'uploaded_at' => now(),
+            ]);
+        }
+
+        return back()->with('message', 'Study material succesfully added');
     }
 
     public function show(Material $material)
     {
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $material->program_id, $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
 
         $programs = Program::orderBy('created_at', 'desc')->where('id', '<>', $material->program_id)->where('id', '<>', 1)->get();
         return view('dashboard.admin.materials.edit')->with('material', $material)->with('programs', $programs);
@@ -146,15 +175,11 @@ class MaterialController extends Controller
 
     public function destroy(Material $material)
     {
-        $material_count = Material::where('file', $material->file)->count();
-        
-        if ($material_count <= 1) {
-            $file = base64_decode($material->file);
-
-            if (file_exists(base_path() . '/uploads/materials' . '/' . $file)) {
-                unlink(base_path() . '/uploads/materials' . '/' . $file);
-            }
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $material->program_id, $this->allowedProgramIds(), true)) {
+            abort(403);
         }
+
+        $this->deleteMaterialFileIfUnused($material);
 
         $material->delete();
         if (checkRoleHas(['Facilitator'])) {
@@ -163,13 +188,99 @@ class MaterialController extends Controller
         return redirect('materials')->with('message', 'Study material succesfully deleted');
     }
 
-    public function clone(Material $material, Request $request)
+    public function bulkDestroy(Request $request)
     {
-        //create new material with existing material information except program id
+        $data = $request->validate([
+            'material_ids' => ['required', 'array', 'min:1'],
+            'material_ids.*' => ['integer', 'exists:materials,id'],
+        ]);
+
+        $materials = Material::with('program')
+            ->whereIn('id', $data['material_ids'])
+            ->get();
+
+        if (! checkRoleHas(['Admin'])) {
+            $allowedProgramIds = $this->allowedProgramIds();
+            $materials = $materials->filter(fn (Material $material) => in_array((int) $material->program_id, $allowedProgramIds, true));
+        }
+
+        if ($materials->isEmpty()) {
+            return back()->with('error', 'No selected materials could be deleted with your current permissions');
+        }
+
+        DB::transaction(function () use ($materials) {
+            foreach ($materials as $material) {
+                $this->deleteMaterialFileIfUnused($material);
+                $material->delete();
+            }
+        });
+
+        return back()->with('message', 'Selected study materials were deleted permanently');
+    }
+
+    public function bulkClone(Request $request)
+    {
+        $data = $request->validate([
+            'material_ids' => ['required', 'array', 'min:1'],
+            'material_ids.*' => ['integer', 'exists:materials,id'],
+            'program_id' => ['required', 'integer', 'exists:programs,id'],
+        ]);
+
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $data['program_id'], $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
+
+        $materials = Material::with('program')
+            ->whereIn('id', $data['material_ids'])
+            ->get();
+
+        if (! checkRoleHas(['Admin'])) {
+            $allowedProgramIds = $this->allowedProgramIds();
+            $materials = $materials->filter(fn (Material $material) => in_array((int) $material->program_id, $allowedProgramIds, true));
+        }
+
+        if ($materials->isEmpty()) {
+            return back()->with('error', 'No selected materials could be cloned with your current permissions');
+        }
+
+        DB::transaction(function () use ($materials, $data) {
+            foreach ($materials as $material) {
+                Material::create([
+                    'title' => $material->title,
+                    'program_id' => $data['program_id'],
+                    'file' => $material->file,
+                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_at' => now(),
+                ]);
+            }
+        });
+
+        return back()->with('message', 'Selected study materials were cloned successfully');
+    }
+
+    public function clone($material_id, Request $request)
+    {
+        $material = Material::findOrFail($material_id);
+
+        $data = $request->validate([
+            'program_id' => ['required', 'integer', 'exists:programs,id'],
+        ]);
+
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $material->program_id, $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
+
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $data['program_id'], $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
+
+        // Clone the source material into the selected program.
         Material::create([
-            'title' => $request->title,
-            'program_id' =>  $request->program_id,
-            'file' => $request->file,
+            'title' => $material->title,
+            'program_id' =>  $data['program_id'],
+            'file' => $material->file,
+            'uploaded_by' => resolveAuthUser()->id,
+            'uploaded_at' => now(),
         ]);
 
         return redirect('materials')->with('message', 'Study material succesfully cloned');
@@ -191,5 +302,31 @@ class MaterialController extends Controller
             return Redirect::to('mocks?p_id=' . 21)->with('error', 'Sorry, you have to take all Pre Class Tests for this Training before you can access Training materials');
         }
         // return 1;                
+    }
+
+    private function allowedProgramIds(): array
+    {
+        if (checkRoleHas(['Admin'])) {
+            return Program::pluck('id')->all();
+        }
+
+        return resolveAuthUser()
+            ?->trainings
+            ?->pluck('program_id')
+            ?->map(fn ($id) => (int) $id)
+            ->all() ?? [];
+    }
+
+    private function deleteMaterialFileIfUnused(Material $material): void
+    {
+        $materialCount = Material::where('file', $material->file)->count();
+
+        if ($materialCount <= 1) {
+            $file = base64_decode($material->file);
+
+            if ($file && file_exists(base_path() . '/uploads/materials' . '/' . $file)) {
+                unlink(base_path() . '/uploads/materials' . '/' . $file);
+            }
+        }
     }
 }

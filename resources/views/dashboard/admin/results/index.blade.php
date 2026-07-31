@@ -62,10 +62,10 @@
 
     .button-container .btn {
         border-radius: 8px;
-        width: 100% !important;
         font-weight: 500;
         text-align: center;
         transition: all 0.3s ease; 
+        white-space: nowrap;
     }
 
     .button-container .btn:hover {
@@ -78,6 +78,140 @@
 
     .button-container .fa-unlock {
         margin-right: 0.25rem; 
+    }
+
+    .results-page .retake {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        margin-right: .35rem;
+        margin-top: .25rem;
+    }
+
+    .results-page .thread-count {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        min-height: 28px;
+        padding: 0 .45rem !important;
+        line-height: 1 !important;
+        font-size: .75rem;
+        font-weight: 800;
+        vertical-align: middle;
+    }
+
+    .results-page .certification-score .btn,
+    .results-page .class-test-score .btn {
+        margin-top: .5rem;
+        margin-right: .35rem;
+        white-space: nowrap;
+    }
+
+    .results-page .resit-status {
+        line-height: 1.35;
+    }
+
+    .results-page {
+        overflow-x: hidden;
+    }
+
+    .results-page .results-table-shell {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .results-page .results-table-shell table {
+        min-width: 980px;
+    }
+
+    .results-page .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        align-items: center;
+    }
+
+    .results-page .button-container .btn,
+    .results-page .button-container form,
+    .results-page .button-container .btn-group {
+        flex: 0 0 auto;
+        margin-bottom: 0 !important;
+    }
+
+    .results-page .button-container .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .results-page .results-toolbar .btn,
+    .results-page .results-toolbar .badge {
+        border-radius: 999px;
+    }
+
+    @media (max-width: 767.98px) {
+        .results-page .crm-hero .card-body {
+            padding: 1.25rem !important;
+        }
+
+        .results-page .results-toolbar {
+            gap: .5rem !important;
+        }
+
+        .results-page .results-toolbar .btn,
+        .results-page .results-toolbar .badge {
+            width: auto;
+            justify-content: center;
+        }
+
+        .results-page .results-table-shell {
+            border-radius: 14px;
+        }
+
+        .results-page .button-container {
+            gap: .35rem;
+        }
+
+        .results-page .button-container .btn {
+            padding-left: .75rem;
+            padding-right: .75rem;
+        }
+
+        .results-page .certification-score .btn,
+        .results-page .class-test-score .btn {
+            width: 100%;
+            margin-right: 0;
+            white-space: normal;
+        }
+
+        .results-page .retake {
+            display: inline-flex;
+            margin-top: .5rem;
+            margin-bottom: .35rem;
+        }
+
+        .results-page .thread-count {
+            min-width: 26px;
+            min-height: 26px;
+            font-size: .7rem;
+        }
+
+        .results-page .resit-status {
+            display: block !important;
+            margin-top: .25rem;
+        }
+
+        .results-page .crm-mobile-stack th:nth-child(4),
+        .results-page .crm-mobile-stack td:nth-child(4),
+        .results-page .crm-mobile-stack th:nth-child(5),
+        .results-page .crm-mobile-stack td:nth-child(5) {
+            display: none;
+        }
     }
 
     .answer-box {
@@ -104,7 +238,7 @@
 @endsection
 @section('title', 'All Results')
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid results-page">
     @php
         $currentStatus = request('status');
         $resultRoute = route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]);
@@ -127,7 +261,7 @@
                         </div>
                     </div>
 
-                    <div class="d-flex flex-wrap gap-2 mt-4">
+                    <div class="d-flex flex-wrap gap-2 mt-4 results-toolbar">
                         <a href="{{ $resultRoute }}" class="btn btn-outline-dark {{ $activeTab === 'all' ? 'active' : '' }}">All</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
@@ -172,7 +306,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive results-table-shell">
                 <table class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
@@ -285,7 +419,7 @@
                                                     @if (!empty($certifiableTests))
                                                         @if ($permissions['results.add'])
                                                             <a href="javascript:void(0)"
-                                                            class="btn btn-info btn-sm open-result-modal d-block w-50"
+                                                            class="btn btn-info btn-sm open-result-modal"
                                                             data-bs-toggle="tooltip" data-placement="top"
                                                             title="Update Test Scores:"
                                                             data-id="{{ $user->id }}"
@@ -315,7 +449,7 @@
 
                                         @if($menuPermissions['impersonate'])
                                             <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                            class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}">
+                                            class="btn btn-dark btn-sm" href="{{ route('impersonate', $user->user_id) }}">
                                                 <i class="fa fa-unlock"> Peek</i>
                                             </a>
                                         @endif

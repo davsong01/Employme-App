@@ -28,28 +28,68 @@ class CertificateController extends Controller
 {
     public function index(Request $request)
     {
-        $userid = resolveAuthUser()->id;
         $i = 1;
         if (checkRoleHas(['Admin','Grader','Facilitator'])) {
-            if(checkRoleHas(['Admin'])){
-                $programs = Program::withCount('certificates')->where('id', '<>', 1)
-                // ->whereNULL('parent_id')
-                ->orderBy('created_at', 'desc')
-                ->get();
-                return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
-            }else{
-                $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->get();
-                if ($programs->count() > 0) {
-                    foreach ($programs as $program) {
-                        $program['id'] = $program->program_id;
-                        $program['p_name'] = Program::whereId($program->program_id)->value('p_name');
+            $allowedProgramIds = $this->allowedProgramIds();
 
-                        $program['certificates_count'] = Certificate::whereProgramId($program->program_id)->count();
-                    }
-                }
+            $programQuery = Program::query()
+                ->withCount('certificates')
+                ->where('id', '<>', 1)
+                ->orderBy('created_at', 'desc');
 
-                return view('dashboard.admin.certificates.selecttraining', compact('programs', 'i'));
+            if (! checkRoleHas(['Admin'])) {
+                $programQuery->whereIn('id', $allowedProgramIds);
             }
+
+            $programs = $programQuery->get();
+
+            $certificateQuery = Certificate::query()
+                ->with(['user', 'program.scoresettings', 'transaction', 'certificateHistory', 'uploadedBy'])
+                ->when($request->filled('search'), function ($query) use ($request) {
+                    $search = $request->string('search')->value();
+
+                    $query->where(function ($builder) use ($search) {
+                        $builder->whereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%")
+                                ->orWhere('email', 'like', "%{$search}%")
+                                ->orWhere('phone', 'like', "%{$search}%");
+                        })->orWhereHas('program', function ($programQuery) use ($search) {
+                            $programQuery->where('p_name', 'like', "%{$search}%");
+                        })->orWhere('certificate_number', 'like', "%{$search}%");
+                    });
+                })
+                ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->integer('program_id')))
+                ->when($request->filled('access_status'), function ($query) use ($request) {
+                    $status = $request->string('access_status')->value();
+
+                    if ($status === 'enabled') {
+                        $query->whereHas('transaction', fn ($transactionQuery) => $transactionQuery->where('show_certificate', 1));
+                    } elseif ($status === 'disabled') {
+                        $query->whereHas('transaction', fn ($transactionQuery) => $transactionQuery->where('show_certificate', 0));
+                    }
+                })
+                ->when($request->filled('date_from'), fn ($query) => $query->whereDate('created_at', '>=', $request->input('date_from')))
+                ->when($request->filled('date_to'), fn ($query) => $query->whereDate('created_at', '<=', $request->input('date_to')));
+
+            if (! checkRoleHas(['Admin'])) {
+                $certificateQuery->whereIn('program_id', $allowedProgramIds);
+            }
+
+            $summaryQuery = clone $certificateQuery;
+            $certificates = $certificateQuery
+                ->latest()
+                ->paginate(adminPaginationRecords())
+                ->withQueryString();
+
+            $summary = [
+                'total' => (clone $summaryQuery)->count(),
+                'enabled' => (clone $summaryQuery)->whereHas('transaction', fn ($transactionQuery) => $transactionQuery->where('show_certificate', 1))->count(),
+                'disabled' => (clone $summaryQuery)->whereHas('transaction', fn ($transactionQuery) => $transactionQuery->where('show_certificate', 0))->count(),
+                'programs' => $programs->count(),
+                'pending_requests' => CertificateRegenerationRequest::when(! checkRoleHas(['Admin']), fn ($query) => $query->whereIn('program_id', $allowedProgramIds))->where('status', 'pending')->count(),
+            ];
+
+            return view('dashboard.admin.certificates.index', compact('certificates', 'programs', 'i', 'summary'));
 
         }
 
@@ -158,8 +198,22 @@ class CertificateController extends Controller
 
     public function certificateStatus($user_id, $program_id, $status, $certificate_id)
     {
-        $transaction = Transaction::where(['user_id' => $user_id, 'program_id' => $program_id])->first();
-        $transaction->update(['show_certificate' => $status]);
+        $certificate = Certificate::with('transaction')->findOrFail($certificate_id);
+
+        if ((int) $certificate->user_id !== (int) $user_id || (int) $certificate->program_id !== (int) $program_id) {
+            return back()->with('error', 'Certificate route parameters do not match the selected certificate.');
+        }
+
+        $transaction = $certificate->transaction
+            ?? Transaction::where('user_id', $certificate->user_id)
+                ->where('program_id', $certificate->program_id)
+                ->first();
+
+        if (! $transaction) {
+            return back()->with('error', 'Linked training record not found for this certificate.');
+        }
+
+        $transaction->update(['show_certificate' => (int) $status]);
 
         return back()->with('message', 'Status updated successfully');
     }
@@ -206,6 +260,8 @@ class CertificateController extends Controller
                     'date_issued' => $newCertificate['date_issued'] ?? null,
                     'program_id' => $request->program_id,
                     'allow_new_certificate_request' => 0,
+                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_at' => now(),
                 ]);
 
                 $regenerationRequest->update([
@@ -218,6 +274,8 @@ class CertificateController extends Controller
                 $existingCertificate->update([
                     'allow_new_certificate_request' => 0,
                     'file' => $newCertificate['name'],
+                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_at' => now(),
                 ]);
             }
 
@@ -250,16 +308,17 @@ class CertificateController extends Controller
     {
         if (checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
             $i = 1;
-            $users = DB::table('program_user')->where('program_id', $request->program_id)->get();
-            $certificates = Certificate::with(['user', 'program','certificateHistory'])->where('program_id', $request->program_id)->orderBy('created_at', 'desc')->get();
+            $programKey = $request->program_id ?? $program_id;
+            $users = DB::table('program_user')->where('program_id', $programKey)->get();
+            $certificates = Certificate::with(['user', 'program','certificateHistory'])->where('program_id', $programKey)->orderBy('created_at', 'desc')->get();
             
             foreach ($users as $user) {
                 $user->name = User::whereId($user->user_id)->value('name');
-                $user->certificates_count = Certificate::whereUserId($user->user_id)->whereProgramId($request->program_id)->count();
+                $user->certificates_count = Certificate::whereUserId($user->user_id)->whereProgramId($programKey)->count();
             }
 
             $program = Program::find($program_id);
-            $score_settings = ScoreSetting::whereProgramId($request->program_id)->first();
+            $score_settings = ScoreSetting::whereProgramId($programKey)->first();
 
             $p_id = $program->id;
             $p_name = $program->p_name;
@@ -294,12 +353,14 @@ class CertificateController extends Controller
                 'date_issued' => !empty($request['date_issued'])
                     ? Carbon::parse($request['date_issued'])->format('jS \d\a\y \o\f F, Y')
                     : now()->format('jS \d\a\y \o\f F, Y'),
+                'uploaded_by' => resolveAuthUser()->id,
+                'uploaded_at' => now(),
             ]);
 
             Transaction::where(['user_id' => $request->user_id, 'program_id' => $request->p_id])->update(['show_certificate' => 0]);
 
-            return back()->with('message', ' certificate succesfully added');
-            // return redirect(route('certificates.create'))->with('message', ' certificate succesfully added'); 
+            return redirect()->route('certificates.index', ['program_id' => $request->p_id])
+                ->with('message', 'certificate successfully added');
         }
 
         return abort(404);
@@ -486,6 +547,17 @@ class CertificateController extends Controller
         return response()->download($realpath);
     }
 
+    public function previewFile($filename)
+    {
+        $realpath = base_path() . '/uploads/certificates' . '/' . $filename;
+
+        if (! file_exists($realpath)) {
+            abort(404, 'File not found.');
+        }
+
+        return response()->file($realpath);
+    }
+
     public function modify(Request $request){
         set_time_limit(7600);
 
@@ -520,6 +592,8 @@ class CertificateController extends Controller
                         'file' => $certificate['name'],
                         'certificate_number' => $certificate['certificate_number'],
                         'program_id' => $request->program_id,
+                        'uploaded_by' => resolveAuthUser()->id,
+                        'uploaded_at' => now(),
                     ]);
                     
                     // $transaction->show_certificate = 0;
@@ -757,6 +831,8 @@ class CertificateController extends Controller
                         'certificate_number' => $certificate['certificate_number'],
                         'program_id' => $program_id,
                         'date_issued' => $certificate['date_issued'],
+                        'uploaded_by' => resolveAuthUser()->id,
+                        'uploaded_at' => now(),
                     ]
                 );
 
@@ -901,31 +977,60 @@ class CertificateController extends Controller
     }
 
     public function clearDuplicates($program_id){
-        $duplicateIds = DB::table('certificates as t1')
-        ->select('t1.id')
-        ->join('certificates as t2', function ($join) {
-            $join->on('t1.program_id', '=', 't2.program_id')
-                ->on('t1.user_id', '=', 't2.user_id')
-                ->whereRaw('t1.id > t2.id'); 
-        })
-        ->pluck('t1.id');
+        if (! checkRoleHas(['Admin', 'Grader', 'Facilitator'])) {
+            return back()->with('error', 'You are not allowed to perform this action.');
+        }
 
-        DB::table('certificates')
-        ->whereIn('id', $duplicateIds)
-        ->delete();
+        $duplicateGroups = DB::table('certificates')
+            ->select('program_id', 'user_id', DB::raw('COUNT(*) as total'))
+            ->where('program_id', $program_id)
+            ->groupBy('program_id', 'user_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->get();
 
-        return back()->with('message', count($duplicateIds).' Duplicates removed successfully');
+        $deleted = 0;
+
+        foreach ($duplicateGroups as $group) {
+            $ids = DB::table('certificates')
+                ->where('program_id', $program_id)
+                ->where('user_id', $group->user_id)
+                ->orderBy('created_at')
+                ->orderBy('id')
+                ->pluck('id');
+
+            $idsToDelete = $ids->slice(1)->values();
+
+            if ($idsToDelete->isNotEmpty()) {
+                DB::table('certificates')->whereIn('id', $idsToDelete)->delete();
+                $deleted += $idsToDelete->count();
+            }
+        }
+
+        return back()->with('message', $deleted . ' duplicate certificate(s) removed successfully');
     }
 
 
     public function verifyCertificate(Request $request, CertificateService $certificate){
-        if(!empty($request->certificate_number)){
-            $response = $certificate->verify($request->certificate_number);
+        $rawCertificateNumber = (string) $request->certificate_number;
+        $certificateNumber = $certificate->normalizeCertificateNumber($rawCertificateNumber);
+
+        $validationError = null;
+        if (!empty($rawCertificateNumber) && $certificateNumber !== strtoupper(trim($rawCertificateNumber))) {
+            $validationError = 'Please enter the certificate number exactly as shown. Only letters, numbers, and hyphens are allowed.';
+        }
+
+        if ($validationError) {
+            $response = null;
+            return view('verify-certificate', compact('response', 'validationError'));
+        }
+
+        if(!empty($certificateNumber)){
+            $response = $certificate->verify($certificateNumber);
         }else{
             $response = null;
         }
         
-        return view('verify-certificate', compact('response'));
+        return view('verify-certificate', compact('response', 'validationError'));
     }
 
     public function certificateVerificationLogs(Request $request)
@@ -933,15 +1038,17 @@ class CertificateController extends Controller
         $logs = CertificateStatusLog::latest();
         $i = 1;
 
-        if (!empty($request->certificate_number)) {
-            $logs = $logs->where('certificate_number', $request->certificate_number);
+        $certificateNumber = app(CertificateService::class)->normalizeCertificateNumber($request->certificate_number);
+
+        if (!empty($certificateNumber)) {
+            $logs = $logs->where('certificate_number', $certificateNumber);
         }else{
             $startOfWeek = Carbon::now()->startOfWeek(Carbon::SUNDAY);
     
             $logs = $logs->where('created_at', '>=', $startOfWeek);
         }
 
-        $logs = $logs->paginate(50);
+        $logs = $logs->paginate(adminPaginationRecords());
 
         return view('dashboard.admin.certificates.certificate-verification-logs', compact('logs','i'));
     }
@@ -1009,6 +1116,51 @@ class CertificateController extends Controller
         $this->updateGenerationRequestStatus($request, $certRequest->id);
         
         return back()->with('message', 'Operation successful');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $data = $request->validate([
+            'certificate_ids' => ['required', 'array', 'min:1'],
+            'certificate_ids.*' => ['integer', 'exists:certificates,id'],
+            'bulk_action' => ['required', 'in:enable,disable'],
+        ]);
+
+        $certificates = Certificate::with('transaction')
+            ->whereIn('id', $data['certificate_ids'])
+            ->get();
+
+        if (! checkRoleHas(['Admin'])) {
+            $allowedProgramIds = $this->allowedProgramIds();
+            $certificates = $certificates->filter(fn (Certificate $certificate) => in_array((int) $certificate->program_id, $allowedProgramIds, true));
+        }
+
+        if ($certificates->isEmpty()) {
+            return back()->with('error', 'No selected certificates could be updated with your current permissions');
+        }
+
+        $status = $data['bulk_action'] === 'enable' ? 1 : 0;
+
+        DB::transaction(function () use ($certificates, $status) {
+            foreach ($certificates as $certificate) {
+                $certificate->transaction?->update(['show_certificate' => $status]);
+            }
+        });
+
+        return back()->with('message', 'Selected certificates updated successfully');
+    }
+
+    private function allowedProgramIds(): array
+    {
+        if (checkRoleHas(['Admin'])) {
+            return Program::pluck('id')->all();
+        }
+
+        return resolveAuthUser()
+            ?->trainings
+            ?->pluck('program_id')
+            ?->map(fn ($id) => (int) $id)
+            ->all() ?? [];
     }
 
     // public function generateNewCertificate(Request $request, Certificate $certificate){

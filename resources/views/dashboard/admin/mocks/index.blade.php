@@ -97,6 +97,7 @@
         font-weight: 500;
         text-align: center;
         transition: all 0.3s ease; 
+        white-space: nowrap;
     }
 
     .button-container .btn:hover {
@@ -111,11 +112,93 @@
         margin-right: 0.25rem; 
     }
 
+    .results-page {
+        overflow-x: hidden;
+    }
+
+    .results-page .result-toolbar .btn,
+    .results-page .result-toolbar .badge {
+        border-radius: 999px;
+    }
+
+    .results-page .table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .results-page .table td,
+    .results-page .table th {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .results-page .results-table-shell {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .results-page .results-table-shell table {
+        min-width: 1120px;
+    }
+
+    .results-page .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        align-items: center;
+    }
+
+    .results-page .button-container .btn,
+    .results-page .button-container form,
+    .results-page .button-container .btn-group {
+        flex: 0 0 auto;
+        margin-bottom: 0 !important;
+    }
+
+    .results-page .button-container .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .results-page .result-summary-card {
+        border-radius: 18px;
+    }
+
+    @media (max-width: 767.98px) {
+        .results-page .crm-hero .card-body {
+            padding: 1.25rem !important;
+        }
+
+        .results-page .result-toolbar {
+            gap: .5rem !important;
+        }
+
+        .results-page .result-toolbar .btn,
+        .results-page .result-toolbar .badge {
+            width: auto;
+            justify-content: center;
+        }
+
+        .results-page .results-table-shell {
+            border-radius: 14px;
+        }
+
+        .results-page .button-container {
+            gap: .35rem;
+        }
+
+        .results-page .button-container .btn {
+            padding-left: .75rem;
+            padding-right: .75rem;
+        }
+    }
+
 </style>
 @endsection
 @section('title', 'All Results')
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid results-page">
     @php
         $currentStatus = request('status');
     @endphp
@@ -131,7 +214,7 @@
                         </div>
                         <div class="result-count-badge">{{ $records }}</div>
                     </div>
-                    <div class="d-flex flex-wrap gap-2 mt-4">
+                    <div class="d-flex flex-wrap gap-2 mt-4 result-toolbar">
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]) }}" class="btn btn-outline-dark {{ is_null($currentStatus) ? 'active' : '' }}">All</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
@@ -170,7 +253,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-responsive results-table-shell">
                 <table class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
@@ -202,14 +285,14 @@
                     <tbody>
                         @foreach($users as $user)
                             <tr id="result-row-{{ $user->id }}">
-                                <td>{{ $i++ }}</td>
-                                @if($page == 'mocks')
-                                    <td>
+                            <td data-label="#">{{ $i++ }}</td>
+                            @if($page == 'mocks')
+                                    <td data-label="Actions">
                                         @if($user->result_id)
                                             <div class="btn-group">
                                                 @if($permissions['mocks.add'])
                                                     <a data-bs-toggle="tooltip" data-placement="top" title="Update user scores"
-                                                    class="btn btn-info" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
+                                                    class="btn btn-info btn-sm" href="{{route('mocks.add', ['uid' => $user->user_id, 'result' => $user->result_id,'p_id' => $program->id]) }}">
                                                         <i class="fa fa-eye"></i>
                                                     </a>]
 
@@ -234,7 +317,7 @@
                                 @else 
                                     @if(!$permissions['results.add'] && !$permissions['results.destroy'] && !$permissions['stopredotest'])
                                     @else
-                                        <td>
+                                        <td data-label="Actions">
                                             <div class="button-container">
                                                 @if (!empty($user->training_result))
                                                     @if($permissions['results.add'])
@@ -254,7 +337,7 @@
                                         </td>
                                     @endif
                                 @endif
-                                <td>
+                                <td data-label="Date">
                                     @if($page == 'mocks')
                                         {{ $user->mocks->count() > 0 ? $user->mocks->last()->created_at->format('d/m/Y') : '' }}
                                     @else
@@ -262,7 +345,7 @@
                                     @endif
                                 </td>
                                 
-                                <td>
+                                <td data-label="Details">
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])                            
                                         <a target="_blank" href="{{ route('users.edit', $user->user_id) }}">
                                             {{ $user->user->name }} <i class="fas fa-external-link-alt" aria-hidden="true"></i>
@@ -298,7 +381,7 @@
                                     <div class="button-container">
                                         @if($menuPermissions['impersonate'])
                                             <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
-                                            class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $user->user_id) }}">
+                                            class="btn btn-dark btn-sm" href="{{ route('impersonate', $user->user_id) }}">
                                                 <i class="fa fa-unlock"> Peek</i>
                                             </a>
                                         @endif
@@ -320,7 +403,7 @@
                                 @if(!$permissions['view-certification-score'] && !$permissions['view-roleplay-score'] &&
                                     !$permissions['view-email-score'] && !$permissions['view-crm-score'] && !$permissions['view-class-score'] &&  !$permissions['mocks.add'])
                                 @else
-                                    <td>
+                                    <td data-label="Test Scores">
                                         @if(isset($user->training_result))
                                             @if($permissions['view-class-score'] && isset($score_settings->class_test) && $score_settings->class_test > 0)
                                                 <div class="class-test-score">
@@ -378,7 +461,7 @@
                                 @endif
 
                                 @if($page == 'results')
-                                    <td>
+                                    <td data-label="Admin Details">
                                         @if(isset($user->training_result))
                                             <small>
                                                 <strong class="tit">Certification Marked by: <br> </strong><span id="certification_facilitator{{ $user->id }}"> {{ $user->training_result->certification_facilitator ?: 'N/A' }}</span><br>
@@ -389,11 +472,11 @@
                                     </td>
                                 @endif
 
-                                <td>
+                                <td data-label="Passmark">
                                     <strong class="tit" style="color:blue">{{ $score_settings->passmark }}%</strong> 
                                 </td>
                                 @if($permissions['view-total-score'])
-                                    <td>
+                                    <td data-label="Total">
                                         @if(isset($user->training_result))
                                         <strong class="tit" id="total_score{{ $user->id }}" style="color:{{ $user->training_result->total_score < $score_settings->passmark ? 'red' : 'green' }}">{{ $user->training_result->total_score }}%</strong> 
                                         @else   

@@ -118,7 +118,7 @@ class ResultController extends Controller
 
         // Execute query
         if (empty($request->columns)) {
-            $users = $users->paginate(30);
+            $users = $users->paginate(adminPaginationRecords());
         } else {
             $users = $users->get();
         }

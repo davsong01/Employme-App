@@ -10,6 +10,7 @@ class CertificateService
 {
     public function verify($certificate_number)
     {
+        $certificate_number = $this->normalizeCertificateNumber($certificate_number);
         $details = $this->checkStatus($certificate_number);
         
         $this->logCertificateVerificationCheck($certificate_number, $details);
@@ -17,10 +18,22 @@ class CertificateService
         return $details;
     }
 
+    public function normalizeCertificateNumber($certificate_number): ?string
+    {
+        if ($certificate_number === null) {
+            return null;
+        }
+
+        $certificate_number = trim((string) $certificate_number);
+        $certificate_number = preg_replace('/[^\pL\pN\-]/u', '', $certificate_number);
+
+        return $certificate_number !== '' ? strtoupper($certificate_number) : null;
+    }
+
     public function logCertificateVerificationCheck($certificate_number, $details){
         $log = CertificateStatusLog::create([
             'ip' => request()->getClientIp(),
-            'certificate_number' => $certificate_number,
+            'certificate_number' => $this->normalizeCertificateNumber($certificate_number),
             'response' => $details
         ]);
     }
@@ -40,6 +53,12 @@ class CertificateService
                 'status_code' => 412,
             ];
 
+            return $details;
+        }
+
+        $certificate_number = $this->normalizeCertificateNumber($certificate_number);
+
+        if (!$certificate_number) {
             return $details;
         }
 

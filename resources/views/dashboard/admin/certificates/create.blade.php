@@ -10,8 +10,7 @@
                         @include('layouts.partials.alerts')
                         <h4 class="card-title">Add new Certificate</h4>
                     </div>
-                    <form action="{{ route('user.select') }}" method="POST" class="pb-2">
-                        {{ csrf_field() }}
+                    <form id="certificate-program-form" action="{{ url('admin/suser/0') }}" method="GET" class="pb-2">
                         <!--Gives the first error for input name-->
 
                         <div><small>{{ $errors->first('title')}}</small></div>
@@ -40,4 +39,26 @@
             </div>
         </div>
     </div>
-    @endsection
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('certificate-program-form');
+
+            if (!form) {
+                return;
+            }
+
+            form.addEventListener('submit', function (event) {
+                const programId = document.getElementById('program_id')?.value;
+
+                if (!programId) {
+                    return;
+                }
+
+                event.preventDefault();
+                form.action = '{{ url('admin/suser') }}/' + programId;
+                form.method = 'GET';
+                form.submit();
+            });
+        });
+    </script>
+@endsection

@@ -1,480 +1,296 @@
 @extends('dashboard.admin.index')
+
+@section('title', 'Add Certificate')
+
 @section('css')
 <style>
-    /* The Modal (background) */
-    
-    a.pre-order-btn { 
-        color:#000;
-        background-color:gold;
-        border-radius:1em;
-        padding:1em;
-        display: block;
-        margin: 2em auto;
-        width:100%;
-        font-size:1.25em;
-        font-weight:6600;
-        text-align: center
+    .certificate-hero {
+        border: 0;
+        border-radius: 24px;
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, .18), transparent 28%),
+            linear-gradient(135deg, #0f172a 0%, #111827 55%, #1e293b 100%);
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, .18);
     }
 
-    a.pre-order-btn:hover { 
-        background-color:#000;
-        text-decoration:none;
-        color:gold;
+    .certificate-hero .text-muted,
+    .certificate-hero .small {
+        color: rgba(255, 255, 255, .72) !important;
     }
 
+    .certificate-shell {
+        border: 1px solid #e5e7eb;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+        background: #fff;
+    }
+
+    .certificate-meta-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+    }
+
+    .certificate-kpi {
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        padding: 1rem 1.1rem;
+        background: #fff;
+    }
+
+    .certificate-kpi .value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .certificate-kpi .label {
+        font-size: .76rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: .35rem;
+    }
+
+    .certificate-form-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, .05);
+    }
+
+    .certificate-form-card .form-label {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .certificate-form-card .form-control,
+    .certificate-form-card .form-select {
+        min-height: 48px;
+        border-radius: 14px;
+        border-color: #dbe3ea;
+    }
+
+    .certificate-form-card .form-control:focus,
+    .certificate-form-card .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 .2rem rgba(59, 130, 246, .12);
+    }
+
+    .certificate-hint {
+        color: #64748b;
+        font-size: .82rem;
+    }
+
+    .certificate-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        font-size: .75rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .certificate-pill.info {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .certificate-pill.success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .certificate-pill.warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .certificate-pill.danger {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .certificate-list {
+        margin: 0;
+        padding-left: 1rem;
+        color: #475569;
+    }
+
+    .certificate-list li + li {
+        margin-top: .45rem;
+    }
 </style>
 @endsection
-@section('title', 'Add Certificate')
+
 @section('content')
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="card-title">
-                        @include('layouts.partials.alerts')
-                        <h4 class="card-title">{{$p_name}} Certificate Management</h4>
-                        @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
-                        {{-- <a href="{{route('certificates.generate', $p_id )}}" onclick="return(confirm('Are you sure'))" class="btn btn-info">Auto Generate Certificates (40/batch)</a> --}}
-                        <a href="javascript:void(0)" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#batchModal">Auto Generate Certificates</a>
+    @include('layouts.partials.alerts')
 
-                        <a href="{{ route('certificate.clear.duplicates', $p_id)}}" class="btn btn-danger">Clear Duplicates</a>
-                        @endif
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card certificate-hero">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-4">
+                        <div class="pe-xl-4">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="certificate-pill info">Program scoped</span>
+                                @if(!empty($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
+                                    <span class="certificate-pill success">Auto generation enabled</span>
+                                @else
+                                    <span class="certificate-pill warning">Manual generation only</span>
+                                @endif
+                            </div>
+                            <h1 class="display-6 fw-bold mb-2">{{ $p_name }} Certificate Management</h1>
+                            <p class="mb-0 text-muted">
+                                Generate and manage certificates for this training without leaving the page.
+                                The certificate index now handles the library view, previews, verification links, and regeneration history.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
+                                <button type="button" class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#batchModal">
+                                    <i class="fa fa-magic me-1"></i> Auto Generate
+                                </button>
+                                <a href="{{ route('certificate.clear.duplicates', $p_id) }}" class="btn btn-outline-danger btn-lg" onclick="return confirm('Clear duplicate certificates for this program?');">
+                                    <i class="fa fa-clone me-1"></i> Clear Duplicates
+                                </a>
+                            @endif
+                            <a href="{{ route('certificates.index', ['program_id' => $p_id]) }}" class="btn btn-outline-light btn-lg">
+                                <i class="fa fa-list me-1"></i> Open Index
+                            </a>
+                        </div>
                     </div>
-                    <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data"
-                        class="pb-2">
-                        {{ csrf_field() }}
-                        <!--Gives the first error for input name-->
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div><small>{{ $errors->first('title')}}</small></div>
-                        <div class="mb-3">
+    <div class="row g-4">
+        <div class="col-lg-12">
+            <div class="card certificate-form-card">
+                <div class="card-body p-4 p-lg-5">
+                    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-start mb-4">
+                        <div>
+                            <h2 class="h4 fw-bold mb-2">Generate a certificate</h2>
+                            <p class="text-muted mb-0">Pick a learner, upload the certificate file, and submit. The record will be routed back to the main certificate index.</p>
+                        </div>
+                    </div>
 
-                            <label for="class">Select User *</label>
+                    <form action="{{ route('certificates.save') }}" method="POST" enctype="multipart/form-data" class="row g-4">
+                        @csrf
+                        <input type="hidden" value="{{ $p_id }}" name="p_id">
 
-                            <select name="user_id" id="user_id" class="form-control" required>
+                        <div class="col-12">
+                            <label for="user_id" class="form-label">Select User *</label>
+                            <select name="user_id" id="user_id" class="form-select select2" required data-placeholder="Search and select a learner">
                                 <option value=""></option>
                                 @foreach ($users->sortBy('name') as $user)
                                     @if($user->certificates_count <= 0)
-                                        <option value="{{ $user->user_id }}">{{$user->name}}</option>
+                                        <option value="{{ $user->user_id }}">{{ $user->name }}</option>
                                     @endif
                                 @endforeach
                             </select>
-                            <div><small style="color:red">{{ $errors->first('user_id')}}</small></div>
-
-                            <div class="mb-3">
-                                <label>Choose Certificate</label>
-                                <input type="file" id="certificate" name="certificate" class="form-control" required>
-                            </div>
-                            <div><small style="color:red">{{ $errors->first('certificate')}}</small></div>
+                            <div class="certificate-hint mt-2">Only learners without an existing certificate for this training are shown here.</div>
+                            <div class="text-danger small mt-1">{{ $errors->first('user_id') }}</div>
                         </div>
-                        <input type="hidden" value="{{ $p_id }}" name="p_id">
-                       
-                        <button type="submit" class="btn btn-primary" style="width:100%">Submit</button>
+
+                        <div class="col-12 col-md-6">
+                            <label for="certificate" class="form-label">Choose Certificate *</label>
+                            <input type="file" id="certificate" name="certificate" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                            <div class="certificate-hint mt-2">Upload the issued certificate file in PDF, DOC, DOCX, JPG, JPEG, or PNG format.</div>
+                            <div class="text-danger small mt-1">{{ $errors->first('certificate') }}</div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="date_issued" class="form-label">Date Issued</label>
+                            <input type="date" class="form-control" name="date_issued" id="date_issued" value="{{ now()->format('Y-m-d') }}">
+                            <div class="certificate-hint mt-2">Defaults to today if you leave it as-is.</div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="d-flex flex-column flex-md-row gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                    <i class="fa fa-check me-1"></i> Save Certificate
+                                </button>
+                                <a href="{{ route('certificates.index', ['program_id' => $p_id]) }}" class="btn btn-outline-secondary btn-lg px-4">
+                                    Back to Index
+                                </a>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="col-md-12">
-            <div class="card-body">
-                <table id="zero_config" class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="text-align:center">
-                                <a class="btn btn-warning btn-sm m-2" id="send-all">
-                                    Actions
-                                </a> <br>
-                                <input type="checkbox" id="all"/>
-                            </th>
-                            <th>#</th>
-                            <th>Preview</th> <!-- New Column for Preview -->
-                            <th>Name</th>
-                            @if(!empty($score_settings))
-                            <th style="width: 115px;">Program Details</th>
-                            @endif
-                            <th>Details</th>
-                            <th>Date Issued</th>
-                            <th>Date Updated</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                        @foreach($certificates as $certificate)
-                        <?php 
-                            $results = $certificate->scores();
-                        ?>
-                        <tr>
-                            <td style="width:2px;text-align:center;">
-                                <input style="margin-right: 10px;" class="form-check-input downloads download-check" type="checkbox" value="{{$certificate->user_id}}">
-                            </td>
-                            <td>{{ $i++ }}</td>
-                            <td style="text-align:center;">
-                                @if($certificate->file)
-                                    <a class="btn btn-info btn-sm" href="#" onclick="loadCertificateImage(event, {{ $certificate->id }}, '/download-certificate/{{ $certificate->file }}')">Preview
-                                    </a>
-                                @else
-                                    <span>No Preview Available</span>
-                                @endif
-                            </td>
-                            
-                            <td>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>{{ $certificate->user->name ?? 'N/A' }}</strong><br>
-                                    <span style="font-style: italic; color: gray;">{{ $certificate->user->email }}</span><br>
-                                    <span style="font-weight: bold; color: #333;">{{ $certificate->user->staffID }}</span>
-                                </div>
-
-                                <!-- ReGenCert Section -->
-                                <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; display: inline-block;">
-                                    <strong style="color: #940798;">ReGenCert</strong>
-
-                                    @if($certificate->allow_new_certificate_request)
-                                        <a data-bs-toggle="tooltip" data-placement="top" title="Disable new certificate generation"
-                                        class="btn btn-danger btn-sm"
-                                        href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 0]) }}"
-                                        onclick="return confirm('Are you sure you want to disable new certificate generation?');">
-                                            <i class="fa fa-toggle-on"></i> Disable
-                                        </a>
-                                    @else
-                                        <a data-bs-toggle="tooltip" data-placement="top" title="Enable new certificate generation"
-                                        class="btn btn-success btn-sm"
-                                        href="{{ route('new.certificate.generation', ['certificate_id' => $certificate->id, 'status' => 1]) }}"
-                                        onclick="return confirm('Are you sure you want to enable new certificate generation?');">
-                                            <i class="fa fa-toggle-off"></i> Enable
-                                        </a>
-                                    @endif
-                                </div>
-                                @if($certificate->certificateHistory->count() > 0)
-                                <!-- Regeneration History Button (Triggers Modal) -->
-                                <br>
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#historyModal-{{ $certificate->id }}">
-                                    <i class="fa fa-history"></i> View Regeneration History ({{$certificate->certificateHistory->count()}})
-                                </button>
-                                @endif
-                            </td>
-
-                            @if(isset($score_settings) && !empty($score_settings))
-                            <td style="width: 115px;">
-                                @if(isset($score_settings->certification) && $score_settings->certification > 0)
-                                    <strong>Certification: </strong> {{ isset($results['certification_test_score'] ) ? $results['certification_test_score'] : '' }}% 
-                                @endif
-                                @if(isset($score_settings->class_test) && $score_settings->class_test > 0) <br>
-                                    <strong class="tit">Class Tests:</strong> {{ isset($results['class_test_score'] ) ? $results['class_test_score'] : '' }}% <br>
-                                @endif
-                                @if(isset($score_settings->role_play) && $score_settings->role_play > 0)
-                                    <strong class="tit">Role Play: </strong>{{ isset($results['role_play_score'] ) ? $results['role_play_score'] : '' }}% <br> 
-                                @endif
-                                @if(isset($score_settings->email) && $score_settings->email > 0)
-                                    <strong>Email: </strong>{{ isset($results['email_test_score'] ) ? $results['email_test_score'] : '' }}%
-                                @endif
-
-                                <br>
-                                <strong class="tit" style="color:{{ $results['total'] < $score_settings->passmark ? 'red' : 'green'}}"> Total: {{ $results['total'] }}%</strong> 
-                            </td>
-                            @endif
-                            <td style="color:{{ $certificate->show_certificate() == 'Disabled' ? 'red' : 'green'}}">
-                                Certificate Status: <strong>{{ $certificate->show_certificate() }}</strong>
-                                @if($certificate->certificate_number)
-                                <br>Certificate No: <strong>{{ $certificate->certificate_number }}</strong> <br>
-                                <div class="mb-3">
-                                    <button id="copy-btn{{$certificate->id}}" class="btn btn-primary">
-                                        <i class="fa fa-copy"></i> Copy Certificate Verification Link
-                                    </button>
-                                    <small id="copy-status{{$certificate->id}}" style="color: green; display: none;"></small>
-                                </div>
-                                <input type="text" id="verification-link{{$certificate->id}}" value="{{ env('WAACSP_CERTIFICATE_VERIFICATION_LINK').'?certificate_number='.$certificate->certificate_number }}" hidden>
-
-                                <script>
-                                    $('#copy-btn{{$certificate->id}}').click(function() {
-                                        var verificationLink = $('#verification-link{{$certificate->id}}').val();
-                                        
-                                        var tempInput = $('<input>');
-                                        $('body').append(tempInput);
-                                        tempInput.val(verificationLink).select();
-                                        document.execCommand("copy");
-                                        tempInput.remove(); 
-
-                                        $('#copy-status{{$certificate->id}}').text("{{$certificate->certificate_number}} Copied");
-                                        $('#copy-status{{$certificate->id}}').fadeIn().delay(2000).fadeOut();
-                                    });
-                                </script>
-                                @endif
-                            </td>
-                            <td>{{ !empty($certificate->date_issued) ? $certificate->date_issued : 'N/A' }}</td>
-                            <td>{{ $certificate->updated_at->format('d/m/Y') }}</td>
-                            <td>
-                                <div class="btn-group">
-                                    @if($certificate->show_certificate() == 'Disabled')
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="Enable certificate"
-                                        class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>1, 'certificate_id' => $certificate->id]) }}"><i
-                                            class="fa fa-toggle-on"></i>
-                                    </a>
-                                    @else
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="Disable certificate"
-                                        class="btn btn-light" href="{{route('certificate.status', ['program_id'=>$certificate->program_id, 'user_id'=> $certificate->user_id, 'status'=>0, 'certificate_id' => $certificate->id ]) }}"><i
-                                            class="fa fa-toggle-off"></i>
-                                    </a>
-                                    @endif
-
-                                    
-                                    <a data-bs-toggle="tooltip" data-placement="top" title="Download certificate"
-                                        class="btn btn-info" href="/download-certificate/{{ $certificate->file }}"><i
-                                            class="fa fa-download"></i>
-                                    </a>
-                                    
-                                    <form action="{{ route('certificates.destroy', $certificate->id) }}" method="POST" onsubmit="return confirm('Are you really sure?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip"
-                                            data-placement="top" title="Delete certificate"> <i
-                                                class="fa fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <!-- Modal for Regeneration History -->
-                        <div class="modal fade" id="historyModal-{{ $certificate->id }}" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="historyModalLabel">Certificate Regeneration History</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        @foreach($certificate->certificateHistory as $history)
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong>Date:</strong> {{ \Carbon\Carbon::parse($history->created_at)->format('jS F, Y h:i A') }} <br>
-                                                </div>
-                                                <a href="{{ url('download-certificate/' . $history->file) }}" class="btn btn-primary btn-sm" download>
-                                                    <i class="fa fa-download"></i> Download
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="myModal" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Select Action</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="col-md-12" style="padding: 10px 0;">
-                    <select class="form-control" id="action" name="action" required>
-                        <option value="" selected>Select Option</option>
-                        <option value="enable" selected>Enable</option>
-                        <option value="disable" selected>Disable</option>
-                        @if(isset($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
-                        <option value="regenerate-certificate" selected>Regenerate Certificate</option>
-                        @endif
-                        <option value="delete-certificate" selected>Delete Certificate</option>
-                    </select>
-                </div>
-                
-                <input type="hidden" name="program_id" id="program_id" value="{{ $p_id }}">
-                <div class="col-md-12" style="padding: 0px;">
-                    <button id="promote-all" class="btn btn-icon btn-primary form-control"><span id="promote-phrase">Send</span> <span><i id="spinner" class="fa fa-spinner fa-spin" style="display:none"></i></span></button>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button id="close" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
     </div>
 </div>
 
 <div class="modal fade" id="batchModal" tabindex="-1" aria-labelledby="exportmodal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="batchModalLabel">Auto Certificate Options</h5>
-            <button type="button" class="close btn btn-danger" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <form action="{{ route('certificates.generate', $p_id) }}" method="POST">
-            @csrf
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="batch-size" class="form-label">Batch Size</label>
-                    <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title mb-1" id="batchModalLabel">Auto Certificate Options</h5>
+                    <div class="text-muted small">Generate certificates in batches for this program.</div>
                 </div>
-                <div class="mb-3">
-                    <label for="show_certificate" class="form-label">Enable Generated Certificates</label>
-                    <select name="show_certificate" class="form-control" id="">
-                        <option value="">Select</option>
-                        <option value="1">Yes</option>
-                        <option value="0">No</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="use_cron" class="form-label">Use Cron</label>
-                    <select name="use_cron" class="form-control" id="">
-                        <option value="">Select</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="date_issued" class="form-label">Date Issued</label>
-                    <input type="date" class="form-control" name="date_issued" id="date_issued" value="{{ now()->format('Y-m-d') }}">
-                </div>
-
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="generate-button">
-                <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                Generate
-            </button>
-            </div>
-        </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="certificateModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-body" style="text-align:center;">
-                <div id="spinner" class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+            <form action="{{ route('certificates.generate', $p_id) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="batch-size" class="form-label">Batch Size</label>
+                        <input type="number" class="form-control" id="batch-size" name="pick" min="1" value="50" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="show_certificate" class="form-label">Enable Generated Certificates</label>
+                        <select name="show_certificate" class="form-select">
+                            <option value="">Select</option>
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="use_cron" class="form-label">Use Cron</label>
+                        <select name="use_cron" class="form-select">
+                            <option value="">Select</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div class="mb-0">
+                        <label for="date_issued" class="form-label">Date Issued</label>
+                        <input type="date" class="form-control" name="date_issued" id="batch-date_issued" value="{{ now()->format('Y-m-d') }}">
+                    </div>
                 </div>
-                <img id="certificate-img" src="" alt="Certificate" style="display:none; width:500px; height:auto;">
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="generate-button">
+                        <span id="generate-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Generate
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+@endsection
+
+@section('extra-scripts')
 <script>
     $(document).ready(function() {
         $('#user_id').select2();
-    });
 
-    function loadCertificateImage(event,certificateId, filePath) {
-        event.preventDefault();
-        var modalId = '#certificateModal';
-        var imageId = 'certificate-img';
-        var spinnerId = 'spinner';
-
-        var noCache = new Date().getTime(); 
-
-        $('#certificate-img').hide();
-        $('#spinner').show();
-
-        var imageUrl = filePath + '?nocache=' + noCache;
-
-        $('#' + imageId).attr('src', imageUrl).on('load', function () {
-            $('#' + spinnerId).hide();
-            $(this).show();
-        });
-
-        const certificateModal = document.getElementById('certificateModal');
-        if (window.bootstrap && window.bootstrap.Modal && certificateModal) {
-            window.bootstrap.Modal.getOrCreateInstance(certificateModal).show();
-        } else {
-            $(modalId).modal('show');
-        }
-    }
-
-</script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('.btn-close').click(function(e){
-            const modalEl = document.getElementById('myModal');
-            if (window.bootstrap && window.bootstrap.Modal && modalEl) {
-                window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-            } else {
-                $("#myModal").modal('hide');
-            }
-        });
-
-        $('#all').click(function(e){
-            if($(this).is(':checked')){
-                $('.download-check').prop('checked', true);
-                $('table .checker span').addClass('checked');
-            }else{
-                $('.download-check').prop('checked', false);
-                $('table .checker span').removeClass('checked');
-            }
-        });
-
-        $('#send-all').click(function(e){
-            const modalEl = document.getElementById('myModal');
-            if (window.bootstrap && window.bootstrap.Modal && modalEl) {
-                window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            } else {
-                $("#myModal").modal('show');
-            }
-        });
-
-        $('#promote-all').click(function(e){
-            var program_id =  $('#program_id').val();
-            var action =  $('#action').val();
-            var valuex = [];
-            
-            $('.downloads:checked').map(function(i, e){
-                valuex.push($(e).val());
-            });
-
-            if(valuex.length > 0){
-                callAjax(program_id, valuex, action);
-            }else{
-                alert("Please check one or more certificates to enable or disable");
-            }
-        });
-
-        function callAjax(program_id,valuex,action){
-            $.ajax({
-            url: "{{ route('certificates.modify') }}",
-            type: "POST",
-            data: {
-                program_id: program_id,
-                action: action,
-                data: valuex,
-            },
-            beforeSend: function(xhr){
-                $('#spinner').show();
-                $('#promote-phrase').hide();
-            },
-            success: function(res){
-                $("#myModal").modal('hide');
-                $('.download-check').prop('checked', false);
-
-                location.reload();
-
-                alert('Action performed successfully')
-            }
-        });
-
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('form');
-        const generateButton = document.getElementById('generate-button');
-        const spinner = document.getElementById('generate-spinner');
-
-        form.addEventListener('submit', function () {
-            // Disable the button and show the spinner when the form is submitted
-            generateButton.disabled = true;
-            spinner.classList.remove('d-none'); // Show the spinner
+        $('#generate-button').on('click', function() {
+            $('#generate-spinner').removeClass('d-none');
         });
     });
 </script>

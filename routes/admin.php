@@ -240,6 +240,8 @@ Route::middleware(['admin.access'])->group(function () {
                 Route::get('materialscreate/{p_id}', 'add')->name('creatematerials');
                 // Route::get('facilitatormaterials/{p_id}', 'all')->name('facilitatormaterials');
                 Route::post('cloneMaterial/{material_id}', 'clone')->name('material.clone');
+                Route::post('materials/bulk-clone', 'bulkClone')->name('materials.bulk-clone');
+                Route::post('materials/bulk-destroy', 'bulkDestroy')->name('materials.bulk-destroy');
                 Route::get('studymaterials/{filename}/{p_id}', 'getfile')->name('getmaterial');
                 Route::get('program-material/{training}', 'getTrainingMaterials')->name('material.program.select');
             });
@@ -252,6 +254,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::get('certificates/create', 'create')->name('certificates.create');
             Route::post('certificates-modify', 'modify')->name('certificates.modify');
             Route::get('certificate/{filename}', 'getfile');
+            Route::get('certificate-preview/{filename}', 'previewFile')->name('certificate.preview.file');
             Route::get('suser/{program_id}', 'selectUser')->name('program.select');
             Route::post('certificate/save', 'save')->name('certificates.save');
             Route::delete('certificates/{certificate}', 'destroy')->name('certificates.destroy');
@@ -267,6 +270,7 @@ Route::middleware(['admin.access'])->group(function () {
             Route::post('save-certificate-template', 'saveCertificateTemplate')->name('save.certificate.template');
             Route::delete('delete-certificate-template/{template}', 'deleteCertificateTemplate')->name('certificatetemplate.destroy');
             Route::post('update-certificate-template/{template}', 'updateCertificateTemplate')->name('update.certificate.template');
+            Route::post('certificates/bulk-action', 'bulkAction')->name('certificates.bulk-action');
 
             Route::get('certificate-regeneration-requests', 'certificateRegenerationRequests')->name('certificates.regeneration.requests');
             Route::put('/certificate-requests/{id}', [CertificateController::class, 'updateGenerationRequestStatus'])
