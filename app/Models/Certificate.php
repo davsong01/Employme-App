@@ -8,6 +8,7 @@ use App\Models\Module;
 use App\Models\Result;
 use App\Models\Program;
 use App\Models\Transaction;
+use App\Models\CertificateStatusLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CertificateGenerationHistory;
@@ -53,6 +54,11 @@ class Certificate extends Model
     public function certificateHistory()
     {
         return $this->hasMany(CertificateGenerationHistory::class)->orderBy('created_at','DESC');
+    }
+
+    public function certificateStatusLogs()
+    {
+        return $this->hasMany(CertificateStatusLog::class, 'certificate_number', 'certificate_number');
     }
 
     public function scores(){

@@ -65,6 +65,22 @@
         align-items: center;
     }
 
+    .certificate-bulk-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+        align-items: center;
+    }
+
+    .certificate-bulk-toolbar .btn,
+    .certificate-bulk-toolbar .badge {
+        border-radius: 999px;
+    }
+
+    .certificate-bulk-toolbar .dropdown-menu {
+        min-width: 180px;
+    }
+
     .certificate-pill {
         display: inline-flex;
         align-items: center;
@@ -125,6 +141,10 @@
     .certificate-chip.training {
         background: #eef2ff;
         color: #4338ca;
+    }
+
+    #certificate-program-modal .select2-container {
+        z-index: 1065;
     }
 
     @media (max-width: 767.98px) {
@@ -224,6 +244,20 @@
         .certificate-inline-actions {
             width: 100%;
         }
+
+        .certificate-bulk-toolbar {
+            width: 100%;
+        }
+
+        .certificate-bulk-toolbar .btn,
+        .certificate-bulk-toolbar .badge,
+        .certificate-bulk-toolbar .dropdown {
+            width: 100%;
+        }
+
+        .certificate-bulk-toolbar .dropdown-toggle {
+            justify-content: center;
+        }
     }
 </style>
 @endsection
@@ -261,9 +295,6 @@
                             </button>
                             <a href="{{ route('certificates.regeneration.requests') }}" class="btn btn-outline-info">
                                 <i class="fa fa-refresh me-1"></i> Requests
-                            </a>
-                            <a href="{{ route('certificate.verification.logs') }}" class="btn btn-outline-secondary">
-                                <i class="fa fa-history me-1"></i> Verification Logs
                             </a>
                         </div>
                     </div>
@@ -407,7 +438,7 @@
                 <div class="text-muted small">
                     Showing {{ $certificates->count() }} records on this page. Use the checkboxes for batch actions.
                 </div>
-                <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="certificate-bulk-toolbar">
                     <span class="badge bg-light text-dark rounded-pill px-3 py-2">
                         <span id="selected-certificate-count">0</span> selected
                     </span>
@@ -460,6 +491,7 @@
                                 $verificationLink = $certificate->certificate_number
                                     ? env('WAACSP_CERTIFICATE_VERIFICATION_LINK') . '?certificate_number=' . $certificate->certificate_number
                                     : null;
+                                $verificationLogsCount = $certificate->verification_logs_count ?? 0;
                             @endphp
                             <tr>
                                 <td data-label="">
@@ -485,6 +517,15 @@
                                             @if($certificate->file)
                                                 <a class="btn btn-outline-info btn-sm certificate-link-copy" href="#" onclick="loadCertificatePreview(event, '/admin/certificate-preview/{{ $certificate->file }}')">
                                                     <i class="fa fa-eye me-1"></i> Preview
+                                                </a>
+                                            @endif
+                                            @if($certificate->certificate_number)
+                                                <a
+                                                    class="btn btn-outline-secondary btn-sm certificate-link-copy"
+                                                    href="{{ route('certificate.verification.logs', ['certificate_number' => $certificate->certificate_number]) }}"
+                                                >
+                                                    <i class="fa fa-history me-1"></i> Logs
+                                                    <span class="badge bg-light text-dark rounded-pill ms-1">{{ $verificationLogsCount }}</span>
                                                 </a>
                                             @endif
                                         </div>
@@ -661,7 +702,7 @@
             </div>
             <div class="modal-body">
                 <label class="form-label fw-semibold">Program</label>
-                <select id="certificate-program-select" class="form-select select2" data-placeholder="Select a training">
+                <select id="certificate-program-select" class="form-select certificate-program-select" data-placeholder="Select a training">
                     <option value=""></option>
                     @foreach($programs as $program)
                         <option value="{{ $program->id }}">{{ $program->p_name }} ({{ $program->certificates_count }})</option>
@@ -739,6 +780,7 @@
         const flowButtons = document.querySelectorAll('[data-certificate-flow]');
         const programSelect = document.getElementById('certificate-program-select');
         const programGoBtn = document.getElementById('certificate-program-go-btn');
+        const certificateProgramModal = document.getElementById('certificate-program-modal');
         const programRouteBase = @json(url('admin/suser'));
         const duplicatesRouteBase = @json(url('admin/certificate-clear-duplicate'));
         let activeCertificateFlow = 'generate';
@@ -866,6 +908,35 @@
                 activeCertificateFlow = button.getAttribute('data-certificate-flow') || 'generate';
             });
         });
+
+        if (programSelect && window.jQuery && typeof window.jQuery.fn.select2 === 'function') {
+            const initProgramSelect = function () {
+                const $select = window.jQuery(programSelect);
+
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+
+                $select.select2({
+                    width: '100%',
+                    dropdownParent: window.jQuery('#certificate-program-modal'),
+                    placeholder: $select.data('placeholder') || 'Select a training',
+                    allowClear: true
+                });
+            };
+
+            if (certificateProgramModal) {
+                certificateProgramModal.addEventListener('shown.bs.modal', initProgramSelect);
+                certificateProgramModal.addEventListener('hidden.bs.modal', function () {
+                    const $select = window.jQuery(programSelect);
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+                });
+            } else {
+                initProgramSelect();
+            }
+        }
 
         if (programGoBtn) {
             programGoBtn.addEventListener('click', function () {

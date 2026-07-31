@@ -45,6 +45,9 @@ class CertificateController extends Controller
 
             $certificateQuery = Certificate::query()
                 ->with(['user', 'program.scoresettings', 'transaction', 'certificateHistory', 'uploadedBy'])
+                ->withCount([
+                    'certificateStatusLogs as verification_logs_count',
+                ])
                 ->when($request->filled('search'), function ($query) use ($request) {
                     $search = $request->string('search')->value();
 
