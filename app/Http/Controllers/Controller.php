@@ -1357,7 +1357,7 @@ class Controller extends BaseController
             ],
             [
                 'id' => 60,
-                'name' => 'Error Logs',
+                'name' => 'System Logs',
                 'type' => 'menu',
                 'route' => '',
                 'isParent' => 'yes',
@@ -1366,7 +1366,7 @@ class Controller extends BaseController
             ],
             [
                 'id' => 61,
-                'name' => 'Errors (Database logs)',
+                'name' => 'Error Logs',
                 'route' => 'admin.errors.index',
                 'type' => 'menu',
                 'isParent' => 'no',
@@ -1375,8 +1375,16 @@ class Controller extends BaseController
             ],
             [
                 'id' => 62,
-                'name' => 'Error Log Files',
+                'name' => 'Error Files',
                 'route' => 'admin.error-files.index',
+                'type' => 'menu',
+                'isParent' => 'no',
+                'parentId' => 60
+            ],
+            [
+                'id' => 63,
+                'name' => 'Cron Tasks',
+                'route' => 'admin.utility-cron-tasks.index',
                 'type' => 'menu',
                 'isParent' => 'no',
                 'parentId' => 60

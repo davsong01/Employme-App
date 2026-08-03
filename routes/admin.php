@@ -28,6 +28,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScoreSettingController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TestsController;
+use App\Http\Controllers\UtilityTaskController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -317,5 +318,12 @@ Route::middleware(['admin.access'])->group(function () {
 
         Route::post('/error-log-files/delete-all', 'deleteAll')
             ->name('admin.error-files.deleteAll');
+    });
+
+    Route::prefix('utility-cron-tasks')->name('admin.utility-cron-tasks.')->controller(UtilityTaskController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('{utilityCronTask}/retry', 'retry')->name('retry');
+        Route::post('{utilityCronTask}/try-now', 'tryNow')->name('try-now');
+        Route::post('{utilityCronTask}/mark-pending', 'markPending')->name('mark-pending');
     });
 });

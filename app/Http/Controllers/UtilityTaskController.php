@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UtilityCronTask;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -19,6 +20,60 @@ use Illuminate\Support\Facades\Mail;
 
 class UtilityTaskController extends Controller
 {
+    public function index(Request $request)
+    {
+        $tasks = UtilityCronTask::query()
+            ->when($request->filled('search'), function ($query) use ($request): void {
+                $search = trim((string) $request->string('search')->value());
+
+                $query->where(function ($builder) use ($search): void {
+                    $builder->where('name', 'like', "%{$search}%")
+                        ->orWhere('key', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->value()))
+            ->orderByRaw("FIELD(status, 'failed', 'pending', 'completed')")
+            ->orderByDesc('updated_at')
+            ->paginate(adminPaginationRecords())
+            ->withQueryString();
+
+        return view('dashboard.admin.utility-cron-tasks.index', [
+            'tasks' => $tasks,
+            'statusOptions' => [
+                'pending' => 'Pending',
+                'completed' => 'Completed',
+                'failed' => 'Failed',
+            ],
+        ]);
+    }
+
+    public function retry(UtilityCronTask $utilityCronTask): RedirectResponse
+    {
+        $utilityCronTask->update([
+            'status' => 'pending',
+        ]);
+
+        return back()->with('message', 'Task moved back to pending.');
+    }
+
+    public function tryNow(UtilityCronTask $utilityCronTask): RedirectResponse
+    {
+        $result = $this->processUtilityTask($utilityCronTask, true);
+
+        return $result['status'] === 'success'
+            ? back()->with('message', $result['message'])
+            : back()->with('error', $result['message']);
+    }
+
+    public function markPending(UtilityCronTask $utilityCronTask): RedirectResponse
+    {
+        $utilityCronTask->update([
+            'status' => 'pending',
+        ]);
+
+        return back()->with('message', 'Task marked as pending.');
+    }
+
     // public function runTool(){
     //     // $this->generateOldCertificateNumbers();
     //     $pending = UtilityCronTask::where('status', 'pending')->get();
@@ -94,37 +149,17 @@ class UtilityTaskController extends Controller
         $completedTasks = 0;
 
         foreach ($pending as $pend) {
+            $process = $this->processUtilityTask($pend, false);
 
-            if ($pend->key !== 'certificate-generation') {
-                continue;
-            }
-
-            $request = new Request($pend->payload);
-
-            $process = app('App\Http\Controllers\CertificateController')
-                ->generateCertificates($request, $pend->payload['program_id'], true);
-
-            if (!$process || !isset($process['status'])) {
-                continue;
-            }
-
-            // CERTIFICATES STILL PROCESSING
-            if ($process['status'] === 'success') {
+            if (($process['status'] ?? null) === 'success') {
                 $successfulRuns++;
                 continue;
             }
 
-            // TRACKER EXHAUSTED → MARK CRON COMPLETED
-            if ($process['status'] === 'completed') {
+            if (($process['status'] ?? null) === 'completed') {
                 $pend->status = 'completed';
                 $pend->save();
                 $completedTasks++;
-                continue;
-            }
-
-            // INTERNAL ERROR
-            if ($process['status'] === 'failed') {
-                // do NOT mark as completed, keep pending for retry
                 continue;
             }
         }
@@ -134,6 +169,66 @@ class UtilityTaskController extends Controller
             'successful_runs' => $successfulRuns,
             'completed_tasks' => $completedTasks,
         ]);
+    }
+
+    private function processUtilityTask(UtilityCronTask $task, bool $markFailed = false): array
+    {
+        if ($task->key !== 'certificate-generation') {
+            return [
+                'status' => 'failed',
+                'message' => 'Unsupported task key.',
+            ];
+        }
+
+        $payload = is_array($task->payload) ? $task->payload : [];
+        $programId = (int) ($payload['program_id'] ?? 0);
+
+        if ($programId <= 0) {
+            return [
+                'status' => 'failed',
+                'message' => 'Task payload is missing a valid program id.',
+            ];
+        }
+
+        $request = new Request($payload);
+        $process = app('App\Http\Controllers\CertificateController')
+            ->generateCertificates($request, $programId, true);
+
+        if (! is_array($process) || ! isset($process['status'])) {
+            if ($markFailed) {
+                $task->update(['status' => 'failed']);
+            }
+
+            return [
+                'status' => 'failed',
+                'message' => 'Task execution did not return a status.',
+            ];
+        }
+
+        if ($process['status'] === 'success') {
+            return [
+                'status' => 'success',
+                'message' => $process['message'] ?? 'Task processed successfully.',
+            ];
+        }
+
+        if ($process['status'] === 'completed') {
+            $task->update(['status' => 'completed']);
+
+            return [
+                'status' => 'completed',
+                'message' => $process['message'] ?? 'Task completed successfully.',
+            ];
+        }
+
+        if ($markFailed) {
+            $task->update(['status' => 'failed']);
+        }
+
+        return [
+            'status' => 'failed',
+            'message' => $process['message'] ?? 'Task execution failed.',
+        ];
     }
 
 
