@@ -325,5 +325,6 @@ Route::middleware(['admin.access'])->group(function () {
         Route::post('{utilityCronTask}/retry', 'retry')->name('retry');
         Route::post('{utilityCronTask}/try-now', 'tryNow')->name('try-now');
         Route::post('{utilityCronTask}/mark-pending', 'markPending')->name('mark-pending');
+        Route::delete('{utilityCronTask}', 'destroy')->name('destroy');
     });
 });

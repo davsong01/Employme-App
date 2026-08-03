@@ -455,6 +455,7 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="certificates-bulk-actions">
                             <li><button class="dropdown-item" type="button" data-certificate-action="enable">Enable selected</button></li>
                             <li><button class="dropdown-item" type="button" data-certificate-action="disable">Disable selected</button></li>
+                            <li><button class="dropdown-item text-danger" type="button" data-certificate-action="delete">Delete selected</button></li>
                         </ul>
                     </div>
                 </div>
@@ -872,12 +873,17 @@
             item.addEventListener('click', function () {
                 const action = item.getAttribute('data-certificate-action');
                 const ids = selectedIds();
+                const messages = {
+                    enable: 'Enable the selected certificates?',
+                    disable: 'Disable the selected certificates?',
+                    delete: 'Delete the selected certificates? This cannot be undone.'
+                };
 
                 if (!ids.length) {
                     return;
                 }
 
-                if (!confirm((action === 'enable' ? 'Enable' : 'Disable') + ' the selected certificates?')) {
+                if (!confirm(messages[action] || 'Apply the selected action to the certificates?')) {
                     return;
                 }
 

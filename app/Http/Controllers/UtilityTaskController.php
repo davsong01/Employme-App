@@ -74,6 +74,13 @@ class UtilityTaskController extends Controller
         return back()->with('message', 'Task marked as pending.');
     }
 
+    public function destroy(UtilityCronTask $utilityCronTask): RedirectResponse
+    {
+        $utilityCronTask->delete();
+
+        return back()->with('message', 'Task deleted successfully.');
+    }
+
     // public function runTool(){
     //     // $this->generateOldCertificateNumbers();
     //     $pending = UtilityCronTask::where('status', 'pending')->get();

@@ -1129,7 +1129,7 @@ class CertificateController extends Controller
         $data = $request->validate([
             'certificate_ids' => ['required', 'array', 'min:1'],
             'certificate_ids.*' => ['integer', 'exists:certificates,id'],
-            'bulk_action' => ['required', 'in:enable,disable'],
+            'bulk_action' => ['required', 'in:enable,disable,delete'],
         ]);
 
         $certificates = Certificate::with('transaction')
@@ -1143,6 +1143,14 @@ class CertificateController extends Controller
 
         if ($certificates->isEmpty()) {
             return back()->with('error', 'No selected certificates could be updated with your current permissions');
+        }
+
+        if ($data['bulk_action'] === 'delete') {
+            foreach ($certificates as $certificate) {
+                $this->destroy($certificate, true);
+            }
+
+            return back()->with('message', 'Selected certificates deleted successfully');
         }
 
         $status = $data['bulk_action'] === 'enable' ? 1 : 0;

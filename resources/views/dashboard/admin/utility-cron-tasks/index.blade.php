@@ -86,6 +86,12 @@
                                                 <button type="submit" class="btn btn-sm btn-outline-secondary">Completed to Pending</button>
                                             </form>
                                         @endif
+
+                                        <form action="{{ route('admin.utility-cron-tasks.destroy', $task) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this task permanently?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-dark">Delete</button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
