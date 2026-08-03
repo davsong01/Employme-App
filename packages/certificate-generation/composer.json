@@ -1,0 +1,38 @@
+{
+    "name": "david-oghi/certificate-generation",
+    "version": "1.0.0",
+    "description": "A reusable Laravel certificate template designer, renderer, issuer, verifier and download package.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-gd": "*",
+        "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/filesystem": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/routing": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/validation": "^10.0|^11.0|^12.0|^13.0",
+        "dompdf/dompdf": "^3.0",
+        "intervention/image": "^2.7",
+        "simplesoftwareio/simple-qrcode": "^4.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "DavidOghi\\CertificateGeneration\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DavidOghi\\CertificateGeneration\\CertificateServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
