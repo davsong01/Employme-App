@@ -376,9 +376,21 @@ if (!function_exists("certificateIssuedDate")) {
             $rawDate = data_get($settings, 'date_of_issue');
         }
 
+        $issuedDateFormat = config('certificates.rendering.issued_date_format', 'jS \\d\\a\\y \\o\\f F, Y');
+
         return ! blank($rawDate)
-            ? \Carbon\Carbon::parse($rawDate)->format('jS \d\a\y \o\f F, Y')
-            : now()->format('jS \d\a\y \o\f F, Y');
+            ? \Carbon\Carbon::parse($rawDate)->format($issuedDateFormat)
+            : now()->format($issuedDateFormat);
+    }
+}
+
+if (!function_exists("certificateTextBaselineOffset")) {
+    function certificateTextBaselineOffset(float|int $fontSize): int
+    {
+        $fontSize = max(0, (float) $fontSize);
+
+        // Nudge text upward a little so the rendered image matches the canvas anchor more closely.
+        return max(0, min(18, (int) round($fontSize * 0.16)));
     }
 }
 
@@ -555,7 +567,7 @@ if (!function_exists("generateLegacyCertificate")) {
                 case 'date_issued': $text = $dateIssued; break;
             }
 
-            $image->text($text, $left, $top, function ($font) use ($size, $color, $font_file) {
+            $image->text($text, $left, $top - certificateTextBaselineOffset($size), function ($font) use ($size, $color, $font_file) {
                 $font->file(public_path('certificate_fonts/' . $font_file));
                 $font->size($size);
                 $font->color($color);

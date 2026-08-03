@@ -140,7 +140,10 @@
                     <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-4">
                         <div class="pe-xl-4">
                             <div class="d-flex flex-wrap gap-2 mb-3">
-                                <span class="certificate-pill info">Program scoped</span>
+                                <span class="certificate-pill info">
+                                    @php($generatedCertificatesCount = $generatedCertificatesCount ?? 0)
+                                    {{ number_format($generatedCertificatesCount) }} {{ \Illuminate\Support\Str::plural('certificate', $generatedCertificatesCount) }} generated
+                                </span>
                                 @if(!empty($certificate_settings['auto_certificate_status']) && $certificate_settings['auto_certificate_status'] == 'yes')
                                     <span class="certificate-pill success">Auto generation enabled</span>
                                 @else
