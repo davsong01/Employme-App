@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "barryvdh/laravel-dompdf": "^3.0",
+        "barryvdh/laravel-dompdf": "^3.1",
         "david-oghi/certificate-generation": "^1.0",
         "flexflux/laravel-elastic-email": "^2.1",
         "guzzlehttp/guzzle": "^7.2",
