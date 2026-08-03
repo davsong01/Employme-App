@@ -860,11 +860,11 @@ class CertificateController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             // \Log::error("Certificate batch generation failed for program {$program_id}: " . $e->getMessage());
+            report($e);
             
             if ($internal) {
                 return ['status' => 'failed', 'message' => 'Internal error. Check logs.'];
             }
-            report($e);
             
             return back()->with('error', 'An error occurred while generating certificates. Check logs.');
         }
