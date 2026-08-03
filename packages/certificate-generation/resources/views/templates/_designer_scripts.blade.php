@@ -114,9 +114,9 @@
 
     function tightTextHeight(fontSize, lineHeight = 1.2) {
         const size = Math.max(8, Number(fontSize) || 8);
-        const height = Math.round(size * Math.max(1, Number(lineHeight) || 1.2) + 6);
+        const height = Math.round(size * Math.max(1, Number(lineHeight) || 1));
 
-        return Math.max(24, height);
+        return Math.max(18, height);
     }
 
     function normalizeElement(element) {

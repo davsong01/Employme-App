@@ -273,8 +273,8 @@
     }
 
     .certificate-designer .preview-modal-dialog {
-        width: min(95vw, 1600px);
-        max-width: min(95vw, 1600px);
+        width: min(90vw, 900px);
+        max-width: min(90vw, 900px);
     }
 
     .certificate-designer .preview-modal-image-wrap {
@@ -294,6 +294,8 @@
         position: absolute;
         box-sizing: border-box;
         border: 1px solid transparent;
+        padding: 0;
+        margin: 0;
         cursor: move;
         user-select: none;
         touch-action: none;
@@ -315,6 +317,8 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
+        padding: 0;
+        margin: 0;
         display: flex;
         align-items: flex-start;
         justify-content: flex-start;
@@ -334,6 +338,7 @@
         display: block;
         width: 100%;
         padding: 0;
+        margin: 0;
         line-height: 1;
         white-space: pre-wrap;
         word-break: break-word;
@@ -539,10 +544,12 @@
         border-radius: 10px;
         background: rgba(255, 255, 255, .96);
         padding: 0;
+        margin: 0;
         box-shadow: 0 14px 30px rgba(15, 23, 42, .18);
         resize: none;
         outline: none;
         font-family: inherit;
+        line-height: 1;
     }
 
     @if($useBootstrap4)

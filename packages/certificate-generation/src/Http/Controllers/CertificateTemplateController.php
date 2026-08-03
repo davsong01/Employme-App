@@ -171,8 +171,6 @@ class CertificateTemplateController extends Controller
             'program_ids.*' => ['nullable', 'integer', Rule::exists(config('certificates.models.program', Program::class), 'id')],
             'program_statuses' => ['nullable', 'array'],
             'program_statuses.*' => ['nullable', 'string', Rule::in(['draft', 'published'])],
-            'program_dates_issued' => ['nullable', 'array'],
-            'program_dates_issued.*' => ['nullable', 'date'],
             'supported_modules' => $modules === [] ? ['prohibited'] : ['nullable', 'array'],
             'supported_modules.*' => ['string', Rule::in(array_keys($modules))],
             'settings' => ['nullable'],
@@ -226,7 +224,6 @@ class CertificateTemplateController extends Controller
                         return [
                             'program_id' => $program->id,
                             'status' => data_get($settings, 'auto_certificate_status') === 'yes' ? 'published' : 'draft',
-                            'date_issued' => data_get($settings, 'date_of_issue', ''),
                         ];
                     })
                     ->values()
@@ -242,7 +239,6 @@ class CertificateTemplateController extends Controller
     {
         $programIds = $request->input('program_ids', []);
         $programStatuses = $request->input('program_statuses', []);
-        $programDatesIssued = $request->input('program_dates_issued', []);
 
         if (! is_array($programIds)) {
             $programIds = [];
@@ -250,10 +246,6 @@ class CertificateTemplateController extends Controller
 
         if (! is_array($programStatuses)) {
             $programStatuses = [];
-        }
-
-        if (! is_array($programDatesIssued)) {
-            $programDatesIssued = [];
         }
 
         $assignments = [];
@@ -268,7 +260,6 @@ class CertificateTemplateController extends Controller
             $assignments[$programId] = [
                 'program_id' => $programId,
                 'auto_certificate_status' => $programStatuses[$index] ?? null,
-                'date_of_issue' => $programDatesIssued[$index] ?? null,
             ];
         }
 
@@ -290,7 +281,6 @@ class CertificateTemplateController extends Controller
 
                     $settings = is_array($program->auto_certificate_settings) ? $program->auto_certificate_settings : [];
                     $settings['auto_certificate_status'] = $assignment['auto_certificate_status'] == 'published' ? 'yes' : 'no';
-                    $settings['date_of_issue'] = $assignment['date_of_issue'];
                         
                     $program->update([
                         'certificate_template_id' => $template->id,

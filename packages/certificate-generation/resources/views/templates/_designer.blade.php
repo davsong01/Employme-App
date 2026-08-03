@@ -352,7 +352,7 @@
     </div>
 
     <div class="modal fade" id="certificatePreviewModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl preview-modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-lg preview-modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Server Preview</h5>
@@ -370,4 +370,3 @@
 </div>
 
 @include('certificates::templates._designer_scripts')
-

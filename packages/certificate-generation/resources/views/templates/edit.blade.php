@@ -10,13 +10,11 @@
 @php
     $programIds = old('program_ids');
     $programStatuses = old('program_statuses', []);
-    $programDatesIssued = old('program_dates_issued', []);
 
     if (! is_array($programIds) || $programIds === []) {
         if ($isEdit && is_array($selectedProgramRows ?? []) && $selectedProgramRows !== []) {
             $programIds = collect($selectedProgramRows)->pluck('program_id')->filter()->values()->all();
             $programStatuses = collect($selectedProgramRows)->pluck('status')->values()->all();
-            $programDatesIssued = collect($selectedProgramRows)->pluck('date_issued')->values()->all();
         } else {
             $programIds = $selectedProgramIds ?? [];
         }
@@ -24,7 +22,6 @@
 
     $programIds = is_array($programIds) ? $programIds : [];
     $programStatuses = is_array($programStatuses) ? $programStatuses : [];
-    $programDatesIssued = is_array($programDatesIssued) ? $programDatesIssued : [];
 
     $programRows = [];
 
@@ -32,7 +29,6 @@
         $programRows[] = [
             'program_id' => $programId,
             'status' => $programStatuses[$index] ?? 'draft',
-            'date_issued' => $programDatesIssued[$index] ?? '',
         ];
     }
 
@@ -40,7 +36,6 @@
         $programRows[] = [
             'program_id' => '',
             'status' => 'draft',
-            'date_issued' => '',
         ];
     }
 
@@ -79,7 +74,7 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div>
                         <h5 class="mb-1">Program assignments</h5>
-                        <small class="text-muted">Add one row per program, with its own status and date of issue.</small>
+                        <small class="text-muted">Add one row per program, with its own status.</small>
                     </div>
                     <button type="button" class="btn btn-outline-primary btn-sm" id="add-program-row">
                         Add program
@@ -93,8 +88,7 @@
                             <tr>
                                 <th style="width: 48%">Program</th>
                                 <th style="width: 22%">Status</th>
-                                <th style="width: 22%">Date of Issue</th>
-                                <th style="width: 8%"></th>
+                                <th style="width: 12%"></th>
                             </tr>
                         </thead>
                         <tbody id="program-rows">
@@ -115,14 +109,6 @@
                                             <option value="published" @selected(($row['status'] ?? 'draft') === 'published')>Published</option>
                                             <option value="draft" @selected(($row['status'] ?? 'draft') === 'draft')>Draft</option>
                                         </select>
-                                    </td>
-                                    <td>
-                                        <input
-                                            type="date"
-                                            name="program_dates_issued[]"
-                                            class="form-control program-date-issued"
-                                            value="{{ $row['date_issued'] ?? '' }}"
-                                        >
                                     </td>
                                     <td class="text-center">
                                         <button type="button" class="btn btn-outline-danger btn-sm remove-program-row">
@@ -214,9 +200,6 @@
                             <option value="published"${String(data.status ?? 'draft') === 'published' ? ' selected' : ''}>Published</option>
                         </select>
                     </td>
-                    <td>
-                        <input type="date" name="program_dates_issued[]" class="form-control program-date-issued" value="${data.date_issued ?? ''}">
-                    </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-outline-danger btn-sm remove-program-row">Remove</button>
                     </td>
@@ -235,14 +218,12 @@
                 const $row = $(this);
                 const $select = $row.find('.program-select');
                 const $status = $row.find('.program-status');
-                const $date = $row.find('.program-date-issued');
 
                 const programVal = $select.val();
                 const statusVal = $status.val();
-                const dateVal = $date.val();
 
-                // If user filled out a status or date, but didn't pick a program
-                const hasExtraFields = (statusVal && statusVal !== 'draft') || !!dateVal;
+                // If user filled out status, but didn't pick a program
+                const hasExtraFields = (statusVal && statusVal !== 'draft');
                 
                 if (!programVal && hasExtraFields) {
                     isValid = false;
