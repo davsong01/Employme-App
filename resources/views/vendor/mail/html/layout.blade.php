@@ -18,7 +18,8 @@ $trainings = Program::mainActivePrograms()
             'p_amount'  => $program->p_amount,
             'created_at'=> $program->created_at,
         ];
-    });
+    })
+    ->toBase();
 
 $packages = Group::with(['programs' => function ($q) {
         $q->mainActivePrograms();
@@ -35,7 +36,8 @@ $packages = Group::with(['programs' => function ($q) {
             'p_amount'  => $group->p_amount,
             'created_at'=> $group->created_at,
         ];
-    });
+    })
+    ->toBase();
 
     $merged = $trainings->merge($packages)->sortByDesc('created_at')->shuffle()->values();
 ?>

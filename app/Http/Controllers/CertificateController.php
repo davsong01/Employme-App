@@ -263,7 +263,7 @@ class CertificateController extends Controller
                     'date_issued' => $newCertificate['date_issued'] ?? null,
                     'program_id' => $request->program_id,
                     'allow_new_certificate_request' => 0,
-                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_by' => $this->certificateUploadedById(),
                     'uploaded_at' => now(),
                 ]);
 
@@ -277,7 +277,7 @@ class CertificateController extends Controller
                 $existingCertificate->update([
                     'allow_new_certificate_request' => 0,
                     'file' => $newCertificate['name'],
-                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_by' => $this->certificateUploadedById(),
                     'uploaded_at' => now(),
                 ]);
             }
@@ -357,7 +357,7 @@ class CertificateController extends Controller
                 'date_issued' => !empty($request['date_issued'])
                     ? Carbon::parse($request['date_issued'])->format(config('certificates.rendering.issued_date_format', 'jS \\d\\a\\y \\o\\f F, Y'))
                     : now()->format(config('certificates.rendering.issued_date_format', 'jS \\d\\a\\y \\o\\f F, Y')),
-                'uploaded_by' => resolveAuthUser()->id,
+                'uploaded_by' => $this->certificateUploadedById(),
                 'uploaded_at' => now(),
             ]);
 
@@ -596,7 +596,7 @@ class CertificateController extends Controller
                         'file' => $certificate['name'],
                         'certificate_number' => $certificate['certificate_number'],
                         'program_id' => $request->program_id,
-                        'uploaded_by' => resolveAuthUser()->id,
+                        'uploaded_by' => $this->certificateUploadedById(),
                         'uploaded_at' => now(),
                     ]);
                     
@@ -835,7 +835,7 @@ class CertificateController extends Controller
                         'certificate_number' => $certificate['certificate_number'],
                         'program_id' => $program_id,
                         'date_issued' => $certificate['date_issued'],
-                        'uploaded_by' => resolveAuthUser()->id,
+                        'uploaded_by' => $this->certificateUploadedById(),
                         'uploaded_at' => now(),
                     ]
                 );
@@ -1175,6 +1175,11 @@ class CertificateController extends Controller
             ?->pluck('program_id')
             ?->map(fn ($id) => (int) $id)
             ->all() ?? [];
+    }
+
+    private function certificateUploadedById(): ?int
+    {
+        return resolveAuthUser()?->id ?? auth()->id();
     }
 
     // public function generateNewCertificate(Request $request, Certificate $certificate){
