@@ -85,9 +85,5 @@
         "options": {
             "symlink": true
         }
-    }, {
-        "name": "certificate-generation",
-        "type": "vcs",
-        "url": "https://github.com/davsong01/certificate-generation.git"
     }]
 }
