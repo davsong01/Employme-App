@@ -60,7 +60,7 @@ class UtilityTaskController extends Controller
     {
         $result = $this->processUtilityTask($utilityCronTask, true);
 
-        return $result['status'] === 'success'
+        return in_array($result['status'], ['success', 'completed'], true)
             ? back()->with('message', $result['message'])
             : back()->with('error', $result['message']);
     }

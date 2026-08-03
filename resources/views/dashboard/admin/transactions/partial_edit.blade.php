@@ -52,7 +52,14 @@
                             <strong>Paid:</strong> {{ $transaction->currency_symbol. number_format($transaction->amount) }}
                             
                             <br>
-                            <strong>Balance:</strong> <span class="fw-bold" style="color:{{ $transaction->balance > 0 ? 'red' : 'green'}}">{{ $transaction->currency_symbol. number_format($transaction->balance) }}</span>
+                            <strong>Balance:</strong>
+                            <span
+                                id="transaction-modal-balance-wrap-{{ $transaction->id }}"
+                                class="fw-bold {{ $transaction->balance > 0 ? 'text-danger' : 'text-success' }}"
+                                data-currency-symbol="{{ $transaction->currency_symbol }}"
+                            >
+                                {{ $transaction->currency_symbol }} <span id="transaction-modal-balance-value-{{ $transaction->id }}">{{ number_format($transaction->balance) }}</span>
+                            </span>
                         </p>
                     </div>
                 </div>
@@ -184,16 +191,22 @@
             if (response.success) {
                 // Close the modal
                 $(`#transaction-amount-` + response.transaction_id).text(response.new_amount);
-                var newBalance = response.new_balance;
+                const newBalance = Number(response.new_balance);
+                const formattedBalance = response.new_balance_formatted ?? response.new_balance;
+                const balanceWrap = $(`#transaction-balance-wrap-` + response.transaction_id);
+                const balanceValue = $(`#transaction-balance-value-` + response.transaction_id);
+                const currencySymbol = balanceWrap.data('currency-symbol') || '₦';
+
+                if (balanceValue.length) {
+                    balanceValue.text(formattedBalance);
+                } else if (balanceWrap.length) {
+                    balanceWrap.html(`${currencySymbol} <span id="transaction-balance-value-${response.transaction_id}">${formattedBalance}</span>`);
+                }
 
                 if (newBalance > 0) {
-                    $(`#transaction-balance-red-` + response.transaction_id).text(newBalance);
-                    $(`#transaction-balance-greenspan-` + response.transaction_id).hide();
-                    $(`#transaction-balance-redspan-` + response.transaction_id).show();
+                    balanceWrap.removeClass('text-success').addClass('text-danger');
                 } else {
-                    $(`#transaction-balance-green-` + response.transaction_id).text(newBalance);
-                    $(`#transaction-balance-greenspan-` + response.transaction_id).show();
-                    $(`#transaction-balance-greenspan-` + response.transaction_id).hide();
+                    balanceWrap.removeClass('text-danger').addClass('text-success');
                 }
                 
                 const modalEl = document.getElementById('editSidebarModal');

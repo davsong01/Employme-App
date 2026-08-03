@@ -319,21 +319,13 @@
 
                                             <div class="mb-2">
                                                 <span class="fw-bold">Balance:</span>
-                                                @if($transaction->balance > 0)
-                                                    <span id="transaction-balance-redspan-{{ $transaction->id }}" class="text-danger">
-                                                        {{ $transaction->currency_symbol }}
-                                                        <span id="transaction-balance-red-{{ $transaction->id }}">
-                                                            {{ number_format($transaction->balance) }}
-                                                        </span>
-                                                    </span>
-                                                @else
-                                                    <span id="transaction-balance-greenspan-{{ $transaction->id }}" class="text-success">
-                                                        {{ $transaction->currency_symbol }}
-                                                        <span id="transaction-balance-green-{{ $transaction->id }}">
-                                                            {{ number_format($transaction->balance) }}
-                                                        </span>
-                                                    </span>
-                                                @endif
+                                                <span
+                                                    id="transaction-balance-wrap-{{ $transaction->id }}"
+                                                    class="{{ $transaction->balance > 0 ? 'text-danger' : 'text-success' }}"
+                                                    data-currency-symbol="{{ $transaction->currency_symbol }}"
+                                                >
+                                                    {{ $transaction->currency_symbol }} <span id="transaction-balance-value-{{ $transaction->id }}">{{ number_format($transaction->balance) }}</span>
+                                                </span>
                                             </div>
                                         @endif
 

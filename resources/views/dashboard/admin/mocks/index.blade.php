@@ -466,7 +466,7 @@
                                             <small>
                                                 <strong class="tit">Certification Marked by: <br> </strong><span id="certification_facilitator{{ $user->id }}"> {{ $user->training_result->certification_facilitator ?: 'N/A' }}</span><br>
                                                 <strong class="tit">Certification Graded by: <br></strong> <span id="certification_grader{{ $user->id }}">{{ $user->training_result->certification_grader ?: 'N/A'}}</span><br>
-                                                Last updated on: <span id="updated_at{{ $user->id }}">{{ $user->updated_at ? \Carbon\Carbon::parse($user->updated_at)->format('jS F, Y, h:iA') : ''}}</span>
+                                                Last updated on: <span id="updated_at{{ $user->id }}">{{ !empty($user->training_result->last_updated_at) ? \Carbon\Carbon::parse($user->training_result->last_updated_at)->format('jS F, Y, h:iA') : ''}}</span>
                                             </small>
                                         @endif
                                     </td>

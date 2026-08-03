@@ -871,10 +871,28 @@ class CertificateController extends Controller
 
         // If called from internal (cron runner), return status structure
         if ($internal) {
+            $remainingQuery = Transaction::with(['user', 'certificate'])
+                ->where('program_id', $program_id)
+                ->whereDoesntHave('certificate', function ($query) use ($program_id) {
+                    $query->where('program_id', $program_id);
+                });
+
+            if (! empty($cron_task) && $cron_task === 'yes') {
+                $remainingQuery->where('id', '>', (int) $tracker->end);
+            }
+
+            if ($remainingQuery->exists()) {
+                return [
+                    'status' => 'success',
+                    'processed' => $processed,
+                    'message' => 'Certificates processed for program ' . $program_id,
+                ];
+            }
+
             return [
-                'status' => 'success',
+                'status' => 'completed',
                 'processed' => $processed,
-                'message' => 'Certificates processed for program ' . $program_id,
+                'message' => 'All certificates have been generated for program ' . $program_id,
             ];
         }
 

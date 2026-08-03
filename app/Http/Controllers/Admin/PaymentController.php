@@ -286,7 +286,8 @@ class PaymentController extends Controller
                 'message' => 'Transaction updated successfully',
                 'transaction_id' => $id,
                 'new_amount' => number_format($transaction->amount),
-                'new_balance' => number_format($transaction->balance)
+                'new_balance' => $transaction->balance,
+                'new_balance_formatted' => number_format($transaction->balance)
             ]);
         }
 
@@ -410,7 +411,8 @@ class PaymentController extends Controller
             'message' => 'Transaction updated successfully',
             'transaction_id' => $id,
             'new_amount' => number_format($transaction->amount),
-            'new_balance' => number_format($transaction->balance)
+            'new_balance' => $transaction->balance,
+            'new_balance_formatted' => number_format($transaction->balance)
         ]);
     }
 

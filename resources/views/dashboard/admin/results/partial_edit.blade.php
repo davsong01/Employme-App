@@ -191,7 +191,7 @@
               $(`#crm_test_score` + response.id).text(response.crm_test_score);
               $(`#certification_facilitator` + response.id).text(response.certification_facilitator);
               $(`#certification_grader` + response.id).text(response.certification_grader);
-              $(`#updated_at` + response.id).text(response.updated_at);
+              $(`#updated_at` + response.id).text(response.last_updated_at);
 
               $(`#total_score${response.id}`).html(`
                   <strong class="tit" id="total_score${response.id}" 

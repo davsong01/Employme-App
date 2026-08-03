@@ -509,7 +509,9 @@ class ResultController extends Controller
                 'certification_facilitator' => $transaction->training_result?->certification_facilitator ?? '',
                 'certification_grader' => $transaction->training_result?->certification_grader ?? '',
                 'total_score' => $transaction->training_result?->total_score ?? 0,
-                'updated_at' => $result->updated_at ? \Carbon\Carbon::parse($result->updated_at)->format('jS F, Y, h:iA') : ''
+                'last_updated_at' => !empty($transaction->training_result?->last_updated_at)
+                    ? \Carbon\Carbon::parse($transaction->training_result->last_updated_at)->format('jS F, Y, h:iA')
+                    : ''
             ]);
         } catch (\Throwable $th) {
             return response()->json(
