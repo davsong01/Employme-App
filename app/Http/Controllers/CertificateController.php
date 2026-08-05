@@ -217,7 +217,7 @@ class CertificateController extends Controller
         }
 
         $transaction->update(['show_certificate' => (int) $status]);
-
+        
         return back()->with('message', 'Status updated successfully');
     }
 

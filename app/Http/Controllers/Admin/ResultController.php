@@ -79,6 +79,13 @@ class ResultController extends Controller
             }
         }
 
+        if (!empty($request->passed_test) && in_array($request->passed_test, ['yes', 'no'])) {
+            $passmark = ScoreSetting::where('program_id', $request->p_id)->value('certification');
+            
+            $operator = $request->passed_test === 'yes' ? '>=' : '<';
+            
+            $users = $users->where('training_result->certification_test_score', $operator, $passmark);
+        }
         if (!empty($request->email)) {
             $users = $users->whereHas('user', function ($query) use ($request) {
                 $query->where('email', $request->email);

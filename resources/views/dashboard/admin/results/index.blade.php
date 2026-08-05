@@ -244,6 +244,7 @@
         $resultRoute = route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]);
         $exportLabel = $page == 'results' ? 'Post' : 'Pre';
         $activeTab = is_null($currentStatus) ? 'all' : $currentStatus;
+        $passedTest = request('passed_test');
     @endphp
     <div class="row g-4 mb-4">
         <div class="col-12">
@@ -265,6 +266,9 @@
                         <a href="{{ $resultRoute }}" class="btn btn-outline-dark {{ $activeTab === 'all' ? 'active' : '' }}">All</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
                         <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
+                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'yes']) }}" class="btn btn-outline-info {{ $passedTest === 'yes' ? 'active' : '' }}">Passed</a>
+                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'no']) }}" class="btn btn-outline-danger {{ $passedTest === 'yes' ? 'active' : '' }}">Failed</a>
+
                         <a class="btn btn-primary" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal">
                             <i class="fa fa-download me-1"></i> Export {{ $exportLabel }} Test Results
                         </a>
