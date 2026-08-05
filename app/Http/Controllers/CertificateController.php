@@ -211,7 +211,7 @@ class CertificateController extends Controller
             ?? Transaction::where('user_id', $certificate->user_id)
                 ->where('program_id', $certificate->program_id)
                 ->first();
-
+        
         if (! $transaction) {
             return back()->with('error', 'Linked training record not found for this certificate.');
         }

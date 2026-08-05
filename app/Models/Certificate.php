@@ -36,12 +36,13 @@ class Certificate extends Model
     public function transaction()
     {
         return $this->hasOne(Transaction::class, 'user_id', 'user_id')
-            ->whereColumn('program_id', 'program_id');
+            ->where('program_id', $this->program_id);
     }
 
     public function show_certificate()
     {
-        $check = $this->transaction;
+        $check = $this->transaction()->first();
+        
         $access = 'Disabled';
         
         if($check){
