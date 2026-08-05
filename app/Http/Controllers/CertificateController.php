@@ -221,6 +221,110 @@ class CertificateController extends Controller
         return back()->with('message', 'Status updated successfully');
     }
 
+    public function bulkAction(Request $request)
+    {
+        $data = $request->validate([
+            'certificate_ids' => ['required', 'array', 'min:1'],
+            'certificate_ids.*' => ['integer', 'distinct', 'exists:certificates,id'],
+            'bulk_action' => ['required', 'in:enable,disable,delete'],
+        ]);
+
+        $certificates = Certificate::query()
+            ->with('transaction')
+            ->whereIn('id', $data['certificate_ids'])
+            ->get();
+
+        if (! checkRoleHas(['Admin'])) {
+            $allowedProgramIds = $this->allowedProgramIds();
+
+            $certificates = $certificates
+                ->filter(
+                    fn (Certificate $certificate) => in_array(
+                        (int) $certificate->program_id,
+                        $allowedProgramIds,
+                        true
+                    )
+                )
+                ->values();
+        }
+
+        if ($certificates->isEmpty()) {
+            return back()->with(
+                'error',
+                'No selected certificates could be updated with your current permissions.'
+            );
+        }
+
+        if ($data['bulk_action'] === 'delete') {
+            DB::transaction(function () use ($certificates) {
+                foreach ($certificates as $certificate) {
+                    $this->destroy($certificate, true);
+                }
+            });
+
+            return back()->with(
+                'message',
+                'Selected certificates deleted successfully.'
+            );
+        }
+
+        $status = $data['bulk_action'] === 'enable' ? 1 : 0;
+
+        $updatedCount = 0;
+        $missingTransactionCount = 0;
+
+        DB::transaction(function () use (
+            $certificates,
+            $status,
+            &$updatedCount,
+            &$missingTransactionCount
+        ) {
+            foreach ($certificates as $certificate) {
+                /*
+                |--------------------------------------------------------------------------
+                | Resolve the linked training transaction exactly as the single action
+                |--------------------------------------------------------------------------
+                */
+                $transaction = $certificate->transaction
+                    ?? Transaction::query()
+                        ->where('user_id', $certificate->user_id)
+                        ->where('program_id', $certificate->program_id)
+                        ->first();
+
+                if (! $transaction) {
+                    $missingTransactionCount++;
+
+                    continue;
+                }
+
+                $transaction->update([
+                    'show_certificate' => $status,
+                ]);
+
+                $updatedCount++;
+            }
+        });
+
+        if ($updatedCount === 0) {
+            return back()->with(
+                'error',
+                'Linked training records were not found for the selected certificates.'
+            );
+        }
+
+        $message = "{$updatedCount} certificate status"
+            . ($updatedCount === 1 ? ' was' : 'es were')
+            . ' updated successfully.';
+
+        if ($missingTransactionCount > 0) {
+            $message .= " {$missingTransactionCount} selected certificate"
+                . ($missingTransactionCount === 1 ? ' was' : 's were')
+                . ' skipped because the linked training record was not found.';
+        }
+
+        return back()->with('message', $message);
+    }
+
     public function updateGenerationRequestStatus(Request $request, $id){
         $request->validate([
             'action' => 'required|in:approve,decline',
@@ -1140,46 +1244,6 @@ class CertificateController extends Controller
         $this->updateGenerationRequestStatus($request, $certRequest->id);
         
         return back()->with('message', 'Operation successful');
-    }
-
-    public function bulkAction(Request $request)
-    {
-        $data = $request->validate([
-            'certificate_ids' => ['required', 'array', 'min:1'],
-            'certificate_ids.*' => ['integer', 'exists:certificates,id'],
-            'bulk_action' => ['required', 'in:enable,disable,delete'],
-        ]);
-
-        $certificates = Certificate::with('transaction')
-            ->whereIn('id', $data['certificate_ids'])
-            ->get();
-
-        if (! checkRoleHas(['Admin'])) {
-            $allowedProgramIds = $this->allowedProgramIds();
-            $certificates = $certificates->filter(fn (Certificate $certificate) => in_array((int) $certificate->program_id, $allowedProgramIds, true));
-        }
-
-        if ($certificates->isEmpty()) {
-            return back()->with('error', 'No selected certificates could be updated with your current permissions');
-        }
-
-        if ($data['bulk_action'] === 'delete') {
-            foreach ($certificates as $certificate) {
-                $this->destroy($certificate, true);
-            }
-
-            return back()->with('message', 'Selected certificates deleted successfully');
-        }
-
-        $status = $data['bulk_action'] === 'enable' ? 1 : 0;
-
-        DB::transaction(function () use ($certificates, $status) {
-            foreach ($certificates as $certificate) {
-                $certificate->transaction?->update(['show_certificate' => $status]);
-            }
-        });
-
-        return back()->with('message', 'Selected certificates updated successfully');
     }
 
     private function allowedProgramIds(): array
