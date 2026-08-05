@@ -223,11 +223,11 @@ class CertificateController extends Controller
 
     public function bulkAction(Request $request)
     {
-        $data = $request->validate([
-            'certificate_ids' => ['required', 'array', 'min:1'],
-            'certificate_ids.*' => ['integer', 'distinct', 'exists:certificates,id'],
-            'bulk_action' => ['required', 'in:enable,disable,delete'],
-        ]);
+        // $data = $request->validate([
+        //     'certificate_ids' => ['required', 'array', 'min:1'],
+        //     'certificate_ids.*' => ['integer', 'distinct', 'exists:certificates,id'],
+        //     'bulk_action' => ['required', 'in:enable,disable,delete'],
+        // ]);
 
         $certificates = Certificate::query()
             ->with('transaction')
