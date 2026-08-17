@@ -199,13 +199,6 @@ class CertificateManager
         $this->validateSettings($settings);
 
         $image = Image::make($background);
-        $canvas = $settings['canvas'] ?? [];
-        $canvasWidth = max(1, (int) ($canvas['width'] ?? $image->width()));
-        $canvasHeight = max(1, (int) ($canvas['height'] ?? $image->height()));
-
-        if ($image->width() !== $canvasWidth || $image->height() !== $canvasHeight) {
-            $image->resize($canvasWidth, $canvasHeight);
-        }
 
         $elements = $this->normalizeElements($settings['elements'] ?? []);
         $verificationUrl = $this->verificationUrls->generate($certificateNumber);
@@ -217,11 +210,18 @@ class CertificateManager
         if (! is_dir($outputDirectory)) {
             $outputDirectory = $this->storage->ensureDirectory($outputDirectory);
         }
-        $format = strtolower((string) config('certificates.rendering.format', 'jpg'));
+        $backgroundFormat = strtolower(pathinfo($background, PATHINFO_EXTENSION));
+        $format = in_array($backgroundFormat, ['png', 'jpg', 'jpeg', 'webp'], true)
+            ? $backgroundFormat
+            : strtolower((string) config('certificates.rendering.format', 'png'));
         $format = in_array($format, ['png', 'jpg', 'jpeg', 'webp'], true) ? $format : 'png';
         $filename = ($certificateNumber ?: 'preview').'.'.$format;
         $absoluteOutputPath = rtrim($outputDirectory, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$filename;
-        $image->save($absoluteOutputPath);
+        if (in_array($format, ['jpg', 'jpeg', 'webp'], true)) {
+            $image->save($absoluteOutputPath, 100);
+        } else {
+            $image->save($absoluteOutputPath);
+        }
 
         return [
             'name' => $filename,

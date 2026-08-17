@@ -113,29 +113,6 @@ if (!function_exists("certificationStatus")) {
     }
 }
 
-// if (!function_exists("certificationStatusNew")) {
-//     function certificationStatusNew($training_result, $program, $user){
-        
-//         if($program instanceof Program){
-//             $program = $program;
-//         }else{
-//             $program = Program::select('id', 'allow_payment_restrictions_for_results', 'p_name', 'hasresult')->with('scoresettings')->where('id', $program)->first();
-//         }
-
-//         if ($user instanceof User) {
-//             $user = $user;
-//         } else {
-//             $user = User::where('id', $user)->first();
-//         }
-        
-//         $training_result->certification_status = isset($training_result->total_score) && ($training_result->total_score >= $program->scoresettings->passmark) ? 'CERTIFIED' : 'NOT CERTIFIED';
-//         $training_result->program = $program;
-//         $training_result->scoresettings = $program->scoresettings;
-//         $training_result->user = $user ?? null;
-
-//         return $training_result;
-//     }
-// }
 if (!function_exists("certificationStatusNew")) {
     function certificationStatusNew($training_result, $program, $user) {
         

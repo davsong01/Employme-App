@@ -42,6 +42,8 @@
                             <th style="width: 80px;">S/N</th>
                             <th>Name</th>
                             <th style="width: 180px;">Status</th>
+                            <th style="width: 180px;">Created At</th>
+                            <th style="width: 180px;">Updated At</th>
                             <th style="width: 280px;" class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -63,6 +65,12 @@
                                         };
                                     @endphp
                                     <span class="badge bg-{{ $statusClass }}">{{ ucfirst($task->status ?? 'pending') }}</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    {{ optional($task->created_at)->format('d M, Y h:i A') ?? '—' }}
+                                </td>
+                                <td class="text-nowrap">
+                                    {{ optional($task->updated_at)->format('d M, Y h:i A') ?? '—' }}
                                 </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex flex-wrap gap-2 justify-content-center">
@@ -97,7 +105,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No cron tasks found.</td>
+                                <td colspan="6" class="text-center text-muted py-4">No cron tasks found.</td>
                             </tr>
                         @endforelse
                     </tbody>
