@@ -199,12 +199,19 @@ class CertificateManager
         $this->validateSettings($settings);
 
         $image = Image::make($background);
+        $canvas = $settings['canvas'] ?? [];
+        $canvasWidth = max(1, (int) ($canvas['width'] ?? $image->width()));
+        $canvasHeight = max(1, (int) ($canvas['height'] ?? $image->height()));
+        $scale = [
+            'x' => $image->width() / $canvasWidth,
+            'y' => $image->height() / $canvasHeight,
+        ];
 
         $elements = $this->normalizeElements($settings['elements'] ?? []);
         $verificationUrl = $this->verificationUrls->generate($certificateNumber);
 
         foreach ($elements as $element) {
-            $this->renderElement($image, $element, $data, $verificationUrl);
+            $this->renderElement($image, $element, $data, $verificationUrl, $scale);
         }
 
         if (! is_dir($outputDirectory)) {
@@ -567,10 +574,10 @@ class CertificateManager
         return '#000000';
     }
 
-    private function renderElement($image, array $element, array $data, string $verificationUrl): void
+    private function renderElement($image, array $element, array $data, string $verificationUrl, array $scale = ['x' => 1, 'y' => 1]): void
     {
         if (($element['text_type'] ?? '') === 'qr_code') {
-            $this->renderQrCodeElement($image, $element, $verificationUrl);
+            $this->renderQrCodeElement($image, $element, $verificationUrl, $scale);
 
             return;
         }
@@ -580,16 +587,16 @@ class CertificateManager
             return;
         }
 
-        $this->renderTextElement($image, $element, $text);
+        $this->renderTextElement($image, $element, $text, $scale);
     }
 
-    private function renderTextElement($image, array $element, string $text): void
+    private function renderTextElement($image, array $element, string $text, array $scale = ['x' => 1, 'y' => 1]): void
     {
         $fontFile = $this->resolveFontPath($element['text_type_face'] ?? null);
-        $x = (int) ($element['left'] ?? $element['auto_certificate_left_offset'] ?? 0);
-        $y = (int) ($element['top'] ?? $element['auto_certificate_top_offset'] ?? 0);
-        $width = (int) ($element['width'] ?? 0);
-        $size = (float) ($element['font_size'] ?? $element['auto_certificate_name_font_size'] ?? 24);
+        $x = (int) round(((float) ($element['left'] ?? $element['auto_certificate_left_offset'] ?? 0)) * $scale['x']);
+        $y = (int) round(((float) ($element['top'] ?? $element['auto_certificate_top_offset'] ?? 0)) * $scale['y']);
+        $width = (int) round(((float) ($element['width'] ?? 0)) * $scale['x']);
+        $size = (float) ($element['font_size'] ?? $element['auto_certificate_name_font_size'] ?? 24) * max($scale['x'], $scale['y']);
         $color = $this->normalizeHexColor($element['color'] ?? $element['auto_certificate_color'] ?? '#000000');
         $align = $element['align'] ?? $element['text_align'] ?? 'left';
         $rotation = (float) ($element['rotation'] ?? 0);
@@ -604,7 +611,7 @@ class CertificateManager
         }
 
         $baselineOffset = function_exists('certificateTextBaselineOffset')
-            ? certificateTextBaselineOffset($size)
+            ? (int) round(certificateTextBaselineOffset($size) * $scale['y'])
             : 0;
 
         $image->text($text, $x, $y - $baselineOffset, function ($font) use ($fontFile, $size, $color, $align, $rotation, $width) {
@@ -717,11 +724,11 @@ class CertificateManager
         return (int) (max($xs) - min($xs));
     }
 
-    private function renderQrCodeElement($image, array $element, string $verificationUrl): void
+    private function renderQrCodeElement($image, array $element, string $verificationUrl, array $scale = ['x' => 1, 'y' => 1]): void
     {
-        $size = max(60, (int) ($element['size'] ?? $element['width'] ?? $element['height'] ?? 120));
-        $offsetX = (int) ($element['left'] ?? $element['auto_certificate_left_offset'] ?? 0);
-        $offsetY = (int) ($element['top'] ?? $element['auto_certificate_top_offset'] ?? 0);
+        $size = max(60, (int) round(((float) ($element['size'] ?? $element['width'] ?? $element['height'] ?? 120)) * max($scale['x'], $scale['y'])));
+        $offsetX = (int) round(((float) ($element['left'] ?? $element['auto_certificate_left_offset'] ?? 0)) * $scale['x']);
+        $offsetY = (int) round(((float) ($element['top'] ?? $element['auto_certificate_top_offset'] ?? 0)) * $scale['y']);
 
         $qrCodeData = \QrCode::format('png')
             ->size($size)
