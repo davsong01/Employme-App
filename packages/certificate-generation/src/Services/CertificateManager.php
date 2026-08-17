@@ -610,11 +610,7 @@ class CertificateManager
             $text = $this->wrapTextToWidth($text, $fontFile, $size, $width);
         }
 
-        $baselineOffset = function_exists('certificateTextBaselineOffset')
-            ? (int) round(certificateTextBaselineOffset($size) * $scale['y'])
-            : 0;
-
-        $image->text($text, $x, $y - $baselineOffset, function ($font) use ($fontFile, $size, $color, $align, $rotation, $width) {
+        $image->text($text, $x, $y, function ($font) use ($fontFile, $size, $color, $align, $rotation, $width) {
             $font->file($fontFile);
             $font->size($size);
             $font->color($color);
