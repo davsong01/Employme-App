@@ -37,7 +37,7 @@ class UserController extends Controller
     public function importExport($p_id, $source = 'program')
     {
         if ($source === 'program') {
-            $program = Program::select('id', 'p_name', 'p_amount', 'early_bird_status')
+            $program = Program::select('id', 'p_name', 'p_amount', 'e_amount', 'early_bird_active_till')
                 ->where('id', $p_id)
                 ->firstOrFail();
 
@@ -48,12 +48,12 @@ class UserController extends Controller
 
             $coupons = Coupon::where('program_id', $p_id)->get(['id', 'code', 'type', 'amount']);
         } else {
-            $program = Group::select('id', 'p_name', 'p_amount', 'early_bird_status')
+            $program = Group::select('id', 'p_name', 'p_amount', 'e_amount', 'early_bird_active_till')
                 ->where('id', $p_id)
                 ->firstOrFail();
 
             $programs = Group::isActive()
-                ->select('id', 'p_name', 'p_amount', 'early_bird_status')
+                ->select('id', 'p_name', 'p_amount', 'e_amount', 'early_bird_active_till')
                 ->where('id', '<>', $p_id)
                 ->get();
 

@@ -33,13 +33,26 @@
                     
                     <tbody>
                         @foreach($pops as $pop)
-                            @if($pop->related)
+                                @if($pop->related)
+                                @php
+                                    $paymentType = strtolower($pop->payment_type ?? $pop?->temp?->payment_type ?? $pop?->temp?->type ?? 'n/a');
+                                    $paymentSource = null;
+
+                                    if ($paymentType === 'earlybird') {
+                                        $paymentSource = 'Auto-detected';
+                                    }
+                                @endphp
                                 <tr>
                                     <td>
                                         {{ $pop->date }}
                         
                                     </td>
-                                    <td>{{ ucfirst($pop?->temp?->type ?? 'N/A') }}</td>
+                                    <td>
+                                        <div>{{ ucfirst($paymentType) }}</div>
+                                        @if($paymentSource)
+                                            <span class="badge bg-light text-dark border mt-1">{{ $paymentSource }}</span>
+                                        @endif
+                                    </td>
 
                                     <td>
                                         {{ $pop->name }} <br>
@@ -257,7 +270,7 @@
                                                         <div class="col-md-12 mb-3">
                                                             <label class="form-label">Training/Package?</label>
 
-                                                            <select name="is_package" class="form-control">
+                                                            <select name="is_package" class="form-control pop-type-toggle" data-pop-id="{{ $pop->id }}">
                                                                 <option value="">Select</option>
 
                                                                 <option value="0" {{ !$pop->is_package ? 'selected' : '' }}>
@@ -271,6 +284,21 @@
                                                         </div>
 
                                                         <div class="col-md-12 mb-3">
+                                                            <label class="form-label">Payment Type</label>
+
+                                                            <select name="payment_type" class="form-control">
+                                                                <option value="">Select payment type</option>
+                                                                <option value="full" {{ $pop->payment_type === 'full' ? 'selected' : '' }}>Full</option>
+                                                                <option value="part" {{ $pop->payment_type === 'part' ? 'selected' : '' }}>Part</option>
+                                                                <option value="earlybird" {{ $pop->payment_type === 'earlybird' ? 'selected' : '' }}>Early Bird</option>
+                                                            </select>
+                                                            @if($pop->payment_type === 'earlybird')
+                                                                <small class="text-muted d-block mt-1">
+                                                                Auto Detect                                                                </small>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="col-md-12 mb-3 pop-package-row" id="pop-package-row-{{ $pop->id }}">
                                                             <label class="form-label">Package</label>
 
                                                             <select
@@ -292,7 +320,7 @@
                                                             </select>
                                                         </div>
 
-                                                        <div class="col-md-12 mb-3">
+                                                        <div class="col-md-12 mb-3 pop-training-row" id="pop-training-row-{{ $pop->id }}">
                                                             <label class="form-label">Training</label>
 
                                                             <select
@@ -354,4 +382,46 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    (function () {
+        function togglePopSelectors(popId) {
+            const typeSelect = document.querySelector(`.pop-type-toggle[data-pop-id="${popId}"]`);
+            const packageRow = document.getElementById(`pop-package-row-${popId}`);
+            const trainingRow = document.getElementById(`pop-training-row-${popId}`);
+
+            if (!typeSelect || !packageRow || !trainingRow) {
+                return;
+            }
+
+            const isPackage = typeSelect.value === '1';
+
+            packageRow.style.display = isPackage ? '' : 'none';
+            trainingRow.style.display = isPackage ? 'none' : '';
+        }
+
+        document.addEventListener('change', function (event) {
+            if (event.target.classList.contains('pop-type-toggle')) {
+                togglePopSelectors(event.target.dataset.popId);
+            }
+        });
+
+        document.addEventListener('shown.bs.modal', function (event) {
+            const modal = event.target;
+            const typeSelect = modal.querySelector('.pop-type-toggle');
+
+            if (typeSelect) {
+                togglePopSelectors(typeSelect.dataset.popId);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.pop-type-toggle').forEach(function (select) {
+                togglePopSelectors(select.dataset.popId);
+            });
+        });
+    })();
+</script>
 @endsection

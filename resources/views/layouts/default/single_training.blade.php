@@ -60,9 +60,9 @@
                             <div class="col-12">
                                 <select name="amount" id="amount" class="form-select" required>
                                     <option value="">Select Payment Type</option>
-                                    <option value="{{ $training->p_amount * 100}}">Full Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }})</option>
-                                    @if($training->early_bird_status == 0 && $training->e_amount > 0)
-                                    <option value="{{ $training->e_amount * 100}}">Earlybird ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->e_amount) }})</option>
+                                    <option value="{{ $training->p_amount * 100}}">{{ $training->isEarlyBirdActive() ? 'Early Bird Payment' : 'Full Payment' }} ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->isEarlyBirdActive() ? $training->e_amount : $training->p_amount) }})</option>
+                                    @if($training->isEarlyBirdActive() && $training->e_amount > 0)
+                                    <option value="{{ $training->e_amount * 100}}">Early Bird Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->e_amount) }})</option>
                                     @endif
                                     @if($training->haspartpayment == 1)
                                     <option value="{{ ($training->p_amount/2) *100}}">Part Payment ({{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount/2) }})</option>

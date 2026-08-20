@@ -386,7 +386,7 @@ class UtilityTaskController extends Controller
                         'p_start'           => $program->p_start,
                         'p_end'             => $program->p_end,
                         'status'            => $program->status,
-                        'early_bird_status' => $program->early_bird_status,
+                        'early_bird_active_till' => $program->early_bird_active_till,
                         'currencies'        => $program->currencies,
                         'haspartpayment'    => $program->haspartpayment,
                         'image'             => $program->image,

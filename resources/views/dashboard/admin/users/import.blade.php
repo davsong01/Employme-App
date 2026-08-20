@@ -86,7 +86,7 @@
                                 <div class="mb-3">
                                     <label for="amount_to_user" class="fw-bold">Amount to use (Optional)</label> <br>
                                     <small class="text-muted d-block mb-2">
-                                        Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->early_bird_status) | Early Bird: {{ number_format($program->e_amount) }} @endif
+                                        Amount: {{ currency()}}{{number_format($program->p_amount)}} @if($program->isEarlyBirdActive()) | Early Bird: {{ number_format($program->e_amount) }} @endif
                                     </small>
                                     <input type="number" id="amount_to_use" class="form-control" name="amount_to_use">
                                 </div>

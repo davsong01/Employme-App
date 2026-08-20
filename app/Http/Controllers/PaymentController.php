@@ -29,6 +29,25 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
+    private function isEarlyBirdActive($training): bool
+    {
+        if ((float) data_get($training, 'e_amount', 0) <= 0) {
+            return false;
+        }
+
+        $activeTill = data_get($training, 'early_bird_active_till');
+
+        if (empty($activeTill)) {
+            return false;
+        }
+
+        try {
+            return now()->lessThanOrEqualTo(\Carbon\Carbon::parse($activeTill));
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     public function checkout(Request $request){
         if(!empty($request->package)){
             $training = json_decode($request->package, true);
@@ -48,17 +67,27 @@ class PaymentController extends Controller
                 }
             } else {
                 if ($request->type == 'full') {
-                    $amount = $training['p_amount'];
+                    if ($this->isEarlyBirdActive($training)) {
+                        $amount = $training['e_amount'];
+                        $type = 'earlybird';
+                    } else {
+                        $amount = $training['p_amount'];
+                    }
                 } elseif ($request->type == 'part') {
                     $amount = $training['p_amount'] / 2;
                 } elseif ($request->type == 'earlybird') {
-                    $amount = $training['e_amount'];
+                    if ($this->isEarlyBirdActive($training)) {
+                        $amount = $training['e_amount'];
+                        $type = 'earlybird';
+                    } else {
+                        $amount = $training['p_amount'];
+                        $type = 'full';
+                    }
                 } else {
                     return back()->with('error', 'Invalid Payment Type selection');
                 }
             }
-
-            $type = $request->type;
+            $type = $type ?? $request->type;
             
             // inject facilitator details
             if ($request->has('facilitator')) {
@@ -86,17 +115,28 @@ class PaymentController extends Controller
                 }
             }else{
                 if($request->type == 'full'){
-                    $amount = $training['p_amount'];
+                    if ($this->isEarlyBirdActive($training)) {
+                        $amount = $training['e_amount'];
+                        $type = 'earlybird';
+                    } else {
+                        $amount = $training['p_amount'];
+                    }
                 }elseif($request->type == 'part'){
                     $amount = $training['p_amount'] /2;
                 }elseif($request->type == 'earlybird'){
-                    $amount = $training['e_amount'];
+                    if ($this->isEarlyBirdActive($training)) {
+                        $amount = $training['e_amount'];
+                        $type = 'earlybird';
+                    } else {
+                        $amount = $training['p_amount'];
+                        $type = 'full';
+                    }
                 }else{
                     return back()->with('error', 'Invalid Payment Type selection');
                 }
             }
             
-            $type = $request->type;
+            $type = $type ?? $request->type;
         }
 
         // inject facilitator details

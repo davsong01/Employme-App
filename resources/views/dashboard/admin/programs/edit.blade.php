@@ -227,11 +227,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label>Early Bird Status</label>
-                                        <select name="early_bird_status" class="form-control" id="early_bird_status" required>
-                                            <option value="1" {{ $program->early_bird_status == 1 ? 'selected' : '' }}>Active</option>
-                                            <option value="0" {{ $program->early_bird_status == 0 ? 'selected' : '' }}>In Active</option>
-                                        </select>
+                                        <label>Early Bird active till</label>
+                                        <input type="datetime-local" name="early_bird_active_till" class="form-control"
+                                            value="{{ old('early_bird_active_till', optional($program->early_bird_active_till)->format('Y-m-d\TH:i')) }}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">

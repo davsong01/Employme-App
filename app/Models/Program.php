@@ -4,6 +4,7 @@ namespace App\Models;
 use DateTime;
 use DatePeriod;
 use DateInterval;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Mocks;
@@ -35,7 +36,8 @@ class Program extends Model
         'modes' => 'array',
         'auto_certificate_settings' => 'array', 
         'currencies' => 'array', 
-        'ai_settings' => 'array'
+        'ai_settings' => 'array',
+        'early_bird_active_till' => 'datetime'
         ];
     
     public function scoresettings(){
@@ -180,6 +182,19 @@ class Program extends Model
                 ->where('p_end', '>=', date('Y-m-d'))
                     ->where('close_registration', 0)
                         ->orderBy('created_at', 'DESC');
+    }
+
+    public function isEarlyBirdActive(): bool
+    {
+        if ((float) $this->e_amount <= 0) {
+            return false;
+        }
+
+        if (empty($this->early_bird_active_till)) {
+            return false;
+        }
+
+        return now()->lessThanOrEqualTo(Carbon::parse($this->early_bird_active_till));
     }
 
     public function scopeIsUserProgram($query)

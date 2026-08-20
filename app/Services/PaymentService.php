@@ -187,6 +187,7 @@ class PaymentService
             $transaction = TempTransaction::create([
                 'email' => $transactionArray['email'],
                 'type' => $transactionArray['type'] ?? null,
+                'payment_type' => $transactionArray['payment_type'] ?? ($transactionArray['type'] ?? null),
                 'program_id' => $transactionArray['program_id'],
                 'coupon_id' =>  $transactionArray['coupon_id'],
                 'facilitator_id' => $transactionArray['facilitator'] ?? null,
@@ -359,9 +360,14 @@ class PaymentService
 
         $amount = $data['amount'];
         $t_type = $data['t_type'];
+        $selectedPaymentType = $data['payment_type'] ?? null;
+        $amountToUse = $data['amount_to_use'] ?? null;
 
         // Check if there is a balance
-        if ($existingTransactionBalance > 0) {
+        if ($selectedPaymentType === 'earlybird' && !is_null($amountToUse)) {
+            $isBalancePayment = false;
+            $expectedAmount = (float) $amountToUse;
+        } elseif ($existingTransactionBalance > 0) {
             $isBalancePayment = true;
             $expectedAmount = $existingTransactionBalance;
         } else {
@@ -378,11 +384,18 @@ class PaymentService
             ];
         }
 
-        $type = $balance > 0 ? 'part' : 'full';
+        $type = in_array($selectedPaymentType, ['full', 'part', 'earlybird'], true)
+            ? $selectedPaymentType
+            : ($balance > 0 ? 'part' : 'full');
+
+        if ($selectedPaymentType === 'earlybird') {
+            $type = 'earlybird';
+        }
         
         $existingTransaction->update([
             't_type' => $t_type,
             'type' => $type,
+            'payment_type' => $type,
             'amount' => $existingTransaction->amount + $amount,
             'balance' => $balance,
         ]);
@@ -417,7 +430,7 @@ class PaymentService
             $coupon_applied = $transaction->coupon ?? NULL;
             $paymentStatus =  0;
         } elseif ($transaction->type == 'earlybird') {
-            $payment_type = 'Full';
+            $payment_type = 'Earlybird';
             $message = 'Earlybird payment';
             $paymentStatus =  1;
         } elseif ($transaction->type == 'balance') {
@@ -854,10 +867,13 @@ class PaymentService
 
                 $balance = $computedAmount - $amountPaid + ($couponData['discount'] ?? 0);
 
-                $real_type = $balance > 0 ? 'part' : $payment_type;
+                $real_type = $payment_type === 'earlybird'
+                    ? 'earlybird'
+                    : ($balance > 0 ? 'part' : $payment_type);
                 $transactionArray = [
                     'email'             => $user?->email ?? $participant['email'],
                     'type'              => $real_type,
+                    'payment_type'      => $payment_type,
                     'program_id'        => $program->id,
                     'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
                     'facilitator_id'    => null,

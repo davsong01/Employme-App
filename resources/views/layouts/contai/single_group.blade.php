@@ -17,7 +17,7 @@
             $priceText = "₦" . number_format($online ?: $offline);
         }
     } elseif ($training->p_amount > 0 || $training->e_amount > 0) {
-        if ($training->early_bird_status && $training->e_amount > 0) {
+        if ($training->isEarlyBirdActive()) {
             $priceText = "Now ₦" . number_format($training->e_amount) . " (was ₦" . number_format($training->p_amount) . ")";
         } else {
             $priceText = "₦" . number_format($training->p_amount);
@@ -146,7 +146,9 @@
                                             <p>Select payment type<span>*</span></p>
                                             <select name="type" id="" required>
                                                 <option value="">Select</option>
-                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>Full Payment ({{ $currency_symbol.number_format($training->p_amount) }} {!! getAmountExtraCurrencies($training)['string'] !!})</option>
+                                                <option value="full" {{ old('amount') == $training->p_amount ? 'selected' : '' }}>
+                                                    {{ $training->isEarlyBirdActive() ? 'Early Bird Payment' : 'Full Payment' }} ({{ $currency_symbol.number_format($training->isEarlyBirdActive() ? $training->e_amount : $training->p_amount) }} {!! getAmountExtraCurrencies($training)['string'] !!})
+                                                </option>
                                                 
                                                 @if($training->haspartpayment == 1)
                                                 <option value="part" {{ old('amount') == ($training->p_amount / 2) ? 'selected' : '' }}>
@@ -244,4 +246,3 @@
     
 </script>
 @endsection
-

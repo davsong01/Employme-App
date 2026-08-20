@@ -14,7 +14,7 @@
             $priceText = "₦" . number_format($online ?: $offline);
         }
     } elseif ($training->p_amount > 0 || $training->e_amount > 0) {
-        if ($training->early_bird_status && $training->e_amount > 0) {
+        if ($training->isEarlyBirdActive()) {
             $priceText = "Now ₦" . number_format($training->e_amount) . " (was ₦" . number_format($training->p_amount) . ")";
         } else {
             $priceText = "₦" . number_format($training->p_amount);
@@ -237,4 +237,3 @@
     
 </script>
 @endsection
-

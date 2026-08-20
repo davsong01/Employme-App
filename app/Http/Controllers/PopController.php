@@ -21,6 +21,55 @@ use Spatie\LaravelPackageTools\Package;
 
 class PopController extends Controller
 {
+    private function resolveUploadPaymentType($program, ?float $amountPaid = null): string
+    {
+        if (
+            $program
+            && method_exists($program, 'isEarlyBirdActive')
+            && $program->isEarlyBirdActive()
+            && isset($program->e_amount)
+            && (float) $program->e_amount > 0
+            && !is_null($amountPaid)
+            && abs((float) $amountPaid - (float) $program->e_amount) < 0.01
+        ) {
+            return 'earlybird';
+        }
+
+        return 'full';
+    }
+
+    private function resolveApprovalPaymentType($program, ?string $selectedType = null, ?float $amountPaid = null): string
+    {
+        $selectedType = strtolower((string) $selectedType);
+
+        if ($selectedType === 'earlybird') {
+            if (
+                $program
+                && isset($program->e_amount)
+                && (float) $program->e_amount > 0
+                && !is_null($amountPaid)
+                && abs((float) $amountPaid - (float) $program->e_amount) < 0.01
+            ) {
+                return 'earlybird';
+            }
+
+            return 'full';
+        }
+
+        if (in_array($selectedType, ['full', 'part'], true)) {
+            return $selectedType;
+        }
+
+        return 'full';
+    }
+
+    private function resolveApprovalAmountToUse($program, string $paymentType): float
+    {
+        return $paymentType === 'earlybird'
+            ? (float) ($program->e_amount ?? $program->p_amount ?? 0)
+            : (float) ($program->p_amount ?? 0);
+    }
+
     public function index()
     {
         // Get attempted payments
@@ -40,9 +89,16 @@ class PopController extends Controller
         $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->mainActivePrograms()->get();
         $today = now()->toDateString();
         
-        $groups = Group::isActive()->with(['programs' => function ($q) {
-            $q->mainActiveProgramsWithIsClosed();
-        }])->whereDate('p_start', '>', $today)->get();
+        // Keep active packages visible for POP uploads as long as they are still valid.
+        $groups = Group::isActive()
+            ->with(['programs' => function ($q) {
+                $q->mainActiveProgramsWithIsClosed();
+            }])
+            ->where(function ($query) use ($today) {
+                $query->whereNull('p_end')
+                    ->orWhereDate('p_end', '>=', $today);
+            })
+            ->get();
         
         if (isset(session()->get('data')['metadata']['pid'])) {
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
@@ -313,6 +369,7 @@ class PopController extends Controller
             'bank' => $data['bank'] ?? null,
             'coupon_id' => $data['coupon_id'] ?? null,
             'amount' => $data['amount'],
+            'payment_type' => $this->resolveUploadPaymentType($program, (float) $data['amount']),
             'currency' => $data['currency'] ?? null,
             'currency_symbol' => $data['currency_symbol'] ?? null,
             'is_package' => $programType === 'package' ? 1 : 0,
@@ -402,6 +459,9 @@ class PopController extends Controller
                     'email' => $pop->email,
                     'phone' => $pop->phone,
                 ];
+
+                $resolvedPaymentType = $this->resolveApprovalPaymentType($program, $pop->payment_type, (float) $pop->amount);
+                $resolvedAmountToUse = $this->resolveApprovalAmountToUse($program, $resolvedPaymentType);
                 
                 $prepareData = [
                     'program' => $program,
@@ -410,11 +470,11 @@ class PopController extends Controller
                     'participant' => $participant,
                     'couponCheck' => $couponCheck,
                     'send_email' => 'yes',
-                    'amount_to_use' => $program->p_amount,
+                    'amount_to_use' => $resolvedAmountToUse,
                     'data' => $data, // programIDs
                     'transaction_status' => 'complete',
                     'payment_mode' => 0,
-                    'payment_type' => 'full',
+                    'payment_type' => $resolvedPaymentType,
                     'amountPaid' => $pop->amount,
                     't_type' => 'Transfer',
                     'transid' =>  PaymentService::getReference('SYS-ADMIN'),
@@ -433,9 +493,13 @@ class PopController extends Controller
             }else{
                 // Its either there is existing transaction or not, if there is, then
                 if ($transaction->balance > 0) {
+                    $resolvedPaymentType = $this->resolveApprovalPaymentType($program, $pop->payment_type, (float) $pop->amount);
+                    $resolvedAmountToUse = $this->resolveApprovalAmountToUse($program, $resolvedPaymentType);
                     $bData = [
                         'amount' => $pop->amount,
                         't_type' => $pop->t_type,
+                        'payment_type' => $resolvedPaymentType,
+                        'amount_to_use' => $resolvedAmountToUse,
                     ];
     
                     $response = PaymentService::handleBalancePayment($transaction, $transaction->balance, $bData);
@@ -466,7 +530,7 @@ class PopController extends Controller
                     if($completePayment['status']){
                         $data['balance'] = $completePayment['balance'];
                         $data['programs'] = $transaction->allPrograms()->toArray();
-                        $data['payment_type'] = $transaction->type;
+                        $data['payment_type'] = $transaction->payment_type ?? $transaction->type;
         
                         $data['message'] = $completePayment['message'];
                         $data['paymentStatus'] = $completePayment['paymentStatus'];
@@ -504,12 +568,14 @@ class PopController extends Controller
     {
         $request->validate([
             'is_package' => 'sometimes|required|boolean',
+            'payment_type' => 'nullable|in:full,part,earlybird',
         ]);
 
         $data = $request->except(['template', '_token', '_method', 'prefix__', 'transId', 'delete_transaction', 'transid']);
         $data['is_package'] = $request->has('is_package')
             ? $request->boolean('is_package')
             : (bool) $pop->is_package;
+        $data['payment_type'] = $request->input('payment_type', $pop->payment_type);
 
         $pop->update($data);
 

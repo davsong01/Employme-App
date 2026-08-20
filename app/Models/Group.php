@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Coupon;
 use App\Models\Program;
 use App\Models\CouponUser;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -20,6 +21,7 @@ class Group extends Model
     protected $casts = [
         'currencies' => 'array',
         'meta'       => 'array',
+        'early_bird_active_till' => 'datetime',
     ];
 
     /* -----------------------------------------------------------------
@@ -56,6 +58,19 @@ class Group extends Model
     public function coupon_users()
     {
         return $this->hasMany(CouponUser::class, 'coupon_id');
+    }
+
+    public function isEarlyBirdActive(): bool
+    {
+        if ((float) $this->e_amount <= 0) {
+            return false;
+        }
+
+        if (empty($this->early_bird_active_till)) {
+            return false;
+        }
+
+        return now()->lessThanOrEqualTo(Carbon::parse($this->early_bird_active_till));
     }
     
 

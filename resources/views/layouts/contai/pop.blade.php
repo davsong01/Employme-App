@@ -213,9 +213,15 @@
                                     <select name="package_id" id="package_id" class="form-control">
                                         <option value="">-- Select --</option>
                                         @foreach($groups as $group)
+                                            @php
+                                                $groupEarlyBirdActive = method_exists($group, 'isEarlyBirdActive') && $group->isEarlyBirdActive() && (float) $group->e_amount > 0;
+                                            @endphp
                                             <option value="{{ $group->id }}"
                                                 {{ (!empty($transaction) && $transaction->program_id == $group->id) ? 'selected' : '' }}>
                                                 {{ $group->p_name }} | ({{ $currency . number_format($group->p_amount) }})
+                                                @if($groupEarlyBirdActive)
+                                                    - Early Bird: {{ $currency . number_format($group->e_amount) }}
+                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -228,8 +234,14 @@
                                     <select name="training_id" id="training_id" class="form-control">
                                         <option value="">-- Select --</option>
                                         @foreach($trainings as $training)
+                                            @php
+                                                $trainingEarlyBirdActive = method_exists($training, 'isEarlyBirdActive') && $training->isEarlyBirdActive() && (float) $training->e_amount > 0;
+                                            @endphp
                                             <option value="{{ $training->id }}" {{ ($transaction && $transaction->program_id == $training->id) ? 'selected' : '' }}>
                                                 {{ $training->p_name }} | ({{ $currency . number_format($training->p_amount) }}
+                                                @if($trainingEarlyBirdActive)
+                                                    - Early Bird: {{ $currency . number_format($training->e_amount) }}
+                                                @endif
                                                 @if(in_array($training->id, [68])), GHc 60, GMD 75 @endif)
                                             </option>
                                         @endforeach

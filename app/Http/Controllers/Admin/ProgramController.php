@@ -190,6 +190,7 @@ class ProgramController extends Controller
             'p_end' => 'required',
             'hasmock' => 'required',
             'is_closed' => 'nullable',
+            'early_bird_active_till' => 'nullable|date',
             'booking_form' => 'file|mimes:pdf|max:10000',
             'image' => 'required|image |max:10000',
             'haspartpayment' => 'required',
@@ -246,6 +247,7 @@ class ProgramController extends Controller
             'p_abbr' => $data['p_abbr'],
             'p_amount' => $data['p_amount'],
             'e_amount' => $data['e_amount'],
+            'early_bird_active_till' => $data['early_bird_active_till'] ?? null,
             'p_start' => $data['p_start'],
             'p_end' => $data['p_end'],
             'hasmock' => $data['hasmock'],
@@ -345,7 +347,7 @@ class ProgramController extends Controller
 
     public function update(Request $request, Program $program)
     {
-        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values', 'early_bird_status','ai_settings']);
+        $data = $request->only(['show_sub', 'p_name', 'p_abbr', 'p_amount', 'e_amount', 'early_bird_active_till', 'p_start', 'status', 'p_end', 'hasmock', 'off_season', 'is_closed','haspartpayment', 'show_modes', 'show_locations', 'allow_payment_restrictions', 'allow_payment_restrictions_for_materials', 'allow_payment_restrictions_for_pre_class_tests', 'allow_payment_restrictions_for_post_class_tests', 'allow_payment_restrictions_for_results', 'allow_payment_restrictions_for_certificates', 'allow_payment_restrictions_for_completed_tests', 'allow_preferred_timing', 'allow_flexible_payment', 'only_certified_should_see_certificate', 'program_lock', 'login_without_password','currencies', 'currency_values','ai_settings']);
 
         $this->deleteAllFilesInAPublicFolder('certificate_previews');
 
@@ -704,21 +706,13 @@ class ProgramController extends Controller
     public function openEarlyBird($id)
     {
         $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
-        $program->early_bird_status = 1;
-        $program->save();
-
-        return back()->with('message', 'Early is now extended for ' . $programName);
+        return back()->with('message', 'Use the Early Bird active till field to control availability for ' . $program->p_name);
     }
 
     public function closeEarlyBird($id)
     {
         $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
-        $program->early_bird_status = 0;
-        $program->save();
-
-        return back()->with('message', 'EarlyBird payment is now closed for ' . $programName);
+        return back()->with('message', 'Use the Early Bird active till field to control availability for ' . $program->p_name);
     }
 
     public function cloneTraining(Request $request, Program $training)

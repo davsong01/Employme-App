@@ -32,7 +32,7 @@
                         @if(isset($modes) && count($modes) > 0)
                             {{ $modes['Online'] > $modes['Offline'] ? $currency_symbol.number_format($modes['Offline']) .'/'. $currency_symbol.number_format($modes['Online']) : $currency_symbol.number_format($modes['Online']) .'/'. $currency_symbol.number_format($modes['Offline'])}}
                         @else
-                            @if(($training->e_amount > 0 ) && $training->early_bird_status == 1)
+                            @if($training->isEarlyBirdActive())
                                 {!! getPriceRangeStringAcrossPrograms($training, null, 'yes') !!}
                                 <br>
                                 {{-- <span class="discount-color"><span class="linethrough discount-color">
@@ -126,4 +126,3 @@
     
 </script>
 @endsection
-

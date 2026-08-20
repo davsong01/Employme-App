@@ -18,7 +18,7 @@
         ? route('show.packages', $item->slug)
         : route('trainings', $item->slug);
 
-    $hasDiscount = $item->early_bird_status == 1 && $item->e_amount > 0;
+    $hasDiscount = $item->isEarlyBirdActive() && $item->e_amount > 0;
 
     $discountPercent = $hasDiscount
         ? number_format((($item->e_amount * 100) / $item->p_amount) - 100, 0)

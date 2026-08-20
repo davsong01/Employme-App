@@ -239,7 +239,7 @@
         'draft' => $programCollection->where('status', '<>', 1)->count(),
         'crm_enabled' => $programCollection->where('hascrm', 1)->count(),
         'cert_enabled' => $programCollection->where('show_certificate', 1)->count(),
-        'discounted' => $programCollection->where('early_bird_status', 1)->count(),
+        'discounted' => $programCollection->filter(fn ($program) => $program->isEarlyBirdActive())->count(),
         'with_children' => $programCollection->filter(fn ($program) => $program->subPrograms?->count() > 0)->count(),
         'auto_certificate' => $programCollection->filter(fn ($program) => data_get($program, 'auto_certificate_settings.auto_certificate_status') === 'yes')->count(),
     ];
@@ -373,7 +373,7 @@
 
                                     <div class="program-pills mt-2">
                                         <span class="badge bg-secondary">Type: {{ $program->off_season ? 'Off Season' : 'Normal' }}</span>
-                                        @if($program->early_bird_status == 1)
+                                        @if($program->isEarlyBirdActive())
                                             <span class="badge bg-warning">Discounted</span>
                                         @endif
                                         @if(!empty($program->auto_certificate_settings['auto_certificate_status']) && $program->auto_certificate_settings['auto_certificate_status'] === 'yes')
@@ -410,9 +410,9 @@
                                             <a href="{{ url('/trainings').'/'.$program->slug }}" target="_blank" class="btn btn-outline-secondary btn-sm">
                                                 <i class="fa fa-eye"></i> Preview Training
                                             </a>
-                                            @if($program->early_bird_status == 1)
+                                            @if($program->isEarlyBirdActive())
                                                 <a href="{{ url('/early-bird-trainings').'/'.$program->slug }}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                                    <i class="fa fa-eye"></i> Preview Earlybird Link
+                                                    <i class="fa fa-eye"></i> Preview Early Bird Link
                                                 </a>
                                             @endif
                                         </div>
@@ -546,19 +546,7 @@
                                     @endif
 
                                     @if($program->e_amount > 0)
-                                        @if($program->early_bird_status == 1)
-                                            @if($program->permissions['earlybird.close'])
-                                                <a class="btn btn-info btn-sm" href="{{ route('earlybird.close', ['id' => $program->id]) }}" onclick="return confirm('Are you really sure?');">
-                                                    <i class="fa fa-folder-open"></i> Close Earlybird
-                                                </a>
-                                            @endif
-                                        @else
-                                            @if($program->permissions['earlybird.open'])
-                                                <a class="btn btn-info btn-sm" href="{{ route('earlybird.open', ['id' => $program->id]) }}" onclick="return confirm('Are you really sure?');">
-                                                    <i class="fa fa-folder"></i> Extend Earlybird
-                                                </a>
-                                            @endif
-                                        @endif
+                                        <span class="badge bg-light text-dark border">Early Bird {{ $program->isEarlyBirdActive() ? 'Active' : 'Inactive' }}</span>
                                     @endif
                                 </div>
                             </td>

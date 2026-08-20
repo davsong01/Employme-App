@@ -70,7 +70,8 @@ class FrontendController extends Controller
 
         // Discounts
         $discountsQuery = Program::where('e_amount', '!=', 0)
-            ->where('early_bird_status', 1)
+            ->whereNotNull('early_bird_active_till')
+            ->where('early_bird_active_till', '>=', now())
             ->where('id', '<>', 1)
             ->where('p_end', '>=', now());
 
@@ -128,7 +129,8 @@ class FrontendController extends Controller
 
         $discounts = (clone $baseQuery)
             ->where('e_amount', '!=', 0)
-            ->where('early_bird_status', 1)
+            ->whereNotNull('early_bird_active_till')
+            ->where('early_bird_active_till', '>=', now())
             ->whereDate('p_end', '>=', now())
             ->latest()
             ->get();
@@ -150,8 +152,8 @@ class FrontendController extends Controller
             return redirect(route('welcome'));
         }
 
-        if($training->early_bird_status != 1 && $training->e_amount < 1){
-            return redirect(route('welcome'));
+        if (!$training->isEarlyBirdActive()) {
+            return redirect(route('trainings', $training->slug));
         }
 
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
@@ -176,8 +178,8 @@ class FrontendController extends Controller
             ->orWhere('slug', $id)
             ->firstOrFail();
         
-        if ($training->p_end < date('Y-m-d') || $training->status != 1 || $training->early_bird_status != 1) {
-            return redirect(route('packages'));
+        if (!$training->isEarlyBirdActive()) {
+            return redirect()->route('show.packages', ['id' => $training->slug]);
         }
         
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
@@ -199,6 +201,9 @@ class FrontendController extends Controller
         
         if($training->p_end < date('Y-m-d') || $training->close_registration == 1){
             return redirect(route('welcome'));
+        }
+        if ($training->isEarlyBirdActive()) {
+            return redirect()->route('earlybird.trainings', ['id' => $training->slug]);
         }
         $locations = (!is_null($training->locations) && $training->show_locations == 'yes') ? json_decode($training->locations, true) : null;
         $modes = (!is_null($training->modes) && $training->show_modes == 'yes') ? json_decode($training->modes, true) : null;
@@ -225,6 +230,9 @@ class FrontendController extends Controller
         if ($group->p_end < date('Y-m-d') || $group->status != 1) {
             return redirect(route('packages'));
         }
+        if ($group->isEarlyBirdActive()) {
+            return redirect()->route('earlybird.groups', ['id' => $group->slug]);
+        }
 
         $locations = (!is_null($group->locations) && $group->show_locations == 'yes') ? json_decode($group->locations, true) : null;
         $modes = (!is_null($group->modes) && $group->show_modes == 'yes') ? json_decode($group->modes, true) : null;
@@ -248,8 +256,8 @@ class FrontendController extends Controller
         }else{
             $options .= "<option value='full'>Full Payment (".$request->currency_symbol.number_format($program->p_amount).")</option>";
 
-            if(($program->e_amount > 0 ) && $program->early_bird_status == 0 || $program->e_amount > 0){
-                $options .= "<option value='earlybird'>Earlybird (".$request->currency_symbol.number_format($program->e_amount).")</option>";
+            if ($program->isEarlyBirdActive()) {
+                $options .= "<option value='earlybird'>Early Bird Payment (".$request->currency_symbol.number_format($program->e_amount).")</option>";
             }
           
             if($program->haspartpayment == 1){

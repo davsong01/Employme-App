@@ -130,7 +130,7 @@
                                                 </a>
                                             </div>
                                 
-                                            @if ($group->early_bird_status == 1)
+                                            @if ($group->isEarlyBirdActive())
                                                 <div class="mt-1">
                                                     <a href="{{ route('earlybird.groups', $group->slug)}}" target="_blank" class="d-inline-block text-success">
                                                         <i class="fa fa-eye me-1"></i> Preview Early Bird Package
@@ -231,14 +231,6 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label>Early-Bird Status *</label>
-                                <select name="early_bird_status" class="form-control">
-                                    <option value="1" {{ $group->early_bird_status ? 'selected' : '' }}>On</option>
-                                    <option value="0" {{ ! $group->early_bird_status ? 'selected' : '' }}>Off</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
                                 <label>Group Abbreviation *</label>
                                 <input type="text" name="p_abbr" class="form-control"
                                         value="{{ old('p_abbr', $group->p_abbr) }}" required>
@@ -296,11 +288,9 @@
                                         value="{{ old('e_amount', $group->e_amount) }}">
                             </div>
                             <div class="col-md-6">
-                                <label>Enable Part Payment</label>
-                                <select name="haspartpayment" class="form-control">
-                                    <option value="1" {{ $group->haspartpayment == '1' ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ $group->haspartpayment == '0' ? 'selected' : '' }}>No</option>
-                                </select>
+                                <label>Early-Bird active till</label>
+                                <input type="datetime-local" name="early_bird_active_till" class="form-control"
+                                       value="{{ old('early_bird_active_till', optional($group->early_bird_active_till)->format('Y-m-d\TH:i')) }}">
                             </div>
                         </div>
 
@@ -411,14 +401,6 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label>Early-Bird Status *</label>
-                            <select name="early_bird_status" class="form-control">
-                                <option value="0" selected>Off</option>
-                                <option value="1">On</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-4">
                             <label>Group Abbreviation *</label>
                             <input type="text" name="p_abbr" class="form-control" required placeholder="e.g. DBGA">
                         </div>
@@ -462,6 +444,10 @@
                             <label>Early-Bird Price (Default Currency)</label>
                             <input type="number" step="0.01" name="e_amount"
                                    class="form-control" placeholder="e.g. 20000">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Early-Bird active till</label>
+                            <input type="datetime-local" name="early_bird_active_till" class="form-control">
                         </div>
                     {{-- </div> --}}
 
