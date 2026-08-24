@@ -397,7 +397,7 @@ if (!function_exists("generatePackageCertificate")) {
         $dateIssued = certificateIssuedDate($request, $program);
     
         $payload = [
-            'name' => $user->name ?? 'John Doe',
+            'name' => ucwords(strtolower((string) ($user->name ?? 'John Doe'))),
             'email' => $user->email ?? 'test@test.com',
             'staffID' => $user->staffID ?? 'NO STAFF ID SET',
             'certificate_number' => $certificate_number,
@@ -537,7 +537,7 @@ if (!function_exists("generateLegacyCertificate")) {
             // CASE B: TEXT TYPES
             $text = '';
             switch ($text_type) {
-                case 'name': $text = ucwords(strtolower($user->name)); break;
+                case 'name': $text = ucwords(strtolower((string) ($user->name ?? 'John Doe'))); break;
                 case 'email': $text = $user->email; break;
                 case 'staffID': $text = $user->staffID ?? 'N/A'; break;
                 case 'certificate_number': $text = $certificate_number; break;
