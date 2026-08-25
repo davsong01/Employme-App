@@ -68,7 +68,7 @@ class MockController extends Controller
             $program = Program::find($programId);
             $payment = getTransactionFromProgramIds($programId);
             $balance = $payment?->balance ?? 0;
-            $currency = $payment?->currency_symbol;
+            $currency = $payment?->currency_symbol ?? '₦';
 
             // Safety: Ensure program exists
             if (!$program) {
@@ -85,7 +85,7 @@ class MockController extends Controller
             if ($program->allow_payment_restrictions_for_pre_class_tests === 'yes') {
                 $payment = getTransactionFromProgramIds($programId);
                 $balance = $payment?->balance ?? 0;
-                $currency = $payment->currency_symbol;
+                $currency = $payment?->currency_symbol ?? '₦';
                 
                 $specialCandidates = [
                     // 20250
