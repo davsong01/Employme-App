@@ -27,6 +27,7 @@ jobs:
             git stash
             git pull origin development
             # rm -rf packages/certificate-generation/.git
+            php artisan db:seed --force --class="Database\\Seeders\\BackfillLegacyProgramUserTransactionsSeeder"
             # composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
             php artisan migrate --force
             php artisan cache:clear
