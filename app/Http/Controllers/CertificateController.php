@@ -99,7 +99,15 @@ class CertificateController extends Controller
         if (checkRoleHas(['Student'])) {
             $transaction = Transaction::where('program_id',  $request->p_id)->where('user_id', resolveAuthUser()->id)->first();
 
-            $program = $transaction->program;
+            if (! $transaction) {
+                return back()->with('error', 'Payment record not found for this training.');
+            }
+
+            $program = $transaction?->program;
+
+            if (! $program) {
+                return back()->with('error', 'Program record not found for this training.');
+            }
 
             // Checks
             if ($program->show_certificate == 0) {
@@ -107,8 +115,11 @@ class CertificateController extends Controller
             }
             
             if ($program->allow_payment_restrictions_for_certificates == 'yes') {
-                if ($transaction->balance > 0) {
-                    return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get view/download certificate');
+                $balance = $transaction?->balance ?? 0;
+                $currency = $transaction?->currency_symbol ?? '₦';
+
+                if ($balance > 0) {
+                    return back()->with('error', 'Please Pay your balance of ' . $currency . number_format($balance) . ' in order to get view/download certificate');
                 }
             }
 

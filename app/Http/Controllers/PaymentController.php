@@ -556,11 +556,17 @@ class PaymentController extends Controller
 
     public function handleGatewayCallback(Request $request, $is_zero_coupon=null)
     {
+        $transaction = null;
         $balance_payment = DB::table('program_user')->whereNotNull('balance_transaction_id')->where('balance_transaction_id', $request->reference)->first();
         
         if($balance_payment){
             //process as balance
             $status = $this->verifyProcessor($request->reference, $balance_payment);
+            if ($status === 'success') {
+                return redirect(route('home'))->with('message', 'Payment successful');
+            }
+
+            return redirect(route('home'))->with('error', 'Payment was not successful');
         }else{
             $transaction = TempTransaction::where('transid', $request->reference)->where('status','initiated')->where('t_type', 'Online')->first();
             
@@ -606,6 +612,10 @@ class PaymentController extends Controller
         
         $template = Settings::first()->templateName->name;
         
+        if(! $transaction) {
+            return redirect(route('home'));
+        }
+
         if($transaction->is_package){
             $program = Group::where('id', $transaction->program_id)->first();
         }else{
@@ -779,8 +789,8 @@ class PaymentController extends Controller
         $allDetails['email'] = $user->email;
         $allDetails['phone'] = $user->phone;
         $allDetails['t_type'] = 'wallet';
-        $allDetails['currency'] = $existingTransaction->currency ?? \Session::get('currency');
-        $allDetails['currency_symbol'] = $existingTransaction->currency_symbol ?? \Session::get('currency_symbol');
+        $allDetails['currency'] = $existingTransaction?->currency ?? \Session::get('currency');
+        $allDetails['currency_symbol'] = $existingTransaction?->currency_symbol ?? \Session::get('currency_symbol');
         $allDetails['message'] = $this->dosubscript1($balance);
         $allDetails['paymentStatus'] = $this->paymentStatus($balance);
         $total_amount_paid = $request->amount + $existing;
@@ -788,9 +798,9 @@ class PaymentController extends Controller
 
         if ($request->type == 'balance') {
             $allDetails['balance_transaction_id'] = $this->getReference('USER_TOP_UP_BAL');
-            $allDetails['transaction_id'] = $existingTransaction->transid;
-            $allDetails['invoice_id'] = $existingTransaction->invoice_id;
-            $allDetails['balance'] = $existingTransaction->balance - $request->amount;
+            $allDetails['transaction_id'] = $existingTransaction?->transid;
+            $allDetails['invoice_id'] = $existingTransaction?->invoice_id;
+            $allDetails['balance'] = ($existingTransaction?->balance ?? 0) - $request->amount;
 
             if($allDetails['balance'] < 1){
                 $data['payment_type'] = 'Full';
@@ -889,6 +899,9 @@ class PaymentController extends Controller
             ]);
 
             $payment = Transaction::where(['user_id' => $user->id, 'program_id' => $allDetails['program_id']])->first();
+            if (! $payment) {
+                return back()->with('error', 'Unable to locate completed payment record.');
+            }
             PaymentThread::create([
                 'program_id' => $allDetails['program_id'],
                 'user_id' => $user->id,

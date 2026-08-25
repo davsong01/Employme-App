@@ -449,8 +449,11 @@ class ResultController extends Controller
 
         // Payment restriction check
         if ($program->allow_payment_restrictions_for_results == 'yes') {
-            if ($transaction->balance > 0) {
-                return back()->with('error', 'Please Pay your balance of ' . $transaction->currency_symbol . number_format($transaction->balance) . ' in order to get access to view results');
+            $balance = $transaction?->balance ?? 0;
+            $currency = $transaction?->currency_symbol ?? '₦';
+
+            if ($balance > 0) {
+                return back()->with('error', 'Please Pay your balance of ' . $currency . number_format($balance) . ' in order to get access to view results');
             }
         }
 
