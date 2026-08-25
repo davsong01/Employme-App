@@ -42,8 +42,8 @@ class TestsController extends Controller
             // ------------------------------------
             if ($program->allow_payment_restrictions_for_post_class_tests === 'yes') {
                 $payment = getTransactionFromProgramIds($request->p_id);
-                $balance = $payment->balance ?? 0;
-                $currency = $payment->currency_symbol;
+                $balance = $payment?->balance ?? 0;
+                $currency = $payment?->currency_symbol ?? '₦';
                 
                 $specialCandidates = [
                     // 20250
@@ -373,8 +373,8 @@ class TestsController extends Controller
 
             if ($program->allow_payment_restrictions_for_completed_tests == 'yes') {
                 $transaction = getTransactionFromProgramIds($request->p_id);
-                $balance = $transaction->balance ?? 0;
-                $currency = $transaction->currency_symbol;
+                $balance = $transaction?->balance ?? 0;
+                $currency = $transaction?->currency_symbol ?? '₦';
 
                 if ($balance > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $currency.number_format($balance) . ' in order to access tests');

@@ -413,16 +413,47 @@ class UserController extends Controller
                 ]);
             }
 
-            $user->programs()->attach($request->training, [
-                'created_at' =>  date("Y-m-d H:i:s"),
+            $transid = $data['transaction_id'] ?: PaymentService::getReference('SYS-ADMIN');
+            $transactionType = $balance > 0 ? 'part' : (($data['amount'] == $programEarlyBird) ? 'earlybird' : 'full');
+
+            $transaction = PaymentService::logTransaction([
+                'email' => $user->email,
+                'type' => $transactionType,
+                'payment_type' => $transactionType,
+                'program_id' => $details->id,
+                'coupon_id' => null,
+                'facilitator_id' => null,
                 'amount' => $data['amount'],
-                't_type' => $data['bank'],
-                't_location' => $data['location'],
-                'transid' => $data['transaction_id'],
-                'paymenttype' => $payment_type,
-                'paymentStatus' => $paymentStatus,
+                'transid' => $transid,
+                'invoice_id' => $invoice_id,
+                'payment_mode' => 0,
+                'preferred_timing' => null,
+                'name' => $user->name,
+                'phone' => $user->phone,
+                'location' => $data['location'],
+                'training_mode' => null,
+                'meta' => null,
+                'is_package' => 0,
+                'status' => 'complete',
                 'balance' => $balance,
-                'invoice_id' =>  $invoice_id,
+                't_type' => $data['bank'],
+                'program_ids' => [(int) $details->id],
+                'currency' => 'NGN',
+                'currency_symbol' => '₦',
+                'expected_amount' => $programFee,
+            ]);
+
+            PaymentService::createUserAndAttachPrograms($transaction);
+            $transaction = $transaction->fresh();
+
+            PaymentThread::create([
+                'program_id' => $transaction->program_id,
+                'user_id' => $transaction->user_id,
+                'payment_id' => $transaction->id,
+                'transaction_id' => PaymentService::getReference('PYTHRD'),
+                't_type' => strtolower($transaction->t_type),
+                'parent_transaction_id' => $transaction->transid,
+                'amount' => $transaction->amount,
             ]);
 
             //send mail here

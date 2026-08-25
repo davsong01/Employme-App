@@ -670,18 +670,9 @@ class PaymentService
 
         // Calculate balance properly
         $balance = max(0, $programAmount - $amountPaid);
-
+        
         // Payment status: 1 = fully paid, 0 = not yet
         $paymentStatus = $balance > 0 ? 0 : 1;
-        dd([
-            'amount_paid'     => $amountPaid,
-            'expected_amount' => $expectedAmount,
-            'program_amount'  => $programAmount,
-            'type'            => $type,
-            'message'         => $message,
-            'payment_status'  => $paymentStatus,
-            'balance'         => $balance,
-        ]);
         return [
             'amount_paid'     => $amountPaid,
             'expected_amount' => $expectedAmount,

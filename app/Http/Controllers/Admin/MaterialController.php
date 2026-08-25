@@ -75,9 +75,9 @@ class MaterialController extends Controller
                 $transaction = getTransactionFromProgramIds($request->p_id);
                 
                 $balance = $transaction?->balance ?? 0;
-                $currency = $transaction?->currency_symbol;
+                $currency = $transaction?->currency_symbol ?? '₦';
                 
-                if ($transaction->balance > 0) {
+                if (($transaction?->balance ?? 0) > 0) {
                     return back()->with('error', 'Please Pay your balance of ' . $currency.number_format($balance) . ' in order to get access to materials');
                 }
             }

@@ -1069,11 +1069,9 @@ if (!function_exists('getTransactionFromProgramIds')) {
     function getTransactionFromProgramIds(int $program_id, ?int $user_id = null)
     {
         $user_id = $user_id ?? resolveAuthUser()->id;
-        $temp = TempTransaction::whereJsonContains('program_ids', $program_id)
+        return TempTransaction::whereJsonContains('program_ids', $program_id)
             ->where('user_id', resolveAuthUser()->id)
-            ->first() ?? collect([]);
-
-        return $temp;
+            ->first();
     }
 }
 
