@@ -18,23 +18,17 @@
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
                 <h5 class="card-title mb-0">Proof of Payment History</h5>
 
-                <form method="GET" action="{{ route('proof.payment') }}" class="d-flex align-items-center gap-2">
-                    <input type="hidden" name="missing_relation" value="0">
-                    <div class="form-check mb-0">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            value="1"
-                            id="missing_relation"
-                            name="missing_relation"
-                            {{ request()->boolean('missing_relation') ? 'checked' : '' }}
-                        >
-                        <label class="form-check-label" for="missing_relation">
-                            Missing relation only
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-                    @if(request()->boolean('missing_relation'))
+                <form method="GET" action="{{ route('proof.payment') }}" class="d-flex flex-wrap align-items-center gap-2">
+                    <button type="submit" name="relation" value="all" class="btn btn-sm {{ request('relation', 'all') === 'all' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        All
+                    </button>
+                    <button type="submit" name="relation" value="present" class="btn btn-sm {{ request('relation') === 'present' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Has relation only
+                    </button>
+                    <button type="submit" name="relation" value="missing" class="btn btn-sm {{ request('relation') === 'missing' ? 'btn-primary' : 'btn-outline-primary' }}">
+                        Missing relation only
+                    </button>
+                    @if(request()->filled('relation') && request('relation') !== 'all')
                         <a href="{{ route('proof.payment') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
                     @endif
                 </form>

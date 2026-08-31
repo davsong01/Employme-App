@@ -121,9 +121,15 @@ class PaymentController extends Controller
                 'program:id,p_name,p_amount,e_amount,p_end,close_registration',
                 'group:id,p_name,p_amount,p_end,close_registration'
             )
-            ->when($request->boolean('missing_relation'), function ($query) {
+            ->when($request->filled('relation') && $request->relation === 'missing', function ($query) {
                 $query->whereNull('program_id')
                     ->whereNull('group_id');
+            })
+            ->when($request->filled('relation') && $request->relation === 'present', function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->whereNotNull('program_id')
+                        ->orWhereNotNull('group_id');
+                });
             })
             ->Ordered('date', 'DESC')
             ->get();
