@@ -8,7 +8,7 @@ use App\Models\Program;
 use App\Models\Currency;
 use App\Models\Settings;
 use App\Models\Transaction;
-use App\Models\;
+use App\Models;
 use DavidOghi\CertificateGeneration\Services\CertificateManager as PackageCertificateManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
