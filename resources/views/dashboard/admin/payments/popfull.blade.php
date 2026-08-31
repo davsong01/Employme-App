@@ -52,6 +52,8 @@
                         @foreach($pops as $pop)
                             @php
                                 $related = $pop->related ?? $pop->program ?? $pop->group;
+                                $temp = $pop->temp;
+                                $coupon = $temp?->coupon;
                                 $paymentType = strtolower($pop->payment_type ?? $pop?->temp?->payment_type ?? $pop?->temp?->type ?? 'n/a');
                                 $paymentSource = null;
 
@@ -122,12 +124,12 @@
                                 </td>
                                 <td>
                                     Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
-                                    @if(!empty($pop->temp->coupon_id))
-                                        <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>
+                                    @if(!empty($temp?->coupon_id) && $coupon)
+                                        <small style="color:blue"><br>Coupon Applied: <strong>{{ $coupon->code }}</strong> ({{$pop->currency_symbol.number_format($coupon->amount)}})</small>
                                     @endif
-                                    @if(!empty($pop->temp_transaction_id))
+                                    @if(!empty($temp?->transid))
                                         <small style="color:indigo"><br>
-                                        TransactionID: {{$pop->temp->transid}}
+                                        TransactionID: {{$temp->transid}}
                                         </small>
                                     @endif
                                 </td>
@@ -234,7 +236,7 @@
                                                             >
                                                         </div>
 
-                                                        @if($pop->temp)
+                                                        @if($temp)
                                                             <div class="col-md-12 mb-3">
 
                                                                 <label for="transId" class="form-label">
@@ -248,7 +250,7 @@
                                                                         class="form-control"
                                                                         id="transId"
                                                                         name="transId"
-                                                                        value="{{ $pop->temp->transid }}"
+                                                                        value="{{ $temp->transid }}"
                                                                     >
 
                                                                     <div class="form-check mt-2 flex-shrink-0">
@@ -372,7 +374,7 @@
                                                             </select>
                                                         </div>
 
-                                                        @if(!empty($pop->temp->coupon_id))
+                                                        @if(!empty($temp?->coupon_id))
                                                             <div class="col-md-12 mb-3">
 
                                                                 <label class="form-label">
@@ -384,7 +386,7 @@
                                                                         @foreach ($related->coupon as $coupon)
                                                                             <option
                                                                                 value="{{ $coupon->id }}"
-                                                                                {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : '' }}
+                                                                                {{ $coupon->id == $temp?->coupon_id ? 'selected' : '' }}
                                                                             >
                                                                                 {{ $coupon->code }}
                                                                             </option>

@@ -138,81 +138,60 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form id="bulk-pop-form" action="{{ route('pop.bulk.destroy') }}" method="POST">
-                @csrf
-                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <select name="bulk_action" class="form-control" style="min-width: 220px;">
-                            <option value="delete">Delete Selected</option>
-                        </select>
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Delete the selected records?');">
-                            Apply
-                        </button>
-                    </div>
-                    <small class="text-muted">Select one or more rows, then apply the delete action.</small>
-                </div>
-
-                <div class="table-responsive">
-                    <table id="zero_config" class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th style="width:40px;">
-                                    <input type="checkbox" id="select-all-pops">
-                                </th>
-                                <th>#</th>
-                                <th>Date</th>
-                                <th>Customer details</th>
-                                <th>Amount Paid</th>
-                                <th>Training details</th>
-                                <th>Bank</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($transactions as $transaction)
-                                @if($transaction->program)
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="selected_ids[]" value="{{ $transaction->id }}" class="pop-row-check">
-                                        </td>
-                                        <td>{{ paginationIndex($transactions, $loop) }}</td>
-                                        <td>{{ $transaction->created_at }}</td>
-                                        <td>
-                                            {{ $transaction->name }} <br>
-                                            {{ $transaction->phone }} <br>
-                                            {{ $transaction->email }} <br>
-                                        </td>
-                                        <td>
-                                            {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
-                                        </td>
-                                        <td>
-                                            {{ $transaction->program->p_name }} <br>
-                                            ({{ $transaction->program->e_amount <= 0 ? 'Amount: '.\App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->p_amount : 'E/Amount '. \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->e_amount }})
-                                            <br>
-                                            @if(!is_null($transaction->coupon_code))
-                                                <span style="color:blue">
-                                                    <strong>Coupon ({{ $transaction->coupon }}) Applied | {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->coupon->coupon_amount) }}</strong>
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $transaction->bank }}</td>
-                                        <td>{{ $transaction->location }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a data-bs-toggle="tooltip" data-placement="top" title="Delete" onclick="return confirm('Are you really sure?');"
-                                                    class="btn btn-danger" href="{{ route('temp.destroy', $transaction->id) }}">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </form>
+            <div class="table-responsive">
+                <table id="zero_config" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Customer details</th>
+                            <th>Amount Paid</th>
+                            <th>Training details</th>
+                            <th>Bank</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($transactions as $transaction)
+                            @if($transaction->program)
+                                <tr>
+                                    <td>{{ paginationIndex($transactions, $loop) }}</td>
+                                    <td>{{ $transaction->created_at }}</td>
+                                    <td>
+                                        {{ $transaction->name }} <br>
+                                        {{ $transaction->phone }} <br>
+                                        {{ $transaction->email }} <br>
+                                    </td>
+                                    <td>
+                                        {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->amount) }}
+                                    </td>
+                                    <td>
+                                        {{ $transaction->program->p_name }} <br>
+                                        ({{ $transaction->program->e_amount <= 0 ? 'Amount: '.\App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->p_amount : 'E/Amount '. \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').$transaction->program->e_amount }})
+                                        <br>
+                                        @if(!is_null($transaction->coupon_code))
+                                            <span style="color:blue">
+                                                <strong>Coupon ({{ $transaction->coupon }}) Applied | {{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($transaction->coupon->coupon_amount) }}</strong>
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $transaction->bank }}</td>
+                                    <td>{{ $transaction->location }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Delete" onclick="return confirm('Are you really sure?');"
+                                                class="btn btn-danger" href="{{ route('temp.destroy', $transaction->id) }}">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
             <div class="d-flex justify-content-end mt-3">
                 {{ $transactions->links() }}
@@ -221,32 +200,4 @@
     </div>
 </div>
 
-@section('extra-scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAll = document.getElementById('select-all-pops');
-        const rowChecks = document.querySelectorAll('.pop-row-check');
-        const bulkForm = document.getElementById('bulk-pop-form');
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                rowChecks.forEach(function (checkbox) {
-                    checkbox.checked = selectAll.checked;
-                });
-            });
-        }
-
-        if (bulkForm) {
-            bulkForm.addEventListener('submit', function (event) {
-                const checked = document.querySelectorAll('.pop-row-check:checked');
-
-                if (!checked.length) {
-                    event.preventDefault();
-                    alert('Please select at least one record to delete.');
-                }
-            });
-        }
-    });
-</script>
-@endsection
 @endsection

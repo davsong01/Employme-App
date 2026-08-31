@@ -26,7 +26,6 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
         
         $participants = Transaction::orderBy('program_user.created_at', 'DESC')
             ->where('program_user.program_id', $this->id)
-            ->leftjoin("temp_transactions", "program_user.transid", "=", "temp_transactions.transid")
             ->join("users", "program_user.user_id", "=", "users.id")
 
             ->select([
@@ -35,10 +34,10 @@ class ProgramDetailsExport implements FromCollection, WithHeadings
                 'users.name',
                 'users.email',
                 'users.phone AS phone',
-                'temp_transactions.amount as paid',
-                'temp_transactions.balance as outstanding',
-                'temp_transactions.t_type as paymentmode',
-                'temp_transactions.invoice_id AS invoice',
+                'program_user.amount as paid',
+                'program_user.balance as outstanding',
+                'program_user.t_type as paymentmode',
+                'program_user.invoice_id AS invoice',
                 'program_user.t_location as venue'
             ])
             ->get();

@@ -79,7 +79,6 @@ Route::middleware(['admin.access'])->group(function () {
 
         Route::resource('pop', PopController::class);
         Route::get('/temp-destroy/{id}', [PopController::class, 'tempDestroy'])->name('temp.destroy');
-        Route::post('/pop/bulk-destroy', [PopController::class, 'bulkDestroy'])->name('pop.bulk.destroy');
         //View proofofpayment
         Route::get('view/pop/{filename}', [PopController::class, 'getfile']);
     

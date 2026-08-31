@@ -669,31 +669,6 @@ class PopController extends Controller
         return back()->with('message', 'Delete successful');
     }
 
-    public function bulkDestroy(Request $request)
-    {
-        if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {
-            return back()->with('error', 'You are not authorized to perform this action');
-        }
-
-        $data = $request->validate([
-            'selected_ids' => 'required|array|min:1',
-            'selected_ids.*' => 'integer|exists:temp_transactions,id',
-        ]);
-
-        $deleted = 0;
-
-        foreach ($data['selected_ids'] as $id) {
-            $transaction = TempTransaction::find($id);
-
-            if ($transaction) {
-                $transaction->delete();
-                $deleted++;
-            }
-        }
-
-        return back()->with('message', $deleted . ' record(s) deleted successfully');
-    }
-
     public function reconcile()
     {
         $users = User::where('roles', 'Student')->get();
