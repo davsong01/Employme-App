@@ -115,8 +115,18 @@ class PaymentController extends Controller
         if(!checkRoleHas(['Facilitator','Admin','Grader'])){
             return back();
         }
-        
-        $pops = Pop::with('temp','program:id,p_name,p_amount,e_amount,p_end,close_registration')->Ordered('date', 'DESC')->get();
+
+        $pops = Pop::with(
+                'temp',
+                'program:id,p_name,p_amount,e_amount,p_end,close_registration',
+                'group:id,p_name,p_amount,p_end,close_registration'
+            )
+            ->when($request->boolean('missing_relation'), function ($query) {
+                $query->whereNull('program_id')
+                    ->whereNull('group_id');
+            })
+            ->Ordered('date', 'DESC')
+            ->get();
         
         $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
             ->doesntHave('children')

@@ -77,11 +77,65 @@ class PopController extends Controller
             return route('home');
         }
 
-        $transactions =  TempTransaction::with(['coupon', 'program:id,p_amount,e_amount,created_at'])->orderBy('created_at', 'DESC')->get();
-        $i = 1;
-        $official_email = Settings::select('OFFICIAL_EMAIL')->first()->value('OFFICIAL_EMAIL');
-        
-        return view('dashboard.admin.payments.pop', compact('transactions', 'i'));
+        $transactions = TempTransaction::with([
+                'coupon',
+                'program:id,p_amount,e_amount,created_at',
+            ])
+            ->orderBy('created_at', 'DESC');
+
+        if ($request = request()) {
+            if ($request->filled('transid')) {
+                $transactions->where('transid', $request->transid);
+            }
+
+            if ($request->filled('payment_type')) {
+                $transactions->where('type', $request->payment_type);
+            }
+
+            if ($request->filled('email')) {
+                $transactions->where('email', $request->email);
+            }
+
+            if ($request->filled('name')) {
+                $transactions->where('name', 'LIKE', "%{$request->name}%");
+            }
+
+            if ($request->filled('phone')) {
+                $transactions->where('phone', $request->phone);
+            }
+
+            if ($request->filled('channel')) {
+                $transactions->where('t_type', $request->channel);
+            }
+
+            if ($request->filled('program_id')) {
+                $transactions->whereJsonContains('program_ids', (int) $request->program_id);
+            }
+
+            if ($request->filled('package_id')) {
+                $transactions->where('program_id', $request->package_id)
+                    ->where('is_package', 1);
+            }
+
+            if ($request->filled('coupon_id')) {
+                $transactions->where('coupon_id', $request->coupon_id);
+            }
+
+            if ($request->filled('from') && $request->filled('to')) {
+                $transactions->whereBetween('created_at', [
+                    $request->from . ' 00:00:00',
+                    $request->to . ' 23:59:59',
+                ]);
+            }
+        }
+
+        $records = $transactions->count();
+        $transactions = $transactions->paginate(100)->withQueryString();
+        $allPrograms = Program::select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
+        $allPackages = Group::select('id', 'p_name', 'created_at')->orderBy('created_at', 'DESC')->get();
+        $allCoupons = Coupon::latest()->get();
+
+        return view('dashboard.admin.payments.pop', compact('transactions', 'records', 'allPrograms', 'allPackages', 'allCoupons'));
     }
 
     public function create()
@@ -572,15 +626,31 @@ class PopController extends Controller
         ]);
 
         $data = $request->except(['template', '_token', '_method', 'prefix__', 'transId', 'delete_transaction', 'transid']);
-        $data['is_package'] = $request->has('is_package')
+        $isPackage = $request->has('is_package')
             ? $request->boolean('is_package')
             : (bool) $pop->is_package;
+
+        $data['is_package'] = $isPackage;
         $data['payment_type'] = $request->input('payment_type', $pop->payment_type);
+
+        if ($isPackage) {
+            $data['group_id'] = $request->filled('group_id')
+                ? $request->input('group_id')
+                : $pop->group_id;
+            $data['program_id'] = null;
+        } else {
+            $data['program_id'] = $request->filled('program_id')
+                ? $request->input('program_id')
+                : $pop->program_id;
+            $data['group_id'] = null;
+        }
 
         $pop->update($data);
 
         if(!empty($request->delete_transaction)){
-            $pop->temp->delete();
+            if ($pop->temp) {
+                $pop->temp->delete();
+            }
 
             $pop->update([
                 'temp_transaction_id' => null,

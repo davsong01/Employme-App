@@ -15,7 +15,30 @@
     <div class="card">
         <div class="card-body">
             @include('layouts.partials.alerts')
-            <h5 class="card-title">Proof of Payment History</h5>
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <h5 class="card-title mb-0">Proof of Payment History</h5>
+
+                <form method="GET" action="{{ route('proof.payment') }}" class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="missing_relation" value="0">
+                    <div class="form-check mb-0">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            value="1"
+                            id="missing_relation"
+                            name="missing_relation"
+                            {{ request()->boolean('missing_relation') ? 'checked' : '' }}
+                        >
+                        <label class="form-check-label" for="missing_relation">
+                            Missing relation only
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                    @if(request()->boolean('missing_relation'))
+                        <a href="{{ route('proof.payment') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                    @endif
+                </form>
+            </div>
             <div class="">
                 <table id="myTable" class="table table-striped table-bordered" style="width:100%">
                     <thead>
@@ -33,54 +56,66 @@
                     
                     <tbody>
                         @foreach($pops as $pop)
-                                @if($pop->related)
-                                @php
-                                    $paymentType = strtolower($pop->payment_type ?? $pop?->temp?->payment_type ?? $pop?->temp?->type ?? 'n/a');
-                                    $paymentSource = null;
+                            @php
+                                $related = $pop->related ?? $pop->program ?? $pop->group;
+                                $paymentType = strtolower($pop->payment_type ?? $pop?->temp?->payment_type ?? $pop?->temp?->type ?? 'n/a');
+                                $paymentSource = null;
 
-                                    if ($paymentType === 'earlybird') {
-                                        $paymentSource = 'Auto-detected';
-                                    }
-                                @endphp
-                                <tr>
-                                    <td>
-                                        {{ $pop->date }}
-                        
-                                    </td>
-                                    <td>
-                                        <div>{{ ucfirst($paymentType) }}</div>
-                                        @if($paymentSource)
-                                            <span class="badge bg-light text-dark border mt-1">{{ $paymentSource }}</span>
-                                        @endif
-                                    </td>
+                                if ($paymentType === 'earlybird') {
+                                    $paymentSource = 'Auto-detected';
+                                }
 
-                                    <td>
-                                        {{ $pop->name }} <br>
-                                        {{ $pop->phone }} <br>
-                                        {{ $pop->email }} <br>
-                                        <?php 
-                                            $string =  "*Name:* " . $pop->name . "
-                                            *Phone:* " . $pop->phone . "
-                                            *Email:* " . $pop->email . "
-                                            *Training:* " . $pop->related?->p_name . "
-                                            *Amount Paid:* " . $pop->amount;
-                                        ?>
-                                        
-                                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2347038378085&text={{ urlencode($string) }}" target="_blank">
-                                                <i class="fab fa-whatsapp"></i> Send via WhatsApp
-                                            </a>
-                                            @if($permissions['pop.edit'])
+                                $trainingName = $related?->p_name
+                                    ?? ($pop->is_package ? 'Package removed' : 'Training removed')
+                                    ?? 'N/A';
+
+                                $trainingAmount = $related
+                                    ? ($related->e_amount <= 0
+                                        ? 'Amount: ' . $pop->currency_symbol . number_format($related->p_amount)
+                                        : 'E/Amount: ' . $pop->currency_symbol . number_format($related->e_amount))
+                                    : 'No linked training/package';
+
+                                $string = "*Name:* " . $pop->name . "
+                                *Phone:* " . $pop->phone . "
+                                *Email:* " . $pop->email . "
+                                *Training:* " . $trainingName . "
+                                *Amount Paid:* " . $pop->amount;
+                            @endphp
+
+                            <tr>
+                                <td>
+                                    {{ $pop->date }}
+                                </td>
+                                <td>
+                                    <div>{{ ucfirst($paymentType) }}</div>
+                                    @if($paymentSource)
+                                        <span class="badge bg-light text-dark border mt-1">{{ $paymentSource }}</span>
+                                    @endif
+                                    @if(!$related)
+                                        <span class="badge bg-warning text-dark border mt-1">Missing relation</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    {{ $pop->name }} <br>
+                                    {{ $pop->phone }} <br>
+                                    {{ $pop->email }} <br>
+
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <a class="btn btn-dark btn-sm" href="https://api.whatsapp.com/send?phone=2347038378085&text={{ urlencode($string) }}" target="_blank">
+                                            <i class="fab fa-whatsapp"></i> Send via WhatsApp
+                                        </a>
+                                        @if($permissions['pop.edit'])
                                             <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editpop{{ $pop->id }}">
                                                 <i class="fa fa-edit"></i> Edit
                                             </a>
-                                            @endif
-                                            @if($permissions['pop.show'])
+                                        @endif
+                                        @if($permissions['pop.show'])
                                             <a title="Approve Payment" onclick="return confirm('Are you sure')" class="btn btn-success btn-sm" href="{{ route('pop.show', $pop->id) }}">
                                                 <i class="fa fa-check"></i> Approve
                                             </a>
-                                            @endif
-                                            @if($permissions['pop.destroy'])
+                                        @endif
+                                        @if($permissions['pop.destroy'])
                                             <form action="{{ route('pop.destroy', $pop->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you really sure?');">
                                                 {{ csrf_field() }}
                                                 {{ method_field('DELETE') }}
@@ -88,43 +123,44 @@
                                                     <i class="fa fa-trash"></i> Delete
                                                 </button>
                                             </form>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>
-                                        Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
-                                        @if(!empty($pop->temp->coupon_id))
-                                        <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>
                                         @endif
-                                        @if(!empty($pop->temp_transaction_id))
+                                    </div>
+                                </td>
+                                <td>
+                                    Amount Paid: {{ $pop->currency_symbol.number_format($pop->amount) }}
+                                    @if(!empty($pop->temp->coupon_id))
+                                        <small style="color:blue"><br>Coupon Applied: <strong>{{ $pop->temp->coupon->code }}</strong> ({{$pop->currency_symbol.number_format($pop->temp->coupon->amount)}})</small>
+                                    @endif
+                                    @if(!empty($pop->temp_transaction_id))
                                         <small style="color:indigo"><br>
                                         TransactionID: {{$pop->temp->transid}}
                                         </small>
-                                        @endif
-                                    </td>
-                                    <td>{{ $pop->related->p_name }} <br>({{  $pop->related->e_amount <= 0 ? 'Amount: '.$pop->currency_symbol.number_format($pop->related->p_amount) : 'E/Amount: '. $pop->currency_symbol.number_format($pop->related->e_amount) }})
+                                    @endif
+                                </td>
+                                <td>
+                                    <div>{{ $trainingName }}</div>
+                                    <div>({{ $trainingAmount }})</div>
                                     <strong>
                                     <br>
-                                    <strong>Type: </strong>{{$pop->is_package ? 'Package' : 'Training'}}
-                                    
+                                    <strong>Type: </strong>{{ $pop->is_package ? 'Package' : 'Training' }}
+
                                     @if(isset($pop->is_fresh)) <br>
-                                    <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
+                                        <span style="margin:5px 10px;border-radius:10px" class="btn btn-info btn-sm">Fresh Payment</span>
                                     @endif
-                                    
-                                    </td>
-                      
-                                    <td>{{ $pop->bank }}</td>
-                                    <td>{{ $pop->location }}</td>
-                                
-                                    <td>
-                                        <a href="#" data-bs-toggle="modal" data-bs-target="#myModal{{ $pop->id }}">
-                                            <img title="View Proof of Payment" id="myImg{{ $pop->id }}" 
-                                                src="{{ url('/uploads/'.$pop->file) }}" 
-                                                alt="{{ $pop->name }}" 
-                                                class="img-thumbnail" style="width: 60px;">
-                                        </a>
-                                    </td>
-                                </tr>
+                                </td>
+
+                                <td>{{ $pop->bank }}</td>
+                                <td>{{ $pop->location }}</td>
+
+                                <td>
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#myModal{{ $pop->id }}">
+                                        <img title="View Proof of Payment" id="myImg{{ $pop->id }}"
+                                            src="{{ url('/uploads/'.$pop->file) }}"
+                                            alt="{{ $pop->name }}"
+                                            class="img-thumbnail" style="width: 60px;">
+                                    </a>
+                                </td>
+                            </tr>
                                 <div class="modal fade mt-5" id="myModal{{ $pop->id }}" tabindex="-1" aria-labelledby="imageModal{{ $pop->id }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
@@ -311,7 +347,7 @@
                                                                 @foreach($packages as $package)
                                                                     <option
                                                                         value="{{ $package->id }}"
-                                                                        {{ $package->id == $pop->related->id ? 'selected' : '' }}
+                                                                        {{ $related && $package->id == $related->id ? 'selected' : '' }}
                                                                     >
                                                                         {{ $package->p_name }}
                                                                         ({{ $package->p_amount }})
@@ -333,7 +369,7 @@
                                                                 @foreach($programs as $program)
                                                                     <option
                                                                         value="{{ $program->id }}"
-                                                                        {{ $program->id == $pop->related->id ? 'selected' : '' }}
+                                                                        {{ $related && $program->id == $related->id ? 'selected' : '' }}
                                                                     >
                                                                         {{ $program->p_name }}
                                                                         ({{ $program->p_amount }})
@@ -350,14 +386,18 @@
                                                                 </label>
 
                                                                 <select class="form-control" disabled>
-                                                                    @foreach ($pop->related->coupon as $coupon)
-                                                                        <option
-                                                                            value="{{ $coupon->id }}"
-                                                                            {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : '' }}
-                                                                        >
-                                                                            {{ $coupon->code }}
-                                                                        </option>
-                                                                    @endforeach
+                                                                    @if($related)
+                                                                        @foreach ($related->coupon as $coupon)
+                                                                            <option
+                                                                                value="{{ $coupon->id }}"
+                                                                                {{ $coupon->id == $pop->temp->coupon_id ? 'selected' : '' }}
+                                                                            >
+                                                                                {{ $coupon->code }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <option value="">No linked training/package</option>
+                                                                    @endif
                                                                 </select>
 
                                                             </div>
@@ -374,7 +414,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
                         @endforeach
                     </tbody>
                 </table>
