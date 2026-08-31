@@ -1,9 +1,9 @@
 @php
     $today = date('Y-m-d');
 
-    $isDisabled = ($item->p_end < $today || ($item->close_registration ?? 0) == 1);
+    $isDisabled = ($item->p_end < $today || ($item->is_closed ?? 'no') == 'yes');
 
-    if ($item->p_end < $today || ($item->close_registration ?? 0) == 1) {
+    if ($item->p_end < $today || ($item->is_closed ?? 'no') == 'yes') {
         $status = 'Past';
         $statusColor = 'bg-danger';
     } elseif ($item->p_start > $today) {

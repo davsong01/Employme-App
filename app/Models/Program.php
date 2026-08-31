@@ -141,7 +141,6 @@ class Program extends Model
             ->where('programs.status', 1)
             ->where('programs.is_closed', 'no')
             ->where('programs.p_end', '>=', date('Y-m-d'))
-            ->where('programs.close_registration', 0)
             ->orderBy('programs.created_at', 'DESC');
     }
 
@@ -160,7 +159,7 @@ class Program extends Model
             // ->whereNull('programs.parent_id')
             ->where('programs.status', 1)
             ->where('programs.p_end', '>=', date('Y-m-d'))
-            ->where('programs.close_registration', 0)
+            ->where('programs.is_closed', 'no')
             ->orderBy('programs.created_at', 'DESC');
     }
 
@@ -180,7 +179,7 @@ class Program extends Model
         return $query->where('id', '<>', 1)
             ->whereStatus(1)
                 ->where('p_end', '>=', date('Y-m-d'))
-                    ->where('close_registration', 0)
+                    ->where('is_closed', 'no')
                         ->orderBy('created_at', 'DESC');
     }
 

@@ -140,7 +140,7 @@ class PopController extends Controller
 
     public function create()
     {
-        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->mainActivePrograms()->get();
+        $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'is_closed')->mainActivePrograms()->get();
         $today = now()->toDateString();
         
         // Keep active packages visible for POP uploads as long as they are still valid.

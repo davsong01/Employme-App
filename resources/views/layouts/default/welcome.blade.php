@@ -25,7 +25,7 @@ class="active"
                         @if($training->e_amount > 0)<strong> |  Early Bird:</strong> {{ config('custom.default_currency') }}{{ $training->e_amount }}@endif
                     @endif
                 <br>
-                @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                     <strong class="closed" style="color:red">Registration Closed</strong>
                 @else <br>
                 @endif

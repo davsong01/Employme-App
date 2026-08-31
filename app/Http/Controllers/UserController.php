@@ -42,7 +42,7 @@ class UserController extends Controller
         if(checkRoleHas(['Admin'])) {
             $users = User::orderBy('created_at', 'DESC');
             $user = User::all();
-            $programs = Program::select('id', 'p_end', 'p_name', 'close_registration')->where('id', '<>', 1)->where('close_registration', 0)->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
+            $programs = Program::select('id', 'p_end', 'p_name', 'is_closed')->where('id', '<>', 1)->where('is_closed', 'no')->where('p_end', '>', date('Y-m-d'))->ORDERBY('created_at', 'DESC')->get();
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs'));
         }
         return back();

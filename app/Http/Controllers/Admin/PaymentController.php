@@ -90,7 +90,7 @@ class PaymentController extends Controller
             $transactions = $transactions->paginate(adminPaginationRecords());
 
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
-            $allPrograms = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at', 'DESC')->get();
+            $allPrograms = Program::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
             $allPackages = Group::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
             $allCoupons = Coupon::latest()->get();
 
@@ -118,8 +118,8 @@ class PaymentController extends Controller
 
         $pops = Pop::with(
                 'temp',
-                'program:id,p_name,p_amount,e_amount,p_end,close_registration',
-                'group:id,p_name,p_amount,p_end,close_registration'
+                'program:id,p_name,p_amount,e_amount,p_end',
+                'group:id,p_name,p_amount,p_end'
             )
             ->when($request->filled('relation') && $request->relation === 'missing', function ($query) {
                 $query->whereNull('program_id')
@@ -134,7 +134,7 @@ class PaymentController extends Controller
             ->Ordered('date', 'DESC')
             ->get();
         
-        $programs = Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')
+        $programs = Program::select('id', 'p_end', 'p_name', 'p_amount')
             ->doesntHave('children')
             ->where('id', '<>', 1)
             // ->where('close_registration', 0)

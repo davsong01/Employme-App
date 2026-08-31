@@ -268,7 +268,7 @@ class UserController extends Controller
         $users = $users->paginate(adminPaginationRecords());
         
         if (checkRoleHas(['Admin'])) {
-            $programs = Program::select('id', 'p_name', 'p_end', 'close_registration', 'created_at')->orderBy('created_at','DESC')->get();
+            $programs = Program::select('id', 'p_name', 'p_end', 'is_closed', 'created_at')->orderBy('created_at','DESC')->get();
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
@@ -329,7 +329,7 @@ class UserController extends Controller
             $locations = Location::select('title')->orderBy('created_at', 'DESC')->get();
             $user = User::all();
 
-            $programs =  Program::select('id', 'p_end', 'p_name', 'p_amount', 'close_registration')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
+            $programs =  Program::select('id', 'p_end', 'p_name', 'p_amount', 'is_closed')->where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
 
             return view('dashboard.admin.users.create', compact('users', 'user', 'programs', 'locations'));
         }

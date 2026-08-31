@@ -18,12 +18,12 @@
                 @foreach($trainings as $training)
                     <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
                         <div class="featured__item">
-                            @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                            @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                             @else
                             <a href="{{ route('trainings', $training->id ) }}" target="_blank">   
                             @endif
                                 <div class="featured__item__pic set-bg" data-setbg="{{ $training->image }}">
-                                    @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                                    @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                                     <ul class="featured__item__pic__hover">
                                         <li><a href="#" class="disabled-link">Registration closed!</a></li>
                                     </ul> 
@@ -33,7 +33,7 @@
                             
                             <div class="featured__item__text">
                                 <h6 style="min-height:60px">
-                                    @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                                    @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                                     <a href="#" class="disabled-link">
                                     <span class="mobile_closed" style="display:none">Registration closed!</span>
                                     {{-- <span style="color:red">Registration closed <br></span> --}}
@@ -121,7 +121,7 @@ class="active"
                         @if($training->e_amount > 0)<strong> |  Early Bird:</strong> {{ config('custom.default_currency') }}{{ $training->e_amount }}@endif
                     @endif
                 <br>
-                @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                     <strong class="closed" style="color:red">Registration Closed</strong>
                 @else <br>
                 @endif

@@ -687,7 +687,7 @@ class ProgramController extends Controller
     {
         $program = Program::findorfail($id);
         $programName = $program->p_name;
-        $program->close_registration = 1;
+        $program->is_closed = 'yes';
         $program->save();
 
         return back()->with('message', 'Registration is now closed for ' . $programName);
@@ -696,8 +696,8 @@ class ProgramController extends Controller
     public function openRegistration($id)
     {
         $program = Program::findorfail($id);
-        $programName = Program::where('id', $id)->pluck('p_name');
-        $program->close_registration = 0;
+        $programName = $program->p_name;
+        $program->is_closed = 'no';
         $program->save();
 
         return back()->with('message', 'Registration is now extended for ' . $programName);

@@ -31,7 +31,7 @@
             </div>
             <div class="col-12 col-lg-5">
                 <div class="single_product_desc">
-                     @if($training->p_end < date('Y-m-d') || $training->close_registration == 1)
+                     @if($training->p_end < date('Y-m-d') || $training->is_closed == 'yes')
                      <div class="product-meta-data">
                         <div class="line"></div>
                         <p class="product-price">{{ \App\Models\Settings::select('DEFAULT_CURRENCY')->first()->value('DEFAULT_CURRENCY').number_format($training->p_amount) }}</p>

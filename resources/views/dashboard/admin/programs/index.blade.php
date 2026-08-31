@@ -505,7 +505,7 @@
                                         </a>
                                     @endif
 
-                                    @if($program->close_registration == 0)
+                                    @if(($program->is_closed ?? 'no') === 'no')
                                         @if($program->permissions['registration.close'])
                                             <a class="btn btn-danger btn-sm" href="{{ route('registration.close', ['p_id'=> $program->id, 'id'=> $program->id]) }}" onclick="return confirm('Are you really sure?');">
                                                 <i class="fa fa-window-close"></i> Close Registration
