@@ -619,6 +619,7 @@ class UserController extends Controller
                 $syncTransid = null;
                 if ($existingTransaction) {
                     $updateData = [
+                        'user_id' => $user->id,
                         'email' => $user->email,
                         'name' => $user->name,
                         'phone' => $user->phone,

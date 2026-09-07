@@ -89,17 +89,6 @@ class PaymentController extends Controller
             
             $transactions = $transactions->paginate(adminPaginationRecords());
 
-            foreach ($transactions as $transaction) {
-                if (empty($transaction->user_id) && !empty($transaction->email)) {
-                    $user = User::where('email', $transaction->email)->first();
-
-                    if ($user) {
-                        PaymentService::createUserAndAttachPrograms($transaction->fresh());
-                        $transaction->refresh();
-                    }
-                }
-            }
-
             $pops = Pop::with('program')->Ordered('date', 'DESC')->get();
             $allPrograms = Program::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
             $allPackages = Group::select('id', 'p_name', 'p_end', 'created_at')->orderBy('created_at', 'DESC')->get();
