@@ -230,8 +230,11 @@
                             <tr id="transaction-row-{{ $transaction->id }}">
                                 <td>{{ paginationIndex($transactions, $loop) }}</td>
                                 <td><strong>Name: </strong>
-                                    @if($permissions['users.edit'])
-                                    <a href="{{ route('users.edit', $transaction?->user_id)}}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                    @if($permissions['users.edit'] && !empty($transaction?->user_id))
+                                    <a href="{{ route('users.edit', ['user' => $transaction->user_id]) }}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                    <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
+                                    @else
+                                    {{ $transaction?->user->name ?? 'N/A' }}
                                     <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
                                     @endif
                                     @if(isset($transaction?->user->last_login)) <br>
@@ -241,7 +244,7 @@
                                     <br> 
                                     <strong>Account balance: </strong>{{number_format($transaction?->user?->account_balance)}}
                                     @endif
-                                    @if($permissions['impersonate']) <br>
+                                    @if($permissions['impersonate'] && !empty($transaction?->user_id)) <br>
                                     <a target="_blank" data-bs-toggle="tooltip" data-placement="top" title="Impersonate User"
                                     class="btn btn-dark btn-sm w-50 mb-3" href="{{ route('impersonate', $transaction->user_id) }}">
                                         <i class="fa fa-unlock"> Peek</i>
