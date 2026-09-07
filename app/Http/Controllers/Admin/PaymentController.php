@@ -91,8 +91,12 @@ class PaymentController extends Controller
 
             foreach ($transactions as $transaction) {
                 if (empty($transaction->user_id) && !empty($transaction->email)) {
-                    PaymentService::createUserAndAttachPrograms($transaction->fresh());
-                    $transaction->refresh();
+                    $user = User::where('email', $transaction->email)->first();
+
+                    if ($user) {
+                        PaymentService::createUserAndAttachPrograms($transaction->fresh());
+                        $transaction->refresh();
+                    }
                 }
             }
 
