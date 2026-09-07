@@ -522,8 +522,12 @@ class UserController extends Controller
         if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
             $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
+            $currentTransaction = TempTransaction::where('user_id', $user->id)
+                ->where('status', 'complete')
+                ->orderByDesc('created_at')
+                ->first();
 
-            return view('dashboard.admin.users.edit', compact('programs', 'user', 'associated'));
+            return view('dashboard.admin.users.edit', compact('programs', 'user', 'associated', 'currentTransaction'));
         }
 
         if (checkRoleHas(['Facilitator', 'Grader'])) {
@@ -588,77 +592,105 @@ class UserController extends Controller
                     ->toArray();
 
                 $newTrainings = $request['training']; // assumed array of IDs
+                $selectedTrainingIds = collect($newTrainings)
+                    ->map(fn ($programId) => (int) $programId)
+                    ->unique()
+                    ->values()
+                    ->all();
 
-                $trainings = array_unique(array_merge($user_programs, $newTrainings)); // full list
-                $toBeDeleted = array_diff($user_programs, $newTrainings);              // remove
-                $brandNewTrainings = array_diff($newTrainings, $user_programs);        // add
-                
-                // Handle new program purchases
-                if (!empty($brandNewTrainings)) {
-                    $allTrainings = Program::whereIn('id', $brandNewTrainings)->get();
-
-                    foreach ($brandNewTrainings as $programId) {
-                        $training = $allTrainings->firstWhere('id', $programId);
-                        if (!$training) continue;
-
-                        $balance = 0;
-                        $t_type = 'Transfer';
-                        $transid = PaymentService::getReference('SYS-ADMIN');
-                        $invoiceId = PaymentService::getInvoiceId();
-                        $amount = $training->p_amount;
-                        
-                        $transactionArray = [
-                            'email' => $user->email,
-                            'type' => 'full',
-                            'program_id' => $training->id,
-                            'coupon_id' => null,
-                            'facilitator_id' => null,
-                            'amount' => $amount,
-                            'transid' => $transid,
-                            'invoice_id' => $invoiceId,
-                            'payment_mode' => 0,
-                            'preferred_timing' => null,
-                            'name' => $user->name,
-                            'phone' => $user->phone,
-                            'location' => null,
-                            'training_mode' => null,
-                            'meta' => null,
-                            'is_package' => 0,
-                            'status' => 'complete',
-                            'balance' => $balance,
-                            't_type' => $t_type,
-                            'program_ids' => [(int) $training->id],
-                            'currency' => "NGN",
-                            'currency_symbol' => "₦",
-                        ];
-
-                        $transaction = PaymentService::logTransaction($transactionArray);
-                        
-                        PaymentService::createUserAndAttachPrograms($transaction);
-                        $transaction = $transaction->fresh();
-
-                        PaymentThread::create([
-                            'program_id' => $transaction->program_id,
-                            'user_id' => $transaction->user_id,
-                            'payment_id' => $transaction->id,
-                            'transaction_id' => PaymentService::getReference('PYTHRD'),
-                            't_type' => strtolower($transaction->t_type),
-                            'parent_transaction_id' => $transaction->transid,
-                            'amount' => $transaction->amount,
-                        ]);
-                    }
-                }
+                $toBeDeleted = array_diff($user_programs, $selectedTrainingIds);              // remove
+                $selectedPrograms = Program::whereIn('id', $selectedTrainingIds)->get();
+                $paymentTransid = $request->input('payment_transid');
+                $existingTransaction = $paymentTransid
+                    ? TempTransaction::where('user_id', $user->id)
+                        ->where('transid', $paymentTransid)
+                        ->where('status', 'complete')
+                        ->first()
+                    : null;
 
                 // Handle program removals
                 foreach ($toBeDeleted as $programId) {
-                    TempTransaction::where('user_id', $user->id)
-                        ->whereJsonContains('program_ids', $programId)
-                        ->delete();
-
                     DB::table('program_user')
                         ->where('user_id', $user->id)
                         ->where('program_id', $programId)
                         ->delete();
+                }
+
+                $syncTransid = null;
+                if ($existingTransaction) {
+                    $updateData = [
+                        'email' => $user->email,
+                        'name' => $user->name,
+                        'phone' => $user->phone,
+                        'program_ids' => $selectedTrainingIds,
+                    ];
+
+                    if (! $existingTransaction->is_package && !empty($selectedTrainingIds)) {
+                        $updateData['program_id'] = $selectedTrainingIds[0];
+                    }
+
+                    $existingTransaction->update($updateData);
+                    $syncTransid = $existingTransaction->transid;
+                } elseif (!empty($selectedTrainingIds)) {
+                    $amount = (float) $selectedPrograms->sum('p_amount');
+                    $primaryProgramId = $selectedTrainingIds[0];
+                    $transid = PaymentService::getReference('SYS-ADMIN');
+                    $invoiceId = PaymentService::getInvoiceId();
+
+                    $transaction = PaymentService::logTransaction([
+                        'email' => $user->email,
+                        'type' => 'full',
+                        'payment_type' => 'full',
+                        'program_id' => $primaryProgramId,
+                        'coupon_id' => null,
+                        'facilitator_id' => null,
+                        'amount' => $amount,
+                        'transid' => $transid,
+                        'invoice_id' => $invoiceId,
+                        'payment_mode' => 0,
+                        'preferred_timing' => null,
+                        'name' => $user->name,
+                        'phone' => $user->phone,
+                        'location' => null,
+                        'training_mode' => null,
+                        'meta' => null,
+                        'is_package' => 0,
+                        'status' => 'complete',
+                        'balance' => 0,
+                        't_type' => 'Transfer',
+                        'program_ids' => $selectedTrainingIds,
+                        'currency' => 'NGN',
+                        'currency_symbol' => '₦',
+                        'expected_amount' => $amount,
+                    ]);
+
+                    PaymentService::createUserAndAttachPrograms($transaction);
+                    $transaction = $transaction->fresh();
+                    $syncTransid = $transaction->transid;
+
+                    PaymentThread::create([
+                        'program_id' => $transaction->program_id,
+                        'user_id' => $transaction->user_id,
+                        'payment_id' => $transaction->id,
+                        'transaction_id' => PaymentService::getReference('PYTHRD'),
+                        't_type' => strtolower($transaction->t_type),
+                        'parent_transaction_id' => $transaction->transid,
+                        'amount' => $transaction->amount,
+                    ]);
+                }
+
+                if (!empty($selectedTrainingIds) && !empty($syncTransid)) {
+                    foreach ($selectedTrainingIds as $programId) {
+                        Transaction::updateOrCreate(
+                            [
+                                'user_id' => $user->id,
+                                'program_id' => $programId,
+                            ],
+                            [
+                                'transid' => $syncTransid,
+                            ]
+                        );
+                    }
                 }
             }
             

@@ -22,6 +22,9 @@
                         class="pb-2">
                         {{ method_field('PATCH') }}
                         {{ csrf_field() }}
+                        @if(!empty($currentTransaction?->transid))
+                            <input type="hidden" name="payment_transid" value="{{ $currentTransaction->transid }}">
+                        @endif
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">

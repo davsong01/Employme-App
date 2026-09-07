@@ -1070,8 +1070,20 @@ if (!function_exists('getTransactionFromProgramIds')) {
     function getTransactionFromProgramIds(int $program_id, ?int $user_id = null)
     {
         $user_id = $user_id ?? resolveAuthUser()->id;
+
+        // Only return a payment record when the user still has an active
+        // program association for this course. This keeps payment history
+        // intact while allowing admins to remove access cleanly.
+        $hasActiveProgram = Transaction::where('user_id', $user_id)
+            ->where('program_id', $program_id)
+            ->exists();
+
+        if (! $hasActiveProgram) {
+            return null;
+        }
+
         return TempTransaction::whereJsonContains('program_ids', $program_id)
-            ->where('user_id', resolveAuthUser()->id)
+            ->where('user_id', $user_id)
             ->first();
     }
 }
