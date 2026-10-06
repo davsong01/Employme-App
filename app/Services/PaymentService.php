@@ -298,8 +298,16 @@ class PaymentService
         
         // Update user details
         $user->name = $transaction->name ?? 'N/A';
-        $user->staffID = $transaction->meta['staffID'] ?? null;
-        $user->metadata = $transaction->metadata ?? null;
+        $transactionMeta = is_array($transaction->meta) ? $transaction->meta : [];
+        if (array_key_exists('staffID', $transactionMeta)) {
+            $user->staffID = $transactionMeta['staffID'];
+        }
+        if (array_key_exists('gender', $transactionMeta)) {
+            $user->gender = $transactionMeta['gender'];
+        }
+        if (array_key_exists('metadata', $transactionMeta)) {
+            $user->metadata = $transactionMeta['metadata'];
+        }
         $user->phone = $transaction->phone;
         $user->save();
 
@@ -877,9 +885,14 @@ class PaymentService
                     'preferred_timing'  => null,
                     'name'              => $user?->name ?? $participant['name'],
                     'phone'             => $user?->phone ?? $participant['phone'],
-                    'location'          => null,
+                    'location'          => $participant['location'] ?? null,
                     'training_mode'     => null,
-                    'meta'              => null,
+                    'meta'              => array_filter([
+                        'staffID' => $participant['staffID'] ?? null,
+                        'gender' => $participant['gender'] ?? null,
+                        'location' => $participant['location'] ?? null,
+                        'metadata' => $participant['metadata'] ?? null,
+                    ], fn ($value) => !is_null($value) && $value !== ''),
                     'is_package'        => $isPackage ?? 0,
                     'status'            => $transaction_status,
                     'balance'           => $balance,

@@ -130,6 +130,10 @@ class LoginController extends Controller
             ->first();
 
         if ($user) {
+            if (in_array($user->status, ['inactive', 'suspended'], true)) {
+                return false;
+            }
+
             $programIds = Program::where([
                 'login_without_password' => 1,
                 'program_lock' => 0

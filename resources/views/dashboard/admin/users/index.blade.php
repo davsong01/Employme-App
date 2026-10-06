@@ -104,6 +104,7 @@
                                     <div class="text-muted small">Email: {{ $user->email }}</div>
                                     <div class="text-muted small">Staff ID: {{ $user->staffID }}</div>
                                     <div class="text-muted small">Phone: {{ $user->phone }}</div>
+                                    <div class="text-muted small">Status: <span class="badge {{ $user->status === 'suspended' ? 'bg-danger' : ($user->status === 'inactive' ? 'bg-secondary' : 'bg-success') }}">{{ ucfirst($user->status ?: 'active') }}</span></div>
                                     <div class="text-muted small">Balance: {{ number_format($user->account_balance) }}</div>
                                     <div class="text-muted small">Joined: {{ optional($user->created_at)->format('d M Y') }}</div>
                                 </td>

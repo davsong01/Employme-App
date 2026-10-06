@@ -83,6 +83,16 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="status">Status *</label>
+                                    <select name="status" id="status" class="form-control" required>
+                                        @foreach(['active' => 'Active', 'inactive' => 'Inactive', 'suspended' => 'Suspended'] as $value => $label)
+                                            <option value="{{ $value }}" {{ old('status', $user->status ?: 'active') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('status')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                                </div>
                                 
                                 <div class="mb-3">
                                     <label for="class">Gender</label>

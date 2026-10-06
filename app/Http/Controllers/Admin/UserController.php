@@ -103,7 +103,14 @@ class UserController extends Controller
                     mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
                     application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv',
                     'import_from' => 'sometimes',
-                    'start_date' => 'sometimes'
+                    'start_date' => 'sometimes',
+                    'manual_participants' => 'sometimes|array',
+                    'manual_participants.*.name' => 'required_with:manual_participants.*.email|string|max:255',
+                    'manual_participants.*.email' => 'required_with:manual_participants.*.name|email|max:255',
+                    'manual_participants.*.staffID' => 'nullable|string|max:255',
+                    'manual_participants.*.gender' => 'nullable|string|max:50',
+                    'manual_participants.*.phone' => 'nullable|string|max:50',
+                    'manual_participants.*.location' => 'nullable|string|max:255',
                 ],
                 [
                     'file.mimetypes' => 'The file must be a file of type: xlsx'
@@ -122,6 +129,18 @@ class UserController extends Controller
                     }, $fileParticipants);
 
                     $participants = array_merge($participants, $fileParticipants);
+                }
+
+                // Manually entered participants use the same processing pipeline as file imports.
+                foreach ($request->input('manual_participants', []) as $manualParticipant) {
+                    if (blank($manualParticipant['name'] ?? null) && blank($manualParticipant['email'] ?? null)) {
+                        continue;
+                    }
+
+                    $participants[] = array_merge($manualParticipant, [
+                        'email' => strtolower(trim($manualParticipant['email'] ?? '')),
+                        'source' => 'manual',
+                    ]);
                 }
 
                 // From old program
@@ -549,6 +568,10 @@ class UserController extends Controller
     {
         date_default_timezone_set("Africa/Lagos");
         $user = User::findorFail($id);
+
+        $request->validate([
+            'status' => 'nullable|in:active,inactive,suspended',
+        ]);
         
         if ($request->filled('password')) {
             $password = bcrypt($request->password);
@@ -576,6 +599,7 @@ class UserController extends Controller
                 'password' => $password,
                 'roles' => $role,
                 'gender' => $request->gender,
+                'status' => $request->input('status', $user->status ?: 'active'),
             ]);
             
             if(checkRoleHas(['Admin'])) {
@@ -617,6 +641,7 @@ class UserController extends Controller
                 }
 
                 $syncTransid = null;
+                $syncTransactionId = null;
                 if ($existingTransaction) {
                     $updateData = [
                         'user_id' => $user->id,
@@ -632,6 +657,7 @@ class UserController extends Controller
 
                     $existingTransaction->update($updateData);
                     $syncTransid = $existingTransaction->transid;
+                    $syncTransactionId = $existingTransaction->id;
                 } elseif (!empty($selectedTrainingIds)) {
                     $amount = (float) $selectedPrograms->sum('p_amount');
                     $primaryProgramId = $selectedTrainingIds[0];
@@ -668,6 +694,7 @@ class UserController extends Controller
                     PaymentService::createUserAndAttachPrograms($transaction);
                     $transaction = $transaction->fresh();
                     $syncTransid = $transaction->transid;
+                    $syncTransactionId = $transaction->id;
 
                     PaymentThread::create([
                         'program_id' => $transaction->program_id,
@@ -692,6 +719,14 @@ class UserController extends Controller
                             ]
                         );
                     }
+
+                    TempTransaction::where('status', 'complete')
+                        ->where('id', '<>', $syncTransactionId)
+                        ->where(function ($query) use ($user) {
+                            $query->where('user_id', $user->id)
+                                ->orWhere('email', $user->email);
+                        })
+                        ->delete();
                 }
             }
             

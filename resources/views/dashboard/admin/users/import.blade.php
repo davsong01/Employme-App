@@ -35,6 +35,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="card border mb-4">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Type in participant details</h6>
+                                    <small class="text-muted">Add one or more participants manually. You can use this together with a file or selected {{ $source == 'program' ? 'program' : 'group' }}.</small>
+                                </div>
+                            </div>
+                            <div class="card-body" id="manual-participants-panel">
+                                <div id="manual-participants-list"></div>
+                                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-manual-participant">
+                                    <i class="fa fa-plus"></i> Add participant
+                                </button>
+                                <div class="small text-muted">Name and email are required for each manual participant. Remove unused rows before submitting.</div>
+                            </div>
+                        </div>
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -130,6 +145,37 @@
     @section('extra-scripts')
     <script>
         $(document).ready(function () {
+            let manualParticipantIndex = 0;
+
+            function addManualParticipant() {
+                const index = manualParticipantIndex++;
+                $('#manual-participants-panel').removeClass('d-none');
+                $('#manual-participants-list').append(`
+                    <div class="manual-participant-row border rounded p-3 mb-3" data-index="${index}">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <strong>Participant ${index + 1}</strong>
+                            <button type="button" class="btn btn-link text-danger p-0 remove-manual-participant">Remove</button>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Name *</label><input type="text" name="manual_participants[${index}][name]" class="form-control" required></div>
+                            <div class="col-md-6"><label class="form-label">Email *</label><input type="email" name="manual_participants[${index}][email]" class="form-control" required></div>
+                            <div class="col-md-3"><label class="form-label">Staff ID</label><input type="text" name="manual_participants[${index}][staffID]" class="form-control"></div>
+                            <div class="col-md-3"><label class="form-label">Gender</label><select name="manual_participants[${index}][gender]" class="form-control"><option value="">Select gender</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                            <div class="col-md-3"><label class="form-label">Phone</label><input type="text" name="manual_participants[${index}][phone]" class="form-control"></div>
+                            <div class="col-md-3"><label class="form-label">Location</label><input type="text" name="manual_participants[${index}][location]" class="form-control"></div>
+                        </div>
+                    </div>
+                `);
+            }
+
+            $('#add-manual-participant').on('click', addManualParticipant);
+            $(document).on('click', '.remove-manual-participant', function () {
+                $(this).closest('.manual-participant-row').remove();
+                if (!$('#manual-participants-list .manual-participant-row').length) {
+                    $('#manual-participants-panel').addClass('d-none');
+                }
+            });
+
             function toggleArchived() {
                 if ($('#show_archived').is(':checked')) {
                     // Show archived options
