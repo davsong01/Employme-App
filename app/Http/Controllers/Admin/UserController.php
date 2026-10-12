@@ -126,6 +126,10 @@ class UserController extends Controller
                     $fileParticipants = ExcelService::import($request->file('file'));
 
                     $fileParticipants = array_map(function ($participant) {
+                        $participant = collect($participant)->mapWithKeys(function ($value, $key) {
+                            return [strtolower(trim((string) $key)) => $value];
+                        })->all();
+
                         return array_merge($participant, ['source' => 'file']);
                     }, $fileParticipants);
 
@@ -369,10 +373,56 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        $transactions = Transaction::with(['program', 'paymentLog'])
+        // Only expose a receipt belonging to this participant. Matching a
+        // receipt by transid alone can return another participant's receipt
+        // when legacy/imported transaction IDs are duplicated.
+        $transactions = Transaction::with('program')
             ->where('user_id', $user->id)
             ->orderBy('created_at')
             ->get();
+
+        // A legacy transaction reference can be reused across programs. Do
+        // not resolve receipts by transid alone; select the receipt belonging
+        // to this participant/program and closest to this registration row.
+        $receiptCandidates = TempTransaction::where('user_id', $user->id)
+            ->whereIn('transid', $transactions->pluck('transid')->filter()->unique())
+            ->get();
+
+        $transactions->each(function ($programTransaction) use ($receiptCandidates) {
+            $matchingReceipts = $receiptCandidates
+                ->where('transid', $programTransaction->transid)
+                ->where('program_id', $programTransaction->program_id)
+                ->when($programTransaction->invoice_id, function ($items) use ($programTransaction) {
+                    return $items->where('invoice_id', $programTransaction->invoice_id);
+                });
+
+            // Some legacy rows have the child program ID while the receipt
+            // stores the package/parent ID. In that case, retain the safety
+            // constraints that distinguish receipts for the same transid.
+            if ($matchingReceipts->isEmpty()) {
+                $matchingReceipts = $receiptCandidates
+                    ->where('transid', $programTransaction->transid)
+                    ->when($programTransaction->invoice_id, function ($items) use ($programTransaction) {
+                        return $items->where('invoice_id', $programTransaction->invoice_id);
+                    })
+                    ->filter(function ($candidate) use ($programTransaction) {
+                        return (float) $candidate->amount === (float) $programTransaction->amount;
+                    });
+            }
+
+            $receipt = $matchingReceipts
+                ->sortBy(function ($candidate) use ($programTransaction) {
+                    $dateDistance = abs(
+                        $candidate->created_at->getTimestamp() - $programTransaction->created_at->getTimestamp()
+                    );
+                    $amountDistance = abs((float) $candidate->amount - (float) $programTransaction->amount);
+
+                    return ($dateDistance * 1000000) + $amountDistance;
+                })
+                ->first();
+
+            $programTransaction->setRelation('paymentLog', $receipt);
+        });
 
         $programs = $user->programs()->orderBy('p_name')->get()->keyBy('id');
         foreach ($transactions->pluck('program')->filter() as $program) {

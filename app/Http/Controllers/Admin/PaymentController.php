@@ -233,7 +233,9 @@ class PaymentController extends Controller
 
     public function printReceipt($id)
     {
-        $transaction = TempTransaction::with(['coupon', 'program'])->where('id', $id)->first();
+        $transaction = TempTransaction::with(['coupon', 'program', 'user:id,name,email,phone'])
+            ->where('id', $id)
+            ->first();
         
         if (checkRoleHas(['Student'])){
             if (!$transaction) {
@@ -252,7 +254,9 @@ class PaymentController extends Controller
 
     public function downloadReceipt($id)
     {
-        $transaction = TempTransaction::with(['coupon', 'program'])->where('id', $id)->firstOrFail();
+        $transaction = TempTransaction::with(['coupon', 'program', 'user:id,name,email,phone'])
+            ->where('id', $id)
+            ->firstOrFail();
 
         if (checkRoleHas(['Student']) && $transaction->user_id != resolveAuthUser()->id) {
             abort(403);

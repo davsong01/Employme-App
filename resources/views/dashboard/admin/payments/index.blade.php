@@ -227,15 +227,20 @@
                     
                     <tbody>
                         @foreach($transactions as $transaction)
+                            @php
+                                $customerName = $transaction->user?->name ?: ($transaction->name ?: 'N/A');
+                                $customerPhone = $transaction->user?->phone ?: ($transaction->phone ?: 'N/A');
+                                $customerEmail = $transaction->user?->email ?: ($transaction->email ?: 'N/A');
+                            @endphp
                             <tr id="transaction-row-{{ $transaction->id }}">
                                 <td>{{ paginationIndex($transactions, $loop) }}</td>
                                 <td><strong>Name: </strong>
                                     @if($permissions['users.edit'] && !empty($transaction?->user_id))
-                                    <a href="{{ route('users.edit', ['user' => $transaction->user_id]) }}" target="_blank">{{ $transaction?->user->name ?? 'N/A' }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-                                    <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
+                                    <a href="{{ route('users.edit', ['user' => $transaction->user_id]) }}" target="_blank">{{ $customerName }} <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+                                    <br> <strong>Phone: </strong>{{ $customerPhone }} <br> <strong>Email:</strong> {{ $customerEmail }}
                                     @else
-                                    {{ $transaction?->user->name ?? 'N/A' }}
-                                    <br> <strong>Phone: </strong>{{ $transaction?->user->phone ?? 'N/A' }} <br> <strong>Email:</strong> {{ $transaction?->user->email ?? 'N/A' }}
+                                    {{ $customerName }}
+                                    <br> <strong>Phone: </strong>{{ $customerPhone }} <br> <strong>Email:</strong> {{ $customerEmail }}
                                     @endif
                                     @if(isset($transaction?->user->last_login)) <br>
                                     <span style="color:green"><strong>Last Login: </strong>{{ $transaction->user->last_login ? date("M jS, Y H:i", strtotime($transaction?->user->last_login)) : '' }}</span>
@@ -352,7 +357,14 @@
                                 <td>
                                     <small class="id-details">
                                         <strong>Invoice ID:</strong> {{ $transaction->invoice_id }} <br>
-                                        <strong>Transaction ID:</strong> {{ $transaction->transid }} 
+                                        <strong>Transaction ID:</strong>
+                                        @if($transaction->transid)
+                                            <a href="{{ route('payments.receipt.download', $transaction->id) }}" title="Download receipt">
+                                                {{ $transaction->transid }}
+                                            </a>
+                                        @else
+                                            N/A
+                                        @endif
                                         @if($transaction->paymentthreads->count() > 0)
                                         <br>
                                         <strong>Paid At:</strong> {{ $transaction->created_at }} 

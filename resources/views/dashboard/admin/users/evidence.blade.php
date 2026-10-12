@@ -2,6 +2,12 @@
 
 @section('title', 'Participant Evidence - '.$user->name)
 
+@php
+    $evidenceSetting = \App\Models\Settings::first();
+    $evidenceLogo = $evidenceSetting?->logo ?: 'assets/images/logo.png';
+    $evidenceLogoUrl = asset(ltrim($evidenceLogo, '/'));
+@endphp
+
 @section('css')
 <style>
     .evidence-page { color: #273444; }
@@ -55,7 +61,7 @@
                     <h1 class="h3 mb-1">{{ $user->name }}</h1>
                     <div class="text-muted">Generated {{ now()->format('d M Y, h:i A') }}</div>
                 </div>
-                <img src="{{ asset('assets/images/logo-text.png') }}" alt="{{ config('app.name') }}" style="max-width: 170px; max-height: 60px; object-fit: contain;">
+                <img src="{{ $evidenceLogoUrl }}" alt="{{ config('app.name') }}" style="max-width: 170px; max-height: 60px; object-fit: contain;">
             </div>
             <hr>
             <div class="row g-3">
@@ -97,6 +103,8 @@
                                                 <a href="{{ route('payments.receipt.download', $transaction->paymentLog->id) }}" title="Download receipt">
                                                     {{ $transaction->transid }}
                                                 </a>
+                                            @elseif($transaction->transid)
+                                                <span title="No receipt is linked to this participant">{{ $transaction->transid }}</span>
                                             @else
                                                 {{ $transaction->transid ?: 'N/A' }}
                                             @endif

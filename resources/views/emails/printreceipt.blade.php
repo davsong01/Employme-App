@@ -4,8 +4,10 @@
     $logo = $setting?->logo ?: 'assets/images/logo.png';
     $logoPath = public_path(ltrim($logo, '/'));
     $logoUrl = file_exists($logoPath)
-        ? asset(ltrim($logo, '/'))
+        ? 'data:' . (mime_content_type($logoPath) ?: 'image/png') . ';base64,' . base64_encode(file_get_contents($logoPath))
         : asset('assets/images/logo.png');
+    $participantName = $transaction->name ?: $transaction->user?->name;
+    $participantEmail = $transaction->email ?: $transaction->user?->email;
 ?>
 <html>
 <head>
@@ -85,8 +87,8 @@
 </div>
 
 <div class="participant">
-    <p><strong style="color:red;">PARTICIPANT</strong><br>{{ $transaction->name }}</p>
-    <p><strong style="color:red;">CONTACT EMAIL</strong><br>{{ $transaction->email }}</p>
+    <p><strong style="color:red;">PARTICIPANT</strong><br>{{ $participantName ?: 'N/A' }}</p>
+    <p><strong style="color:red;">CONTACT EMAIL</strong><br>{{ $participantEmail ?: 'N/A' }}</p>
 </div>
 
 <table>

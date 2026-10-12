@@ -823,7 +823,11 @@ class PaymentService
         try {
             DB::beginTransaction();
 
-            $user = User::where('email', $participant['email'])->first();
+            $participantEmail = strtolower(trim((string) ($participant['email'] ?? '')));
+            $participantName = trim((string) ($participant['name'] ?? ''));
+            $participantPhone = trim((string) ($participant['phone'] ?? ''));
+
+            $user = User::where('email', $participantEmail)->first();
             
             $newTrainings = $data['programIds'];
 
@@ -870,7 +874,7 @@ class PaymentService
                     ? 'earlybird'
                     : ($balance > 0 ? 'part' : $payment_type);
                 $transactionArray = [
-                    'email'             => $user?->email ?? $participant['email'],
+                    'email'             => $participantEmail ?: $user?->email,
                     'type'              => $real_type,
                     'payment_type'      => $payment_type,
                     'program_id'        => $program->id,
@@ -883,9 +887,9 @@ class PaymentService
                     'invoice_id'        => $invoiceId,
                     'payment_mode'      => $payment_mode,
                     'preferred_timing'  => null,
-                    'name'              => $user?->name ?? $participant['name'],
-                    // Phone is optional for bulk imports; name and email are sufficient.
-                    'phone'             => $user?->phone ?? ($participant['phone'] ?? null),
+                    'name'              => $participantName ?: ($user?->name ?? null),
+                    // Phone is optional for bulk imports; prefer the uploaded value when present.
+                    'phone'             => $participantPhone ?: ($user?->phone ?? null),
                     'location'          => $participant['location'] ?? null,
                     'training_mode'     => null,
                     'meta'              => array_filter([
