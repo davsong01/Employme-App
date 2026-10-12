@@ -252,9 +252,16 @@ class UserController extends Controller
             $users = $users->where('staffID', $request->staffID);
         }
 
-        if (!empty($request->program_id)) {
-            $users = $users->whereHas('programs', function ($query) use ($request) {
-                $query->where('program_user.program_id', $request->program_id);
+        if ($request->filled('program_id')) {
+            $programId = $request->integer('program_id');
+
+            // A participant matches when they have the selected program,
+            // regardless of any other programs attached to them.
+            $users = $users->whereExists(function ($query) use ($programId) {
+                $query->selectRaw('1')
+                    ->from('program_user')
+                    ->whereColumn('program_user.user_id', 'users.id')
+                    ->where('program_user.program_id', $programId);
             });
         }
 
