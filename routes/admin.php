@@ -45,6 +45,7 @@ Route::middleware(['admin.access'])->group(function () {
     Route::middleware(['auth.admin', 'impersonate.admin', 'permission'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.home');
         Route::resource('users', UserController::class);
+        Route::get('users/{id}/evidence', [UserController::class, 'evidence'])->name('users.evidence');
         Route::post('users/bulk-attach-programs', [UserController::class, 'bulkAttachPrograms'])
             ->name('users.bulk.attach.programs');
 
@@ -292,6 +293,7 @@ Route::middleware(['admin.access'])->group(function () {
         Route::get('approve-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'approveWalletTransaction'])->name('approve.wallet.history');
         Route::get('delete-wallet-transaction/{wallet_id}', [AdminPaymentController::class, 'deleteWalletTransaction'])->name('delete.wallet.history');
         Route::get('printreceipt/{id}', [AdminPaymentController::class, 'printReceipt'])->name('payments.print');
+        Route::get('downloadreceipt/{id}', [AdminPaymentController::class, 'downloadReceipt'])->name('payments.receipt.download');
     
         Route::resource('pictures', PictureController::class);
         Route::resource('details', DetailsController::class);

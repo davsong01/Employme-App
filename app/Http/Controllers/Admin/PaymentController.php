@@ -250,6 +250,19 @@ class PaymentController extends Controller
         return view('emails.printreceipt', compact('transaction'));
     }
 
+    public function downloadReceipt($id)
+    {
+        $transaction = TempTransaction::with(['coupon', 'program'])->where('id', $id)->firstOrFail();
+
+        if (checkRoleHas(['Student']) && $transaction->user_id != resolveAuthUser()->id) {
+            abort(403);
+        }
+
+        $pdf = PDF::loadView('emails.printreceipt', compact('transaction'));
+
+        return $pdf->download('receipt-' . ($transaction->invoice_id ?: $transaction->id) . '.pdf');
+    }
+
     //set balance and determine user receipt values
     private function dosubscript1($balance)
     {

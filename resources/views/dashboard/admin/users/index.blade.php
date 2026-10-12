@@ -165,6 +165,11 @@
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         @endif
+                                        @if(checkRoleHas(['Admin']))
+                                            <a data-bs-toggle="tooltip" data-placement="top" title="Participant evidence" class="btn btn-outline-info btn-sm" href="{{ route('users.evidence', $user->id) }}">
+                                                <i class="fa fa-file-alt"></i>
+                                            </a>
+                                        @endif
                                         @if(canUserAccessPermission(['impersonate'])['impersonate'])
                                             <a data-bs-toggle="tooltip" data-placement="top" title="Impersonate User" class="btn btn-outline-warning btn-sm" href="{{ route('impersonate', $user->id) }}">
                                                 <i class="fa fa-unlock"></i>
@@ -189,6 +194,13 @@
                                                 <li>
                                                     <a class="dropdown-item" href="{{ route('users.edit', $user->id) }}">
                                                         <i class="fa fa-edit me-2"></i>Edit User
+                                                    </a>
+                                                </li>
+                                            @endif
+                                            @if(checkRoleHas(['Admin']))
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('users.evidence', $user->id) }}">
+                                                        <i class="fa fa-file-alt me-2"></i>Participant evidence
                                                     </a>
                                                 </li>
                                             @endif

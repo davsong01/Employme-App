@@ -8,6 +8,7 @@ use App\Mail\Email;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Coupon;
+use App\Models\Certificate;
 use App\Models\Result;
 use App\Models\Program;
 use App\Models\Location;
@@ -358,6 +359,63 @@ class UserController extends Controller
         });
 
         return back()->with('message', 'Selected trainings attached to the selected participants.');
+    }
+
+    public function evidence($id)
+    {
+        if (!checkRoleHas(['Admin'])) {
+            abort(403);
+        }
+
+        $user = User::findOrFail($id);
+
+        $transactions = Transaction::with(['program', 'paymentLog'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at')
+            ->get();
+
+        $programs = $user->programs()->orderBy('p_name')->get()->keyBy('id');
+        foreach ($transactions->pluck('program')->filter() as $program) {
+            $programs[$program->id] = $program;
+        }
+
+        $results = Result::with(['program', 'module', 'threads'])
+            ->where('user_id', $user->id)
+            ->orderBy('program_id')
+            ->orderBy('created_at')
+            ->get();
+
+        $certificates = Certificate::with(['program', 'uploadedBy'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at')
+            ->get();
+
+        $certificationStatuses = [];
+        foreach ($programs as $program) {
+            $programResults = $results->where('program_id', $program->id);
+            $programTransaction = $transactions->where('program_id', $program->id)->sortByDesc('created_at')->first();
+            $trainingResult = $programTransaction?->training_result;
+            $certificationTaken = $programResults->contains(function ($result) {
+                return !is_null($result->certification_test_score) || !is_null($result->certification_test_details);
+            }) || ($trainingResult && !is_null($trainingResult->certification_test_score ?? null));
+
+            if (!$certificationTaken) {
+                $certificationStatuses[$program->id] = 'NOT TAKEN';
+                continue;
+            }
+
+            $statusDetails = certificationStatus($program->id, $user->id) ?: [];
+            $certificationStatuses[$program->id] = $statusDetails['status'] ?? 'NOT CERTIFIED';
+        }
+
+        return view('dashboard.admin.users.evidence', compact(
+            'user',
+            'programs',
+            'transactions',
+            'results',
+            'certificates',
+            'certificationStatuses'
+        ));
     }
 
     public function redotest($id)
