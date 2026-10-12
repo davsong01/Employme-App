@@ -1,7 +1,11 @@
 <?php
     use App\Models\Settings;
     $setting = Settings::first();
-    $logo = $setting->logo;
+    $logo = $setting?->logo ?: 'assets/images/logo.png';
+    $logoPath = public_path(ltrim($logo, '/'));
+    $logoUrl = file_exists($logoPath)
+        ? asset(ltrim($logo, '/'))
+        : asset('assets/images/logo.png');
 ?>
 <html>
 <head>
@@ -67,8 +71,7 @@
 <div class="header">
     <div style="float: left;">
         <a href="{{url('/')}}">
-            <img src="{{ public_path($logo) }}" style="width:100px;">
-			{{-- <img src="{{ url($logo) }}" style="width: 120px;"> --}}
+			<img src="{{ $logoUrl }}" alt="{{ config('app.name') }}" style="width:100px;">
 		</a>
     </div>
 
