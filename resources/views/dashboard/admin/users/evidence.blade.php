@@ -69,7 +69,9 @@
                 <div class="col-md-2"><div class="evidence-label">Phone</div><div class="evidence-value">{{ $user->phone ?: 'N/A' }}</div></div>
                 <div class="col-md-2"><div class="evidence-label">Staff ID</div><div class="evidence-value">{{ $user->staffID ?: 'N/A' }}</div></div>
                 <div class="col-md-2"><div class="evidence-label">Status</div><div class="evidence-value">{{ ucfirst($user->status ?: 'active') }}</div></div>
-                <div class="col-md-2"><div class="evidence-label">Last login</div><div class="evidence-value">{{ $user->last_login ? date('d M Y, h:i A', strtotime($user->last_login)) : 'Never' }}</div></div>
+                @if($user->last_login)
+                    <div class="col-md-2"><div class="evidence-label">Last login</div><div class="evidence-value">{{ date('d M Y, h:i A', strtotime($user->last_login)) }}</div></div>
+                @endif
                 <div class="col-md-2"><div class="evidence-label">Registered</div><div class="evidence-value">{{ optional($user->created_at)->format('d M Y') ?: 'N/A' }}</div></div>
             </div>
             @if(!empty($user->metadata))
