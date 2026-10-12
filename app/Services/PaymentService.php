@@ -884,7 +884,8 @@ class PaymentService
                     'payment_mode'      => $payment_mode,
                     'preferred_timing'  => null,
                     'name'              => $user?->name ?? $participant['name'],
-                    'phone'             => $user?->phone ?? $participant['phone'],
+                    // Phone is optional for bulk imports; name and email are sufficient.
+                    'phone'             => $user?->phone ?? ($participant['phone'] ?? null),
                     'location'          => $participant['location'] ?? null,
                     'training_mode'     => null,
                     'meta'              => array_filter([

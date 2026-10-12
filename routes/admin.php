@@ -45,6 +45,8 @@ Route::middleware(['admin.access'])->group(function () {
     Route::middleware(['auth.admin', 'impersonate.admin', 'permission'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.home');
         Route::resource('users', UserController::class);
+        Route::post('users/bulk-attach-programs', [UserController::class, 'bulkAttachPrograms'])
+            ->name('users.bulk.attach.programs');
 
         Route::resource('teachers', TeacherController::class);
         Route::resource('companyuser', AdminCompanyUserController::class);

@@ -5,6 +5,11 @@
     .participant-filter-card .form-select {
         border-radius: 0.85rem;
     }
+
+    .bulk-action-bar {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+    }
 </style>
 @endsection
 @section('title', 'All Participants')
@@ -80,11 +85,34 @@
     </div>
 
     <div class="card border-0 shadow-sm">
+        @if(checkRoleHas(['Admin']))
+            <div class="bulk-action-bar p-3">
+                <form id="bulk-attach-form" action="{{ route('users.bulk.attach.programs') }}" method="POST">
+                    @csrf
+                    <div id="bulk-user-inputs"></div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="form-check mb-0">
+                            <input class="form-check-input" type="checkbox" id="select-all-users">
+                            <label class="form-check-label" for="select-all-users">Select all on page</label>
+                        </div>
+                        <select id="bulk-action" class="form-select form-select-sm" style="max-width: 180px;" disabled>
+                            <option value="">Bulk actions</option>
+                            <option value="add-program">Add program</option>
+                        </select>
+                        <button type="button" class="btn btn-sm btn-secondary" id="bulk-apply" disabled>Apply</button>
+                        <span id="selected-users-count" class="text-muted small">0 selected</span>
+                    </div>
+                </form>
+            </div>
+        @endif
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle crm-table crm-mobile-stack mb-0">
                     <thead>
                         <tr>
+                            @if(checkRoleHas(['Admin']))
+                                <th><span class="visually-hidden">Select</span></th>
+                            @endif
                             <th>#</th>
                             <th>Details</th>
                             <th>Last Login</th>
@@ -96,6 +124,11 @@
                         @foreach($users as $user)
                             @php $count = 1; @endphp
                             <tr>
+                                @if(checkRoleHas(['Admin']))
+                                    <td data-label="Select">
+                                        <input class="form-check-input user-select-checkbox" type="checkbox" value="{{ $user->id }}" aria-label="Select {{ $user->name }}">
+                                    </td>
+                                @endif
                                 <td data-label="#">
                                     {{ $i++ }}
                                 </td>
@@ -191,6 +224,33 @@
         </div>
     </div>
 </div>
+
+@if(checkRoleHas(['Admin']))
+    <div class="modal fade" id="bulkProgramModal" tabindex="-1" aria-labelledby="bulkProgramModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkProgramModalLabel">Add programs</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">Choose one or more trainings to attach to the selected participants.</p>
+                    <label for="bulk-programs" class="form-label">Trainings</label>
+                    <select id="bulk-programs" class="form-select" multiple size="8">
+                        @foreach($allPrograms as $program)
+                            <option value="{{ $program->id }}">{{ $program->p_name }}</option>
+                        @endforeach
+                    </select>
+                    <div id="bulk-program-error" class="text-danger small mt-2 d-none">Select at least one training.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirm-bulk-programs">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection
 @section('extra-scripts')
 <script>
@@ -198,6 +258,66 @@
         $('.select2').select2({
             width: '100%',
             allowClear: true
+        });
+
+        const $userCheckboxes = $('.user-select-checkbox');
+        const $selectAll = $('#select-all-users');
+        const $bulkAction = $('#bulk-action');
+        const $bulkApply = $('#bulk-apply');
+        const $selectedCount = $('#selected-users-count');
+        const bulkModalElement = document.getElementById('bulkProgramModal');
+        const bulkModal = bulkModalElement ? new bootstrap.Modal(bulkModalElement) : null;
+
+        function selectedUserIds() {
+            return $userCheckboxes.filter(':checked').map(function () {
+                return this.value;
+            }).get();
+        }
+
+        function updateBulkControls() {
+            const selected = selectedUserIds();
+            $selectedCount.text(`${selected.length} selected`);
+            $bulkAction.prop('disabled', selected.length === 0);
+            $bulkApply.prop('disabled', selected.length === 0);
+            $selectAll.prop('checked', $userCheckboxes.length > 0 && selected.length === $userCheckboxes.length);
+        }
+
+        $userCheckboxes.on('change', updateBulkControls);
+        $selectAll.on('change', function () {
+            $userCheckboxes.prop('checked', this.checked);
+            updateBulkControls();
+        });
+
+        $bulkApply.on('click', function () {
+            if ($bulkAction.val() === 'add-program') {
+                $('#bulk-programs').val([]);
+                $('#bulk-program-error').addClass('d-none');
+                bulkModal.show();
+            }
+        });
+
+        $('#confirm-bulk-programs').on('click', function () {
+            const programIds = $('#bulk-programs').val() || [];
+            const userIds = selectedUserIds();
+
+            if (!programIds.length) {
+                $('#bulk-program-error').removeClass('d-none');
+                return;
+            }
+
+            if (!window.confirm(`Attach ${programIds.length} training(s) to ${userIds.length} participant(s)?`)) {
+                return;
+            }
+
+            const $form = $('#bulk-attach-form');
+            const $inputs = $('#bulk-user-inputs').empty();
+            userIds.forEach(function (userId) {
+                $('<input>', { type: 'hidden', name: 'user_ids[]', value: userId }).appendTo($inputs);
+            });
+            programIds.forEach(function (programId) {
+                $('<input>', { type: 'hidden', name: 'program_ids[]', value: programId }).appendTo($inputs);
+            });
+            $form.submit();
         });
     });
 </script>

@@ -299,6 +299,60 @@ class UserController extends Controller
         return view('dashboard.admin.users.index', compact('users', 'i','records', 'allPrograms'));
     }
 
+    public function bulkAttachPrograms(Request $request)
+    {
+        if (!checkRoleHas(['Admin'])) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'user_ids' => ['required', 'array', 'min:1'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
+            'program_ids' => ['required', 'array', 'min:1'],
+            'program_ids.*' => ['integer', 'exists:programs,id'],
+        ]);
+
+        $userIds = collect($validated['user_ids'])->map(fn ($id) => (int) $id)->unique()->values();
+        $programIds = collect($validated['program_ids'])->map(fn ($id) => (int) $id)->unique()->values();
+
+        DB::transaction(function () use ($userIds, $programIds) {
+            User::whereIn('id', $userIds)->get()->each(function ($user) use ($programIds) {
+                $existingProgramIds = DB::table('program_user')
+                    ->where('user_id', $user->id)
+                    ->whereIn('program_id', $programIds)
+                    ->pluck('program_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->all();
+
+                $programsToAttach = $programIds->diff($existingProgramIds)->values();
+
+                if ($programsToAttach->isEmpty()) {
+                    return;
+                }
+
+                $transid = PaymentService::getReference('SYS-BULK');
+                $pivotData = [];
+
+                foreach ($programsToAttach as $programId) {
+                    $pivotData[$programId] = [
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'transid' => $transid,
+                        'amount' => 0,
+                        'balance' => 0,
+                        'paymenttype' => 'Full',
+                        'paymentStatus' => 1,
+                        't_type' => 'Admin Assignment',
+                    ];
+                }
+
+                $user->programs()->attach($pivotData);
+            });
+        });
+
+        return back()->with('message', 'Selected trainings attached to the selected participants.');
+    }
+
     public function redotest($id)
     {
 
