@@ -142,18 +142,21 @@ class PopController extends Controller
     {
         $trainings = Program::select('id', 'p_end', 'p_name', 'p_amount', 'is_closed')->mainActivePrograms()->get();
         $today = now()->toDateString();
-        
+
         // Keep active packages visible for POP uploads as long as they are still valid.
         $groups = Group::isActive()
             ->with(['programs' => function ($q) {
                 $q->mainActiveProgramsWithIsClosed();
             }])
+            ->whereHas('programs', function ($q) {
+                $q->mainActiveProgramsWithIsClosed();
+            })
             ->where(function ($query) use ($today) {
                 $query->whereNull('p_end')
                     ->orWhereDate('p_end', '>=', $today);
             })
             ->get();
-        
+
         if (isset(session()->get('data')['metadata']['pid'])) {
             $accounts = getAccounts(session()->get('data')['metadata']['pid']);
         } else {
