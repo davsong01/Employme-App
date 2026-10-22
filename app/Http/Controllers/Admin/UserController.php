@@ -134,18 +134,20 @@ class UserController extends Controller
 
             // From Excel file
             if ($request->hasFile('file')) {
-                $fileParticipants = ExcelService::import($request->file('file'));
+                $fileParticipants = collect(ExcelService::import($request->file('file')))
+                    ->filter(function ($participant) {
+                        return collect($participant)->contains(fn ($value) => ! blank($value));
+                    })
+                    ->map(function ($participant, $index) {
+                        $participant = collect($participant)->mapWithKeys(function ($value, $key) {
+                            return [strtolower(trim((string) $key)) => $value];
+                        })->all();
 
-                $fileParticipants = array_map(function ($participant, $index) {
-                    $participant = collect($participant)->mapWithKeys(function ($value, $key) {
-                        return [strtolower(trim((string) $key)) => $value];
-                    })->all();
-
-                    return array_merge($participant, [
-                        'source' => 'file',
-                        'source_row' => $index + 1,
-                    ]);
-                }, $fileParticipants, array_keys($fileParticipants));
+                        return array_merge($participant, [
+                            'source' => 'file',
+                            'source_row' => $index + 2,
+                        ]);
+                    })->values()->all();
 
                 $participants = array_merge($participants, $fileParticipants);
             }
