@@ -102,8 +102,11 @@ class UserController extends Controller
             $couponCheck = Coupon::where('id', $request->coupon_id)->where('program_id', $request->p_id)->first();
         }
 
-        $addedCount = 0;
-        $alreadyEnrolledCount = 0;
+        $successfulRowCount = 0;
+        $processedParticipantEmails = [];
+        $newlyEnrolledParticipantEmails = [];
+        $alreadyEnrolledParticipantEmails = [];
+        $createdUserEmails = [];
         $failures = [];
 
         $this->validate(
@@ -247,10 +250,20 @@ class UserController extends Controller
                 $addProgram = PaymentService::adminAddNewParticipant($prepareData);
 
                 if ($addProgram['status']) {
+                    $successfulRowCount++;
+                    $processedParticipantEmails[$participantEmail] = true;
+
                     if ($addProgram['already_enrolled'] ?? false) {
-                        $alreadyEnrolledCount++;
+                        if (! isset($newlyEnrolledParticipantEmails[$participantEmail])) {
+                            $alreadyEnrolledParticipantEmails[$participantEmail] = true;
+                        }
                     } else {
-                        $addedCount++;
+                        $newlyEnrolledParticipantEmails[$participantEmail] = true;
+                        unset($alreadyEnrolledParticipantEmails[$participantEmail]);
+                    }
+
+                    if ($addProgram['created_user'] ?? false) {
+                        $createdUserEmails[$participantEmail] = true;
                     }
                 } else {
                     $failures[] = $participantDescription.': '.($addProgram['message'] ?? 'Unable to assign program');
@@ -265,8 +278,12 @@ class UserController extends Controller
         }
 
         $source = $oldProgram ? ' from '.$oldProgram->p_name : '';
-        $processedCount = $addedCount + $alreadyEnrolledCount;
-        $summary = $processedCount.' '.($processedCount === 1 ? 'participant' : 'participants').' processed'.$source.' ('.$addedCount.' newly enrolled, '.$alreadyEnrolledCount.' already enrolled); '.count($failures).' failed.';
+        $processedCount = count($processedParticipantEmails);
+        $newlyEnrolledCount = count($newlyEnrolledParticipantEmails);
+        $alreadyEnrolledCount = count($alreadyEnrolledParticipantEmails);
+        $createdUserCount = count($createdUserEmails);
+        $duplicateRowCount = $successfulRowCount - $processedCount;
+        $summary = $processedCount.' unique '.($processedCount === 1 ? 'participant' : 'participants').' processed'.$source.' ('.$createdUserCount.' new accounts, '.$newlyEnrolledCount.' newly enrolled, '.$alreadyEnrolledCount.' already enrolled); '.count($failures).' failed'.($duplicateRowCount > 0 ? ', '.$duplicateRowCount.' duplicate rows' : '').'.';
 
         if ($processedCount === 0) {
             return back()->with([

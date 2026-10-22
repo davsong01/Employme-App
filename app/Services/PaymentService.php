@@ -829,6 +829,7 @@ class PaymentService
             $participantPhone = trim((string) ($participant['phone'] ?? ''));
 
             $user = User::where('email', $participantEmail)->first();
+            $userAlreadyExisted = (bool) $user;
 
             $newTrainings = $data['programIds'];
 
@@ -947,6 +948,7 @@ class PaymentService
                     'status' => true,
                     'message' => 'Participant is already enrolled in the selected program',
                     'already_enrolled' => true,
+                    'created_user' => false,
                 ];
             }
 
@@ -982,6 +984,7 @@ class PaymentService
                 'status' => true,
                 'message' => 'Participant Added Successfully',
                 'transaction' => $transaction,
+                'created_user' => ! $userAlreadyExisted,
             ];
         } catch (\Throwable $e) {
             DB::rollBack();
