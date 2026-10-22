@@ -78,11 +78,19 @@ class UserController extends Controller
 
     public function import(Request $request)
     {
-        $isPackage = $request->is_package ?? 0;
+        if (! checkRoleHas(['Admin', 'Facilitator'])) {
+            return abort(404);
+        }
 
-        $oldProgram = Program::select('id', 'p_name', 'p_amount')
-            ->where('id', $request->import_from)
-            ->first();
+        $isPackage = $request->boolean('is_package');
+
+        $request->validate([
+            'p_id' => 'required|integer|exists:'.($isPackage ? 'groups' : 'programs').',id',
+            'import_from' => 'nullable|integer|exists:'.($isPackage ? 'groups' : 'programs').',id',
+        ]);
+
+        $oldProgram = ($isPackage ? Group::class : Program::class)::select('id', 'p_name', 'p_amount')
+            ->find($request->import_from);
 
         if ($isPackage) {
             $program = Group::find($request->p_id);
@@ -94,70 +102,77 @@ class UserController extends Controller
             $couponCheck = Coupon::where('id', $request->coupon_id)->where('program_id', $request->p_id)->first();
         }
 
-        $count = 0;
+        $addedCount = 0;
+        $alreadyEnrolledCount = 0;
+        $failures = [];
 
-        if (checkRoleHas(['Admin', 'Facilitator'])) {
-            $this->validate(
-                request(),
-                [
-                    'file' => 'sometimes|
+        $this->validate(
+            request(),
+            [
+                'file' => 'sometimes|
                     mimetypes:xlsv,xlsx,xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
                     application/excel,application/x-excel,application/x-msexcel,text/comma-seperated-values, text/csv',
-                    'import_from' => 'sometimes',
-                    'start_date' => 'sometimes',
-                    'manual_participants' => 'sometimes|array',
-                    'manual_participants.*.name' => 'required_with:manual_participants.*.email|string|max:255',
-                    'manual_participants.*.email' => 'required_with:manual_participants.*.name|email|max:255',
-                    'manual_participants.*.staffID' => 'nullable|string|max:255',
-                    'manual_participants.*.gender' => 'nullable|string|max:50',
-                    'manual_participants.*.phone' => 'nullable|string|max:50',
-                    'manual_participants.*.location' => 'nullable|string|max:255',
-                ],
-                [
-                    'file.mimetypes' => 'The file must be a file of type: xlsx'
-                ]
-            );
+                'start_date' => 'sometimes',
+                'manual_participants' => 'sometimes|array',
+                'manual_participants.*.name' => 'required_with:manual_participants.*.email|string|max:255',
+                'manual_participants.*.email' => 'required_with:manual_participants.*.name|email|max:255',
+                'manual_participants.*.staffID' => 'nullable|string|max:255',
+                'manual_participants.*.gender' => 'nullable|string|max:50',
+                'manual_participants.*.phone' => 'nullable|string|max:50',
+                'manual_participants.*.location' => 'nullable|string|max:255',
+            ],
+            [
+                'file.mimetypes' => 'The file must be a file of type: xlsx',
+            ]
+        );
 
-            try {
-                $participants = [];
+        try {
+            $participants = [];
 
-                // From Excel file
-                if ($request->hasFile('file')) {
-                    $fileParticipants = ExcelService::import($request->file('file'));
+            // From Excel file
+            if ($request->hasFile('file')) {
+                $fileParticipants = ExcelService::import($request->file('file'));
 
-                    $fileParticipants = array_map(function ($participant) {
-                        $participant = collect($participant)->mapWithKeys(function ($value, $key) {
-                            return [strtolower(trim((string) $key)) => $value];
-                        })->all();
+                $fileParticipants = array_map(function ($participant) {
+                    $participant = collect($participant)->mapWithKeys(function ($value, $key) {
+                        return [strtolower(trim((string) $key)) => $value];
+                    })->all();
 
-                        return array_merge($participant, ['source' => 'file']);
-                    }, $fileParticipants);
+                    return array_merge($participant, ['source' => 'file']);
+                }, $fileParticipants);
 
-                    $participants = array_merge($participants, $fileParticipants);
+                $participants = array_merge($participants, $fileParticipants);
+            }
+
+            // Manually entered participants use the same processing pipeline as file imports.
+            foreach ($request->input('manual_participants', []) as $manualParticipant) {
+                if (blank($manualParticipant['name'] ?? null) && blank($manualParticipant['email'] ?? null)) {
+                    continue;
                 }
 
-                // Manually entered participants use the same processing pipeline as file imports.
-                foreach ($request->input('manual_participants', []) as $manualParticipant) {
-                    if (blank($manualParticipant['name'] ?? null) && blank($manualParticipant['email'] ?? null)) {
-                        continue;
-                    }
+                $participants[] = array_merge($manualParticipant, [
+                    'email' => strtolower(trim($manualParticipant['email'] ?? '')),
+                    'source' => 'manual',
+                ]);
+            }
 
-                    $participants[] = array_merge($manualParticipant, [
-                        'email' => strtolower(trim($manualParticipant['email'] ?? '')),
-                        'source' => 'manual',
-                    ]);
-                }
+            // From old program
+            if (! empty($request->import_from)) {
+                set_time_limit(3600);
 
-                // From old program
-                if (!empty($request->import_from)) {
-                    set_time_limit(3600);
-
-                    $oldParticipants = Transaction::with([
+                $oldParticipants = $isPackage
+                    ? TempTransaction::with('user')
+                        ->where('is_package', 1)
+                        ->where('program_id', $request->import_from)
+                        ->where('balance', '<', 1)
+                        ->where('status', 'complete')
+                        ->whereNotNull('user_id')
+                    : Transaction::with([
                         'user',
                         'paymentLog' => function ($q) {
                             $q->where('balance', '<', 1)
                                 ->where('status', 'complete');
-                        }
+                        },
                     ])
                         ->where('program_id', $request->import_from)
                         ->whereHas('paymentLog', function ($q) {
@@ -165,69 +180,94 @@ class UserController extends Controller
                                 ->where('status', 'complete');
                         });
 
-                    if (!empty($request->start_date)) {
-                        $startDate = Carbon::parse($request->start_date);
-                        $oldParticipants->whereDate('created_at', '>=', $startDate);
-                    }
-
-                    $oldParticipants = $oldParticipants->get()->map(function ($transaction) {
-                        return [
-                            'email'    => $transaction->user->email,
-                            'name'     => $transaction->user->name,
-                            'location' => $transaction->user->location ?? '',
-                            'phone'    => $transaction->user->phone ?? '',
-                            'gender'   => $transaction->user->gender ?? '',
-                            'source'   => 'training',
-                        ];
-                    })->toArray();
-
-                    $participants = array_merge($participants, $oldParticipants);
+                if (! empty($request->start_date)) {
+                    $startDate = Carbon::parse($request->start_date);
+                    $oldParticipants->whereDate('created_at', '>=', $startDate);
                 }
 
-                // Now loop merged participants
-                foreach ($participants as $participant) {
-                    $prepareData = [
-                        'program' => $program,
-                        'isPackage' => $isPackage,
-                        'participant' => $participant,
-                        'couponCheck' => $couponCheck,
-                        'send_email' => $request->send_email,
-                        'amount_to_use' => $request->amount_to_use ?? $program->p_amount,
-                        'data' => $data, // programIDs
-                        'transaction_status' => 'complete',
-                        'payment_mode' => 0,
-                        'payment_type' => 'full',
-                        'amountPaid' => $request->amount_to_use ?? $program->p_amount,
-                        'remarks' => $request->remarks,
-                        't_type' => 'Transfer',
-                        'transid' =>  PaymentService::getReference('SYS-ADMIN'),
-                        'invoiceId' =>  PaymentService::getInvoiceId(),
+                $oldParticipants = $oldParticipants->get()->map(function ($transaction) {
+                    return [
+                        'email' => $transaction->user->email,
+                        'name' => $transaction->user->name,
+                        'location' => $transaction->user->location ?? '',
+                        'phone' => $transaction->user->phone ?? '',
+                        'gender' => $transaction->user->gender ?? '',
+                        'source' => 'training',
                     ];
-                    
-                    $addProgram = PaymentService::adminAddNewParticipant($prepareData);
-                    
-                    if($addProgram['status']){
-                        $count++;
-                    }else{
-                        $count--;
-                    }
-                    
+                })->toArray();
+
+                $participants = array_merge($participants, $oldParticipants);
+            }
+
+            // Now loop merged participants
+            foreach ($participants as $participant) {
+                $participantEmail = strtolower(trim((string) ($participant['email'] ?? '')));
+                $participantName = trim((string) ($participant['name'] ?? ''));
+
+                if (! filter_var($participantEmail, FILTER_VALIDATE_EMAIL) || $participantName === '') {
+                    $failures[] = ($participantEmail ?: 'Row without email').': valid name and email are required';
+
+                    continue;
                 }
 
-                $extraMessage = $count . ' Participants Imported';
-                if ($oldProgram) {
-                    $extraMessage .= ' from ' . $oldProgram->p_name;
+                $participant['email'] = $participantEmail;
+                $participant['name'] = $participantName;
+
+                $prepareData = [
+                    'program' => $program,
+                    'isPackage' => $isPackage,
+                    'participant' => $participant,
+                    'couponCheck' => $couponCheck,
+                    'send_email' => $request->send_email,
+                    'amount_to_use' => $request->amount_to_use ?? $program->p_amount,
+                    'data' => $data, // programIDs
+                    'transaction_status' => 'complete',
+                    'payment_mode' => 0,
+                    'payment_type' => 'full',
+                    'amountPaid' => $request->amount_to_use ?? $program->p_amount,
+                    'remarks' => $request->remarks,
+                    't_type' => 'Transfer',
+                    'transid' => PaymentService::getReference('SYS-ADMIN'),
+                    'invoiceId' => PaymentService::getInvoiceId(),
+                ];
+
+                $addProgram = PaymentService::adminAddNewParticipant($prepareData);
+
+                if ($addProgram['status']) {
+                    if ($addProgram['already_enrolled'] ?? false) {
+                        $alreadyEnrolledCount++;
+                    } else {
+                        $addedCount++;
+                    }
+                } else {
+                    $failures[] = $participantEmail.': '.($addProgram['message'] ?? 'Unable to assign program');
                 }
-            } catch (\Illuminate\Database\QueryException $ex) {
-                return back()->with('error', $ex->getMessage());
+
             }
-            
-            return back()->with('message', 'Participants have been imported successfully. ' . $extraMessage);
+
+        } catch (\Illuminate\Database\QueryException $ex) {
+            report($ex);
+
+            return back()->with('error', 'The import could not be completed. Please try again.');
         }
 
-        return abort(404);
-    }
+        $source = $oldProgram ? ' from '.$oldProgram->p_name : '';
+        $processedCount = $addedCount + $alreadyEnrolledCount;
+        $summary = $processedCount.' '.($processedCount === 1 ? 'participant' : 'participants').' processed'.$source.' ('.$addedCount.' newly enrolled, '.$alreadyEnrolledCount.' already enrolled); '.count($failures).' failed.';
 
+        if ($processedCount === 0) {
+            return back()->with('error', $summary.' '.implode(' ', array_slice($failures, 0, 10)));
+        }
+
+        if ($failures) {
+            return back()->with([
+                'message' => $summary,
+                'error' => implode(' ', array_slice($failures, 0, 10)),
+            ]);
+        }
+
+        return back()->with('message', $summary);
+    }
 
     public function index(Request $request)
     {

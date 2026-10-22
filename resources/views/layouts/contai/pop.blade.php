@@ -2,6 +2,57 @@
 @section('title')
     {{ config('app.name') }} - Upload POP
 @endsection
+@section('styles')
+<link rel="stylesheet" href="{{ asset('assets/libs/select2/dist/css/select2.min.css') }}">
+<style>
+    .checkout__input .select2-container {
+        display: block;
+        width: 100% !important;
+        margin-bottom: 13px;
+    }
+
+    .checkout__input .select2-container--default .select2-selection--single {
+        height: 46px;
+        border: 1px solid #ebebeb;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .checkout__input .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding-left: 20px;
+        padding-right: 30px;
+        line-height: 44px;
+        color: #555;
+    }
+
+    .checkout__input .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #b2b2b2;
+    }
+
+    .checkout__input .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 44px;
+        right: 10px;
+    }
+
+    .checkout__input .select2-container--focus .select2-selection--single,
+    .checkout__input .select2-container--open .select2-selection--single {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 .2rem rgba(0, 123, 255, .25);
+        outline: none;
+    }
+
+    .select2-dropdown {
+        border-color: #ebebeb;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border-radius: 4px;
+        font-size: 16px;
+    }
+</style>
+@endsection
 @section('content')
 <section class="checkout spad">
     <div class="container">
@@ -210,7 +261,7 @@
                             <div class="col-lg-12 program-section" id="package_section" style="display: none;">
                                 <div class="checkout__input">
                                     <p>Select Package <span>*</span></p>
-                                    <select name="package_id" id="package_id" class="form-control">
+                                    <select name="package_id" id="package_id" class="form-control payment-program-select" data-placeholder="Search packages">
                                         <option value="">-- Select --</option>
                                         @foreach($groups as $group)
                                             @php
@@ -230,8 +281,8 @@
 
                             <div class="col-lg-12 program-section" id="training_section" style="display:none;">
                                 <div class="checkout__input">
-                                    <p>Select Course <span>*</span></p>
-                                    <select name="training_id" id="training_id" class="form-control">
+                                    <p>Select Training <span>*</span></p>
+                                    <select name="training_id" id="training_id" class="form-control payment-program-select" data-placeholder="Search trainings">
                                         <option value="">-- Select --</option>
                                         @foreach($trainings as $training)
                                             @php
@@ -302,8 +353,19 @@
 </section>
 @endsection
 @section('scripts')
+<script src="{{ asset('assets/libs/select2/dist/js/select2.min.js') }}"></script>
 <script>
 $(document).ready(function () {
+    $('.payment-program-select').each(function () {
+        const $select = $(this);
+
+        $select.niceSelect('destroy').select2({
+            width: '100%',
+            minimumResultsForSearch: 0,
+            placeholder: $select.data('placeholder')
+        });
+    });
+
     function toggleProgramType() {
         let type = $('#program_type').val();
         $('.program-section').hide().find('select').prop('required', false);

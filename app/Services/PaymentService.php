@@ -800,7 +800,8 @@ class PaymentService
     }
 
 
-    public static function adminAddNewParticipant($prepareData){
+    public static function adminAddNewParticipant($prepareData)
+    {
 
         $data = $prepareData['data'];
         $program = $prepareData['program'];
@@ -819,7 +820,7 @@ class PaymentService
         $t_type = $prepareData['t_type'];
         $transid = $prepareData['transid'];
         $invoiceId = $prepareData['invoiceId'];
-        
+
         try {
             DB::beginTransaction();
 
@@ -828,34 +829,36 @@ class PaymentService
             $participantPhone = trim((string) ($participant['phone'] ?? ''));
 
             $user = User::where('email', $participantEmail)->first();
-            
+
             $newTrainings = $data['programIds'];
+
+            if (! $program || empty($newTrainings)) {
+                DB::rollBack();
+
+                return [
+                    'status' => false,
+                    'message' => 'Invalid Program',
+                ];
+            }
 
             $user_programs = $user
                 ? DB::table('program_user')->where('user_id', $user->id)->pluck('program_id')->toArray()
                 : [];
-            
+
             $brandNewTrainings = array_diff($newTrainings, $user_programs);
-            
-            if (!empty($brandNewTrainings)) {
-                if (!$program) {
-                    return [
-                        'status' => false,
-                        'message' => 'Invalid Program',
-                    ];
-                };
-                
+
+            if (! empty($brandNewTrainings)) {
                 $calculateAmount = self::calculatePaymentBreakdown($program, $payment_type, $amountPaid, $trainingMode, $amount_to_use);
                 $computedAmount = $calculateAmount['total_due'];
-                
+
                 if ($couponCheck) {
                     // Apply coupon to amount
                     $couponData = CouponService::getCouponData($payment_type, $couponCheck, $isPackage, $computedAmount, $program, $participant['email']);
-                    
+
                     if ($couponData['status']) {
-                        if($isPackage){
+                        if ($isPackage) {
                             $couponData['group_id'] = $program->id;
-                        }else{
+                        } else {
                             $couponData['program_id'] = $program->id;
                         }
 
@@ -874,67 +877,79 @@ class PaymentService
                     ? 'earlybird'
                     : ($balance > 0 ? 'part' : $payment_type);
                 $transactionArray = [
-                    'email'             => $participantEmail ?: $user?->email,
-                    'type'              => $real_type,
-                    'payment_type'      => $payment_type,
-                    'program_id'        => $program->id,
-                    'coupon_id'         => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
-                    'facilitator_id'    => null,
+                    'email' => $participantEmail ?: $user?->email,
+                    'type' => $real_type,
+                    'payment_type' => $payment_type,
+                    'program_id' => $program->id,
+                    'coupon_id' => isset($couponData) && $couponData['status'] == 1 ? $couponData['coupon_id'] : null,
+                    'facilitator_id' => null,
                     'expected_amount' => $calculateAmount['total_due'] ?? null,
-                    'amount'            => $amountPaid ?? $computedAmount,
-                    "discount"          => $couponData['discount'] ?? 0,
-                    'transid'           => $transid,
-                    'invoice_id'        => $invoiceId,
-                    'payment_mode'      => $payment_mode,
-                    'preferred_timing'  => null,
-                    'name'              => $participantName ?: ($user?->name ?? null),
+                    'amount' => $amountPaid ?? $computedAmount,
+                    'discount' => $couponData['discount'] ?? 0,
+                    'transid' => $transid,
+                    'invoice_id' => $invoiceId,
+                    'payment_mode' => $payment_mode,
+                    'preferred_timing' => null,
+                    'name' => $participantName ?: ($user?->name ?? null),
                     // Phone is optional for bulk imports; prefer the uploaded value when present.
-                    'phone'             => $participantPhone ?: ($user?->phone ?? null),
-                    'location'          => $participant['location'] ?? null,
-                    'training_mode'     => null,
-                    'meta'              => array_filter([
+                    'phone' => $participantPhone ?: ($user?->phone ?? null),
+                    'location' => $participant['location'] ?? null,
+                    'training_mode' => null,
+                    'meta' => array_filter([
                         'staffID' => $participant['staffID'] ?? null,
                         'gender' => $participant['gender'] ?? null,
                         'location' => $participant['location'] ?? null,
                         'metadata' => $participant['metadata'] ?? null,
-                    ], fn ($value) => !is_null($value) && $value !== ''),
-                    'is_package'        => $isPackage ?? 0,
-                    'status'            => $transaction_status,
-                    'balance'           => $balance,
-                    't_type'            => $t_type,
-                    'program_ids'       => $brandNewTrainings,
-                    'currency'          => "NGN",
-                    'currency_symbol'   => "₦",
-                    "coupon_code"       => isset($couponData) && $couponData['status'] == 1 ? $couponData['code'] : null,
-                    'remarks'           => $remarks,
+                    ], fn ($value) => ! is_null($value) && $value !== ''),
+                    'is_package' => $isPackage ?? 0,
+                    'status' => $transaction_status,
+                    'balance' => $balance,
+                    't_type' => $t_type,
+                    'program_ids' => $brandNewTrainings,
+                    'currency' => 'NGN',
+                    'currency_symbol' => '₦',
+                    'coupon_code' => isset($couponData) && $couponData['status'] == 1 ? $couponData['code'] : null,
+                    'remarks' => $remarks,
                 ];
-                
+
                 $transaction = self::logTransaction($transactionArray);
-                
-                self::createUserAndAttachPrograms($transaction);
+
+                if (! $transaction instanceof TempTransaction) {
+                    throw new \RuntimeException('Unable to create the participant transaction: '.$transaction);
+                }
+
+                $participantUser = self::createUserAndAttachPrograms($transaction);
+
+                if ($participantUser->programs()->whereIn('programs.id', $brandNewTrainings)->count() !== count($brandNewTrainings)) {
+                    throw new \RuntimeException('The participant was not assigned to every selected program.');
+                }
+
                 $transaction = $transaction->fresh();
 
                 PaymentThread::create([
-                    'program_id'   => $transaction->program_id,
-                    'admin_id'      => auth()->guard('admin')->user()->id ?? null,
-                    'user_id'      => $transaction->user_id,
-                    'payment_id'   => $transaction->id,
+                    'program_id' => $transaction->program_id,
+                    'admin_id' => auth()->guard('admin')->user()->id ?? null,
+                    'user_id' => $transaction->user_id,
+                    'payment_id' => $transaction->id,
                     'transaction_id' => self::getReference('PYTHRD'),
-                    't_type'       => strtolower($transaction->t_type),
+                    't_type' => strtolower($transaction->t_type),
                     'parent_transaction_id' => $transaction->transid,
-                    'amount'       => $transaction->amount,
+                    'amount' => $transaction->amount,
                 ]);
 
-                if (!empty($transaction->coupon_id) && isset($couponTransaction->id)) {
+                if (! empty($transaction->coupon_id) && isset($couponTransaction->id)) {
                     CouponService::completeCoupon($couponTransaction);
                 }
-            }else{
+            } else {
+                DB::rollBack();
+
                 return [
-                    'status' => false,
-                    'message' => 'No new trainings or trainings already added'
+                    'status' => true,
+                    'message' => 'Participant is already enrolled in the selected program',
+                    'already_enrolled' => true,
                 ];
             }
-            
+
             if ($send_email == 'yes') {
                 $data['balance'] = $balance;
                 $data['programs'] = $transaction->allPrograms()->toArray();
@@ -957,10 +972,10 @@ class PaymentService
                 $data['transaction'] = $transaction;
                 $data['program'] = $program;
 
-                $controller = new Controller();
+                $controller = new Controller;
                 $controller->sendWelcomeMail($data);
             }
-            
+
             DB::commit();
 
             return [
@@ -968,13 +983,17 @@ class PaymentService
                 'message' => 'Participant Added Successfully',
                 'transaction' => $transaction,
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
-            \Log::info($e->getMessage(). ' Line: '.$e->getLine(). ' File: '.$e->getFile());
+            \Log::error('Unable to add participant to program', [
+                'program_id' => $program?->id,
+                'email' => $participantEmail ?? null,
+                'exception' => $e,
+            ]);
 
             return [
                 'status' => false,
-                'message' => 'Error Occured'
+                'message' => 'Unable to assign the participant to the selected program',
             ];
         }
     }
