@@ -133,19 +133,22 @@ class UserController extends Controller
             if ($request->hasFile('file')) {
                 $fileParticipants = ExcelService::import($request->file('file'));
 
-                $fileParticipants = array_map(function ($participant) {
+                $fileParticipants = array_map(function ($participant, $index) {
                     $participant = collect($participant)->mapWithKeys(function ($value, $key) {
                         return [strtolower(trim((string) $key)) => $value];
                     })->all();
 
-                    return array_merge($participant, ['source' => 'file']);
-                }, $fileParticipants);
+                    return array_merge($participant, [
+                        'source' => 'file',
+                        'source_row' => $index + 1,
+                    ]);
+                }, $fileParticipants, array_keys($fileParticipants));
 
                 $participants = array_merge($participants, $fileParticipants);
             }
 
             // Manually entered participants use the same processing pipeline as file imports.
-            foreach ($request->input('manual_participants', []) as $manualParticipant) {
+            foreach ($request->input('manual_participants', []) as $index => $manualParticipant) {
                 if (blank($manualParticipant['name'] ?? null) && blank($manualParticipant['email'] ?? null)) {
                     continue;
                 }
@@ -153,6 +156,7 @@ class UserController extends Controller
                 $participants[] = array_merge($manualParticipant, [
                     'email' => strtolower(trim($manualParticipant['email'] ?? '')),
                     'source' => 'manual',
+                    'source_row' => (int) $index + 1,
                 ]);
             }
 
@@ -185,7 +189,7 @@ class UserController extends Controller
                     $oldParticipants->whereDate('created_at', '>=', $startDate);
                 }
 
-                $oldParticipants = $oldParticipants->get()->map(function ($transaction) {
+                $oldParticipants = $oldParticipants->get()->map(function ($transaction, $index) {
                     return [
                         'email' => $transaction->user->email,
                         'name' => $transaction->user->name,
@@ -193,6 +197,7 @@ class UserController extends Controller
                         'phone' => $transaction->user->phone ?? '',
                         'gender' => $transaction->user->gender ?? '',
                         'source' => 'training',
+                        'source_row' => $index + 1,
                     ];
                 })->toArray();
 
@@ -200,12 +205,20 @@ class UserController extends Controller
             }
 
             // Now loop merged participants
-            foreach ($participants as $participant) {
+            foreach ($participants as $index => $participant) {
                 $participantEmail = strtolower(trim((string) ($participant['email'] ?? '')));
                 $participantName = trim((string) ($participant['name'] ?? ''));
+                $participantSource = match ($participant['source'] ?? null) {
+                    'file' => 'File participant #'.($participant['source_row'] ?? $index + 1),
+                    'manual' => 'Manual participant #'.($participant['source_row'] ?? $index + 1),
+                    'training' => 'Imported participant #'.($participant['source_row'] ?? $index + 1),
+                    default => 'Participant #'.($index + 1),
+                };
+                $participantIdentity = implode(', ', array_filter([$participantName, $participantEmail]));
+                $participantDescription = $participantSource.($participantIdentity ? ' ('.$participantIdentity.')' : '');
 
                 if (! filter_var($participantEmail, FILTER_VALIDATE_EMAIL) || $participantName === '') {
-                    $failures[] = ($participantEmail ?: 'Row without email').': valid name and email are required';
+                    $failures[] = $participantDescription.': valid name and email are required';
 
                     continue;
                 }
@@ -240,7 +253,7 @@ class UserController extends Controller
                         $addedCount++;
                     }
                 } else {
-                    $failures[] = $participantEmail.': '.($addProgram['message'] ?? 'Unable to assign program');
+                    $failures[] = $participantDescription.': '.($addProgram['message'] ?? 'Unable to assign program');
                 }
 
             }
@@ -256,13 +269,17 @@ class UserController extends Controller
         $summary = $processedCount.' '.($processedCount === 1 ? 'participant' : 'participants').' processed'.$source.' ('.$addedCount.' newly enrolled, '.$alreadyEnrolledCount.' already enrolled); '.count($failures).' failed.';
 
         if ($processedCount === 0) {
-            return back()->with('error', $summary.' '.implode(' ', array_slice($failures, 0, 10)));
+            return back()->with([
+                'error' => $summary,
+                'import_failures' => $failures,
+            ]);
         }
 
         if ($failures) {
             return back()->with([
                 'message' => $summary,
-                'error' => implode(' ', array_slice($failures, 0, 10)),
+                'error' => count($failures).' rows could not be processed. See the details below.',
+                'import_failures' => $failures,
             ]);
         }
 

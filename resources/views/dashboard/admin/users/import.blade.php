@@ -10,6 +10,16 @@
                         
                         <h5>Import Participants for {{ $program->p_name }}</h5>
                         @include('layouts.partials.alerts')
+                        @if (session()->has('import_failures'))
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Rows that need attention</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach (session('import_failures') as $failure)
+                                        <li>{{ $failure }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </div>
                     <form action="{{ route('users.import.new') }}" method="POST" name="importform" class="pb-4" enctype="multipart/form-data">
                         @csrf
