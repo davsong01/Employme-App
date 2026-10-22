@@ -135,9 +135,6 @@ class UserController extends Controller
             // From Excel file
             if ($request->hasFile('file')) {
                 $fileParticipants = collect(ExcelService::import($request->file('file')))
-                    ->filter(function ($participant) {
-                        return collect($participant)->contains(fn ($value) => ! blank($value));
-                    })
                     ->map(function ($participant, $index) {
                         $participant = collect($participant)->mapWithKeys(function ($value, $key) {
                             return [strtolower(trim((string) $key)) => $value];
@@ -147,6 +144,11 @@ class UserController extends Controller
                             'source' => 'file',
                             'source_row' => $index + 2,
                         ]);
+                    })
+                    ->filter(function ($participant) {
+                        return collect(['name', 'email'])->contains(function ($field) use ($participant) {
+                            return preg_match('/[^\s\p{Z}]/u', (string) ($participant[$field] ?? '')) === 1;
+                        });
                     })->values()->all();
 
                 $participants = array_merge($participants, $fileParticipants);
