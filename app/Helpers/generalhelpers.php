@@ -1082,9 +1082,18 @@ if (!function_exists('getTransactionFromProgramIds')) {
             return null;
         }
 
-        return TempTransaction::whereJsonContains('program_ids', $program_id)
-            ->where('user_id', $user_id)
-            ->first();
+        // The program_user record is the source of truth for the participant's
+        // current payment state. Temp transactions are payment logs and may
+        // still contain the original installment balance after an admin has
+        // corrected or completed the payment.
+        return Transaction::where('user_id', $user_id)
+            ->where('program_id', $program_id)
+            ->latest('updated_at')
+            ->first()
+            ?? TempTransaction::whereJsonContains('program_ids', $program_id)
+                ->where('user_id', $user_id)
+                ->latest('updated_at')
+                ->first();
     }
 }
 
