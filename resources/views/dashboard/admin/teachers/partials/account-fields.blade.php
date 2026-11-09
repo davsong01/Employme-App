@@ -38,7 +38,7 @@
                 <div class="col-md-6">
                     <label for="password">Password</label>
                     <input id="password" type="password" class="form-control" name="password" autocomplete="new-password">
-                    <div class="form-text">{{ $teacher ? 'Leave blank to keep the current password.' : 'Leave blank to use the default password.' }}</div>
+                    <div class="form-text">{{ $teacher ? 'Leave blank to keep the current password.' : 'Leave blank to use the default password: 12345.' }}</div>
                     @error('password')
                         <div class="text-danger small mt-1">{{ $message }}</div>
                     @enderror

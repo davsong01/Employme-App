@@ -4,7 +4,7 @@
 
     <div class="row g-3">
         @foreach($menuPermissions as $menu)
-            <div class="col-md-6 col-xl-4">
+            <div class="col-sm-6 col-xl-3">
                 <div class="card h-100 border-0 bg-light">
                     <div class="card-header bg-transparent border-0 pb-0">
                         <div class="form-check">
@@ -27,3 +27,22 @@
         @endforeach
     </div>
 </section>
+
+<script>
+    $(document).on('change', '.parent-checkbox', function () {
+        const parentId = $(this).attr('id');
+
+        $('.child-checkbox').filter(function () {
+            return $(this).data('parent-id') === parentId;
+        }).prop('checked', $(this).prop('checked'));
+    });
+
+    $(document).on('change', '.child-checkbox', function () {
+        const parentId = $(this).data('parent-id');
+        const children = $('.child-checkbox').filter(function () {
+            return $(this).data('parent-id') === parentId;
+        });
+
+        $(`#${parentId}`).prop('checked', children.length > 0 && children.filter(':checked').length === children.length);
+    });
+</script>

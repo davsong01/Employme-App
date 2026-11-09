@@ -65,28 +65,5 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        // When a parent checkbox is toggled
-        $('.parent-checkbox').on('change', function() {
-            let parentId = $(this).attr('id');
-            let isChecked = $(this).is(':checked');
-            
-            // Select or deselect all children associated with this parent
-            $(`.child-checkbox[data-parent-id="${parentId}"]`).prop('checked', isChecked);
-        });
-
-        // When a child checkbox is toggled
-        $('.child-checkbox').on('change', function() {
-            let parentId = $(this).data('parent-id');
-            let allChecked = $(`.child-checkbox[data-parent-id="${parentId}"]:checked`).length > 0;
-            
-            // Update parent checkbox based on children
-            $(`#${parentId}`).prop('checked', allChecked);
-        });
-    });
-</script>
-
-
 @include('dashboard.admin.teachers.partials.profile-scripts')
 @endsection
