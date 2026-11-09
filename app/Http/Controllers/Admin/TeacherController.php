@@ -122,7 +122,7 @@ class TeacherController extends Controller
             'profile' => 'sometimes',
             'phone' => 'sometimes',
             'file' => 'nullable',
-            'email' => 'required|unique:users,email',
+            'email' => 'required|unique:admins,email',
             'password' => 'sometimes',
             'role' => 'required',
             'training' => 'nullable',
