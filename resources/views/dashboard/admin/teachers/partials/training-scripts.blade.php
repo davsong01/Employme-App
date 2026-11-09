@@ -5,6 +5,22 @@
         const accordion = $('#trainingAccordion');
         let rowNumber = accordion.find('.accordion-item').length;
 
+        function initializeSearchableTrainingSelects() {
+            if (!$.fn.select2) {
+                return;
+            }
+
+            accordion.find('.training-dropdown').each(function () {
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    $(this).select2({
+                        width: '100%',
+                        placeholder: 'Search trainings',
+                        allowClear: true,
+                    });
+                }
+            });
+        }
+
         function updateProgramOptions() {
             const selectedIds = accordion.find('.training-dropdown').map(function () {
                 return $(this).val();
@@ -17,7 +33,21 @@
                     .map((program) => `<option value="${program.id}" ${String(program.id) === currentId ? 'selected' : ''}>${program.p_name}</option>`)
                     .join('');
 
-                $(this).html(`<option value="">Select a program</option>${options}`);
+                $(this)
+                    .html(`<option value="">Select a program</option>${options}`)
+                    .val(currentId)
+                    .trigger('change.select2');
+            });
+
+            initializeSearchableTrainingSelects();
+        }
+
+        function updateSectionToggles(scope) {
+            scope.find('.permission-group').each(function () {
+                const permissions = $(this).find('.permission-checkbox');
+                const allChecked = permissions.length > 0 && permissions.filter(':checked').length === permissions.length;
+
+                $(this).find('.permission-section-toggle').prop('checked', allChecked);
             });
         }
 
@@ -40,8 +70,14 @@
                 }).join('');
 
                 return `
-                    <div class="col-12 mb-3">
-                        <h4 class="h6 text-primary">${menu.name}</h4>
+                    <div class="col-12 mb-3 permission-group">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h4 class="h6 text-primary mb-0">${menu.name}</h4>
+                            <label class="d-inline-flex align-items-center gap-2 mb-0">
+                                <input type="checkbox" class="permission-section-toggle">
+                                <span class="small">Select all</span>
+                            </label>
+                        </div>
                         <div class="row">${fields}</div>
                     </div>`;
             }).join('');
@@ -76,15 +112,12 @@
                             <div class="training-row row mt-2">
                                 <div class="col-md-6">
                                     <label for="training-select-${rowNumber}">Select training</label>
-                                    <select id="training-select-${rowNumber}" class="form-control training-dropdown" name="training[]" required>
+                                    <select id="training-select-${rowNumber}" class="form-control select2 training-dropdown" name="training[]" required>
                                         <option value="">Select a program</option>${programOptions}
                                     </select>
                                 </div>
                                 <div class="col-12 mt-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h3 class="h6 mb-0">Permissions</h3>
-                                        <label class="d-inline-flex align-items-center gap-2 mb-0"><input type="checkbox" class="select-all-permissions"> Select all</label>
-                                    </div>
+                                    <h3 class="h6 mb-3">Permissions</h3>
                                     <div class="row permissions-container p-3">${permissionFields}</div>
                                 </div>
                                 <div class="col-12 mt-3 text-end">
@@ -103,8 +136,12 @@
             updateProgramOptions();
         });
 
-        accordion.on('change', '.select-all-permissions', function () {
-            $(this).closest('.training-row').find('.permission-checkbox').prop('checked', $(this).prop('checked'));
+        accordion.on('change', '.permission-section-toggle', function () {
+            $(this).closest('.permission-group').find('.permission-checkbox').prop('checked', $(this).prop('checked'));
+        });
+
+        accordion.on('change', '.permission-checkbox', function () {
+            updateSectionToggles($(this).closest('.permissions-container'));
         });
 
         accordion.on('change', '.training-dropdown', function () {
@@ -112,10 +149,12 @@
             const row = $(this).closest('.training-row');
 
             row.find('.permission-checkbox').prop('checked', false).attr('name', `training_permissions[${programId}][]`);
+            updateSectionToggles(row);
             $(this).closest('.accordion-item').find('.accordion-button').text($(this).find(':selected').text() || 'Select a training');
             updateProgramOptions();
         });
 
         updateProgramOptions();
+        updateSectionToggles(accordion);
     });
 </script>

@@ -20,7 +20,7 @@
                             <div class="training-row row mt-3">
                                 <div class="col-md-6">
                                     <label for="training-{{ $index }}">Select training</label>
-                                    <select id="training-{{ $index }}" class="form-control training-dropdown" name="training[]" required>
+                                    <select id="training-{{ $index }}" class="form-control select2 training-dropdown" name="training[]" required>
                                         <option value="">Select a program</option>
                                         @foreach($programs as $programOption)
                                             <option value="{{ $programOption->id }}" {{ $programOption->id == $program->program_id ? 'selected' : '' }}>{{ $programOption->p_name }}</option>
@@ -28,21 +28,21 @@
                                     </select>
                                 </div>
                                 <div class="col-12 mt-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h3 class="h6 mb-0">Permissions</h3>
-                                        <label class="d-inline-flex align-items-center gap-2 mb-0">
-                                            <input type="checkbox" class="select-all-permissions" id="select-all-{{ $index }}">
-                                            Select all
-                                        </label>
-                                    </div>
+                                    <h3 class="h6 mb-3">Permissions</h3>
                                     @php
                                         $programPermissions = $program->training_permissions ?? [];
                                     @endphp
                                     <div class="row permissions-container p-3">
                                         @foreach($trainingPermissionMenus as $menuIndex => $menu)
                                             @if(!empty($menu['children']))
-                                                <div class="col-12 mb-3">
-                                                    <h4 class="h6 text-primary">{{ $menu['name'] }}</h4>
+                                                <div class="col-12 mb-3 permission-group">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <h4 class="h6 text-primary mb-0">{{ $menu['name'] }}</h4>
+                                                        <label class="d-inline-flex align-items-center gap-2 mb-0">
+                                                            <input type="checkbox" class="permission-section-toggle">
+                                                            <span class="small">Select all</span>
+                                                        </label>
+                                                    </div>
                                                     <div class="row">
                                                         @foreach($menu['children'] as $permissionIndex => $permission)
                                                             <div class="col-md-4 col-lg-3">
