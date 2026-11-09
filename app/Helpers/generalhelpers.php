@@ -860,9 +860,13 @@ if (!function_exists("checkRoleHas")) {
             return false;
         }
 
-        $user_roles = $user->role();
+        $user_roles = $user->roles ?? [];
+        $user_roles = is_array($user_roles)
+            ? $user_roles
+            : explode(',', (string) $user_roles);
+        $roles_to_check = is_array($roles_to_check) ? $roles_to_check : [$roles_to_check];
 
-        return !empty(array_intersect($roles_to_check, $user_roles)) ? true : false;
+        return !empty(array_intersect($roles_to_check, $user_roles));
     }
 }
 
