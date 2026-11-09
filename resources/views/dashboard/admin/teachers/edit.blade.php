@@ -13,25 +13,32 @@
 @extends('dashboard.admin.index')
 @section('title', $user->name )
 @section('css')
-<style>
-    
-</style>
+    @parent
+    @include('dashboard.admin.teachers.partials.form-styles')
 @endsection
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid teacher-page">
+    <header class="teacher-page-header">
+        <div>
+            <span class="teacher-page-eyebrow">Teacher management / Edit</span>
+            <h1 class="teacher-page-title">{{ $user->name }}</h1>
+            <p class="teacher-page-description">Update account details, professional profile, and access.</p>
+            @if ($allpermissions['teachers.view.referral.details'])
+                <div class="mt-2 small">
+                    <a href="{{ url('/?facilitator='.$user->license) }}" class="me-3">Referral link</a>
+                    @if ($user->waaccsp_link)
+                        <a href="{{ $user->waaccsp_link }}" target="_blank" rel="noopener">WAACSP profile</a>
+                    @endif
+                </div>
+            @endif
+        </div>
+        <a href="{{ route('teachers.index') }}" class="teacher-back-link"><i class="fa fa-arrow-left" aria-hidden="true"></i> All teachers</a>
+    </header>
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
+            <div class="card teacher-form-card">
                 <div class="card-body">
                     @include('layouts.partials.alerts')
-                    <h4 class="card-title">{{$user->name}}</h4>
-                    
-                    @if ($allpermissions['teachers.view.referral.details'])
-                        <p>
-                            Referral link: <b id="link" style="color:blue">{{ url('/') .'/'.'?facilitator='. $user->license}}</b><br>
-                            WAACSP Profile link: <b>{{ $user->waaccsp_link }}</b>
-                        </p>
-                    @endif
                     
                     <form action="{{ route('teachers.update', $user->id) }}" method="POST" enctype="multipart/form-data" class="pb-2">
                         {{ method_field('PATCH') }}
@@ -43,7 +50,9 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <div class="mb-3">
-                                        <img src="{{ $user->image }}" alt="avatar" class="rounded-circle" width="100" height="100">
+                                        <div class="teacher-profile-preview">
+                                            <img src="{{ $user->image }}" alt="{{ $user->name }} profile picture">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-10">
@@ -82,8 +91,7 @@
                                                     <div class="text-muted small mb-2">
                                                         Default: 12345. Leave blank if you want to keep the default password.
                                                     </div>
-                                                    <input id="password" type="text" class="form-control" name="password"
-                                                        value="{{ old('password') ?? '' }}" autofocus>
+                                                    <input id="password" type="password" class="form-control" name="password" autocomplete="new-password">
                                                     @if ($errors->has('password'))
                                                         <div class="text-danger small mt-1">{{ $errors->first('password') }}</div>
                                                     @endif
@@ -345,8 +353,8 @@
                         @endif
 
                         @if ($allpermissions['teachers.update'])
-                        <div class="row">
-                            <button type="submit" class="btn btn-primary w-100">Submit</button>
+                        <div class="teacher-submit-bar">
+                            <button type="submit" class="btn teacher-submit-button">Save changes</button>
                         </div>
                         @endif
                     </form>

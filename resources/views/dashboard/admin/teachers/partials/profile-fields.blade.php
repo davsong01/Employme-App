@@ -1,5 +1,8 @@
-<div class="row">
-    <div class="col-md-6">
+<section class="teacher-form-section">
+    <h2 class="teacher-section-title">Professional profile</h2>
+    <p class="teacher-section-hint">Add the teacher’s WAACSP details and short profile.</p>
+    <div class="row">
+        <div class="col-md-6">
         <div class="mb-3{{ $errors->has('license') ? ' is-invalid' : '' }}">
             <label for="license">WAACSP license</label>
             <div class="d-flex gap-2">
@@ -15,8 +18,8 @@
             @enderror
             <div class="text-danger small mt-1" id="result"></div>
         </div>
-    </div>
-    <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
         <div class="mb-3{{ $errors->has('waacsp_url') ? ' is-invalid' : '' }}">
             <label for="waacsp_url">WAACSP URL</label>
             <input id="waacsp_url" type="text" class="form-control" name="waacsp_url" value="{{ old('waacsp_url', $teacher?->waacsp_url) }}">
@@ -31,10 +34,10 @@
                 <option value="1" {{ old('off_season_availability', $teacher?->off_season_availability) == '1' ? 'selected' : '' }}>Yes</option>
             </select>
         </div>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
         <div class="mb-3{{ $errors->has('profile') ? ' is-invalid' : '' }}">
             <label for="ckeditor">Profile overview</label>
             <textarea id="ckeditor" class="form-control" name="profile" rows="8">{{ old('profile', $teacher?->profile) }}</textarea>
@@ -42,5 +45,6 @@
                 <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
         </div>
+        </div>
     </div>
-</div>
+</section>
