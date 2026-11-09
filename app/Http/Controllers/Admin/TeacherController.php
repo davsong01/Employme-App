@@ -144,6 +144,8 @@ class TeacherController extends Controller
             $imgName = null;
         }
 
+        $profilePicture = $imgName ?? ($request->filled('picture') ? $request->input('picture') : null);
+
         // $data['menu_permissions'] = implode(',', $request->menu_permissions);
         
         // try {
@@ -154,7 +156,7 @@ class TeacherController extends Controller
                     'profile' => $data['profile'],
                     'phone' => $data['phone'],
                     'off_season_availability' => $data['off_season_availability'],
-                    'profile_picture' => $data['picture'] ?? $imgName,
+                    'profile_picture' => $profilePicture,
                     'license' => $data['license'],
                     'password' => bcrypt($password),
                     'roles' => $data['role'],
@@ -165,11 +167,14 @@ class TeacherController extends Controller
                 ]);
 
                 if ($request->has('training')) {
+                    $trainingPermissions = $request->input('training_permissions', []);
+
                     //attach facilitator to program
                     foreach ($data['training'] as $training) {
                         FacilitatorTraining::create([
                             'user_id' => $facilitator->id,
-                            'program_id' => $training
+                            'program_id' => $training,
+                            'training_permissions' => $trainingPermissions[$training] ?? [],
                         ]);
                     }
                 }
@@ -189,11 +194,11 @@ class TeacherController extends Controller
                     'phone' => $data['phone'],
                     'password' => bcrypt($password),
                     'roles' => implode(',', $data['role']),
-                    'menu_permissions' => $data['menu_permissions'],
+                    'menu_permissions' => $datax['menu_permissions'],
                     'license' => $data['license'] ?? null,
                     'waacsp_url' => $data['waacsp_url'] ?? null,
                     'off_season_availability' => $data['off_season_availability'] ?? null,
-                    'profile_picture' => $data['picture'] ?? $imgName,
+                    'profile_picture' => $profilePicture,
                     'payment_mode' => $data['payment_mode'] ?? null,
                     'status' => $data['status'],
                 ]);
@@ -223,7 +228,7 @@ class TeacherController extends Controller
 
         $user->image = (filter_var($user->profile_picture, FILTER_VALIDATE_URL) !== false) ? $user->profile_picture : url('/') . '/profiles/' . $user->profile_picture;
 
-        $payment_modes = PaymentMode::whereStatus('active')->get();
+        $payment_modes = PaymentMode::orderBy('name')->get();
         
         foreach($user->trainings as $training){
             $program = Program::select('id','p_name')->where('programs.id', $training->program_id)->first();
@@ -266,7 +271,7 @@ class TeacherController extends Controller
         $user->profile = $request['profile'];
         $user->license = $request['license'];
         $user->status = $request['status'];
-        $user->profile_picture = $imgName ?? $user->profile_picture;
+        $user->profile_picture = $imgName ?? ($request->filled('picture') ? $request->input('picture') : $user->profile_picture);
         $user->status = $request['status'];
 
         $user->payment_mode = $request->input('payment_mode', $user->payment_mode);
