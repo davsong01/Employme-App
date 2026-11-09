@@ -8,6 +8,7 @@
     ];
 
     $allpermissions = canUserAccessPermission($check);
+    $userRoles = $user->roles ?? [];
 @endphp
 @extends('dashboard.admin.index')
 @section('title', $user->name )
@@ -107,7 +108,7 @@
                                     <div class="col-md-4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="role[]" value="Admin" 
-                                                {{ in_array('Admin', $user->roles) ? 'checked' : '' }} id="role-admin">
+                                                {{ in_array('Admin', $userRoles) ? 'checked' : '' }} id="role-admin">
                                             <label class="form-check-label" for="role-admin">
                                                 Admin
                                             </label>
@@ -117,7 +118,7 @@
                                     <div class="col-md-4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="role[]" value="Grader" 
-                                                {{ in_array('Grader', $user->role()) ? 'checked' : '' }} id="role-grader">
+                                                {{ in_array('Grader', $userRoles) ? 'checked' : '' }} id="role-grader">
                                             <label class="form-check-label" for="role-grader">
                                                 Grader
                                             </label>
@@ -127,7 +128,7 @@
                                     <div class="col-md-4">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="role[]" value="Facilitator" 
-                                                {{ in_array('Facilitator', $user->role()) ? 'checked' : '' }} id="role-facilitator">
+                                                {{ in_array('Facilitator', $userRoles) ? 'checked' : '' }} id="role-facilitator">
                                             <label class="form-check-label" for="role-facilitator">
                                                 Facilitator
                                             </label>
