@@ -14,8 +14,8 @@ class CouponService
                 'message' => 'Invalid or inactive coupon code.',
                 'discount' => 0,
                 'total_due' => $amount,
-                'coupon_id' => $coupon->id,
-                'code' => $coupon->code,
+                'coupon_id' => null,
+                'code' => null,
             ];
         }
         

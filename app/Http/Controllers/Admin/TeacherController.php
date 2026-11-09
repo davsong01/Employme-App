@@ -105,7 +105,7 @@ class TeacherController extends Controller
     {
         if(checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderby('created_at', 'DESC')->get();
-            $payment_modes = PaymentMode::whereStatus('active')->get();
+            $payment_modes = PaymentMode::orderBy('name')->get();
             return view('dashboard.admin.teachers.create', compact('programs', 'payment_modes'));
         }
         return back();
@@ -114,8 +114,9 @@ class TeacherController extends Controller
     public function store(Request $request)
     {
         $data = request()->validate([
-            'payment_mode' => 'required',
+            'payment_mode' => 'nullable|exists:payment_modes,id',
             'license' => 'nullable',
+            'waacsp_url' => 'nullable',
             'picture' => 'nullable',
             'name' => 'required | min:5',
             'profile' => 'sometimes',
@@ -158,7 +159,7 @@ class TeacherController extends Controller
                     'password' => bcrypt($password),
                     'roles' => $data['role'],
                     'status' => $data['status'],
-                    'payment_mode' => $data['payment_mode'],
+                    'payment_mode' => $data['payment_mode'] ?? null,
                     'waacsp_url' => $data['waacsp_url'] ?? null,
                     // 'menu_permissions' => $data['menu_permissions'],
                 ]);
@@ -186,9 +187,15 @@ class TeacherController extends Controller
                     'profile' => $data['profile'],
                     'email' => $data['email'],
                     'phone' => $data['phone'],
-                    'password' => bcrypt($data['password']),
+                    'password' => bcrypt($password),
                     'roles' => implode(',', $data['role']),
                     'menu_permissions' => $data['menu_permissions'],
+                    'license' => $data['license'] ?? null,
+                    'waacsp_url' => $data['waacsp_url'] ?? null,
+                    'off_season_availability' => $data['off_season_availability'] ?? null,
+                    'profile_picture' => $data['picture'] ?? $imgName,
+                    'payment_mode' => $data['payment_mode'] ?? null,
+                    'status' => $data['status'],
                 ]);
 
                 return redirect(route('teachers.index'))->with('message', 'Admin added succesfully');
@@ -257,11 +264,12 @@ class TeacherController extends Controller
         }
 
         $user->profile = $request['profile'];
+        $user->license = $request['license'];
         $user->status = $request['status'];
         $user->profile_picture = $imgName ?? $user->profile_picture;
         $user->status = $request['status'];
 
-        $user->payment_mode = $request['payment_mode'];
+        $user->payment_mode = $request->input('payment_mode', $user->payment_mode);
         $user->off_season_availability = $request['off_season_availability'];
         $user->waacsp_url = $request['waacsp_url'];
 
@@ -271,23 +279,27 @@ class TeacherController extends Controller
         
         //Delete corresponding Facilitator Program details
         if ($allpermissions['teachers.update.training.access']) {
-            if (!empty($request['training'])) {
-                foreach ($request['training'] as $training) {
-                    if(isset($request->training_permissions[$training])){
-                        FacilitatorTraining::updateOrCreate([
-                            'user_id' => $user->id,
-                            'program_id' => $training],[
-                            'user_id' => $user->id,
-                            'program_id' => $training,
-                            'training_permissions' => $request->training_permissions[$training]
-                        ]);
-                    }
-                }
-                
-                FacilitatorTraining::where('user_id', $user->id)
-                    ->whereNotIn('program_id', $request->training)
-                    ->delete();
+            $selectedTrainings = array_filter((array) $request->input('training', []));
+            $trainingPermissions = $request->input('training_permissions', []);
+
+            foreach (array_unique($selectedTrainings) as $training) {
+                FacilitatorTraining::updateOrCreate([
+                    'user_id' => $user->id,
+                    'program_id' => $training,
+                ], [
+                    'user_id' => $user->id,
+                    'program_id' => $training,
+                    'training_permissions' => $trainingPermissions[$training] ?? [],
+                ]);
             }
+
+            $facilitatorTrainings = FacilitatorTraining::where('user_id', $user->id);
+
+            if (!empty($selectedTrainings)) {
+                $facilitatorTrainings->whereNotIn('program_id', $selectedTrainings);
+            }
+
+            $facilitatorTrainings->delete();
         }
         
         

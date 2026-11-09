@@ -158,7 +158,7 @@ class ProfileController extends Controller
             'date' => now(),
         ];
 
-        $this->sendWelcomeMail($details, $data);
+        $this->sendWelcomeMail($data);
 
         return redirect(route('trainings.show', $program->id))->with('message', 'Facilitator selected succesfully');
     }

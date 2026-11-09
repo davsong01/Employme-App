@@ -23,23 +23,14 @@
                                     </select>
                                     <div><small style="color:red">{{ $errors->first('role')}}</small></div>
                                 </div>
-                                <div class="mb-3{{ $errors->has('name') ? ' is-invalid' : '' }}">
-                                    <label for="license">WAACSP license</label> <br>
-                                    <input id="license" type="text" style="width:79%;float:left" class="form-control" name="license" value="{{ old('license') }}" autofocus >
-                                    <span id="verify-button"><span class="btn btn-info" style="float:left"  id="verify" onclick="myFunction()">Verify license</span></span>
-                                    <div class="text-danger small mt-1" id="result"></div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="waacsp_url" style="margin-top: 15px;">WAACSP url</label> <br>
-                                    <input id="waacsp_url" type="text"  class="form-control" name="waacsp_url" value="{{ old('waacsp_url') }}" autofocus >
-                                    
-                                </div>
-                              
                                 <div class="mb-3{{ $errors->has('status') ? ' is-invalid' : '' }}">
                                     <label for="payment_mode">Payment Mode</label>
-                                    <select name="payment_mode" id="payment_mode " class="form-control" required>
+                                    <select name="payment_mode" id="payment_mode" class="form-control">
+                                        <option value="">No payment mode</option>
                                         @foreach($payment_modes as $mode)
-                                        <option value="{{ $mode->id }}" selected alt="">{{ ucFirst($mode->name) }}</option> 
+                                        <option value="{{ $mode->id }}" {{ old('payment_mode') == $mode->id ? 'selected' : '' }}>
+                                            {{ ucFirst($mode->name) }}{{ $mode->status !== 'active' ? ' (Inactive)' : '' }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -79,14 +70,6 @@
                                     <label for="email">Phone</label>
                                     <input id="phone" type="phone" class="form-control" name="phone" value="{{ old('phone') }}">
                                 </div>
-                                <div class="mb-3">
-                                    <label for="class">Available off season?</label>
-                                    <select name="off_season_availability" id="class" class="form-control">
-                                        <option value="" {{ old('off_season_availability') == '' ? 'selected' : ''}}>No</option>
-                                        <option value="1" {{ old('off_season_availability') == '1' ? 'selected' : ''}}>Yes</option>
-                                    </select>
-                                </div>
-                                
                                 <div class="mb-3{{ $errors->has('password') ? ' is-invalid' : '' }}">
                                     <label for="password" class="form-label">Password</label>
                                     <div class="text-muted small mb-2">Default: 12345</div>
@@ -99,6 +82,7 @@
                                  
                             </div>
                         </div>
+                        @include('dashboard.admin.teachers.partials.profile-fields', ['teacher' => null, 'showLicenseVerification' => true])
                         <div class="row">
                             <div class="col-12">
                                 <div class="mb-3">
@@ -133,19 +117,6 @@
                             </div>
                             @endforeach
                         </div> --}}
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3{{ $errors->has('profile') ? ' is-invalid' : '' }}">
-                                    
-                                    <label for="profile" style="color:red">Profile overview</label>
-                                    <textarea id="ckeditor" type="text" class="form-control" name="profile" value="{{ old('profile') }}" rows="8" autofocus>{{ old('profile')  }}</textarea>
-
-                                    @if ($errors->has('profile'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('profile') }}</div>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
                        {{ csrf_field() }}
                         <div class="row">
                             <button type="submit" class="btn btn-primary" style="width:100%">

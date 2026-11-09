@@ -96,6 +96,8 @@
                             </div>
                         </fieldset>
 
+                        @include('dashboard.admin.teachers.partials.profile-fields', ['teacher' => $user, 'showLicenseVerification' => false])
+
                         <!-- Role and Status Section -->
                         @if($allpermissions['teachers.role.status'])
                         <fieldset>

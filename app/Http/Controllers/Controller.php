@@ -55,12 +55,12 @@ class Controller extends BaseController
     public function sendWelcomeMail($data, $pdf = null)
     {
         set_time_limit(360);
-        $transaction = $data['transaction'];
+        $transaction = $data['transaction'] ?? null;
         
         $provider = $this->emailProvider();
 
         if ($provider == 'default') {
-            $pdf = !empty($transaction->invoice_id)
+            $pdf = !empty($transaction?->invoice_id)
                 ? PDF::loadView('emails.printreceipt', compact('transaction'))
                 : null;
 
@@ -78,7 +78,7 @@ class Controller extends BaseController
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
 
-                    $email = $data['email'] ?? $transaction->email ?? null;
+                    $email = $data['email'] ?? $transaction?->email;
                     $email = 'davsong16@gmail.com';
                     // \Log::info(json_encode($data));
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
@@ -88,7 +88,7 @@ class Controller extends BaseController
                 } else {
                     $data['subject'] = $this->emailContent($data)['subject'];
                     $data['content'] = $this->emailContent($data)['content'];
-                    $email = $data['email'] ?? $transaction->email ?? null;
+                    $email = $data['email'] ?? $transaction?->email;
 
                     Mail::to($email)->send(new Welcomemail($data, $pdf));
                 }
@@ -100,8 +100,8 @@ class Controller extends BaseController
 
             // dd('done');
         } else {
-            if (!empty($transaction->invoice_id)) {
-                $pdf = !empty($transaction->invoice_id)
+            if (!empty($transaction?->invoice_id)) {
+                $pdf = !empty($transaction?->invoice_id)
                     ? PDF::loadView('emails.printreceipt', compact('transaction'))
                     : null;
                 if (env('ENT') == 'local') {
