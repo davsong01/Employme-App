@@ -27,14 +27,23 @@
 </section>
 
 <script>
+    const syncMenuParentCheckbox = (menuCard) => {
+        const children = menuCard.find('.child-checkbox');
+
+        if (children.length > 0) {
+            menuCard.find('.parent-checkbox').prop('checked', children.filter(':checked').length > 0);
+        }
+    };
+
+    $('.teacher-menu-permissions-grid .card').each(function () {
+        syncMenuParentCheckbox($(this));
+    });
+
     $(document).on('change', '.parent-checkbox', function () {
         $(this).closest('.card').find('.child-checkbox').prop('checked', $(this).prop('checked'));
     });
 
     $(document).on('change', '.child-checkbox', function () {
-        const menuCard = $(this).closest('.card');
-        const children = menuCard.find('.child-checkbox');
-
-        menuCard.find('.parent-checkbox').prop('checked', children.length > 0 && children.filter(':checked').length === children.length);
+        syncMenuParentCheckbox($(this).closest('.card'));
     });
 </script>
