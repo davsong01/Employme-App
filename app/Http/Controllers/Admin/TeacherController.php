@@ -133,7 +133,7 @@ class TeacherController extends Controller
         if (isset($request->password) && !empty($request->password)) {
             $password = $data['password'];
         } else {
-            $password = 12345;
+            $password = '0987654321';
         }
 
         if ($request->has('file')) {
