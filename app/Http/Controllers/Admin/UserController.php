@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Coupon;
 use App\Models\Certificate;
+use App\Models\Mocks;
 use App\Models\Result;
 use App\Models\Program;
 use App\Models\Location;
@@ -783,32 +784,54 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findorFail($id);
-        $programs = Program::where('id', '<>', 1)->get();
+        $associated = null;
+        $currentTransaction = null;
+        $allowedProgramIds = null;
 
-        if(checkRoleHas(['Admin'])) {
+        if (checkRoleHas(['Admin'])) {
             $programs = Program::where('id', '<>', 1)->orderBy('created_at', 'DESC')->get();
-            $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray() ?? null;
+            $associated = Transaction::whereUserId($user->id)->pluck('program_id')->toArray();
             $currentTransaction = TempTransaction::where('user_id', $user->id)
                 ->where('status', 'complete')
                 ->orderByDesc('created_at')
                 ->first();
-
-            return view('dashboard.admin.users.edit', compact('programs', 'user', 'associated', 'currentTransaction'));
-        }
-
-        if (checkRoleHas(['Facilitator', 'Grader'])) {
-            $programs = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->pluck('program_id');
-            
-            $count = Transaction::whereUserId($user->id)->whereIn('program_id', $programs)->count();
-
-            if ($count < 1) {
-                return back();
+        } elseif (checkRoleHas(['Facilitator', 'Grader'])) {
+            $allowedProgramIds = FacilitatorTraining::whereUserId(resolveAuthUser()->id)->pluck('program_id')->all();
+            $programs = collect();
+            if (! Transaction::whereUserId($user->id)->whereIn('program_id', $allowedProgramIds)->exists()) {
+                abort(403);
             }
-
-            return view('dashboard.admin.users.edit', compact('programs', 'user'));
+        } else {
+            abort(403);
         }
 
-        return back();
+        $participantPrograms = Transaction::with('program:id,p_name')
+            ->whereUserId($user->id)
+            ->when($allowedProgramIds !== null, fn ($query) => $query->whereIn('program_id', $allowedProgramIds))
+            ->latest()
+            ->get();
+        $programIds = $participantPrograms->pluck('program_id')->unique()->all();
+        $certificates = Certificate::with('program:id,p_name')
+            ->where('user_id', $user->id)
+            ->whereIn('program_id', $programIds)
+            ->latest()
+            ->get();
+        $certificateCounts = $certificates->countBy('program_id');
+        $pretestCounts = Mocks::where('user_id', $user->id)
+            ->whereIn('program_id', $programIds)
+            ->selectRaw('program_id, COUNT(*) as total')
+            ->groupBy('program_id')
+            ->pluck('total', 'program_id');
+        $posttestCounts = Result::where('user_id', $user->id)
+            ->whereIn('program_id', $programIds)
+            ->selectRaw('program_id, COUNT(*) as total')
+            ->groupBy('program_id')
+            ->pluck('total', 'program_id');
+
+        return view('dashboard.admin.users.edit', compact(
+            'programs', 'user', 'associated', 'currentTransaction', 'participantPrograms',
+            'certificates', 'certificateCounts', 'pretestCounts', 'posttestCounts'
+        ));
     }
 
     public function update(Request $request, $id)
