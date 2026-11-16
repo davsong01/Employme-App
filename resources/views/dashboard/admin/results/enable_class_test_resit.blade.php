@@ -16,7 +16,7 @@
             <input type="hidden" name="rid" value="{{ $user->result_id }}">
             <input type="hidden" name="pid" value="{{ $user->program_id }}">
             <input type="hidden" name="override_resit" value="yes">
-            <button type="submit" class="btn btn-danger btn-sm w-50 mb-1">
+            <button type="submit" class="btn btn-danger btn-sm resit-action-button mb-1">
                 <i class="fa fa-redo"></i> Enable Resit
             </button>
         </form>
@@ -38,7 +38,7 @@
                 <input type="hidden" name="rid" value="{{ $user->result_id }}">
                 <input type="hidden" name="pid" value="{{ $user->program_id }}">
                 <input type="hidden" name="override_resit" value="yes">
-                <button type="submit" class="btn btn-dark btn-sm w-50 mb-1">
+                <button type="submit" class="btn btn-dark btn-sm resit-action-button mb-1">
                     <i class="fa fa-redo"></i> Re-Enable Resit
                 </button>
             </form>

@@ -10,7 +10,7 @@
     <input type="hidden" name="pid" value="{{ $user->program_id }}">
     <input type="hidden" name="override_resit" value="yes">
 
-    <button type="submit" class="btn {{ $btnClass }} btn-sm w-50">
+    <button type="submit" class="btn {{ $btnClass }} btn-sm resit-action-button">
         <i class="fa fa-redo"></i> {{ $label }}
     </button>
 </form>

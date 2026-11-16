@@ -224,6 +224,7 @@ if (!function_exists("buildResultExport")) {
     function buildResultExport($users, $data, $score_settings)
     {
         $processedUsers = $users->map(function ($user) use ($data, $score_settings) {
+            $rowScoreSettings = $user->row_score_settings ?? $score_settings;
             $userArray = $user->toArray();
             $filteredUser = array_intersect_key($userArray, array_flip($data ?? []));
 
@@ -235,27 +236,27 @@ if (!function_exists("buildResultExport")) {
             $result = $user->training_result;
 
             // Always define all test columns with default values
-            $filteredUser['Certification Score'] = $score_settings->certification > 0
+            $filteredUser['Certification Score'] = $rowScoreSettings->certification > 0
                 ? ($result->certification_test_score ?? 0)
                 : 0;
 
-            $filteredUser['Class Test Score'] = $score_settings->class_test > 0
+            $filteredUser['Class Test Score'] = $rowScoreSettings->class_test > 0
                 ? ($result->class_test_score ?? 0)
                 : 0;
 
-            $filteredUser['Role Play Score'] = $score_settings->role_play > 0
+            $filteredUser['Role Play Score'] = $rowScoreSettings->role_play > 0
                 ? ($result->roleplay_test_score ?? 0)
                 : 0;
 
-            $filteredUser['Email Test Score'] = $score_settings->email > 0
+            $filteredUser['Email Test Score'] = $rowScoreSettings->email > 0
                 ? ($result->email_test_score ?? 0)
                 : 0;
 
-            $filteredUser['CRM Test Score'] = $score_settings->crm_test > 0
+            $filteredUser['CRM Test Score'] = $rowScoreSettings->crm_test > 0
                 ? ($result->crm_test_score ?? 0)
                 : 0;
 
-            $filteredUser['Passmark'] = $score_settings->passmark ?? '';
+            $filteredUser['Passmark'] = $rowScoreSettings->passmark ?? '';
 
             // Total Score calculation
             $filteredUser['Total Score'] = (

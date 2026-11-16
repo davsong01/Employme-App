@@ -32,27 +32,135 @@ class MockController extends Controller
     }
 
     
-    public function pretest()
+    public function pretest(Request $request)
     {
-        $i = 1;
-        if (checkRoleHas(['Admin'])) {
-            $trainings = Program::whereHas('mocks', function ($query) {
-                return $query->orderby('created_at', 'DESC');
-            })->orderby('created_at', 'DESC')->get();
-
-            return view('dashboard.admin.mocks.selecttraining', compact('trainings', 'i'));
-        }elseif (checkRoleHas(['Admin', 'Facilitator'])) {
-            $user_trainings = resolveAuthUser()->trainings()->pluck('program_id')->toArray();
-            $trainings = Program::whereIn('id', $user_trainings)->whereHas('mocks', function ($query) {
-                return $query->orderby('created_at', 'DESC');
-            })->orderby('created_at', 'DESC')->get();
-            
-
-            return view('dashboard.admin.mocks.selecttraining', compact('trainings', 'i'));
-
-        }else{
+        if (! checkRoleHas(['Admin', 'Facilitator'])) {
             return back();
         }
+
+        $allowedProgramIds = checkRoleHas(['Admin'])
+            ? Program::query()->pluck('id')->all()
+            : resolveAuthUser()->trainings()->pluck('program_id')->all();
+
+        $programs = Program::query()
+            ->whereIn('id', $allowedProgramIds)
+            ->whereHas('mocks')
+            ->orderByDesc('created_at')
+            ->get(['id', 'p_name']);
+        $visibleProgramIds = $programs->pluck('id')->all();
+        $programRecordCounts = Transaction::query()
+            ->whereIn('program_id', $visibleProgramIds)
+            ->whereHas('user')
+            ->selectRaw('program_id, COUNT(*) as record_count')
+            ->groupBy('program_id')
+            ->pluck('record_count', 'program_id');
+        $programs->each(fn ($training) => $training->record_count = $programRecordCounts[$training->id] ?? 0);
+
+        $usersQuery = \App\Models\Transaction::query()
+            ->with([
+                'user',
+                'program.scoresettings',
+                'mocks' => fn ($query) => $query->whereIn('program_id', $visibleProgramIds)->latest(),
+                'mocks.module',
+            ])
+            ->whereIn('program_id', $visibleProgramIds)
+            ->whereHas('user')
+            ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->integer('program_id')))
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search')->value();
+                $query->whereHas('user', fn ($userQuery) => $userQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('staffID', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%"));
+            })
+            ->when($request->filled('name'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', '%' . $request->input('name') . '%')))
+            ->when($request->filled('email'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('email', $request->input('email'))))
+            ->when($request->filled('phone'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('phone', $request->input('phone'))))
+            ->when($request->filled('staffID'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('staffID', $request->input('staffID'))))
+            ->when($request->input('status') === 'yes', fn ($query) => $query->whereHas('mocks', fn ($mockQuery) => $mockQuery->whereColumn('mocks.program_id', 'program_user.program_id')))
+            ->when($request->input('status') === 'no', fn ($query) => $query->whereDoesntHave('mocks', fn ($mockQuery) => $mockQuery->whereColumn('mocks.program_id', 'program_user.program_id')))
+            ->orderByDesc(Program::query()->select('created_at')->whereColumn('programs.id', 'program_user.program_id'))
+            ->orderByDesc('program_user.created_at');
+
+        $isExport = $request->filled('columns');
+        $users = $isExport ? $usersQuery->get() : $usersQuery->paginate(adminPaginationRecords())->withQueryString();
+
+        $permissionKeys = ['view-certification-score', 'view-roleplay-score', 'view-email-score', 'view-crm-score', 'view-class-score', 'result.export', 'stopredotest', 'results.destroy', 'results.add', 'view-total-score', 'mocks.add', 'mocks.destroy'];
+        $permissions = array_fill_keys($permissionKeys, false);
+        foreach ($programs as $training) {
+            $trainingPermissions = checkTrainingHasPermissions($training->id, $permissionKeys);
+            foreach ($permissionKeys as $key) {
+                $permissions[$key] = $permissions[$key] || !empty($trainingPermissions[$key]);
+            }
+        }
+
+        $userCollection = $users instanceof \Illuminate\Pagination\AbstractPaginator ? $users->getCollection() : $users;
+        $userCollection->each(function ($record) use ($permissionKeys) {
+            $programId = $record->program_id;
+            $settings = $record->program?->scoresettings ?? new ScoreSetting();
+            $record->total_cert_score = 0;
+            $record->total_class_test_score = 0;
+            $record->total_email_test_score = 0;
+            $record->total_role_play_score = 0;
+            $record->total_crm_test_score = 0;
+            $record->program_ct_score_settings = $settings->class_test ?? 0;
+            $record->passmark = $settings->passmark ?? 0;
+            $record->created_at = null;
+            $record->class_test_module_count = Module::where('program_id', $programId)->where('status', 1)->where('type', 'Class Test')->count();
+            $record->marked_by = '';
+            $record->grader = '';
+            $record->result_id = 0;
+            $record->final_ct_score = 0;
+            $record->obtainable = 0;
+            $record->name = $record->user->name;
+            $record->email = $record->user->email;
+            $record->staffID = $record->user->staffID;
+            $record->phone = $record->user->phone;
+            $record->metadata = $record->user->metadata;
+            $record->gender = $record->user->gender;
+
+            $programMocks = $record->mocks->where('program_id', $programId);
+            foreach ($programMocks as $attempt) {
+                $record->total_role_play_score += $attempt->role_play_score;
+                $record->total_email_test_score += $attempt->email_test_score;
+                $record->created_at = $attempt->created_at;
+                if ($attempt->module?->type === 'Class Test') {
+                    $this->calculateClassTestScore($attempt, $record, $programId);
+                }
+                if ($attempt->module?->type === 'Certification Test') {
+                    $record->total_cert_score += $attempt->certification_test_score;
+                    $record->result_id = $attempt->id;
+                    $record->certification_test_details = 1;
+                    $record->marked_by = $attempt->marked_by;
+                    $record->grader = $attempt->grader;
+                }
+                $record->final_ct_score = $this->calculateFinalCtScore($record);
+            }
+
+            $record->row_permissions = checkTrainingHasPermissions($programId, $permissionKeys);
+            $record->row_score_settings = $settings;
+            $record->setRelation('mocks', $programMocks->values());
+        });
+
+        $program = $programs->firstWhere('id', $request->integer('program_id')) ?? $programs->first();
+        $program ??= new Program(['id' => null, 'p_name' => 'All Programs']);
+        $score_settings = $program->scoresettings;
+        if ($isExport) {
+            $data = in_array('all', $request->columns, true)
+                ? ['staffID', 'name', 'email', 'phone', 'gender', 'metadata']
+                : $request->columns;
+            return (new FastExcel(buildResultExport($users, $data, $score_settings ?? new ScoreSetting())))
+                ->download('Pretest Report for selected filters.xlsx');
+        }
+
+        $records = $users->total();
+        $i = $users->firstItem() ?? 1;
+        $page = 'mocks';
+        $title = '<b>Pre Test Results</b>';
+        $isGlobalResultIndex = true;
+
+        return view('dashboard.admin.mocks.index', compact('users', 'i', 'program', 'programs', 'records', 'score_settings', 'page', 'title', 'permissions', 'isGlobalResultIndex'));
     }
 
     public function index(Request $request)
@@ -152,6 +260,12 @@ class MockController extends Controller
 
     public function getgrades(Request $request, $id, $internal=false)
     {
+        // The route ID is retained for old bookmarks; without an explicit program
+        // filter the results index is global across the user's visible programs.
+        if (! $request->filled('p_id') || $request->filled('program_id')) {
+            return $this->pretest($request);
+        }
+
         $request->pid = $id;
         
         $users = Transaction::where('program_id', $request->pid)

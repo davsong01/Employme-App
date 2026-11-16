@@ -14,7 +14,7 @@
         'mocks.destroy'
     ];
 
-    $permissions = checkTrainingHasPermissions($program->id, $check);
+    $permissions = $permissions ?? checkTrainingHasPermissions($program->id, $check);
     
     $menuCheck = [
         'impersonate',
@@ -116,6 +116,25 @@
         line-height: 1.35;
     }
 
+    .resit-action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .35rem;
+        width: max-content;
+        max-width: 100%;
+        min-height: 38px;
+        padding: .4rem .75rem;
+        line-height: 1.25;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .results-page .certification-score .resit-action-button,
+    .results-page .class-test-score .resit-action-button {
+        white-space: normal;
+    }
+
     .results-page {
         overflow-x: hidden;
     }
@@ -171,6 +190,102 @@
 
         .results-page .results-table-shell {
             border-radius: 14px;
+            overflow: visible;
+        }
+
+        .results-page .results-table-shell table {
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+
+        .results-page .crm-mobile-stack,
+        .results-page .crm-mobile-stack tbody {
+            display: block;
+            width: 100%;
+        }
+
+        .results-page .crm-mobile-stack tr {
+            position: relative;
+            margin: 0 0 .85rem;
+            padding: .85rem .95rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+        }
+
+        .results-page .crm-mobile-stack td {
+            display: flex;
+            width: 100%;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .65rem;
+            padding: .65rem 0;
+            text-align: right;
+            font-size: .9rem;
+            border-bottom: 1px solid #edf1f5;
+        }
+
+        .results-page .crm-mobile-stack td::before {
+            flex: 0 0 31%;
+            color: #64748b;
+            font-size: .66rem;
+            letter-spacing: .04em;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="#"] {
+            display: none;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="Details"],
+        .results-page .crm-mobile-stack td[data-label="Test Details"] {
+            display: block;
+            text-align: left;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="Details"]::before,
+        .results-page .crm-mobile-stack td[data-label="Test Details"]::before {
+            display: block;
+            margin-bottom: .45rem;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="Details"] {
+            padding-top: .15rem;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="Details"] > a:first-child {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .results-page .crm-mobile-stack td[data-label="Admin Details"],
+        .results-page .crm-mobile-stack td[data-label="Passmark"] {
+            display: none;
+        }
+
+        .results-page .crm-mobile-stack td:last-child {
+            border-bottom: 0;
+        }
+
+        .results-page .class-test-score,
+        .results-page .certification-score,
+        .results-page .roleplay-score,
+        .results-page .crm-test-score,
+        .results-page .email-test-score {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin: .35rem 0;
+            padding: .7rem;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .results-page .crm-mobile-stack .alert {
+            width: 100%;
+            margin-top: .5rem;
+            text-align: left;
         }
 
         .results-page .button-container {
@@ -206,12 +321,6 @@
             margin-top: .25rem;
         }
 
-        .results-page .crm-mobile-stack th:nth-child(4),
-        .results-page .crm-mobile-stack td:nth-child(4),
-        .results-page .crm-mobile-stack th:nth-child(5),
-        .results-page .crm-mobile-stack td:nth-child(5) {
-            display: none;
-        }
     }
 
     .answer-box {
@@ -230,6 +339,16 @@
         width: 100%;
     }
 
+    .results-page .results-table-shell .crm-mobile-stack th:first-child,
+    .results-page .results-table-shell .crm-mobile-stack td:first-child {
+        width: 48px;
+        max-width: 48px;
+        padding-left: .4rem;
+        padding-right: .4rem;
+        text-align: center;
+        white-space: nowrap;
+    }
+
     td {
         overflow-wrap: break-word;
         word-break: break-word;
@@ -241,10 +360,15 @@
 <div class="container-fluid results-page">
     @php
         $currentStatus = request('status');
-        $resultRoute = route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]);
+        $globalIndex = $isGlobalResultIndex ?? false;
+        $filterParams = request()->except(['status', 'passed_test', 'page', 'p_id']);
+        $resultRoute = $globalIndex
+            ? route('posttest.results', $filterParams)
+            : route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id]);
+        $formRoute = $globalIndex ? route('posttest.results') : $resultRoute;
         $exportLabel = $page == 'results' ? 'Post' : 'Pre';
-        $activeTab = is_null($currentStatus) ? 'all' : $currentStatus;
         $passedTest = request('passed_test');
+        $activeTab = is_null($currentStatus) && is_null($passedTest) ? 'all' : $currentStatus;
     @endphp
     <div class="row g-4 mb-4">
         <div class="col-12">
@@ -264,10 +388,10 @@
 
                     <div class="d-flex flex-wrap gap-2 mt-4 results-toolbar">
                         <a href="{{ $resultRoute }}" class="btn btn-outline-dark {{ $activeTab === 'all' ? 'active' : '' }}">All</a>
-                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
-                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id,'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
-                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'yes']) }}" class="btn btn-outline-info {{ $passedTest === 'yes' ? 'active' : '' }}">Passed</a>
-                        <a href="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'no']) }}" class="btn btn-outline-danger {{ $passedTest === 'yes' ? 'active' : '' }}">Failed</a>
+                        <a href="{{ route($globalIndex ? 'posttest.results' : ($page == 'results' ? 'results.getgrades' : 'mocks.getgrades'), $globalIndex ? array_merge($filterParams, ['status' => 'yes']) : ['id' => $program->id, 'p_id' => $program->id, 'status' => 'yes']) }}" class="btn btn-outline-success {{ $currentStatus === 'yes' ? 'active' : '' }}">Has Tests</a>
+                        <a href="{{ route($globalIndex ? 'posttest.results' : ($page == 'results' ? 'results.getgrades' : 'mocks.getgrades'), $globalIndex ? array_merge($filterParams, ['status' => 'no']) : ['id' => $program->id, 'p_id' => $program->id, 'status' => 'no']) }}" class="btn btn-outline-danger {{ $currentStatus === 'no' ? 'active' : '' }}">Pending Tests</a>
+                        <a href="{{ route($globalIndex ? 'posttest.results' : ($page == 'results' ? 'results.getgrades' : 'mocks.getgrades'), $globalIndex ? array_merge($filterParams, ['passed_test' => 'yes']) : ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'yes']) }}" class="btn btn-outline-info {{ $passedTest === 'yes' ? 'active' : '' }}">Passed</a>
+                        <a href="{{ route($globalIndex ? 'posttest.results' : ($page == 'results' ? 'results.getgrades' : 'mocks.getgrades'), $globalIndex ? array_merge($filterParams, ['passed_test' => 'no']) : ['id' => $program->id, 'p_id' => $program->id, 'passed_test' => 'no']) }}" class="btn btn-outline-danger {{ $passedTest === 'no' ? 'active' : '' }}">Failed</a>
 
                         <a class="btn btn-primary" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exportmodal">
                             <i class="fa fa-download me-1"></i> Export {{ $exportLabel }} Test Results
@@ -281,9 +405,21 @@
 
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ $resultRoute }}">
+            <form method="GET" action="{{ $formRoute }}">
                 <input type="hidden" name="status" value="{{ request('status') }}">
+                <input type="hidden" name="passed_test" value="{{ request('passed_test') }}">
                 <div class="row g-3">
+                    @if($globalIndex)
+                        <div class="col-12 col-md-6 col-lg-3">
+                            <label class="form-label small text-uppercase fw-semibold text-muted" for="program_id">Program</label>
+                            <select class="form-control select2" name="program_id" id="program_id" data-placeholder="All programs">
+                                <option value="">All programs</option>
+                                @foreach($programs as $training)
+                                    <option value="{{ $training->id }}" @selected((string) request('program_id') === (string) $training->id)>{{ $training->p_name }} ({{ number_format($training->record_count) }} records)</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     <div class="col-12 col-md-6 col-lg-3">
                         <label class="form-label small text-uppercase fw-semibold text-muted" for="staffID">Staff ID</label>
                         <input type="text" class="form-control" name="staffID" id="staffID" placeholder="Enter Staff ID" value="{{ request('staffID') }}">
@@ -339,6 +475,11 @@
                     </thead>
                     <tbody>
                         @foreach($users as $user)
+                            @php
+                                $program = $user->program ?? $program;
+                                $score_settings = $user->row_score_settings ?? $program->scoresettings;
+                                $permissions = $user->row_permissions ?? $permissions;
+                            @endphp
                         
                             <tr id="result-row-{{ $user->id }}">
                                 <td data-label="#">
@@ -352,6 +493,9 @@
                                         </a>
                                     @else
                                         {{ $user->user->name }}
+                                    @endif
+                                    @if($globalIndex && $program)
+                                        <br><small class="text-muted"><strong>Program:</strong> {{ $program->p_name }}</small>
                                     @endif
 
                                     @if(canUserAccessPermission(['users.edit'])['users.edit'])  
@@ -458,11 +602,6 @@
                                             </a>
                                         @endif
 
-                                        <span id="formSuccessSpan-{{ $user->id }}" style="display:none">
-                                            <div class="alert alert-success" role="alert">
-                                                <strong><span class="formSuccess"></span></strong> 
-                                            </div>
-                                        </span>
                                     </div>
                                 </td>
                                 @php
@@ -548,6 +687,11 @@
                                                 </div>
                                             @endif
                                         @endif
+                                        <span id="formSuccessSpan-{{ $user->id }}" class="d-block mt-2" style="display:none">
+                                            <div class="alert alert-success mb-0" role="alert">
+                                                <strong><span class="formSuccess"></span></strong>
+                                            </div>
+                                        </span>
                                     </td>
                                 @endif
 
@@ -786,7 +930,16 @@
                 </div>
                 <div class="modal-body">
                     
-                    <form action="{{route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', ['id'=>$program->id, 'id'=>$program->id])}}" method="POST" class="pb-2">
+                    <form action="{{ route($page == 'results' ? 'results.getgrades' : 'mocks.getgrades', $globalIndex ? ['id' => $program->id] : ['id' => $program->id, 'p_id' => $program->id]) }}" method="POST" class="pb-2">
+                        @if($globalIndex)
+                            <input type="hidden" name="program_id" value="{{ request('program_id') }}">
+                            <input type="hidden" name="status" value="{{ request('status') }}">
+                            <input type="hidden" name="passed_test" value="{{ request('passed_test') }}">
+                            <input type="hidden" name="name" value="{{ request('name') }}">
+                            <input type="hidden" name="email" value="{{ request('email') }}">
+                            <input type="hidden" name="phone" value="{{ request('phone') }}">
+                            <input type="hidden" name="staffID" value="{{ request('staffID') }}">
+                        @endif
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">

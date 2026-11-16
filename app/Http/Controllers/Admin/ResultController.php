@@ -25,7 +25,7 @@ class ResultController extends Controller
 {
     public function index() {}
 
-    public function posttest()
+    public function posttest(Request $request)
     {
         $user = resolveAuthUser();
 
@@ -34,37 +34,112 @@ class ResultController extends Controller
             return back();
         }
 
-        // Base query
-        $query = Program::orderBy('created_at', 'DESC');
+        $allowedProgramIds = checkRoleHas(['Admin'])
+            ? Program::query()->pluck('id')->all()
+            : $user->trainings()->pluck('program_id')->all();
 
-        // Admin sees all programs
-        if (checkRoleHas(['Admin'])) {
-            $trainings = $query->get();
-        }
-        // Facilitator or Grader sees only their trainings
-        else {
-            $userTrainings = $user->trainings->pluck('program_id')->toArray();
-            $trainings = $query->whereIn('id', $userTrainings)->get();
-        }
-
-        // Preload result counts efficiently
-        $resultCounts = Result::select('program_id', DB::raw('COUNT(DISTINCT user_id) as total'))
-            ->whereIn('program_id', $trainings->pluck('id'))
+        $programs = Program::query()
+            ->with('scoresettings')
+            ->whereIn('id', $allowedProgramIds)
+            ->whereHas('results')
+            ->orderByDesc('created_at')
+            ->get();
+        $visibleProgramIds = $programs->pluck('id')->all();
+        $programRecordCounts = Transaction::query()
+            ->whereIn('program_id', $visibleProgramIds)
+            ->whereHas('user')
+            ->selectRaw('program_id, COUNT(*) as record_count')
             ->groupBy('program_id')
-            ->pluck('total', 'program_id');
+            ->pluck('record_count', 'program_id');
+        $programs->each(fn ($training) => $training->record_count = $programRecordCounts[$training->id] ?? 0);
 
+        $usersQuery = Transaction::query()
+            ->with([
+                'user',
+                'program.scoresettings',
+                'results' => fn ($query) => $query->whereIn('program_id', $visibleProgramIds)->latest(),
+                'mocks' => fn ($query) => $query->whereIn('program_id', $visibleProgramIds)->latest(),
+            ])
+            ->whereIn('program_id', $visibleProgramIds)
+            ->whereHas('user')
+            ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->integer('program_id')))
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search')->value();
+                $query->whereHas('user', fn ($userQuery) => $userQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('staffID', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%"));
+            })
+            ->when($request->filled('name'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', '%' . $request->input('name') . '%')))
+            ->when($request->filled('email'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('email', $request->input('email'))))
+            ->when($request->filled('phone'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('phone', $request->input('phone'))))
+            ->when($request->filled('staffID'), fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('staffID', $request->input('staffID'))))
+            ->when($request->input('status') === 'yes', fn ($query) => $query->whereHas('results', fn ($resultQuery) => $resultQuery->whereColumn('results.program_id', 'program_user.program_id')))
+            ->when($request->input('status') === 'no', fn ($query) => $query->whereDoesntHave('results', fn ($resultQuery) => $resultQuery->whereColumn('results.program_id', 'program_user.program_id')))
+            ->when(in_array($request->input('passed_test'), ['yes', 'no'], true), function ($query) use ($request) {
+                $operator = $request->input('passed_test') === 'yes' ? '>=' : '<';
+                $query->whereExists(function ($scoreQuery) use ($operator) {
+                    $scoreQuery->selectRaw('1')
+                        ->from('score_settings')
+                        ->whereColumn('score_settings.program_id', 'program_user.program_id')
+                        ->whereRaw("CAST(JSON_UNQUOTE(JSON_EXTRACT(program_user.training_result, '$.total_score')) AS DECIMAL(10,2)) {$operator} score_settings.passmark");
+                });
+            })
+            ->orderByDesc(Program::query()->select('created_at')->whereColumn('programs.id', 'program_user.program_id'))
+            ->orderByDesc('program_user.created_at');
 
-        // Attach to each training (no extra queries)
-        foreach ($trainings as $training) {
-            $training->result_count = $resultCounts[$training->id] ?? 0;
+        if ($request->filled('columns')) {
+            $users = $usersQuery->get();
+            $users->each(function ($record) {
+                $record->row_score_settings = $record->program?->scoresettings ?? new ScoreSetting();
+                $record->setRelation('mocks', $record->mocks->where('program_id', $record->program_id)->values());
+            });
+            $data = in_array('all', $request->columns, true)
+                ? ['staffID', 'name', 'email', 'phone', 'gender', 'metadata']
+                : $request->columns;
+            return (new FastExcel(buildResultExport($users, $data, new ScoreSetting())))
+                ->download('Post-test Report for selected filters.xlsx');
         }
 
-        return view('dashboard.admin.results.selecttraining', compact('trainings'));
+        $users = $usersQuery->paginate(adminPaginationRecords())->withQueryString();
+
+        $permissionKeys = ['view-certification-score', 'view-roleplay-score', 'view-email-score', 'view-crm-score', 'view-class-score', 'result.export', 'stopredotest', 'results.destroy', 'results.add', 'view-total-score', 'mocks.add', 'mocks.destroy'];
+        $permissions = array_fill_keys($permissionKeys, false);
+        foreach ($programs as $training) {
+            $trainingPermissions = checkTrainingHasPermissions($training->id, $permissionKeys);
+            foreach ($permissionKeys as $key) {
+                $permissions[$key] = $permissions[$key] || !empty($trainingPermissions[$key]);
+            }
+        }
+
+        $users->getCollection()->each(function ($record) {
+            $record->row_permissions = checkTrainingHasPermissions($record->program_id, ['view-certification-score', 'view-roleplay-score', 'view-email-score', 'view-crm-score', 'view-class-score', 'result.export', 'stopredotest', 'results.destroy', 'results.add', 'view-total-score', 'mocks.add', 'mocks.destroy']);
+            $record->row_score_settings = $record->program?->scoresettings ?? new ScoreSetting();
+            $record->setRelation('results', $record->results->where('program_id', $record->program_id)->values());
+        });
+
+        $program = $programs->firstWhere('id', $request->integer('program_id')) ?? $programs->first();
+        $program ??= new Program(['id' => null, 'p_name' => 'All Programs']);
+        $score_settings = $program->scoresettings;
+        $records = $users->total();
+        $i = $users->firstItem() ?? 1;
+        $page = 'results';
+        $title = '<b>Post Test Results</b>';
+
+        $isGlobalResultIndex = true;
+        return view('dashboard.admin.results.index', compact('users', 'i', 'program', 'programs', 'records', 'score_settings', 'page', 'title', 'permissions', 'isGlobalResultIndex'));
     }
 
 
     public function getgrades(Request $request, $id, $internal = false)
     {
+        // Keep explicit legacy p_id links working. Requests without p_id now open
+        // the cross-program results index, even when the route contains an old ID.
+        if (! $request->filled('p_id') || $request->filled('program_id')) {
+            return $this->posttest($request);
+        }
+
         $request->p_id = $request->p_id ?? $id;
         $users = Transaction::where('program_id', $request->p_id)
             ->with(['user', 'results' => function ($query) use ($request) {

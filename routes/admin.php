@@ -103,6 +103,7 @@ Route::middleware(['admin.access'])->group(function () {
         Route::delete('blacklist/{blacklist}', [SettingsController::class, 'blacklistDestroy'])->name('blacklist.destroy');
         
         Route::get('pretestresults', [MockController::class, 'pretest'])->name('pretest.select')->middleware(['programCheck']);
+        Route::post('pretestresults', [MockController::class, 'pretest'])->name('pretest.export')->middleware(['programCheck']);
         Route::any('pretestresults/{id}', [MockController::class, 'getgrades'])->name('mocks.getgrades')->middleware(['programCheck']);
         Route::get('mockuser/{uid}/module/{modid}', [MockController::class, 'grade'])->middleware(['programCheck'])->name('mocks.add');
         
