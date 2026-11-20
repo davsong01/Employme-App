@@ -62,7 +62,7 @@ class MenuPermissions
                         return $next($request);
                     }
                     
-                    return redirect(route('home'))->with('danger', 'Unauthorized access to program.');
+                    return redirect(route('admin.home'))->with('danger', 'Unauthorized access to program.');
                 }
             }
             // Check for route-specific access
@@ -71,7 +71,7 @@ class MenuPermissions
                     
                     return $next($request);
                 }
-                return redirect(route('home'))->with('danger', 'Unauthorized access to menu.');
+                return redirect($isAdminRoute ? route('admin.home') : route('home'))->with('danger', 'Unauthorized access to menu.');
             }
         }
         

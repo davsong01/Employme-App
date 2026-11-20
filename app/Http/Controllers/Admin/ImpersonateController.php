@@ -17,9 +17,11 @@ class ImpersonateController extends Controller
             return redirect('/dashboard');
         }
 
-        $user = User::find($id);
-        Auth::login($user);
-        resolveAuthUser()->setImpersonating($user->id);
+        $user = User::findOrFail($id);
+        $originalAdmin = Auth::guard('admin')->user();
+        abort_unless($originalAdmin, 403);
+        Session::put('impersonation', ['type' => 'participant', 'original_admin_id' => $originalAdmin->id, 'target_id' => $user->id]);
+        Auth::guard('web')->login($user);
         
         return redirect(route('home'));
     }
@@ -30,38 +32,34 @@ class ImpersonateController extends Controller
             return redirect('/dashboard');
         }
         
-        Session::put('impersonate_o', Auth::guard('admin')->user()->id);
-
-        $user = Admin::find($id);
-        Auth::guard('admin')->login($user);
-        $user->setImpersonating($user->id);
+        $originalAdmin = Auth::guard('admin')->user();
+        abort_unless($originalAdmin, 403);
+        $user = Admin::findOrFail($id);
+        Session::put('impersonation', ['type' => 'staff', 'original_admin_id' => $originalAdmin->id, 'target_id' => $user->id]);
+        Auth::guard('admin')->onceUsingId($user->id);
         
         return redirect(route('admin.home'));
     }
 
     public function stopImpersonate()
     {
-        $user = resolveAuthUser();
-        
-        if(Auth::check()){
-            Auth::logout($user);
-            $user->stopImpersonating();
-        }else{
+        $state = Session::get('impersonation');
+        if (!is_array($state) || ($state['type'] ?? null) !== 'participant' || !Auth::guard('admin')->check()) {
             return redirect(route('login'));
         }
-
+        Auth::guard('web')->logout();
+        Session::forget(['impersonation', 'impersonate', 'impersonate_admin', 'impersonate_o']);
         return redirect(route('users.index'))->with('message', 'Welcome back!');   
 
     }
 
     public function stopImpersonateFacilitator()
     {
-        if (Auth::guard('admin')->check()) {
-            resolveAuthUser()->stopImpersonating();
-        }else{
+        $state = Session::get('impersonation');
+        if (!is_array($state) || ($state['type'] ?? null) !== 'staff' || !Auth::guard('admin')->check()) {
             return redirect(route('admin.login'));
         }
-        
+        Session::forget(['impersonation', 'impersonate', 'impersonate_admin', 'impersonate_o']);
         return redirect(route('teachers.index'))->with('message', 'Welcome back!');   
 
     }

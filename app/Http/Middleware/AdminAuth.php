@@ -10,9 +10,7 @@ class AdminAuth
     public function handle($request, Closure $next)
     {
         if (!Auth::guard('admin')->check()) {
-        dd('hhh', checkRoleHas(['Admin', 'Facilitator', 'Grader']), request()->route()->uri());
-            
-            return redirect('/admin/login');
+            return redirect()->route('admin.login');
         }
         
         if (!checkRoleHas(['Admin', 'Facilitator', 'Grader'])) {

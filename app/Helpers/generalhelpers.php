@@ -897,7 +897,10 @@ if (!function_exists("resolveAuthUser")) {
         $prefix = request()->prefix__ ?? request()->route()?->getPrefix();
         $isAdminRoute = request()->is('admin*') || str_starts_with((string) $prefix, '/admin') || $prefix === 'admin';
         
-        if ($isAdminRoute || in_array($currentRouteName, $routes)) {
+        $impersonation = session('impersonation');
+        if (is_array($impersonation) && ($impersonation['type'] ?? null) === 'staff') {
+            $user = Auth::guard('admin')->user();
+        } elseif ($isAdminRoute || in_array($currentRouteName, $routes)) {
             $user = Auth::guard('admin')->user();
         } else {
             $user = Auth::user();

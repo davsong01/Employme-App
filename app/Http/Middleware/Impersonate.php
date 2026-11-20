@@ -14,10 +14,9 @@ class Impersonate
      */
     public function handle($request, Closure $next)
     {
-        if (checkRoleHas(['Admin','Facilitator','Grader'])) {
-            if ($request->session()->has('impersonate')) {
-                Auth::onceUsingId($request->session()->get('impersonate'));
-            }
+        $state = $request->session()->get('impersonation');
+        if (is_array($state) && ($state['type'] ?? null) === 'participant' && !empty($state['target_id'])) {
+            Auth::guard('web')->onceUsingId($state['target_id']);
         }
         return $next($request);
     }

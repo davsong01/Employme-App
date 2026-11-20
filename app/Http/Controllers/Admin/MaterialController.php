@@ -49,6 +49,7 @@ class MaterialController extends Controller
                     });
                 })
                 ->when($request->filled('program_id'), fn ($query) => $query->where('program_id', $request->integer('program_id')))
+                ->when(in_array($request->input('type'), ['pdf', 'video'], true), fn ($query) => $query->where('type', $request->input('type')))
                 ->when($request->filled('date_from'), fn ($query) => $query->whereDate('created_at', '>=', $request->input('date_from')))
                 ->when($request->filled('date_to'), fn ($query) => $query->whereDate('created_at', '<=', $request->input('date_to')));
 
@@ -128,25 +129,40 @@ class MaterialController extends Controller
     {
         $data = $request->validate([
             'program_id' => ['required', 'integer', 'exists:programs,id'],
-            'file' => ['required', 'array', 'min:1'],
-            'file.*' => ['file'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.title' => ['required', 'string', 'max:255'],
+            'items.*.type' => ['required', 'in:pdf,video'],
+            'items.*.url' => ['nullable', 'required_if:items.*.type,video', 'url', 'max:2048'],
+            'items.*.file' => ['nullable', 'required_if:items.*.type,pdf', 'file', 'mimes:pdf'],
         ]);
 
         if (! checkRoleHas(['Admin']) && ! in_array((int) $data['program_id'], $this->allowedProgramIds(), true)) {
             abort(403);
         }
 
-        foreach ($request->file('file') as $file) {
-            $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $filename = Str::slug($fileName);
-            $preferredName = $data['program_id'] . '/' . $filename . '.' . $file->getClientOriginalExtension();
+        foreach ($data['items'] as $item) {
+            if ($item['type'] === 'video') {
+                Material::create([
+                    'title' => $item['title'],
+                    'program_id' => $data['program_id'],
+                    'file' => $item['url'],
+                    'type' => 'video',
+                    'uploaded_by' => resolveAuthUser()->id,
+                    'uploaded_at' => now(),
+                ]);
+                continue;
+            }
 
+            $file = $item['file'];
+            $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+            $preferredName = $data['program_id'] . '/' . $filename . '.' . $file->getClientOriginalExtension();
             $path = $this->storeFileInUploadsDiskAndEncodeInDb($file, 'materials', $preferredName);
 
             Material::create([
-                'title' => $file->getClientOriginalName(),
-                'program_id' =>  $data['program_id'],
+                'title' => $item['title'],
+                'program_id' => $data['program_id'],
                 'file' => $path,
+                'type' => 'pdf',
                 'uploaded_by' => resolveAuthUser()->id,
                 'uploaded_at' => now(),
             ]);
@@ -249,6 +265,7 @@ class MaterialController extends Controller
                     'title' => $material->title,
                     'program_id' => $data['program_id'],
                     'file' => $material->file,
+                    'type' => $material->type ?? 'pdf',
                     'uploaded_by' => resolveAuthUser()->id,
                     'uploaded_at' => now(),
                 ]);
@@ -279,6 +296,7 @@ class MaterialController extends Controller
             'title' => $material->title,
             'program_id' =>  $data['program_id'],
             'file' => $material->file,
+            'type' => $material->type ?? 'pdf',
             'uploaded_by' => resolveAuthUser()->id,
             'uploaded_at' => now(),
         ]);
@@ -286,10 +304,21 @@ class MaterialController extends Controller
         return redirect('materials')->with('message', 'Study material succesfully cloned');
     }
 
-    public function getfile($filename)
+    public function getfile($filename, Request $request)
     {
-        $filename = base64_decode($filename);
-        $realpath = base_path() . '/uploads/materials' . '/' . $filename;
+        $material = Material::where('file', $filename)->where('program_id', $request->route('p_id'))->firstOrFail();
+        if (! checkRoleHas(['Admin']) && ! in_array((int) $material->program_id, $this->allowedProgramIds(), true)) {
+            abort(403);
+        }
+        abort_if($material->type === 'video', 404);
+        $decoded = base64_decode($filename, true);
+        abort_if($decoded === false, 404);
+        $root = realpath(base_path('uploads/materials'));
+        $realpath = realpath(base_path('uploads/materials/' . $decoded));
+        abort_unless($root && $realpath && str_starts_with($realpath, $root . DIRECTORY_SEPARATOR) && is_file($realpath), 404);
+        if ($request->boolean('preview') && strtolower(pathinfo($realpath, PATHINFO_EXTENSION)) === 'pdf') {
+            return response()->file($realpath, ['Content-Type' => 'application/pdf']);
+        }
         return response()->download($realpath);
     }
 

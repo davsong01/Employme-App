@@ -12,8 +12,9 @@ class ImpersonateAdmin
      */
     public function handle($request, Closure $next)
     {
-        if (session()->has('impersonate_admin')) {
-            Auth::guard('admin')->onceUsingId(session()->get('impersonate_admin'));
+        $state = $request->session()->get('impersonation');
+        if (is_array($state) && ($state['type'] ?? null) === 'staff' && !empty($state['target_id'])) {
+            Auth::guard('admin')->onceUsingId($state['target_id']);
         }
         
         return $next($request);

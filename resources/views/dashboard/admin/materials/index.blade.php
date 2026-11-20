@@ -21,6 +21,7 @@
         box-shadow: 0 8px 30px rgba(15, 23, 42, .06);
     }
 
+
     .materials-dashboard-card .table thead th {
         background: #f8fafc;
         text-transform: uppercase;
@@ -62,6 +63,11 @@
     .material-chip.file {
         background: #ecfeff;
         color: #0e7490;
+    }
+
+    .material-chip.video {
+        background: #ede9fe;
+        color: #6d28d9;
     }
 
     .material-title {
@@ -185,6 +191,14 @@
                     </select>
                 </div>
                 <div class="col-md-3 col-lg-2">
+                    <label class="form-label small text-uppercase fw-semibold text-muted">Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All types</option>
+                        <option value="pdf" @selected(request('type') === 'pdf')>PDF / Document</option>
+                        <option value="video" @selected(request('type') === 'video')>Video</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-lg-2">
                     <label class="form-label small text-uppercase fw-semibold text-muted">Date From</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
                 </div>
@@ -200,10 +214,19 @@
         </div>
     </div>
 
+    <div class="modal fade" id="previewMaterial" tabindex="-1" aria-labelledby="preview-material-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="width: min(92vw, 1400px); max-width: none;">
+            <div class="modal-content" style="max-width: none; width: 100%;">
+                <div class="modal-header"><h5 class="modal-title" id="preview-material-title">Material preview</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body" id="material-preview-body"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+            </div>
+        </div>
+    </div>
     @if(checkRoleHas(['Admin','Facilitator']))
         <div class="modal fade" id="addMaterial" tabindex="-1" aria-labelledby="addMaterialLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
+            <div class="modal-dialog modal-dialog-centered" style="width: min(90vw, 1800px) !important; max-width: none !important;">
+                <div class="modal-content" style="width: 100%; max-width: none;">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addMaterialLabel">Add New Study Material</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -211,8 +234,8 @@
                     <form id="material-upload-form" action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12">
                                     <label class="form-label">Program</label>
                                     <select name="program_id" id="material-program-select" class="form-select select2" data-placeholder="Select a program" required>
                                         <option value=""></option>
@@ -223,11 +246,19 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Select files</label>
-                                    <input type="file" name="file[]" id="material-files-input" class="form-control" multiple required>
+                            </div>
+                            <div id="material-rows" class="d-flex flex-column gap-3">
+                                <div class="material-entry border rounded p-3">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-3"><label class="form-label">Title</label><input type="text" name="items[0][title]" class="form-control material-title-input" maxlength="255" required placeholder="Enter material title"></div>
+                                        <div class="col-md-2"><label class="form-label">Type</label><select name="items[0][type]" class="form-select material-type"><option value="pdf">PDF / Document</option><option value="video">Video link</option></select></div>
+                                        <div class="col-md-6 material-file-field"><label class="form-label">Select PDF</label><input type="file" name="items[0][file]" class="form-control material-file" accept=".pdf,application/pdf" required></div>
+                                        <div class="col-md-6 material-link-field d-none"><label class="form-label">Video link</label><input type="url" name="items[0][url]" class="form-control material-url" placeholder="https://www.youtube.com/watch?v=..." disabled></div>
+                                        <div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-material-row" aria-label="Remove row" disabled><i class="fa fa-trash"></i></button></div>
+                                    </div>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm mt-3" id="add-material-row"><i class="fa fa-plus me-1"></i>Add another item</button>
                             <div class="mt-4 d-none" id="upload-progress-wrap">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div class="small text-muted" id="upload-status-text">Preparing upload...</div>
@@ -395,8 +426,11 @@
                         @forelse($materials as $material)
                             @php
                                 $rowPermissions = checkTrainingHasPermissions($material->program_id, $permissionsToCheck);
-                                $decodedFile = base64_decode($material->file) ?: '';
-                                $fileExtension = strtoupper(pathinfo($decodedFile, PATHINFO_EXTENSION) ?: 'FILE');
+                                $decodedFile = $material->type === 'video' ? '' : (base64_decode($material->file) ?: '');
+                                $player = $material->video_player;
+                                $previewUrl = $material->type === 'video' ? ($player['url'] ?? '') : route('getmaterial', ['p_id' => $material->program_id, 'filename' => $material->file, 'preview' => 1]);
+                                $previewKind = $material->type === 'video' ? ($player['kind'] ?? 'unsupported') : 'pdf';
+                                $fileExtension = $material->type === 'video' ? 'VIDEO' : strtoupper(pathinfo($decodedFile, PATHINFO_EXTENSION) ?: 'FILE');
                             @endphp
                             <tr>
                                 <td data-label="">
@@ -406,8 +440,8 @@
                                 <td data-label="Title">
                                     <div class="d-flex flex-column gap-2 material-title">
                                         <div class="fw-semibold">{{ $material->title }}</div>
-                                        <span class="material-chip file">
-                                            <i class="fa fa-file"></i>
+                                        <span class="material-chip {{ $material->type === 'video' ? 'video' : 'file' }}">
+                                            <i class="fa {{ $material->type === 'video' ? 'fa-play-circle' : 'fa-file-pdf' }}"></i>
                                             {{ $fileExtension }}
                                         </span>
                                     </div>
@@ -427,9 +461,7 @@
                                 <td class="text-end" data-label="Actions">
                                     <div class="d-none d-md-inline-flex justify-content-end gap-1">
                                         @if(isset($material->program->id) && !empty($rowPermissions['getmaterial']))
-                                            <a data-bs-toggle="tooltip" data-placement="top" title="Download Material" class="btn btn-outline-primary btn-sm" href="{{ route('getmaterial', ['p_id' => $material->program->id, 'filename' => $material->file]) }}">
-                                                <i class="fa fa-download"></i>
-                                            </a>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#previewMaterial" data-preview-url="{{ $previewUrl }}" data-preview-kind="{{ $previewKind }}" data-preview-title="{{ $material->title }}"><i class="fa fa-eye me-1"></i>Preview</button>
                                         @endif
                                         @if(isset($material->program->id) && !empty($rowPermissions['material.clone']))
                                             <button
@@ -441,7 +473,7 @@
                                                 data-clone-title="{{ $material->title }}"
                                                 data-clone-program="{{ $material->program->p_name ?? 'Unknown program' }}"
                                             >
-                                                <i class="fa fa-clone"></i>
+                                                <i class="fa fa-clone me-1"></i>Clone
                                             </button>
                                         @endif
                                         @if(!empty($rowPermissions['materials.destroy']))
@@ -449,7 +481,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" data-placement="top" title="Delete material">
-                                                    <i class="fa fa-trash"></i>
+                                                    <i class="fa fa-trash me-1"></i>Delete
                                                 </button>
                                             </form>
                                         @endif
@@ -461,7 +493,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             @if(isset($material->program->id) && !empty($rowPermissions['getmaterial']))
-                                                <li><a class="dropdown-item" href="{{ route('getmaterial', ['p_id' => $material->program->id, 'filename' => $material->file]) }}"><i class="fa fa-download me-2"></i>Download Material</a></li>
+                                                <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#previewMaterial" data-preview-url="{{ $previewUrl }}" data-preview-kind="{{ $previewKind }}" data-preview-title="{{ $material->title }}"><i class="fa fa-eye me-2"></i>Preview</button></li>
                                             @endif
                                         @if(isset($material->program->id) && !empty($rowPermissions['material.clone']))
                                                 <li>
@@ -518,9 +550,37 @@
 @section('extra-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const previewModal = document.getElementById('previewMaterial');
+        const previewBody = document.getElementById('material-preview-body');
+        previewModal.addEventListener('show.bs.modal', function (event) {
+            const trigger = event.relatedTarget;
+            previewBody.replaceChildren();
+            document.getElementById('preview-material-title').textContent = trigger.dataset.previewTitle;
+            const kind = trigger.dataset.previewKind;
+            if (kind === 'unsupported') {
+                previewBody.textContent = 'This video link does not support an embedded preview. Use a YouTube, Vimeo, or direct video link.';
+                return;
+            }
+            const player = document.createElement(kind === 'video' ? 'video' : 'iframe');
+            player.src = trigger.dataset.previewUrl;
+            player.style.cssText = 'display:block;width:100%;height:65vh;border:0;background:#f8fafc;';
+            if (kind === 'video') {
+                player.controls = true;
+                player.preload = 'metadata';
+            } else {
+                player.title = trigger.dataset.previewTitle;
+                player.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+                player.allowFullscreen = true;
+            }
+            previewBody.appendChild(player);
+        });
+        previewModal.addEventListener('hidden.bs.modal', function () {
+            previewBody.replaceChildren();
+        });
         const programSelect = document.getElementById('material-program-select');
         const form = document.getElementById('material-upload-form');
-        const fileInput = document.getElementById('material-files-input');
+        const materialRows = document.getElementById('material-rows');
+        const addMaterialRow = document.getElementById('add-material-row');
         const progressWrap = document.getElementById('upload-progress-wrap');
         const progressBar = document.getElementById('upload-progress-bar');
         const progressPercent = document.getElementById('upload-progress-percent');
@@ -544,6 +604,51 @@
             const bulkCloneHiddenInputs = document.getElementById('bulk-clone-hidden-inputs');
             const bulkCloneProgramSelect = document.getElementById('bulk-clone-program-select');
             const rowChecks = Array.from(document.querySelectorAll('.material-row-check'));
+
+        function configureMaterialRow(row, index) {
+            const typeSelect = row.querySelector('.material-type');
+            const fileField = row.querySelector('.material-file-field');
+            const linkField = row.querySelector('.material-link-field');
+            const titleInput = row.querySelector('.material-title-input');
+            const fileInput = row.querySelector('.material-file');
+            const urlInput = row.querySelector('.material-url');
+            typeSelect.name = `items[${index}][type]`;
+            titleInput.name = `items[${index}][title]`;
+            fileInput.name = `items[${index}][file]`;
+            urlInput.name = `items[${index}][url]`;
+
+            function updateType() {
+                const video = typeSelect.value === 'video';
+                fileField.classList.toggle('d-none', video);
+                linkField.classList.toggle('d-none', !video);
+                fileInput.required = !video;
+                fileInput.disabled = video;
+                urlInput.required = video;
+                urlInput.disabled = !video;
+            }
+
+            typeSelect.onchange = updateType;
+            updateType();
+            row.querySelector('.remove-material-row').onclick = function () {
+                row.remove();
+                Array.from(materialRows.querySelectorAll('.material-entry')).forEach(configureMaterialRow);
+                materialRows.querySelectorAll('.remove-material-row').forEach(button => button.disabled = materialRows.children.length === 1);
+            };
+        }
+
+        if (materialRows && addMaterialRow) {
+            configureMaterialRow(materialRows.querySelector('.material-entry'), 0);
+            addMaterialRow.addEventListener('click', function () {
+                const row = materialRows.querySelector('.material-entry').cloneNode(true);
+                row.querySelector('.material-type').value = 'pdf';
+                row.querySelector('.material-title-input').value = '';
+                row.querySelector('.material-file').value = '';
+                row.querySelector('.material-url').value = '';
+                materialRows.appendChild(row);
+                configureMaterialRow(row, materialRows.children.length - 1);
+                materialRows.querySelectorAll('.remove-material-row').forEach(button => button.disabled = false);
+            });
+        }
 
         if (programSelect && window.jQuery && typeof window.jQuery.fn.select2 === 'function') {
             window.jQuery(programSelect).select2({
@@ -714,17 +819,12 @@
             });
         }
 
-        if (!form || !fileInput || !progressWrap || !progressBar || !progressPercent || !uploadStatus || !submitBtn) {
+        if (!form || !progressWrap || !progressBar || !progressPercent || !uploadStatus || !submitBtn) {
             return;
         }
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
-
-            if (!fileInput.files || !fileInput.files.length) {
-                form.submit();
-                return;
-            }
 
             const formData = new FormData(form);
             const xhr = new XMLHttpRequest();
@@ -748,7 +848,26 @@
             });
 
             xhr.onload = function () {
-                window.location.reload();
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    window.location.reload();
+                    return;
+                }
+
+                let message = 'Upload failed. Please check the selected program, title, file type, and video link.';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    const validationMessages = Object.values(response.errors || {}).flat();
+                    if (validationMessages.length) {
+                        message = validationMessages.join(' ');
+                    }
+                } catch (error) {
+                    // Keep the helpful fallback for non-JSON error pages.
+                }
+                uploadStatus.textContent = message;
+                progressBar.classList.add('bg-danger');
+                progressBar.style.width = '100%';
+                progressPercent.textContent = 'Error';
+                submitBtn.disabled = false;
             };
 
             xhr.onerror = function () {

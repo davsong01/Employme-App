@@ -101,6 +101,13 @@
     <div class="row">     
         <!-- Column -->
         @if(checkRoleHas(['Facilitator','Grader']))
+            @php
+                $staffMenuRoutes = allRoutes();
+                $staffAllowedMenus = (array) ($user->menu_permissions ?? []);
+                $staffCanAccess = fn ($route) => in_array($route, $staffMenuRoutes, true)
+                    && (in_array((int) $user->id, [1], true) || in_array($route, $staffAllowedMenus, true));
+            @endphp
+            @if($staffCanAccess('teachers.students'))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('teachers.students', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
@@ -111,6 +118,8 @@
                 </div>
                 </a>
             </div>
+            @endif
+            @if($staffCanAccess('programs.index'))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('programs.index', resolveAuthUser()->id) }}">
                 <div class="card card-hover">
@@ -121,6 +130,8 @@
                 </div>
                 </a>
             </div>
+            @endif
+            @if($staffCanAccess('materials.index'))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('materials.index') }}">
                 <div class="card card-hover">
@@ -131,6 +142,8 @@
                 </div>
                 </a>
             </div>
+            @endif
+            @if($staffCanAccess('complains.index'))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('complains.index') }}">
                 <div class="card card-hover">
@@ -141,6 +154,8 @@
                 </div>
                 </a>
             </div>
+            @endif
+            @if($staffCanAccess('modules.index'))
             <div class="col-md-3 col-lg-3">
                 <a href="{{ route('modules.index') }}">
                 <div class="card card-hover">
@@ -151,6 +166,27 @@
                 </div>
                 </a>
             </div>
+            @endif
+            @if($staffCanAccess('pretest.select'))
+            <div class="col-md-3 col-lg-3">
+                <a href="{{ route('pretest.select') }}">
+                    <div class="card card-hover"><div class="box bg-info text-center">
+                        <h1 class="font-light text-white"><i class="fa fa-clipboard-check"></i></h1>
+                        <h6 class="text-white">Pre Test Results</h6>
+                    </div></div>
+                </a>
+            </div>
+            @endif
+            @if($staffCanAccess('posttest.results'))
+            <div class="col-md-3 col-lg-3">
+                <a href="{{ route('posttest.results') }}">
+                    <div class="card card-hover"><div class="box bg-primary text-center">
+                        <h1 class="font-light text-white"><i class="fa fa-chart-bar"></i></h1>
+                        <h6 class="text-white">Post Test Results</h6>
+                    </div></div>
+                </a>
+            </div>
+            @endif
         @endif
         <!-- Column -->
         
