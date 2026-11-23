@@ -687,11 +687,11 @@
                                                 </div>
                                             @endif
                                         @endif
-                                        <span id="formSuccessSpan-{{ $user->id }}" class="d-block mt-2" style="display:none">
+                                        <div id="formSuccessSpan-{{ $user->id }}" class="mt-2" style="display:none">
                                             <div class="alert alert-success mb-0" role="alert">
                                                 <strong><span class="formSuccess"></span></strong>
                                             </div>
-                                        </span>
+                                        </div>
                                     </td>
                                 @endif
 
