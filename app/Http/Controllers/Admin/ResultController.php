@@ -555,19 +555,29 @@ class ResultController extends Controller
             $result = Transaction::with('program', 'program.scoresettings')->where('id', $id)->first();
             
             $realResult = Result::where('id', $request->real_result_id)->first();
+
+            $commentPermissions = checkTrainingHasPermissions($result->program_id, ['results.grader', 'results.facilitator']);
+            $graderComment = !empty($commentPermissions['results.grader'])
+                ? $request->input('grader_comment')
+                : ($realResult->grader_comment ?? $result->training_result->certification_grader_comment);
+            $facilitatorComment = !empty($commentPermissions['results.facilitator'])
+                ? $request->input('facilitator_comment')
+                : ($realResult->facilitator_comment ?? $result->training_result->certification_facilitator_comment);
             
             $request["email_test_score"] = $request->emailscore;
             $request["roleplay_test_score"] = $request->roleplayscore;
             $request["crm_test_score"] = $request->crm_score;
             $request["certification_test_score"] = $request->certification_score;
     
-            $request["certification_facilitator_comment"] = $request->facilitator_comment;
+            $request["facilitator_comment"] = $facilitatorComment;
+            $request["grader_comment"] = $graderComment;
+            $request["certification_facilitator_comment"] = $facilitatorComment;
             
             $request["certification_grader"] = ($request->certification_score <> $result->training_result->certification_test_score) ? resolveAuthUser()->name : $result->training_result->certification_grader;
     
             $request["certification_facilitator"] = ($request->roleplayscore <> $result->training_result->roleplay_test_score) ? resolveAuthUser()->name : $result->training_result->certification_facilitator;
     
-            $request["certification_grader_comment"] = $request->grader_comment;
+            $request["certification_grader_comment"] = $graderComment;
     
             $transaction = udateTrainingResult($result->program_id, $result->user_id, $request->all());
             
@@ -576,8 +586,8 @@ class ResultController extends Controller
                 "role_play_score" => $request->roleplayscore,
                 "certification_test_score" => $request->certification_score,
                 "crm_test_score" => $request->crm_score,
-                "grader_comment" => $request->grader_comment,
-                "facilitator_comment" => $request->facilitator_comment,
+                "grader_comment" => $graderComment,
+                "facilitator_comment" => $facilitatorComment,
                 "grader" => resolveAuthUser()->name,
                 "marked_by" => resolveAuthUser()->name,
             ]);

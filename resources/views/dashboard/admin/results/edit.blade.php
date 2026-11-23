@@ -170,7 +170,7 @@
                 @else
                   <input type="hidden" value="{{ $details['certification_score'] }}" name="certification_score">
                 @endif
-                @if($permissions['update-certification-score'] && $permissions['results.grader'])
+                @if($permissions['results.grader'])
                 <div class="mb-3">
                   <label>Grader Comment(Optional) </label>
                   <textarea name="grader_comment" class="form-control" id="" cols="30" rows="10"
@@ -178,7 +178,7 @@
 
                 </div>
                 @endif
-                @if($permissions['update-certification-score'] && $permissions['results.facilitator'])
+                @if($permissions['results.facilitator'])
                 <div class="mb-3">
                   <label>Facilitator Comment(Optional) </label>
                   <textarea name="facilitator_comment" class="form-control" id="" cols="30" rows="10"
